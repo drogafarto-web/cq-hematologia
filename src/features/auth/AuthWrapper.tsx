@@ -1,33 +1,54 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useAuthFlow } from './hooks/useAuthFlow';
+import { useIsSuperAdmin, useActiveLab } from '../../store/useAuthStore';
+import { useAppStore } from '../../store/useAppStore';
+import { LoginScreen }           from './LoginScreen';
+import { FirstLabSetupScreen }   from './FirstLabSetupScreen';
+import { LabSelectorScreen }     from './LabSelectorScreen';
+import { PendingLabAccessScreen } from './PendingLabAccessScreen';
+import { SuperAdminDashboard }   from '../admin/SuperAdminDashboard';
+import { AnalyzerView }          from '../analyzer/AnalyzerView';
 
-export const AuthWrapper: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(true);
+// ─── Full-screen loader ───────────────────────────────────────────────────────
 
-  useEffect(() => {
-    // Simula tempo de carregamento
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <p className="text-xl font-semibold text-gray-600">Carregando...</p>
-      </div>
-    );
-  }
-
+function FullScreenLoader() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="p-8 bg-white shadow-md rounded-lg text-center">
-        <h1 className="text-2xl font-bold mb-4">Tela de Login Básica</h1>
-        <p className="text-gray-600 mb-6">Autenticação em construção...</p>
-        <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-          Entrar (Fake)
-        </button>
-      </div>
+    <div className="min-h-screen bg-[#0c0c0c] flex items-center justify-center">
+      <svg className="animate-spin w-6 h-6 text-white/20" viewBox="0 0 24 24" fill="none" aria-label="Carregando">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
+        <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+      </svg>
     </div>
   );
+}
+
+// ─── Router for ready state ───────────────────────────────────────────────────
+
+function AppRouter() {
+  const isSuperAdmin = useIsSuperAdmin();
+  const activeLab    = useActiveLab();
+  const currentView  = useAppStore((s) => s.currentView);
+
+  // Super admin with no lab → always start in admin dashboard
+  if (isSuperAdmin && !activeLab) return <SuperAdminDashboard />;
+
+  // Explicit navigation to super admin panel (when user also has a lab)
+  if (currentView === 'superadmin' && isSuperAdmin) return <SuperAdminDashboard />;
+
+  return <AnalyzerView />;
+}
+
+// ─── AuthWrapper ──────────────────────────────────────────────────────────────
+
+export const AuthWrapper: React.FC = () => {
+  const { status } = useAuthFlow();
+
+  switch (status) {
+    case 'loading':         return <FullScreenLoader />;
+    case 'unauthenticated': return <LoginScreen />;
+    case 'first_setup':     return <FirstLabSetupScreen />;
+    case 'pending_access':  return <PendingLabAccessScreen />;
+    case 'select_lab':      return <LabSelectorScreen />;
+    case 'ready':           return <AppRouter />;
+  }
 };

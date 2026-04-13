@@ -83,6 +83,7 @@ export function AccessRequestsTab() {
   const [loading, setLoading]       = useState(true);
   const [actionId, setActionId]     = useState<string | null>(null);
   const [error, setError]           = useState<string | null>(null);
+  const [pendingRoles, setPendingRoles] = useState<Record<string, UserRole>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -100,10 +101,18 @@ export function AccessRequestsTab() {
 
   useEffect(() => { load(); }, [load]);
 
+  function getRoleForRequest(reqId: string): UserRole {
+    return pendingRoles[reqId] ?? 'member';
+  }
+
+  function setRoleForRequest(reqId: string, role: UserRole) {
+    setPendingRoles((prev) => ({ ...prev, [reqId]: role }));
+  }
+
   async function handleApprove(req: AccessRequest) {
     setActionId(req.id);
     try {
-      await approveAccessRequest(req.id, req.labId, req.uid);
+      await approveAccessRequest(req.id, req.labId, req.uid, getRoleForRequest(req.id));
       await load();
     } catch {
       setError('Erro ao aprovar. Tente novamente.');
@@ -202,6 +211,17 @@ export function AccessRequestsTab() {
               <div className="flex items-center gap-1.5 shrink-0">
                 {req.status === 'pending' && (
                   <>
+                    <select
+                      value={getRoleForRequest(req.id)}
+                      onChange={(e) => setRoleForRequest(req.id, e.target.value as UserRole)}
+                      disabled={actionId === req.id}
+                      title="Role ao aprovar"
+                      className="text-xs bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-white/60 focus:outline-none focus:border-white/20 disabled:opacity-40 transition-all"
+                    >
+                      <option value="member">Membro</option>
+                      <option value="admin">Admin</option>
+                      <option value="owner">Proprietário</option>
+                    </select>
                     <button
                       onClick={() => handleApprove(req)}
                       disabled={actionId === req.id}

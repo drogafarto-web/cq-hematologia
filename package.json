@@ -1,11 +1,11 @@
 {
   "name": "hc-quality",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "vite",
+    "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "keywords": [],
@@ -13,6 +13,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@google/genai": "^1.49.0",
     "@google/generative-ai": "^0.20.0",
     "firebase": "^10.14.1",
     "react": "^19.2.5",

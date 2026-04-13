@@ -1,5 +1,5 @@
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { signOut as firebaseSignOut } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
 import type { User } from 'firebase/auth';
 import { auth, db } from '../../../shared/services/firebase';
 import { COLLECTIONS, SUBCOLLECTIONS } from '../../../constants';
@@ -22,6 +22,13 @@ export interface UserDocument {
    * separate Firestore query (regular users cannot list accessRequests).
    */
   pendingLabId: string | null;
+}
+
+// ─── Sign in ──────────────────────────────────────────────────────────────────
+
+export async function signIn(email: string, password: string): Promise<User> {
+  const credential = await signInWithEmailAndPassword(auth, email, password);
+  return credential.user;
 }
 
 // ─── User document ────────────────────────────────────────────────────────────
