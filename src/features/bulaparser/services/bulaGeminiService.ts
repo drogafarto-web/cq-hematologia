@@ -137,8 +137,16 @@ function mapFunctionsError(err: unknown): Error {
       return new Error('Sessão expirada. Faça login novamente.');
     }
     if (code === 'functions/internal') {
-      const clean = message.replace(/^.*?:\s*/, '');
-      return new Error(clean || 'Erro interno na extração da bula. Tente novamente.');
+      // Strip any "FirebaseError: " or similar prefix injected by the SDK.
+      const clean = message.replace(/^[^:]+:\s*/, '').trim();
+      // If the SDK returned the raw code word ("internal") it means the server
+      // threw an unhandled exception — no useful detail reached the client.
+      const isGeneric = !clean || clean.toLowerCase() === 'internal';
+      return new Error(
+        isGeneric
+          ? 'Erro interno na extração da bula. Verifique os logs da função e tente novamente.'
+          : clean,
+      );
     }
     return new Error(message);
   }

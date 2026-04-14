@@ -116,6 +116,8 @@ export function NewRunForm({ onFile, isExtracting, error, disabled }: NewRunForm
           type="file"
           accept="image/*"
           capture="environment"
+          aria-label="Capturar imagem com câmera"
+          title="Capturar imagem com câmera"
           className="sr-only"
           onChange={(e) => handleFiles(e.target.files)}
         />
@@ -134,6 +136,8 @@ export function NewRunForm({ onFile, isExtracting, error, disabled }: NewRunForm
           ref={fileRef}
           type="file"
           accept="image/jpeg,image/png,image/webp"
+          aria-label="Selecionar arquivo de imagem"
+          title="Selecionar arquivo de imagem"
           className="sr-only"
           onChange={(e) => { handleFiles(e.target.files); e.target.value = ''; }}
         />

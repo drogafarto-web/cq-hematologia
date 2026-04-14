@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ANALYTE_MAP } from '../../constants';
 import type { Run, WestgardViolation } from '../../types';
+import { resolveImageState } from './hooks/useRunImageState';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -165,6 +166,8 @@ const VIOLATION_STYLES: Record<WestgardViolation, string> = {
   'R-4s': 'bg-red-500/15   text-red-400/80',
   '4-1s': 'bg-red-500/15   text-red-400/80',
   '10x':  'bg-red-500/15   text-red-400/80',
+  '6T':   'bg-red-500/15   text-red-400/80',
+  '6X':   'bg-red-500/15   text-red-400/80',
 };
 
 function ViolationChip({ v }: { v: WestgardViolation }) {
@@ -202,9 +205,7 @@ export function RunItem({ run, index, onDelete }: RunItemProps) {
     ...new Set(run.results.flatMap((r) => r.violations)),
   ] as WestgardViolation[];
 
-  // imageUrl is set asynchronously after upload; empty string means in-progress
-  const imageReady    = Boolean(run.imageUrl);
-  const imageUploading = !imageReady;
+  const imageState = resolveImageState(run);
 
   function handleDelete(e: React.MouseEvent) {
     e.stopPropagation();
@@ -214,7 +215,7 @@ export function RunItem({ run, index, onDelete }: RunItemProps) {
 
   function handleCameraClick(e: React.MouseEvent) {
     e.stopPropagation();
-    if (imageReady) setShowImage(true);
+    if (imageState === 'ready') setShowImage(true);
   }
 
   return (
@@ -260,16 +261,20 @@ export function RunItem({ run, index, onDelete }: RunItemProps) {
             <button
               type="button"
               onClick={handleCameraClick}
-              disabled={imageUploading}
+              disabled={imageState !== 'ready'}
               className={`
                 flex items-center justify-center w-7 h-7 rounded-lg transition-all
-                ${imageReady
+                ${imageState === 'ready'
                   ? 'text-violet-400/60 hover:text-violet-400 hover:bg-violet-500/10 cursor-pointer'
                   : 'text-white/15 cursor-default'}
               `}
-              title={imageReady ? 'Ver imagem original' : 'Enviando imagem…'}
+              title={
+                imageState === 'ready'     ? 'Ver imagem original' :
+                imageState === 'uploading' ? 'Enviando imagem…' :
+                                             'Entrada manual (sem imagem)'
+              }
             >
-              <CameraIcon uploading={imageUploading} />
+              <CameraIcon uploading={imageState === 'uploading'} />
             </button>
 
             {/* Delete button */}
@@ -336,14 +341,9 @@ export function RunItem({ run, index, onDelete }: RunItemProps) {
               </table>
             </div>
 
-            {/* Image row: spinner while uploading, button when ready */}
+            {/* Image row: three explicit states */}
             <div className="mt-3">
-              {imageUploading ? (
-                <span className="flex items-center gap-1.5 text-xs text-white/25">
-                  <CameraIcon uploading />
-                  Enviando imagem…
-                </span>
-              ) : (
+              {imageState === 'ready' && (
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); setShowImage(true); }}
@@ -353,13 +353,24 @@ export function RunItem({ run, index, onDelete }: RunItemProps) {
                   Ver imagem original
                 </button>
               )}
+              {imageState === 'uploading' && (
+                <span className="flex items-center gap-1.5 text-xs text-white/25">
+                  <CameraIcon uploading />
+                  Enviando imagem…
+                </span>
+              )}
+              {imageState === 'none' && (
+                <span className="text-[10px] text-white/25 bg-white/[0.04] px-2 py-0.5 rounded border border-white/[0.06]">
+                  Entrada manual
+                </span>
+              )}
             </div>
           </div>
         )}
       </div>
 
       {/* Image audit modal — portal-like, rendered outside the list item */}
-      {showImage && imageReady && (
+      {showImage && imageState === 'ready' && (
         <ImageAuditModal
           imageUrl={run.imageUrl}
           run={run}

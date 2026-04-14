@@ -1,5 +1,14 @@
 import React, { useState, useRef, useCallback, useId } from 'react';
 import { extractDataFromBulaPdf } from './services/bulaGeminiService';
+import { convertPdfToImage } from './utils/pdfConverter';
+import {
+  convertBulaPDFtoCSV,
+  downloadCsvFile,
+  buildCsvFilename,
+  MAX_BULA_PDF_SIZE_BYTES,
+  DEFAULT_EXPORT_FORM,
+  type BulaExportFormData,
+} from './services/bulaExportService';
 import { ANALYTE_MAP } from '../../constants';
 import { useAppStore } from '../../store/useAppStore';
 import type { BulaLevelData, PendingBulaData } from '../../types';
@@ -62,6 +71,15 @@ function CheckIcon() {
   );
 }
 
+function DownloadIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+      <path d="M7 2v7M4.5 6.5L7 9l2.5-2.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M2 10.5h10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 // ─── Drop zone ────────────────────────────────────────────────────────────────
 
 interface DropZoneProps {
@@ -116,7 +134,7 @@ function DropZone({ onFile, disabled }: DropZoneProps) {
           {dragging ? 'Solte o PDF aqui' : 'Arraste a bula PDF ou clique para selecionar'}
         </p>
         <p className="text-xs text-white/25 mt-1">
-          Apenas arquivos PDF. Máx. 20 páginas.
+          Apenas arquivos PDF · Máx. 10 MB
         </p>
       </div>
       <input
@@ -126,8 +144,8 @@ function DropZone({ onFile, disabled }: DropZoneProps) {
         accept="application/pdf"
         onChange={handleChange}
         disabled={disabled}
+        title="Selecionar arquivo PDF"
         className="sr-only"
-        aria-hidden
       />
     </div>
   );
@@ -237,13 +255,16 @@ function LevelTable({ lvl }: { lvl: BulaLevelData }) {
 // ─── Result panel ─────────────────────────────────────────────────────────────
 
 interface ResultPanelProps {
-  data:      PendingBulaData;
-  fileName:  string;
-  onReset:   () => void;
-  onConfirm: () => void;
+  data:         PendingBulaData;
+  fileName:     string;
+  formData:     BulaExportFormData;
+  onFormChange: (patch: Partial<BulaExportFormData>) => void;
+  onReset:      () => void;
+  onDownload:   () => void;
+  onConfirm:    () => void;
 }
 
-function ResultPanel({ data, fileName, onReset, onConfirm }: ResultPanelProps) {
+function ResultPanel({ data, fileName, formData, onFormChange, onReset, onDownload, onConfirm }: ResultPanelProps) {
   const [activeTab, setActiveTab] = useState<1 | 2 | 3>(
     (data.levels[0]?.level ?? 1) as 1 | 2 | 3,
   );
@@ -365,14 +386,63 @@ function ResultPanel({ data, fileName, onReset, onConfirm }: ResultPanelProps) {
       {/* Active level table */}
       {activeLevel && <LevelTable lvl={activeLevel} />}
 
+      {/* Export form */}
+      <div className="rounded-2xl bg-white/[0.03] border border-white/[0.07] divide-y divide-white/[0.05]">
+        <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <label htmlFor="bula-equipment" className="text-xs text-white/35 shrink-0">Equipamento</label>
+          <input
+            id="bula-equipment"
+            type="text"
+            value={formData.equipmentName}
+            onChange={(e) => onFormChange({ equipmentName: e.target.value })}
+            placeholder="Ex: Yumizen H550"
+            className="flex-1 min-w-0 bg-transparent text-sm text-white/80 text-right placeholder:text-white/20 outline-none"
+          />
+        </div>
+        <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <label htmlFor="bula-serial" className="text-xs text-white/35 shrink-0">Serial</label>
+          <input
+            id="bula-serial"
+            type="text"
+            value={formData.serialNumber}
+            onChange={(e) => onFormChange({ serialNumber: e.target.value })}
+            placeholder="Opcional"
+            className="flex-1 min-w-0 bg-transparent text-sm text-white/80 text-right placeholder:text-white/20 outline-none"
+          />
+        </div>
+        <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <label htmlFor="bula-start-date" className="text-xs text-white/35 shrink-0">
+            Data início
+            <span className="text-violet-400 ml-0.5">*</span>
+          </label>
+          <input
+            id="bula-start-date"
+            type="date"
+            value={formData.startDate}
+            onChange={(e) => onFormChange({ startDate: e.target.value })}
+            className="bg-transparent text-sm text-white/80 text-right outline-none [color-scheme:dark]"
+          />
+        </div>
+      </div>
+
       {/* Actions */}
-      <div className="flex gap-3 pt-1">
+      <div className="flex gap-2 pt-1">
         <button
           type="button"
           onClick={onReset}
-          className="flex-1 py-2.5 rounded-xl border border-white/[0.1] text-sm text-white/45 hover:text-white/75 hover:bg-white/[0.04] transition-all"
+          className="py-2.5 px-4 rounded-xl border border-white/[0.08] text-sm text-white/35 hover:text-white/65 hover:bg-white/[0.04] transition-all whitespace-nowrap"
         >
-          Extrair outro PDF
+          Outro PDF
+        </button>
+        <button
+          type="button"
+          onClick={onDownload}
+          disabled={!formData.startDate || totalAnalytes === 0}
+          title={!formData.startDate ? 'Informe a data de início para baixar o CSV' : 'Baixar CSV'}
+          className="flex-1 py-2.5 rounded-xl border border-white/[0.1] text-sm text-white/60 hover:text-white/90 hover:bg-white/[0.05] disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+        >
+          <DownloadIcon />
+          CSV
         </button>
         <button
           type="button"
@@ -381,9 +451,7 @@ function ResultPanel({ data, fileName, onReset, onConfirm }: ResultPanelProps) {
           className="flex-1 py-2.5 rounded-xl bg-violet-600/80 hover:bg-violet-600 border border-violet-500/30 text-sm font-medium text-white/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
         >
           <CheckIcon />
-          {data.levels.length > 1
-            ? `Criar ${data.levels.length} lotes`
-            : 'Criar lote com estes dados'}
+          {data.levels.length > 1 ? `Criar ${data.levels.length} lotes` : 'Criar lote'}
         </button>
       </div>
     </div>
@@ -392,7 +460,7 @@ function ResultPanel({ data, fileName, onReset, onConfirm }: ResultPanelProps) {
 
 // ─── Extraction state ─────────────────────────────────────────────────────────
 
-type Phase = 'idle' | 'extracting' | 'done' | 'error';
+type Phase = 'idle' | 'converting' | 'extracting' | 'done' | 'error';
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -401,9 +469,11 @@ export function BulaProcessor() {
   const setPendingBulaData = useAppStore((s) => s.setPendingBulaData);
 
   const [phase,    setPhase]    = useState<Phase>('idle');
+  const [convProgress, setConvProgress] = useState({ current: 0, total: 0 });
   const [result,   setResult]   = useState<PendingBulaData | null>(null);
   const [fileName, setFileName] = useState('');
   const [error,    setError]    = useState<string | null>(null);
+  const [formData, setFormData] = useState<BulaExportFormData>(DEFAULT_EXPORT_FORM);
 
   const handleFile = useCallback(async (file: File) => {
     if (file.type !== 'application/pdf') {
@@ -411,31 +481,32 @@ export function BulaProcessor() {
       setPhase('error');
       return;
     }
+    if (file.size > MAX_BULA_PDF_SIZE_BYTES) {
+      setError(`Arquivo excede o limite de 10 MB (${(file.size / 1024 / 1024).toFixed(1)} MB).`);
+      setPhase('error');
+      return;
+    }
 
-    setPhase('extracting');
+    setPhase('converting');
     setError(null);
     setFileName(file.name);
 
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      try {
-        const dataUrl = e.target?.result as string;
-        const base64  = dataUrl.split(',')[1];
-        if (!base64) throw new Error('Falha ao ler o arquivo.');
+    try {
+      // 1. Converter PDF para Imagem no Frontend (Opção A)
+      const { base64, mimeType } = await convertPdfToImage(file, 4, (p) => {
+        setConvProgress({ current: p.current, total: p.total });
+      });
 
-        const data = await extractDataFromBulaPdf(base64, 'application/pdf');
-        setResult(data);
-        setPhase('done');
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Erro inesperado na extração.');
-        setPhase('error');
-      }
-    };
-    reader.onerror = () => {
-      setError('Falha ao ler o arquivo PDF.');
+      // 2. Enviar imagem resultante para extração
+      setPhase('extracting');
+      const data = await extractDataFromBulaPdf(base64, mimeType);
+      
+      setResult(data);
+      setPhase('done');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro inesperado no processamento.');
       setPhase('error');
-    };
-    reader.readAsDataURL(file);
+    }
   }, []);
 
   function handleReset() {
@@ -443,6 +514,13 @@ export function BulaProcessor() {
     setResult(null);
     setError(null);
     setFileName('');
+    setFormData(DEFAULT_EXPORT_FORM);
+  }
+
+  function handleDownloadCsv() {
+    if (!result) return;
+    const csv = convertBulaPDFtoCSV(result, formData);
+    downloadCsvFile(csv, buildCsvFilename(result.controlName, formData.startDate));
   }
 
   function handleConfirm() {
@@ -484,6 +562,36 @@ export function BulaProcessor() {
             <DropZone onFile={handleFile} disabled={false} />
           )}
 
+          {phase === 'converting' && (
+            <div className="flex flex-col items-center justify-center py-24 gap-5">
+              <div className="relative w-14 h-14">
+                <div className="absolute inset-0 rounded-2xl bg-blue-500/10 border border-blue-500/20" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="w-6 h-6 border-2 border-blue-500/30 border-t-blue-400 rounded-full animate-spin" />
+                </div>
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-white/70">Otimizando documento…</p>
+                <div className="flex flex-col gap-1 mt-2">
+                  <p className="text-xs text-white/30 truncate max-w-xs">{fileName}</p>
+                  {convProgress.total > 0 && (
+                    <div className="flex items-center justify-center gap-2 mt-2">
+                      <div className="w-24 h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-blue-500 transition-all duration-300" 
+                          style={{ width: `${(convProgress.current / convProgress.total) * 100}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-white/20 font-mono">
+                        Item {convProgress.current}/{convProgress.total}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           {phase === 'extracting' && (
             <div className="flex flex-col items-center justify-center py-24 gap-5">
               <div className="relative w-14 h-14">
@@ -493,12 +601,11 @@ export function BulaProcessor() {
                 </div>
               </div>
               <div className="text-center">
-                <p className="text-sm font-medium text-white/70">Analisando documento…</p>
+                <p className="text-sm font-medium text-white/70">Extraindo dados com IA…</p>
                 <p className="text-xs text-white/30 mt-1 max-w-xs">
-                  O Gemini está lendo o PDF e extraindo os valores dos três níveis de controle.
+                  A imagem otimizada está sendo processada para identificar lotes e valores.
                 </p>
               </div>
-              <p className="text-xs text-white/20 font-mono truncate max-w-xs">{fileName}</p>
             </div>
           )}
 
@@ -525,7 +632,10 @@ export function BulaProcessor() {
             <ResultPanel
               data={result}
               fileName={fileName}
+              formData={formData}
+              onFormChange={(patch) => setFormData((prev) => ({ ...prev, ...patch }))}
               onReset={handleReset}
+              onDownload={handleDownloadCsv}
               onConfirm={handleConfirm}
             />
           )}

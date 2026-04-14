@@ -235,6 +235,7 @@ export interface PendingBulaData {
 export type SyncStatus = 'saved' | 'saving' | 'offline' | 'error';
 export type View = 'analyzer' | 'bulaparser' | 'labadmin' | 'superadmin';
 export type StatsSource = 'manufacturer' | 'internal';
+export type ImageState = 'ready' | 'uploading' | 'none';
 
 // ─── Stored / Serialized State ────────────────────────────────────────────────
 

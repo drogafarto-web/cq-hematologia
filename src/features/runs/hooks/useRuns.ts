@@ -244,7 +244,7 @@ export function useRuns() {
    * 4. Uploads image in background and updates imageUrl
    */
   const confirmRun = useCallback(
-    async (manualOverride = false): Promise<void> => {
+    async (editedValues: Record<string, number>, manualOverride = false): Promise<void> => {
       if (!pendingRun)  { setRunError('Nenhuma corrida pendente.');      return; }
       if (!activeLot)   { setRunError('Nenhum lote ativo.');             return; }
       if (!labId)       { setRunError('Nenhum laboratório ativo.');      return; }
@@ -256,8 +256,18 @@ export function useRuns() {
       const now   = new Date();
 
       try {
+        // Merge operator edits into the AI results before building
+        const mergedResults = Object.fromEntries(
+          Object.entries(pendingRun.results).map(([id, r]) => [
+            id,
+            id in editedValues && !Number.isNaN(editedValues[id])
+              ? { ...r, value: editedValues[id] }
+              : r,
+          ]),
+        );
+
         // Build results with Westgard violations
-        const results = buildAnalyteResults(pendingRun.results, runId, activeLot, now);
+        const results = buildAnalyteResults(mergedResults, runId, activeLot, now);
         const status  = manualOverride ? 'Aprovada' : deriveRunStatus(results);
 
         const newRun: Run = {

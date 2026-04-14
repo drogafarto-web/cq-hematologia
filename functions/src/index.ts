@@ -453,10 +453,141 @@ export const deleteUser = onCall(
 // ─── Server-side secrets ──────────────────────────────────────────────────────
 
 const geminiApiKey = defineSecret('GEMINI_API_KEY');
+const openRouterApiKey = defineSecret('OPENROUTER_API_KEY');
 
-// ─── Shared constants ─────────────────────────────────────────────────────────
+const GEMINI_DIRECT = 'gemini-3.1-flash-image-preview';
+const OPENROUTER_GEMINI = 'google/gemini-2.0-flash-001';
+const OPENROUTER_QWEN = 'qwen/qwen-vl-plus';
 
-const GEMINI_MODEL = 'gemini-2.5-flash-preview-04-17';
+// ─── AI Service Helper ────────────────────────────────────────────────────────
+// Logic for calling Gemini with failover to OpenRouter (Qwen)
+
+async function callAIWithFallback(params: {
+  prompt: string;
+  base64: string;
+  mimeType: string;
+  geminiKey: string;
+  openRouterKey: string;
+}): Promise<string> {
+  const { prompt, base64, mimeType, geminiKey, openRouterKey } = params;
+  const isPdf = mimeType === 'application/pdf';
+
+  // ─── NÍVEL 1: Gemini Direto (GCP) ─────────────────────
+  // Mais rápido e custo zero (enquanto houver cota)
+  try {
+    const genAI = new GoogleGenAI({ apiKey: geminiKey });
+    const response = await genAI.models.generateContent({
+      model: GEMINI_DIRECT,
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: prompt }, { inlineData: { mimeType, data: base64 } }],
+        },
+      ],
+      config: { responseMimeType: 'application/json' },
+    });
+    const text = response.text ?? '';
+    if (text.trim()) {
+      console.log('✅ Extração bem-sucedida: Nível 1 (Gemini Direto)');
+      return text;
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(`⚠️ Nível 1 falhou: ${msg}. Tentando Nível 2...`);
+  }
+
+  // ─── NÍVEL 2: Gemini via OpenRouter ───────────────────
+  // Mantém a qualidade e velocidade do Gemini usando saldo OpenRouter
+  try {
+    const content: any[] = [{ type: 'text', text: prompt }];
+    // Gemini no OpenRouter suporta PDFs nativamente ou via Vision em muitos casos.
+    // Usaremos a estrutura multimodal padrão do OpenRouter.
+    content.push({
+      type:      isPdf ? 'file' : 'image_url',
+      [isPdf ? 'file' : 'image_url']: isPdf
+        ? { filename: 'document.pdf', file_data: `data:${mimeType};base64,${base64}` }
+        : { url: `data:${mimeType};base64,${base64}` },
+    });
+
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method:  'POST',
+      headers: {
+        'Authorization': `Bearer ${openRouterKey}`,
+        'Content-Type':  'application/json',
+      },
+      body: JSON.stringify({
+        model:    OPENROUTER_GEMINI,
+        messages: [{ role: 'user', content }],
+        response_format: { type: 'json_object' },
+      }),
+    });
+
+    if (response.ok) {
+      const data = (await response.json()) as any;
+      const text = data.choices?.[0]?.message?.content ?? '';
+      if (text.trim()) {
+        console.log('✅ Extração bem-sucedida: Nível 2 (Gemini OpenRouter)');
+        return text;
+      }
+    } else {
+      console.warn(`⚠️ Nível 2 retornou erro ${response.status}. Tentando Nível 3...`);
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(`⚠️ Erro no Nível 2: ${msg}. Tentando Nível 3...`);
+  }
+
+  // ─── NÍVEL 3: Qwen VL via OpenRouter ──────────────────
+  // Segurança máxima para OCR complexo (mais lento)
+  try {
+    const content: any[] = [{ type: 'text', text: prompt }];
+
+    if (isPdf) {
+      content.push({
+        type: 'file',
+        file: {
+          filename: 'document.pdf',
+          file_data: `data:${mimeType};base64,${base64}`,
+        },
+      });
+    } else {
+      content.push({
+        type: 'image_url',
+        image_url: { url: `data:${mimeType};base64,${base64}` },
+      });
+    }
+
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method:  'POST',
+      headers: {
+        'Authorization': `Bearer ${openRouterKey}`,
+        'Content-Type':  'application/json',
+      },
+      body: JSON.stringify({
+        model:    OPENROUTER_QWEN,
+        messages: [{ role: 'user', content }],
+        plugins:  isPdf ? [{ id: 'file-parser', pdf: { engine: 'mistral-ocr' } }] : [],
+        response_format: { type: 'json_object' },
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`OpenRouter API error (${response.status}): ${errorText}`);
+    }
+
+    const data = (await response.json()) as any;
+    const text = data.choices?.[0]?.message?.content ?? '';
+    if (text.trim()) {
+      console.log('✅ Extração bem-sucedida: Nível 3 (Qwen OpenRouter)');
+      return text;
+    }
+    throw new Error('Retorno vazio do provedor Nível 3.');
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new HttpsError('internal', `Falha crítica em todos os níveis: ${msg}`);
+  }
+}
 
 // ─── extractFromImage ─────────────────────────────────────────────────────────
 // Callable function for OCR extraction from hematology analyzer screens.
@@ -650,7 +781,11 @@ A confiabilidade dos dados é mais importante que preencher todos os campos.
 `.trim();
 
 export const extractFromImage = onCall(
-  { secrets: [geminiApiKey] },
+  {
+    secrets: [geminiApiKey, openRouterApiKey],
+    memory:  '1GiB',
+    timeoutSeconds: 300,
+  },
   async (request) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Autenticação necessária.');
@@ -658,7 +793,6 @@ export const extractFromImage = onCall(
 
     const { base64, mimeType } = request.data as {
       base64: string;
-      analyteIds?: string[]; // accepted for client compat but unused — prompt is now static
       mimeType: string;
     };
 
@@ -666,34 +800,16 @@ export const extractFromImage = onCall(
       throw new HttpsError('invalid-argument', 'Nenhuma imagem fornecida.');
     }
 
-    const client = new GoogleGenAI({ apiKey: geminiApiKey.value() });
-    let rawText: string;
+    const geminiKeyValue = geminiApiKey.value();
+    const openRouterKeyValue = openRouterApiKey.value();
 
-    try {
-      const response = await client.models.generateContent({
-        model: GEMINI_MODEL,
-        contents: [
-          {
-            role: 'user',
-            parts: [
-              { text: OCR_PROMPT },
-              { inlineData: { mimeType, data: base64 } },
-            ],
-          },
-        ],
-        config: { responseMimeType: 'application/json' },
-      });
-      rawText = response.text ?? '';
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes('429') || msg.toLowerCase().includes('quota')) {
-        throw new HttpsError('resource-exhausted', 'Cota da API Gemini excedida. Aguarde alguns instantes.');
-      }
-      if (msg.toUpperCase().includes('SAFETY')) {
-        throw new HttpsError('invalid-argument', 'A imagem foi bloqueada por filtros de segurança.');
-      }
-      throw new HttpsError('internal', `Falha na comunicação com a IA: ${msg}`);
-    }
+    const rawText = await callAIWithFallback({
+      prompt:    OCR_PROMPT,
+      base64,
+      mimeType,
+      geminiKey: geminiKeyValue,
+      openRouterKey: openRouterKeyValue,
+    });
 
     if (!rawText.trim()) {
       throw new HttpsError('internal', 'A IA retornou uma resposta vazia.');
@@ -702,13 +818,15 @@ export const extractFromImage = onCall(
     let parsed: unknown;
     try {
       parsed = JSON.parse(rawText);
-    } catch {
-      throw new HttpsError('internal', 'A IA retornou dados em formato inválido.');
+    } catch (err) {
+      console.error('❌ Erro no JSON da IA:', rawText, err);
+      throw new HttpsError('internal', `A IA retornou JSON inválido: ${err instanceof Error ? err.message : 'formato desconhecido'}`);
     }
 
     const validation = OcrResponseSchema.safeParse(parsed);
     if (!validation.success) {
-      throw new HttpsError('internal', 'A IA retornou dados fora do formato esperado.');
+      console.error('❌ Erro de validação OCR (Zod):', validation.error.format());
+      throw new HttpsError('internal', `Dados OCR fora do formato: ${validation.error.message}`);
     }
 
     const { data } = validation;
@@ -810,7 +928,11 @@ const BulaResponseSchema = z.object({
 });
 
 export const extractFromBula = onCall(
-  { secrets: [geminiApiKey], memory: '1GiB' },
+  {
+    secrets: [geminiApiKey, openRouterApiKey],
+    memory:  '1GiB',
+    timeoutSeconds: 300,
+  },
   async (request) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Autenticação necessária.');
@@ -825,48 +947,35 @@ export const extractFromBula = onCall(
       throw new HttpsError('invalid-argument', 'Nenhum arquivo fornecido.');
     }
 
-    const client = new GoogleGenAI({ apiKey: geminiApiKey.value() });
-    let rawText: string;
+    const geminiKeyValue = geminiApiKey.value();
+    const openRouterKeyValue = openRouterApiKey.value();
 
-    try {
-      const response = await client.models.generateContent({
-        model: GEMINI_MODEL,
-        contents: [
-          {
-            role: 'user',
-            parts: [
-              { text: BULA_PROMPT },
-              { inlineData: { mimeType, data: base64 } },
-            ],
-          },
-        ],
-        config: { responseMimeType: 'application/json' },
-      });
-      rawText = response.text ?? '';
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes('429') || msg.toLowerCase().includes('quota')) {
-        throw new HttpsError('resource-exhausted', 'Cota da API Gemini excedida. Aguarde alguns instantes.');
-      }
-      throw new HttpsError('internal', `Falha na comunicação com a IA: ${msg}`);
-    }
+    const rawText = await callAIWithFallback({
+      prompt:    BULA_PROMPT,
+      base64,
+      mimeType,
+      geminiKey: geminiKeyValue,
+      openRouterKey: openRouterKeyValue,
+    });
 
     if (!rawText.trim()) {
-      throw new HttpsError('internal', 'A IA retornou uma resposta vazia. Verifique se o PDF é legível.');
+      throw new HttpsError('internal', 'A IA retornou uma resposta vazia. Verifique se o documento é legível.');
     }
 
     let parsed: unknown;
     try {
       parsed = JSON.parse(rawText);
-    } catch {
-      throw new HttpsError('internal', 'A IA retornou dados em formato inválido.');
+    } catch (err) {
+      console.error('❌ Erro no JSON da IA (Bula):', rawText, err);
+      throw new HttpsError('internal', `A IA retornou JSON inválido (Bula): ${err instanceof Error ? err.message : 'formato desconhecido'}`);
     }
 
     const validation = BulaResponseSchema.safeParse(parsed);
     if (!validation.success) {
+      console.error('❌ Erro de validação Bula (Zod):', validation.error.format());
       throw new HttpsError(
         'internal',
-        `A IA retornou dados fora do formato esperado: ${validation.error.message}`,
+        `Dados da bula fora do formato: ${validation.error.message}`,
       );
     }
 

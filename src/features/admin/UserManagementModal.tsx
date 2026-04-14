@@ -335,7 +335,7 @@ export function UserManagementModal({ labId, labName, currentUserUid, onClose }:
             <ul
               aria-label="Membros do laboratório"
               aria-live="polite"
-              aria-busy={actionId !== null}
+              aria-busy={actionId !== null ? 'true' : 'false'}
               className="space-y-2 list-none p-0 m-0"
             >
               {members.map((member) => (

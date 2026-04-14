@@ -34,7 +34,7 @@ function ConfidenceDot({ value }: { value: number }) {
 interface ReviewRunModalProps {
   pendingRun:  PendingRun;
   activeLot:   ControlLot;
-  onConfirm:   (manualOverride?: boolean) => Promise<void>;
+  onConfirm:   (editedValues: Record<string, number>, manualOverride?: boolean) => Promise<void>;
   onCancel:    () => void;
   isConfirming: boolean;
 }
@@ -70,7 +70,10 @@ export function ReviewRunModal({
   }
 
   async function handleConfirm() {
-    await onConfirm(manualOverride);
+    const parsed = Object.fromEntries(
+      Object.entries(editedValues).map(([id, raw]) => [id, parseFloat(raw)]),
+    );
+    await onConfirm(parsed, manualOverride);
   }
 
   // Build ordered list of analytes in this lot
@@ -84,8 +87,7 @@ export function ReviewRunModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(6px)' }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-[6px]"
     >
       <div className="w-full max-w-2xl max-h-[92vh] flex flex-col rounded-2xl bg-[#141414] border border-white/[0.09] shadow-2xl">
         {/* Header */}
@@ -114,6 +116,7 @@ export function ReviewRunModal({
             type="button"
             onClick={onCancel}
             disabled={isConfirming}
+            aria-label="Fechar"
             className="w-8 h-8 flex items-center justify-center rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.07] transition-all shrink-0"
           >
             ✕
@@ -138,6 +141,7 @@ export function ReviewRunModal({
                   <td className="py-2.5 text-right">
                     <input
                       type="number"
+                      aria-label={`Valor de ${analyte.name}`}
                       step={Math.pow(10, -analyte.decimals)}
                       value={editedValues[id] ?? ''}
                       onChange={(e) => handleValueChange(id, e.target.value)}
