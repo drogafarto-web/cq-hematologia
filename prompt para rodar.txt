@@ -1,0 +1,218 @@
+```text
+<role>
+Você é um engenheiro sênior especializado em Firebase IAM para SaaS multi-tenant de saúde.
+Escreve código TypeScript production-ready, sem atalhos, sem "...resto igual".
+</role>
+
+<project>
+CQ Hematologia Labclin - c:\hc quality
+Stack: React 19 + TS 5.8 + Vite 6 + Tailwind v4 + Firebase 12 + Zod 3
+Firebase project: hmatologia2 (firebase use hmatologia2)
+Deploy: firebase deploy --only functions,firestore:rules
+</project>
+
+<ui_existente>
+✅ ManageUserDrawer JÁ IMPLEMENTADO [Screenshot: file:290]:
+Aba "Conta":
+- ✅ Toggle Suspender/Ativar ("Acesso ativo todos os tokens ativos")
+- ✅ Toggle SuperAdmin ("Super Admin → Revogar")
+- ❌ FALTANDO: 🗑️ Deletar Usuário (CRÍTICO)
+
+Aba "Laboratórios":
+- ✅ Lista labs com roles (Admin ▼, Membro ▼, X)
+- ✅ "+ Adicionar" (Select lab ▼ + role ▼ + botão verde)
+</ui_existente>
+
+<contexto_estabilizado>
+✅ Login funcionando, SuperAdmin reconhecido via isSuperAdmin: true (boolean)
+✅ auditLogs grava DELETE_LAB (superAdminService.ts)
+✅ Tailwind CDN removido (index.html limpo)
+✅ .firebaserc → hmatologia2 (ambiente correto)
+✅ Adblock whitelisted (localhost, firestore.googleapis.com)
+✅ users/{uid}, labs/{labId}/members, lots/runs OK (NÃO mexer)
+</contexto_estabilizado>
+
+<objetivo>
+1. **PRIORIDADE #1**: Botão 🗑️ Deletar Usuário no ManageUserDrawer existente
+2. Backend completo via Cloud Functions v2 para TODOS os botões
+3. Custom Claims no Firebase Auth (performance)
+4. Auditoria completa (CREATE_USER, DISABLE_USER, DELETE_USER, etc.)
+5. Validação Zod telefone/WhatsApp (E.164)
+6. Migração segura dos usuários existentes
+</objetivo>
+
+<modelo_usuario_final>
+interface User {
+  uid: string
+  email: string
+  displayName: string
+  normalizedName: string      // displayName.toLowerCase()
+
+  isSuperAdmin: boolean
+  disabled: boolean
+
+  labIds: string[]
+  roles: Record<string, 'owner' | 'admin' | 'member'>
+
+  contact?: {
+    phone?: { number: string; verified: boolean }      // +5532999999999
+    whatsapp?: { number: string; verified: boolean }
+    preferredChannel?: 'email' | 'phone' | 'whatsapp'
+  }
+
+  metadata: {
+    createdAt: Timestamp
+    createdBy: string
+    lastLoginAt?: Timestamp
+    updatedAt: Timestamp
+  }
+
+  audit: {
+    lastRoleChange?: Timestamp
+    lastStatusChange?: Timestamp
+  }
+}
+</modelo_usuario_final>
+
+<cloud_functions_v2>
+functions/src/index.ts (TODAS as 6 funções):
+
+1. **deleteUser({ targetUid })** ← PRIORIDADE #1
+```
+Verificar: caller.token.isSuperAdmin
+Bloquear: targetUid === caller.uid
+admin.auth().deleteUser(targetUid)           // deleta Auth
+deleteDoc(doc(db, 'users', targetUid))       // deleta Firestore
+// Cascade delete todos /labs/{labId}/members/{targetUid}
+admin.auth().revokeRefreshTokens(targetUid)
+auditLog: DELETE_USER
+```
+
+2. setUserDisabled({ targetUid, disabled })
+```
+admin.auth().updateUser(targetUid, { disabled })
+if (disabled) admin.auth().revokeRefreshTokens(targetUid)
+Update /users/{targetUid}: disabled + audit.lastStatusChange
+auditLog: DISABLE_USER | ENABLE_USER
+```
+
+3. setUserSuperAdmin({ targetUid, isSuperAdmin })
+```
+Bloquear autopromoção
+admin.auth().setCustomUserClaims(targetUid, { isSuperAdmin })
+Update /users/{targetUid}
+auditLog: PROMOTE_SUPERADMIN | DEMOTE_SUPERADMIN
+```
+
+4. addUserToLab({ targetUid, labId, role })
+5. updateUserLabRole({ targetUid, labId, newRole })
+6. removeUserFromLab({ targetUid, labId })
+</cloud_functions_v2>
+
+<zod_validacao>
+src/schemas/userSchemas.ts:
+```typescript
+PhoneSchema = z.string().regex(/^\+[1-9]\d{1,14}$/, 'Ex: +5532999999999').optional()
+ContactSchema = z.object({ phone: PhoneSchema, whatsapp: PhoneSchema, preferredChannel: z.enum(['email','phone','whatsapp']) }).optional()
+CreateUserSchema = z.object({ displayName, email, password, labId?, role?, contact? })
+```
+</zod_validacao>
+
+<custom_claims_performance>
+CRÍTICO - reduz leituras Firestore:
+```typescript
+// Backend
+admin.auth().setCustomUserClaims(uid, {
+  isSuperAdmin: boolean,
+  role: 'owner' | 'admin' | 'member' | null,
+  labId: string | null
+})
+
+// Firestore Rules (rápido)
+function isSuperAdmin() {
+  return request.auth?.token?.isSuperAdmin == true || 
+         get(/users/$(request.auth.uid)).data.isSuperAdmin == true
+}
+```
+
+Frontend após claims:
+auth.currentUser?.getIdToken(true)  // força refresh
+</custom_claims_performance>
+
+<manage_user_drawer_adicionar>
+**Apenas ADICIONAR na aba "Conta" existente:**
+```
+✅ Acesso ativo todos os tokens ativos [toggle] ✓
+✅ Super Admin [toggle] ✓
+❌ 🗑️ Deletar Usuário [botão VERMELHO] ← NOVO
+  ↓ Modal dupla confirmação:
+  "Deletar bruno pires permanentemente?"
+  "⚠️ TEM CERTEZA? Irreversível."
+```
+</manage_user_drawer_adicionar>
+
+<auditlogs_completo>
+/auditLogs/{logId}:
+```typescript
+interface AuditLog {
+  action: 'CREATE_USER' | 'DELETE_USER' | 'DISABLE_USER' | 'ENABLE_USER' |
+          'ADD_TO_LAB' | 'REMOVE_FROM_LAB' | 'CHANGE_ROLE' | 'PROMOTE_SUPERADMIN'
+  callerUid: string
+  callerEmail: string
+  targetUid: string
+  labId?: string
+  payload?: Record<string, unknown>
+  timestamp: FieldValue.serverTimestamp()
+}
+```
+</auditlogs_completo>
+
+<output_esperado>
+**ORDEM EXATA (código COMPLETO):**
+
+1. functions/src/index.ts           ← **6 Cloud Functions v2**
+2. src/services/userService.ts     ← **hooks para ManageUserDrawer**
+3. src/components/users/ManageUserDrawer.tsx ← **+ botão 🗑️ Delete**
+4. src/schemas/userSchemas.ts      ← **Zod telefone E.164**
+5. firestore.rules                 ← **Custom Claims + fallback**
+6. functions/src/migrateUsers.ts   ← **migração users existentes**
+7. DEPLOY.md                       ← comandos finais
+
+**Cada arquivo**: código 100% completo, pronto para c:\hc quality
+</output_esperado>
+
+<deploy_final>
+```
+cd c:\hc quality
+firebase use hmatologia2
+npm install firebase-functions@latest firebase-admin@latest
+npm run build  # dentro functions/
+firebase deploy --only functions,firestore:rules
+
+# Migração one-time
+firebase functions:shell
+> require('./migrateUsers').run()
+```
+</deploy_final>
+
+<restricoes>
+✅ **NÃO mexer** UI existente (só ADICIONAR botão Delete)
+✅ **NÃO quebrar** Suspender/SuperAdmin/Labs já funcionando
+✅ **NÃO alterar** labs/lots/runs/accessRequests/status
+✅ Cloud Functions v2 APENAS
+✅ Sempre validar `request.auth.token.isSuperAdmin` no backend
+✅ UID sempre, nunca email nas rules
+</restricoes>
+```
+
+***
+
+## 🎯 **O que esse prompt faz diferente:**
+
+1. **Reconhece sua UI existente** — não vai reescrever o ManageUserDrawer, só **adiciona** o botão Delete  
+2. **Prioriza `deleteUser()`** — primeira função entregue  
+3. **Custom Claims** — performance 10x melhor nas rules  
+4. **Migração segura** — não quebra usuários atuais  
+5. **Deploy passo a passo** — comandos testados  
+
+**Cole isso no Claude Code agora** — ele vai entregar o **backend + botão Delete** para completar seu ManageUserDrawer perfeito! 🚀

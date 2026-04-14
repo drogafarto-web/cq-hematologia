@@ -13,12 +13,14 @@ export interface Analyte {
 // ─── Westgard ────────────────────────────────────────────────────────────────
 
 export type WestgardViolation =
-  | '1-2s'   // Warning: 1 value beyond ±2SD
+  | '1-2s'   // Warning:   1 value beyond ±2SD
   | '1-3s'   // Rejection: 1 value beyond ±3SD
   | '2-2s'   // Rejection: 2 consecutive values beyond ±2SD (same side)
   | 'R-4s'   // Rejection: 2 consecutive values span >4SD (opposite sides)
   | '4-1s'   // Rejection: 4 consecutive values beyond ±1SD (same side)
-  | '10x';   // Rejection: 10 consecutive values on same side of mean
+  | '10x'    // Rejection: 10 consecutive values on same side of mean
+  | '6T'     // Rejection: 6 consecutive values monotonically rising or falling (trend)
+  | '6X';    // Rejection: 6 consecutive values all on the same side of mean (shift)
 
 // ─── Runs ────────────────────────────────────────────────────────────────────
 
@@ -103,11 +105,77 @@ export interface ControlLot {
 
 // ─── Labs & Auth ──────────────────────────────────────────────────────────────
 
+export interface LabContact {
+  email: string;
+  phone: string;
+}
+
+export interface LabAddress {
+  street: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
+  city: string;
+  /** Brazilian UF code, e.g. "SP" */
+  state: string;
+  zipCode: string;
+}
+
+export interface LabQCSettings {
+  westgardRules: {
+    '1-2s': boolean;
+    '1-3s': boolean;
+    '2-2s': boolean;
+    'R-4s': boolean;
+    '4-1s': boolean;
+    '10x': boolean;
+  };
+  /** Minimum confirmed runs before internal statistics are computed */
+  minRunsForInternalStats: number;
+}
+
+export interface LabCompliance {
+  cnesCode?: string;
+  anvisaLicense?: string;
+  iso15189: boolean;
+  accreditationBody?: string;
+}
+
+export type LabPlan = 'free' | 'basic' | 'professional' | 'enterprise';
+export type LabSubscriptionStatus = 'active' | 'trialing' | 'past_due' | 'canceled';
+
+export interface LabSubscription {
+  plan: LabPlan;
+  status: LabSubscriptionStatus;
+  trialEndsAt?: Date;
+  currentPeriodEndsAt?: Date;
+}
+
+/**
+ * All new fields beyond `name`, `logoUrl` and `createdAt` are optional so that
+ * existing Firestore documents never fail to deserialize. Always pass raw
+ * Firestore data through `normalizeLab()` before storing in state — that
+ * function fills every optional field with a safe default so components can
+ * always read `lab.contact.email`, `lab.qcSettings.westgardRules`, etc.
+ * without null-checks.
+ */
 export interface Lab {
   id: string;
+  /** Display name — always required */
   name: string;
+  /** Full legal / tax name */
+  legalName?: string;
   logoUrl?: string;
+  /** CNPJ in formatted form, e.g. "12.345.678/0001-99" */
+  cnpj?: string;
+  contact?: LabContact;
+  address?: LabAddress;
+  qcSettings?: LabQCSettings;
+  compliance?: LabCompliance;
+  subscription?: LabSubscription;
   createdAt: Date;
+  createdBy?: string;
+  updatedAt?: Date;
 }
 
 export type UserRole = 'owner' | 'admin' | 'member';
@@ -133,6 +201,33 @@ export interface AccessRequest {
   labName: string;
   status: AccessRequestStatus;
   createdAt: Date;
+}
+
+// ─── Bula Parser ─────────────────────────────────────────────────────────────
+
+/**
+ * Per-level data extracted from a bula PDF.
+ * `equipmentSources` maps analyteId → equipment name; when the value
+ * differs from the primary Yumizen H550 it signals a fallback analyte.
+ */
+export interface BulaLevelData {
+  level:              1 | 2 | 3;
+  lotNumber:          string | null;
+  manufacturerStats:  ManufacturerStats;
+  /** analyteId → equipment name the value was read from (e.g. "Pentra 60") */
+  equipmentSources?:  Record<string, string>;
+}
+
+/**
+ * Data extracted from a manufacturer PDF bula; stored in app state so
+ * AddLotModal (or a batch-creation flow) can pre-fill lot fields.
+ * `levels` always has at least one entry; typically 1–3 entries.
+ */
+export interface PendingBulaData {
+  controlName: string | null;
+  expiryDate:  Date | null;
+  levels:      BulaLevelData[];
+  warnings:    string[];
 }
 
 // ─── UI State ─────────────────────────────────────────────────────────────────

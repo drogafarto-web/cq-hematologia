@@ -1,6 +1,9 @@
 import type { Analyte } from './types';
 
-// ─── Yumizen H550 — 21 Analytes ───────────────────────────────────────────────
+// ─── Yumizen H550 — 17 Analytes ───────────────────────────────────────────────
+// Differential leucocytes: absolute counts only (×10³/µL).
+// Percentages are not tracked — they add no independent QC value when
+// the absolute series already covers Westgard rule evaluation.
 // Order matches the equipment's printout layout for OCR alignment.
 
 export const ANALYTES: Analyte[] = [
@@ -16,15 +19,11 @@ export const ANALYTES: Analyte[] = [
   { id: 'MPV',  name: 'MPV',  unit: 'fL',       decimals: 1 },
   { id: 'PCT',  name: 'PCT',  unit: '%',        decimals: 3 },
   { id: 'PDW',  name: 'PDW',  unit: 'fL',       decimals: 1 },
-  { id: 'NEU',  name: 'NEU%', unit: '%',        decimals: 1 },
-  { id: 'LYM',  name: 'LYM%', unit: '%',        decimals: 1 },
-  { id: 'MON',  name: 'MON%', unit: '%',        decimals: 1 },
-  { id: 'EOS',  name: 'EOS%', unit: '%',        decimals: 1 },
-  { id: 'BAS',  name: 'BAS%', unit: '%',        decimals: 1 },
   { id: 'NEU#', name: 'NEU#', unit: '×10³/µL', decimals: 2 },
   { id: 'LYM#', name: 'LYM#', unit: '×10³/µL', decimals: 2 },
   { id: 'MON#', name: 'MON#', unit: '×10³/µL', decimals: 2 },
   { id: 'EOS#', name: 'EOS#', unit: '×10³/µL', decimals: 2 },
+  { id: 'BAS#', name: 'BAS#', unit: '×10³/µL', decimals: 2 },
 ];
 
 export const ANALYTE_MAP: Record<string, Analyte> = Object.fromEntries(
@@ -52,6 +51,7 @@ export const COLLECTIONS = {
   LABS: 'labs',
   ACCESS_REQUESTS: 'accessRequests',
   STATUS: 'status',
+  AUDIT_LOGS: 'auditLogs',
 } as const;
 
 export const SUBCOLLECTIONS = {
@@ -78,30 +78,6 @@ export const storagePath = {
 // ─── Gemini ───────────────────────────────────────────────────────────────────
 
 export const GEMINI_MODEL = 'gemini-2.5-flash-preview-04-17';
-
-export const GEMINI_OCR_PROMPT = (analyteIds: string[]) => `
-You are an expert OCR system for clinical hematology analyzers.
-Analyze the image of a Yumizen H550 result screen and extract the numeric values
-for each of the following analytes: ${analyteIds.join(', ')}.
-
-Return a JSON object with this exact shape:
-{
-  "sampleId": "<string | null>",
-  "results": {
-    "<analyteId>": {
-      "value": <number>,
-      "confidence": <0.0–1.0>,
-      "reasoning": "<brief explanation>"
-    }
-  }
-}
-
-Rules:
-- Only include analytes that are clearly visible and readable.
-- Use null for sampleId if not visible.
-- Confidence 1.0 = perfectly clear; 0.0 = not visible / guessed.
-- Never fabricate values. If a value is unreadable, omit that analyte key.
-`.trim();
 
 // ─── UI ───────────────────────────────────────────────────────────────────────
 

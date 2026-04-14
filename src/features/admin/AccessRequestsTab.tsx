@@ -5,7 +5,7 @@ import {
   approveAccessRequest,
   denyAccessRequest,
   deleteAccessRequest,
-} from './services/superAdminService';
+} from './services/userService';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -92,8 +92,9 @@ export function AccessRequestsTab() {
       const status = filter === 'all' ? undefined : filter;
       const data = await fetchAllAccessRequests(status);
       setRequests(data);
-    } catch (e) {
-      setError('Erro ao carregar solicitações.');
+    } catch (e: any) {
+      console.error(e);
+      setError(`Erro ao carregar solicitações: ${e?.message || 'Desconhecido'}`);
     } finally {
       setLoading(false);
     }
@@ -138,8 +139,10 @@ export function AccessRequestsTab() {
     try {
       await deleteAccessRequest(req.id);
       setRequests((prev) => prev.filter((r) => r.id !== req.id));
-    } catch {
-      setError('Erro ao remover. Tente novamente.');
+    } catch (e) {
+      console.error('[deleteAccessRequest] erro:', e);
+      const msg = e instanceof Error ? e.message : 'Erro desconhecido';
+      setError(`Erro ao remover: ${msg}`);
     } finally {
       setActionId(null);
     }
@@ -152,6 +155,7 @@ export function AccessRequestsTab() {
         {(Object.keys(STATUS_LABELS) as FilterStatus[]).map((s) => (
           <button
             key={s}
+            type="button"
             onClick={() => setFilter(s)}
             className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
               filter === s
@@ -223,6 +227,7 @@ export function AccessRequestsTab() {
                       <option value="owner">Proprietário</option>
                     </select>
                     <button
+                      type="button"
                       onClick={() => handleApprove(req)}
                       disabled={actionId === req.id}
                       title="Aprovar"
@@ -231,6 +236,7 @@ export function AccessRequestsTab() {
                       <CheckIcon />
                     </button>
                     <button
+                      type="button"
                       onClick={() => handleDeny(req)}
                       disabled={actionId === req.id}
                       title="Negar"
@@ -242,6 +248,7 @@ export function AccessRequestsTab() {
                 )}
                 {req.status !== 'pending' && (
                   <button
+                    type="button"
                     onClick={() => handleDelete(req)}
                     disabled={actionId === req.id}
                     title="Remover registro"

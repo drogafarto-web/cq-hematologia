@@ -1,23 +1,30 @@
+import { httpsCallable } from 'firebase/functions';
 import {
+  auth,
   db,
   doc,
   getDoc,
   getDocs,
-  setDoc,
-  updateDoc,
   deleteDoc,
   addDoc,
   collection,
   query,
   where,
-  orderBy,
   serverTimestamp,
   writeBatch,
-  firestoreErrorMessage,
 } from '../../../shared/services/firebase';
+import { functions } from '../../../config/firebase.config';
 import { COLLECTIONS, SUBCOLLECTIONS } from '../../../constants';
 import type { Lab, UserRole, AccessRequest, AccessRequestStatus } from '../../../types';
 import type { UserDocument } from '../../auth/services/authService';
+import { normalizeLab } from './labSchema';
+
+// ─── Token refresh ────────────────────────────────────────────────────────────
+// Must be called after any mutation that changes auth claims (SuperAdmin toggle).
+
+async function afterAuthMutation(): Promise<void> {
+  await auth.currentUser?.getIdToken(/* forceRefresh */ true);
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -29,6 +36,8 @@ export interface AdminUserRecord {
   labIds: string[];
   roles: Record<string, UserRole>;
   activeLabId: string | null;
+  disabled: boolean;
+  createdAt: Date | null;
 }
 
 export interface AdminLabRecord extends Lab {
@@ -37,59 +46,85 @@ export interface AdminLabRecord extends Lab {
 
 // ─── Users ────────────────────────────────────────────────────────────────────
 
+function mapUserDoc(uid: string, data: UserDocument): AdminUserRecord {
+  return {
+    uid,
+    email:        data.email,
+    displayName:  data.displayName,
+    isSuperAdmin: data.isSuperAdmin,
+    labIds:       data.labIds ?? [],
+    roles:        data.roles ?? {},
+    activeLabId:  data.activeLabId ?? null,
+    disabled:     data.disabled ?? false,
+    createdAt:    data.createdAt?.toDate() ?? null,
+  };
+}
+
 export async function fetchAllUsers(): Promise<AdminUserRecord[]> {
   const snap = await getDocs(collection(db, COLLECTIONS.USERS));
-  return snap.docs.map((d) => {
-    const data = d.data() as UserDocument;
-    return {
-      uid: d.id,
-      email: data.email,
-      displayName: data.displayName,
-      isSuperAdmin: data.isSuperAdmin,
-      labIds: data.labIds ?? [],
-      roles: data.roles ?? {},
-      activeLabId: data.activeLabId ?? null,
-    };
-  });
+  return snap.docs.map((d) => mapUserDoc(d.id, d.data() as UserDocument));
 }
 
 export async function fetchUser(uid: string): Promise<AdminUserRecord | null> {
   const snap = await getDoc(doc(db, COLLECTIONS.USERS, uid));
   if (!snap.exists()) return null;
-  const data = snap.data() as UserDocument;
-  return {
-    uid: snap.id,
-    email: data.email,
-    displayName: data.displayName,
-    isSuperAdmin: data.isSuperAdmin,
-    labIds: data.labIds ?? [],
-    roles: data.roles ?? {},
-    activeLabId: data.activeLabId ?? null,
-  };
+  return mapUserDoc(snap.id, snap.data() as UserDocument);
 }
 
+// ─── Mutation CFs ─────────────────────────────────────────────────────────────
+// All write operations go through Cloud Functions for server-side auth enforcement.
+
 export async function setSuperAdmin(uid: string, value: boolean): Promise<void> {
-  await updateDoc(doc(db, COLLECTIONS.USERS, uid), { isSuperAdmin: value });
+  const fn = httpsCallable(functions, 'setUserSuperAdmin');
+  await fn({ targetUid: uid, isSuperAdmin: value });
+  // Token must be refreshed so the caller's new claim state is reflected locally
+  await afterAuthMutation();
 }
 
 export async function removeUserFromLab(labId: string, uid: string): Promise<void> {
-  const batch = writeBatch(db);
+  const fn = httpsCallable(functions, 'removeUserFromLab');
+  await fn({ targetUid: uid, labId });
+}
 
-  batch.delete(doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.MEMBERS, uid));
+export async function addUserToLab(uid: string, labId: string, role: UserRole): Promise<void> {
+  const fn = httpsCallable(functions, 'addUserToLab');
+  await fn({ targetUid: uid, labId, role });
+}
 
-  const userRef = doc(db, COLLECTIONS.USERS, uid);
-  const userSnap = await getDoc(userRef);
-  if (userSnap.exists()) {
-    const userData = userSnap.data() as UserDocument;
-    const labIds = (userData.labIds ?? []).filter((id) => id !== labId);
-    const roles = { ...(userData.roles ?? {}) };
-    delete roles[labId];
-    const updates: Record<string, unknown> = { labIds, roles };
-    if (userData.activeLabId === labId) updates.activeLabId = null;
-    batch.update(userRef, updates);
-  }
+export async function updateUserLabRole(uid: string, labId: string, role: UserRole): Promise<void> {
+  const fn = httpsCallable(functions, 'updateUserLabRole');
+  await fn({ targetUid: uid, labId, role });
+}
 
-  await batch.commit();
+export async function deleteUserViaFunction(uid: string): Promise<void> {
+  const fn = httpsCallable(functions, 'deleteUser');
+  await fn({ targetUid: uid });
+}
+
+// ─── Cloud Function callables ─────────────────────────────────────────────────
+
+interface CreateUserPayload {
+  displayName: string;
+  email:       string;
+  password:    string;
+  labId?:      string;
+  role?:       UserRole;
+}
+
+export async function createUserViaFunction(
+  data: CreateUserPayload
+): Promise<{ uid: string }> {
+  const fn = httpsCallable<CreateUserPayload, { uid: string }>(functions, 'createUser');
+  const result = await fn(data);
+  return result.data;
+}
+
+export async function setUserDisabledViaFunction(
+  uid: string,
+  disabled: boolean
+): Promise<void> {
+  const fn = httpsCallable(functions, 'setUserDisabled');
+  await fn({ uid, disabled });
 }
 
 // ─── Labs ─────────────────────────────────────────────────────────────────────
@@ -99,15 +134,11 @@ export async function fetchAllLabs(): Promise<AdminLabRecord[]> {
 
   const labs = await Promise.all(
     snap.docs.map(async (d) => {
-      const data = d.data();
       const membersSnap = await getDocs(
         collection(db, COLLECTIONS.LABS, d.id, SUBCOLLECTIONS.MEMBERS)
       );
       return {
-        id: d.id,
-        name: data.name as string,
-        logoUrl: data.logoUrl as string | undefined,
-        createdAt: data.createdAt?.toDate() ?? new Date(),
+        ...normalizeLab({ ...d.data(), id: d.id }),
         memberCount: membersSnap.size,
       } satisfies AdminLabRecord;
     })
@@ -147,18 +178,38 @@ export async function createLabAsAdmin(
   return labId;
 }
 
+// ─── Batch helpers ────────────────────────────────────────────────────────────
+// Firestore batches are capped at 500 ops. We chunk to stay safe.
+
+type WriteBatch = ReturnType<typeof writeBatch>;
+type BatchOp = (b: WriteBatch) => void;
+
+async function runBatched(ops: BatchOp[], chunkSize = 450): Promise<void> {
+  if (ops.length === 0) return;
+  for (let i = 0; i < ops.length; i += chunkSize) {
+    const b = writeBatch(db);
+    ops.slice(i, i + chunkSize).forEach((op) => op(b));
+    await b.commit();
+  }
+}
+
 export async function deleteLabAsAdmin(labId: string): Promise<void> {
-  // Collect all member UIDs
+  // STEP 1 — listar members
   const membersSnap = await getDocs(
     collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.MEMBERS)
   );
 
-  const batch = writeBatch(db);
+  // STEP 2 — ler todos os user docs em paralelo (evita N+1), montar batch ops
+  const memberEntries = membersSnap.docs.map((d) => ({ uid: d.id, ref: d.ref }));
+  const userSnaps = await Promise.all(
+    memberEntries.map(({ uid }) => getDoc(doc(db, COLLECTIONS.USERS, uid)))
+  );
 
-  for (const memberDoc of membersSnap.docs) {
-    const uid = memberDoc.id;
+  const memberOps: BatchOp[] = [];
+  for (let i = 0; i < memberEntries.length; i++) {
+    const { uid, ref: memberRef } = memberEntries[i];
+    const userSnap = userSnaps[i];
     const userRef = doc(db, COLLECTIONS.USERS, uid);
-    const userSnap = await getDoc(userRef);
     if (userSnap.exists()) {
       const userData = userSnap.data() as UserDocument;
       const labIds = (userData.labIds ?? []).filter((id) => id !== labId);
@@ -166,13 +217,56 @@ export async function deleteLabAsAdmin(labId: string): Promise<void> {
       delete roles[labId];
       const updates: Record<string, unknown> = { labIds, roles };
       if (userData.activeLabId === labId) updates.activeLabId = null;
-      batch.update(userRef, updates);
+      memberOps.push((b) => b.update(userRef, updates));
     }
-    batch.delete(memberDoc.ref);
+    memberOps.push((b) => b.delete(memberRef));
   }
+  await runBatched(memberOps);
 
-  batch.delete(doc(db, COLLECTIONS.LABS, labId));
-  await batch.commit();
+  // STEP 3 — listar lots e deletar runs em paralelo
+  const lotsSnap = await getDocs(
+    collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.LOTS)
+  );
+
+  // STEP 4 — deletar lots e runs (runs de cada lot em paralelo)
+  const runsPerLot = await Promise.all(
+    lotsSnap.docs.map((lotDoc) =>
+      getDocs(
+        collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.LOTS, lotDoc.id, SUBCOLLECTIONS.RUNS)
+      )
+    )
+  );
+
+  const lotOps: BatchOp[] = [];
+  lotsSnap.docs.forEach((lotDoc, idx) => {
+    runsPerLot[idx].docs.forEach((r) => lotOps.push((b) => b.delete(r.ref)));
+    lotOps.push((b) => b.delete(lotDoc.ref));
+  });
+  await runBatched(lotOps);
+
+  // STEP 5 — deletar data/appState
+  const dataSnap = await getDocs(
+    collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.DATA)
+  );
+  await runBatched(dataSnap.docs.map((d) => (b: WriteBatch) => b.delete(d.ref)));
+
+  // STEP 6 — deletar documento principal do lab
+  await deleteDoc(doc(db, COLLECTIONS.LABS, labId));
+
+  // STEP 7 — registrar no auditLogs (não impeditivo)
+  if (auth.currentUser) {
+    try {
+      await addDoc(collection(db, COLLECTIONS.AUDIT_LOGS), {
+        action: 'DELETE_LAB',
+        labId,
+        uid: auth.currentUser.uid,
+        email: auth.currentUser.email,
+        timestamp: serverTimestamp(),
+      });
+    } catch {
+      // Audit log failure is non-fatal — lab was already deleted successfully
+    }
+  }
 }
 
 // ─── Access Requests ──────────────────────────────────────────────────────────
@@ -180,15 +274,15 @@ export async function deleteLabAsAdmin(labId: string): Promise<void> {
 export async function fetchAllAccessRequests(
   status?: AccessRequestStatus
 ): Promise<AccessRequest[]> {
-  const constraints = status
-    ? [where('status', '==', status), orderBy('createdAt', 'desc')]
-    : [orderBy('createdAt', 'desc')];
+  // Avoid compound where+orderBy to sidestep composite index requirement.
+  // Filter by status in Firestore only; sort by createdAt in-memory.
+  const constraints = status ? [where('status', '==', status)] : [];
 
   const snap = await getDocs(
     query(collection(db, COLLECTIONS.ACCESS_REQUESTS), ...constraints)
   );
 
-  return snap.docs.map((d) => {
+  const results = snap.docs.map((d) => {
     const data = d.data();
     return {
       id: d.id,
@@ -201,6 +295,8 @@ export async function fetchAllAccessRequests(
       createdAt: data.createdAt?.toDate() ?? new Date(),
     };
   });
+
+  return results.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 }
 
 export async function approveAccessRequest(

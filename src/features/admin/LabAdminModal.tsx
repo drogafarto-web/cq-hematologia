@@ -85,6 +85,7 @@ export function LabAdminModal({ lab, onConfirm, onClose }: Props) {
               type="file"
               accept="image/*"
               onChange={handleFile}
+              aria-label="Selecionar logo do laboratório"
               className="hidden"
             />
           </div>

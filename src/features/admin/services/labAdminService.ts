@@ -19,7 +19,16 @@ import {
   firestoreErrorMessage,
 } from '../../../shared/services/firebase';
 import { COLLECTIONS, SUBCOLLECTIONS, storagePath } from '../../../constants';
-import type { Lab, UserRole } from '../../../types';
+import type {
+  Lab,
+  UserRole,
+  LabContact,
+  LabAddress,
+  LabQCSettings,
+  LabCompliance,
+  LabSubscription,
+} from '../../../types';
+import { normalizeLab } from './labSchema';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -33,12 +42,26 @@ export interface LabMember {
 
 export interface CreateLabPayload {
   name: string;
+  legalName?: string;
+  cnpj?: string;
   logoFile?: File;
+  contact?: Partial<LabContact>;
+  address?: Partial<LabAddress>;
+  qcSettings?: Partial<LabQCSettings>;
+  compliance?: Partial<LabCompliance>;
+  subscription?: Partial<LabSubscription>;
 }
 
 export interface UpdateLabPayload {
   name?: string;
+  legalName?: string;
+  cnpj?: string;
   logoFile?: File;
+  contact?: Partial<LabContact>;
+  address?: Partial<LabAddress>;
+  qcSettings?: Partial<LabQCSettings>;
+  compliance?: Partial<LabCompliance>;
+  subscription?: Partial<LabSubscription>;
 }
 
 // ─── Lab CRUD ─────────────────────────────────────────────────────────────────
@@ -47,6 +70,8 @@ export async function createLab(
   payload: CreateLabPayload,
   ownerUid: string
 ): Promise<Lab> {
+  if (!payload.name.trim()) throw new Error('Nome do laboratório é obrigatório.');
+
   const labRef = doc(collection(db, COLLECTIONS.LABS));
   const labId = labRef.id;
 
@@ -55,20 +80,67 @@ export async function createLab(
     logoUrl = await uploadLabLogo(labId, payload.logoFile);
   }
 
-  const now = serverTimestamp();
-  const labData = {
-    name: payload.name.trim(),
-    logoUrl: logoUrl ?? null,
-    createdAt: now,
+  // Build Firestore document with full defaults so normalizeLab is a no-op
+  // on new documents (and migrations only affect truly legacy docs).
+  const labData: Record<string, unknown> = {
+    name:      payload.name.trim(),
+    legalName: payload.legalName?.trim() ?? null,
+    logoUrl:   logoUrl ?? null,
+    cnpj:      payload.cnpj?.trim() ?? null,
+
+    contact: {
+      email: '',
+      phone: '',
+      ...(payload.contact ?? {}),
+    },
+    address: {
+      street:       '',
+      number:       '',
+      complement:   null,
+      neighborhood: '',
+      city:         '',
+      state:        '',
+      zipCode:      '',
+      ...(payload.address ?? {}),
+    },
+    qcSettings: {
+      westgardRules: {
+        '1-2s': true,
+        '1-3s': true,
+        '2-2s': true,
+        'R-4s': true,
+        '4-1s': true,
+        '10x':  true,
+        ...((payload.qcSettings?.westgardRules) ?? {}),
+      },
+      minRunsForInternalStats: payload.qcSettings?.minRunsForInternalStats ?? 20,
+    },
+    compliance: {
+      cnesCode:          null,
+      anvisaLicense:     null,
+      iso15189:          false,
+      accreditationBody: null,
+      ...(payload.compliance ?? {}),
+    },
+    subscription: {
+      plan:   'free',
+      status: 'active',
+      ...(payload.subscription ?? {}),
+    },
+
+    createdAt: serverTimestamp(),
+    createdBy: ownerUid,
+    updatedAt: null,
   };
 
   const batch = writeBatch(db);
-
   batch.set(labRef, labData);
 
   // Owner member entry
-  const memberRef = doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.MEMBERS, ownerUid);
-  batch.set(memberRef, { role: 'owner', active: true });
+  batch.set(
+    doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.MEMBERS, ownerUid),
+    { role: 'owner', active: true }
+  );
 
   // Update user document
   const userRef = doc(db, COLLECTIONS.USERS, ownerUid);
@@ -76,7 +148,6 @@ export async function createLab(
   if (userSnap.exists()) {
     const userData = userSnap.data();
     const labIds: string[] = userData.labIds ?? [];
-    const roles: Record<string, string> = userData.roles ?? {};
     batch.update(userRef, {
       labIds: [...labIds, labId],
       [`roles.${labId}`]: 'owner',
@@ -85,33 +156,62 @@ export async function createLab(
 
   await batch.commit();
 
-  return {
-    id: labId,
-    name: payload.name.trim(),
-    logoUrl,
-    createdAt: new Date(),
-  };
+  // Return a normalized Lab so callers get the full typed object immediately.
+  return normalizeLab({ ...labData, id: labId, createdAt: new Date() });
 }
 
 export async function updateLab(
   labId: string,
   payload: UpdateLabPayload
-): Promise<Partial<Lab>> {
+): Promise<void> {
   const updates: Record<string, unknown> = {};
 
-  if (payload.name !== undefined) {
-    updates.name = payload.name.trim();
-  }
+  if (payload.name !== undefined)      updates.name      = payload.name.trim();
+  if (payload.legalName !== undefined) updates.legalName = payload.legalName.trim();
+  if (payload.cnpj !== undefined)      updates.cnpj      = payload.cnpj.trim();
 
   if (payload.logoFile) {
     updates.logoUrl = await uploadLabLogo(labId, payload.logoFile);
   }
 
-  if (Object.keys(updates).length > 0) {
-    await updateDoc(doc(db, COLLECTIONS.LABS, labId), updates);
+  // Merge nested objects with dot-notation so we patch only supplied keys
+  // and never wipe existing sub-fields on the document.
+  if (payload.contact) {
+    for (const [k, v] of Object.entries(payload.contact)) {
+      updates[`contact.${k}`] = v;
+    }
+  }
+  if (payload.address) {
+    for (const [k, v] of Object.entries(payload.address)) {
+      updates[`address.${k}`] = v;
+    }
+  }
+  if (payload.qcSettings) {
+    const { westgardRules, ...rest } = payload.qcSettings;
+    for (const [k, v] of Object.entries(rest)) {
+      updates[`qcSettings.${k}`] = v;
+    }
+    if (westgardRules) {
+      for (const [k, v] of Object.entries(westgardRules)) {
+        updates[`qcSettings.westgardRules.${k}`] = v;
+      }
+    }
+  }
+  if (payload.compliance) {
+    for (const [k, v] of Object.entries(payload.compliance)) {
+      updates[`compliance.${k}`] = v;
+    }
+  }
+  if (payload.subscription) {
+    for (const [k, v] of Object.entries(payload.subscription)) {
+      updates[`subscription.${k}`] = v;
+    }
   }
 
-  return updates as Partial<Lab>;
+  if (Object.keys(updates).length === 0) return;
+
+  updates.updatedAt = serverTimestamp();
+  await updateDoc(doc(db, COLLECTIONS.LABS, labId), updates);
 }
 
 export async function deleteLab(labId: string): Promise<void> {

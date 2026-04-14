@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { z } from 'zod';
 import { FirebaseError } from 'firebase/app';
 import { signIn } from './services/authService';
+import { useAuthFlow } from './hooks/useAuthFlow';
 
 // ─── Validation ───────────────────────────────────────────────────────────────
 
@@ -72,18 +73,22 @@ function Spinner() {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function LoginScreen() {
-  const [email,    setEmail]    = useState('demo@labclin.com');
-  const [password, setPassword] = useState('123456');
-  const [error,    setError]    = useState<string | null>(null);
+  const { error: globalError } = useAuthFlow();
+  const [email,    setEmail]    = useState('');
+  const [password, setPassword] = useState('');
+  const [localError, setLocalError] = useState<string | null>(null);
   const [loading,  setLoading]  = useState(false);
+
+  // Sync local error with global error from hook
+  const displayError = localError || globalError;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
+    setLocalError(null);
 
     const parsed = schema.safeParse({ email: email.trim(), password });
     if (!parsed.success) {
-      setError(parsed.error.errors[0].message);
+      setLocalError(parsed.error.errors[0].message);
       return;
     }
 
@@ -92,7 +97,8 @@ export function LoginScreen() {
       await signIn(parsed.data.email, parsed.data.password);
       // onAuthStateChanged in useAuthFlow picks up the state automatically
     } catch (err) {
-      setError(authErrorMessage(err));
+      console.error('[LoginScreen] Error:', err);
+      setLocalError(authErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -157,9 +163,9 @@ export function LoginScreen() {
           </div>
 
           {/* Error */}
-          {error && (
+          {displayError && (
             <p className="text-xs text-red-400/90 bg-red-500/[0.08] border border-red-500/[0.15] rounded-lg px-3 py-2.5">
-              {error}
+              {displayError}
             </p>
           )}
 

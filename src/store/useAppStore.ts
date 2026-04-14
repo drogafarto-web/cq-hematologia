@@ -1,11 +1,12 @@
 import { create } from 'zustand';
-import type { ControlLot, SyncStatus, PendingRun, View, StatsSource } from '../types';
+import type { ControlLot, SyncStatus, PendingRun, PendingBulaData, View, StatsSource } from '../types';
 
 interface AppState {
   lots: ControlLot[];
   activeLotId: string | null;
   selectedAnalyteId: string | null;
   pendingRun: PendingRun | null;
+  pendingBulaData: PendingBulaData | null;
   isLoading: boolean;
   error: string | null;
   syncStatus: SyncStatus;
@@ -17,6 +18,7 @@ interface AppState {
   setActiveLotId: (id: string | null) => void;
   setSelectedAnalyteId: (id: string | null) => void;
   setPendingRun: (run: PendingRun | null) => void;
+  setPendingBulaData: (data: PendingBulaData | null) => void;
   setLoading: (v: boolean) => void;
   setError: (e: string | null) => void;
   setSyncStatus: (s: SyncStatus) => void;
@@ -30,6 +32,7 @@ const initialState = {
   activeLotId: null,
   selectedAnalyteId: null,
   pendingRun: null,
+  pendingBulaData: null,
   isLoading: false,
   error: null,
   syncStatus: 'saved' as SyncStatus,
@@ -44,6 +47,7 @@ export const useAppStore = create<AppState>((set) => ({
   setActiveLotId:       (activeLotId)       => set({ activeLotId }),
   setSelectedAnalyteId: (selectedAnalyteId) => set({ selectedAnalyteId }),
   setPendingRun:        (pendingRun)        => set({ pendingRun }),
+  setPendingBulaData:   (pendingBulaData)   => set({ pendingBulaData }),
   setLoading:           (isLoading)         => set({ isLoading }),
   setError:             (error)             => set({ error }),
   setSyncStatus:        (syncStatus)        => set({ syncStatus }),

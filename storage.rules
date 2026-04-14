@@ -1,0 +1,86 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ── Lab files: isolated per tenant ────────────────────────────────────────
+    // All lab assets live under labs/{labId}/. Access is gated by the
+    // /labs/{labId}/members/{uid} Firestore subcollection (same RBAC as Firestore rules).
+
+    match /labs/{labId}/{allPaths=**} {
+
+      function isAuth() {
+        return request.auth != null;
+      }
+
+      function isSuperAdmin() {
+        return isAuth() &&
+          firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
+          firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isSuperAdmin == true;
+      }
+
+      function isActiveMember() {
+        let memberPath = /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid);
+        return isAuth() &&
+          firestore.exists(memberPath) &&
+          firestore.get(memberPath).data.active == true;
+      }
+
+      function getMemberRole() {
+        return firestore.get(
+          /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid)
+        ).data.role;
+      }
+
+      function isAdminOrOwner() {
+        let role = getMemberRole();
+        return role == 'admin' || role == 'owner';
+      }
+
+      // Any active member (or superAdmin) can read files in their lab
+      allow read: if isSuperAdmin() || isActiveMember();
+
+      // Logo and admin-level files: only admin/owner can write
+      allow write: if isSuperAdmin() || (isActiveMember() && isAdminOrOwner());
+    }
+
+    // ── Run images: any active member can upload, only admin/owner can delete ─
+    // This more-specific match extends the write permission for the runs path.
+    // Firebase Storage uses OR semantics across match blocks, so create/update
+    // access is granted to all members here, while delete remains restricted.
+
+    match /labs/{labId}/lots/{lotId}/runs/{runId} {
+
+      function isAuth() {
+        return request.auth != null;
+      }
+
+      function isSuperAdmin() {
+        return isAuth() &&
+          firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
+          firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isSuperAdmin == true;
+      }
+
+      function isActiveMember() {
+        let memberPath = /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid);
+        return isAuth() &&
+          firestore.exists(memberPath) &&
+          firestore.get(memberPath).data.active == true;
+      }
+
+      function getMemberRole() {
+        return firestore.get(
+          /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid)
+        ).data.role;
+      }
+
+      function isAdminOrOwner() {
+        let role = getMemberRole();
+        return role == 'admin' || role == 'owner';
+      }
+
+      allow read:          if isSuperAdmin() || isActiveMember();
+      allow create, update: if isSuperAdmin() || isActiveMember();
+      allow delete:        if isSuperAdmin() || (isActiveMember() && isAdminOrOwner());
+    }
+  }
+}

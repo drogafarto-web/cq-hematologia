@@ -33,17 +33,18 @@ const ANALYTE_SYNONYMS: Record<string, string> = {
   pct: 'PCT',
   // PDW
   pdw: 'PDW',
-  // Differentials %
-  neu: 'NEU', neupct: 'NEU', neutrophils: 'NEU', neutrofilos: 'NEU',
-  lym: 'LYM', lympct: 'LYM', lymphocytes: 'LYM', linfocitos: 'LYM',
-  mon: 'MON', monpct: 'MON', monocytes: 'MON', monocitos: 'MON',
-  eos: 'EOS', eospct: 'EOS', eosinophils: 'EOS', eosinofilos: 'EOS',
-  bas: 'BAS', baspct: 'BAS', basophils: 'BAS', basofilos: 'BAS',
-  // Differentials # (absolute)
-  neua: 'NEU#', neuabs: 'NEU#',
-  lyma: 'LYM#', lymabs: 'LYM#',
-  mona: 'MON#', monabs: 'MON#',
-  eosa: 'EOS#', eosabs: 'EOS#',
+  // Differentials # (absolute counts — the only tracked form)
+  // All common column names from manufacturer CSVs resolve to the # variant.
+  neu: 'NEU#', neua: 'NEU#', neuabs: 'NEU#', neuhash: 'NEU#',
+  neutrophils: 'NEU#', neutrofilos: 'NEU#', neutrophilsabs: 'NEU#',
+  lym: 'LYM#', lyma: 'LYM#', lymabs: 'LYM#', lymhash: 'LYM#',
+  lymphocytes: 'LYM#', linfocitos: 'LYM#', lymphocytesabs: 'LYM#',
+  mon: 'MON#', mona: 'MON#', monabs: 'MON#', monhash: 'MON#',
+  monocytes: 'MON#', monocitos: 'MON#', monocytesabs: 'MON#',
+  eos: 'EOS#', eosa: 'EOS#', eosabs: 'EOS#', eoshash: 'EOS#',
+  eosinophils: 'EOS#', eosinofilos: 'EOS#', eosinophilsabs: 'EOS#',
+  bas: 'BAS#', basa: 'BAS#', basabs: 'BAS#', bashash: 'BAS#', baso: 'BAS#',
+  basophils: 'BAS#', basofilos: 'BAS#', basophilsabs: 'BAS#',
 };
 
 /** Normalises a raw cell value for synonym lookup */

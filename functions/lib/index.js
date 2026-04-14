@@ -1,0 +1,727 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.extractFromBula = exports.extractFromImage = exports.deleteUser = exports.removeUserFromLab = exports.updateUserLabRole = exports.addUserToLab = exports.setUserSuperAdmin = exports.setUserDisabled = exports.createUser = void 0;
+const https_1 = require("firebase-functions/v2/https");
+const v2_1 = require("firebase-functions/v2");
+const params_1 = require("firebase-functions/params");
+const genai_1 = require("@google/genai");
+const zod_1 = require("zod");
+const admin = require("firebase-admin");
+const claims_1 = require("./helpers/claims");
+// All functions deploy to the same region as Firestore
+(0, v2_1.setGlobalOptions)({ region: 'southamerica-east1' });
+// Initialize Admin SDK once — runtime may reuse warm instances
+if (!admin.apps.length) {
+    admin.initializeApp();
+}
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+/**
+ * Checks custom claim first (fast, no Firestore read).
+ * Falls back to Firestore for users created before syncClaims migration.
+ */
+async function assertSuperAdmin(uid, token) {
+    if (token?.isSuperAdmin === true)
+        return;
+    const snap = await admin.firestore().doc(`users/${uid}`).get();
+    if (!snap.exists || snap.data()?.isSuperAdmin !== true) {
+        throw new https_1.HttpsError('permission-denied', 'Acesso negado. Apenas Super Admins podem executar esta operação.');
+    }
+}
+// ─── createUser ───────────────────────────────────────────────────────────────
+// Creates a Firebase Auth user + Firestore document, optionally adding to a lab.
+// Caller must be Super Admin. Current session is NOT disrupted.
+const CreateUserInputSchema = zod_1.z.object({
+    displayName: zod_1.z.string().min(1).max(100),
+    email: zod_1.z.string().email(),
+    password: zod_1.z.string().min(8),
+    labId: zod_1.z.string().optional(),
+    role: zod_1.z.enum(['admin', 'member']).optional(),
+});
+exports.createUser = (0, https_1.onCall)({}, async (request) => {
+    if (!request.auth) {
+        throw new https_1.HttpsError('unauthenticated', 'Autenticação necessária.');
+    }
+    await assertSuperAdmin(request.auth.uid, request.auth.token);
+    const parsed = CreateUserInputSchema.safeParse(request.data);
+    if (!parsed.success) {
+        throw new https_1.HttpsError('invalid-argument', `Dados inválidos: ${parsed.error.message}`);
+    }
+    const { displayName, email, password, labId, role } = parsed.data;
+    let userRecord;
+    try {
+        userRecord = await admin.auth().createUser({
+            email,
+            password,
+            displayName,
+            emailVerified: false,
+        });
+    }
+    catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (msg.includes('email-already-exists')) {
+            throw new https_1.HttpsError('already-exists', 'Este e-mail já está cadastrado.');
+        }
+        throw new https_1.HttpsError('internal', `Falha ao criar usuário: ${msg}`);
+    }
+    const uid = userRecord.uid;
+    const db = admin.firestore();
+    const batch = db.batch();
+    batch.set(db.doc(`users/${uid}`), {
+        email,
+        displayName,
+        labIds: labId ? [labId] : [],
+        roles: labId && role ? { [labId]: role } : {},
+        isSuperAdmin: false,
+        activeLabId: null,
+        pendingLabId: null,
+        disabled: false,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    if (labId && role) {
+        batch.set(db.doc(`labs/${labId}/members/${uid}`), { role, active: true });
+    }
+    await batch.commit();
+    // Audit — non-blocking
+    db.collection('auditLogs').add({
+        action: 'CREATE_USER',
+        callerUid: request.auth.uid,
+        callerEmail: request.auth.token.email ?? null,
+        targetUid: uid,
+        targetEmail: email,
+        labId: labId ?? null,
+        payload: {},
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    }).catch(() => { });
+    return { uid };
+});
+// ─── setUserDisabled ──────────────────────────────────────────────────────────
+// Disables (disabled=true) or enables (disabled=false) a Firebase Auth account.
+// Disabling immediately revokes all active sessions via token revocation.
+const SetUserDisabledInputSchema = zod_1.z.object({
+    uid: zod_1.z.string().min(1),
+    disabled: zod_1.z.boolean(),
+});
+exports.setUserDisabled = (0, https_1.onCall)({}, async (request) => {
+    if (!request.auth) {
+        throw new https_1.HttpsError('unauthenticated', 'Autenticação necessária.');
+    }
+    await assertSuperAdmin(request.auth.uid, request.auth.token);
+    const parsed = SetUserDisabledInputSchema.safeParse(request.data);
+    if (!parsed.success) {
+        throw new https_1.HttpsError('invalid-argument', 'Dados inválidos.');
+    }
+    const { uid, disabled } = parsed.data;
+    if (uid === request.auth.uid) {
+        throw new https_1.HttpsError('invalid-argument', 'Você não pode suspender sua própria conta.');
+    }
+    try {
+        await admin.auth().updateUser(uid, { disabled });
+        if (disabled) {
+            await admin.auth().revokeRefreshTokens(uid);
+        }
+    }
+    catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        throw new https_1.HttpsError('internal', `Falha ao atualizar conta: ${msg}`);
+    }
+    await admin.firestore().doc(`users/${uid}`).update({ disabled });
+    admin.firestore().collection('auditLogs').add({
+        action: disabled ? 'DISABLE_USER' : 'ENABLE_USER',
+        callerUid: request.auth.uid,
+        callerEmail: request.auth.token.email ?? null,
+        targetUid: uid,
+        payload: { disabled },
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    }).catch(() => { });
+    return { success: true };
+});
+// ─── setUserSuperAdmin ────────────────────────────────────────────────────────
+// Promotes or demotes a user to/from Super Admin.
+// Syncs custom claims so the new privilege is reflected in the next token refresh.
+const SetUserSuperAdminSchema = zod_1.z.object({
+    targetUid: zod_1.z.string().min(1),
+    isSuperAdmin: zod_1.z.boolean(),
+});
+exports.setUserSuperAdmin = (0, https_1.onCall)({}, async (request) => {
+    if (!request.auth) {
+        throw new https_1.HttpsError('unauthenticated', 'Autenticação necessária.');
+    }
+    await assertSuperAdmin(request.auth.uid, request.auth.token);
+    const parsed = SetUserSuperAdminSchema.safeParse(request.data);
+    if (!parsed.success) {
+        throw new https_1.HttpsError('invalid-argument', 'Dados inválidos.');
+    }
+    const { targetUid, isSuperAdmin } = parsed.data;
+    if (targetUid === request.auth.uid) {
+        throw new https_1.HttpsError('invalid-argument', 'Você não pode alterar seu próprio nível de Super Admin.');
+    }
+    // Update Firestore + sync custom claim atomically (serially is fine here)
+    await admin.firestore().doc(`users/${targetUid}`).update({ isSuperAdmin });
+    await (0, claims_1.syncClaims)(targetUid, isSuperAdmin);
+    admin.firestore().collection('auditLogs').add({
+        action: isSuperAdmin ? 'PROMOTE_SUPERADMIN' : 'DEMOTE_SUPERADMIN',
+        callerUid: request.auth.uid,
+        callerEmail: request.auth.token.email ?? null,
+        targetUid,
+        payload: { isSuperAdmin },
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    }).catch(() => { });
+    return { success: true };
+});
+// ─── addUserToLab ─────────────────────────────────────────────────────────────
+// Adds a user as a member of a lab. Atomic batch write.
+const AddUserToLabSchema = zod_1.z.object({
+    targetUid: zod_1.z.string().min(1),
+    labId: zod_1.z.string().min(1),
+    role: zod_1.z.enum(['admin', 'member']),
+});
+exports.addUserToLab = (0, https_1.onCall)({}, async (request) => {
+    if (!request.auth) {
+        throw new https_1.HttpsError('unauthenticated', 'Autenticação necessária.');
+    }
+    await assertSuperAdmin(request.auth.uid, request.auth.token);
+    const parsed = AddUserToLabSchema.safeParse(request.data);
+    if (!parsed.success) {
+        throw new https_1.HttpsError('invalid-argument', 'Dados inválidos.');
+    }
+    const { targetUid, labId, role } = parsed.data;
+    const db = admin.firestore();
+    const batch = db.batch();
+    batch.set(db.doc(`labs/${labId}/members/${targetUid}`), { role, active: true });
+    const userSnap = await db.doc(`users/${targetUid}`).get();
+    if (!userSnap.exists) {
+        throw new https_1.HttpsError('not-found', 'Usuário não encontrado.');
+    }
+    const userData = userSnap.data();
+    const labIds = (userData.labIds ?? []);
+    batch.update(db.doc(`users/${targetUid}`), {
+        labIds: labIds.includes(labId) ? labIds : [...labIds, labId],
+        [`roles.${labId}`]: role,
+    });
+    await batch.commit();
+    db.collection('auditLogs').add({
+        action: 'ADD_TO_LAB',
+        callerUid: request.auth.uid,
+        callerEmail: request.auth.token.email ?? null,
+        targetUid,
+        labId,
+        payload: { role },
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    }).catch(() => { });
+    return { success: true };
+});
+// ─── updateUserLabRole ────────────────────────────────────────────────────────
+// Changes a lab member's role. Blocks demoting the owner.
+const UpdateUserLabRoleSchema = zod_1.z.object({
+    targetUid: zod_1.z.string().min(1),
+    labId: zod_1.z.string().min(1),
+    role: zod_1.z.enum(['admin', 'member']),
+});
+exports.updateUserLabRole = (0, https_1.onCall)({}, async (request) => {
+    if (!request.auth) {
+        throw new https_1.HttpsError('unauthenticated', 'Autenticação necessária.');
+    }
+    await assertSuperAdmin(request.auth.uid, request.auth.token);
+    const parsed = UpdateUserLabRoleSchema.safeParse(request.data);
+    if (!parsed.success) {
+        throw new https_1.HttpsError('invalid-argument', 'Dados inválidos.');
+    }
+    const { targetUid, labId, role } = parsed.data;
+    const db = admin.firestore();
+    // Block demoting an owner
+    const memberSnap = await db.doc(`labs/${labId}/members/${targetUid}`).get();
+    if (memberSnap.exists && memberSnap.data()?.role === 'owner') {
+        throw new https_1.HttpsError('failed-precondition', 'Não é possível rebaixar o proprietário do laboratório.');
+    }
+    const batch = db.batch();
+    batch.update(db.doc(`labs/${labId}/members/${targetUid}`), { role });
+    batch.update(db.doc(`users/${targetUid}`), { [`roles.${labId}`]: role });
+    await batch.commit();
+    db.collection('auditLogs').add({
+        action: 'CHANGE_ROLE',
+        callerUid: request.auth.uid,
+        callerEmail: request.auth.token.email ?? null,
+        targetUid,
+        labId,
+        payload: { role },
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    }).catch(() => { });
+    return { success: true };
+});
+// ─── removeUserFromLab ────────────────────────────────────────────────────────
+// Removes a user from a lab. Atomic batch write.
+const RemoveUserFromLabSchema = zod_1.z.object({
+    targetUid: zod_1.z.string().min(1),
+    labId: zod_1.z.string().min(1),
+});
+exports.removeUserFromLab = (0, https_1.onCall)({}, async (request) => {
+    if (!request.auth) {
+        throw new https_1.HttpsError('unauthenticated', 'Autenticação necessária.');
+    }
+    await assertSuperAdmin(request.auth.uid, request.auth.token);
+    const parsed = RemoveUserFromLabSchema.safeParse(request.data);
+    if (!parsed.success) {
+        throw new https_1.HttpsError('invalid-argument', 'Dados inválidos.');
+    }
+    const { targetUid, labId } = parsed.data;
+    const db = admin.firestore();
+    const userSnap = await db.doc(`users/${targetUid}`).get();
+    if (!userSnap.exists) {
+        throw new https_1.HttpsError('not-found', 'Usuário não encontrado.');
+    }
+    const userData = userSnap.data();
+    const labIds = (userData.labIds ?? []).filter((id) => id !== labId);
+    const roles = { ...(userData.roles ?? {}) };
+    delete roles[labId];
+    const updates = { labIds, roles };
+    if (userData.activeLabId === labId)
+        updates.activeLabId = null;
+    const batch = db.batch();
+    batch.delete(db.doc(`labs/${labId}/members/${targetUid}`));
+    batch.update(db.doc(`users/${targetUid}`), updates);
+    await batch.commit();
+    db.collection('auditLogs').add({
+        action: 'REMOVE_FROM_LAB',
+        callerUid: request.auth.uid,
+        callerEmail: request.auth.token.email ?? null,
+        targetUid,
+        labId,
+        payload: {},
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    }).catch(() => { });
+    return { success: true };
+});
+// ─── deleteUser ───────────────────────────────────────────────────────────────
+// Permanently deletes a Firebase Auth account + all Firestore data.
+// Cascades to lab memberships across all labs.
+const DeleteUserSchema = zod_1.z.object({
+    targetUid: zod_1.z.string().min(1),
+});
+exports.deleteUser = (0, https_1.onCall)({}, async (request) => {
+    if (!request.auth) {
+        throw new https_1.HttpsError('unauthenticated', 'Autenticação necessária.');
+    }
+    await assertSuperAdmin(request.auth.uid, request.auth.token);
+    const parsed = DeleteUserSchema.safeParse(request.data);
+    if (!parsed.success) {
+        throw new https_1.HttpsError('invalid-argument', 'Dados inválidos.');
+    }
+    const { targetUid } = parsed.data;
+    if (targetUid === request.auth.uid) {
+        throw new https_1.HttpsError('invalid-argument', 'Você não pode deletar sua própria conta.');
+    }
+    const db = admin.firestore();
+    // Read user doc to get lab memberships before deleting
+    const userSnap = await db.doc(`users/${targetUid}`).get();
+    if (!userSnap.exists) {
+        throw new https_1.HttpsError('not-found', 'Usuário não encontrado.');
+    }
+    const userData = userSnap.data();
+    const targetEmail = userData.email;
+    const labIds = (userData.labIds ?? []);
+    // Delete Firebase Auth account first — point of no return
+    try {
+        await admin.auth().deleteUser(targetUid);
+    }
+    catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        throw new https_1.HttpsError('internal', `Falha ao deletar conta de autenticação: ${msg}`);
+    }
+    // Cascade: delete /labs/{labId}/members/{targetUid} for every lab
+    const batch = db.batch();
+    for (const labId of labIds) {
+        batch.delete(db.doc(`labs/${labId}/members/${targetUid}`));
+    }
+    // Delete Firestore user document
+    batch.delete(db.doc(`users/${targetUid}`));
+    await batch.commit();
+    // Audit — non-blocking
+    db.collection('auditLogs').add({
+        action: 'DELETE_USER',
+        callerUid: request.auth.uid,
+        callerEmail: request.auth.token.email ?? null,
+        targetUid,
+        targetEmail,
+        payload: { labsRemoved: labIds },
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    }).catch(() => { });
+    return { success: true };
+});
+// ─── Server-side secrets ──────────────────────────────────────────────────────
+const geminiApiKey = (0, params_1.defineSecret)('GEMINI_API_KEY');
+// ─── Shared constants ─────────────────────────────────────────────────────────
+const GEMINI_MODEL = 'gemini-2.5-flash-preview-04-17';
+// ─── extractFromImage ─────────────────────────────────────────────────────────
+// Callable function for OCR extraction from hematology analyzer screens.
+// New schema: AI returns `values` (number|null per analyte) + `fieldConfidence`
+// (categorical). A mapper inside the function converts back to the original
+// {value, confidence, reasoning} shape so the frontend contract is unchanged.
+const OcrResponseSchema = zod_1.z.object({
+    sampleId: zod_1.z.string().nullable().optional(),
+    values: zod_1.z.record(zod_1.z.string(), zod_1.z.number().nullable()),
+    fieldConfidence: zod_1.z.record(zod_1.z.string(), zod_1.z.enum(['high', 'medium', 'low'])).optional(),
+    overallConfidence: zod_1.z.enum(['high', 'medium', 'low']).optional(),
+});
+const CONFIDENCE_MAP = {
+    high: 1.0,
+    medium: 0.75,
+    low: 0.5,
+};
+const OCR_PROMPT = `
+Você é um especialista em hematologia clínica e leitura de equipamentos automatizados, com foco no analisador Horiba Yumizen H550.
+
+Você faz parte de um sistema profissional de Controle de Qualidade Laboratorial utilizado em rotinas reais de laboratório clínico.
+
+--------------------------------------------------
+
+🎯 OBJETIVO
+
+Extrair com alta precisão os valores laboratoriais de uma imagem da tela do equipamento, retornando um JSON estruturado, confiável e validável.
+
+Os dados serão utilizados para:
+- Gráfico de Levey-Jennings
+- Regras de Westgard
+- Monitoramento de estabilidade analítica
+
+Precisão é mais importante que completude.
+
+--------------------------------------------------
+
+🧭 ESTRUTURA DA TELA DO EQUIPAMENTO
+
+A tela do Yumizen H550 é organizada em blocos fixos:
+
+- TOPO: ID da amostra
+- SUPERIOR ESQUERDO: RBC, HGB, HCT, VCM, HCM, CHCM, RDW-CV, RDW-SD
+- SUPERIOR DIREITO: PLT, PCT, VPM, PDW
+- INFERIOR: WBC + diferencial (NEU, LYM, MON, EOS, BASO)
+  Cada linha do diferencial mostra: valor absoluto # | porcentagem %
+
+Use este mapa espacial para desambiguar rótulos parcialmente ocluídos.
+
+--------------------------------------------------
+
+🔤 ALIASES DE RÓTULOS (interface pode estar em português)
+
+A tela pode exibir abreviações portuguesas. Mapeie conforme abaixo:
+
+  VCM   → MCV     (Volume Corpuscular Médio)
+  HCM   → MCH     (Hemoglobina Corpuscular Média)
+  CHCM  → MCHC    (Concentração de Hemoglobina Corpuscular Média)
+  VPM   → MPV     (Volume Plaquetário Médio)
+  BASO  → BAS#    (Basófilos — valor absoluto)
+
+--------------------------------------------------
+
+📏 REGRAS DE EXTRAÇÃO
+
+1. FORMATO NUMÉRICO
+   - Converter vírgula para ponto: 4,52 → 4.52
+
+2. RDW (CRÍTICO)
+   - Extrair SOMENTE RDW-CV (valor em %, primeira linha da dupla RDW)
+   - Ignorar RDW-SD (segunda linha, em µm³)
+   - Retornar sob a chave "RDW"
+
+3. DIFERENCIAL LEUCOCITÁRIO (CRÍTICO)
+   - Extrair SOMENTE os valores absolutos # (×10³/µL), coluna da esquerda
+   - Ignorar completamente as porcentagens % (coluna da direita)
+   - Se apenas % estiver visível → null
+   - Retornar sob as chaves: NEU#, LYM#, MON#, EOS#, BAS#
+
+4. CAMPOS ILEGÍVEIS
+   - Retornar null e marcar confiança "low"
+
+5. UNIDADES (não converter valores)
+   - RBC → ×10⁶/µL
+   - WBC e diferenciais → ×10³/µL
+
+--------------------------------------------------
+
+🚫 IGNORAR COMPLETAMENTE
+
+O sistema utiliza sangue controle sintético.
+
+NÃO extrair nem considerar:
+- Flags (H, L, Hx, Lx, *, h*)
+- Mensagens de interferência ou alertas clínicos
+- Valores percentuais do diferencial
+- RDW-SD
+
+--------------------------------------------------
+
+📊 PARÂMETROS A EXTRAIR
+
+Eritrograma:  RBC, HGB, HCT, MCV, MCH, MCHC, RDW
+Plaquetas:    PLT, MPV, PDW, PCT
+Leucócitos:   WBC
+Diferencial:  NEU#, LYM#, MON#, EOS#, BAS#
+Outros:       NLR (se presente na tela)
+
+--------------------------------------------------
+
+🧠 AVALIAÇÃO DE QUALIDADE
+
+Para cada campo extraído:
+- "high"   → leitura clara e inequívoca
+- "medium" → pequena dúvida (reflexo, ângulo, compressão de imagem)
+- "low"    → difícil leitura ou incerteza real
+
+--------------------------------------------------
+
+📦 FORMATO DE SAÍDA (OBRIGATÓRIO)
+
+Retorne apenas JSON válido, sem nenhum texto fora do JSON:
+
+{
+  "sampleId": "string | null",
+
+  "values": {
+    "RBC":  number | null,
+    "HGB":  number | null,
+    "HCT":  number | null,
+    "MCV":  number | null,
+    "MCH":  number | null,
+    "MCHC": number | null,
+    "RDW":  number | null,
+    "PLT":  number | null,
+    "MPV":  number | null,
+    "PDW":  number | null,
+    "PCT":  number | null,
+    "WBC":  number | null,
+    "NEU#": number | null,
+    "LYM#": number | null,
+    "MON#": number | null,
+    "EOS#": number | null,
+    "BAS#": number | null,
+    "NLR":  number | null
+  },
+
+  "fieldConfidence": {
+    "RBC":  "high | medium | low",
+    "HGB":  "high | medium | low",
+    "HCT":  "high | medium | low",
+    "MCV":  "high | medium | low",
+    "MCH":  "high | medium | low",
+    "MCHC": "high | medium | low",
+    "RDW":  "high | medium | low",
+    "PLT":  "high | medium | low",
+    "MPV":  "high | medium | low",
+    "PDW":  "high | medium | low",
+    "PCT":  "high | medium | low",
+    "WBC":  "high | medium | low",
+    "NEU#": "high | medium | low",
+    "LYM#": "high | medium | low",
+    "MON#": "high | medium | low",
+    "EOS#": "high | medium | low",
+    "BAS#": "high | medium | low",
+    "NLR":  "high | medium | low"
+  },
+
+  "overallConfidence": "high | medium | low"
+}
+
+--------------------------------------------------
+
+🚫 REGRAS PROIBIDAS
+
+- Não misturar valores percentuais com absolutos
+- Não inventar valores
+- Não inferir dados ausentes
+- Não retornar texto fora do JSON
+
+--------------------------------------------------
+
+🎯 FOCO FINAL
+
+Se houver qualquer dúvida sobre um campo → retorne null.
+
+A confiabilidade dos dados é mais importante que preencher todos os campos.
+`.trim();
+exports.extractFromImage = (0, https_1.onCall)({ secrets: [geminiApiKey] }, async (request) => {
+    if (!request.auth) {
+        throw new https_1.HttpsError('unauthenticated', 'Autenticação necessária.');
+    }
+    const { base64, mimeType } = request.data;
+    if (!base64?.trim()) {
+        throw new https_1.HttpsError('invalid-argument', 'Nenhuma imagem fornecida.');
+    }
+    const client = new genai_1.GoogleGenAI({ apiKey: geminiApiKey.value() });
+    let rawText;
+    try {
+        const response = await client.models.generateContent({
+            model: GEMINI_MODEL,
+            contents: [
+                {
+                    role: 'user',
+                    parts: [
+                        { text: OCR_PROMPT },
+                        { inlineData: { mimeType, data: base64 } },
+                    ],
+                },
+            ],
+            config: { responseMimeType: 'application/json' },
+        });
+        rawText = response.text ?? '';
+    }
+    catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (msg.includes('429') || msg.toLowerCase().includes('quota')) {
+            throw new https_1.HttpsError('resource-exhausted', 'Cota da API Gemini excedida. Aguarde alguns instantes.');
+        }
+        if (msg.toUpperCase().includes('SAFETY')) {
+            throw new https_1.HttpsError('invalid-argument', 'A imagem foi bloqueada por filtros de segurança.');
+        }
+        throw new https_1.HttpsError('internal', `Falha na comunicação com a IA: ${msg}`);
+    }
+    if (!rawText.trim()) {
+        throw new https_1.HttpsError('internal', 'A IA retornou uma resposta vazia.');
+    }
+    let parsed;
+    try {
+        parsed = JSON.parse(rawText);
+    }
+    catch {
+        throw new https_1.HttpsError('internal', 'A IA retornou dados em formato inválido.');
+    }
+    const validation = OcrResponseSchema.safeParse(parsed);
+    if (!validation.success) {
+        throw new https_1.HttpsError('internal', 'A IA retornou dados fora do formato esperado.');
+    }
+    const { data } = validation;
+    // Map new AI format → original frontend contract {value, confidence, reasoning}
+    const results = {};
+    for (const [analyteId, rawValue] of Object.entries(data.values)) {
+        if (rawValue === null)
+            continue;
+        const tier = data.fieldConfidence?.[analyteId];
+        const overall = data.overallConfidence ?? 'n/a';
+        results[analyteId] = {
+            value: rawValue,
+            confidence: tier ? CONFIDENCE_MAP[tier] : CONFIDENCE_MAP.low,
+            reasoning: tier ? `${tier} (overall: ${overall})` : `low (overall: ${overall})`,
+        };
+    }
+    if (Object.keys(results).length === 0) {
+        throw new https_1.HttpsError('internal', 'Nenhum analito foi reconhecido na imagem.');
+    }
+    return {
+        sampleId: data.sampleId ?? null,
+        results,
+    };
+});
+// ─── extractFromBula ──────────────────────────────────────────────────────────
+// Callable function for parsing manufacturer stats from PDF bulas.
+const ANALYTE_IDS_ALL = [
+    'WBC', 'RBC', 'HGB', 'HCT', 'MCV', 'MCH', 'MCHC', 'PLT', 'RDW',
+    'MPV', 'PCT', 'PDW', 'NEU#', 'LYM#', 'MON#', 'EOS#', 'BAS#',
+].join(', ');
+const BULA_PROMPT = `
+Você é um especialista em interpretar bulas de controles hematológicos (package inserts).
+Analise o documento PDF e extraia os valores esperados (média e desvio-padrão) para TODOS OS TRÊS NÍVEIS
+do controle (Nível 1 = Baixo/Normal, Nível 2 = Normal/Elevado, Nível 3 = Alto/Elevado).
+
+Analitos aceitos pelo sistema: ${ANALYTE_IDS_ALL}
+
+Equipamentos — prioridade de extração:
+1. PRIMEIRA ESCOLHA: Yumizen H550 ou Horiba ABX (qualquer variante)
+2. FALLBACK: Se os valores do Yumizen H550 estiverem ausentes para um analito específico,
+   use a coluna do Pentra ES 60, Pentra 60 ou Pentra XL (na ordem de preferência).
+   Registre o equipamento de origem no campo "equipmentSource" do analito afetado.
+
+Retorne um JSON com este formato EXATO:
+{
+  "controlName": "<nome comercial do controle ou null>",
+  "expiryDate":  "<data de validade em YYYY-MM-DD ou null>",
+  "levels": [
+    {
+      "level":     <1, 2 ou 3>,
+      "lotNumber": "<número do lote deste nível ou null>",
+      "analytes": [
+        {
+          "analyteId":       "<id exato do analito>",
+          "mean":            <número>,
+          "sd":              <número>,
+          "equipmentSource": "<nome exato do equipamento de onde este valor foi lido, ex: 'Yumizen H550' ou 'Pentra 60'>"
+        }
+      ]
+    }
+  ]
+}
+
+Regras críticas:
+- Inclua SEMPRE os três níveis no array "levels" (mesmo que um deles não tenha dados — nesse caso inclua "analytes": []).
+- Ordene os níveis como [1, 2, 3].
+- Use apenas os IDs exatos listados acima (ex: "WBC", "HGB", "NEU", "NEU#").
+- Inclua apenas analitos com mean E sd claramente legíveis.
+- Para metadados não encontrados, use null.
+- Nunca invente valores. Se incerto, omita o analito do array.
+- O campo "equipmentSource" é OBRIGATÓRIO em cada analito — registre sempre qual coluna/equipamento foi lido.
+`.trim();
+// ─── Zod schemas ──────────────────────────────────────────────────────────────
+const BulaAnalyteSchema = zod_1.z.object({
+    analyteId: zod_1.z.string(),
+    mean: zod_1.z.number().positive(),
+    sd: zod_1.z.number().nonnegative(),
+    equipmentSource: zod_1.z.string().optional(),
+});
+const BulaLevelSchema = zod_1.z.object({
+    level: zod_1.z.union([zod_1.z.literal(1), zod_1.z.literal(2), zod_1.z.literal(3)]),
+    lotNumber: zod_1.z.string().nullable().optional(),
+    analytes: zod_1.z.array(BulaAnalyteSchema),
+});
+const BulaResponseSchema = zod_1.z.object({
+    controlName: zod_1.z.string().nullable().optional(),
+    expiryDate: zod_1.z.string().nullable().optional(),
+    levels: zod_1.z.array(BulaLevelSchema).min(1),
+});
+exports.extractFromBula = (0, https_1.onCall)({ secrets: [geminiApiKey], memory: '1GiB' }, async (request) => {
+    if (!request.auth) {
+        throw new https_1.HttpsError('unauthenticated', 'Autenticação necessária.');
+    }
+    const { base64, mimeType } = request.data;
+    if (!base64?.trim()) {
+        throw new https_1.HttpsError('invalid-argument', 'Nenhum arquivo fornecido.');
+    }
+    const client = new genai_1.GoogleGenAI({ apiKey: geminiApiKey.value() });
+    let rawText;
+    try {
+        const response = await client.models.generateContent({
+            model: GEMINI_MODEL,
+            contents: [
+                {
+                    role: 'user',
+                    parts: [
+                        { text: BULA_PROMPT },
+                        { inlineData: { mimeType, data: base64 } },
+                    ],
+                },
+            ],
+            config: { responseMimeType: 'application/json' },
+        });
+        rawText = response.text ?? '';
+    }
+    catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (msg.includes('429') || msg.toLowerCase().includes('quota')) {
+            throw new https_1.HttpsError('resource-exhausted', 'Cota da API Gemini excedida. Aguarde alguns instantes.');
+        }
+        throw new https_1.HttpsError('internal', `Falha na comunicação com a IA: ${msg}`);
+    }
+    if (!rawText.trim()) {
+        throw new https_1.HttpsError('internal', 'A IA retornou uma resposta vazia. Verifique se o PDF é legível.');
+    }
+    let parsed;
+    try {
+        parsed = JSON.parse(rawText);
+    }
+    catch {
+        throw new https_1.HttpsError('internal', 'A IA retornou dados em formato inválido.');
+    }
+    const validation = BulaResponseSchema.safeParse(parsed);
+    if (!validation.success) {
+        throw new https_1.HttpsError('internal', `A IA retornou dados fora do formato esperado: ${validation.error.message}`);
+    }
+    return validation.data;
+});
+//# sourceMappingURL=index.js.map

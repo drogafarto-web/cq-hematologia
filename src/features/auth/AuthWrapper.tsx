@@ -8,6 +8,7 @@ import { LabSelectorScreen }     from './LabSelectorScreen';
 import { PendingLabAccessScreen } from './PendingLabAccessScreen';
 import { SuperAdminDashboard }   from '../admin/SuperAdminDashboard';
 import { AnalyzerView }          from '../analyzer/AnalyzerView';
+import { BulaProcessor }         from '../bulaparser/BulaProcessor';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
 
@@ -32,8 +33,8 @@ function AppRouter() {
   // Super admin with no lab → always start in admin dashboard
   if (isSuperAdmin && !activeLab) return <SuperAdminDashboard />;
 
-  // Explicit navigation to super admin panel (when user also has a lab)
   if (currentView === 'superadmin' && isSuperAdmin) return <SuperAdminDashboard />;
+  if (currentView === 'bulaparser') return <BulaProcessor />;
 
   return <AnalyzerView />;
 }

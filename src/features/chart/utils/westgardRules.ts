@@ -37,9 +37,32 @@ function rule_4_1s(last4: number[]): boolean {
   return last4.every((z) => z >= 1) || last4.every((z) => z <= -1);
 }
 
-/** 10x   Rejection — 10 consecutive values all on the same side of the mean */
+/** 10x  Rejection — 10 consecutive values all on the same side of the mean */
 function rule_10x(last10: number[]): boolean {
   return last10.every((z) => z > 0) || last10.every((z) => z < 0);
+}
+
+/**
+ * 6T   Rejection — 6 consecutive values monotonically rising or falling.
+ * Detects systematic drift (analytical instability over time).
+ *
+ * @param last6Newest  z-scores ordered newest → oldest
+ */
+function rule_6T(last6Newest: number[]): boolean {
+  const chronological = [...last6Newest].reverse(); // oldest → newest
+  const rising  = chronological.every((v, i) => i === 0 || v > chronological[i - 1]);
+  const falling = chronological.every((v, i) => i === 0 || v < chronological[i - 1]);
+  return rising || falling;
+}
+
+/**
+ * 6X   Rejection — 6 consecutive values all on the same side of the mean.
+ * Earlier variant of 10x; detects systematic shift with a shorter window.
+ *
+ * @param last6 z-scores (any order — only sign matters)
+ */
+function rule_6X(last6: number[]): boolean {
+  return last6.every((z) => z > 0) || last6.every((z) => z < 0);
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
@@ -81,6 +104,13 @@ export function checkWestgardRules(
     if (rule_4_1s([z0, zPrev[0], zPrev[1], zPrev[2]])) violations.push('4-1s');
   }
 
+  // Six-value rules
+  if (zPrev.length >= 5) {
+    const last6 = [z0, ...zPrev.slice(0, 5)];
+    if (rule_6T(last6)) violations.push('6T');
+    if (rule_6X(last6)) violations.push('6X');
+  }
+
   // Ten-value rule
   if (zPrev.length >= 9) {
     if (rule_10x([z0, ...zPrev.slice(0, 9)])) violations.push('10x');
@@ -90,7 +120,7 @@ export function checkWestgardRules(
 }
 
 /** Rules that require run rejection (vs. warning-only) */
-const REJECTION_RULES = new Set<WestgardViolation>(['1-3s', '2-2s', 'R-4s', '4-1s', '10x']);
+const REJECTION_RULES = new Set<WestgardViolation>(['1-3s', '2-2s', 'R-4s', '4-1s', '10x', '6T', '6X']);
 
 /** Returns true if any violation in the list triggers run rejection */
 export function isRejection(violations: WestgardViolation[]): boolean {

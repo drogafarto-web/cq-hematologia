@@ -4,6 +4,7 @@ import type { User } from 'firebase/auth';
 import { auth, db } from '../../../shared/services/firebase';
 import { COLLECTIONS, SUBCOLLECTIONS } from '../../../constants';
 import type { Lab, UserRole } from '../../../types';
+import { normalizeLab } from '../../admin/services/labSchema';
 
 // ─── Firestore document shape ─────────────────────────────────────────────────
 // Internal to this service — consumers receive typed domain objects (Lab, AppProfile).
@@ -22,6 +23,10 @@ export interface UserDocument {
    * separate Firestore query (regular users cannot list accessRequests).
    */
   pendingLabId: string | null;
+  /** Set by Cloud Function when Super Admin suspends/enables the account. */
+  disabled?: boolean;
+  /** Set on creation via Cloud Function. Absent for legacy accounts. */
+  createdAt?: import('firebase/firestore').Timestamp;
 }
 
 // ─── Sign in ──────────────────────────────────────────────────────────────────
@@ -64,8 +69,8 @@ export async function updateUserDocument(
 
 // ─── Labs ─────────────────────────────────────────────────────────────────────
 
-export async function getLabsForUser(labIds: string[]): Promise<Lab[]> {
-  if (labIds.length === 0) return [];
+export async function getLabsForUser(labIds: string[] | undefined): Promise<Lab[]> {
+  if (!labIds || labIds.length === 0) return [];
 
   const snaps = await Promise.all(
     labIds.map((id) => getDoc(doc(db, COLLECTIONS.LABS, id)))
@@ -73,15 +78,7 @@ export async function getLabsForUser(labIds: string[]): Promise<Lab[]> {
 
   return snaps
     .filter((s) => s.exists())
-    .map((s) => {
-      const d = s.data()!;
-      return {
-        id: s.id,
-        name: d.name as string,
-        logoUrl: d.logoUrl as string | undefined,
-        createdAt: d.createdAt?.toDate() ?? new Date(),
-      } satisfies Lab;
-    });
+    .map((s) => normalizeLab({ ...s.data()!, id: s.id }));
 }
 
 // ─── Member role ──────────────────────────────────────────────────────────────

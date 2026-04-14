@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx vite:*)",
+      "Bash(npx tsc:*)",
+      "Bash(./node_modules/.bin/tsc --noEmit)",
+      "Bash(npm run:*)",
+      "Bash(firebase projects:list)",
+      "Bash(node_modules/.bin/tsc --noEmit)",
+      "Bash(ls \"c:/hc quality/\"*.json)",
+      "Bash(node_modules/.bin/vite build:*)",
+      "Bash(firebase deploy:*)",
+      "Bash(ls \"c:/hc quality\"/*.json)"
+    ]
+  }
+}

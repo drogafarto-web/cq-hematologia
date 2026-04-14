@@ -9,8 +9,10 @@ service cloud.firestore {
     }
 
     function isSuperAdmin() {
-      let userDoc = get(/databases/$(database)/documents/users/$(request.auth.uid));
-      return userDoc != null && userDoc.data.isSuperAdmin == true;
+      // Fast path: custom claim set by Cloud Function (no Firestore read)
+      return request.auth.token.isSuperAdmin == true ||
+        // Fallback: Firestore check for users created before claim migration
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isSuperAdmin == true);
     }
 
     function isActiveMemberOfLab(labId) {
@@ -28,13 +30,16 @@ service cloud.firestore {
     }
 
     // ── /users ────────────────────────────────────────────────────────────────
-    // Regular users can only read/write their own document.
-    // SuperAdmins can list all users.
 
     match /users/{userId} {
       allow get: if isAuthenticated();
       allow list: if isSuperAdmin();
-      allow create, update: if isSuperAdmin() || request.auth.uid == userId;
+      allow create: if isSuperAdmin() || request.auth.uid == userId;
+      // Self-updates restricted to safe fields; SuperAdmin can update anything
+      allow update: if isSuperAdmin() ||
+        (request.auth.uid == userId &&
+         request.resource.data.diff(resource.data).affectedKeys()
+           .hasOnly(['contact', 'displayName', 'photoURL', 'activeLabId', 'pendingLabId']));
       allow delete: if isSuperAdmin();
     }
 
@@ -42,34 +47,33 @@ service cloud.firestore {
 
     match /labs/{labId} {
       allow get: if isSuperAdmin() || isActiveMemberOfLab(labId);
-      allow list, write: if isSuperAdmin();
+      allow list: if isAuthenticated(); // Allow users to list labs to request access
+      allow create, delete: if isSuperAdmin();
+      // Admin/owner can update their own lab profile (name, contact, address, etc.)
+      // but only superAdmin can create or delete labs.
+      allow update: if isSuperAdmin() || isAdminOrOwner(labId);
 
       // /labs/{labId}/members
       match /members/{uid} {
-        allow get: if isSuperAdmin() || request.auth.uid == uid;
-        allow list, write: if isSuperAdmin();
+        allow get: if isSuperAdmin() || request.auth.uid == uid || isAdminOrOwner(labId);
+        allow list: if isSuperAdmin() || isAdminOrOwner(labId);
+        allow write: if isSuperAdmin() || isAdminOrOwner(labId);
       }
 
-      // /labs/{labId}/data — appState and other per-lab documents
-      // Any active member can read and update appState.
-      // Only admins/owners can create or delete.
+      // /labs/{labId}/data
       match /data/{dataPath} {
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow create, delete: if isSuperAdmin() || isAdminOrOwner(labId);
-        allow update: if
-          (isSuperAdmin() || isActiveMemberOfLab(labId)) &&
-          (isAdminOrOwner(labId) || dataPath == 'appState');
+        allow update: if (isSuperAdmin() || isActiveMemberOfLab(labId)) &&
+                       (isAdminOrOwner(labId) || dataPath == 'appState');
       }
 
-      // /labs/{labId}/lots — control lot documents (no runs array — split architecture)
-      // Any active member can read. Only admins/owners can write.
+      // /labs/{labId}/lots
       match /lots/{lotId} {
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow write: if isSuperAdmin() || (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
 
-        // /labs/{labId}/lots/{lotId}/runs — individual run documents
-        // Any active member can create and update runs (operators record results).
-        // Only admins/owners can delete runs.
+        // /labs/{labId}/lots/{lotId}/runs
         match /runs/{runId} {
           allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
           allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
@@ -78,9 +82,24 @@ service cloud.firestore {
       }
     }
 
+    // ── /user-data (Legacy) ───────────────────────────────────────────────────
+
+    match /user-data/{uid} {
+      allow read, write: if request.auth.uid == uid || isSuperAdmin();
+      match /{allSubcollections=**} {
+        allow read, write: if request.auth.uid == uid || isSuperAdmin();
+      }
+    }
+
+    // ── /auditLogs ──────────────────────────────────────────────────────────
+
+    match /auditLogs/{logId} {
+      allow create: if isAuthenticated();
+      allow read: if isSuperAdmin();
+      allow update, delete: if false; // Audit logs are immutable
+    }
+
     // ── /accessRequests ───────────────────────────────────────────────────────
-    // Any authenticated user can create a request for themselves.
-    // Only SuperAdmins can list, get, update, or delete.
 
     match /accessRequests/{reqId} {
       allow list, get, update, delete: if isSuperAdmin();
@@ -88,9 +107,6 @@ service cloud.firestore {
     }
 
     // ── /status ───────────────────────────────────────────────────────────────
-    // Any authenticated user can read the init document.
-    // Only one init document can ever be created (guard via !exists).
-    // Only SuperAdmins can update or delete.
 
     match /status/{docId} {
       allow get: if isAuthenticated();
@@ -100,3 +116,4 @@ service cloud.firestore {
     }
   }
 }
+

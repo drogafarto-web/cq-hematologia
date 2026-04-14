@@ -186,10 +186,12 @@ export function AnalyzerView() {
 
         <LogoMark />
 
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 flex items-center gap-4">
           <p className="text-sm font-semibold text-white/85 truncate leading-none">
             {activeLab?.name ?? 'CQ Hematologia'}
           </p>
+
+
         </div>
 
         <SyncDot status={syncStatus} />
@@ -212,6 +214,13 @@ export function AnalyzerView() {
                 <div className="px-4 py-2.5 border-b border-white/[0.07] mb-1">
                   <p className="text-xs text-white/50 truncate">{user?.email}</p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => { setCurrentView('bulaparser'); setMenuOpen(false); }}
+                  className="w-full px-4 py-2 text-left text-sm text-white/55 hover:text-white/85 hover:bg-white/[0.05] transition-all"
+                >
+                  Importar bula PDF
+                </button>
                 {isSuperAdmin && (
                   <button
                     type="button"
@@ -221,6 +230,7 @@ export function AnalyzerView() {
                     Painel Super Admin
                   </button>
                 )}
+                <div className="h-px bg-white/[0.06] my-1" />
                 <button
                   type="button"
                   onClick={signOut}
