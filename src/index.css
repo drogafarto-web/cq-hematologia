@@ -1,1 +1,37 @@
 @import "tailwindcss";
+
+/* Dark mode variant — Tailwind v4 */
+@custom-variant dark (&:is(.dark *));
+
+/* ─── Login: Levey-Jennings faint grid background ───────────────────────────
+   Applied to the TrustPanel left column. Evokes LJ chart paper without
+   distracting from the content. Pure CSS — zero JS or image deps.         */
+.lj-grid-bg {
+  background-image:
+    repeating-linear-gradient(90deg, rgba(139, 92, 246, 0.06) 0px, rgba(139, 92, 246, 0.06) 1px, transparent 1px, transparent 40px),
+    repeating-linear-gradient(0deg,  rgba(139, 92, 246, 0.06) 0px, rgba(139, 92, 246, 0.06) 1px, transparent 1px, transparent 40px);
+}
+
+/* ─── Transições suaves de tema — apenas em elementos de bloco/texto ────────
+   Restringe ao subset visual relevante; evita impacto em checkboxes,
+   SVGs e foco de inputs em páginas densas.                                 */
+body,
+main,
+section,
+article,
+aside,
+header,
+footer,
+nav,
+div,
+p,
+span,
+h1, h2, h3, h4, h5, h6,
+a,
+label,
+li,
+td, th {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}

@@ -4,6 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CQ Hematologia Labclin</title>
+  <script>
+    // Zero FOUC — executa ANTES do React hidratar
+    (function() {
+      var html = document.documentElement;
+      var savedTheme = localStorage.getItem('cq-theme');
+      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        html.classList.add('dark');
+      } else {
+        html.classList.remove('dark');
+      }
+    })();
+  </script>
 </head>
 <body>
   <div id="root"></div>

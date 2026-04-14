@@ -29,6 +29,26 @@ service cloud.firestore {
       return role == 'admin' || role == 'owner';
     }
 
+    // ── Module access (custom claims) ─────────────────────────────────────────
+    //
+    // Custom claims are set server-side by the setModulesClaims Cloud Function.
+    // Using claims here avoids an extra Firestore read per rule evaluation and
+    // works offline (the claim is embedded in the signed JWT).
+    //
+    // Safe migration pattern:
+    //   - If a user has NO modules claim yet (legacy / pre-migration), the
+    //     `request.auth.token.get('modules', {})` returns {} and the check
+    //     returns false — access is DENIED for that module path.
+    //   - Run setModulesClaims for all existing users before enabling the gate
+    //     on a collection, or use `|| !('modules' in request.auth.token)` as a
+    //     temporary bypass during the rollout window.
+    //
+    // Usage:  hasModuleAccess('hematologia')
+    //         hasModuleAccess('bioquimica')
+    function hasModuleAccess(module) {
+      return request.auth.token.get('modules', {})[module] == true;
+    }
+
     // ── /users ────────────────────────────────────────────────────────────────
 
     match /users/{userId} {
@@ -69,13 +89,24 @@ service cloud.firestore {
       }
 
       // /labs/{labId}/lots
+      //
+      // Module gate: members can only read lots if they hold the matching module
+      // claim in their JWT. Write (create/update/delete) is kept admin-only and
+      // does not require the module claim — admins manage all lab data.
+      //
+      // ROLLOUT NOTE: replace `|| !('modules' in request.auth.token)` with
+      // `|| false` once setModulesClaims has been run for every existing user.
       match /lots/{lotId} {
-        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('hematologia') || !('modules' in request.auth.token)));
         allow write: if isSuperAdmin() || (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
 
         // /labs/{labId}/lots/{lotId}/runs
         match /runs/{runId} {
-          allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) &&
+              (hasModuleAccess('hematologia') || !('modules' in request.auth.token)));
           allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
           allow delete: if isSuperAdmin() || (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
         }
@@ -113,6 +144,25 @@ service cloud.firestore {
       allow create: if isAuthenticated() && docId == 'init' &&
         !exists(/databases/$(database)/documents/status/init);
       allow update, delete: if isSuperAdmin();
+    }
+
+    // ── /pending_users ────────────────────────────────────────────────────────
+    // Stores Google OAuth users who attempted sign-in without a user document.
+    // Structure: /pending_users/{labId}/users/{uid}
+    //
+    // Write: authenticated user can create their own entry (before being signed out).
+    // Read/Delete: lab admins/owners and SuperAdmin only.
+
+    match /pending_users/{labId}/users/{uid} {
+      // Authenticated user can create their own pending entry while they still
+      // hold a valid token (before the client calls signOut).
+      allow create: if isAuthenticated() && request.auth.uid == uid;
+
+      // Only lab admins/owners and SuperAdmin can list, read, or delete.
+      allow get, list, delete: if isSuperAdmin() || isAdminOrOwner(labId);
+
+      // Updates are performed server-side only (via Cloud Function).
+      allow update: if false;
     }
   }
 }

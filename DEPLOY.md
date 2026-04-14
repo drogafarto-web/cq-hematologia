@@ -128,3 +128,21 @@ Todas as funções: `southamerica-east1` (mesma do Firestore).
 4. firebase deploy --project hmatologia2
 5. cd functions && npx ts-node src/migrateUsers.ts   # só uma vez
 ```
+
+---
+
+## 9. Alternativa: Docker & Hospedagem Externa
+
+Caso deseje hospedar o frontend fora do Firebase Hosting (ex: Cloud Run, VPS própria), utilize os arquivos de configuração na raiz:
+
+### Opção A: Docker (Google Cloud Run / VPS)
+O projeto inclui `Dockerfile` e `nginx.conf` configurados para SPA (Single Page Application).
+
+1. **Gerar imagem:** `docker build -t cq-hematologia-front .`
+2. **Configuração Nginx:** O arquivo `nginx.conf` garante que as rotas do React sejam redirecionadas corretamente para o `index.html`.
+
+### Opção B: Netlify / Vercel
+Para estas plataformas, o Docker não é necessário. Utilize a configuração de build padrão:
+- **Build command:** `npm run build`
+- **Publish directory:** `dist`
+- **Importante:** Para o Netlify, adicione um arquivo `_redirects` na pasta `public` com a linha: `/* /index.html 200` para suportar as rotas do React.

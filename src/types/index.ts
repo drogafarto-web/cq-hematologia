@@ -70,6 +70,10 @@ export interface PendingRun {
 export interface AnalyteStats {
   mean: number;
   sd: number;
+  /** Coefficient of variation in percent — populated by calculateRunStats */
+  cv?: number;
+  /** Sample count used to compute these stats */
+  n?: number;
 }
 
 export type ManufacturerStats = Record<string, AnalyteStats>;
@@ -267,4 +271,70 @@ export interface GeminiAnalyteResult {
 export interface GeminiExtractionResponse {
   sampleId?: string;
   results: Record<string, GeminiAnalyteResult>;
+}
+
+// ─── CQ Regulatório (RDC 978/2025) ───────────────────────────────────────────
+
+/** Interface completa para corridas auditáveis — RDC 978/2025 compliant */
+export interface CQRun {
+  id: string;
+  // Rastreabilidade (RDC Art.128)
+  operatorId: string;
+  operatorName: string;
+  operatorRole: 'biomedico' | 'tecnico' | 'farmaceutico';
+  /** CRBM-XXXX ou CRF-XXXX */
+  operatorDocument?: string;
+  confirmedAt: import('firebase/firestore').Timestamp;
+  // IA
+  aiData: Record<string, number | null>;
+  /** Confiança 0–1 por analito */
+  aiConfidence?: Record<string, number>;
+  // Intervenção humana
+  isEdited: boolean;
+  editedFields?: string[];
+  originalData?: Record<string, number | null>;
+  confirmedData: Record<string, number>;
+  // Contexto
+  labId: string;
+  lotId: string;
+  level: 1 | 2 | 3;
+  equipmentId?: string;
+  // Qualidade — union type com hífens (compatível com westgardRules.ts)
+  westgardViolations?: WestgardViolation[];
+  status: RunStatus;
+  // Imutabilidade (Copy-on-Write)
+  version: number;
+  previousRunId?: string;
+  logicalSignature?: string;
+  // Auditoria
+  createdAt: import('firebase/firestore').Timestamp;
+  createdBy: string;
+  imageUrl?: string;
+}
+
+export interface OperatorStat {
+  operatorId: string;
+  operatorName: string;
+  totalRuns: number;
+  editedRuns: number;
+  /** Proporção 0–1 de corridas aprovadas */
+  approvalRate: number;
+}
+
+export interface ReportFilters {
+  labId: string;
+  startDate: Date;
+  endDate: Date;
+  operatorId?: string;
+  level?: 1 | 2 | 3;
+  status?: RunStatus;
+}
+
+export interface ReportStats {
+  totalRuns: number;
+  editedByHuman: number;
+  /** Proporção 0–1 */
+  approvalRate: number;
+  westgardByRule: Record<string, number>;
+  byOperator: OperatorStat[];
 }

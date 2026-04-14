@@ -50,6 +50,7 @@ export const COLLECTIONS = {
   USERS: 'users',
   LABS: 'labs',
   ACCESS_REQUESTS: 'accessRequests',
+  PENDING_USERS: 'pending_users',
   STATUS: 'status',
   AUDIT_LOGS: 'auditLogs',
 } as const;

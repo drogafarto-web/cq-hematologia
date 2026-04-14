@@ -2,13 +2,15 @@ import React from 'react';
 import { useAuthFlow } from './hooks/useAuthFlow';
 import { useIsSuperAdmin, useActiveLab } from '../../store/useAuthStore';
 import { useAppStore } from '../../store/useAppStore';
-import { LoginScreen }           from './LoginScreen';
-import { FirstLabSetupScreen }   from './FirstLabSetupScreen';
-import { LabSelectorScreen }     from './LabSelectorScreen';
-import { PendingLabAccessScreen } from './PendingLabAccessScreen';
-import { SuperAdminDashboard }   from '../admin/SuperAdminDashboard';
-import { AnalyzerView }          from '../analyzer/AnalyzerView';
-import { BulaProcessor }         from '../bulaparser/BulaProcessor';
+import { LoginScreen }              from './LoginScreen';
+import { FirstLabSetupScreen }      from './FirstLabSetupScreen';
+import { LabSelectorScreen }        from './LabSelectorScreen';
+import { PendingLabAccessScreen }   from './PendingLabAccessScreen';
+import { SuspendedScreen }          from './SuspendedScreen';
+import { EmailVerificationScreen }  from './EmailVerificationScreen';
+import { SuperAdminDashboard }      from '../admin/SuperAdminDashboard';
+import { AnalyzerView }             from '../analyzer/AnalyzerView';
+import { BulaProcessor }            from '../bulaparser/BulaProcessor';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
 
@@ -45,11 +47,13 @@ export const AuthWrapper: React.FC = () => {
   const { status } = useAuthFlow();
 
   switch (status) {
-    case 'loading':         return <FullScreenLoader />;
-    case 'unauthenticated': return <LoginScreen />;
-    case 'first_setup':     return <FirstLabSetupScreen />;
-    case 'pending_access':  return <PendingLabAccessScreen />;
-    case 'select_lab':      return <LabSelectorScreen />;
-    case 'ready':           return <AppRouter />;
+    case 'loading':              return <FullScreenLoader />;
+    case 'unauthenticated':      return <LoginScreen />;
+    case 'suspended':            return <SuspendedScreen />;
+    case 'email_not_verified':   return <EmailVerificationScreen />;
+    case 'first_setup':          return <FirstLabSetupScreen />;
+    case 'pending_access':       return <PendingLabAccessScreen />;
+    case 'select_lab':           return <LabSelectorScreen />;
+    case 'ready':                return <AppRouter />;
   }
 };

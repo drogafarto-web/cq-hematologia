@@ -13,6 +13,7 @@ import { StatsSourceToggle }    from '../chart/StatsSourceToggle';
 import { useActiveLab, useIsSuperAdmin, useUser } from '../../store/useAuthStore';
 import { useAppStore }          from '../../store/useAppStore';
 import { useAuthFlow }          from '../auth/hooks/useAuthFlow';
+import { ThemeToggle }          from '../../shared/components/ui/ThemeToggle';
 import type { SyncStatus }      from '../../types';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -195,6 +196,8 @@ export function AnalyzerView() {
         </div>
 
         <SyncDot status={syncStatus} />
+
+        <ThemeToggle size="sm" />
 
         {/* Overflow menu */}
         <div className="relative">
