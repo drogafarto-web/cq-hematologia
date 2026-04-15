@@ -19,11 +19,11 @@ const BrandingPanel: React.FC = () => {
 
                 {/* Center text block */}
                 <div className="flex-1 flex items-center justify-center text-center px-4">
-                    <div>
-                        <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
+                    <div className="px-8 py-6 rounded-2xl backdrop-blur-md bg-black/25 border border-white/10 shadow-2xl">
+                        <h2 className="login-branding-headline text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
                             Precisão em cada análise
                         </h2>
-                        <p className="text-lg lg:text-xl text-white/80 leading-relaxed">
+                        <p className="text-lg lg:text-xl text-white/85 leading-relaxed">
                             Controle de qualidade laboratorial com confiança e tecnologia
                         </p>
                     </div>

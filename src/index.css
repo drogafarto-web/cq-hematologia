@@ -168,6 +168,10 @@ th {
   background-position: center;
 }
 
+.login-branding-headline {
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
 /* ─── Login Screen: Fade-in animation ──────────────────────────────────────────
    Used by LoginForm and other components on initial mount.
    Smooth opacity + upward transform for a polished entry effect.            */
