@@ -34,19 +34,19 @@ export function StatsSourceToggle({
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-xs font-semibold text-white/40 uppercase tracking-wider">
+      <p className="text-xs font-semibold text-slate-400 dark:text-white/40 uppercase tracking-wider">
         Estatísticas
       </p>
 
-      <div className="flex gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/[0.07]">
+      <div className="flex gap-1 p-1 rounded-xl bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.07] transition-colors duration-300">
         {/* Fabricante */}
         <button
           type="button"
           onClick={() => onChange('manufacturer')}
           className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
             value === 'manufacturer'
-              ? 'bg-white/[0.1] text-white/90 shadow-sm'
-              : 'text-white/40 hover:text-white/65'
+              ? 'bg-white dark:bg-white/[0.1] text-slate-900 dark:text-white/90 shadow-sm'
+              : 'text-slate-400 dark:text-white/40 hover:text-slate-600 dark:hover:text-white/65'
           }`}
         >
           Fabricante
@@ -64,10 +64,10 @@ export function StatsSourceToggle({
           }
           className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
             value === 'internal'
-              ? 'bg-violet-500/20 text-violet-300'
+              ? 'bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-300'
               : hasEnoughForInternal
-              ? 'text-white/40 hover:text-white/65'
-              : 'text-white/20 cursor-not-allowed'
+              ? 'text-slate-400 dark:text-white/40 hover:text-slate-600 dark:hover:text-white/65'
+              : 'text-slate-300 dark:text-white/20 cursor-not-allowed'
           }`}
         >
           Interna
@@ -83,7 +83,7 @@ export function StatsSourceToggle({
             value={approvedRuns}
             aria-label={`${approvedRuns} de ${RECOMMENDED_RUNS} corridas aprovadas`}
           />
-          <p className="text-[10px] text-white/25">
+          <p className="text-[10px] text-slate-400 dark:text-white/25">
             {approvedRuns}/{RECOMMENDED_RUNS} corridas aprovadas
             {!hasEnoughForInternal && ` — mín. 2 para habilitar`}
             {hasEnoughForInternal && runsLeft > 0 && ` — +${runsLeft} p/ stats estáveis`}

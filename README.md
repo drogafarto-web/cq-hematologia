@@ -13,8 +13,8 @@ Sistema web SaaS de Controle de Qualidade Interno para laboratórios clínicos d
 | Estado global | Zustand 5 |
 | Validação | Zod 3 |
 | Gráficos | Recharts 3 |
-| Backend | Firebase 10 (Auth + Firestore + Storage) |
-| IA / OCR | Google Gemini 2.5 Flash (`@google/genai`) |
+| Backend | Firebase 10 (Auth + Firestore + Storage + Functions v2) |
+| IA / OCR | Gemini 3.1 Flash (GCP) + OpenRouter Fallback (Gemini 2.0 / Qwen VL) |
 
 ---
 
@@ -130,8 +130,8 @@ login
 
 ## Fluxo de uma corrida
 
-1. Operador fotografa a tela do Yumizen H550
-2. Gemini extrai os valores dos 21 analitos via OCR (saída validada com Zod)
+1. Operador fotografa a tela do analisador (Padrão: Yumizen H550, suportando fallback para Pentra)
+2. Sistema roteia a extração OCR via IA em 3 níveis de resiliência funcional (Gemini GCP → Gemini OpenRouter → Qwen)
 3. Operador revisa e confirma (ou edita manualmente)
 4. Run é salva no Firestore; imagem sobe para o Storage em background
 5. Gráfico de Levey-Jennings é atualizado; violações de Westgard são marcadas
@@ -172,6 +172,13 @@ login
 ---
 
 ## Changelog
+
+### v1.2.0 (Atualização Infra & Inteligência)
+- **BulaProcessor Multi-nível**: Reconhecimento simultâneo de lotes de Nível 1, 2 e 3 a partir de PDF da bula.
+- **Fallback de Equipamento**: IA agora localiza automaticamente parâmetros faltantes (Yumizen) na coluna de backup (Pentra).
+- **Tríplice Resiliência de OCR**: Implementado fallback via OpenRouter caso a cota do GCP esgote. Upgrade para **Gemini 3.1 Flash**.
+- **Dark Mode Profissional**: Componentes refatorados de ponta-a-ponta para alto contraste (Tailwind v4).
+- **Infraestrutura**: Resolvido IAM e roteamento do Cloud Run Serverless para funções Firebase onCall.
 
 ### v1.1.0
 - Regras Firestore RBAC completas (substitui `allow read, write: if true`)

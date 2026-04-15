@@ -52,7 +52,7 @@ function getViolationLevel(lot: ControlLot, analyteId: string): 'rejection' | 'w
 export function AnalyteSelector({ lot, selectedAnalyteId, onSelect }: AnalyteSelectorProps) {
   return (
     <div>
-      <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-3">
+      <p className="text-xs font-semibold text-slate-400 dark:text-white/40 uppercase tracking-wider mb-3">
         Analito
       </p>
       <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-7 gap-1.5">
@@ -65,10 +65,10 @@ export function AnalyteSelector({ lot, selectedAnalyteId, onSelect }: AnalyteSel
           const isSelected = id === selectedAnalyteId;
 
           const statusDot =
-            violation === 'rejection' ? 'bg-red-400' :
-            violation === 'warning'   ? 'bg-amber-400' :
-            lot.runs.length > 0       ? 'bg-emerald-400' :
-                                        'bg-white/20';
+            violation === 'rejection' ? 'bg-red-500 dark:bg-red-400' :
+            violation === 'warning'   ? 'bg-amber-500 dark:bg-amber-400' :
+            lot.runs.length > 0       ? 'bg-emerald-500 dark:bg-emerald-400' :
+                                        'bg-slate-200 dark:bg-white/20';
 
           return (
             <button
@@ -79,8 +79,8 @@ export function AnalyteSelector({ lot, selectedAnalyteId, onSelect }: AnalyteSel
                 relative flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl
                 text-center transition-all border
                 ${isSelected
-                  ? 'bg-violet-500/15 border-violet-500/35 text-violet-300'
-                  : 'border-transparent bg-white/[0.03] hover:bg-white/[0.07] hover:border-white/[0.1] text-white/55 hover:text-white/80'}
+                  ? 'bg-violet-500/10 dark:bg-violet-500/15 border-violet-500/40 dark:border-violet-500/35 text-violet-600 dark:text-violet-300 shadow-sm dark:shadow-none'
+                  : 'border-slate-200 dark:border-transparent bg-white dark:bg-white/[0.03] hover:bg-slate-50 dark:hover:bg-white/[0.07] hover:border-slate-300 dark:hover:border-white/[0.1] text-slate-600 dark:text-white/55 hover:text-slate-900 dark:hover:text-white/80'}
               `}
             >
               {/* Status indicator */}

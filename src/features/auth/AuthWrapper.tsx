@@ -9,6 +9,7 @@ import { PendingLabAccessScreen }   from './PendingLabAccessScreen';
 import { SuspendedScreen }          from './SuspendedScreen';
 import { EmailVerificationScreen }  from './EmailVerificationScreen';
 import { SuperAdminDashboard }      from '../admin/SuperAdminDashboard';
+import { ModuleHub }                from '../hub/ModuleHub';
 import { AnalyzerView }             from '../analyzer/AnalyzerView';
 import { BulaProcessor }            from '../bulaparser/BulaProcessor';
 import { ReportsView }              from '../reports/ReportsView';
@@ -17,8 +18,8 @@ import { ReportsView }              from '../reports/ReportsView';
 
 function FullScreenLoader() {
   return (
-    <div className="min-h-screen bg-[#0c0c0c] flex items-center justify-center">
-      <svg className="animate-spin w-6 h-6 text-white/20" viewBox="0 0 24 24" fill="none" aria-label="Carregando">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0c0c0c] flex items-center justify-center transition-colors duration-300">
+      <svg className="animate-spin w-6 h-6 text-slate-300 dark:text-white/20" viewBox="0 0 24 24" fill="none" aria-label="Carregando">
         <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
         <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
       </svg>
@@ -37,6 +38,7 @@ function AppRouter() {
   if (isSuperAdmin && !activeLab) return <SuperAdminDashboard />;
 
   if (currentView === 'superadmin' && isSuperAdmin) return <SuperAdminDashboard />;
+  if (currentView === 'hub')        return <ModuleHub />;
   if (currentView === 'bulaparser') return <BulaProcessor />;
   if (currentView === 'reports')    return <ReportsView />;
 

@@ -176,7 +176,7 @@ export function AnalyzerView() {
   const currentAnalyte = validAnalyteId ? ANALYTE_MAP[validAnalyteId] : null;
 
   return (
-    <div className="min-h-screen bg-[#0c0c0c] text-white flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0c0c0c] text-slate-900 dark:text-white flex flex-col overflow-hidden transition-colors duration-300">
 
       {/* ── Header ───────────────────────────────────────────────────────────── */}
       <header className="flex items-center gap-3 px-4 h-12 border-b border-white/[0.06] shrink-0">
@@ -184,7 +184,7 @@ export function AnalyzerView() {
           type="button"
           aria-label={sidebarOpen ? 'Fechar barra lateral' : 'Abrir barra lateral'}
           onClick={() => setSidebarOpen((v) => !v)}
-          className="w-7 h-7 flex items-center justify-center rounded-lg text-white/35 hover:text-white/70 hover:bg-white/[0.07] transition-all"
+          className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 dark:text-white/35 hover:text-slate-600 dark:hover:text-white/70 hover:bg-slate-200 dark:hover:bg-white/[0.07] transition-all"
         >
           <MenuBars />
         </button>
@@ -192,11 +192,9 @@ export function AnalyzerView() {
         <LogoMark />
 
         <div className="flex-1 min-w-0 flex items-center gap-4">
-          <p className="text-sm font-semibold text-white/85 truncate leading-none">
+          <p className="text-sm font-semibold text-slate-800 dark:text-white/85 truncate leading-none">
             {activeLab?.name ?? 'CQ Hematologia'}
           </p>
-
-
         </div>
 
         <SyncDot status={syncStatus} />
@@ -209,7 +207,7 @@ export function AnalyzerView() {
             type="button"
             aria-label="Abrir menu"
             onClick={() => setMenuOpen((v) => !v)}
-            className="w-7 h-7 flex items-center justify-center rounded-lg text-white/30 hover:text-white/60 hover:bg-white/[0.07] transition-all"
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 dark:text-white/30 hover:text-slate-600 dark:hover:text-white/60 hover:bg-slate-200 dark:hover:bg-white/[0.07] transition-all"
           >
             <DotsIcon />
           </button>
@@ -217,21 +215,31 @@ export function AnalyzerView() {
           {menuOpen && (
             <>
               <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)} />
-              <div className="absolute right-0 top-9 z-40 w-48 rounded-xl bg-[#1c1c1c] border border-white/[0.1] shadow-2xl overflow-hidden py-1">
-                <div className="px-4 py-2.5 border-b border-white/[0.07] mb-1">
-                  <p className="text-xs text-white/50 truncate">{user?.email}</p>
+              <div className="absolute right-0 top-9 z-40 w-48 rounded-xl bg-white dark:bg-[#1c1c1c] border border-slate-200 dark:border-white/[0.1] shadow-2xl overflow-hidden py-1">
+                <div className="px-4 py-2.5 border-b border-slate-100 dark:border-white/[0.07] mb-1">
+                  <p className="text-xs text-slate-500 dark:text-white/50 truncate">{user?.email}</p>
                 </div>
                 <button
                   type="button"
+                  onClick={() => { setCurrentView('hub'); setMenuOpen(false); }}
+                  className="w-full px-4 py-2 text-left text-sm text-slate-600 dark:text-white/55 hover:text-slate-900 dark:hover:text-white/85 hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2"
+                >
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+                    <path d="M8 2L3 6.5 8 11" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  Todos os módulos
+                </button>
+                <button
+                  type="button"
                   onClick={() => { setCurrentView('bulaparser'); setMenuOpen(false); }}
-                  className="w-full px-4 py-2 text-left text-sm text-white/55 hover:text-white/85 hover:bg-white/[0.05] transition-all"
+                  className="w-full px-4 py-2 text-left text-sm text-slate-600 dark:text-white/55 hover:text-slate-900 dark:hover:text-white/85 hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all"
                 >
                   Importar bula PDF
                 </button>
                 <button
                   type="button"
                   onClick={() => { setCurrentView('reports'); setMenuOpen(false); }}
-                  className="w-full px-4 py-2 text-left text-sm text-white/55 hover:text-white/85 hover:bg-white/[0.05] transition-all flex items-center gap-2"
+                  className="w-full px-4 py-2 text-left text-sm text-slate-600 dark:text-white/55 hover:text-slate-900 dark:hover:text-white/85 hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all flex items-center gap-2"
                 >
                   <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden>
                     <rect x="2" y="1" width="10" height="12" rx="1.5" stroke="currentColor" strokeWidth="1.3" />
@@ -243,16 +251,16 @@ export function AnalyzerView() {
                   <button
                     type="button"
                     onClick={() => { setCurrentView('superadmin'); setMenuOpen(false); }}
-                    className="w-full px-4 py-2 text-left text-sm text-white/55 hover:text-white/85 hover:bg-white/[0.05] transition-all"
+                    className="w-full px-4 py-2 text-left text-sm text-slate-600 dark:text-white/55 hover:text-slate-900 dark:hover:text-white/85 hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all"
                   >
                     Painel Super Admin
                   </button>
                 )}
-                <div className="h-px bg-white/[0.06] my-1" />
+                <div className="h-px bg-slate-100 dark:bg-white/[0.06] my-1" />
                 <button
                   type="button"
                   onClick={signOut}
-                  className="w-full px-4 py-2 text-left text-sm text-white/30 hover:text-white/60 hover:bg-white/[0.04] transition-all"
+                  className="w-full px-4 py-2 text-left text-sm text-red-500/70 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
                 >
                   Sair
                 </button>
@@ -267,7 +275,7 @@ export function AnalyzerView() {
 
         {/* Sidebar */}
         {sidebarOpen && (
-          <aside className="w-60 shrink-0 border-r border-white/[0.06] flex flex-col overflow-hidden">
+          <aside className="w-60 shrink-0 border-r border-slate-200 dark:border-white/[0.06] flex flex-col overflow-hidden bg-white dark:bg-transparent">
             <LotManager
               lots={lots}
               activeLotId={activeLotId ?? null}
@@ -283,16 +291,16 @@ export function AnalyzerView() {
           {!activeLot ? (
             /* Empty state — no lot selected */
             <div className="flex flex-col items-center justify-center flex-1 py-24 text-center px-6">
-              <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.07] flex items-center justify-center mb-4">
+              <div className="w-14 h-14 rounded-2xl bg-slate-200/50 dark:bg-white/[0.03] border border-slate-300 dark:border-white/[0.07] flex items-center justify-center mb-4 text-slate-400 dark:text-white/30">
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden>
-                  <rect x="3" y="3" width="16" height="16" rx="2.5" stroke="currentColor" strokeWidth="1.3" strokeOpacity="0.3" />
-                  <path d="M11 8v6M8 11h6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeOpacity="0.3" />
+                  <rect x="3" y="3" width="16" height="16" rx="2.5" stroke="currentColor" strokeWidth="1.3" />
+                  <path d="M11 8v6M8 11h6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
                 </svg>
               </div>
-              <p className="text-base font-semibold text-white/45">
+              <p className="text-base font-semibold text-slate-500 dark:text-white/45">
                 {lots.length === 0 ? 'Nenhum lote cadastrado' : 'Selecione um lote de controle'}
               </p>
-              <p className="text-sm text-white/25 mt-1.5 max-w-xs leading-relaxed">
+              <p className="text-sm text-slate-400 dark:text-white/25 mt-1.5 max-w-xs leading-relaxed">
                 {lots.length === 0
                   ? 'Crie um novo lote na barra lateral para começar a registrar corridas.'
                   : 'Escolha um lote na barra lateral para visualizar o gráfico e registrar corridas.'}
@@ -301,7 +309,7 @@ export function AnalyzerView() {
                 <button
                   type="button"
                   onClick={() => setSidebarOpen(true)}
-                  className="mt-5 text-sm text-violet-400 hover:text-violet-300 transition-colors"
+                  className="mt-5 text-sm text-violet-600 dark:text-violet-400 hover:text-violet-500 transition-colors font-medium"
                 >
                   Abrir lotes →
                 </button>

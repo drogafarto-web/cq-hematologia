@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import type { UseChartDataReturn, ChartPoint } from './hooks/useChartData';
 import type { Analyte } from '../../types';
+import { useTheme } from '../../shared/hooks/useTheme';
 
 // ─── Custom dot ───────────────────────────────────────────────────────────────
 
@@ -22,13 +23,14 @@ interface DotProps {
 }
 
 function RunDot({ cx, cy, payload }: DotProps) {
+  const { isDark } = useTheme();
   if (cx === undefined || cy === undefined || !payload) return null;
 
   const color =
     payload.isRejection   ? '#f87171' : // red-400
     payload.isWarningOnly ? '#fbbf24' : // amber-400
     payload.status === 'Aprovada' ? '#34d399' : // emerald-400
-    '#94a3b8'; // slate-400 (Pendente/no value)
+    (isDark ? '#94a3b8' : '#64748b'); // slate-400 (Pendente/no value)
 
   return (
     <g>
@@ -38,7 +40,7 @@ function RunDot({ cx, cy, payload }: DotProps) {
       <circle
         cx={cx} cy={cy} r={4}
         fill={color}
-        stroke="#0c0c0c"
+        stroke={isDark ? '#0c0c0c' : '#ffffff'}
         strokeWidth={1.5}
       />
     </g>
@@ -65,18 +67,18 @@ function CustomTooltip({ active, payload, analyte }: TooltipProps) {
   const timeStr = ts.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
   const statusColor =
-    p.isRejection   ? 'text-red-400' :
-    p.isWarningOnly ? 'text-amber-400' :
-                      'text-emerald-400';
+    p.isRejection   ? 'text-red-500 dark:text-red-400' :
+    p.isWarningOnly ? 'text-amber-500 dark:text-amber-400' :
+                      'text-emerald-600 dark:text-emerald-400';
 
   return (
-    <div className="rounded-xl bg-[#1a1a1a] border border-white/[0.1] px-4 py-3 shadow-xl text-xs">
-      <p className="text-white/40 mb-2">{dateStr} {timeStr}</p>
-      <p className="text-white/90 font-semibold text-sm">
-        {p.value.toFixed(analyte.decimals)} <span className="text-white/40 font-normal text-xs">{analyte.unit}</span>
+    <div className="rounded-xl bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-white/[0.1] px-4 py-3 shadow-xl text-xs transition-colors duration-300">
+      <p className="text-slate-500 dark:text-white/40 mb-2">{dateStr} {timeStr}</p>
+      <p className="text-slate-900 dark:text-white/90 font-semibold text-sm">
+        {p.value.toFixed(analyte.decimals)} <span className="text-slate-400 dark:text-white/40 font-normal text-xs">{analyte.unit}</span>
       </p>
       {p.zScore !== null && (
-        <p className="text-white/40 mt-0.5">
+        <p className="text-slate-500 dark:text-white/40 mt-0.5">
           z = {p.zScore > 0 ? '+' : ''}{p.zScore.toFixed(2)}
         </p>
       )}
@@ -84,7 +86,7 @@ function CustomTooltip({ active, payload, analyte }: TooltipProps) {
         <div className="flex flex-wrap gap-1 mt-2">
           {p.violations.map((v) => (
             <span key={v} className={`font-mono font-bold text-[10px] px-1.5 py-0.5 rounded ${
-              v === '1-2s' ? 'bg-amber-500/20 text-amber-400' : 'bg-red-500/20 text-red-400'
+              v === '1-2s' ? 'bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400' : 'bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400'
             }`}>
               {v}
             </span>
@@ -137,9 +139,9 @@ export function LeveyJenningsChart({ chartData, analyte }: LeveyJenningsChartPro
 
   if (!stats || data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 rounded-2xl border border-white/[0.07] bg-white/[0.01]">
-        <p className="text-sm text-white/30">Sem dados para exibir</p>
-        <p className="text-xs text-white/20 mt-1">Adicione corridas para gerar o gráfico</p>
+      <div className="flex flex-col items-center justify-center h-64 rounded-2xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.01] transition-colors duration-300">
+        <p className="text-sm text-slate-400 dark:text-white/30">Sem dados para exibir</p>
+        <p className="text-xs text-slate-300 dark:text-white/20 mt-1">Adicione corridas para gerar o gráfico</p>
       </div>
     );
   }
@@ -151,17 +153,19 @@ export function LeveyJenningsChart({ chartData, analyte }: LeveyJenningsChartPro
   // Recent alerts (last 5)
   const recentAlerts = [...westgardAlerts].slice(-5).reverse();
 
+  const { isDark } = useTheme();
+
   return (
     <div className="space-y-3">
       {/* Chart */}
-      <div className="rounded-2xl border border-white/[0.07] bg-white/[0.01] p-4 pb-2">
+      <div className="rounded-2xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.01] p-4 pb-2 transition-colors duration-300">
         <div className="flex items-baseline justify-between mb-3">
           <div>
-            <span className="text-sm font-semibold text-white/80">{analyte.name}</span>
-            <span className="text-xs text-white/30 ml-1.5">{analyte.unit}</span>
+            <span className="text-sm font-semibold text-slate-900 dark:text-white/80">{analyte.name}</span>
+            <span className="text-xs text-slate-400 dark:text-white/30 ml-1.5">{analyte.unit}</span>
           </div>
           <div className="text-right">
-            <p className="text-xs text-white/30">
+            <p className="text-xs text-slate-400 dark:text-white/40">
               x̄ = {stats.mean.toFixed(analyte.decimals)}
               {' · '}
               SD = {stats.sd.toFixed(analyte.decimals)}
@@ -175,22 +179,22 @@ export function LeveyJenningsChart({ chartData, analyte }: LeveyJenningsChartPro
           <LineChart data={data} margin={{ top: 12, right: 30, left: 0, bottom: 4 }}>
             <CartesianGrid
               strokeDasharray="3 3"
-              stroke="rgba(255,255,255,0.04)"
+              stroke={isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.05)"}
               horizontal={true}
               vertical={false}
             />
 
             <XAxis
               dataKey="index"
-              tick={{ fill: 'rgba(255,255,255,0.25)', fontSize: 10 }}
-              axisLine={{ stroke: 'rgba(255,255,255,0.08)' }}
+              tick={{ fill: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.4)', fontSize: 10 }}
+              axisLine={{ stroke: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.1)' }}
               tickLine={false}
               interval="preserveStartEnd"
             />
 
             <YAxis
               domain={[yMin, yMax]}
-              tick={{ fill: 'rgba(255,255,255,0.25)', fontSize: 10 }}
+              tick={{ fill: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.4)', fontSize: 10 }}
               axisLine={false}
               tickLine={false}
               tickFormatter={(v) => v.toFixed(analyte.decimals)}
@@ -210,21 +214,21 @@ export function LeveyJenningsChart({ chartData, analyte }: LeveyJenningsChartPro
             <ReferenceLine y={stats.minus1sd} stroke="rgba(52,211,153,0.25)"  />
 
             {/* Mean */}
-            <ReferenceLine y={stats.mean} stroke="rgba(255,255,255,0.35)" strokeWidth={1.5} label={<RefLabel text="x̄" color="rgba(255,255,255,0.5)" />} />
+            <ReferenceLine y={stats.mean} stroke={isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.3)"} strokeWidth={1.5} label={<RefLabel text="x̄" color={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.6)"} />} />
 
             <Tooltip
               content={<CustomTooltip analyte={analyte} />}
-              cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }}
+              cursor={{ stroke: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', strokeWidth: 1 }}
             />
 
             <Line
               type="monotone"
               dataKey="value"
-              stroke="rgba(255,255,255,0.25)"
+              stroke={isDark ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.3)"}
               strokeWidth={1.5}
               connectNulls={false}
               dot={(props) => <RunDot {...props} />}
-              activeDot={{ r: 5, stroke: '#0c0c0c', strokeWidth: 1.5 }}
+              activeDot={{ r: 5, stroke: isDark ? '#0c0c0c' : '#ffffff', strokeWidth: 1.5 }}
               isAnimationActive={false}
             />
           </LineChart>
@@ -240,18 +244,18 @@ export function LeveyJenningsChart({ chartData, analyte }: LeveyJenningsChartPro
         ].map(({ color, label }) => (
           <div key={label} className="flex items-center gap-1.5">
             <span className={`w-2 h-2 rounded-full ${color}`} />
-            <span className="text-xs text-white/30">{label}</span>
+            <span className="text-xs text-slate-400 dark:text-white/30">{label}</span>
           </div>
         ))}
       </div>
 
       {/* Westgard alerts panel */}
       {recentAlerts.length > 0 && (
-        <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] overflow-hidden">
-          <p className="text-xs font-semibold text-white/40 px-4 py-2.5 border-b border-white/[0.05] uppercase tracking-wider">
+        <div className="rounded-xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.02] overflow-hidden transition-colors duration-300">
+          <p className="text-xs font-semibold text-slate-500 dark:text-white/40 px-4 py-2.5 border-b border-slate-200 dark:border-white/[0.05] uppercase tracking-wider">
             Alertas Westgard
           </p>
-          <div className="divide-y divide-white/[0.04]">
+          <div className="divide-y divide-slate-100 dark:divide-white/[0.04]">
             {recentAlerts.map((alert, i) => {
               const ts  = new Date(alert.timestamp);
               const date = ts.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
@@ -264,10 +268,10 @@ export function LeveyJenningsChart({ chartData, analyte }: LeveyJenningsChartPro
                   }`}>
                     {alert.violation}
                   </span>
-                  <span className="text-xs text-white/50">
+                  <span className="text-xs text-slate-600 dark:text-white/50">
                     Corrida #{alert.runIndex} — {alert.value.toFixed(analyte.decimals)} {analyte.unit}
                   </span>
-                  <span className="text-xs text-white/25 ml-auto">{date}</span>
+                  <span className="text-xs text-slate-400 dark:text-white/25 ml-auto">{date}</span>
                 </div>
               );
             })}

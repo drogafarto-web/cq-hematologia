@@ -33,7 +33,7 @@ const initialState = {
   isLoading: false,
   error: null,
   syncStatus: 'saved' as SyncStatus,
-  currentView: 'analyzer' as View,
+  currentView: 'hub' as View,
 };
 
 export const useAppStore = create<AppState>((set) => ({

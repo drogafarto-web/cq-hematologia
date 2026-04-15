@@ -6,7 +6,7 @@
   inclui o próprio elemento (.dark) E seus descendentes (.dark *).
   Sem isso, dark: prefixes só respondem a prefers-color-scheme do OS.
 */
-@custom-variant dark (&:where(.dark, .dark *));
+@variant dark (&:where(.dark, .dark &));
 
 /* ─── Login: Levey-Jennings faint grid background ───────────────────────────
    Applied to the TrustPanel left column. Evokes LJ chart paper without
@@ -28,10 +28,17 @@
   height: 4px;
   border: none;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.05);
   overflow: hidden;
+  transition: background-color 300ms ease;
 }
-.stats-progress::-webkit-progress-bar   { background: rgba(255, 255, 255, 0.06); border-radius: 9999px; }
+.dark .stats-progress {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.stats-progress::-webkit-progress-bar   { background: rgba(0, 0, 0, 0.05); border-radius: 9999px; }
+.dark .stats-progress::-webkit-progress-bar { background: rgba(255, 255, 255, 0.06); }
+
 .stats-progress::-webkit-progress-value { background: rgba(139, 92, 246, 0.6);   border-radius: 9999px; transition: width 300ms ease; }
 .stats-progress::-moz-progress-bar      { background: rgba(139, 92, 246, 0.6);   border-radius: 9999px; }
 

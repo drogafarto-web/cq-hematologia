@@ -56,20 +56,20 @@ interface FieldProps {
 function Field({ id, label, required, children, hint }: FieldProps) {
   return (
     <div>
-      <label htmlFor={id} className="block text-xs font-medium text-white/45 mb-1.5 ml-0.5">
-        {label}{required && <span className="text-red-400/70 ml-0.5">*</span>}
+      <label htmlFor={id} className="block text-xs font-medium text-slate-500 dark:text-white/45 mb-1.5 ml-0.5">
+        {label}{required && <span className="text-red-500 dark:text-red-400/70 ml-0.5">*</span>}
       </label>
       {children}
-      {hint && <p className="text-xs text-white/25 mt-1 ml-0.5">{hint}</p>}
+      {hint && <p className="text-xs text-slate-400 dark:text-white/25 mt-1 ml-0.5">{hint}</p>}
     </div>
   );
 }
 
 const INPUT_CLS = `
   w-full px-3.5 py-2.5 rounded-xl
-  bg-white/[0.06] border border-white/[0.09]
-  text-white/90 placeholder-white/20 text-sm
-  focus:outline-none focus:border-violet-500/50 focus:bg-white/[0.08]
+  bg-slate-50 dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.09]
+  text-slate-900 dark:text-white/90 placeholder-slate-400 dark:placeholder-white/20 text-sm
+  focus:outline-none focus:border-violet-500/50 dark:focus:border-violet-500/50 focus:bg-white dark:focus:bg-white/[0.08]
   disabled:opacity-40 transition-all
 `.trim();
 
@@ -99,15 +99,15 @@ function LevelSummaryCard({ lvl }: LevelSummaryCardProps) {
   const fallback     = hasFallbackSources(lvl);
 
   return (
-    <div className={`rounded-xl border px-3.5 py-3 flex items-center gap-3 ${LEVEL_COLORS[lvl.level].replace('text-', 'border-').split(' ')[2]} bg-white/[0.02]`}>
+    <div className={`rounded-xl border px-3.5 py-3 flex items-center gap-3 ${LEVEL_COLORS[lvl.level].replace('text-', 'border-').split(' ')[2]} bg-slate-50 dark:bg-white/[0.02]`}>
       <span className={`text-xs font-bold px-2 py-0.5 rounded-md border shrink-0 ${LEVEL_COLORS[lvl.level]}`}>
         N{lvl.level}
       </span>
       <div className="flex-1 min-w-0">
-        <p className="text-xs text-white/60 truncate">
+        <p className="text-xs text-slate-600 dark:text-white/60 truncate">
           {lvl.lotNumber ? `Lote ${lvl.lotNumber}` : 'Lote não identificado'}
         </p>
-        <p className="text-[11px] text-white/30 mt-0.5">
+        <p className="text-[11px] text-slate-400 dark:text-white/30 mt-0.5">
           {analyteCount} analito{analyteCount !== 1 ? 's' : ''}
         </p>
       </div>
@@ -196,15 +196,15 @@ function BatchCreationForm({ controlName, levels, onAdd, onClose, clearBulaData 
   return (
     <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
       {/* Bula badge */}
-      <div className="flex items-center gap-2 text-xs text-violet-400 bg-violet-500/[0.06] border border-violet-500/20 rounded-xl px-3.5 py-2.5">
+      <div className="flex items-center gap-2 text-xs text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-500/[0.06] border border-violet-200 dark:border-violet-500/20 rounded-xl px-3.5 py-2.5 transition-colors duration-300">
         <SparkleIcon />
         <span className="font-medium">Criação em lote — bula PDF</span>
-        <span className="text-white/30 truncate ml-1">{controlName}</span>
+        <span className="text-slate-400 dark:text-white/30 truncate ml-1">{controlName}</span>
       </div>
 
       {/* Level summary */}
       <div>
-        <p className="text-xs font-medium text-white/45 mb-2 ml-0.5">Níveis a criar ({levels.length})</p>
+        <p className="text-xs font-medium text-slate-500 dark:text-white/45 mb-2 ml-0.5">Níveis a criar ({levels.length})</p>
         <div className="flex flex-col gap-2">
           {levels.map((lvl) => <LevelSummaryCard key={lvl.level} lvl={lvl} />)}
         </div>
@@ -273,7 +273,7 @@ function BatchCreationForm({ controlName, levels, onAdd, onClose, clearBulaData 
         <button
           type="button"
           onClick={onClose}
-          className="flex-1 py-2.5 rounded-xl border border-white/[0.1] text-sm text-white/50 hover:text-white/80 hover:border-white/[0.2] transition-all"
+          className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-white/[0.1] text-sm text-slate-500 dark:text-white/50 hover:text-slate-800 dark:hover:text-white/80 hover:border-slate-300 dark:hover:border-white/[0.2] transition-all"
         >
           Cancelar
         </button>
@@ -462,19 +462,19 @@ export function AddLotModal({ onAdd, onClose }: AddLotModalProps) {
     : 'Preencha os dados ou importe via CSV';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-[#141414] border border-white/[0.09] shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm transition-colors duration-500">
+      <div className="w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-2xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-white/[0.09] shadow-2xl transition-colors duration-300">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.07]">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-white/[0.07]">
           <div>
-            <h2 className="text-base font-semibold text-white/90">{isBatchTitle}</h2>
-            <p className="text-xs text-white/35 mt-0.5">{isBatchSubtitle}</p>
+            <h2 className="text-base font-semibold text-slate-800 dark:text-white/90">{isBatchTitle}</h2>
+            <p className="text-xs text-slate-400 dark:text-white/35 mt-0.5">{isBatchSubtitle}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.07] transition-all"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 dark:text-white/30 hover:text-slate-600 dark:hover:text-white/70 hover:bg-slate-100 dark:hover:bg-white/[0.07] transition-all"
           >
             ✕
           </button>
@@ -496,7 +496,7 @@ export function AddLotModal({ onAdd, onClose }: AddLotModalProps) {
 
             {/* CSV import */}
             <div>
-              <p className="text-xs font-medium text-white/45 mb-2 ml-0.5">Importar CSV (opcional)</p>
+              <p className="text-xs font-medium text-slate-500 dark:text-white/45 mb-2 ml-0.5">Importar CSV (opcional)</p>
               <div
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
@@ -506,10 +506,10 @@ export function AddLotModal({ onAdd, onClose }: AddLotModalProps) {
                   relative flex flex-col items-center gap-2 px-4 py-5 rounded-xl border border-dashed
                   cursor-pointer transition-all
                   ${isDragging
-                    ? 'border-violet-500/60 bg-violet-500/[0.07]'
+                    ? 'border-violet-500/60 bg-violet-500/10 dark:bg-violet-500/[0.07]'
                     : csvResult
-                    ? 'border-emerald-500/40 bg-emerald-500/[0.04]'
-                    : 'border-white/[0.12] bg-white/[0.02] hover:border-white/[0.22] hover:bg-white/[0.04]'}
+                    ? 'border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/[0.04]'
+                    : 'border-slate-200 dark:border-white/[0.12] bg-slate-50 dark:bg-white/[0.02] hover:border-slate-300 dark:hover:border-white/[0.22] hover:bg-slate-100 dark:hover:bg-white/[0.04]'}
                 `}
               >
                 <input
@@ -526,18 +526,18 @@ export function AddLotModal({ onAdd, onClose }: AddLotModalProps) {
                     <div className="w-8 h-8 rounded-full bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
                       <CheckIcon />
                     </div>
-                    <p className="text-sm text-emerald-400 font-medium">
+                    <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">
                       {csvResult.stats.length} analitos importados
                     </p>
-                    <p className="text-xs text-white/30">Clique para substituir</p>
+                    <p className="text-xs text-slate-400 dark:text-white/30">Clique para substituir</p>
                   </>
                 ) : (
                   <>
-                    <div className="text-white/25"><UploadIcon /></div>
-                    <p className="text-sm text-white/50">
-                      Arraste o CSV Difftrol ou <span className="text-violet-400">clique para selecionar</span>
+                    <div className="text-slate-300 dark:text-white/25"><UploadIcon /></div>
+                    <p className="text-sm text-slate-500 dark:text-white/50">
+                      Arraste o CSV Difftrol ou <span className="text-violet-600 dark:text-violet-400">clique para selecionar</span>
                     </p>
-                    <p className="text-xs text-white/25">Preenche automaticamente os campos abaixo</p>
+                    <p className="text-xs text-slate-400 dark:text-white/25">Preenche automaticamente os campos abaixo</p>
                   </>
                 )}
               </div>
@@ -632,13 +632,13 @@ export function AddLotModal({ onAdd, onClose }: AddLotModalProps) {
 
             {/* Analyte selection */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-medium text-white/45 ml-0.5">
+              <div className="flex items-center justify-between mb-2 transition-colors duration-300">
+                <p className="text-xs font-medium text-slate-500 dark:text-white/45 ml-0.5">
                   Analitos ({selectedAnalytes.size}/{ANALYTES.length})
                 </p>
                 <div className="flex gap-3 text-xs">
-                  <button type="button" onClick={() => setSelectedAnalytes(new Set(ANALYTES.map((a) => a.id)))} className="text-white/35 hover:text-white/65 transition-colors">Todos</button>
-                  <button type="button" onClick={() => setSelectedAnalytes(new Set())} className="text-white/35 hover:text-white/65 transition-colors">Nenhum</button>
+                  <button type="button" onClick={() => setSelectedAnalytes(new Set(ANALYTES.map((a) => a.id)))} className="text-slate-400 dark:text-white/35 hover:text-slate-600 dark:hover:text-white/65 transition-colors">Todos</button>
+                  <button type="button" onClick={() => setSelectedAnalytes(new Set())} className="text-slate-400 dark:text-white/35 hover:text-slate-600 dark:hover:text-white/65 transition-colors">Nenhum</button>
                 </div>
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -654,9 +654,9 @@ export function AddLotModal({ onAdd, onClose }: AddLotModalProps) {
                         px-2.5 py-1 rounded-lg text-xs font-medium transition-all
                         ${selected
                           ? hasStats
-                            ? 'bg-violet-500/20 text-violet-300 border border-violet-500/40'
-                            : 'bg-white/[0.1] text-white/80 border border-white/[0.18]'
-                          : 'bg-transparent text-white/25 border border-white/[0.07] hover:border-white/[0.18] hover:text-white/45'
+                            ? 'bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-300 border border-violet-500/30 dark:border-violet-500/40 shadow-sm dark:shadow-none'
+                            : 'bg-slate-100 dark:bg-white/[0.1] text-slate-800 dark:text-white/80 border border-slate-300 dark:border-white/[0.18]'
+                          : 'bg-transparent text-slate-400 dark:text-white/25 border border-slate-200 dark:border-white/[0.07] hover:border-slate-300 dark:hover:border-white/[0.18] hover:text-slate-600 dark:hover:text-white/45'
                         }
                       `}
                     >
@@ -666,8 +666,8 @@ export function AddLotModal({ onAdd, onClose }: AddLotModalProps) {
                 })}
               </div>
               {csvResult && (
-                <p className="text-xs text-white/25 mt-2 ml-0.5">
-                  Roxo = analito com stats do CSV · Branco = sem stats do fabricante
+                <p className="text-xs text-slate-400 dark:text-white/25 mt-2 ml-0.5">
+                  Roxo = analito com stats do CSV · Cinza = sem stats do fabricante
                 </p>
               )}
             </div>
@@ -684,7 +684,7 @@ export function AddLotModal({ onAdd, onClose }: AddLotModalProps) {
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 py-2.5 rounded-xl border border-white/[0.1] text-sm text-white/50 hover:text-white/80 hover:border-white/[0.2] transition-all"
+                className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-white/[0.1] text-sm text-slate-500 dark:text-white/50 hover:text-slate-800 dark:hover:text-white/80 hover:border-slate-300 dark:hover:border-white/[0.2] transition-all"
               >
                 Cancelar
               </button>

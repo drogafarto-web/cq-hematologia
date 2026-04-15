@@ -5,7 +5,7 @@ import {
   deleteLabAsAdmin,
 } from './services/userService';
 import { createLab, updateLab } from './services/labAdminService';
-import { LabAdminModal } from './LabAdminModal';
+import { LabAdminModal, type LabFormPayload } from './LabAdminModal';
 import { UserManagementModal } from './UserManagementModal';
 import { ConfirmModal } from '../../shared/components/ConfirmModal';
 import { useUser } from '../../store/useAuthStore';
@@ -84,23 +84,16 @@ export function LabManagementTab() {
 
   useEffect(() => { load(); }, [load]);
 
-  async function handleCreate(name: string, logoFile?: File) {
+  async function handleCreate(payload: LabFormPayload, logoFile?: File) {
     if (!user) return;
-    await createLab({ name, logoFile }, user.uid);
+    await createLab({ ...payload, logoFile }, user.uid);
     await load();
-    setShowCreate(false);
   }
 
-  async function handleEdit(name: string, logoFile?: File) {
+  async function handleEdit(payload: LabFormPayload, logoFile?: File) {
     if (!editingLab) return;
-    await updateLab(editingLab.id, { name, logoFile });
-    setLabs((prev) =>
-      prev.map((l) =>
-        l.id === editingLab.id ? { ...l, name, logoUrl: l.logoUrl } : l
-      )
-    );
+    await updateLab(editingLab.id, { ...payload, logoFile });
     await load();
-    setEditingLab(null);
   }
 
   async function handleDelete(lab: AdminLabRecord) {

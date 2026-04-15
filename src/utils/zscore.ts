@@ -14,8 +14,10 @@ export function calculateZScore(value: number, stats: AnalyteStats): number {
 export function interpretZScore(z: number): 'acceptable' | 'warning' | 'rejection' {
   // sd === 0 → tratar como warning (lote novo sem estatísticas)
   if (isNaN(z)) return 'warning';
-  return Math.abs(z) <= 2 ? 'acceptable'
-       : Math.abs(z) <= 3 ? 'warning'
+  // Westgard 1-2s: valor em ou além de ±2SD → warning
+  // Westgard 1-3s: valor em ou além de ±3SD → rejection (limites inclusivos)
+  return Math.abs(z) < 2 ? 'acceptable'
+       : Math.abs(z) < 3 ? 'warning'
        : 'rejection';
 }
 

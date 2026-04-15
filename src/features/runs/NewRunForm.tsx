@@ -79,28 +79,28 @@ export function NewRunForm({ onFile, isExtracting, error, disabled }: NewRunForm
           border border-dashed px-6 py-8 transition-all
           ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
           ${isDragging
-            ? 'border-violet-500/70 bg-violet-500/[0.08]'
-            : 'border-white/[0.1] bg-white/[0.02] hover:border-white/[0.2] hover:bg-white/[0.04]'}
+            ? 'border-violet-500/70 bg-violet-500/10 dark:bg-violet-500/[0.08]'
+            : 'border-slate-200 dark:border-white/[0.1] bg-white dark:bg-white/[0.02] hover:border-slate-300 dark:hover:border-white/[0.2] hover:bg-slate-50 dark:hover:bg-white/[0.04]'}
         `}
       >
         {isExtracting ? (
           <>
             <div className="text-violet-400"><Spinner /></div>
             <div className="text-center">
-              <p className="text-sm font-medium text-white/80">Analisando imagem…</p>
-              <p className="text-xs text-white/35 mt-0.5">IA extraindo valores do equipamento</p>
+              <p className="text-sm font-medium text-slate-700 dark:text-white/80">Analisando imagem…</p>
+              <p className="text-xs text-slate-400 dark:text-white/35 mt-0.5">IA extraindo valores do equipamento</p>
             </div>
           </>
         ) : (
           <>
-            <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center transition-all ${isDragging ? 'border-violet-500/40 text-violet-400 bg-violet-500/10' : 'border-white/[0.1] text-white/35 bg-white/[0.04]'}`}>
+            <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center transition-all ${isDragging ? 'border-violet-500/40 text-violet-500 dark:text-violet-400 bg-violet-500/10' : 'border-slate-200 dark:border-white/[0.1] text-slate-400 dark:text-white/35 bg-slate-50 dark:bg-white/[0.04]'}`}>
               <CameraIcon />
             </div>
             <div className="text-center">
-              <p className="text-sm font-medium text-white/70">
+              <p className="text-sm font-medium text-slate-600 dark:text-white/70">
                 {isDragging ? 'Solte para analisar' : 'Foto do Yumizen H550'}
               </p>
-              <p className="text-xs text-white/30 mt-0.5">
+              <p className="text-xs text-slate-400 dark:text-white/30 mt-0.5">
                 Arraste uma imagem ou use os botões abaixo
               </p>
             </div>
@@ -145,7 +145,7 @@ export function NewRunForm({ onFile, isExtracting, error, disabled }: NewRunForm
           type="button"
           disabled={isDisabled}
           onClick={() => fileRef.current?.click()}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-white/[0.1] text-sm text-white/50 hover:text-white/80 hover:border-white/[0.2] disabled:opacity-50 transition-all"
+          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/[0.1] text-sm text-slate-500 dark:text-white/50 hover:text-slate-800 dark:hover:text-white/80 hover:border-slate-300 dark:hover:border-white/[0.2] disabled:opacity-50 transition-all shadow-sm dark:shadow-none"
         >
           <UploadIcon />
           Arquivo

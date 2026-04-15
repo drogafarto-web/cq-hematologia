@@ -20,9 +20,9 @@ export const ThemeToggle = forwardRef<HTMLButtonElement, ThemeToggleProps>(
           ${sizeStyles} ${className}
           inline-flex items-center justify-center
           rounded-full
-          bg-white/10 hover:bg-white/20
-          dark:bg-white/5 dark:hover:bg-white/10
-          border border-white/20 dark:border-white/20
+          bg-slate-200/50 hover:bg-slate-200/80
+          dark:bg-white/10 dark:hover:bg-white/20
+          border border-slate-300 dark:border-white/10
           transition-[background-color,border-color,box-shadow] duration-200
           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ring-offset-2
           ring-offset-transparent dark:ring-offset-[#0c0c0c]
@@ -32,7 +32,7 @@ export const ThemeToggle = forwardRef<HTMLButtonElement, ThemeToggleProps>(
         {...props}
       >
         <svg
-          className="h-5 w-5 text-white/80 transition-transform duration-300"
+          className="h-5 w-5 text-slate-600 dark:text-white/80 transition-transform duration-300"
           style={{ transform: isDark ? 'rotate(0deg)' : 'rotate(180deg)' }}
           viewBox="0 0 20 20"
           fill="currentColor"

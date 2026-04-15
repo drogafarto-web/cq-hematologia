@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -11,5 +11,16 @@ export default defineConfig({
     port: 3000,
     strictPort: true, // Garante que a porta 3000 será usada (falha em vez de pular para 3001)
     host: '0.0.0.0',  // Ouve conexões externas na rede local (ex.: celular via IP-do-Wifi)
-  }
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./test/setup.ts'],
+    include: ['test/**/*.test.ts', 'test/**/*.test.tsx'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      exclude: ['**/node_modules/**', '**/dist/**', '**/test/**'],
+    },
+  },
 });

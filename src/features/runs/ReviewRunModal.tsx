@@ -87,27 +87,27 @@ export function ReviewRunModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-[6px]"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-[6px] transition-colors duration-500"
     >
-      <div className="w-full max-w-2xl max-h-[92vh] flex flex-col rounded-2xl bg-[#141414] border border-white/[0.09] shadow-2xl">
+      <div className="w-full max-w-2xl max-h-[92vh] flex flex-col rounded-2xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-white/[0.09] shadow-2xl transition-colors duration-300">
         {/* Header */}
-        <div className="flex items-start gap-4 px-6 py-5 border-b border-white/[0.07] shrink-0">
+        <div className="flex items-start gap-4 px-6 py-5 border-b border-slate-100 dark:border-white/[0.07] shrink-0">
           {/* Thumbnail */}
           <img
             src={imageUrl}
             alt="Foto do equipamento"
-            className="w-16 h-16 rounded-xl object-cover border border-white/[0.1] shrink-0"
+            className="w-16 h-16 rounded-xl object-cover border border-slate-200 dark:border-white/[0.1] shrink-0"
           />
           <div className="flex-1 min-w-0">
-            <h2 className="text-base font-semibold text-white/90">Revisar Extração</h2>
-            <p className="text-xs text-white/40 mt-0.5">
+            <h2 className="text-base font-semibold text-slate-800 dark:text-white/90">Revisar Extração</h2>
+            <p className="text-xs text-slate-500 dark:text-white/40 mt-0.5">
               {activeLot.controlName} — Nível {activeLot.level}
             </p>
             {pendingRun.sampleId && (
-              <p className="text-xs text-white/40 mt-0.5">ID Amostra: {pendingRun.sampleId}</p>
+              <p className="text-xs text-slate-500 dark:text-white/40 mt-0.5">ID Amostra: {pendingRun.sampleId}</p>
             )}
             {lowConfidenceCount > 0 && (
-              <p className="text-xs text-amber-400/80 mt-1">
+              <p className="text-xs text-amber-600 dark:text-amber-400/80 mt-1">
                 ⚠ {lowConfidenceCount} analito{lowConfidenceCount > 1 ? 's' : ''} com baixa confiança — revise os valores
               </p>
             )}
@@ -117,7 +117,7 @@ export function ReviewRunModal({
             onClick={onCancel}
             disabled={isConfirming}
             aria-label="Fechar"
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.07] transition-all shrink-0"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 dark:text-white/30 hover:text-slate-600 dark:hover:text-white/70 hover:bg-slate-100 dark:hover:bg-white/[0.07] transition-all shrink-0"
           >
             ✕
           </button>
@@ -127,17 +127,17 @@ export function ReviewRunModal({
         <div className="flex-1 overflow-y-auto px-6 py-4">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-xs text-white/30 font-medium">
+              <tr className="text-xs text-slate-400 dark:text-white/30 font-medium">
                 <th className="text-left pb-3 font-medium">Analito</th>
                 <th className="text-right pb-3 font-medium">Valor</th>
                 <th className="text-left pb-3 pl-3 font-medium">Unidade</th>
                 <th className="text-right pb-3 font-medium">Conf.</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/[0.04]">
+            <tbody className="divide-y divide-slate-100 dark:divide-white/[0.04]">
               {analyteEntries.map(({ analyte, result, id }) => (
-                <tr key={id} className="group">
-                  <td className="py-2.5 text-white/70 font-medium">{analyte.name}</td>
+                <tr key={id} className="group transition-colors">
+                  <td className="py-2.5 text-slate-700 dark:text-white/70 font-medium">{analyte.name}</td>
                   <td className="py-2.5 text-right">
                     <input
                       type="number"
@@ -147,22 +147,22 @@ export function ReviewRunModal({
                       onChange={(e) => handleValueChange(id, e.target.value)}
                       className={`
                         w-20 text-right px-2 py-1 rounded-lg text-sm
-                        bg-white/[0.05] border transition-all
-                        focus:outline-none focus:border-violet-500/50 focus:bg-white/[0.08]
+                        bg-slate-50 dark:bg-white/[0.05] border transition-all
+                        focus:outline-none focus:border-violet-500/50 dark:focus:border-violet-500/50 focus:bg-white dark:focus:bg-white/[0.08]
                         ${result.confidence < 0.85
-                          ? 'border-amber-500/30 text-amber-300'
-                          : 'border-transparent text-white/85 hover:border-white/[0.12]'}
+                          ? 'border-amber-400/50 dark:border-amber-500/30 text-amber-700 dark:text-amber-300'
+                          : 'border-slate-100 dark:border-transparent text-slate-800 dark:text-white/85 hover:border-slate-300 dark:hover:border-white/[0.12]'}
                       `}
                     />
                   </td>
-                  <td className="py-2.5 pl-3 text-white/30 text-xs">{analyte.unit}</td>
+                  <td className="py-2.5 pl-3 text-slate-400 dark:text-white/30 text-xs">{analyte.unit}</td>
                   <td className="py-2.5 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <ConfidenceDot value={result.confidence} />
                       <span className={`text-xs ${
-                        result.confidence >= 0.85 ? 'text-emerald-400/70' :
-                        result.confidence >= 0.6  ? 'text-amber-400/70'  :
-                                                    'text-red-400/70'
+                        result.confidence >= 0.85 ? 'text-emerald-600 dark:text-emerald-400/70' :
+                        result.confidence >= 0.6  ? 'text-amber-600 dark:text-amber-400/70'  :
+                                                    'text-red-600 dark:text-red-400/70'
                       }`}>
                         {Math.round(result.confidence * 100)}%
                       </span>
@@ -175,20 +175,20 @@ export function ReviewRunModal({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-white/[0.07] shrink-0 space-y-3">
+        <div className="px-6 py-4 border-t border-slate-100 dark:border-white/[0.07] shrink-0 space-y-3">
           {/* Manual override toggle */}
           <label className="flex items-center gap-3 cursor-pointer group">
             <div
               onClick={() => setManualOverride((v) => !v)}
-              className={`relative w-9 h-5 rounded-full transition-colors ${manualOverride ? 'bg-violet-600' : 'bg-white/[0.12]'}`}
+              className={`relative w-9 h-5 rounded-full transition-colors ${manualOverride ? 'bg-violet-600' : 'bg-slate-200 dark:bg-white/[0.12]'}`}
             >
               <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${manualOverride ? 'translate-x-4' : 'translate-x-0'}`} />
             </div>
             <div>
-              <p className="text-sm text-white/70 group-hover:text-white/90 transition-colors">
+              <p className="text-sm text-slate-700 dark:text-white/70 group-hover:text-slate-900 dark:group-hover:text-white/90 transition-colors">
                 Aprovar manualmente
               </p>
-              <p className="text-xs text-white/30">
+              <p className="text-xs text-slate-400 dark:text-white/30">
                 Ignora regras Westgard e força status Aprovada
               </p>
             </div>
@@ -199,7 +199,7 @@ export function ReviewRunModal({
               type="button"
               onClick={onCancel}
               disabled={isConfirming}
-              className="flex-1 py-2.5 rounded-xl border border-white/[0.1] text-sm text-white/50 hover:text-white/80 hover:border-white/[0.2] disabled:opacity-50 transition-all"
+              className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-white/[0.1] text-sm text-slate-500 dark:text-white/50 hover:text-slate-800 dark:hover:text-white/80 hover:border-slate-300 dark:hover:border-white/[0.2] disabled:opacity-50 transition-all shadow-sm dark:shadow-none"
             >
               Cancelar
             </button>
