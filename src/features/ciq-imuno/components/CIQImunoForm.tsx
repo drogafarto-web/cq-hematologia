@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CIQImunoFormSchema, daysToExpiry } from './CIQImunoForm.schema';
 import type { CIQImunoFormData } from './CIQImunoForm.schema';
 import type { TestType } from '../types/_shared_refs';
+import { useUser } from '../../../store/useAuthStore';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -131,6 +132,39 @@ function ReagentOpenAlert() {
   );
 }
 
+// ─── Approval Badge ───────────────────────────────────────────────────────────
+
+/** Aprovação derivada automaticamente — resultadoObtido === resultadoEsperado */
+function ApprovalBadge({ conforme }: { conforme: boolean }) {
+  return (
+    <div className={[
+      'flex items-center gap-3 px-3.5 py-3 rounded-xl border',
+      conforme
+        ? 'bg-emerald-500/[0.07] border-emerald-500/25'
+        : 'bg-red-500/[0.07] border-red-400/20',
+    ].join(' ')}>
+      <div className={[
+        'w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-sm font-bold',
+        conforme
+          ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+          : 'bg-red-500/15 text-red-600 dark:text-red-400',
+      ].join(' ')}>
+        {conforme ? '✓' : '✕'}
+      </div>
+      <div>
+        <p className={`text-sm font-semibold ${conforme ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+          {conforme ? 'Aprovado' : 'Não aprovado'}
+        </p>
+        <p className="text-[10px] text-slate-400 dark:text-white/30 mt-0.5">
+          {conforme
+            ? 'Resultado conforme o esperado pelo fabricante.'
+            : 'Resultado divergente — ação corretiva obrigatória (RDC 978/2025 Art.128).'}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface CIQImunoFormProps {
@@ -142,6 +176,7 @@ interface CIQImunoFormProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFormProps) {
+  const user = useUser();
   const [form, setForm] = useState<Partial<CIQImunoFormData>>({
     resultadoEsperado: 'R',
     dataRealizacao:    today(),
@@ -153,9 +188,12 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
     if (errors[key]) setErrors((prev) => { const n = { ...prev }; delete n[key]; return n; });
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const result = CIQImunoFormSchema.safeParse(form);
+
+    // Atualiza dataRealizacao para a data atual no momento do submit
+    const submitForm = { ...form, dataRealizacao: today() };
+    const result = CIQImunoFormSchema.safeParse(submitForm);
 
     if (!result.success) {
       const flat = result.error.flatten().fieldErrors;
@@ -178,9 +216,58 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
   const naoConforme = form.resultadoObtido !== undefined &&
                       form.resultadoEsperado !== undefined &&
                       form.resultadoObtido !== form.resultadoEsperado;
+  const aprovacaoDerived = form.resultadoObtido !== undefined && form.resultadoEsperado !== undefined;
+
+  // Data de hoje formatada para exibição
+  const todayFormatted = new Date().toLocaleDateString('pt-BR', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+  });
 
   return (
     <form onSubmit={handleSubmit} className="space-y-7" noValidate>
+
+      {/* ── Operador ───────────────────────────────────────────────────────── */}
+      <div>
+        <SectionTitle>Operador</SectionTitle>
+        <div className="space-y-3">
+
+          {/* Responsável — read-only, vem do usuário logado */}
+          <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl
+                          bg-slate-50 dark:bg-white/[0.04]
+                          border border-slate-200 dark:border-white/[0.07]">
+            <div className="w-8 h-8 rounded-full bg-emerald-500/15 border border-emerald-500/25
+                            flex items-center justify-center shrink-0
+                            text-emerald-600 dark:text-emerald-400 text-xs font-bold select-none">
+              {(user?.displayName ?? user?.email ?? 'O').charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-slate-800 dark:text-white/80 truncate">
+                {user?.displayName ?? user?.email ?? 'Operador'}
+              </p>
+              <p className="text-[10px] text-slate-400 dark:text-white/30 mt-0.5">
+                Data e hora registradas automaticamente ao salvar
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="cargo" required>Cargo profissional</Label>
+            <select
+              id="cargo"
+              title="Cargo profissional do operador"
+              value={form.cargo ?? ''}
+              onChange={(e) => set('cargo', e.target.value as CIQImunoFormData['cargo'])}
+              className={errors.cargo ? INPUT_ERR : INPUT}
+            >
+              <option value="" disabled>Selecione o cargo…</option>
+              {CARGO_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+            <FieldError msg={errors.cargo} />
+          </div>
+        </div>
+      </div>
 
       {/* ── Tipo de Teste ──────────────────────────────────────────────────── */}
       <div>
@@ -200,27 +287,6 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
             ))}
           </select>
           <FieldError msg={errors.testType} />
-        </div>
-      </div>
-
-      {/* ── Operador ───────────────────────────────────────────────────────── */}
-      <div>
-        <SectionTitle>Operador</SectionTitle>
-        <div>
-          <Label htmlFor="cargo" required>Cargo profissional</Label>
-          <select
-            id="cargo"
-            title="Cargo profissional do operador"
-            value={form.cargo ?? ''}
-            onChange={(e) => set('cargo', e.target.value as CIQImunoFormData['cargo'])}
-            className={errors.cargo ? INPUT_ERR : INPUT}
-          >
-            <option value="" disabled>Selecione o cargo…</option>
-            {CARGO_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
-          <FieldError msg={errors.cargo} />
         </div>
       </div>
 
@@ -414,16 +480,31 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
             />
           </div>
 
+          {/* Aprovação — derivada automaticamente, separada do resultado */}
+          {aprovacaoDerived && (
+            <div>
+              <Label htmlFor="aprovacao">Aprovação</Label>
+              <ApprovalBadge conforme={!naoConforme} />
+            </div>
+          )}
+
+          {/* Data de realização — automática, não editável */}
           <div>
-            <Label htmlFor="dataRealizacao" required>Data de realização</Label>
-            <input
+            <Label htmlFor="dataRealizacao">Data de realização</Label>
+            <div
               id="dataRealizacao"
-              type="date"
-              value={form.dataRealizacao ?? ''}
-              onChange={(e) => set('dataRealizacao', e.target.value)}
-              className={errors.dataRealizacao ? INPUT_ERR : INPUT}
-            />
-            <FieldError msg={errors.dataRealizacao} />
+              className="w-full px-3.5 py-2.5 rounded-xl flex items-center gap-2
+                         bg-slate-50 dark:bg-white/[0.04]
+                         border border-slate-200 dark:border-white/[0.07]
+                         cursor-default select-none"
+            >
+              <span className="text-sm text-slate-700 dark:text-white/65">
+                {todayFormatted}
+              </span>
+              <span className="text-xs text-slate-400 dark:text-white/25">
+                · hora exata capturada ao registrar
+              </span>
+            </div>
           </div>
 
           {/* Ação corretiva — visível sempre que há não conformidade */}
