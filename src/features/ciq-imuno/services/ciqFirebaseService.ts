@@ -23,6 +23,7 @@ import {
   orderBy,
   onSnapshot,
   serverTimestamp,
+  runTransaction,
   Timestamp,
 } from '../../../shared/services/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -113,13 +114,58 @@ export async function createCIQLot(
 export async function updateCIQLot(
   labId:  string,
   lotId:  string,
-  fields: Partial<Pick<CIQImunoLot, 'runCount' | 'lotStatus' | 'ciqDecision'>>,
+  fields: Partial<Pick<CIQImunoLot, 'runCount' | 'lotStatus' | 'ciqDecision' | 'decisionBy' | 'decisionAt'>>,
 ): Promise<void> {
   try {
     await updateDoc(lotRef(labId, lotId), fields as Record<string, unknown>);
   } catch (err) {
     throw new Error(firestoreErrorMessage(err));
   }
+}
+
+/**
+ * Registra a decisão formal de aprovação/rejeição de um lote pelo RT.
+ * Grava ciqDecision, decisionBy e decisionAt atomicamente.
+ */
+export async function updateLotDecision(
+  labId:      string,
+  lotId:      string,
+  decision:   CIQImunoLot['ciqDecision'],
+  decisionBy: string,
+): Promise<void> {
+  try {
+    await updateDoc(lotRef(labId, lotId), {
+      ciqDecision: decision,
+      decisionBy,
+      decisionAt: serverTimestamp(),
+    });
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err));
+  }
+}
+
+/**
+ * Gera o próximo código sequencial de corrida no formato CI-YYYY-NNNN.
+ *
+ * Usa uma transação Firestore para garantir que o contador seja atômico mesmo
+ * sob concorrência (múltiplos operadores salvando simultâneamente).
+ *
+ * Counter path: labs/{labId}/ciq-imuno-meta/counters
+ * Field: runCount (number, inicia em 0)
+ */
+export async function generateRunCode(labId: string): Promise<string> {
+  const counterRef = doc(db, COLLECTIONS.LABS, labId, 'ciq-imuno-meta', 'counters');
+  const year       = new Date().getFullYear();
+
+  const nextCount = await runTransaction(db, async (tx) => {
+    const snap    = await tx.get(counterRef);
+    const current = snap.exists() ? (snap.data().runCount as number) : 0;
+    const next    = current + 1;
+    tx.set(counterRef, { runCount: next, updatedAt: serverTimestamp() }, { merge: true });
+    return next;
+  });
+
+  return `CI-${year}-${String(nextCount).padStart(4, '0')}`;
 }
 
 // ─── Run operations ───────────────────────────────────────────────────────────

@@ -35,20 +35,35 @@ export const CIQImunoFormSchema = z
     ),
 
     // Controle
-    loteControle:     z.string().min(1, 'Lote do controle é obrigatório.'),
-    aberturaControle: dateField('Data de abertura do controle inválida.'),
-    validadeControle: dateField('Data de validade do controle inválida.'),
+    loteControle:       z.string().min(1, 'Lote do controle é obrigatório.'),
+    fabricanteControle: z.string().min(1, 'Fabricante do controle é obrigatório.'),
+    aberturaControle:   dateField('Data de abertura do controle inválida.'),
+    validadeControle:   dateField('Data de validade do controle inválida.'),
 
     // Reagente
-    loteReagente:     z.string().min(1, 'Lote do reagente é obrigatório.'),
-    reagenteStatus:   z.enum(['R', 'NR'], { required_error: 'Status de abertura do reagente obrigatório.' }),
-    aberturaReagente: dateField('Data de abertura do reagente inválida.'),
-    validadeReagente: dateField('Data de validade do reagente inválida.'),
+    loteReagente:       z.string().min(1, 'Lote do reagente é obrigatório.'),
+    fabricanteReagente: z.string().min(1, 'Fabricante do reagente é obrigatório.'),
+    reagenteStatus:     z.enum(['R', 'NR'], { required_error: 'Status de abertura do reagente obrigatório.' }),
+    aberturaReagente:   dateField('Data de abertura do reagente inválida.'),
+    validadeReagente:   dateField('Data de validade do reagente inválida.'),
+    codigoKit:          z.string().optional(),
+    registroANVISA:     z.string().optional(),
+
+    // Operador
+    cargo: z.enum(
+      ['biomedico', 'tecnico', 'farmaceutico'],
+      { required_error: 'Selecione o cargo do operador.' }
+    ),
 
     // Resultado
     resultadoEsperado: z.enum(['R', 'NR'], { required_error: 'Resultado esperado obrigatório.' }),
     resultadoObtido:   z.enum(['R', 'NR'], { required_error: 'Resultado obtido obrigatório.' }),
     dataRealizacao:    dateField('Data de realização inválida.'),
+    acaoCorretiva:     z.string().optional(),
+
+    // Equipamento (opcionais)
+    equipamento:        z.string().optional(),
+    temperaturaAmbiente: z.coerce.number().optional(),
   })
   // Regra RDC 978: realização não pode ser após a validade do controle
   .refine((d) => d.dataRealizacao <= d.validadeControle, {
@@ -64,6 +79,14 @@ export const CIQImunoFormSchema = z
   .refine((d) => d.aberturaControle <= d.dataRealizacao, {
     message: 'Data de abertura do controle não pode ser posterior à realização.',
     path:    ['aberturaControle'],
-  });
+  })
+  // RDC 978 Art.128: ação corretiva obrigatória em caso de não conformidade
+  .refine(
+    (d) => d.resultadoObtido === d.resultadoEsperado || Boolean(d.acaoCorretiva?.trim()),
+    {
+      message: 'Ação corretiva é obrigatória quando o resultado não está conforme.',
+      path:    ['acaoCorretiva'],
+    },
+  );
 
 export type CIQImunoFormData = z.infer<typeof CIQImunoFormSchema>;

@@ -29,12 +29,16 @@ export interface CIQImunoRun extends Omit<CQRun,
   | 'editedFields'
   | 'originalData'
 > {
-  // ── Identificação do teste ────────────────────────────────────────────────
+  // ── Identificação ─────────────────────────────────────────────────────────
+  /** Código sequencial da corrida — CI-YYYY-NNNN (gerado por transação Firestore) */
+  runCode: string;
   testType: TestType;
 
   // ── Controle interno ──────────────────────────────────────────────────────
   /** Número do lote do material de controle (ex: "L2024-001") */
   loteControle: string;
+  /** Fabricante do material de controle */
+  fabricanteControle: string;
   /** Data de abertura do frasco de controle (YYYY-MM-DD) */
   aberturaControle: string;
   /** Data de validade do controle (YYYY-MM-DD) */
@@ -43,6 +47,8 @@ export interface CIQImunoRun extends Omit<CQRun,
   // ── Reagente ──────────────────────────────────────────────────────────────
   /** Número do lote do reagente utilizado */
   loteReagente: string;
+  /** Fabricante do kit reagente */
+  fabricanteReagente: string;
   /**
    * Status de reatividade do reagente na abertura.
    * 'NR' na abertura inviabiliza o uso para testes de CIQ Reagentes.
@@ -52,6 +58,10 @@ export interface CIQImunoRun extends Omit<CQRun,
   aberturaReagente: string;
   /** Data de validade do reagente (YYYY-MM-DD) */
   validadeReagente: string;
+  /** Código do kit / referência do fabricante */
+  codigoKit?: string;
+  /** Número de registro ANVISA do kit reagente */
+  registroANVISA?: string;
 
   // ── Resultado ─────────────────────────────────────────────────────────────
   /** Resultado esperado pelo controle (definido pelo fabricante) */
@@ -60,6 +70,17 @@ export interface CIQImunoRun extends Omit<CQRun,
   resultadoObtido: 'R' | 'NR';
   /** Data em que o teste foi realizado (YYYY-MM-DD) */
   dataRealizacao: string;
+  /**
+   * Ação corretiva tomada quando resultadoObtido ≠ resultadoEsperado.
+   * Obrigatória em caso de não conformidade (RDC 978/2025 Art.128).
+   */
+  acaoCorretiva?: string;
+
+  // ── Equipamento ───────────────────────────────────────────────────────────
+  /** Identificador do equipamento / analisador utilizado */
+  equipamento?: string;
+  /** Temperatura ambiente no momento da realização (°C) */
+  temperaturaAmbiente?: number;
 
   // ── Qualidade ─────────────────────────────────────────────────────────────
   /** Alertas Westgard categóricos calculados pelo useCIQWestgard no momento do save */
@@ -98,6 +119,12 @@ export interface CIQImunoLot {
   ciqDecision?: CIQStatus;
   /** Status calculado automaticamente pelo useCIQWestgard */
   lotStatus: CIQLotStatus;
+
+  // ── Decisão formal ────────────────────────────────────────────────────────
+  /** UID do responsável técnico que emitiu a decisão formal de aprovação/rejeição */
+  decisionBy?: string;
+  /** Timestamp da decisão formal */
+  decisionAt?: import('firebase/firestore').Timestamp;
 
   // ── Auditoria ─────────────────────────────────────────────────────────────
   createdAt: import('firebase/firestore').Timestamp;

@@ -8,6 +8,7 @@ import {
   getCIQRuns,
   uploadStripImage,
   writeCIQAuditRecord,
+  generateRunCode,
 } from '../services/ciqFirebaseService';
 import { useCIQSignature } from './useCIQSignature';
 import { computeWestgardCategorico } from './useCIQWestgard';
@@ -87,6 +88,7 @@ export function useSaveCIQRun() {
         // Inclui o run atual na simulação para refletir o estado pós-save.
         const simulatedRun: CIQImunoRun = buildRun(
           crypto.randomUUID(), // placeholder — será sobrescrito abaixo
+          'CI-TEMP',           // runCode provisório — não persistido
           labId,
           lotId,
           user.uid,
@@ -99,8 +101,11 @@ export function useSaveCIQRun() {
         const allRuns      = [...existingRuns, simulatedRun];
         const { alerts, lotStatus } = computeWestgardCategorico(allRuns);
 
-        // ── 4. Assinatura SHA-256 ──────────────────────────────────────────
-        const runId = crypto.randomUUID();
+        // ── 4. Código sequencial + Assinatura SHA-256 ─────────────────────
+        const [runCode, runId] = await Promise.all([
+          generateRunCode(labId),
+          Promise.resolve(crypto.randomUUID()),
+        ]);
         const { logicalSignature, signedBy, signedAt } = await sign({
           operatorDocument: user.email ?? user.uid,
           lotId,
@@ -113,6 +118,7 @@ export function useSaveCIQRun() {
         // ── 5. Monta e persiste o run ──────────────────────────────────────
         const run = buildRun(
           runId,
+          runCode,
           labId,
           lotId,
           user.uid,
@@ -182,6 +188,7 @@ export function useSaveCIQRun() {
 
 function buildRun(
   runId:            string,
+  runCode:          string,
   labId:            string,
   lotId:            string,
   createdBy:        string,
@@ -190,40 +197,51 @@ function buildRun(
   westgardAlertas:  CIQImunoRun['westgardCategorico'],
   logicalSignature: string,
 ): CIQImunoRun {
-  // Deriva status: falha = resultado diferente do esperado
   const resultouConforme = form.resultadoObtido === form.resultadoEsperado;
   const status = resultouConforme ? 'Aprovada' : ('Rejeitada' as const);
 
   return {
     id:               runId,
+    runCode,
     labId,
     lotId,
     // Rastreabilidade RDC 978
     operatorId:       createdBy,
     operatorName,
-    operatorRole:     'biomedico',
-    // Campos herdados de CQRun (aplicáveis ao módulo imuno)
+    operatorRole:     form.cargo,
+    // Campos herdados de CQRun
     isEdited:         false,
     status,
     version:          1,
     logicalSignature,
     createdBy,
     imageUrl:         '',
-    // Campos confirmedAt e createdAt são serverTimestamp — injetados pelo service
+    // serverTimestamp injetados pelo service
     confirmedAt:      null as unknown as import('firebase/firestore').Timestamp,
     createdAt:        null as unknown as import('firebase/firestore').Timestamp,
-    // Campos CIQ-Imuno
-    testType:         form.testType,
-    loteControle:     form.loteControle,
-    aberturaControle: form.aberturaControle,
-    validadeControle: form.validadeControle,
-    loteReagente:     form.loteReagente,
-    reagenteStatus:   form.reagenteStatus,
-    aberturaReagente: form.aberturaReagente,
-    validadeReagente: form.validadeReagente,
+    // Controle
+    testType:           form.testType,
+    loteControle:       form.loteControle,
+    fabricanteControle: form.fabricanteControle,
+    aberturaControle:   form.aberturaControle,
+    validadeControle:   form.validadeControle,
+    // Reagente
+    loteReagente:       form.loteReagente,
+    fabricanteReagente: form.fabricanteReagente,
+    reagenteStatus:     form.reagenteStatus,
+    aberturaReagente:   form.aberturaReagente,
+    validadeReagente:   form.validadeReagente,
+    ...(form.codigoKit       && { codigoKit:      form.codigoKit }),
+    ...(form.registroANVISA  && { registroANVISA: form.registroANVISA }),
+    // Resultado
     resultadoEsperado: form.resultadoEsperado,
     resultadoObtido:   form.resultadoObtido,
     dataRealizacao:    form.dataRealizacao,
+    ...(form.acaoCorretiva   && { acaoCorretiva:  form.acaoCorretiva }),
+    // Equipamento
+    ...(form.equipamento         && { equipamento:         form.equipamento }),
+    ...(form.temperaturaAmbiente !== undefined && { temperaturaAmbiente: form.temperaturaAmbiente }),
+    // Qualidade
     westgardCategorico: westgardAlertas,
   };
 }

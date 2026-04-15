@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
-import { useAppStore } from '../../../store/useAppStore';
-import { useCIQLots }  from '../hooks/useCIQLots';
-import { useCIQRuns }  from '../hooks/useCIQRuns';
-import { useSaveCIQRun } from '../hooks/useSaveCIQRun';
+import { useAppStore }    from '../../../store/useAppStore';
+import { useUser }        from '../../../store/useAuthStore';
+import { useAuthFlow }    from '../../auth/hooks/useAuthFlow';
+import { useCIQLots }     from '../hooks/useCIQLots';
+import { useCIQRuns }     from '../hooks/useCIQRuns';
+import { useSaveCIQRun }  from '../hooks/useSaveCIQRun';
 import { useCIQWestgard } from '../hooks/useCIQWestgard';
-import { CIQImunoForm }  from './CIQImunoForm';
-import { CIQAuditor }    from './CIQAuditor';
-import { exportRunsToCSV } from '../services/ciqExportService';
+import { CIQImunoForm }      from './CIQImunoForm';
+import { CIQAuditor }        from './CIQAuditor';
+import { CIQIndicadores }    from './CIQIndicadores';
+import { CIQRelatorioPrint } from './CIQRelatorioPrint';
+import { exportRunsToCSV }   from '../services/ciqExportService';
+import { updateLotDecision } from '../services/ciqFirebaseService';
 import type { CIQImunoFormData } from './CIQImunoForm.schema';
 import type { CIQImunoLot, CIQImunoRun } from '../types/CIQImuno';
-import type { CIQLotStatus } from '../types/_shared_refs';
+import type { CIQLotStatus, CIQStatus } from '../types/_shared_refs';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -51,6 +56,41 @@ function XIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
       <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function PrintIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+      <path d="M3 5V1h8v4M3 10H1V5h12v5h-2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M3 8h8v5H3z" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function LogoutIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+      <path d="M5 2H2a1 1 0 00-1 1v8a1 1 0 001 1h3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+      <path d="M9 10l3-3-3-3M12 7H5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+      <path d="M2 7l4 4 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function BanIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+      <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M3.1 3.1l7.8 7.8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
     </svg>
   );
 }
@@ -213,6 +253,9 @@ function RunRow({
 
   return (
     <tr className="border-t border-slate-100 dark:border-white/[0.05] group">
+      <td className="py-3 pr-4 text-xs font-mono text-slate-400 dark:text-white/35 hidden md:table-cell">
+        {run.runCode ?? '—'}
+      </td>
       <td className="py-3 pr-4 text-sm text-slate-700 dark:text-white/70">
         {run.dataRealizacao}
       </td>
@@ -341,7 +384,9 @@ function Modal({
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 
 export function CIQImunoDashboard() {
-  const setCurrentView = useAppStore((s) => s.setCurrentView);
+  const setCurrentView  = useAppStore((s) => s.setCurrentView);
+  const user            = useUser();
+  const { signOut }     = useAuthFlow();
 
   // ── Data ───────────────────────────────────────────────────────────────────
   const { lots, isLoading: lotsLoading } = useCIQLots();
@@ -352,10 +397,13 @@ export function CIQImunoDashboard() {
   const { save, isSaving }               = useSaveCIQRun();
 
   // ── UI state ────────────────────────────────────────────────────────────────
-  const [showForm,  setShowForm]  = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [qrRun,     setQRRun]     = useState<CIQImunoRun | null>(null);
-  const [exportErr, setExportErr] = useState<string | null>(null);
+  const [showForm,    setShowForm]    = useState(false);
+  const [formError,   setFormError]   = useState<string | null>(null);
+  const [qrRun,       setQRRun]       = useState<CIQImunoRun | null>(null);
+  const [exportErr,   setExportErr]   = useState<string | null>(null);
+  const [decidingLot,  setDecidingLot]  = useState(false);
+  const [decisionErr,  setDecisionErr]  = useState<string | null>(null);
+  const [showPrint,    setShowPrint]    = useState(false);
 
   // ── Handlers ───────────────────────────────────────────────────────────────
 
@@ -367,6 +415,19 @@ export function CIQImunoDashboard() {
       setShowForm(false);
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'Erro ao salvar corrida.');
+    }
+  }
+
+  async function handleLotDecision(decision: CIQStatus) {
+    if (!activeLot || !user) return;
+    setDecisionErr(null);
+    setDecidingLot(true);
+    try {
+      await updateLotDecision(activeLot.labId, activeLot.id, decision, user.uid);
+    } catch (err) {
+      setDecisionErr(err instanceof Error ? err.message : 'Erro ao registrar decisão.');
+    } finally {
+      setDecidingLot(false);
     }
   }
 
@@ -413,7 +474,7 @@ export function CIQImunoDashboard() {
           <div className="ml-auto flex items-center gap-2">
             <span className="text-[10px] font-mono px-2 py-0.5 rounded-full
                              bg-emerald-500/10 text-emerald-600 dark:text-emerald-400
-                             border border-emerald-500/20">
+                             border border-emerald-500/20 hidden sm:inline-flex">
               RDC 978/2025
             </span>
             <button
@@ -425,6 +486,20 @@ export function CIQImunoDashboard() {
             >
               <PlusIcon />
               Nova corrida
+            </button>
+            <button
+              type="button"
+              onClick={signOut}
+              aria-label="Sair do sistema"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl
+                         border border-slate-200 dark:border-white/[0.1]
+                         text-xs text-slate-500 dark:text-white/40
+                         hover:text-slate-800 dark:hover:text-white/70
+                         hover:border-slate-300 dark:hover:border-white/[0.2]
+                         transition-all"
+            >
+              <LogoutIcon />
+              <span className="hidden sm:inline">Sair</span>
             </button>
           </div>
         </div>
@@ -479,29 +554,98 @@ export function CIQImunoDashboard() {
                     </p>
                   </div>
 
-                  {runs.length > 0 && (
-                    <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+                    {/* Decisão formal — apenas com corridas registradas */}
+                    {runs.length > 0 && activeLot.ciqDecision !== 'A' && (
                       <button
                         type="button"
-                        onClick={handleExportCSV}
+                        onClick={() => handleLotDecision('A')}
+                        disabled={decidingLot}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl
-                                   border border-slate-200 dark:border-white/[0.1]
-                                   text-xs text-slate-500 dark:text-white/50
-                                   hover:text-slate-800 dark:hover:text-white/80
-                                   hover:border-slate-300 dark:hover:border-white/[0.2]
-                                   transition-all"
+                                   bg-emerald-500/10 border border-emerald-500/30
+                                   text-xs text-emerald-600 dark:text-emerald-400
+                                   hover:bg-emerald-500/20 disabled:opacity-40 transition-all"
                       >
-                        <DownloadIcon />
-                        FR-036 CSV
+                        <CheckIcon />
+                        Aprovar lote
                       </button>
-                    </div>
-                  )}
+                    )}
+                    {runs.length > 0 && activeLot.ciqDecision !== 'Rejeitado' && (
+                      <button
+                        type="button"
+                        onClick={() => handleLotDecision('Rejeitado')}
+                        disabled={decidingLot}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl
+                                   bg-red-500/[0.07] border border-red-400/25
+                                   text-xs text-red-600 dark:text-red-400
+                                   hover:bg-red-500/[0.15] disabled:opacity-40 transition-all"
+                      >
+                        <BanIcon />
+                        Reprovar lote
+                      </button>
+                    )}
+                    {runs.length > 0 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setShowPrint(true)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl
+                                     border border-slate-200 dark:border-white/[0.1]
+                                     text-xs text-slate-500 dark:text-white/50
+                                     hover:text-slate-800 dark:hover:text-white/80
+                                     hover:border-slate-300 dark:hover:border-white/[0.2]
+                                     transition-all"
+                        >
+                          <PrintIcon />
+                          Relatório PDF
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleExportCSV}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl
+                                     border border-slate-200 dark:border-white/[0.1]
+                                     text-xs text-slate-500 dark:text-white/50
+                                     hover:text-slate-800 dark:hover:text-white/80
+                                     hover:border-slate-300 dark:hover:border-white/[0.2]
+                                     transition-all"
+                        >
+                          <DownloadIcon />
+                          FR-036 CSV
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               )}
 
-              {/* Export error */}
+              {/* Operational indicators */}
+              {runs.length > 0 && activeLot && (
+                <CIQIndicadores runs={runs} lotStatus={activeLot.lotStatus} />
+              )}
+
+              {/* Decision / export errors */}
+              {decisionErr && (
+                <p className="text-xs text-red-500 dark:text-red-400">{decisionErr}</p>
+              )}
               {exportErr && (
                 <p className="text-xs text-red-500 dark:text-red-400">{exportErr}</p>
+              )}
+
+              {/* Formal decision badge */}
+              {activeLot?.ciqDecision && (
+                <div className={[
+                  'flex items-center gap-2 px-3.5 py-2.5 rounded-xl border text-xs',
+                  activeLot.ciqDecision === 'A'
+                    ? 'bg-emerald-500/[0.06] border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                    : 'bg-red-500/[0.06] border-red-400/20 text-red-600 dark:text-red-400',
+                ].join(' ')}>
+                  <span className="font-semibold">
+                    Decisão formal: {activeLot.ciqDecision === 'A' ? 'Aprovado' : 'Reprovado'}
+                  </span>
+                  {activeLot.decisionBy && (
+                    <span className="opacity-60">· RT registrado</span>
+                  )}
+                </div>
               )}
 
               {/* Westgard alerts */}
@@ -524,11 +668,21 @@ export function CIQImunoDashboard() {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-slate-100 dark:border-white/[0.06]">
-                        {['Data', 'Resultado', 'Westgard', 'Assinatura', ''].map((h) => (
-                          <th key={h} className="px-0 pr-4 py-2.5 pl-4 first:pl-5 text-left
-                                                  text-[11px] font-semibold uppercase tracking-wider
-                                                  text-slate-400 dark:text-white/30">
-                            {h}
+                        {[
+                          { label: 'Código',     className: 'hidden md:table-cell' },
+                          { label: 'Data',       className: '' },
+                          { label: 'Resultado',  className: '' },
+                          { label: 'Westgard',   className: '' },
+                          { label: 'Assinatura', className: '' },
+                          { label: '',           className: '' },
+                        ].map((h) => (
+                          <th key={h.label} className={[
+                            'px-0 pr-4 py-2.5 pl-4 first:pl-5 text-left',
+                            'text-[11px] font-semibold uppercase tracking-wider',
+                            'text-slate-400 dark:text-white/30',
+                            h.className,
+                          ].join(' ')}>
+                            {h.label}
                           </th>
                         ))}
                       </tr>
@@ -567,6 +721,15 @@ export function CIQImunoDashboard() {
             onCancel={() => setShowForm(false)}
           />
         </Modal>
+      )}
+
+      {/* ── Relatório PDF (print layout) ────────────────────────────────────── */}
+      {showPrint && activeLot && (
+        <CIQRelatorioPrint
+          lot={activeLot}
+          runs={runs}
+          onClose={() => setShowPrint(false)}
+        />
       )}
 
       {/* ── Modal: QR Code de Auditoria ──────────────────────────────────────── */}

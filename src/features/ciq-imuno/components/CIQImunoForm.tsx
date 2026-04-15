@@ -10,7 +10,19 @@ const TEST_TYPES: TestType[] = [
   'Sifilis', 'Dengue', 'COVID', 'PCR', 'Troponina',
 ];
 
-const today = () => new Date().toISOString().split('T')[0];
+const CARGO_OPTIONS: { value: CIQImunoFormData['cargo']; label: string }[] = [
+  { value: 'biomedico',    label: 'Biomédico(a)' },
+  { value: 'tecnico',      label: 'Técnico(a) de Laboratório' },
+  { value: 'farmaceutico', label: 'Farmacêutico(a)' },
+];
+
+const today = () => {
+  const now = new Date();
+  const y   = now.getFullYear();
+  const m   = String(now.getMonth() + 1).padStart(2, '0');
+  const d   = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
@@ -55,7 +67,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Toggle R / NR — usado para reagenteStatus, resultadoEsperado, resultadoObtido */
+/** Toggle R / NR */
 function RNRToggle({ id, value, onChange, error }: {
   id: string;
   value: 'R' | 'NR' | undefined;
@@ -138,7 +150,6 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
 
   function set<K extends keyof CIQImunoFormData>(key: K, value: CIQImunoFormData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
-    // Limpa o erro do campo editado ao digitar
     if (errors[key]) setErrors((prev) => { const n = { ...prev }; delete n[key]; return n; });
   }
 
@@ -153,7 +164,6 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
           Object.entries(flat).map(([k, v]) => [k, v?.[0] ?? ''])
         )
       );
-      // Scroll para o primeiro erro
       const firstErrEl = document.querySelector('[data-field-error]');
       firstErrEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
@@ -163,9 +173,11 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
     await onSave(result.data);
   }
 
-  // ── Computed alerts ────────────────────────────────────────────────────────
   const ctrlDays = form.validadeControle ? daysToExpiry(form.validadeControle) : null;
   const reagDays = form.validadeReagente ? daysToExpiry(form.validadeReagente) : null;
+  const naoConforme = form.resultadoObtido !== undefined &&
+                      form.resultadoEsperado !== undefined &&
+                      form.resultadoObtido !== form.resultadoEsperado;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-7" noValidate>
@@ -177,6 +189,7 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
           <Label htmlFor="testType" required>Imunoensaio</Label>
           <select
             id="testType"
+            title="Tipo de imunoensaio"
             value={form.testType ?? ''}
             onChange={(e) => set('testType', e.target.value as TestType)}
             className={errors.testType ? INPUT_ERR : INPUT}
@@ -190,47 +203,87 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
         </div>
       </div>
 
+      {/* ── Operador ───────────────────────────────────────────────────────── */}
+      <div>
+        <SectionTitle>Operador</SectionTitle>
+        <div>
+          <Label htmlFor="cargo" required>Cargo profissional</Label>
+          <select
+            id="cargo"
+            title="Cargo profissional do operador"
+            value={form.cargo ?? ''}
+            onChange={(e) => set('cargo', e.target.value as CIQImunoFormData['cargo'])}
+            className={errors.cargo ? INPUT_ERR : INPUT}
+          >
+            <option value="" disabled>Selecione o cargo…</option>
+            {CARGO_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+          <FieldError msg={errors.cargo} />
+        </div>
+      </div>
+
       {/* ── Controle ───────────────────────────────────────────────────────── */}
       <div>
         <SectionTitle>Controle Interno</SectionTitle>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="space-y-3">
 
-          <div className="sm:col-span-2">
-            <Label htmlFor="loteControle" required>Lote do controle</Label>
-            <input
-              id="loteControle"
-              type="text"
-              placeholder="ex: L2024-001"
-              value={form.loteControle ?? ''}
-              onChange={(e) => set('loteControle', e.target.value)}
-              className={errors.loteControle ? INPUT_ERR : INPUT}
-            />
-            <FieldError msg={errors.loteControle} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="loteControle" required>Lote do controle</Label>
+              <input
+                id="loteControle"
+                type="text"
+                placeholder="ex: L2024-001"
+                value={form.loteControle ?? ''}
+                onChange={(e) => set('loteControle', e.target.value)}
+                className={errors.loteControle ? INPUT_ERR : INPUT}
+              />
+              <FieldError msg={errors.loteControle} />
+            </div>
+
+            <div>
+              <Label htmlFor="fabricanteControle" required>Fabricante</Label>
+              <input
+                id="fabricanteControle"
+                type="text"
+                placeholder="ex: BioSystems"
+                value={form.fabricanteControle ?? ''}
+                onChange={(e) => set('fabricanteControle', e.target.value)}
+                className={errors.fabricanteControle ? INPUT_ERR : INPUT}
+              />
+              <FieldError msg={errors.fabricanteControle} />
+            </div>
           </div>
 
-          <div>
-            <Label htmlFor="aberturaControle" required>Abertura do controle</Label>
-            <input
-              id="aberturaControle"
-              type="date"
-              value={form.aberturaControle ?? ''}
-              onChange={(e) => set('aberturaControle', e.target.value)}
-              className={errors.aberturaControle ? INPUT_ERR : INPUT}
-            />
-            <FieldError msg={errors.aberturaControle} />
-          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="aberturaControle" required>Abertura do controle</Label>
+              <input
+                id="aberturaControle"
+                type="date"
+                title="Data de abertura do controle"
+                value={form.aberturaControle ?? ''}
+                onChange={(e) => set('aberturaControle', e.target.value)}
+                className={errors.aberturaControle ? INPUT_ERR : INPUT}
+              />
+              <FieldError msg={errors.aberturaControle} />
+            </div>
 
-          <div>
-            <Label htmlFor="validadeControle" required>Validade do controle</Label>
-            <input
-              id="validadeControle"
-              type="date"
-              value={form.validadeControle ?? ''}
-              onChange={(e) => set('validadeControle', e.target.value)}
-              className={errors.validadeControle ? INPUT_ERR : INPUT}
-            />
-            <FieldError msg={errors.validadeControle} />
-            {ctrlDays !== null && <ExpiryWarning label="Controle" days={ctrlDays} />}
+            <div>
+              <Label htmlFor="validadeControle" required>Validade do controle</Label>
+              <input
+                id="validadeControle"
+                type="date"
+                title="Data de validade do controle"
+                value={form.validadeControle ?? ''}
+                onChange={(e) => set('validadeControle', e.target.value)}
+                className={errors.validadeControle ? INPUT_ERR : INPUT}
+              />
+              <FieldError msg={errors.validadeControle} />
+              {ctrlDays !== null && <ExpiryWarning label="Controle" days={ctrlDays} />}
+            </div>
           </div>
         </div>
       </div>
@@ -240,17 +293,58 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
         <SectionTitle>Reagente</SectionTitle>
         <div className="space-y-3">
 
-          <div>
-            <Label htmlFor="loteReagente" required>Lote do reagente</Label>
-            <input
-              id="loteReagente"
-              type="text"
-              placeholder="ex: R2024-042"
-              value={form.loteReagente ?? ''}
-              onChange={(e) => set('loteReagente', e.target.value)}
-              className={errors.loteReagente ? INPUT_ERR : INPUT}
-            />
-            <FieldError msg={errors.loteReagente} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="loteReagente" required>Lote do reagente</Label>
+              <input
+                id="loteReagente"
+                type="text"
+                placeholder="ex: R2024-042"
+                value={form.loteReagente ?? ''}
+                onChange={(e) => set('loteReagente', e.target.value)}
+                className={errors.loteReagente ? INPUT_ERR : INPUT}
+              />
+              <FieldError msg={errors.loteReagente} />
+            </div>
+
+            <div>
+              <Label htmlFor="fabricanteReagente" required>Fabricante</Label>
+              <input
+                id="fabricanteReagente"
+                type="text"
+                placeholder="ex: Abbott, Roche"
+                value={form.fabricanteReagente ?? ''}
+                onChange={(e) => set('fabricanteReagente', e.target.value)}
+                className={errors.fabricanteReagente ? INPUT_ERR : INPUT}
+              />
+              <FieldError msg={errors.fabricanteReagente} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="codigoKit">Código do kit</Label>
+              <input
+                id="codigoKit"
+                type="text"
+                placeholder="ex: 04L59-20"
+                value={form.codigoKit ?? ''}
+                onChange={(e) => set('codigoKit', e.target.value || undefined)}
+                className={INPUT}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="registroANVISA">Registro ANVISA</Label>
+              <input
+                id="registroANVISA"
+                type="text"
+                placeholder="ex: 10269230117"
+                value={form.registroANVISA ?? ''}
+                onChange={(e) => set('registroANVISA', e.target.value || undefined)}
+                className={INPUT}
+              />
+            </div>
           </div>
 
           <div>
@@ -270,6 +364,7 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
               <input
                 id="aberturaReagente"
                 type="date"
+                title="Data de abertura do reagente"
                 value={form.aberturaReagente ?? ''}
                 onChange={(e) => set('aberturaReagente', e.target.value)}
                 className={errors.aberturaReagente ? INPUT_ERR : INPUT}
@@ -282,6 +377,7 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
               <input
                 id="validadeReagente"
                 type="date"
+                title="Data de validade do reagente"
                 value={form.validadeReagente ?? ''}
                 onChange={(e) => set('validadeReagente', e.target.value)}
                 className={errors.validadeReagente ? INPUT_ERR : INPUT}
@@ -328,6 +424,65 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
               className={errors.dataRealizacao ? INPUT_ERR : INPUT}
             />
             <FieldError msg={errors.dataRealizacao} />
+          </div>
+
+          {/* Ação corretiva — visível sempre que há não conformidade */}
+          {naoConforme && (
+            <div>
+              <Label htmlFor="acaoCorretiva" required>
+                Ação corretiva (RDC 978/2025 Art.128)
+              </Label>
+              <textarea
+                id="acaoCorretiva"
+                rows={3}
+                placeholder="Descreva a ação corretiva tomada…"
+                value={form.acaoCorretiva ?? ''}
+                onChange={(e) => set('acaoCorretiva', e.target.value || undefined)}
+                className={[
+                  errors.acaoCorretiva ? INPUT_ERR : INPUT,
+                  'resize-none leading-relaxed',
+                ].join(' ')}
+              />
+              <FieldError msg={errors.acaoCorretiva} />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Equipamento (opcional) ─────────────────────────────────────────── */}
+      <div>
+        <SectionTitle>Equipamento</SectionTitle>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+          <div>
+            <Label htmlFor="equipamento">Equipamento / analisador</Label>
+            <input
+              id="equipamento"
+              type="text"
+              placeholder="ex: Mini VIDAS, Architect i1000"
+              value={form.equipamento ?? ''}
+              onChange={(e) => set('equipamento', e.target.value || undefined)}
+              className={INPUT}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="temperaturaAmbiente">Temperatura ambiente (°C)</Label>
+            <input
+              id="temperaturaAmbiente"
+              type="number"
+              step="0.1"
+              min="-10"
+              max="50"
+              placeholder="ex: 22.5"
+              title="Temperatura ambiente em graus Celsius"
+              value={form.temperaturaAmbiente ?? ''}
+              onChange={(e) => set(
+                'temperaturaAmbiente',
+                e.target.value ? Number(e.target.value) : undefined,
+              )}
+              className={INPUT}
+            />
           </div>
         </div>
       </div>

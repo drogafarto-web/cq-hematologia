@@ -140,6 +140,15 @@ service cloud.firestore {
         }
       }
 
+      // /labs/{labId}/ciq-imuno-meta — contadores e metadados do módulo CIQ-Imuno
+      // Counter document: ciq-imuno-meta/counters.runCount (transação para CI-YYYY-NNNN)
+      match /ciq-imuno-meta/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('imunologia'));
+        // Qualquer membro autenticado pode incrementar o contador (via transação)
+        allow write: if isSuperAdmin() || isActiveMemberOfLab(labId);
+      }
+
       // ── Módulos futuros — adicionar blocos aqui seguindo o mesmo padrão:
       // match /ciq-bioquimica/{lotId} { ... hasModuleAccess('bioquimica') ... }
       // match /ciq-coagulacao/{lotId}  { ... hasModuleAccess('coagulacao')  ... }

@@ -5,17 +5,31 @@ import type { CIQImunoRun } from '../types/CIQImuno';
 
 /** Colunas do formulário FR-036 (RDC 978/2025) */
 interface FR036Row {
+  'Código':               string;
   'Data Realização':      string;
   'Tipo de Teste':        string;
+  // Controle
   'Lote Controle':        string;
+  'Fabricante Controle':  string;
   'Abertura Controle':    string;
   'Validade Controle':    string;
+  // Reagente
   'Lote Reagente':        string;
+  'Fabricante Reagente':  string;
+  'Código Kit':           string;
+  'Registro ANVISA':      string;
   'Status Abertura Kit':  string;
+  // Resultado
   'Resultado Esperado':   string;
   'Resultado Obtido':     string;
   'Conformidade':         string;
+  'Ação Corretiva':       string;
+  // Qualidade
   'Alertas Westgard':     string;
+  // Equipamento
+  'Equipamento':          string;
+  'Temperatura (°C)':     string;
+  // Operador
   'Operador':             string;
   'Cargo':                string;
   'Assinatura Digital':   string;
@@ -43,17 +57,31 @@ export function exportRunsToCSV(
   }
 
   const rows: FR036Row[] = runs.map((r) => ({
+    'Código':               r.runCode ?? '—',
     'Data Realização':      r.dataRealizacao,
     'Tipo de Teste':        r.testType,
+    // Controle
     'Lote Controle':        r.loteControle,
+    'Fabricante Controle':  r.fabricanteControle ?? '—',
     'Abertura Controle':    r.aberturaControle,
     'Validade Controle':    r.validadeControle,
+    // Reagente
     'Lote Reagente':        r.loteReagente,
+    'Fabricante Reagente':  r.fabricanteReagente ?? '—',
+    'Código Kit':           r.codigoKit ?? '—',
+    'Registro ANVISA':      r.registroANVISA ?? '—',
     'Status Abertura Kit':  r.reagenteStatus === 'R' ? 'Reagente' : 'Não Reagente',
+    // Resultado
     'Resultado Esperado':   r.resultadoEsperado === 'R' ? 'Reagente' : 'Não Reagente',
     'Resultado Obtido':     r.resultadoObtido   === 'R' ? 'Reagente' : 'Não Reagente',
     'Conformidade':         r.resultadoObtido === r.resultadoEsperado ? 'Conforme' : 'Não Conforme',
+    'Ação Corretiva':       r.acaoCorretiva ?? '—',
+    // Qualidade
     'Alertas Westgard':     (r.westgardCategorico ?? []).join('; ') || '—',
+    // Equipamento
+    'Equipamento':          r.equipamento ?? '—',
+    'Temperatura (°C)':     r.temperaturaAmbiente !== undefined ? String(r.temperaturaAmbiente) : '—',
+    // Operador
     'Operador':             r.operatorName,
     'Cargo':                r.operatorRole,
     'Assinatura Digital':   r.logicalSignature ?? '—',
@@ -81,7 +109,6 @@ export function exportRunsToCSV(
   link.click();
   document.body.removeChild(link);
 
-  // Libera memória após o download iniciar
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
 
