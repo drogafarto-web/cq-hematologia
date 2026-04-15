@@ -159,6 +159,15 @@ th {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ─── Login: Branding panel background image ────────────────────────────────
+   Renders the login.webp hero image as the full background of the left panel.
+   Defined here to avoid inline styles (linter rule).                        */
+.login-branding-bg {
+  background-image: url('/assets/login.webp');
+  background-size: cover;
+  background-position: center;
+}
+
 /* ─── Login Screen: Fade-in animation ──────────────────────────────────────────
    Used by LoginForm and other components on initial mount.
    Smooth opacity + upward transform for a polished entry effect.            */

@@ -1,14 +1,8 @@
 import React from 'react';
-import ImageLoader from './ImageLoader';
 
 const BrandingPanel: React.FC = () => {
     return (
-        <div className="hidden lg:flex flex-col relative w-full lg:w-[55%] bg-[#0B0F14] overflow-hidden">
-            {/* Background image */}
-            <div className="absolute inset-0">
-                <ImageLoader className="w-full h-full" />
-            </div>
-
+        <div className="login-branding-bg hidden lg:flex flex-col relative w-full lg:w-[55%] overflow-hidden">
             {/* Content */}
             <div className="relative z-10 flex flex-col justify-between h-full p-8 lg:p-12">
                 {/* Logo */}
