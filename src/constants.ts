@@ -56,25 +56,61 @@ export const COLLECTIONS = {
 } as const;
 
 export const SUBCOLLECTIONS = {
+  // Core / infra
   MEMBERS: 'members',
-  DATA: 'data',
+  DATA:    'data',
+  // Módulo: Hematologia (CIQ quantitativo)
   LOTS: 'lots',
   RUNS: 'runs',
+  // Módulo: Imunologia (CIQ categórico R/NR — RDC 978/2025)
+  CIQ_IMUNO: 'ciq-imuno',
+  // Módulos futuros — descomentar ao implementar:
+  // CIQ_BIOQUIMICA: 'ciq-bioquimica',
+  // CIQ_COAGULACAO: 'ciq-coagulacao',
+  // CIQ_URINALISE:  'ciq-urinalise',
 } as const;
 
 export const STATIC_DOC_IDS = {
   APP_STATE: 'appState',
-  INIT: 'init',
+  INIT:      'init',
 } as const;
+
+// ─── Module JWT Claim Keys ────────────────────────────────────────────────────
+// Fonte única de verdade para chaves de claim de módulo.
+// Usar em hasModuleAccess() (firestore.rules) e setModulesClaims() (functions).
+// Adicionar aqui ao registrar um novo módulo.
+
+export const MODULE_CLAIMS = {
+  hematologia: 'hematologia',
+  imunologia:  'imunologia',
+  // bioquimica: 'bioquimica',
+  // coagulacao: 'coagulacao',
+  // urinalise:  'urinalise',
+} as const;
+
+export type ModuleClaim = (typeof MODULE_CLAIMS)[keyof typeof MODULE_CLAIMS];
 
 // ─── Storage Paths ────────────────────────────────────────────────────────────
 
 export const storagePath = {
+  // Hematologia — imagem do printout do equipamento
   runImage: (labId: string, lotId: string, runId: string) =>
     `labs/${labId}/lots/${lotId}/runs/${runId}.jpg`,
+  // Imunologia — foto do strip de imunoensaio
+  imunoStripImage: (labId: string, lotId: string, runId: string) =>
+    `labs/${labId}/ciq-imuno/${lotId}/strips/${runId}.jpg`,
+  // Infra
   labLogo: (labId: string) =>
     `labs/${labId}/logo`,
 } as const;
+
+// ─── Audit QR Base URL ────────────────────────────────────────────────────────
+// Usado para gerar QR Codes de rastreabilidade (CIQAuditor, etapa 8).
+// Definir VITE_AUDIT_BASE_URL no .env para sobrescrever em produção.
+
+export const AUDIT_BASE_URL: string =
+  (import.meta as { env?: { VITE_AUDIT_BASE_URL?: string } }).env?.VITE_AUDIT_BASE_URL
+  ?? 'https://cq.labclin.com.br/audit';
 
 // ─── Gemini ───────────────────────────────────────────────────────────────────
 

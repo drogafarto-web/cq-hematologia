@@ -74,6 +74,16 @@ function UrineIcon() {
   );
 }
 
+function ImunoIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
+      <circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M10 2v3M10 15v3M2 10h3M15 10h3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" />
+    </svg>
+  );
+}
+
 // ─── Module definitions ───────────────────────────────────────────────────────
 
 interface ModuleDef {
@@ -124,6 +134,16 @@ const MODULES: ModuleDef[] = [
     iconBg: 'bg-amber-500/10',
     iconColor: 'text-amber-400/50',
     status: 'soon',
+  },
+  {
+    id: 'ciq-imuno',
+    name: 'CIQ-Imuno',
+    tagline: 'Imunoensaios · Strips · RDC 978/2025 · FR-036',
+    icon: <ImunoIcon />,
+    iconBg: 'bg-emerald-500/15',
+    iconColor: 'text-emerald-400',
+    status: 'active',
+    view: 'ciq-imuno',
   },
 ];
 

@@ -24,6 +24,32 @@
         { "fieldPath": "status",    "order": "ASCENDING"  },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "runs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId",          "order": "ASCENDING"  },
+        { "fieldPath": "dataRealizacao", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "runs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId",          "order": "ASCENDING"  },
+        { "fieldPath": "testType",       "order": "ASCENDING"  },
+        { "fieldPath": "dataRealizacao", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "runs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId",           "order": "ASCENDING"  },
+        { "fieldPath": "resultadoObtido", "order": "ASCENDING"  },
+        { "fieldPath": "dataRealizacao",  "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

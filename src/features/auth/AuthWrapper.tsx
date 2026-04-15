@@ -13,6 +13,7 @@ import { ModuleHub } from '../hub/ModuleHub';
 import { AnalyzerView } from '../analyzer/AnalyzerView';
 import { BulaProcessor } from '../bulaparser/BulaProcessor';
 import { ReportsView } from '../reports/ReportsView';
+import { CIQImunoDashboard } from '../ciq-imuno/components/CIQImunoDashboard';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
 
@@ -41,6 +42,7 @@ function AppRouter() {
   if (currentView === 'hub') return <ModuleHub />;
   if (currentView === 'bulaparser') return <BulaProcessor />;
   if (currentView === 'reports') return <ReportsView />;
+  if (currentView === 'ciq-imuno') return <CIQImunoDashboard />;
 
   return <AnalyzerView />;
 }

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.extractFromBula = exports.extractFromImage = exports.deleteUser = exports.removeUserFromLab = exports.updateUserLabRole = exports.addUserToLab = exports.setUserSuperAdmin = exports.setUserDisabled = exports.createUser = void 0;
+exports.approveUserForLab = exports.extractFromBula = exports.analyzeImmunoStrip = exports.extractFromImage = exports.setModulesClaims = exports.deleteUser = exports.removeUserFromLab = exports.updateUserLabRole = exports.addUserToLab = exports.setUserSuperAdmin = exports.setUserDisabled = exports.createUser = void 0;
 const https_1 = require("firebase-functions/v2/https");
 const v2_1 = require("firebase-functions/v2");
 const params_1 = require("firebase-functions/params");
@@ -25,6 +25,29 @@ async function assertSuperAdmin(uid, token) {
     const snap = await admin.firestore().doc(`users/${uid}`).get();
     if (!snap.exists || snap.data()?.isSuperAdmin !== true) {
         throw new https_1.HttpsError('permission-denied', 'Acesso negado. Apenas Super Admins podem executar esta operação.');
+    }
+}
+/**
+ * Checks that the caller is either a SuperAdmin OR an active admin/owner of
+ * the given lab. Used to gate lab-scoped operations that lab admins should
+ * also be able to perform (e.g. approving pending users).
+ */
+async function assertLabAdminOrSuperAdmin(uid, labId, token) {
+    if (token?.isSuperAdmin === true)
+        return;
+    const userSnap = await admin.firestore().doc(`users/${uid}`).get();
+    if (userSnap.data()?.isSuperAdmin === true)
+        return;
+    const memberSnap = await admin
+        .firestore()
+        .doc(`labs/${labId}/members/${uid}`)
+        .get();
+    if (!memberSnap.exists || memberSnap.data()?.active !== true) {
+        throw new https_1.HttpsError('permission-denied', 'Acesso negado.');
+    }
+    const role = memberSnap.data()?.role;
+    if (role !== 'admin' && role !== 'owner') {
+        throw new https_1.HttpsError('permission-denied', 'Apenas administradores do laboratório podem executar esta operação.');
     }
 }
 // ─── createUser ───────────────────────────────────────────────────────────────
@@ -53,7 +76,10 @@ exports.createUser = (0, https_1.onCall)({}, async (request) => {
             email,
             password,
             displayName,
-            emailVerified: false,
+            // Admin-created accounts are pre-verified — the admin already validated
+            // the email by creating the account manually. This avoids a verification
+            // hurdle for users who receive their credentials from their lab admin.
+            emailVerified: true,
         });
     }
     catch (err) {
@@ -343,6 +369,53 @@ exports.deleteUser = (0, https_1.onCall)({}, async (request) => {
         targetUid,
         targetEmail,
         payload: { labsRemoved: labIds },
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    }).catch(() => { });
+    return { success: true };
+});
+// ─── setModulesClaims ─────────────────────────────────────────────────────────
+// Grants or revokes module access for a user by writing to Firebase Auth custom
+// claims. Only Super Admins may call this function.
+//
+// Claim shape written:  { ...existingClaims, modules: { hematologia: true, ... } }
+// Firestore mirror:     users/{uid}.modules  (read-only reference for UI — never
+//                       use this for auth enforcement; always read the JWT claim)
+//
+// After a successful response the client MUST call:
+//   await auth.currentUser.getIdToken(true)
+// to force-refresh the JWT before attempting module-gated Firestore reads.
+const SetModulesClaimsSchema = zod_1.z.object({
+    uid: zod_1.z.string().min(1),
+    modules: zod_1.z.record(zod_1.z.string(), zod_1.z.boolean()),
+});
+exports.setModulesClaims = (0, https_1.onCall)({}, async (request) => {
+    if (!request.auth) {
+        throw new https_1.HttpsError('unauthenticated', 'Autenticação necessária.');
+    }
+    await assertSuperAdmin(request.auth.uid, request.auth.token);
+    const parsed = SetModulesClaimsSchema.safeParse(request.data);
+    if (!parsed.success) {
+        throw new https_1.HttpsError('invalid-argument', `Dados inválidos: ${parsed.error.message}`);
+    }
+    const { uid, modules } = parsed.data;
+    // Verify the target user actually exists before touching claims
+    try {
+        await admin.auth().getUser(uid);
+    }
+    catch {
+        throw new https_1.HttpsError('not-found', 'Usuário não encontrado.');
+    }
+    // Mirror in Firestore for UI reference only (dashboard module tiles).
+    // Authorization is enforced exclusively through the JWT custom claim.
+    await admin.firestore().doc(`users/${uid}`).update({ modules });
+    // Merge with existing claims (preserves isSuperAdmin + any future flags)
+    await (0, claims_1.syncModuleClaims)(uid, modules);
+    admin.firestore().collection('auditLogs').add({
+        action: 'SET_MODULE_CLAIMS',
+        callerUid: request.auth.uid,
+        callerEmail: request.auth.token.email ?? null,
+        targetUid: uid,
+        payload: { modules },
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
     }).catch(() => { });
     return { success: true };
@@ -717,6 +790,77 @@ exports.extractFromImage = (0, https_1.onCall)({
         results,
     };
 });
+// ─── analyzeImmunoStrip ───────────────────────────────────────────────────────
+// Callable: lê foto de strip de imunoensaio e retorna resultado R/NR + confiança.
+// A chave Gemini reside exclusivamente no backend — nunca exposta ao frontend.
+const STRIP_RESULT_SCHEMA = zod_1.z.object({
+    resultado: zod_1.z.enum(['R', 'NR']),
+    confidence: zod_1.z.enum(['high', 'medium', 'low']),
+});
+const ANALYZE_STRIP_INPUT_SCHEMA = zod_1.z.object({
+    base64: zod_1.z.string().min(1, 'Imagem obrigatória.'),
+    mimeType: zod_1.z.string().min(1, 'mimeType obrigatório.'),
+    testType: zod_1.z.enum([
+        'HCG', 'BhCG', 'HIV', 'HBsAg', 'Anti-HCV',
+        'Sifilis', 'Dengue', 'COVID', 'PCR', 'Troponina',
+    ]),
+});
+exports.analyzeImmunoStrip = (0, https_1.onCall)({
+    secrets: [geminiApiKey, openRouterApiKey],
+    memory: '512MiB',
+    timeoutSeconds: 60,
+}, async (request) => {
+    if (!request.auth) {
+        throw new https_1.HttpsError('unauthenticated', 'Autenticação necessária.');
+    }
+    // Valida e tipifica o payload de entrada com Zod
+    const inputValidation = ANALYZE_STRIP_INPUT_SCHEMA.safeParse(request.data);
+    if (!inputValidation.success) {
+        throw new https_1.HttpsError('invalid-argument', `Payload inválido: ${inputValidation.error.message}`);
+    }
+    const { base64, mimeType, testType } = inputValidation.data;
+    const prompt = `Analise a imagem de um strip de imunoensaio do tipo ${testType}.
+
+INSTRUÇÕES:
+- R  = Reagente/Positivo  → duas linhas visíveis (controle + teste)
+- NR = Não Reagente/Negativo → apenas uma linha visível (controle)
+
+Avalie a qualidade da imagem para determinar o nível de confiança:
+- high   = strip claramente visível, linhas nítidas
+- medium = strip legível com pequenas imperfeições
+- low    = imagem borrada, mal enquadrada ou strip danificado
+
+Responda APENAS com JSON válido, sem markdown, sem explicações:
+{ "resultado": "R" | "NR", "confidence": "high" | "medium" | "low" }`.trim();
+    const rawText = await callAIWithFallback({
+        prompt,
+        base64,
+        mimeType,
+        geminiKey: geminiApiKey.value(),
+        openRouterKey: openRouterApiKey.value(),
+    });
+    if (!rawText.trim()) {
+        throw new https_1.HttpsError('internal', 'A IA retornou uma resposta vazia.');
+    }
+    let parsed;
+    try {
+        parsed = JSON.parse(rawText);
+    }
+    catch (err) {
+        console.error('❌ analyzeImmunoStrip: JSON inválido da IA:', rawText, err);
+        throw new https_1.HttpsError('internal', 'IA retornou resposta não-JSON.');
+    }
+    const validation = STRIP_RESULT_SCHEMA.safeParse(parsed);
+    if (!validation.success) {
+        console.error('❌ analyzeImmunoStrip: formato inválido (Zod):', validation.error.format());
+        throw new https_1.HttpsError('internal', `Formato inválido da IA: ${validation.error.message}`);
+    }
+    console.log(`✅ analyzeImmunoStrip: ${testType} → ${validation.data.resultado} (${validation.data.confidence})`);
+    return {
+        resultadoObtido: validation.data.resultado,
+        confidence: validation.data.confidence,
+    };
+});
 // ─── extractFromBula ──────────────────────────────────────────────────────────
 // Callable function for parsing manufacturer stats from PDF bulas.
 const ANALYTE_IDS_ALL = [
@@ -820,5 +964,111 @@ exports.extractFromBula = (0, https_1.onCall)({
         throw new https_1.HttpsError('internal', `Dados da bula fora do formato: ${validation.error.message}`);
     }
     return validation.data;
+});
+// ─── approveUserForLab ────────────────────────────────────────────────────────
+// Approves a pending Google OAuth user for a lab.
+// Callable by lab admins/owners OR SuperAdmin.
+//
+// Flow:
+//   1. Verify caller is lab admin/owner or SuperAdmin
+//   2. Read pending_users/{labId}/users/{uid}
+//   3. Create users/{uid} Firestore document
+//   4. Set custom claims (role + tenantIds)
+//   5. Mark emailVerified: true in Firebase Auth (admin already validated email)
+//   6. Add to labs/{labId}/members/{uid}
+//   7. Delete pending entry
+//   8. Audit log
+const ApproveUserInputSchema = zod_1.z.object({
+    labId: zod_1.z.string().min(1),
+    uid: zod_1.z.string().min(1),
+    assignedRole: zod_1.z.enum(['admin', 'member']),
+});
+exports.approveUserForLab = (0, https_1.onCall)({}, async (request) => {
+    if (!request.auth) {
+        throw new https_1.HttpsError('unauthenticated', 'Autenticação necessária.');
+    }
+    const parsed = ApproveUserInputSchema.safeParse(request.data);
+    if (!parsed.success) {
+        throw new https_1.HttpsError('invalid-argument', `Dados inválidos: ${parsed.error.message}`);
+    }
+    const { labId, uid, assignedRole } = parsed.data;
+    await assertLabAdminOrSuperAdmin(request.auth.uid, labId, request.auth.token);
+    const db = admin.firestore();
+    // 1. Read pending entry
+    const pendingRef = db.doc(`pending_users/${labId}/users/${uid}`);
+    const pendingSnap = await pendingRef.get();
+    if (!pendingSnap.exists) {
+        throw new https_1.HttpsError('not-found', 'Usuário pendente não encontrado.');
+    }
+    const pending = pendingSnap.data();
+    // 2. Check if user doc already exists (idempotency)
+    const userRef = db.doc(`users/${uid}`);
+    const userSnap = await userRef.get();
+    const batch = db.batch();
+    if (!userSnap.exists) {
+        batch.set(userRef, {
+            email: pending.email ?? '',
+            displayName: pending.displayName ?? pending.email ?? 'Usuário',
+            labIds: [labId],
+            roles: { [labId]: assignedRole },
+            isSuperAdmin: false,
+            activeLabId: null,
+            pendingLabId: null,
+            disabled: false,
+            // emailVerified is managed on the Auth record below,
+            // not stored redundantly in Firestore.
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdBy: request.auth.uid,
+        });
+    }
+    else {
+        // User doc exists — just add the new lab
+        const existing = userSnap.data();
+        const labIds = (existing.labIds ?? []);
+        batch.update(userRef, {
+            labIds: labIds.includes(labId) ? labIds : [...labIds, labId],
+            [`roles.${labId}`]: assignedRole,
+            pendingLabId: null,
+        });
+    }
+    // 3. Add to lab members
+    batch.set(db.doc(`labs/${labId}/members/${uid}`), {
+        role: assignedRole,
+        active: true,
+    });
+    // 4. Remove pending entry
+    batch.delete(pendingRef);
+    await batch.commit();
+    // 5. Set custom claims — role + tenantIds array
+    let existingClaims = {};
+    try {
+        const authUser = await admin.auth().getUser(uid);
+        existingClaims = (authUser.customClaims ?? {});
+    }
+    catch {
+        // User may not have claims yet — start fresh
+    }
+    const existingTenants = (existingClaims.tenantIds ?? []);
+    await admin.auth().setCustomUserClaims(uid, {
+        ...existingClaims,
+        role: assignedRole,
+        tenantIds: existingTenants.includes(labId)
+            ? existingTenants
+            : [...existingTenants, labId],
+    });
+    // 6. Mark emailVerified: true — admin validated the email by approving
+    await admin.auth().updateUser(uid, { emailVerified: true });
+    // 7. Audit log — non-blocking
+    db.collection('auditLogs').add({
+        action: 'APPROVE_PENDING_USER',
+        callerUid: request.auth.uid,
+        callerEmail: request.auth.token.email ?? null,
+        targetUid: uid,
+        targetEmail: pending.email ?? null,
+        labId,
+        payload: { assignedRole },
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    }).catch(() => { });
+    return { success: true };
 });
 //# sourceMappingURL=index.js.map

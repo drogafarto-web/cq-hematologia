@@ -237,7 +237,7 @@ export interface PendingBulaData {
 // ─── UI State ─────────────────────────────────────────────────────────────────
 
 export type SyncStatus = 'saved' | 'saving' | 'offline' | 'error';
-export type View = 'hub' | 'analyzer' | 'bulaparser' | 'labadmin' | 'superadmin' | 'reports';
+export type View = 'hub' | 'analyzer' | 'bulaparser' | 'labadmin' | 'superadmin' | 'reports' | 'ciq-imuno';
 export type StatsSource = 'manufacturer' | 'internal';
 export type ImageState = 'ready' | 'uploading' | 'none';
 

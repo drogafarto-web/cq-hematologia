@@ -951,6 +951,98 @@ export const extractFromImage = onCall(
   },
 );
 
+// ─── analyzeImmunoStrip ───────────────────────────────────────────────────────
+// Callable: lê foto de strip de imunoensaio e retorna resultado R/NR + confiança.
+// A chave Gemini reside exclusivamente no backend — nunca exposta ao frontend.
+
+const STRIP_RESULT_SCHEMA = z.object({
+  resultado:  z.enum(['R', 'NR']),
+  confidence: z.enum(['high', 'medium', 'low']),
+});
+
+const ANALYZE_STRIP_INPUT_SCHEMA = z.object({
+  base64:   z.string().min(1, 'Imagem obrigatória.'),
+  mimeType: z.string().min(1, 'mimeType obrigatório.'),
+  testType: z.enum([
+    'HCG', 'BhCG', 'HIV', 'HBsAg', 'Anti-HCV',
+    'Sifilis', 'Dengue', 'COVID', 'PCR', 'Troponina',
+  ]),
+});
+
+export const analyzeImmunoStrip = onCall(
+  {
+    secrets:        [geminiApiKey, openRouterApiKey],
+    memory:         '512MiB',
+    timeoutSeconds: 60,
+  },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Autenticação necessária.');
+    }
+
+    // Valida e tipifica o payload de entrada com Zod
+    const inputValidation = ANALYZE_STRIP_INPUT_SCHEMA.safeParse(request.data);
+    if (!inputValidation.success) {
+      throw new HttpsError(
+        'invalid-argument',
+        `Payload inválido: ${inputValidation.error.message}`,
+      );
+    }
+
+    const { base64, mimeType, testType } = inputValidation.data;
+
+    const prompt = `Analise a imagem de um strip de imunoensaio do tipo ${testType}.
+
+INSTRUÇÕES:
+- R  = Reagente/Positivo  → duas linhas visíveis (controle + teste)
+- NR = Não Reagente/Negativo → apenas uma linha visível (controle)
+
+Avalie a qualidade da imagem para determinar o nível de confiança:
+- high   = strip claramente visível, linhas nítidas
+- medium = strip legível com pequenas imperfeições
+- low    = imagem borrada, mal enquadrada ou strip danificado
+
+Responda APENAS com JSON válido, sem markdown, sem explicações:
+{ "resultado": "R" | "NR", "confidence": "high" | "medium" | "low" }`.trim();
+
+    const rawText = await callAIWithFallback({
+      prompt,
+      base64,
+      mimeType,
+      geminiKey:    geminiApiKey.value(),
+      openRouterKey: openRouterApiKey.value(),
+    });
+
+    if (!rawText.trim()) {
+      throw new HttpsError('internal', 'A IA retornou uma resposta vazia.');
+    }
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(rawText);
+    } catch (err) {
+      console.error('❌ analyzeImmunoStrip: JSON inválido da IA:', rawText, err);
+      throw new HttpsError('internal', 'IA retornou resposta não-JSON.');
+    }
+
+    const validation = STRIP_RESULT_SCHEMA.safeParse(parsed);
+    if (!validation.success) {
+      console.error('❌ analyzeImmunoStrip: formato inválido (Zod):', validation.error.format());
+      throw new HttpsError(
+        'internal',
+        `Formato inválido da IA: ${validation.error.message}`,
+      );
+    }
+
+    console.log(`✅ analyzeImmunoStrip: ${testType} → ${validation.data.resultado} (${validation.data.confidence})`);
+
+    return {
+      resultadoObtido: validation.data.resultado,
+      confidence:      validation.data.confidence,
+    };
+  },
+);
+
 // ─── extractFromBula ──────────────────────────────────────────────────────────
 // Callable function for parsing manufacturer stats from PDF bulas.
 
