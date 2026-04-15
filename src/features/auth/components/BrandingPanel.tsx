@@ -8,17 +8,21 @@ const BrandingPanel: React.FC = () => {
             <div className="absolute inset-0">
                 <ImageLoader className="w-full h-full" />
                 {/* Dark gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[rgba(11,15,20,0.65)] via-[rgba(11,15,20,0.75)] to-[rgba(11,15,20,0.85)]" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[rgba(11,15,20,0.35)] via-[rgba(11,15,20,0.45)] to-[rgba(11,15,20,0.50)]" />
             </div>
 
             {/* Content */}
             <div className="relative z-10 flex flex-col justify-between h-full p-8 lg:p-12">
-                {/* Logo */}
-                <div className="flex-shrink-0">
+                {/* Logo — wrapped in white pill so the PNG's white background is intentional */}
+                <div className="flex-shrink-0 inline-flex items-center bg-white/95 rounded-lg px-3 py-2 shadow-md">
                     <img
                         src="/assets/labclin-logo.png"
                         alt="CQ Labclin"
-                        className="h-12 w-auto filter brightness-0 invert"
+                        className="h-9 w-auto object-contain"
+                        onError={(e) => {
+                            // Hide broken-image placeholder if file can't load
+                            (e.currentTarget as HTMLImageElement).style.display = 'none';
+                        }}
                     />
                 </div>
 

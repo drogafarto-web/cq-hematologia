@@ -175,5 +175,12 @@ th {
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.4s ease-out both;
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* If user prefers reduced motion, skip animation and show content immediately */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in {
+    animation: none;
+  }
 }

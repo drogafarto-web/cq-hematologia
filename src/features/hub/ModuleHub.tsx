@@ -20,8 +20,8 @@ function LogoMark() {
 function DotsIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <circle cx="8" cy="3"  r="1.2" fill="currentColor" />
-      <circle cx="8" cy="8"  r="1.2" fill="currentColor" />
+      <circle cx="8" cy="3" r="1.2" fill="currentColor" />
+      <circle cx="8" cy="8" r="1.2" fill="currentColor" />
       <circle cx="8" cy="13" r="1.2" fill="currentColor" />
     </svg>
   );
@@ -128,20 +128,20 @@ const MODULES: ModuleDef[] = [
 ];
 
 const ROLE_LABELS: Record<string, string> = {
-  owner:  'Proprietário',
-  admin:  'Administrador',
+  owner: 'Proprietário',
+  admin: 'Administrador',
   member: 'Membro',
 };
 
 // ─── ModuleHub ────────────────────────────────────────────────────────────────
 
 export function ModuleHub() {
-  const { signOut }    = useAuthFlow();
-  const activeLab      = useActiveLab();
-  const isSuperAdmin   = useIsSuperAdmin();
-  const user           = useUser();
-  const role           = useUserRole();
-  const availableLabs  = useAvailableLabs();
+  const { signOut } = useAuthFlow();
+  const activeLab = useActiveLab();
+  const isSuperAdmin = useIsSuperAdmin();
+  const user = useUser();
+  const role = useUserRole();
+  const availableLabs = useAvailableLabs();
   const setCurrentView = useAppStore((s) => s.setCurrentView);
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -156,7 +156,11 @@ export function ModuleHub() {
 
       {/* ── Header ───────────────────────────────────────────────────────────── */}
       <header className="flex items-center gap-3 px-4 sm:px-6 h-12 border-b border-slate-200 dark:border-white/[0.06] shrink-0">
-        <LogoMark />
+        <img
+          src="/assets/labclin-logo.png"
+          alt="CQ Labclin"
+          className="h-8 w-auto"
+        />
 
         <p className="text-sm font-semibold text-slate-800 dark:text-white/85 flex-1 min-w-0 truncate">
           CQ Labclin
