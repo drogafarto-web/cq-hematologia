@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAppStore }    from '../../../store/useAppStore';
-import { useUser }        from '../../../store/useAuthStore';
+import { useUser, useUserRole, useIsSuperAdmin } from '../../../store/useAuthStore';
 import { useAuthFlow }    from '../../auth/hooks/useAuthFlow';
 import { useCIQLots }     from '../hooks/useCIQLots';
 import { useCIQRuns }     from '../hooks/useCIQRuns';
@@ -270,6 +270,17 @@ function RunRow({
           {!conforme && <span className="opacity-70">(!)</span>}
         </span>
       </td>
+      {/* Aprovação — campo explícito separado do resultado */}
+      <td className="py-3 pr-4">
+        <span className={[
+          'inline-flex items-center text-xs font-bold px-2.5 py-0.5 rounded-full border',
+          conforme
+            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25'
+            : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',
+        ].join(' ')}>
+          {conforme ? 'A' : 'NA'}
+        </span>
+      </td>
       <td className="py-3 pr-4 text-xs text-slate-500 dark:text-white/40">
         {hasAlerts ? (
           <span className="text-amber-500 dark:text-amber-400">
@@ -386,7 +397,12 @@ function Modal({
 export function CIQImunoDashboard() {
   const setCurrentView  = useAppStore((s) => s.setCurrentView);
   const user            = useUser();
+  const role            = useUserRole();
+  const isSuperAdmin    = useIsSuperAdmin();
   const { signOut }     = useAuthFlow();
+
+  // Somente owner/admin/superAdmin podem emitir decisão formal de lote
+  const canDecide = isSuperAdmin || role === 'owner' || role === 'admin';
 
   // ── Data ───────────────────────────────────────────────────────────────────
   const { lots, isLoading: lotsLoading } = useCIQLots();
@@ -555,8 +571,8 @@ export function CIQImunoDashboard() {
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
-                    {/* Decisão formal — apenas com corridas registradas */}
-                    {runs.length > 0 && activeLot.ciqDecision !== 'A' && (
+                    {/* Decisão formal — apenas owner/admin/superAdmin */}
+                    {canDecide && runs.length > 0 && activeLot.ciqDecision !== 'A' && (
                       <button
                         type="button"
                         onClick={() => handleLotDecision('A')}
@@ -570,7 +586,7 @@ export function CIQImunoDashboard() {
                         Aprovar lote
                       </button>
                     )}
-                    {runs.length > 0 && activeLot.ciqDecision !== 'Rejeitado' && (
+                    {canDecide && runs.length > 0 && activeLot.ciqDecision !== 'Rejeitado' && (
                       <button
                         type="button"
                         onClick={() => handleLotDecision('Rejeitado')}
@@ -672,6 +688,7 @@ export function CIQImunoDashboard() {
                           { label: 'Código',     className: 'hidden md:table-cell' },
                           { label: 'Data',       className: '' },
                           { label: 'Resultado',  className: '' },
+                          { label: 'Aprovação',  className: '' },
                           { label: 'Westgard',   className: '' },
                           { label: 'Assinatura', className: '' },
                           { label: '',           className: '' },
