@@ -39,11 +39,14 @@ function resolveStats(lot: ControlLot, analyteId: string): AnalyteStats | null {
 
 /**
  * Calculates internal statistics from the lot's approved runs.
- * Returns null when there are fewer than MIN_RUNS_FOR_INTERNAL_STATS approved runs.
+ *
+ * Uses Bessel-corrected sample SD (N-1 denominator, ISO 5725 / CLSI EP05).
+ * Requires ≥ 2 approved values per analyte — fewer than 2 yields undefined SD.
+ * Returns null when no analyte meets the minimum.
  */
 function calculateInternalStats(lot: ControlLot): InternalStats | null {
   const approved = lot.runs.filter((r) => r.status === 'Aprovada');
-  if (approved.length < MIN_RUNS_FOR_INTERNAL_STATS) return null;
+  if (approved.length < 2) return null;
 
   const stats: InternalStats = {};
 
@@ -52,10 +55,12 @@ function calculateInternalStats(lot: ControlLot): InternalStats | null {
       .flatMap((r) => r.results.filter((res) => res.analyteId === analyteId))
       .map((res) => res.value);
 
-    if (values.length < MIN_RUNS_FOR_INTERNAL_STATS) continue;
+    if (values.length < 2) continue;
 
-    const mean     = values.reduce((a, b) => a + b, 0) / values.length;
-    const variance = values.reduce((sum, v) => sum + (v - mean) ** 2, 0) / values.length;
+    const n        = values.length;
+    const mean     = values.reduce((a, b) => a + b, 0) / n;
+    // Sample variance (N-1): unbiased estimator of population variance
+    const variance = values.reduce((sum, v) => sum + (v - mean) ** 2, 0) / (n - 1);
     stats[analyteId] = { mean, sd: Math.sqrt(variance) };
   }
 

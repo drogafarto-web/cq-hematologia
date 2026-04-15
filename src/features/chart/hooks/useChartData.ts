@@ -67,7 +67,7 @@ export interface UseChartDataReturn {
   /** Manufacturer stats, always shown as a secondary reference if available */
   manufacturerStats: ChartStats | null;
 
-  /** true when the lot has ≥ MIN_RUNS_FOR_INTERNAL_STATS approved runs */
+  /** true when the lot has ≥ 2 approved run-values for the selected analyte */
   hasEnoughData: boolean;
 
   /** true when currentStats is derived from internal (calculated) statistics */
@@ -143,6 +143,20 @@ function buildViolationMap(
   return map;
 }
 
+// ─── Internal sample-SD helper ────────────────────────────────────────────────
+
+/**
+ * Computes sample mean + SD (Bessel-corrected, N-1 denominator per ISO 5725).
+ * Returns null when fewer than 2 values are available.
+ */
+function computeSampleStats(values: number[]): AnalyteStats | null {
+  const n = values.length;
+  if (n < 2) return null;
+  const mean     = values.reduce((a, b) => a + b, 0) / n;
+  const variance = values.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1);
+  return { mean, sd: Math.sqrt(variance) };
+}
+
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
 /**
@@ -150,6 +164,11 @@ function buildViolationMap(
  *
  * No side effects. No persistence calls. No internal setState.
  * All outputs are derived synchronously inside a single useMemo.
+ *
+ * Internal statistics are computed LIVE from approved runs using sample SD
+ * (N-1, ISO 5725 / CLSI EP05) — not from the cached lot.statistics field.
+ * This ensures the chart is always consistent with the current run set.
+ * The "Interna" source is available as soon as n ≥ 2 approved values exist.
  *
  * @param lot         Active ControlLot (source of runs + stats)
  * @param analyteId   Analyte currently selected in the chart
@@ -179,10 +198,19 @@ export function useChartData(
 
     // ── Resolve statistics ───────────────────────────────────────────────────
     const mfrRaw = lot.manufacturerStats[analyteId] ?? null;
-    const intRaw = lot.statistics?.[analyteId]      ?? null;
+
+    // Compute internal stats LIVE from approved runs (sample SD, N-1).
+    // Using lot.statistics (cached) would be stale; computing here ensures
+    // the chart always reflects the exact current run set.
+    const approvedValues = lot.runs
+      .filter((r) => r.status === 'Aprovada')
+      .flatMap((r) => r.results.filter((res) => res.analyteId === analyteId))
+      .map((res) => res.value);
+
+    const intRaw = computeSampleStats(approvedValues); // null when n < 2
 
     const isBaselineEstablished = mfrRaw !== null;
-    const hasEnoughData         = intRaw !== null;
+    const hasEnoughData         = intRaw !== null;     // enabled at n ≥ 2
     const isUsingInternalStats  = statsSource === 'internal' && hasEnoughData;
 
     // Active stats: prefer internal when selected and available, else manufacturer

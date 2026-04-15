@@ -1,7 +1,12 @@
 @import "tailwindcss";
 
-/* Dark mode variant — Tailwind v4 */
-@custom-variant dark (&:is(.dark *));
+/*
+  Dark mode via class — Tailwind v4
+  :where() mantém especificidade zero (não vaza sobre utilidades),
+  inclui o próprio elemento (.dark) E seus descendentes (.dark *).
+  Sem isso, dark: prefixes só respondem a prefers-color-scheme do OS.
+*/
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* ─── Login: Levey-Jennings faint grid background ───────────────────────────
    Applied to the TrustPanel left column. Evokes LJ chart paper without
@@ -12,9 +17,79 @@
     repeating-linear-gradient(0deg,  rgba(139, 92, 246, 0.06) 0px, rgba(139, 92, 246, 0.06) 1px, transparent 1px, transparent 40px);
 }
 
+/* ─── Progress bar: stats-source toggle ─────────────────────────────────────
+   Native <progress> element styled for the Interna stats progress track.
+   Appearance resets required for cross-browser custom styling.              */
+.stats-progress {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 4px;
+  border: none;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+.stats-progress::-webkit-progress-bar   { background: rgba(255, 255, 255, 0.06); border-radius: 9999px; }
+.stats-progress::-webkit-progress-value { background: rgba(139, 92, 246, 0.6);   border-radius: 9999px; transition: width 300ms ease; }
+.stats-progress::-moz-progress-bar      { background: rgba(139, 92, 246, 0.6);   border-radius: 9999px; }
+
 /* ─── Transições suaves de tema — apenas em elementos de bloco/texto ────────
    Restringe ao subset visual relevante; evita impacto em checkboxes,
    SVGs e foco de inputs em páginas densas.                                 */
+/* ─── Print: Relatório CQ ────────────────────────────────────────────────────
+   @media print hides all interactive chrome and forces the report body to
+   render in black-on-white for all printers (laser + inkjet).
+   .no-print  — interactive elements hidden when printing
+   .print-avoid-break — keeps chart + header together on the same page     */
+@media print {
+  /* Hide all non-report chrome */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Reset body to white / black for print */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Remove dark background from app shell when printing */
+  #root > div {
+    background: white !important;
+  }
+
+  /* Report container fills the page */
+  #cq-report {
+    margin: 0 !important;
+    padding: 16mm 14mm !important;
+    max-width: none !important;
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+
+  /* Avoid page breaks inside chart blocks */
+  .print-avoid-break {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Tables: avoid orphan header rows */
+  table { page-break-inside: auto; }
+  tr    { page-break-inside: avoid; break-inside: avoid; }
+  thead { display: table-header-group; }
+
+  /* Ensure links don't print URLs inline */
+  a[href]::after { content: none !important; }
+
+  /* Page margins */
+  @page {
+    margin: 10mm 14mm;
+    size: A4 portrait;
+  }
+}
+
 body,
 main,
 section,

@@ -162,7 +162,11 @@ export function LeveyJenningsChart({ chartData, analyte }: LeveyJenningsChartPro
           </div>
           <div className="text-right">
             <p className="text-xs text-white/30">
-              x̄ = {stats.mean.toFixed(analyte.decimals)} · SD = {stats.sd.toFixed(analyte.decimals)}
+              x̄ = {stats.mean.toFixed(analyte.decimals)}
+              {' · '}
+              SD = {stats.sd.toFixed(analyte.decimals)}
+              {' · '}
+              CV = {stats.mean === 0 ? '—' : `${((stats.sd / stats.mean) * 100).toFixed(1)}%`}
             </p>
           </div>
         </div>

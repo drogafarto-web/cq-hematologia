@@ -47,8 +47,8 @@ export function useRunReports(filters: ReportFilters) {
         setLoading(true);
         const snapshot = await getDocs(q);
         const data = snapshot.docs.map(doc => ({
-          id: doc.id,
           ...(doc.data() as CQRun),
+          id: doc.id,
         }));
         setRuns(data);
         setError(null);

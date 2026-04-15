@@ -3,6 +3,7 @@ import { ANALYTE_MAP }          from '../../constants';
 import { useLots }              from '../lots/hooks/useLots';
 import { useRuns }              from '../runs/hooks/useRuns';
 import { useChartData }         from '../chart/hooks/useChartData';
+import { useStatsByMode }       from '../chart/hooks/useStatsByMode';
 import { LotManager }           from '../lots/LotManager';
 import { NewRunForm }           from '../runs/NewRunForm';
 import { ReviewRunModal }       from '../runs/ReviewRunModal';
@@ -146,8 +147,6 @@ export function AnalyzerView() {
   const isSuperAdmin     = useIsSuperAdmin();
   const user             = useUser();
   const setCurrentView   = useAppStore((s) => s.setCurrentView);
-  const chartStatsSource = useAppStore((s) => s.chartStatsSource);
-  const setChartStats    = useAppStore((s) => s.setChartStatsSource);
 
   const {
     lots, activeLot, activeLotId, selectedAnalyteId, syncStatus,
@@ -168,7 +167,12 @@ export function AnalyzerView() {
       ? selectedAnalyteId
       : null;
 
-  const chartData      = useChartData(activeLot ?? null, validAnalyteId, chartStatsSource);
+  // Stats mode: local state managed inside the hook (Fabricante / Interna).
+  // Replaces the former Zustand chartStatsSource — the toggle is ephemeral
+  // UI state and does not need to survive navigation or lab switches.
+  const statsMode = useStatsByMode(activeLot ?? null, validAnalyteId);
+
+  const chartData      = useChartData(activeLot ?? null, validAnalyteId, statsMode.mode);
   const currentAnalyte = validAnalyteId ? ANALYTE_MAP[validAnalyteId] : null;
 
   return (
@@ -223,6 +227,17 @@ export function AnalyzerView() {
                   className="w-full px-4 py-2 text-left text-sm text-white/55 hover:text-white/85 hover:bg-white/[0.05] transition-all"
                 >
                   Importar bula PDF
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setCurrentView('reports'); setMenuOpen(false); }}
+                  className="w-full px-4 py-2 text-left text-sm text-white/55 hover:text-white/85 hover:bg-white/[0.05] transition-all flex items-center gap-2"
+                >
+                  <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden>
+                    <rect x="2" y="1" width="10" height="12" rx="1.5" stroke="currentColor" strokeWidth="1.3" />
+                    <path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                  </svg>
+                  Gerar relatório
                 </button>
                 {isSuperAdmin && (
                   <button
@@ -318,10 +333,11 @@ export function AnalyzerView() {
                 {validAnalyteId && currentAnalyte && (
                   <>
                     <StatsSourceToggle
-                      value={chartStatsSource}
-                      onChange={setChartStats}
-                      hasEnoughData={chartData.hasEnoughData}
-                      approvedRuns={chartData.approvedRuns}
+                      value={statsMode.mode}
+                      onChange={statsMode.setMode}
+                      hasEnoughForInternal={statsMode.hasEnoughForInternal}
+                      approvedRuns={statsMode.approvedRuns}
+                      warning={statsMode.warning}
                     />
 
                     <LeveyJenningsChart

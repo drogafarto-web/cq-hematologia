@@ -1,31 +1,36 @@
 import React from 'react';
-import { MIN_RUNS_FOR_INTERNAL_STATS } from '../../constants';
 import type { StatsSource } from '../../types';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface StatsSourceToggleProps {
-  value:          StatsSource;
-  onChange:       (v: StatsSource) => void;
-  hasEnoughData:  boolean;
-  approvedRuns:   number;
+  value:                StatsSource;
+  onChange:             (v: StatsSource) => void;
+  /** true when ≥ 2 approved run-values exist (minimum for sample SD) */
+  hasEnoughForInternal: boolean;
+  approvedRuns:         number;
+  /** Warning shown when internal stats are active but n < 20 */
+  warning?:             string | null;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
+const RECOMMENDED_RUNS = 20;
+
 /**
  * StatsSourceToggle — switches between manufacturer and internal statistics.
  *
- * The "Internal" option is disabled until the lot has enough approved runs
- * to compute stable statistics (MIN_RUNS_FOR_INTERNAL_STATS).
+ * "Interna" becomes available as soon as ≥ 2 approved runs exist.
+ * A warning banner is shown when n < 20 (ISO 5725 recommendation).
  */
 export function StatsSourceToggle({
   value,
   onChange,
-  hasEnoughData,
+  hasEnoughForInternal,
   approvedRuns,
+  warning,
 }: StatsSourceToggleProps) {
-  const runsLeft = Math.max(0, MIN_RUNS_FOR_INTERNAL_STATS - approvedRuns);
+  const runsLeft = Math.max(0, RECOMMENDED_RUNS - approvedRuns);
 
   return (
     <div className="flex flex-col gap-2">
@@ -34,7 +39,7 @@ export function StatsSourceToggle({
       </p>
 
       <div className="flex gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/[0.07]">
-        {/* Manufacturer */}
+        {/* Fabricante */}
         <button
           type="button"
           onClick={() => onChange('manufacturer')}
@@ -47,16 +52,20 @@ export function StatsSourceToggle({
           Fabricante
         </button>
 
-        {/* Internal */}
+        {/* Interna */}
         <button
           type="button"
-          disabled={!hasEnoughData}
-          onClick={() => hasEnoughData && onChange('internal')}
-          title={!hasEnoughData ? `Faltam ${runsLeft} corrida${runsLeft > 1 ? 's' : ''} aprovadas para habilitar` : undefined}
+          disabled={!hasEnoughForInternal}
+          onClick={() => hasEnoughForInternal && onChange('internal')}
+          title={
+            !hasEnoughForInternal
+              ? 'Mínimo de 2 corridas aprovadas necessário'
+              : undefined
+          }
           className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
             value === 'internal'
               ? 'bg-violet-500/20 text-violet-300'
-              : hasEnoughData
+              : hasEnoughForInternal
               ? 'text-white/40 hover:text-white/65'
               : 'text-white/20 cursor-not-allowed'
           }`}
@@ -65,18 +74,38 @@ export function StatsSourceToggle({
         </button>
       </div>
 
-      {/* Progress hint when internal not yet available */}
-      {!hasEnoughData && (
+      {/* Progress toward recommended 20 runs */}
+      {approvedRuns < RECOMMENDED_RUNS && (
         <div className="space-y-1.5">
-          <div className="w-full h-1 rounded-full bg-white/[0.06] overflow-hidden">
-            <div
-              className="h-full rounded-full bg-violet-500/60 transition-all"
-              style={{ width: `${(approvedRuns / MIN_RUNS_FOR_INTERNAL_STATS) * 100}%` }}
-            />
-          </div>
+          <progress
+            className="stats-progress"
+            max={RECOMMENDED_RUNS}
+            value={approvedRuns}
+            aria-label={`${approvedRuns} de ${RECOMMENDED_RUNS} corridas aprovadas`}
+          />
           <p className="text-[10px] text-white/25">
-            {approvedRuns}/{MIN_RUNS_FOR_INTERNAL_STATS} corridas aprovadas para stats internas
+            {approvedRuns}/{RECOMMENDED_RUNS} corridas aprovadas
+            {!hasEnoughForInternal && ` — mín. 2 para habilitar`}
+            {hasEnoughForInternal && runsLeft > 0 && ` — +${runsLeft} p/ stats estáveis`}
           </p>
+        </div>
+      )}
+
+      {/* Warning: internal active but n < 20 */}
+      {warning && (
+        <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-amber-500/8 border border-amber-500/20">
+          <svg
+            width="12" height="12" viewBox="0 0 12 12" fill="none"
+            className="shrink-0 mt-px text-amber-400" aria-hidden
+          >
+            <path
+              d="M6 1L1 10h10L6 1z"
+              stroke="currentColor" strokeWidth="1.2"
+              strokeLinejoin="round"
+            />
+            <path d="M6 5v2.5M6 9v.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+          </svg>
+          <p className="text-[10px] text-amber-400/80 leading-relaxed">{warning}</p>
         </div>
       )}
     </div>

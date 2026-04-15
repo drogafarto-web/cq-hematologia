@@ -11,6 +11,7 @@ import { EmailVerificationScreen }  from './EmailVerificationScreen';
 import { SuperAdminDashboard }      from '../admin/SuperAdminDashboard';
 import { AnalyzerView }             from '../analyzer/AnalyzerView';
 import { BulaProcessor }            from '../bulaparser/BulaProcessor';
+import { ReportsView }              from '../reports/ReportsView';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
 
@@ -37,6 +38,7 @@ function AppRouter() {
 
   if (currentView === 'superadmin' && isSuperAdmin) return <SuperAdminDashboard />;
   if (currentView === 'bulaparser') return <BulaProcessor />;
+  if (currentView === 'reports')    return <ReportsView />;
 
   return <AnalyzerView />;
 }

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { ControlLot, SyncStatus, PendingRun, PendingBulaData, View, StatsSource } from '../types';
+import type { ControlLot, SyncStatus, PendingRun, PendingBulaData, View } from '../types';
 
 interface AppState {
   lots: ControlLot[];
@@ -11,8 +11,6 @@ interface AppState {
   error: string | null;
   syncStatus: SyncStatus;
   currentView: View;
-  chartStatsSource: StatsSource;
-
   // Actions
   setLots: (lots: ControlLot[]) => void;
   setActiveLotId: (id: string | null) => void;
@@ -23,7 +21,6 @@ interface AppState {
   setError: (e: string | null) => void;
   setSyncStatus: (s: SyncStatus) => void;
   setCurrentView: (v: View) => void;
-  setChartStatsSource: (s: StatsSource) => void;
   reset: () => void;
 }
 
@@ -37,7 +34,6 @@ const initialState = {
   error: null,
   syncStatus: 'saved' as SyncStatus,
   currentView: 'analyzer' as View,
-  chartStatsSource: 'manufacturer' as StatsSource,
 };
 
 export const useAppStore = create<AppState>((set) => ({
@@ -52,8 +48,6 @@ export const useAppStore = create<AppState>((set) => ({
   setError:             (error)             => set({ error }),
   setSyncStatus:        (syncStatus)        => set({ syncStatus }),
   setCurrentView:       (currentView)       => set({ currentView }),
-  setChartStatsSource:  (chartStatsSource)  => set({ chartStatsSource }),
-
   reset: () => set(initialState),
 }));
 
@@ -64,7 +58,6 @@ export const useActiveLot = () =>
 
 export const useSyncStatus      = () => useAppStore((s) => s.syncStatus);
 export const useCurrentView     = () => useAppStore((s) => s.currentView);
-export const useChartStatsSource = () => useAppStore((s) => s.chartStatsSource);
 export const usePendingRun      = () => useAppStore((s) => s.pendingRun);
 export const useAppIsLoading    = () => useAppStore((s) => s.isLoading);
 export const useAppError        = () => useAppStore((s) => s.error);
