@@ -152,7 +152,7 @@ export function ModuleHub() {
     'Você';
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0c0c0c] text-slate-900 dark:text-white flex flex-col transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F14] text-slate-900 dark:text-white flex flex-col transition-colors duration-300">
 
       {/* ── Header ───────────────────────────────────────────────────────────── */}
       <header className="flex items-center gap-3 px-4 sm:px-6 h-12 border-b border-slate-200 dark:border-white/[0.06] shrink-0">
@@ -177,7 +177,7 @@ export function ModuleHub() {
           {menuOpen && (
             <>
               <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)} />
-              <div className="absolute right-0 top-9 z-40 w-52 rounded-xl bg-white dark:bg-[#1c1c1c] border border-slate-200 dark:border-white/[0.1] shadow-2xl overflow-hidden py-1">
+              <div className="absolute right-0 top-9 z-40 w-52 rounded-xl bg-white dark:bg-[#151d2a] border border-slate-200 dark:border-white/[0.1] shadow-2xl overflow-hidden py-1">
                 <div className="px-4 py-2.5 border-b border-slate-100 dark:border-white/[0.07] mb-1">
                   <p className="text-xs font-medium text-slate-700 dark:text-white/70 truncate">
                     {user?.displayName ?? user?.email}

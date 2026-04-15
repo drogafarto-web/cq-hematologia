@@ -8,13 +8,21 @@
 */
 @variant dark (&:where(.dark, .dark &));
 
+/* ─── Empty state: faint dot grid ───────────────────────────────────────────
+   Used in AnalyzerView when no lot is active. Evokes a measurement grid
+   without competing with content.                                           */
+.dot-grid-bg {
+  background-image: radial-gradient(circle, rgba(139, 92, 246, 0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
 /* ─── Login: Levey-Jennings faint grid background ───────────────────────────
    Applied to the TrustPanel left column. Evokes LJ chart paper without
    distracting from the content. Pure CSS — zero JS or image deps.         */
 .lj-grid-bg {
   background-image:
     repeating-linear-gradient(90deg, rgba(139, 92, 246, 0.06) 0px, rgba(139, 92, 246, 0.06) 1px, transparent 1px, transparent 40px),
-    repeating-linear-gradient(0deg,  rgba(139, 92, 246, 0.06) 0px, rgba(139, 92, 246, 0.06) 1px, transparent 1px, transparent 40px);
+    repeating-linear-gradient(0deg, rgba(139, 92, 246, 0.06) 0px, rgba(139, 92, 246, 0.06) 1px, transparent 1px, transparent 40px);
 }
 
 /* ─── Progress bar: stats-source toggle ─────────────────────────────────────
@@ -32,15 +40,30 @@
   overflow: hidden;
   transition: background-color 300ms ease;
 }
+
 .dark .stats-progress {
   background: rgba(255, 255, 255, 0.06);
 }
 
-.stats-progress::-webkit-progress-bar   { background: rgba(0, 0, 0, 0.05); border-radius: 9999px; }
-.dark .stats-progress::-webkit-progress-bar { background: rgba(255, 255, 255, 0.06); }
+.stats-progress::-webkit-progress-bar {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 9999px;
+}
 
-.stats-progress::-webkit-progress-value { background: rgba(139, 92, 246, 0.6);   border-radius: 9999px; transition: width 300ms ease; }
-.stats-progress::-moz-progress-bar      { background: rgba(139, 92, 246, 0.6);   border-radius: 9999px; }
+.dark .stats-progress::-webkit-progress-bar {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.stats-progress::-webkit-progress-value {
+  background: rgba(139, 92, 246, 0.6);
+  border-radius: 9999px;
+  transition: width 300ms ease;
+}
+
+.stats-progress::-moz-progress-bar {
+  background: rgba(139, 92, 246, 0.6);
+  border-radius: 9999px;
+}
 
 /* ─── Transições suaves de tema — apenas em elementos de bloco/texto ────────
    Restringe ao subset visual relevante; evita impacto em checkboxes,
@@ -51,6 +74,7 @@
    .no-print  — interactive elements hidden when printing
    .print-avoid-break — keeps chart + header together on the same page     */
 @media print {
+
   /* Hide all non-report chrome */
   .no-print {
     display: none !important;
@@ -63,7 +87,7 @@
   }
 
   /* Remove dark background from app shell when printing */
-  #root > div {
+  #root>div {
     background: white !important;
   }
 
@@ -83,12 +107,23 @@
   }
 
   /* Tables: avoid orphan header rows */
-  table { page-break-inside: auto; }
-  tr    { page-break-inside: avoid; break-inside: avoid; }
-  thead { display: table-header-group; }
+  table {
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
 
   /* Ensure links don't print URLs inline */
-  a[href]::after { content: none !important; }
+  a[href]::after {
+    content: none !important;
+  }
 
   /* Page margins */
   @page {
@@ -108,12 +143,37 @@ nav,
 div,
 p,
 span,
-h1, h2, h3, h4, h5, h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
 a,
 label,
 li,
-td, th {
+td,
+th {
   transition-property: background-color, border-color, color, box-shadow;
   transition-duration: 200ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Login Screen: Fade-in animation ──────────────────────────────────────────
+   Used by LoginForm and other components on initial mount.
+   Smooth opacity + upward transform for a polished entry effect.            */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out both;
 }

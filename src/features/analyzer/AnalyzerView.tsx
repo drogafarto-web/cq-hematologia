@@ -15,7 +15,7 @@ import { useActiveLab, useIsSuperAdmin, useUser } from '../../store/useAuthStore
 import { useAppStore }          from '../../store/useAppStore';
 import { useAuthFlow }          from '../auth/hooks/useAuthFlow';
 import { ThemeToggle }          from '../../shared/components/ui/ThemeToggle';
-import type { SyncStatus }      from '../../types';
+import type { SyncStatus, ControlLot } from '../../types';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -70,6 +70,94 @@ function SyncDot({ status }: { status: SyncStatus }) {
     <div className="flex items-center gap-1.5">
       <span className={`w-1.5 h-1.5 rounded-full ${c.dot} ${c.pulse ? 'animate-pulse' : ''}`} />
       <span className="text-xs text-white/30 hidden sm:block">{c.label}</span>
+    </div>
+  );
+}
+
+// ─── Lot stat cards (shown when lot has runs) ────────────────────────────────
+
+interface LotStatCardsProps {
+  lot: ControlLot;
+}
+
+function LotStatCards({ lot }: LotStatCardsProps) {
+  const { runs } = lot;
+  if (runs.length === 0) return null;
+
+  const lastRun     = runs[runs.length - 1];
+  const rejected    = runs.filter((r) => r.status === 'Rejeitada').length;
+  const rejectPct   = Math.round((rejected / runs.length) * 100);
+
+  const recent = runs.slice(-3);
+  const prior  = runs.slice(-6, -3);
+  const recentRate = recent.filter((r) => r.status === 'Rejeitada').length / recent.length;
+  const priorRate  = prior.length > 0
+    ? prior.filter((r) => r.status === 'Rejeitada').length / prior.length
+    : recentRate;
+
+  const trend =
+    prior.length === 0     ? 'new'       :
+    recentRate < priorRate ? 'improving' :
+    recentRate > priorRate ? 'degrading' : 'stable';
+
+  const statusCfg: Record<string, { dot: string; text: string; label: string }> = {
+    Aprovada:  { dot: 'bg-emerald-500', text: 'text-emerald-400', label: 'Aprovada'  },
+    Rejeitada: { dot: 'bg-red-500',     text: 'text-red-400',     label: 'Rejeitada' },
+    Pendente:  { dot: 'bg-amber-500',   text: 'text-amber-400',   label: 'Pendente'  },
+  };
+
+  const trendCfg: Record<string, { symbol: string; label: string; cls: string }> = {
+    improving: { symbol: '↑', label: 'Melhorando', cls: 'text-emerald-400' },
+    degrading:  { symbol: '↓', label: 'Atenção',    cls: 'text-red-400'    },
+    stable:     { symbol: '→', label: 'Estável',    cls: 'text-white/35 dark:text-white/35 text-slate-400' },
+    new:        { symbol: '·', label: 'Início',     cls: 'text-white/35 dark:text-white/35 text-slate-400' },
+  };
+
+  const sc = statusCfg[lastRun.status] ?? statusCfg['Pendente'];
+  const tc = trendCfg[trend];
+
+  const lastRunTime = lastRun.timestamp.toLocaleString('pt-BR', {
+    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
+  });
+
+  const card = 'bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-xl p-3.5';
+  const label = 'text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-white/20 mb-2';
+  const sub   = 'text-[10px] text-slate-400 dark:text-white/20 mt-1';
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+      {/* Last run */}
+      <div className={card}>
+        <p className={label}>Última corrida</p>
+        <div className="flex items-center gap-1.5">
+          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${sc.dot}`} />
+          <span className={`text-sm font-semibold ${sc.text}`}>{sc.label}</span>
+        </div>
+        <p className={sub}>{lastRunTime}</p>
+      </div>
+
+      {/* Total */}
+      <div className={card}>
+        <p className={label}>Total de corridas</p>
+        <p className="text-2xl font-bold text-slate-900 dark:text-white/80 leading-none">{runs.length}</p>
+        <p className={sub}>neste lote</p>
+      </div>
+
+      {/* Rejected */}
+      <div className={card}>
+        <p className={label}>Reprovadas</p>
+        <p className={`text-2xl font-bold leading-none ${rejected > 0 ? 'text-red-400' : 'text-slate-900 dark:text-white/80'}`}>
+          {rejected}
+        </p>
+        <p className={sub}>{rejectPct}% do total</p>
+      </div>
+
+      {/* Trend */}
+      <div className={card}>
+        <p className={label}>Tendência</p>
+        <p className={`text-2xl font-bold leading-none ${tc.cls}`}>{tc.symbol}</p>
+        <p className={sub}>{tc.label}</p>
+      </div>
     </div>
   );
 }
@@ -176,7 +264,7 @@ export function AnalyzerView() {
   const currentAnalyte = validAnalyteId ? ANALYTE_MAP[validAnalyteId] : null;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0c0c0c] text-slate-900 dark:text-white flex flex-col overflow-hidden transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F14] text-slate-900 dark:text-white flex flex-col overflow-hidden transition-colors duration-300">
 
       {/* ── Header ───────────────────────────────────────────────────────────── */}
       <header className="flex items-center gap-3 px-4 h-12 border-b border-white/[0.06] shrink-0">
@@ -215,7 +303,7 @@ export function AnalyzerView() {
           {menuOpen && (
             <>
               <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)} />
-              <div className="absolute right-0 top-9 z-40 w-48 rounded-xl bg-white dark:bg-[#1c1c1c] border border-slate-200 dark:border-white/[0.1] shadow-2xl overflow-hidden py-1">
+              <div className="absolute right-0 top-9 z-40 w-48 rounded-xl bg-white dark:bg-[#151d2a] border border-slate-200 dark:border-white/[0.1] shadow-2xl overflow-hidden py-1">
                 <div className="px-4 py-2.5 border-b border-slate-100 dark:border-white/[0.07] mb-1">
                   <p className="text-xs text-slate-500 dark:text-white/50 truncate">{user?.email}</p>
                 </div>
@@ -289,38 +377,76 @@ export function AnalyzerView() {
         {/* Main panel */}
         <main className="flex-1 min-w-0 flex flex-col overflow-hidden">
           {!activeLot ? (
-            /* Empty state — no lot selected */
-            <div className="flex flex-col items-center justify-center flex-1 py-24 text-center px-6">
-              <div className="w-14 h-14 rounded-2xl bg-slate-200/50 dark:bg-white/[0.03] border border-slate-300 dark:border-white/[0.07] flex items-center justify-center mb-4 text-slate-400 dark:text-white/30">
-                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden>
-                  <rect x="3" y="3" width="16" height="16" rx="2.5" stroke="currentColor" strokeWidth="1.3" />
-                  <path d="M11 8v6M8 11h6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-                </svg>
+            /* ── Empty state ──────────────────────────────────────────────── */
+            <div className="flex flex-col items-center justify-center flex-1 py-20 text-center px-8 relative overflow-hidden">
+              {/* Faint dot grid */}
+              <div className="dot-grid-bg absolute inset-0 opacity-[0.4] dark:opacity-100" />
+
+              <div className="relative z-10 flex flex-col items-center">
+                {/* Icon */}
+                <div className="w-16 h-16 rounded-2xl bg-violet-500/[0.07] dark:bg-violet-500/[0.06] border border-violet-500/[0.15] dark:border-violet-500/[0.10] flex items-center justify-center mb-5 text-violet-500/50 dark:text-violet-400/40">
+                  {lots.length === 0 ? (
+                    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden>
+                      <path d="M9.5 3.5h7M10.5 3.5v11.5l-3.5 4.5a2.25 2.25 0 001.75 3.5h8.5A2.25 2.25 0 0019 19.5l-3.5-4.5V3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M10.5 15.5h5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+                    </svg>
+                  ) : (
+                    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden>
+                      <rect x="3" y="3" width="8.5" height="8.5" rx="1.8" stroke="currentColor" strokeWidth="1.4" />
+                      <rect x="3" y="14.5" width="8.5" height="8.5" rx="1.8" stroke="currentColor" strokeWidth="1.4" />
+                      <rect x="14.5" y="3" width="8.5" height="8.5" rx="1.8" stroke="currentColor" strokeWidth="1.4" />
+                      <path d="M18.75 14.5v8.5M14.5 18.75h8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
+                  )}
+                </div>
+
+                <p className="text-lg font-semibold text-slate-600 dark:text-white/50 tracking-tight">
+                  {lots.length === 0 ? 'Nenhum lote cadastrado' : 'Selecione um lote de controle'}
+                </p>
+                <p className="text-sm text-slate-400 dark:text-white/25 mt-2 max-w-[290px] leading-relaxed">
+                  {lots.length === 0
+                    ? 'Crie seu primeiro lote de controle para começar a registrar corridas e visualizar gráficos de Levey-Jennings.'
+                    : 'Escolha um lote na barra lateral para visualizar o gráfico de controle e registrar novas corridas.'}
+                </p>
+
+                {!sidebarOpen && (
+                  <button
+                    type="button"
+                    onClick={() => setSidebarOpen(true)}
+                    className={`mt-6 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
+                      lots.length === 0
+                        ? 'bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-500/20'
+                        : 'bg-slate-100 dark:bg-white/[0.06] hover:bg-slate-200 dark:hover:bg-white/[0.09] text-slate-700 dark:text-white/60'
+                    }`}
+                  >
+                    {lots.length === 0 ? (
+                      <>
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+                          <path d="M7 2v10M2 7h10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                        </svg>
+                        Criar primeiro lote
+                      </>
+                    ) : (
+                      <>
+                        Abrir lotes
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+                          <path d="M3 6.5h7M7 4l3 2.5L7 9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
-              <p className="text-base font-semibold text-slate-500 dark:text-white/45">
-                {lots.length === 0 ? 'Nenhum lote cadastrado' : 'Selecione um lote de controle'}
-              </p>
-              <p className="text-sm text-slate-400 dark:text-white/25 mt-1.5 max-w-xs leading-relaxed">
-                {lots.length === 0
-                  ? 'Crie um novo lote na barra lateral para começar a registrar corridas.'
-                  : 'Escolha um lote na barra lateral para visualizar o gráfico e registrar corridas.'}
-              </p>
-              {!sidebarOpen && (
-                <button
-                  type="button"
-                  onClick={() => setSidebarOpen(true)}
-                  className="mt-5 text-sm text-violet-600 dark:text-violet-400 hover:text-violet-500 transition-colors font-medium"
-                >
-                  Abrir lotes →
-                </button>
-              )}
             </div>
           ) : (
-            /* Lot selected — main analyzer */
+            /* ── Lot selected — main analyzer ─────────────────────────────── */
             <>
               <LotInfoBar lot={activeLot} />
 
               <div className="flex-1 overflow-y-auto p-4 space-y-5 max-w-3xl mx-auto w-full">
+                {/* Summary stat cards */}
+                <LotStatCards lot={activeLot} />
+
                 {/* New run capture */}
                 <NewRunForm
                   onFile={newRun}

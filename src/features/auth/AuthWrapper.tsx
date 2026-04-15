@@ -2,17 +2,17 @@ import React from 'react';
 import { useAuthFlow } from './hooks/useAuthFlow';
 import { useIsSuperAdmin, useActiveLab } from '../../store/useAuthStore';
 import { useAppStore } from '../../store/useAppStore';
-import { LoginScreen }              from './LoginScreen';
-import { FirstLabSetupScreen }      from './FirstLabSetupScreen';
-import { LabSelectorScreen }        from './LabSelectorScreen';
-import { PendingLabAccessScreen }   from './PendingLabAccessScreen';
-import { SuspendedScreen }          from './SuspendedScreen';
-import { EmailVerificationScreen }  from './EmailVerificationScreen';
-import { SuperAdminDashboard }      from '../admin/SuperAdminDashboard';
-import { ModuleHub }                from '../hub/ModuleHub';
-import { AnalyzerView }             from '../analyzer/AnalyzerView';
-import { BulaProcessor }            from '../bulaparser/BulaProcessor';
-import { ReportsView }              from '../reports/ReportsView';
+import LoginScreen from './LoginScreen';
+import { FirstLabSetupScreen } from './FirstLabSetupScreen';
+import { LabSelectorScreen } from './LabSelectorScreen';
+import { PendingLabAccessScreen } from './PendingLabAccessScreen';
+import { SuspendedScreen } from './SuspendedScreen';
+import { EmailVerificationScreen } from './EmailVerificationScreen';
+import { SuperAdminDashboard } from '../admin/SuperAdminDashboard';
+import { ModuleHub } from '../hub/ModuleHub';
+import { AnalyzerView } from '../analyzer/AnalyzerView';
+import { BulaProcessor } from '../bulaparser/BulaProcessor';
+import { ReportsView } from '../reports/ReportsView';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
 
@@ -31,16 +31,16 @@ function FullScreenLoader() {
 
 function AppRouter() {
   const isSuperAdmin = useIsSuperAdmin();
-  const activeLab    = useActiveLab();
-  const currentView  = useAppStore((s) => s.currentView);
+  const activeLab = useActiveLab();
+  const currentView = useAppStore((s) => s.currentView);
 
   // Super admin with no lab → always start in admin dashboard
   if (isSuperAdmin && !activeLab) return <SuperAdminDashboard />;
 
   if (currentView === 'superadmin' && isSuperAdmin) return <SuperAdminDashboard />;
-  if (currentView === 'hub')        return <ModuleHub />;
+  if (currentView === 'hub') return <ModuleHub />;
   if (currentView === 'bulaparser') return <BulaProcessor />;
-  if (currentView === 'reports')    return <ReportsView />;
+  if (currentView === 'reports') return <ReportsView />;
 
   return <AnalyzerView />;
 }
@@ -51,13 +51,13 @@ export const AuthWrapper: React.FC = () => {
   const { status } = useAuthFlow();
 
   switch (status) {
-    case 'loading':              return <FullScreenLoader />;
-    case 'unauthenticated':      return <LoginScreen />;
-    case 'suspended':            return <SuspendedScreen />;
-    case 'email_not_verified':   return <EmailVerificationScreen />;
-    case 'first_setup':          return <FirstLabSetupScreen />;
-    case 'pending_access':       return <PendingLabAccessScreen />;
-    case 'select_lab':           return <LabSelectorScreen />;
-    case 'ready':                return <AppRouter />;
+    case 'loading': return <FullScreenLoader />;
+    case 'unauthenticated': return <LoginScreen />;
+    case 'suspended': return <SuspendedScreen />;
+    case 'email_not_verified': return <EmailVerificationScreen />;
+    case 'first_setup': return <FirstLabSetupScreen />;
+    case 'pending_access': return <PendingLabAccessScreen />;
+    case 'select_lab': return <LabSelectorScreen />;
+    case 'ready': return <AppRouter />;
   }
 };
