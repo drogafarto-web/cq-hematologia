@@ -13,10 +13,10 @@ import {
   db,
   storage,
   doc,
-  getDoc,
   getDocs,
   setDoc,
   updateDoc,
+  writeBatch,
   collection,
   query,
   where,
@@ -31,7 +31,6 @@ import { COLLECTIONS, SUBCOLLECTIONS, storagePath } from '../../../constants';
 import { firestoreErrorMessage } from '../../../shared/services/firebase';
 import type { Unsubscribe } from '../../../shared/services/firebase';
 import type { CIQImunoRun, CIQImunoLot } from '../types/CIQImuno';
-import type { CIQLotStatus } from '../types/_shared_refs';
 
 // ─── Path helpers ─────────────────────────────────────────────────────────────
 
@@ -139,6 +138,74 @@ export async function updateLotDecision(
       decisionBy,
       decisionAt: serverTimestamp(),
     });
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err));
+  }
+}
+
+/**
+ * Atualiza metadados editáveis de um lote (datas de abertura e validade do controle).
+ * Campos estruturais (testType, loteControle) são imutáveis pós-criação.
+ *
+ * Registra audit imutável em ciq-imuno/{lotId}/audit/{uuid} antes de persistir.
+ */
+export async function updateLotMeta(
+  labId:      string,
+  lotId:      string,
+  fields:     Partial<Pick<CIQImunoLot, 'aberturaControle' | 'validadeControle'>>,
+  actorUid:   string,
+  prevValues: Partial<Pick<CIQImunoLot, 'aberturaControle' | 'validadeControle'>>,
+): Promise<void> {
+  try {
+    // Audit first — imutável via Firestore Rules (só setDoc, nunca update/delete)
+    const auditRef = doc(
+      db,
+      COLLECTIONS.LABS, labId,
+      SUBCOLLECTIONS.CIQ_IMUNO, lotId,
+      'audit', crypto.randomUUID(),
+    );
+    await setDoc(auditRef, {
+      action:     'lot_edit',
+      actorUid,
+      prevValues,
+      newValues:  fields,
+      createdAt:  serverTimestamp(),
+    });
+
+    await updateDoc(lotRef(labId, lotId), fields as Record<string, unknown>);
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err));
+  }
+}
+
+/**
+ * Exclui um lote e todas as suas corridas (cascade via batch).
+ *
+ * Registra audit em labs/{labId}/ciq-audit/{uuid} ANTES do batch —
+ * o registro sobrevive à exclusão do lote e é rastreável mesmo sem o documento.
+ */
+export async function deleteCIQLot(
+  labId:       string,
+  lotId:       string,
+  lotSnapshot: Pick<CIQImunoLot, 'testType' | 'loteControle' | 'runCount' | 'validadeControle'>,
+  actorUid:    string,
+): Promise<void> {
+  try {
+    // Audit gravado no nível do lab — sobrevive à exclusão do lote
+    const auditRef = doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.CIQ_AUDIT, crypto.randomUUID());
+    await setDoc(auditRef, {
+      action:      'lot_delete',
+      lotId,
+      actorUid,
+      lotSnapshot,
+      createdAt:   serverTimestamp(),
+    });
+
+    const runsSnap = await getDocs(runsCol(labId, lotId));
+    const batch    = writeBatch(db);
+    runsSnap.docs.forEach((d) => batch.delete(d.ref));
+    batch.delete(lotRef(labId, lotId));
+    await batch.commit();
   } catch (err) {
     throw new Error(firestoreErrorMessage(err));
   }
@@ -310,6 +377,57 @@ export async function writeCIQAuditRecord(
   } catch (err) {
     // Falha de auditoria não deve bloquear o fluxo principal
     console.error('[ciqFirebaseService] audit write failed:', err);
+  }
+}
+
+// ─── Test Types config ────────────────────────────────────────────────────────
+
+const DEFAULT_TEST_TYPES = [
+  'HCG', 'BhCG', 'HIV', 'HBsAg', 'Anti-HCV',
+  'Sifilis', 'Dengue', 'COVID', 'PCR', 'Troponina',
+];
+
+function testTypesDocRef(labId: string) {
+  return doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.CIQ_IMUNO_CONFIG, 'testTypes');
+}
+
+/**
+ * Assina a lista de tipos de teste em tempo real.
+ * Na primeira chamada, se o documento não existir, semeia os tipos padrão.
+ */
+export function subscribeToTestTypes(
+  labId:    string,
+  callback: (types: string[]) => void,
+  onError?: (err: Error) => void,
+): Unsubscribe {
+  return onSnapshot(
+    testTypesDocRef(labId),
+    (snap) => {
+      if (!snap.exists()) {
+        setDoc(testTypesDocRef(labId), {
+          types:     DEFAULT_TEST_TYPES,
+          updatedAt: serverTimestamp(),
+        }).catch(() => {});
+        callback(DEFAULT_TEST_TYPES);
+      } else {
+        callback((snap.data().types as string[]) ?? DEFAULT_TEST_TYPES);
+      }
+    },
+    (err) => {
+      console.error('[ciqFirebaseService] testTypes listener error:', err);
+      onError?.(new Error(firestoreErrorMessage(err)));
+    },
+  );
+}
+
+/**
+ * Persiste a lista completa de tipos de teste (substitui anterior).
+ */
+export async function saveTestTypes(labId: string, types: string[]): Promise<void> {
+  try {
+    await setDoc(testTypesDocRef(labId), { types, updatedAt: serverTimestamp() });
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err));
   }
 }
 

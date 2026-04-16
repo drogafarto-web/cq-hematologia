@@ -28,11 +28,9 @@ const dateField  = (msg = 'Formato inválido (YYYY-MM-DD)') =>
 
 export const CIQImunoFormSchema = z
   .object({
-    // Tipo de teste
-    testType: z.enum(
-      ['HCG', 'BhCG', 'HIV', 'HBsAg', 'Anti-HCV', 'Sifilis', 'Dengue', 'COVID', 'PCR', 'Troponina'],
-      { required_error: 'Selecione o tipo de teste.' }
-    ),
+    // Tipo de teste — lista dinâmica gerenciada via useCIQTestTypes (Firestore)
+    testType: z.string({ required_error: 'Selecione o tipo de teste.' })
+               .min(1, 'Selecione o tipo de teste.'),
 
     // Controle
     loteControle:       z.string().min(1, 'Lote do controle é obrigatório.'),

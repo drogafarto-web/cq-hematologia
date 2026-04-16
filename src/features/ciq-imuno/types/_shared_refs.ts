@@ -7,18 +7,12 @@
 
 // ─── Tipos de Teste ───────────────────────────────────────────────────────────
 
-/** Imunoensaios suportados pelo formulário FR-036 (RDC 978/2025). */
-export type TestType =
-  | 'HCG'
-  | 'BhCG'
-  | 'HIV'
-  | 'HBsAg'
-  | 'Anti-HCV'
-  | 'Sifilis'
-  | 'Dengue'
-  | 'COVID'
-  | 'PCR'
-  | 'Troponina';
+/**
+ * Imunoensaio — string livre configurável pelo laboratório.
+ * A lista canônica é gerenciada em Firestore via useCIQTestTypes/saveTestTypes.
+ * Historicamente: HCG | BhCG | HIV | HBsAg | Anti-HCV | Sifilis | Dengue | COVID | PCR | Troponina
+ */
+export type TestType = string;
 
 // ─── Status de Decisão do Lote ────────────────────────────────────────────────
 

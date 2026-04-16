@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import { CIQImunoFormSchema, daysToExpiry } from './CIQImunoForm.schema';
 import type { CIQImunoFormData } from './CIQImunoForm.schema';
-import type { TestType } from '../types/_shared_refs';
 import { useUser } from '../../../store/useAuthStore';
+import { useCIQTestTypes } from '../hooks/useCIQTestTypes';
+import { CIQTestTypeManager } from './CIQTestTypeManager';
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// ─── Icon ─────────────────────────────────────────────────────────────────────
 
-const TEST_TYPES: TestType[] = [
-  'HCG', 'BhCG', 'HIV', 'HBsAg', 'Anti-HCV',
-  'Sifilis', 'Dengue', 'COVID', 'PCR', 'Troponina',
-];
+function SettingsIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+      <circle cx="6.5" cy="6.5" r="1.5" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M6.5 1v1.2M6.5 10.8V12M1 6.5h1.2M10.8 6.5H12M2.4 2.4l.85.85M9.75 9.75l.85.85M2.4 10.6l.85-.85M9.75 3.25l.85-.85"
+            stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  );
+}
 
 const CARGO_OPTIONS: { value: CIQImunoFormData['cargo']; label: string }[] = [
   { value: 'biomedico',    label: 'Biomédico(a)' },
@@ -177,6 +183,9 @@ interface CIQImunoFormProps {
 
 export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFormProps) {
   const user = useUser();
+  const { types: testTypes, addType, renameType, removeType } = useCIQTestTypes();
+  const [showManager, setShowManager] = useState(false);
+
   const [form, setForm] = useState<Partial<CIQImunoFormData>>({
     resultadoEsperado: 'R',
     dataRealizacao:    today(),
@@ -271,24 +280,53 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
 
       {/* ── Tipo de Teste ──────────────────────────────────────────────────── */}
       <div>
-        <SectionTitle>Tipo de Teste</SectionTitle>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-white/30">
+            Tipo de Teste
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowManager(true)}
+            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px]
+                       text-slate-400 dark:text-white/30
+                       hover:text-slate-700 dark:hover:text-white/60
+                       hover:bg-slate-100 dark:hover:bg-white/[0.06]
+                       border border-transparent hover:border-slate-200 dark:hover:border-white/[0.08]
+                       transition-all -mt-1"
+            title="Gerenciar tipos de teste"
+          >
+            <SettingsIcon />
+            Gerenciar
+          </button>
+        </div>
         <div>
           <Label htmlFor="testType" required>Imunoensaio</Label>
           <select
             id="testType"
             title="Tipo de imunoensaio"
             value={form.testType ?? ''}
-            onChange={(e) => set('testType', e.target.value as TestType)}
+            onChange={(e) => set('testType', e.target.value)}
             className={errors.testType ? INPUT_ERR : INPUT}
           >
             <option value="" disabled>Selecione o tipo de teste…</option>
-            {TEST_TYPES.map((t) => (
+            {testTypes.map((t) => (
               <option key={t} value={t}>{t}</option>
             ))}
           </select>
           <FieldError msg={errors.testType} />
         </div>
       </div>
+
+      {/* ── Manager Modal ──────────────────────────────────────────────────── */}
+      {showManager && (
+        <CIQTestTypeManager
+          types={testTypes}
+          addType={addType}
+          renameType={renameType}
+          removeType={removeType}
+          onClose={() => setShowManager(false)}
+        />
+      )}
 
       {/* ── Controle ───────────────────────────────────────────────────────── */}
       <div>

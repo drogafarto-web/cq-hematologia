@@ -63,7 +63,9 @@ export const SUBCOLLECTIONS = {
   LOTS: 'lots',
   RUNS: 'runs',
   // Módulo: Imunologia (CIQ categórico R/NR — RDC 978/2025)
-  CIQ_IMUNO: 'ciq-imuno',
+  CIQ_IMUNO:        'ciq-imuno',
+  CIQ_IMUNO_CONFIG: 'ciq-imuno-config',
+  CIQ_AUDIT:        'ciq-audit',        // lab-level audit trail (sobrevive à exclusão de lotes)
   // Módulos futuros — descomentar ao implementar:
   // CIQ_BIOQUIMICA: 'ciq-bioquimica',
   // CIQ_COAGULACAO: 'ciq-coagulacao',

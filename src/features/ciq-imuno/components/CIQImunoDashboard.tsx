@@ -10,8 +10,8 @@ import { CIQImunoForm }      from './CIQImunoForm';
 import { CIQAuditor }        from './CIQAuditor';
 import { CIQIndicadores }    from './CIQIndicadores';
 import { CIQRelatorioPrint } from './CIQRelatorioPrint';
-import { exportRunsToCSV }   from '../services/ciqExportService';
-import { updateLotDecision } from '../services/ciqFirebaseService';
+import { exportRunsToCSV }                          from '../services/ciqExportService';
+import { updateLotDecision, updateLotMeta, deleteCIQLot } from '../services/ciqFirebaseService';
 import type { CIQImunoFormData } from './CIQImunoForm.schema';
 import type { CIQImunoLot, CIQImunoRun } from '../types/CIQImuno';
 import type { CIQLotStatus, CIQStatus } from '../types/_shared_refs';
@@ -110,6 +110,23 @@ function QRIcon() {
   );
 }
 
+function EditIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+      <path d="M9 2l2 2-7 7H2v-2l7-7z" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+      <path d="M2 3.5h9M4.5 3.5V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v1M5 6v4M8 6v4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M3 3.5l.5 7a.5.5 0 00.5.5h5a.5.5 0 00.5-.5l.5-7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 // ─── Lot Status Badge ─────────────────────────────────────────────────────────
 
 const LOT_STATUS_CONFIG: Record<CIQLotStatus, { label: string; className: string }> = {
@@ -195,45 +212,93 @@ function EmptyRuns({ onNew }: { onNew: () => void }) {
 function LotCard({
   lot,
   isActive,
+  canManage,
   onSelect,
+  onEdit,
+  onDelete,
 }: {
-  lot:      CIQImunoLot;
-  isActive: boolean;
-  onSelect: () => void;
+  lot:       CIQImunoLot;
+  isActive:  boolean;
+  canManage: boolean;
+  onSelect:  () => void;
+  onEdit:    () => void;
+  onDelete:  () => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={[
-        'w-full text-left px-4 py-3 rounded-xl border transition-all',
-        isActive
-          ? 'bg-emerald-500/10 border-emerald-500/30 dark:border-emerald-500/25'
-          : 'bg-white dark:bg-white/[0.02] border-slate-200 dark:border-white/[0.07]',
-        'hover:border-emerald-500/40 dark:hover:border-emerald-500/30',
-      ].join(' ')}
-    >
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="text-sm font-medium text-slate-800 dark:text-white/85 truncate">
-            {lot.testType}
-          </p>
-          <p className="text-xs text-slate-400 dark:text-white/35 mt-0.5 truncate">
-            {lot.loteControle}
-          </p>
+    <div className={[
+      'group relative w-full px-4 py-3 rounded-xl border transition-all',
+      isActive
+        ? 'bg-emerald-500/10 border-emerald-500/30 dark:border-emerald-500/25'
+        : 'bg-white dark:bg-white/[0.02] border-slate-200 dark:border-white/[0.07]',
+      'hover:border-emerald-500/40 dark:hover:border-emerald-500/30',
+    ].join(' ')}>
+
+      {/* Full-card select button — below action buttons in stacking order */}
+      <button
+        type="button"
+        onClick={onSelect}
+        aria-label={`Selecionar lote ${lot.testType}`}
+        className="absolute inset-0 rounded-xl focus:outline-none focus-visible:ring-2
+                   focus-visible:ring-emerald-500 focus-visible:ring-offset-1"
+      />
+
+      {/* Card content — pointer-events-none so clicks fall through to the button above */}
+      <div className="relative pointer-events-none">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-slate-800 dark:text-white/85 truncate">
+              {lot.testType}
+            </p>
+            <p className="text-xs text-slate-400 dark:text-white/35 mt-0.5 truncate">
+              {lot.loteControle}
+            </p>
+          </div>
+
+          {/* Badge — hidden on hover when actions are available */}
+          <div className={canManage ? 'group-hover:hidden' : ''}>
+            <LotStatusBadge status={lot.lotStatus} />
+          </div>
         </div>
-        <LotStatusBadge status={lot.lotStatus} />
+
+        <div className="flex items-center gap-3 mt-2">
+          <span className="text-[11px] text-slate-400 dark:text-white/30">
+            {lot.runCount} corrida{lot.runCount !== 1 ? 's' : ''}
+          </span>
+          <span className="text-[11px] text-slate-300 dark:text-white/15">·</span>
+          <span className="text-[11px] text-slate-400 dark:text-white/30">
+            Val. {lot.validadeControle}
+          </span>
+        </div>
       </div>
-      <div className="flex items-center gap-3 mt-2">
-        <span className="text-[11px] text-slate-400 dark:text-white/30">
-          {lot.runCount} corrida{lot.runCount !== 1 ? 's' : ''}
-        </span>
-        <span className="text-[11px] text-slate-300 dark:text-white/15">·</span>
-        <span className="text-[11px] text-slate-400 dark:text-white/30">
-          Val. {lot.validadeControle}
-        </span>
-      </div>
-    </button>
+
+      {/* Action buttons — pointer-events-auto, sit above the select button */}
+      {canManage && (
+        <div className="absolute top-2.5 right-3 hidden group-hover:flex items-center gap-1 pointer-events-auto">
+          <button
+            type="button"
+            aria-label="Editar lote"
+            onClick={onEdit}
+            className="p-1.5 rounded-lg text-slate-400 dark:text-white/30
+                       hover:text-slate-700 dark:hover:text-white/70
+                       hover:bg-slate-100 dark:hover:bg-white/[0.07]
+                       transition-all"
+          >
+            <EditIcon />
+          </button>
+          <button
+            type="button"
+            aria-label="Excluir lote"
+            onClick={onDelete}
+            className="p-1.5 rounded-lg text-slate-400 dark:text-white/30
+                       hover:text-red-500 dark:hover:text-red-400
+                       hover:bg-red-500/[0.08] dark:hover:bg-red-500/[0.1]
+                       transition-all"
+          >
+            <TrashIcon />
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -392,6 +457,113 @@ function Modal({
   );
 }
 
+// ─── Edit Lot Form ────────────────────────────────────────────────────────────
+
+function EditLotForm({
+  lot,
+  isSaving,
+  error,
+  onSave,
+  onCancel,
+}: {
+  lot:      CIQImunoLot;
+  isSaving: boolean;
+  error:    string | null;
+  onSave:   (fields: { aberturaControle: string; validadeControle: string }) => void;
+  onCancel: () => void;
+}) {
+  const [abertura,  setAbertura]  = useState(lot.aberturaControle);
+  const [validade,  setValidade]  = useState(lot.validadeControle);
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    onSave({ aberturaControle: abertura, validadeControle: validade });
+  }
+
+  const inputCls = [
+    'w-full px-3 py-2 rounded-xl text-sm',
+    'bg-slate-50 dark:bg-white/[0.04]',
+    'border border-slate-200 dark:border-white/[0.1]',
+    'text-slate-800 dark:text-white/85',
+    'focus:outline-none focus:ring-2 focus:ring-emerald-500/40',
+    'transition-all',
+  ].join(' ');
+
+  const labelCls = 'block text-xs font-medium text-slate-500 dark:text-white/40 mb-1.5';
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Read-only identifiers */}
+      <div className="rounded-xl border border-slate-100 dark:border-white/[0.07]
+                      bg-slate-50 dark:bg-white/[0.02] px-4 py-3 space-y-1">
+        <Row label="Teste"         value={lot.testType} />
+        <Row label="Lote controle" value={lot.loteControle} />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label htmlFor="edit-abertura" className={labelCls}>Data de abertura</label>
+          <input
+            id="edit-abertura"
+            type="date"
+            value={abertura}
+            onChange={(e) => setAbertura(e.target.value)}
+            required
+            className={inputCls}
+          />
+        </div>
+        <div>
+          <label htmlFor="edit-validade" className={labelCls}>Data de validade</label>
+          <input
+            id="edit-validade"
+            type="date"
+            value={validade}
+            onChange={(e) => setValidade(e.target.value)}
+            required
+            className={inputCls}
+          />
+        </div>
+      </div>
+
+      {error && (
+        <p className="text-xs text-red-500 dark:text-red-400">{error}</p>
+      )}
+
+      <div className="flex justify-end gap-2 pt-1">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={isSaving}
+          className="px-4 py-2 rounded-xl text-sm text-slate-500 dark:text-white/50
+                     border border-slate-200 dark:border-white/[0.1]
+                     hover:text-slate-800 dark:hover:text-white/80
+                     hover:border-slate-300 dark:hover:border-white/[0.2]
+                     disabled:opacity-40 transition-all"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          disabled={isSaving}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium
+                     bg-emerald-500 hover:bg-emerald-400 text-white
+                     disabled:opacity-40 transition-colors"
+        >
+          {isSaving ? (
+            <>
+              <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
+                <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+              </svg>
+              Salvando…
+            </>
+          ) : 'Salvar alterações'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 
 export function CIQImunoDashboard() {
@@ -420,6 +592,14 @@ export function CIQImunoDashboard() {
   const [decidingLot,  setDecidingLot]  = useState(false);
   const [decisionErr,  setDecisionErr]  = useState<string | null>(null);
   const [showPrint,    setShowPrint]    = useState(false);
+
+  // ── Lot management state ─────────────────────────────────────────────────────
+  const [editingLot,    setEditingLot]    = useState<CIQImunoLot | null>(null);
+  const [isSavingLot,   setIsSavingLot]   = useState(false);
+  const [saveLotErr,    setSaveLotErr]    = useState<string | null>(null);
+  const [deletingLot,   setDeletingLot]   = useState<CIQImunoLot | null>(null);
+  const [isDeleting,    setIsDeleting]    = useState(false);
+  const [deleteErr,     setDeleteErr]     = useState<string | null>(null);
 
   // ── Handlers ───────────────────────────────────────────────────────────────
 
@@ -456,6 +636,51 @@ export function CIQImunoDashboard() {
       exportRunsToCSV(runs, filename);
     } catch (err) {
       setExportErr(err instanceof Error ? err.message : 'Erro ao exportar.');
+    }
+  }
+
+  async function handleEditLotSave(fields: { aberturaControle: string; validadeControle: string }) {
+    if (!editingLot || !user) return;
+    setSaveLotErr(null);
+    setIsSavingLot(true);
+    try {
+      await updateLotMeta(
+        editingLot.labId,
+        editingLot.id,
+        fields,
+        user.uid,
+        { aberturaControle: editingLot.aberturaControle, validadeControle: editingLot.validadeControle },
+      );
+      setEditingLot(null);
+    } catch (err) {
+      setSaveLotErr(err instanceof Error ? err.message : 'Erro ao salvar.');
+    } finally {
+      setIsSavingLot(false);
+    }
+  }
+
+  async function handleDeleteLot() {
+    if (!deletingLot || !user) return;
+    setDeleteErr(null);
+    setIsDeleting(true);
+    try {
+      await deleteCIQLot(
+        deletingLot.labId,
+        deletingLot.id,
+        {
+          testType:         deletingLot.testType,
+          loteControle:     deletingLot.loteControle,
+          runCount:         deletingLot.runCount,
+          validadeControle: deletingLot.validadeControle,
+        },
+        user.uid,
+      );
+      if (activeLotId === deletingLot.id) setActiveLotId(null);
+      setDeletingLot(null);
+    } catch (err) {
+      setDeleteErr(err instanceof Error ? err.message : 'Erro ao excluir.');
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -547,7 +772,10 @@ export function CIQImunoDashboard() {
                   key={lot.id}
                   lot={lot}
                   isActive={lot.id === (activeLot?.id ?? lots[0]?.id)}
+                  canManage={canDecide}
                   onSelect={() => setActiveLotId(lot.id)}
+                  onEdit={() => { setSaveLotErr(null); setEditingLot(lot); }}
+                  onDelete={() => { setDeleteErr(null); setDeletingLot(lot); }}
                 />
               ))}
             </aside>
@@ -747,6 +975,80 @@ export function CIQImunoDashboard() {
           runs={runs}
           onClose={() => setShowPrint(false)}
         />
+      )}
+
+      {/* ── Modal: Editar Lote ──────────────────────────────────────────────── */}
+      {editingLot && (
+        <Modal title="Editar lote" onClose={() => setEditingLot(null)}>
+          <EditLotForm
+            lot={editingLot}
+            isSaving={isSavingLot}
+            error={saveLotErr}
+            onSave={handleEditLotSave}
+            onCancel={() => setEditingLot(null)}
+          />
+        </Modal>
+      )}
+
+      {/* ── Modal: Confirmar Exclusão ────────────────────────────────────────── */}
+      {deletingLot && (
+        <Modal title="Excluir lote" onClose={() => !isDeleting && setDeletingLot(null)}>
+          <div className="space-y-4">
+            <div className="rounded-xl border border-red-400/20 bg-red-500/[0.06] px-4 py-3 space-y-1">
+              <p className="text-sm font-semibold text-red-600 dark:text-red-400">
+                Esta operação é irreversível
+              </p>
+              <p className="text-xs text-slate-500 dark:text-white/40 leading-relaxed">
+                O lote <span className="font-medium text-slate-700 dark:text-white/70">{deletingLot.testType}</span>{' '}
+                ({deletingLot.loteControle}) e todas as suas{' '}
+                <span className="font-medium text-slate-700 dark:text-white/70">{deletingLot.runCount} corrida{deletingLot.runCount !== 1 ? 's' : ''}</span>{' '}
+                serão excluídos permanentemente. A exclusão será registrada no audit trail do sistema.
+              </p>
+            </div>
+
+            {deleteErr && (
+              <p className="text-xs text-red-500 dark:text-red-400">{deleteErr}</p>
+            )}
+
+            <div className="flex justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setDeletingLot(null)}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-xl text-sm text-slate-500 dark:text-white/50
+                           border border-slate-200 dark:border-white/[0.1]
+                           hover:text-slate-800 dark:hover:text-white/80
+                           hover:border-slate-300 dark:hover:border-white/[0.2]
+                           disabled:opacity-40 transition-all"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteLot}
+                disabled={isDeleting}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium
+                           bg-red-500 hover:bg-red-400 text-white
+                           disabled:opacity-40 transition-colors"
+              >
+                {isDeleting ? (
+                  <>
+                    <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
+                      <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                    </svg>
+                    Excluindo…
+                  </>
+                ) : (
+                  <>
+                    <TrashIcon />
+                    Excluir lote
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </Modal>
       )}
 
       {/* ── Modal: QR Code de Auditoria ──────────────────────────────────────── */}
