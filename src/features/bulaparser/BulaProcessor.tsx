@@ -538,7 +538,7 @@ export function BulaProcessor() {
           type="button"
           onClick={() => setCurrentView('analyzer')}
           aria-label="Voltar ao analisador"
-          className="w-7 h-7 flex items-center justify-center rounded-lg text-white/35 hover:text-white/70 hover:bg-white/[0.07] transition-all"
+          className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-white/35 hover:text-white/70 hover:bg-white/[0.07] transition-all"
         >
           <ArrowLeftIcon />
         </button>

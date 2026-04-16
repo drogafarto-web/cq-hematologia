@@ -6,6 +6,7 @@ import type {
   LabQCSettings,
   LabCompliance,
   LabSubscription,
+  LabBackupConfig,
 } from '../../../types';
 
 // ─── Sub-schemas ──────────────────────────────────────────────────────────────
@@ -51,6 +52,12 @@ const LabSubscriptionSchema = z.object({
   currentPeriodEndsAt: z.date().optional(),
 });
 
+const LabBackupConfigSchema = z.object({
+  email:                  z.string().email({ message: 'E-mail inválido' }).nullable(),
+  enabled:                z.boolean(),
+  stalenessThresholdDays: z.number().int().min(1).max(30),
+});
+
 // ─── Full create/update payload schema ───────────────────────────────────────
 // Does NOT include id / createdAt / createdBy / updatedAt — those are
 // system-managed fields, never accepted from user input.
@@ -68,6 +75,7 @@ export const LabSchema = z.object({
   qcSettings:   LabQCSettingsSchema,
   compliance:   LabComplianceSchema,
   subscription: LabSubscriptionSchema,
+  backup:       LabBackupConfigSchema,
 });
 
 export type LabFormValues = z.infer<typeof LabSchema>;
@@ -109,6 +117,12 @@ const DEFAULT_COMPLIANCE: LabCompliance = {
 const DEFAULT_SUBSCRIPTION: LabSubscription = {
   plan:   'free',
   status: 'active',
+};
+
+const DEFAULT_BACKUP: LabBackupConfig = {
+  email:                  null,
+  enabled:                false,
+  stalenessThresholdDays: 3,
 };
 
 // ─── normalizeLab ─────────────────────────────────────────────────────────────
@@ -164,6 +178,10 @@ export function normalizeLab(raw: Record<string, any> & { id: string }): Lab {
     subscription: raw.subscription
       ? { ...DEFAULT_SUBSCRIPTION, ...(raw.subscription as Partial<LabSubscription>) }
       : DEFAULT_SUBSCRIPTION,
+
+    backup: raw.backup
+      ? { ...DEFAULT_BACKUP, ...(raw.backup as Partial<LabBackupConfig>) }
+      : DEFAULT_BACKUP,
 
     createdAt: toDate(raw.createdAt) ?? new Date(),
     createdBy: (raw.createdBy as string | undefined) ?? '',

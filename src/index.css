@@ -8,6 +8,39 @@
 */
 @variant dark (&:where(.dark, .dark &));
 
+/* ─── iOS-feel: spring easing ────────────────────────────────────────────────
+   cubic-bezier calibrado para response=0.38, dampingFraction=0.70 —
+   equivalente web ao .spring(response:0.38, dampingFraction:0.7) do SwiftUI.
+   Usado em botões, modais e cards para dar sensação física em vez de linear. */
+:root {
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-spring-soft: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-spring-snappy: cubic-bezier(0.47, 1.64, 0.41, 0.8);
+}
+
+/* Pressão de botão — escala com spring ao pressionar (active:scale) */
+button:active:not(:disabled) {
+  --tw-scale-x: 0.96;
+  --tw-scale-y: 0.96;
+  transform: scale(0.96);
+  transition: transform 80ms var(--ease-spring-soft);
+}
+
+/* Soltar o botão volta com spring (transição na ausência do :active) */
+button:not(:active):not(:disabled) {
+  transition: transform 320ms var(--ease-spring), background-color 150ms ease, color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, opacity 150ms ease;
+}
+
+/* ─── iOS-feel: reduced-motion override ─────────────────────────────────────
+   Respeita preferência de acessibilidade do sistema. */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* ─── Empty state: faint dot grid ───────────────────────────────────────────
    Used in AnalyzerView when no lot is active. Evokes a measurement grid
    without competing with content.                                           */
@@ -132,31 +165,70 @@
   }
 }
 
-body,
-main,
-section,
-article,
-aside,
+/* ─── Theme transitions — aplicadas APENAS em elementos estruturais relevantes ──
+   Escopo reduzido para evitar jank em listas densas (tabelas de corridas, lots).
+   Não inclui td/th/li — essas transições causam repaint em massa durante scroll. */
 header,
 footer,
 nav,
-div,
-p,
-span,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-a,
-label,
-li,
-td,
-th {
-  transition-property: background-color, border-color, color, box-shadow;
-  transition-duration: 200ms;
+aside,
+main,
+.theme-transition {
+  transition-property: background-color, border-color, color;
+  transition-duration: 180ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Modal spring animation — slide-up com física ──────────────────────────
+   Equivalente web ao .sheet presentation do iOS: entra de baixo com spring,
+   sai com fade para preservar a ilusão de profundidade. */
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-spring {
+  animation: modalSlideUp 320ms var(--ease-spring) both;
+}
+
+/* ─── View transition — fade suave entre views principais ───────────────────
+   Mantém contexto espacial sem animações pesadas que demorariam em iPhones
+   antigos. Target: 200ms, imperceptível em dispositivos rápidos. */
+@keyframes viewFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.view-enter {
+  animation: viewFadeIn 220ms var(--ease-spring-soft) both;
+}
+
+/* ─── Toast spring entry — slide-up com spring (substitui duration-200 linear) */
+@keyframes toastSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.toast-enter {
+  animation: toastSlideUp 280ms var(--ease-spring) both;
 }
 
 /* ─── Login: Branding panel background image ────────────────────────────────

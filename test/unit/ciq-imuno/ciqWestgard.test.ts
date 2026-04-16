@@ -253,7 +253,11 @@ describe('computeWestgardCategorico', () => {
     it('ATIVA quando validade é em 15 dias', () => {
       const near = new Date();
       near.setDate(near.getDate() + 15);
-      const run = makeRun({ validadeControle: near.toISOString().split('T')[0] });
+      // Usa data local explícita para evitar drift de UTC (toISOString usa UTC)
+      const y  = near.getFullYear();
+      const mo = String(near.getMonth() + 1).padStart(2, '0');
+      const d  = String(near.getDate()).padStart(2, '0');
+      const run = makeRun({ validadeControle: `${y}-${mo}-${d}` });
       const result = computeWestgardCategorico([run]);
       expect(result.alerts).toContain('validade_30d');
       expect(result.lotStatus).toBe('atencao');
@@ -262,7 +266,10 @@ describe('computeWestgardCategorico', () => {
     it('NÃO ativa quando validade é em 30+ dias', () => {
       const far = new Date();
       far.setDate(far.getDate() + 45);
-      const run = makeRun({ validadeControle: far.toISOString().split('T')[0] });
+      const y  = far.getFullYear();
+      const mo = String(far.getMonth() + 1).padStart(2, '0');
+      const d  = String(far.getDate()).padStart(2, '0');
+      const run = makeRun({ validadeControle: `${y}-${mo}-${d}` });
       const result = computeWestgardCategorico([run]);
       expect(result.alerts).not.toContain('validade_30d');
     });

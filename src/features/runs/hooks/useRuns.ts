@@ -6,6 +6,8 @@ import { extractDataFromImage } from '../services/geminiService';
 import { checkWestgardRules, isRejection } from '../../chart/utils/westgardRules';
 import { storagePath, MIN_RUNS_FOR_INTERNAL_STATS, SUPPORTED_IMAGE_TYPES, IMAGE_UPLOAD_MAX_SIZE_BYTES } from '../../../constants';
 import { ANALYTE_MAP } from '../../../constants';
+import { toast } from '../../../shared/store/useToastStore';
+import { haptic } from '../../../shared/hooks/useHaptic';
 import type {
   Run,
   ControlLot,
@@ -306,6 +308,18 @@ export function useRuns() {
         // Unblock the UI — image upload happens in the background
         setPendingRun(null);
 
+        // Feedback: haptic + toast reflecting the run outcome
+        if (status === 'Aprovada') {
+          haptic.confirm();
+          toast.success('Corrida aprovada e salva.');
+        } else if (status === 'Rejeitada') {
+          haptic.error();
+          toast.warning('Corrida rejeitada — verifique as regras de Westgard.');
+        } else {
+          haptic.confirm();
+          toast.info('Corrida registrada.');
+        }
+
         // Background image upload — non-blocking
         void (async () => {
           try {
@@ -330,6 +344,8 @@ export function useRuns() {
         const msg = err instanceof Error ? err.message : 'Erro ao confirmar corrida.';
         setRunError(msg);
         setError(msg);
+        haptic.error();
+        toast.error(msg);
       } finally {
         setIsConfirming(false);
       }
@@ -392,6 +408,8 @@ export function useRuns() {
       const newLots = lots.map((l) => (l.id === lotId ? updatedLot : l));
       setLots(newLots);
       await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+      haptic.heavy();
+      toast.success('Corrida excluída.');
     },
     [lots, activeLotId, selectedAnalyteId, setLots, persist]
   );

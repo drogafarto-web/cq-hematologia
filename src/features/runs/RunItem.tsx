@@ -104,7 +104,7 @@ function ImageAuditModal({ imageUrl, run, onClose }: ImageModalProps) {
               onClick={onClose}
               title="Fechar"
               aria-label="Fechar modal"
-              className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 dark:text-white/35 hover:text-slate-600 dark:hover:text-white/70 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-slate-400 dark:text-white/35 hover:text-slate-600 dark:hover:text-white/70 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all"
             >
               <XIcon />
             </button>
@@ -256,39 +256,39 @@ export function RunItem({ run, index, onDelete }: RunItemProps) {
             )}
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Camera / image audit button — always visible in header */}
+          <div className="flex items-center gap-1 shrink-0">
+            {/* Camera / image audit button — 44×44px touch area */}
             <button
               type="button"
               onClick={handleCameraClick}
               disabled={imageState !== 'ready'}
-              className={`
-                flex items-center justify-center w-7 h-7 rounded-lg transition-all
-                ${imageState === 'ready'
-                  ? 'text-violet-400/60 hover:text-violet-400 hover:bg-violet-500/10 cursor-pointer'
-                  : 'text-white/15 cursor-default'}
-              `}
-              title={
+              aria-label={
                 imageState === 'ready'     ? 'Ver imagem original' :
                 imageState === 'uploading' ? 'Enviando imagem…' :
                                              'Entrada manual (sem imagem)'
               }
+              className={`
+                flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl transition-all
+                ${imageState === 'ready'
+                  ? 'text-violet-400/60 hover:text-violet-400 hover:bg-violet-500/10 cursor-pointer'
+                  : 'text-white/15 cursor-default'}
+              `}
             >
               <CameraIcon uploading={imageState === 'uploading'} />
             </button>
 
-            {/* Delete button */}
+            {/* Delete button — 44×44px touch area */}
             <button
               type="button"
               onClick={handleDelete}
               onBlur={() => setConfirmDelete(false)}
+              aria-label={confirmDelete ? 'Confirmar exclusão' : 'Excluir corrida'}
               className={`
-                flex items-center justify-center w-7 h-7 rounded-lg transition-all
+                flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl transition-all
                 ${confirmDelete
                   ? 'bg-red-500/20 text-red-500'
                   : 'text-slate-400 dark:text-white/20 hover:text-slate-600 dark:hover:text-white/50 hover:bg-slate-100 dark:hover:bg-white/[0.06]'}
               `}
-              title={confirmDelete ? 'Clique para confirmar' : 'Excluir corrida'}
             >
               <TrashIcon />
             </button>

@@ -57,8 +57,9 @@ describe('CIQImunoFormSchema — campos obrigatórios', () => {
     expect(result.success).toBe(true);
   });
 
-  it('rejeita testType inválido', () => {
-    const r = CIQImunoFormSchema.safeParse({ ...VALID, testType: 'INVALID_TEST' });
+  it('rejeita testType vazio (lista de tipos é dinâmica, mas não pode ser string vazia)', () => {
+    // testType é z.string().min(1) — qualquer string não-vazia é válida (tipos gerenciados no Firestore)
+    const r = CIQImunoFormSchema.safeParse({ ...VALID, testType: '' });
     expect(r.success).toBe(false);
     if (!r.success) expect(r.error.flatten().fieldErrors.testType).toBeDefined();
   });

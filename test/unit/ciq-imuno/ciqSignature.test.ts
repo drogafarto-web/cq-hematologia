@@ -67,16 +67,26 @@ describe('generateSignature', () => {
     expect(s1).not.toBe(s2);
   });
 
-  it('canonical JSON é sensível à ordem dos campos (imutável)', async () => {
-    // A ordem dos campos no JSON canônico é fixa — não varia por inserção.
-    // Este teste garante que a implementação não reordena campos ao hashing.
-    const sig = await generateSignature(BASE_PAYLOAD);
+  it('canonical JSON — ordem de chaves do input não afeta a assinatura (canonicalização interna)', async () => {
+    // A implementação serializa com chaves em ordem fixa (doc, lot, test, ctrl, res, date),
+    // independentemente da ordem de inserção das propriedades no objeto de entrada.
+    // Se alguém alterar a ordem no JSON canônico, os hashes históricos quebram.
+    const sig1 = await generateSignature(BASE_PAYLOAD);
 
-    // Valor de referência calculado manualmente com o JSON canônico esperado:
-    // {"doc":"CRBM-MG 12345","lot":"lot-abc123","test":"HIV","ctrl":"L2024-001","res":"R","date":"2026-04-15"}
-    // Verificar que a assinatura é estável entre versões do runtime.
-    expect(sig).toHaveLength(64);
-    expect(typeof sig).toBe('string');
+    // Mesmo payload com chaves em ordem de inserção inversa
+    const reversed: CIQSignaturePayload = {
+      dataRealizacao:   BASE_PAYLOAD.dataRealizacao,
+      resultadoObtido:  BASE_PAYLOAD.resultadoObtido,
+      loteControle:     BASE_PAYLOAD.loteControle,
+      testType:         BASE_PAYLOAD.testType,
+      lotId:            BASE_PAYLOAD.lotId,
+      operatorDocument: BASE_PAYLOAD.operatorDocument,
+    };
+    const sig2 = await generateSignature(reversed);
+
+    // Deve produzir o mesmo hash — prova que a ordem do input não importa
+    // e que a canonicalização interna é determinística
+    expect(sig1).toBe(sig2);
   });
 
   it('R e NR produzem assinaturas diferentes (sem colisão)', async () => {

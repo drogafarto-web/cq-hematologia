@@ -117,7 +117,7 @@ export function ReviewRunModal({
             onClick={onCancel}
             disabled={isConfirming}
             aria-label="Fechar"
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 dark:text-white/30 hover:text-slate-600 dark:hover:text-white/70 hover:bg-slate-100 dark:hover:bg-white/[0.07] transition-all shrink-0"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-slate-400 dark:text-white/30 hover:text-slate-600 dark:hover:text-white/70 hover:bg-slate-100 dark:hover:bg-white/[0.07] transition-all shrink-0"
           >
             ✕
           </button>

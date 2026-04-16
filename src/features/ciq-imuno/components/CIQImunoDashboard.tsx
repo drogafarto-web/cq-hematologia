@@ -278,7 +278,7 @@ function LotCard({
             type="button"
             aria-label="Editar lote"
             onClick={onEdit}
-            className="p-1.5 rounded-lg text-slate-400 dark:text-white/30
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-slate-400 dark:text-white/30
                        hover:text-slate-700 dark:hover:text-white/70
                        hover:bg-slate-100 dark:hover:bg-white/[0.07]
                        transition-all"
@@ -289,7 +289,7 @@ function LotCard({
             type="button"
             aria-label="Excluir lote"
             onClick={onDelete}
-            className="p-1.5 rounded-lg text-slate-400 dark:text-white/30
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-slate-400 dark:text-white/30
                        hover:text-red-500 dark:hover:text-red-400
                        hover:bg-red-500/[0.08] dark:hover:bg-red-500/[0.1]
                        transition-all"
@@ -364,7 +364,7 @@ function RunRow({
           onClick={() => onShowQR(run)}
           aria-label="Ver QR Code de auditoria"
           className="opacity-0 group-hover:opacity-100 transition-opacity
-                     p-1.5 rounded-lg text-slate-400 dark:text-white/30
+                     min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-slate-400 dark:text-white/30
                      hover:text-slate-700 dark:hover:text-white/70
                      hover:bg-slate-100 dark:hover:bg-white/[0.05]"
         >
@@ -442,7 +442,7 @@ function Modal({
             type="button"
             onClick={onClose}
             aria-label="Fechar"
-            className="p-1.5 rounded-lg text-slate-400 dark:text-white/30
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-slate-400 dark:text-white/30
                        hover:text-slate-700 dark:hover:text-white/70
                        hover:bg-slate-100 dark:hover:bg-white/[0.05]
                        transition-all"

@@ -7,15 +7,6 @@ import type { View } from '../../types';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
-function LogoMark() {
-  return (
-    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shrink-0">
-      <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden>
-        <path d="M7 1L1 4v4c0 3.5 3 5.5 6 6 3-.5 6-2.5 6-6V4L7 1z" fill="white" fillOpacity="0.9" />
-      </svg>
-    </div>
-  );
-}
 
 function DotsIcon() {
   return (
@@ -175,7 +166,7 @@ export function ModuleHub() {
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F14] text-slate-900 dark:text-white flex flex-col transition-colors duration-300">
 
       {/* ── Header ───────────────────────────────────────────────────────────── */}
-      <header className="flex items-center gap-3 px-4 sm:px-6 h-12 border-b border-slate-200 dark:border-white/[0.06] shrink-0">
+      <header className="sticky top-0 z-20 flex items-center gap-3 px-4 sm:px-6 h-12 border-b border-slate-200/80 dark:border-white/[0.06] shrink-0 bg-slate-50/80 dark:bg-[#0B0F14]/80 backdrop-blur-md supports-[backdrop-filter]:bg-slate-50/60 dark:supports-[backdrop-filter]:bg-[#0B0F14]/60">
         <img
           src="/assets/labclin-logo.png"
           alt="CQ Labclin"
@@ -191,9 +182,10 @@ export function ModuleHub() {
         <div className="relative">
           <button
             type="button"
-            aria-label="Abrir menu"
+            aria-label="Abrir menu de conta"
+            aria-expanded={menuOpen ? 'true' : 'false'}
             onClick={() => setMenuOpen((v) => !v)}
-            className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 dark:text-white/30 hover:text-slate-600 dark:hover:text-white/60 hover:bg-slate-200 dark:hover:bg-white/[0.07] transition-all"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-slate-400 dark:text-white/30 hover:text-slate-600 dark:hover:text-white/60 hover:bg-slate-200 dark:hover:bg-white/[0.07] transition-all"
           >
             <DotsIcon />
           </button>
@@ -217,7 +209,7 @@ export function ModuleHub() {
                   <button
                     type="button"
                     onClick={() => { setCurrentView('superadmin'); setMenuOpen(false); }}
-                    className="w-full px-4 py-2 text-left text-sm text-slate-600 dark:text-white/55 hover:text-slate-900 dark:hover:text-white/85 hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all"
+                    className="w-full px-4 min-h-[44px] px-4 text-left text-sm text-slate-600 dark:text-white/55 hover:text-slate-900 dark:hover:text-white/85 hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all flex items-center"
                   >
                     Painel Super Admin
                   </button>
@@ -227,7 +219,7 @@ export function ModuleHub() {
                   <button
                     type="button"
                     disabled
-                    className="w-full px-4 py-2 text-left text-sm text-slate-400 dark:text-white/25 cursor-not-allowed"
+                    className="w-full px-4 min-h-[44px] text-left text-sm text-slate-400 dark:text-white/25 cursor-not-allowed flex items-center"
                   >
                     Trocar laboratório
                     <span className="ml-1.5 text-[10px] bg-slate-100 dark:bg-white/[0.05] px-1 py-0.5 rounded text-slate-400 dark:text-white/20">

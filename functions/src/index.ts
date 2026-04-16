@@ -6,6 +6,10 @@ import { z } from 'zod';
 import * as admin from 'firebase-admin';
 import { syncClaims, syncModuleClaims } from './helpers/claims';
 
+// ─── emailBackup module ───────────────────────────────────────────────────────
+// Re-export so Firebase CLI discovers scheduledDailyBackup and triggerLabBackup.
+export { scheduledDailyBackup, triggerLabBackup } from './modules/emailBackup/index';
+
 // All functions deploy to the same region as Firestore
 setGlobalOptions({ region: 'southamerica-east1' });
 

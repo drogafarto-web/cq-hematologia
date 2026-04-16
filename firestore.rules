@@ -159,6 +159,15 @@ service cloud.firestore {
           (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
       }
 
+      // /labs/{labId}/backup-logs — imutable server-side backup audit trail
+      // Written exclusively by Cloud Functions (scheduledDailyBackup / triggerLabBackup).
+      // Admins and owners can read; no client writes allowed.
+      match /backup-logs/{logId} {
+        allow read:   if isSuperAdmin() || (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow create: if false; // server-side only via Cloud Functions
+        allow update, delete: if false; // immutable
+      }
+
       // ── Módulos futuros — adicionar blocos aqui seguindo o mesmo padrão:
       // match /ciq-bioquimica/{lotId} { ... hasModuleAccess('bioquimica') ... }
       // match /ciq-coagulacao/{lotId}  { ... hasModuleAccess('coagulacao')  ... }

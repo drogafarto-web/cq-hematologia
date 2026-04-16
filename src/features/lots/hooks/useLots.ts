@@ -3,6 +3,8 @@ import { useAppStore } from '../../../store/useAppStore';
 import { useActiveLabId, useUser } from '../../../store/useAuthStore';
 import { getDatabaseService } from '../../../shared/services/databaseService';
 import type { ControlLot, StoredState, InternalStats } from '../../../types';
+import { toast } from '../../../shared/store/useToastStore';
+import { haptic } from '../../../shared/hooks/useHaptic';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -119,6 +121,8 @@ export function useLots() {
       setLots(newLots);
 
       await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+      haptic.confirm();
+      toast.success(`Lote "${input.controlName}" adicionado.`);
       return newLot.id;
     },
     [labId, user, lots, activeLotId, selectedAnalyteId, setLots, persist]
@@ -168,6 +172,8 @@ export function useLots() {
       setActiveLotId(newActiveLotId);
 
       await persist({ lots: newLots, activeLotId: newActiveLotId, selectedAnalyteId });
+      haptic.heavy();
+      toast.success('Lote excluído.');
     },
     [lots, activeLotId, selectedAnalyteId, setLots, setActiveLotId, persist]
   );

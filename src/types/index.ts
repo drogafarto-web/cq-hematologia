@@ -155,6 +155,20 @@ export interface LabSubscription {
   currentPeriodEndsAt?: Date;
 }
 
+export interface LabBackupConfig {
+  /** Destination email for automated backup exports. Null disables delivery. */
+  email: string | null;
+  /** Master switch — false suspends backup without removing the email address. */
+  enabled: boolean;
+  /**
+   * Number of days without new runs before a staleness alert is included.
+   * Warning threshold: [stalenessThresholdDays, 6] days.
+   * Critical threshold: 7+ days, or lots exist but zero runs ever.
+   * Default: 3.
+   */
+  stalenessThresholdDays: number;
+}
+
 /**
  * All new fields beyond `name`, `logoUrl` and `createdAt` are optional so that
  * existing Firestore documents never fail to deserialize. Always pass raw
@@ -177,6 +191,8 @@ export interface Lab {
   qcSettings?: LabQCSettings;
   compliance?: LabCompliance;
   subscription?: LabSubscription;
+  /** Automated email backup configuration. Absent on legacy documents — use normalizeLab(). */
+  backup?: LabBackupConfig;
   createdAt: Date;
   createdBy?: string;
   updatedAt?: Date;

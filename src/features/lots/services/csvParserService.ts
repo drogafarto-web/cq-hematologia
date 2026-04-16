@@ -180,7 +180,7 @@ export function parseControlLotCSV(
     const norm = row.map((c) => c.toLowerCase());
 
     const hasAnalyteCol = /analyte|analito|test[e]?|param/i.test(row[0] ?? '');
-    const hasMeanCol    = norm.some((c) => c === 'mean' || c === 'média' || c === 'media');
+    const hasMeanCol    = norm.some((c) => c.includes('mean') || c.includes('média') || c.includes('media'));
 
     if (!hasAnalyteCol || !hasMeanCol) continue;
 

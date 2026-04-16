@@ -27,6 +27,7 @@ import type {
   LabQCSettings,
   LabCompliance,
   LabSubscription,
+  LabBackupConfig,
 } from '../../../types';
 import { normalizeLab } from './labSchema';
 
@@ -50,6 +51,7 @@ export interface CreateLabPayload {
   qcSettings?: Partial<LabQCSettings>;
   compliance?: Partial<LabCompliance>;
   subscription?: Partial<LabSubscription>;
+  backup?: Partial<LabBackupConfig>;
 }
 
 export interface UpdateLabPayload {
@@ -62,6 +64,7 @@ export interface UpdateLabPayload {
   qcSettings?: Partial<LabQCSettings>;
   compliance?: Partial<LabCompliance>;
   subscription?: Partial<LabSubscription>;
+  backup?: Partial<LabBackupConfig>;
 }
 
 // ─── Lab CRUD ─────────────────────────────────────────────────────────────────
@@ -126,6 +129,13 @@ export async function createLab(
       plan:   'free',
       status: 'active',
       ...(payload.subscription ?? {}),
+    },
+
+    backup: {
+      email:                  null,
+      enabled:                false,
+      stalenessThresholdDays: 3,
+      ...(payload.backup ?? {}),
     },
 
     createdAt: serverTimestamp(),
@@ -205,6 +215,12 @@ export async function updateLab(
   if (payload.subscription) {
     for (const [k, v] of Object.entries(payload.subscription)) {
       updates[`subscription.${k}`] = v;
+    }
+  }
+
+  if (payload.backup) {
+    for (const [k, v] of Object.entries(payload.backup)) {
+      updates[`backup.${k}`] = v;
     }
   }
 

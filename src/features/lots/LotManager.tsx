@@ -98,19 +98,19 @@ function LotRow({ lot, active, onSelect, onDelete }: LotRowProps) {
         </div>
       </div>
 
-      {/* Delete */}
+      {/* Delete — 44×44px touch area */}
       <button
         type="button"
         onClick={handleDelete}
         onBlur={() => setConfirmDelete(false)}
+        aria-label={confirmDelete ? 'Confirmar exclusão do lote' : 'Excluir lote'}
         className={`
-          shrink-0 flex items-center justify-center w-7 h-7 rounded-lg transition-all
-          opacity-0 group-hover:opacity-100
+          shrink-0 flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl transition-all
+          opacity-0 group-hover:opacity-100 focus:opacity-100
           ${confirmDelete
             ? 'bg-red-500/20 text-red-500'
             : 'text-slate-400 dark:text-white/25 hover:text-slate-600 dark:hover:text-white/60 hover:bg-slate-100 dark:hover:bg-white/[0.07]'}
         `}
-        title={confirmDelete ? 'Confirmar exclusão' : 'Excluir lote'}
       >
         <TrashIcon />
       </button>

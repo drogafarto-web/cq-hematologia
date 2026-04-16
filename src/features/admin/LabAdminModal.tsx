@@ -68,6 +68,13 @@ export function LabAdminModal({ lab, onConfirm, onClose }: Props) {
   const [iso15189,          setIso15189]          = useState(lab?.compliance?.iso15189 ?? false);
   const [accreditationBody, setAccreditationBody] = useState(lab?.compliance?.accreditationBody ?? '');
 
+  /* Backup */
+  const [backupEmail,     setBackupEmail]     = useState(lab?.backup?.email ?? '');
+  const [backupEnabled,   setBackupEnabled]   = useState(lab?.backup?.enabled ?? false);
+  const [stalenessThreshold, setStalenessThreshold] = useState(
+    String(lab?.backup?.stalenessThresholdDays ?? 3)
+  );
+
   /* UI state */
   const [saving,     setSaving]     = useState(false);
   const [cepLoading, setCepLoading] = useState(false);
@@ -130,6 +137,11 @@ export function LabAdminModal({ lab, onConfirm, onClose }: Props) {
           anvisaLicense:     anvisaLicense.trim()     || undefined,
           iso15189,
           accreditationBody: accreditationBody.trim() || undefined,
+        },
+        backup: {
+          email:                  backupEmail.trim() || null,
+          enabled:                backupEnabled,
+          stalenessThresholdDays: Math.max(1, Math.min(30, parseInt(stalenessThreshold, 10) || 3)),
         },
       };
       await onConfirm(payload, logoFile);
@@ -429,6 +441,64 @@ export function LabAdminModal({ lab, onConfirm, onClose }: Props) {
                 </span>
                 <span className="text-sm text-white/70 select-none">
                   Acreditado ISO 15189
+                </span>
+              </button>
+            </section>
+
+            {/* ── Backup ── */}
+            <section className="space-y-4">
+              <p className={sectionTitleCls}>Backup por E-mail</p>
+
+              <div>
+                <label className={labelCls}>E-mail de destino</label>
+                <input
+                  type="email"
+                  value={backupEmail}
+                  onChange={(e) => setBackupEmail(e.target.value)}
+                  placeholder="backup@seulab.com.br"
+                  className={inputCls}
+                />
+                <p className="mt-1.5 text-[11px] text-white/25">
+                  Relatório PDF dos últimos 30 dias enviado diariamente. Inclui alertas de inatividade por módulo.
+                </p>
+              </div>
+
+              <div>
+                <label className={labelCls}>Alerta de inatividade após (dias)</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={30}
+                  value={stalenessThreshold}
+                  onChange={(e) => setStalenessThreshold(e.target.value)}
+                  className={inputCls + ' w-32'}
+                />
+                <p className="mt-1.5 text-[11px] text-white/25">
+                  Sem registros por este período → alerta no email. Crítico após 7 dias.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setBackupEnabled((v) => !v)}
+                className="flex items-center gap-3 group"
+              >
+                <span
+                  className={
+                    'w-5 h-5 rounded-md border flex items-center justify-center transition-all shrink-0 ' +
+                    (backupEnabled
+                      ? 'bg-white border-white'
+                      : 'border-white/20 bg-transparent group-hover:border-white/35')
+                  }
+                >
+                  {backupEnabled && (
+                    <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6l3 3 5-5" stroke="#000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </span>
+                <span className="text-sm text-white/70 select-none">
+                  Backup automático ativado
                 </span>
               </button>
             </section>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { z } from 'zod';
 import { FirebaseError } from 'firebase/app';
 import { signIn, signInWithGoogle } from '../services/authService';
+import { haptic } from '../../../shared/hooks/useHaptic';
 
 // ─── Validation ───────────────────────────────────────────────────────────────
 
@@ -109,8 +110,17 @@ const LoginForm: React.FC = () => {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+    const [touched, setTouched] = useState({ email: false, password: false });
 
-    const handleEmailSignIn = async (e: React.FormEvent) => {
+    // Real-time field errors — only shown after user has interacted with the field
+    const emailError = touched.email && email.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+        ? 'E-mail inválido'
+        : null;
+    const passwordError = touched.password && password.length > 0 && password.length < 8
+        ? `Senha deve ter ao menos 8 caracteres (${password.length}/8)`
+        : null;
+
+    const handleEmailSignIn = async (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError('');
         setIsLoading(true);
@@ -118,14 +128,17 @@ const LoginForm: React.FC = () => {
         try {
             const validation = loginSchema.safeParse({ email, password });
             if (!validation.success) {
+                haptic.error();
                 setError(validation.error.errors[0]?.message || 'Dados inválidos');
                 setIsLoading(false);
                 return;
             }
 
             await signIn(email, password);
+            haptic.confirm();
             // onAuthStateChanged in useAuthFlow will handle the rest
         } catch (err) {
+            haptic.error();
             setError(authErrorMessage(err));
             setIsLoading(false);
         }
@@ -137,12 +150,13 @@ const LoginForm: React.FC = () => {
 
         try {
             await signInWithGoogle();
+            haptic.confirm();
             // onAuthStateChanged in useAuthFlow will handle the rest
         } catch (err: unknown) {
             if (err instanceof FirebaseError && err.code === 'auth/popup-closed-by-user') {
-                // User closed popup — no error message
                 setError('');
             } else {
+                haptic.error();
                 setError(authErrorMessage(err));
             }
             setIsGoogleLoading(false);
@@ -170,7 +184,7 @@ const LoginForm: React.FC = () => {
                 )}
 
                 {/* Form */}
-                <form onSubmit={handleEmailSignIn} className="space-y-5 mb-6">
+                <form onSubmit={handleEmailSignIn} autoComplete="on" className="space-y-5 mb-6">
                     {/* Email Field */}
                     <div>
                         <label htmlFor="email" className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
@@ -181,11 +195,26 @@ const LoginForm: React.FC = () => {
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            onBlur={() => setTouched((t) => ({ ...t, email: true }))}
                             placeholder="seu.email@exemplo.com"
-                            className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition"
+                            autoComplete="email"
+                            inputMode="email"
+                            aria-invalid={emailError ? 'true' : 'false'}
+                            aria-describedby={emailError ? 'email-error' : undefined}
+                            className={`w-full px-4 py-3 rounded-lg border bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition ${
+                                emailError
+                                    ? 'border-red-400 dark:border-red-500 focus:ring-red-400'
+                                    : 'border-gray-300 dark:border-gray-600 focus:ring-purple-600'
+                            }`}
                             disabled={isLoading || isGoogleLoading}
                             required
                         />
+                        {emailError && (
+                            <p id="email-error" role="alert" className="mt-1.5 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden><circle cx="6.5" cy="6.5" r="6" stroke="currentColor" strokeWidth="1.2"/><path d="M6.5 4v3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/><circle cx="6.5" cy="9" r="0.6" fill="currentColor"/></svg>
+                                {emailError}
+                            </p>
+                        )}
                     </div>
 
                     {/* Password Field */}
@@ -199,21 +228,35 @@ const LoginForm: React.FC = () => {
                                 type={showPassword ? 'text' : 'password'}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                onBlur={() => setTouched((t) => ({ ...t, password: true }))}
                                 placeholder="••••••••"
-                                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition pr-12"
+                                autoComplete="current-password"
+                                aria-invalid={passwordError ? 'true' : 'false'}
+                                aria-describedby={passwordError ? 'password-error' : undefined}
+                                className={`w-full px-4 py-3 rounded-lg border bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition pr-12 ${
+                                    passwordError
+                                        ? 'border-red-400 dark:border-red-500 focus:ring-red-400'
+                                        : 'border-gray-300 dark:border-gray-600 focus:ring-purple-600'
+                                }`}
                                 disabled={isLoading || isGoogleLoading}
                                 required
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition"
+                                className="absolute right-0 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition"
                                 tabIndex={-1}
-                                title={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                                aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                             >
                                 <EyeIcon open={showPassword} />
                             </button>
                         </div>
+                        {passwordError && (
+                            <p id="password-error" role="alert" className="mt-1.5 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden><circle cx="6.5" cy="6.5" r="6" stroke="currentColor" strokeWidth="1.2"/><path d="M6.5 4v3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/><circle cx="6.5" cy="9" r="0.6" fill="currentColor"/></svg>
+                                {passwordError}
+                            </p>
+                        )}
                     </div>
 
                     {/* Sign In Button */}

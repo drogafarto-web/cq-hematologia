@@ -35,16 +35,30 @@ function AppRouter() {
   const activeLab = useActiveLab();
   const currentView = useAppStore((s) => s.currentView);
 
-  // Super admin with no lab → always start in admin dashboard
-  if (isSuperAdmin && !activeLab) return <SuperAdminDashboard />;
+  // Resolve which view to render
+  let view: React.ReactNode;
+  if (isSuperAdmin && !activeLab) {
+    view = <SuperAdminDashboard />;
+  } else if (currentView === 'superadmin' && isSuperAdmin) {
+    view = <SuperAdminDashboard />;
+  } else if (currentView === 'hub') {
+    view = <ModuleHub />;
+  } else if (currentView === 'bulaparser') {
+    view = <BulaProcessor />;
+  } else if (currentView === 'reports') {
+    view = <ReportsView />;
+  } else if (currentView === 'ciq-imuno') {
+    view = <CIQImunoDashboard />;
+  } else {
+    view = <AnalyzerView />;
+  }
 
-  if (currentView === 'superadmin' && isSuperAdmin) return <SuperAdminDashboard />;
-  if (currentView === 'hub') return <ModuleHub />;
-  if (currentView === 'bulaparser') return <BulaProcessor />;
-  if (currentView === 'reports') return <ReportsView />;
-  if (currentView === 'ciq-imuno') return <CIQImunoDashboard />;
-
-  return <AnalyzerView />;
+  // key forces unmount → remount on view change, triggering .view-enter animation
+  return (
+    <div key={currentView} className="view-enter">
+      {view}
+    </div>
+  );
 }
 
 // ─── AuthWrapper ──────────────────────────────────────────────────────────────
