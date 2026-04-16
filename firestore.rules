@@ -164,6 +164,16 @@ service cloud.firestore {
           (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
       }
 
+      // /labs/{labId}/ciq-audit — trilha de auditoria nível-lab (CIQ-Imuno)
+      // Gravada ANTES da exclusão de um lote para que o registro sobreviva ao batch delete.
+      // Imutável: create only — nunca update nem delete.
+      match /ciq-audit/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update, delete: if false;
+      }
+
       // /labs/{labId}/backup-logs — imutable server-side backup audit trail
       // Written exclusively by Cloud Functions (scheduledDailyBackup / triggerLabBackup).
       // Admins and owners can read; no client writes allowed.

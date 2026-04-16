@@ -162,7 +162,7 @@ export async function updateLotMeta(
       db,
       COLLECTIONS.LABS, labId,
       SUBCOLLECTIONS.CIQ_IMUNO, lotId,
-      'audit', crypto.randomUUID(),
+      SUBCOLLECTIONS.AUDIT, crypto.randomUUID(),
     );
     await setDoc(auditRef, {
       action:     'lot_edit',
@@ -221,7 +221,7 @@ export async function deleteCIQLot(
  * Field: runCount (number, inicia em 0)
  */
 export async function generateRunCode(labId: string): Promise<string> {
-  const counterRef = doc(db, COLLECTIONS.LABS, labId, 'ciq-imuno-meta', 'counters');
+  const counterRef = doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.CIQ_IMUNO_META, 'counters');
   const year       = new Date().getFullYear();
 
   const nextCount = await runTransaction(db, async (tx) => {
@@ -368,7 +368,7 @@ export async function writeCIQAuditRecord(
       db,
       COLLECTIONS.LABS, labId,
       SUBCOLLECTIONS.CIQ_IMUNO, lotId,
-      'audit', runId,
+      SUBCOLLECTIONS.AUDIT, runId,
     );
     await setDoc(auditRef, {
       ...record,
