@@ -183,7 +183,7 @@ interface CIQImunoFormProps {
 
 export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFormProps) {
   const user = useUser();
-  const { types: testTypes, addType, renameType, removeType } = useCIQTestTypes();
+  const { types: testTypes, loading: typesLoading, addType, renameType, removeType } = useCIQTestTypes();
   const [showManager, setShowManager] = useState(false);
 
   const [form, setForm] = useState<Partial<CIQImunoFormData>>({
@@ -301,18 +301,44 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
         </div>
         <div>
           <Label htmlFor="testType" required>Imunoensaio</Label>
-          <select
-            id="testType"
-            title="Tipo de imunoensaio"
-            value={form.testType ?? ''}
-            onChange={(e) => set('testType', e.target.value)}
-            className={errors.testType ? INPUT_ERR : INPUT}
-          >
-            <option value="" disabled>Selecione o tipo de teste…</option>
-            {testTypes.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
+          {typesLoading ? (
+            <div className={`${INPUT} flex items-center gap-2 text-slate-400 dark:text-white/25 cursor-default`}>
+              <svg className="animate-spin w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
+                <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+              </svg>
+              Carregando tipos de teste…
+            </div>
+          ) : testTypes.length === 0 ? (
+            <div className="flex items-start gap-2 px-3.5 py-2.5 rounded-xl border text-xs mt-0.5
+                            bg-amber-500/[0.07] border-amber-500/20 text-amber-600 dark:text-amber-400">
+              <span className="mt-px shrink-0">⚠</span>
+              <span>
+                Nenhum tipo de teste cadastrado.{' '}
+                <button
+                  type="button"
+                  onClick={() => setShowManager(true)}
+                  className="underline font-medium"
+                >
+                  Cadastre um aqui
+                </button>
+                {' '}para continuar.
+              </span>
+            </div>
+          ) : (
+            <select
+              id="testType"
+              title="Tipo de imunoensaio"
+              value={form.testType ?? ''}
+              onChange={(e) => set('testType', e.target.value)}
+              className={errors.testType ? INPUT_ERR : INPUT}
+            >
+              <option value="" disabled>Selecione o tipo de teste…</option>
+              {testTypes.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          )}
           <FieldError msg={errors.testType} />
         </div>
       </div>

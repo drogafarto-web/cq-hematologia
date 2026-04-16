@@ -4,6 +4,7 @@ import {
   fetchAllLabs,
   deleteLabAsAdmin,
 } from './services/userService';
+import { firestoreErrorMessage } from '../../shared/utils/firebaseErrors';
 import { createLab, updateLab } from './services/labAdminService';
 import { LabAdminModal, type LabFormPayload } from './LabAdminModal';
 import { UserManagementModal } from './UserManagementModal';
@@ -20,32 +21,6 @@ function PlusIcon() {
   );
 }
 
-function UsersIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <circle cx="6" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.3" />
-      <path d="M1 14c0-2.8 2-4.5 5-4.5s5 1.7 5 4.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-      <circle cx="12" cy="5" r="2" stroke="currentColor" strokeWidth="1.3" />
-      <path d="M15 13c0-2-1.2-3.3-3-3.7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function TrashIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <path d="M2 4h12M6 4V2h4v2M5 4l1 9h4l1-9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function PencilIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <path d="M11 2l3 3-8 8H3v-3l8-8z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 function BeakerIcon() {
   return (
@@ -102,10 +77,8 @@ export function LabManagementTab() {
     try {
       await deleteLabAsAdmin(lab.id);
       setLabs((prev) => prev.filter((l) => l.id !== lab.id));
-    } catch (e) {
-      console.error('[deleteLabAsAdmin] erro:', e);
-      const msg = e instanceof Error ? e.message : 'Erro desconhecido';
-      setError(`Erro ao excluir: ${msg}`);
+    } catch (e: unknown) {
+      setError(firestoreErrorMessage(e));
     } finally {
       setDeletingId(null);
     }

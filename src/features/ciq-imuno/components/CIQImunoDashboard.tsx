@@ -759,10 +759,13 @@ export function CIQImunoDashboard() {
         <EmptyLots onNew={() => { setFormError(null); setShowForm(true); }} />
       ) : (
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
-          <div className="flex gap-6 items-start">
+          <div className="flex flex-col sm:flex-row gap-6 items-start">
 
             {/* ── Sidebar — lot list ──────────────────────────────────────── */}
-            <aside className="w-64 shrink-0 space-y-2 sticky top-20">
+            <aside className={[
+              'space-y-2 sm:w-64 sm:shrink-0 sm:sticky sm:top-20',
+              activeLotId !== null ? 'hidden sm:block' : 'w-full',
+            ].join(' ')}>
               <p className="text-[11px] font-semibold uppercase tracking-wider
                             text-slate-400 dark:text-white/30 mb-3">
                 Lotes
@@ -781,7 +784,21 @@ export function CIQImunoDashboard() {
             </aside>
 
             {/* ── Main — runs table ───────────────────────────────────────── */}
-            <main className="flex-1 min-w-0 space-y-4">
+            <main className={[
+              'flex-1 min-w-0 space-y-4',
+              activeLotId === null ? 'hidden sm:block' : 'w-full sm:w-auto',
+            ].join(' ')}>
+              {/* Mobile: back to lot list */}
+              <button
+                type="button"
+                onClick={() => setActiveLotId(null)}
+                className="sm:hidden flex items-center gap-1.5 -mt-1 mb-1
+                           text-sm text-slate-500 dark:text-white/40
+                           hover:text-slate-900 dark:hover:text-white transition-colors"
+              >
+                <ArrowLeft />
+                <span>Lotes</span>
+              </button>
 
               {/* Lot header */}
               {activeLot && (
@@ -814,7 +831,7 @@ export function CIQImunoDashboard() {
                         Aprovar lote
                       </button>
                     )}
-                    {canDecide && runs.length > 0 && activeLot.ciqDecision !== 'Rejeitado' && (
+                    {canDecide && runs.length > 0 && activeLot.ciqDecision !== 'Rejeitado' && activeLot.ciqDecision !== 'A' && (
                       <button
                         type="button"
                         onClick={() => handleLotDecision('Rejeitado')}

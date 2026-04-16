@@ -6,6 +6,7 @@ import {
   denyAccessRequest,
   deleteAccessRequest,
 } from './services/userService';
+import { firestoreErrorMessage } from '../../shared/utils/firebaseErrors';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -92,9 +93,8 @@ export function AccessRequestsTab() {
       const status = filter === 'all' ? undefined : filter;
       const data = await fetchAllAccessRequests(status);
       setRequests(data);
-    } catch (e: any) {
-      console.error(e);
-      setError(`Erro ao carregar solicitações: ${e?.message || 'Desconhecido'}`);
+    } catch (e: unknown) {
+      setError(firestoreErrorMessage(e));
     } finally {
       setLoading(false);
     }
@@ -139,10 +139,8 @@ export function AccessRequestsTab() {
     try {
       await deleteAccessRequest(req.id);
       setRequests((prev) => prev.filter((r) => r.id !== req.id));
-    } catch (e) {
-      console.error('[deleteAccessRequest] erro:', e);
-      const msg = e instanceof Error ? e.message : 'Erro desconhecido';
-      setError(`Erro ao remover: ${msg}`);
+    } catch (e: unknown) {
+      setError(firestoreErrorMessage(e));
     } finally {
       setActionId(null);
     }
