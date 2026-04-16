@@ -118,9 +118,14 @@ export function useLots() {
       };
 
       const newLots = [...lots, newLot];
+      const prevLots = lots;
       setLots(newLots);
-
-      await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+      try {
+        await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+      } catch (err) {
+        setLots(prevLots);
+        throw err;
+      }
       haptic.confirm();
       toast.success(`Lote "${input.controlName}" adicionado.`);
       return newLot.id;
@@ -134,9 +139,15 @@ export function useLots() {
       lotId: string,
       changes: Partial<Omit<ControlLot, 'id' | 'labId' | 'runs' | 'createdAt' | 'createdBy'>>
     ): Promise<void> => {
-      const newLots = applyLotUpdate(lots, lotId, (lot) => ({ ...lot, ...changes }));
+      const newLots  = applyLotUpdate(lots, lotId, (lot) => ({ ...lot, ...changes }));
+      const prevLots = lots;
       setLots(newLots);
-      await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+      try {
+        await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+      } catch (err) {
+        setLots(prevLots);
+        throw err;
+      }
     },
     [lots, activeLotId, selectedAnalyteId, setLots, persist]
   );
@@ -147,13 +158,19 @@ export function useLots() {
    */
   const updateLotStats = useCallback(
     async (lotId: string, statistics: InternalStats | null, runCount: number): Promise<void> => {
-      const newLots = applyLotUpdate(lots, lotId, (lot) => ({
+      const newLots  = applyLotUpdate(lots, lotId, (lot) => ({
         ...lot,
         statistics,
         runCount,
       }));
+      const prevLots = lots;
       setLots(newLots);
-      await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+      try {
+        await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+      } catch (err) {
+        setLots(prevLots);
+        throw err;
+      }
     },
     [lots, activeLotId, selectedAnalyteId, setLots, persist]
   );
@@ -168,10 +185,16 @@ export function useLots() {
       const newActiveLotId =
         activeLotId === lotId ? (newLots[0]?.id ?? null) : activeLotId;
 
+      const prevLots = lots;
       setLots(newLots);
       setActiveLotId(newActiveLotId);
-
-      await persist({ lots: newLots, activeLotId: newActiveLotId, selectedAnalyteId });
+      try {
+        await persist({ lots: newLots, activeLotId: newActiveLotId, selectedAnalyteId });
+      } catch (err) {
+        setLots(prevLots);
+        setActiveLotId(activeLotId);
+        throw err;
+      }
       haptic.heavy();
       toast.success('Lote excluído.');
     },

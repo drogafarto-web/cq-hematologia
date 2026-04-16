@@ -301,9 +301,17 @@ export function useRuns() {
 
         const newLots = lots.map((l) => (l.id === activeLot.id ? lotWithNewRun : l));
 
-        // Optimistic update + persist (without image URL)
+        // Optimistic update + persist (without image URL).
+        // Snapshot pre-update lots so we can roll back on persist failure.
+        const prevLots = lots;
         setLots(newLots);
-        await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+        try {
+          await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+        } catch (err) {
+          // Rollback — prevent ghost runs from accumulating in the store
+          setLots(prevLots);
+          throw err;
+        }
 
         // Unblock the UI — image upload happens in the background
         setPendingRun(null);
@@ -341,11 +349,6 @@ export function useRuns() {
           }
         })();
       } catch (err) {
-        // DEBUG: log exact error shape to diagnose "Erro inesperado"
-        console.error('[confirmRun] caught error — type:', typeof err, '— instanceof Error:', err instanceof Error, '— value:', err);
-        if (err instanceof Error) {
-          console.error('[confirmRun] error.name:', err.name, '— error.message:', err.message, '— error.code:', (err as { code?: string }).code);
-        }
         const msg = err instanceof Error ? err.message : 'Erro ao confirmar corrida.';
         setRunError(msg);
         setError(msg);
@@ -388,8 +391,14 @@ export function useRuns() {
         );
       }
 
+      const prevLots = lots;
       setLots(newLots);
-      await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+      try {
+        await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+      } catch (err) {
+        setLots(prevLots);
+        throw err;
+      }
     },
     [lots, activeLotId, selectedAnalyteId, setLots, persist]
   );
@@ -411,8 +420,14 @@ export function useRuns() {
       };
 
       const newLots = lots.map((l) => (l.id === lotId ? updatedLot : l));
+      const prevLots = lots;
       setLots(newLots);
-      await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+      try {
+        await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+      } catch (err) {
+        setLots(prevLots);
+        throw err;
+      }
       haptic.heavy();
       toast.success('Corrida excluída.');
     },
