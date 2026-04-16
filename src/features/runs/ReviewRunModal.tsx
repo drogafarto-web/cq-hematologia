@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ANALYTE_MAP } from '../../constants';
-import type { PendingRun, ControlLot } from '../../types';
+import { checkWestgardRules, isRejection } from '../chart/utils/westgardRules';
+import type { PendingRun, ControlLot, WestgardViolation, AnalyteStats } from '../../types';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -29,13 +30,37 @@ function ConfidenceDot({ value }: { value: number }) {
   );
 }
 
+// ─── Westgard violation descriptions ─────────────────────────────────────────
+
+interface ViolationInfo {
+  level: 'warning' | 'rejection';
+  text:  string;
+}
+
+const VIOLATION_INFO: Record<WestgardViolation, ViolationInfo> = {
+  '1-2s': { level: 'warning',   text: 'Valor além de ±2 DP — monitorar' },
+  '1-3s': { level: 'rejection', text: 'Valor além de ±3 DP — possível erro analítico' },
+  '2-2s': { level: 'rejection', text: '2 medições consecutivas além de ±2 DP no mesmo lado — desvio sistemático' },
+  'R-4s': { level: 'rejection', text: 'Amplitude > 4 DP entre medições consecutivas — erro aleatório' },
+  '4-1s': { level: 'rejection', text: '4 medições consecutivas além de ±1 DP no mesmo lado — tendência' },
+  '10x':  { level: 'rejection', text: '10 medições consecutivas do mesmo lado da média — erro sistemático' },
+  '6T':   { level: 'rejection', text: '6 medições em deriva monotônica — instabilidade analítica' },
+  '6X':   { level: 'rejection', text: '6 medições do mesmo lado da média — desvio sistemático' },
+};
+
+// ─── Pure helpers ─────────────────────────────────────────────────────────────
+
+function resolveStats(lot: ControlLot, analyteId: string): AnalyteStats | null {
+  return lot.statistics?.[analyteId] ?? lot.manufacturerStats[analyteId] ?? null;
+}
+
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface ReviewRunModalProps {
-  pendingRun:  PendingRun;
-  activeLot:   ControlLot;
-  onConfirm:   (editedValues: Record<string, number>, manualOverride?: boolean) => Promise<void>;
-  onCancel:    () => void;
+  pendingRun:   PendingRun;
+  activeLot:    ControlLot;
+  onConfirm:    (editedValues: Record<string, number>, approve: boolean) => Promise<void>;
+  onCancel:     () => void;
   isConfirming: boolean;
 }
 
@@ -48,8 +73,6 @@ export function ReviewRunModal({
   onCancel,
   isConfirming,
 }: ReviewRunModalProps) {
-  const [manualOverride, setManualOverride] = useState(false);
-  // Editable values (starts from AI extraction)
   const [editedValues, setEditedValues] = useState<Record<string, string>>(
     () =>
       Object.fromEntries(
@@ -69,11 +92,11 @@ export function ReviewRunModal({
     setEditedValues((prev) => ({ ...prev, [analyteId]: raw }));
   }
 
-  async function handleConfirm() {
+  async function handleSubmit(approve: boolean) {
     const parsed = Object.fromEntries(
       Object.entries(editedValues).map(([id, raw]) => [id, parseFloat(raw)]),
     );
-    await onConfirm(parsed, manualOverride);
+    await onConfirm(parsed, approve);
   }
 
   // Build ordered list of analytes in this lot
@@ -85,14 +108,58 @@ export function ReviewRunModal({
     })
     .filter(Boolean) as { analyte: (typeof ANALYTE_MAP)[string]; result: PendingRun['results'][string]; id: string }[];
 
+  // ── Live violation computation ──────────────────────────────────────────────
+  // Re-evaluated whenever the operator edits a value.
+  // Uses the lot's existing run history for multi-point rules.
+
+  interface ViolationEntry {
+    rule:        WestgardViolation;
+    analyteName: string;
+    level:       'warning' | 'rejection';
+    text:        string;
+  }
+
+  const { violationEntries, hasRejectionViolation } = useMemo(() => {
+    const sortedRuns = [...activeLot.runs].sort(
+      (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
+    );
+
+    const entries: ViolationEntry[] = [];
+    let hasRejection = false;
+
+    for (const { analyte, id } of analyteEntries) {
+      const currentValue = parseFloat(editedValues[id] ?? '');
+      if (Number.isNaN(currentValue)) continue;
+
+      const stats = resolveStats(activeLot, id);
+      if (!stats) continue;
+
+      const previousValues = sortedRuns
+        .map((r) => r.results.find((res) => res.analyteId === id)?.value)
+        .filter((v): v is number => v !== undefined);
+
+      const violations = checkWestgardRules(currentValue, previousValues, stats);
+
+      for (const rule of violations) {
+        const info = VIOLATION_INFO[rule];
+        entries.push({ rule, analyteName: analyte.name, level: info.level, text: info.text });
+        if (info.level === 'rejection') hasRejection = true;
+      }
+    }
+
+    return { violationEntries: entries, hasRejectionViolation: hasRejection };
+  // editedValues key is stable; only the values inside change — spread forces re-evaluation
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editedValues, activeLot]);
+
+  const hasAnyViolation = violationEntries.length > 0;
+
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-[6px] transition-colors duration-500"
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-[6px] transition-colors duration-500">
       <div className="w-full max-w-2xl max-h-[92vh] flex flex-col rounded-2xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-white/[0.09] shadow-2xl transition-colors duration-300">
+
         {/* Header */}
         <div className="flex items-start gap-4 px-6 py-5 border-b border-slate-100 dark:border-white/[0.07] shrink-0">
-          {/* Thumbnail */}
           <img
             src={imageUrl}
             alt="Foto do equipamento"
@@ -176,43 +243,76 @@ export function ReviewRunModal({
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-slate-100 dark:border-white/[0.07] shrink-0 space-y-3">
-          {/* Manual override toggle */}
-          <label className="flex items-center gap-3 cursor-pointer group">
-            <div
-              onClick={() => setManualOverride((v) => !v)}
-              className={`relative w-9 h-5 rounded-full transition-colors ${manualOverride ? 'bg-violet-600' : 'bg-slate-200 dark:bg-white/[0.12]'}`}
-            >
-              <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${manualOverride ? 'translate-x-4' : 'translate-x-0'}`} />
-            </div>
-            <div>
-              <p className="text-sm text-slate-700 dark:text-white/70 group-hover:text-slate-900 dark:group-hover:text-white/90 transition-colors">
-                Aprovar manualmente
-              </p>
-              <p className="text-xs text-slate-400 dark:text-white/30">
-                Ignora regras Westgard e força status Aprovada
-              </p>
-            </div>
-          </label>
 
-          <div className="flex gap-3">
+          {/* Westgard alerts panel — shown when violations are detected */}
+          {hasAnyViolation && (
+            <div className={`rounded-xl border p-3 space-y-1.5 transition-colors ${
+              hasRejectionViolation
+                ? 'border-red-200 dark:border-red-500/20 bg-red-50/50 dark:bg-red-500/[0.04]'
+                : 'border-amber-200 dark:border-amber-500/20 bg-amber-50/50 dark:bg-amber-500/[0.04]'
+            }`}>
+              <p className={`text-[10px] font-semibold uppercase tracking-wider mb-2 ${
+                hasRejectionViolation
+                  ? 'text-red-600 dark:text-red-400/70'
+                  : 'text-amber-600 dark:text-amber-400/70'
+              }`}>
+                Alertas Westgard
+              </p>
+              {violationEntries.map((entry, i) => (
+                <div key={i} className="flex items-start gap-2">
+                  <span className={`shrink-0 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                    entry.level === 'rejection'
+                      ? 'bg-red-500/10 dark:bg-red-500/15 text-red-600 dark:text-red-400'
+                      : 'bg-amber-500/10 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                  }`}>
+                    {entry.rule}
+                  </span>
+                  <span className="text-xs text-slate-600 dark:text-white/50 leading-tight">
+                    <span className="font-medium text-slate-700 dark:text-white/70">{entry.analyteName}</span>
+                    {' — '}
+                    {entry.text}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Action buttons — operator always decides */}
+          <div className="flex gap-2">
             <button
               type="button"
               onClick={onCancel}
               disabled={isConfirming}
-              className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-white/[0.1] text-sm text-slate-500 dark:text-white/50 hover:text-slate-800 dark:hover:text-white/80 hover:border-slate-300 dark:hover:border-white/[0.2] disabled:opacity-50 transition-all shadow-sm dark:shadow-none"
+              className="py-2.5 px-4 rounded-xl border border-slate-200 dark:border-white/[0.1] text-sm text-slate-500 dark:text-white/50 hover:text-slate-800 dark:hover:text-white/80 hover:border-slate-300 dark:hover:border-white/[0.2] disabled:opacity-50 transition-all"
             >
               Cancelar
             </button>
+
             <button
               type="button"
-              onClick={handleConfirm}
+              onClick={() => handleSubmit(false)}
               disabled={isConfirming}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-sm text-white font-medium disabled:opacity-50 transition-all shadow-lg shadow-violet-500/20"
+              className="flex-1 py-2.5 rounded-xl border border-red-200 dark:border-red-500/20 text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/[0.07] hover:border-red-300 dark:hover:border-red-500/30 disabled:opacity-50 transition-all"
+            >
+              Rejeitar
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSubmit(true)}
+              disabled={isConfirming}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium text-white disabled:opacity-50 transition-all shadow-lg ${
+                hasRejectionViolation
+                  ? 'bg-amber-500 hover:bg-amber-400 shadow-amber-500/20'
+                  : 'bg-violet-600 hover:bg-violet-500 shadow-violet-500/20'
+              }`}
             >
               {isConfirming ? (
-                <><Spinner /> Confirmando…</>
+                <><Spinner /> Registrando…</>
+              ) : hasRejectionViolation ? (
+                '⚠ Aprovar mesmo assim'
               ) : (
-                manualOverride ? '✓ Confirmar (Manual)' : '✓ Confirmar Corrida'
+                'Aprovar Corrida'
               )}
             </button>
           </div>

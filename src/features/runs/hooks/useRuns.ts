@@ -114,10 +114,6 @@ function buildAnalyteResults(
   });
 }
 
-/** Derives the run status from its results' violations. */
-function deriveRunStatus(results: AnalyteResult[]): RunStatus {
-  return results.some((r) => isRejection(r.violations)) ? 'Rejeitada' : 'Aprovada';
-}
 
 /** Immutably updates a single run inside the lots array. */
 function updateRunInLots(
@@ -251,7 +247,7 @@ export function useRuns() {
    * 4. Uploads image in background and updates imageUrl
    */
   const confirmRun = useCallback(
-    async (editedValues: Record<string, number>, manualOverride = false): Promise<void> => {
+    async (editedValues: Record<string, number>, approve: boolean): Promise<void> => {
       if (!pendingRun)  { setRunError('Nenhuma corrida pendente.');      return; }
       if (!activeLot)   { setRunError('Nenhum lote ativo.');             return; }
       if (!labId)       { setRunError('Nenhum laboratório ativo.');      return; }
@@ -273,9 +269,11 @@ export function useRuns() {
           ]),
         );
 
-        // Build results with Westgard violations
-        const results = buildAnalyteResults(mergedResults, runId, activeLot, now);
-        const status  = manualOverride ? 'Aprovada' : deriveRunStatus(results);
+        // Build results with Westgard violations (informational — operator decides status)
+        const results  = buildAnalyteResults(mergedResults, runId, activeLot, now);
+        const status: RunStatus = approve ? 'Aprovada' : 'Rejeitada';
+        // manualOverride = true when operator explicitly approved despite rejection-level violations
+        const hasRejectionViolation = results.some((r) => isRejection(r.violations));
 
         const newRun: Run = {
           id:             runId,
@@ -286,7 +284,7 @@ export function useRuns() {
           imageUrl:       '', // Filled in by background upload below
           status,
           results,
-          ...(manualOverride && { manualOverride: true }),
+          ...(approve && hasRejectionViolation && { manualOverride: true }),
           createdBy:      user?.uid ?? '',
         };
 
@@ -316,16 +314,13 @@ export function useRuns() {
         // Unblock the UI — image upload happens in the background
         setPendingRun(null);
 
-        // Feedback: haptic + toast reflecting the run outcome
-        if (status === 'Aprovada') {
+        // Feedback: haptic + toast reflecting the operator's decision
+        if (approve) {
           haptic.confirm();
-          toast.success('Corrida aprovada e salva.');
-        } else if (status === 'Rejeitada') {
-          haptic.error();
-          toast.warning('Corrida rejeitada — verifique as regras de Westgard.');
+          toast.success('Corrida aprovada e registrada.');
         } else {
           haptic.confirm();
-          toast.info('Corrida registrada.');
+          toast.info('Corrida rejeitada e registrada.');
         }
 
         // Background image upload — non-blocking
