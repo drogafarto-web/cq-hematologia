@@ -149,6 +149,16 @@ service cloud.firestore {
         allow write: if isSuperAdmin() || isActiveMemberOfLab(labId);
       }
 
+      // /labs/{labId}/ciq-imuno-config — configurações do módulo Imunologia
+      // Inclui a lista de tipos de teste (imunoensaios) gerenciável pela UI.
+      match /ciq-imuno-config/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('imunologia'));
+        // Apenas admin/owner podem alterar configurações do módulo
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
       // ── Módulos futuros — adicionar blocos aqui seguindo o mesmo padrão:
       // match /ciq-bioquimica/{lotId} { ... hasModuleAccess('bioquimica') ... }
       // match /ciq-coagulacao/{lotId}  { ... hasModuleAccess('coagulacao')  ... }
