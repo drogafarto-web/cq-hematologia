@@ -114,18 +114,20 @@ service cloud.firestore {
 
       // /labs/{labId}/ciq-imuno — Módulo Imunologia (CIQ categórico R/NR)
       // Claim JWT: 'imunologia' (setModulesClaims com { imunologia: true })
-      // ROLLOUT: sem bypass de migração — claim obrigatória desde o primeiro deploy.
-      // Rodar setModulesClaims para todos os usuários autorizados antes de ativar.
+      // ROLLOUT: bypass ativo enquanto setModulesClaims não for rodado para todos os usuários.
+      // Remover `|| !('modules' in request.auth.token)` após provisionar as claims.
       match /ciq-imuno/{lotId} {
         allow read: if isSuperAdmin() ||
-          (isActiveMemberOfLab(labId) && hasModuleAccess('imunologia'));
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('imunologia') || !('modules' in request.auth.token)));
         allow write: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
 
         // /labs/{labId}/ciq-imuno/{lotId}/runs
         match /runs/{runId} {
           allow read: if isSuperAdmin() ||
-            (isActiveMemberOfLab(labId) && hasModuleAccess('imunologia'));
+            (isActiveMemberOfLab(labId) &&
+              (hasModuleAccess('imunologia') || !('modules' in request.auth.token)));
           allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
           allow delete: if isSuperAdmin() ||
             (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
@@ -134,7 +136,8 @@ service cloud.firestore {
         // /labs/{labId}/ciq-imuno/{lotId}/audit — trilha de auditoria imutável
         match /audit/{auditId} {
           allow read: if isSuperAdmin() ||
-            (isActiveMemberOfLab(labId) && hasModuleAccess('imunologia'));
+            (isActiveMemberOfLab(labId) &&
+              (hasModuleAccess('imunologia') || !('modules' in request.auth.token)));
           allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
           allow update, delete: if false; // registros de auditoria são imutáveis
         }
@@ -144,7 +147,8 @@ service cloud.firestore {
       // Counter document: ciq-imuno-meta/counters.runCount (transação para CI-YYYY-NNNN)
       match /ciq-imuno-meta/{docId} {
         allow read: if isSuperAdmin() ||
-          (isActiveMemberOfLab(labId) && hasModuleAccess('imunologia'));
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('imunologia') || !('modules' in request.auth.token)));
         // Qualquer membro autenticado pode incrementar o contador (via transação)
         allow write: if isSuperAdmin() || isActiveMemberOfLab(labId);
       }
@@ -153,7 +157,8 @@ service cloud.firestore {
       // Inclui a lista de tipos de teste (imunoensaios) gerenciável pela UI.
       match /ciq-imuno-config/{docId} {
         allow read: if isSuperAdmin() ||
-          (isActiveMemberOfLab(labId) && hasModuleAccess('imunologia'));
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('imunologia') || !('modules' in request.auth.token)));
         // Apenas admin/owner podem alterar configurações do módulo
         allow write: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
