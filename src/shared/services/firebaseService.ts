@@ -78,9 +78,12 @@ function deserializeLot(id: string, raw: Record<string, unknown>, runs: Run[]): 
 }
 
 function serializeRun(run: Run): FirestoreRunDoc {
-  const { id: _id, timestamp, results, ...rest } = run;
+  const { id: _id, timestamp, results, sampleId, manualOverride, ...rest } = run;
   return {
     ...rest,
+    // Optional fields: only include when truthy — Firestore rejects undefined values
+    ...(sampleId      && { sampleId }),
+    ...(manualOverride && { manualOverride }),
     timestamp: Timestamp.fromDate(timestamp),
     results: results.map((r) => ({
       ...r,
@@ -94,14 +97,15 @@ function deserializeRun(id: string, raw: Record<string, unknown>): Run {
   const d = raw as FirestoreRunDoc;
   return {
     id,
-    lotId:         d.lotId,
-    labId:         d.labId,
-    sampleId:      d.sampleId,
-    imageUrl:      d.imageUrl,
-    status:        d.status,
-    manualOverride: d.manualOverride,
-    createdBy:     d.createdBy,
-    timestamp:     d.timestamp.toDate(),
+    lotId:     d.lotId,
+    labId:     d.labId,
+    imageUrl:  d.imageUrl,
+    status:    d.status,
+    createdBy: d.createdBy,
+    // Optional fields: only include when present to avoid undefined in memory
+    ...(d.sampleId       && { sampleId:       d.sampleId }),
+    ...(d.manualOverride && { manualOverride: d.manualOverride }),
+    timestamp: d.timestamp.toDate(),
     results: d.results.map((r) => ({
       ...r,
       timestamp: r.timestamp instanceof Timestamp
@@ -252,6 +256,7 @@ export class FirebaseService implements DatabaseService {
         this.knownRunIds!.set(lot.id, incomingRunIds);
       }
     } catch (err) {
+      console.error('[FirebaseService] saveState error:', err);
       throw new Error(firestoreErrorMessage(err));
     }
   }

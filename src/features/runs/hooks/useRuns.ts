@@ -281,12 +281,12 @@ export function useRuns() {
           id:             runId,
           lotId:          activeLot.id,
           labId,
-          sampleId:       pendingRun.sampleId,
+          ...(pendingRun.sampleId && { sampleId: pendingRun.sampleId }),
           timestamp:      now,
           imageUrl:       '', // Filled in by background upload below
           status,
           results,
-          manualOverride: manualOverride || undefined,
+          ...(manualOverride && { manualOverride: true }),
           createdBy:      user?.uid ?? '',
         };
 
@@ -341,6 +341,11 @@ export function useRuns() {
           }
         })();
       } catch (err) {
+        // DEBUG: log exact error shape to diagnose "Erro inesperado"
+        console.error('[confirmRun] caught error — type:', typeof err, '— instanceof Error:', err instanceof Error, '— value:', err);
+        if (err instanceof Error) {
+          console.error('[confirmRun] error.name:', err.name, '— error.message:', err.message, '— error.code:', (err as { code?: string }).code);
+        }
         const msg = err instanceof Error ? err.message : 'Erro ao confirmar corrida.';
         setRunError(msg);
         setError(msg);

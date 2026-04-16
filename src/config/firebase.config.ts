@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
-import { getFirestore, type Firestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore, type Firestore } from 'firebase/firestore';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
 import { getFunctions, type Functions } from 'firebase/functions';
 
@@ -42,7 +42,20 @@ const app: FirebaseApp = getApps().length === 0
   : getApp();
 
 export const auth: Auth = getAuth(app);
-export const db: Firestore = getFirestore(app);
+
+// ignoreUndefinedProperties: true — silently drops `undefined` fields instead of
+// throwing, preventing "Unsupported field value: undefined" errors from optional
+// TypeScript fields that resolve to `undefined` at runtime (e.g. manualOverride,
+// sampleId). initializeFirestore must be called before any getFirestore() —
+// the try/catch guards against HMR hot-reloads where Firestore is already init.
+function createDb(): Firestore {
+  try {
+    return initializeFirestore(app, { ignoreUndefinedProperties: true });
+  } catch {
+    return getFirestore(app);
+  }
+}
+export const db: Firestore = createDb();
 export const storage: FirebaseStorage = getStorage(app);
 export const functions: Functions = getFunctions(app, 'southamerica-east1');
 export default app;

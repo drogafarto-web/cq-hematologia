@@ -75,27 +75,4 @@ export type { StorageReference, UploadTaskSnapshot } from 'firebase/storage';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-import { FirestoreError } from 'firebase/firestore';
-
-/**
- * Maps Firestore error codes to human-readable Portuguese messages.
- * Use at service boundaries — never expose raw Firebase errors to the UI.
- */
-export function firestoreErrorMessage(error: unknown): string {
-  if (!(error instanceof FirestoreError)) {
-    return 'Erro inesperado. Tente novamente.';
-  }
-
-  const messages: Partial<Record<FirestoreError['code'], string>> = {
-    'permission-denied':    'Sem permissão para realizar esta operação.',
-    'not-found':            'Documento não encontrado.',
-    'already-exists':       'Registro já existe.',
-    'resource-exhausted':   'Limite de requisições atingido. Aguarde alguns instantes.',
-    'unavailable':          'Serviço temporariamente indisponível. Verifique sua conexão.',
-    'deadline-exceeded':    'A operação demorou demais. Tente novamente.',
-    'unauthenticated':      'Sessão expirada. Faça login novamente.',
-    'cancelled':            'Operação cancelada.',
-  };
-
-  return messages[error.code] ?? `Erro Firebase: ${error.code}`;
-}
+export { firestoreErrorMessage } from '../utils/firebaseErrors';
