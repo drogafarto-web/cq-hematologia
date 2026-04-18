@@ -184,35 +184,35 @@ function MiniChart({ analyteId, lot }: MiniChartProps) {
 
   return (
     <div style={{ width: '100%', height: 120 }}>
-      <LineChart
-        width={520}
-        height={120}
-        data={data}
-        margin={{ top: 8, right: 24, left: 0, bottom: 4 }}
-      >
-        <CartesianGrid strokeDasharray="2 2" stroke="#e5e7eb" horizontal vertical={false} />
-        <XAxis dataKey="index" tick={{ fontSize: 8, fill: '#9ca3af' }} tickLine={false}
-          axisLine={{ stroke: '#d1d5db' }} interval="preserveStartEnd" />
-        <YAxis domain={[yMin, yMax]} tick={{ fontSize: 8, fill: '#9ca3af' }} tickLine={false}
-          axisLine={false} width={36}
-          tickFormatter={(v) => v.toFixed(analyte.decimals)} />
-        <ReferenceLine y={mean}        stroke="#374151" strokeWidth={1.2} />
-        <ReferenceLine y={mean + sd}   stroke="#10b981" strokeWidth={0.8} strokeDasharray="3 2" />
-        <ReferenceLine y={mean - sd}   stroke="#10b981" strokeWidth={0.8} strokeDasharray="3 2" />
-        <ReferenceLine y={mean + 2*sd} stroke="#f59e0b" strokeWidth={0.8} strokeDasharray="3 2" />
-        <ReferenceLine y={mean - 2*sd} stroke="#f59e0b" strokeWidth={0.8} strokeDasharray="3 2" />
-        <ReferenceLine y={mean + 3*sd} stroke="#ef4444" strokeWidth={0.8} strokeDasharray="3 2" />
-        <ReferenceLine y={mean - 3*sd} stroke="#ef4444" strokeWidth={0.8} strokeDasharray="3 2" />
-        <Line
-          type="monotone"
-          dataKey="value"
-          stroke="#4f46e5"
-          strokeWidth={1.2}
-          dot={{ r: 2, fill: '#4f46e5', strokeWidth: 0 }}
-          connectNulls={false}
-          isAnimationActive={false}
-        />
-      </LineChart>
+      <ResponsiveContainer width="100%" height={120}>
+        <LineChart
+          data={data}
+          margin={{ top: 8, right: 24, left: 0, bottom: 4 }}
+        >
+          <CartesianGrid strokeDasharray="2 2" stroke="#e5e7eb" horizontal vertical={false} />
+          <XAxis dataKey="index" tick={{ fontSize: 8, fill: '#9ca3af' }} tickLine={false}
+            axisLine={{ stroke: '#d1d5db' }} interval="preserveStartEnd" />
+          <YAxis domain={[yMin, yMax]} tick={{ fontSize: 8, fill: '#9ca3af' }} tickLine={false}
+            axisLine={false} width={36}
+            tickFormatter={(v) => v.toFixed(analyte.decimals)} />
+          <ReferenceLine y={mean}        stroke="#374151" strokeWidth={1.2} />
+          <ReferenceLine y={mean + sd}   stroke="#10b981" strokeWidth={0.8} strokeDasharray="3 2" />
+          <ReferenceLine y={mean - sd}   stroke="#10b981" strokeWidth={0.8} strokeDasharray="3 2" />
+          <ReferenceLine y={mean + 2*sd} stroke="#f59e0b" strokeWidth={0.8} strokeDasharray="3 2" />
+          <ReferenceLine y={mean - 2*sd} stroke="#f59e0b" strokeWidth={0.8} strokeDasharray="3 2" />
+          <ReferenceLine y={mean + 3*sd} stroke="#ef4444" strokeWidth={0.8} strokeDasharray="3 2" />
+          <ReferenceLine y={mean - 3*sd} stroke="#ef4444" strokeWidth={0.8} strokeDasharray="3 2" />
+          <Line
+            type="monotone"
+            dataKey="value"
+            stroke="#4f46e5"
+            strokeWidth={1.5}
+            dot={{ r: 3, fill: '#4f46e5', strokeWidth: 0 }}
+            connectNulls={false}
+            isAnimationActive={false}
+          />
+        </LineChart>
+      </ResponsiveContainer>
     </div>
   );
 }

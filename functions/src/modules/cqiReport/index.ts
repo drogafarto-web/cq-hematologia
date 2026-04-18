@@ -5,13 +5,10 @@
 
 import { onSchedule }         from 'firebase-functions/v2/scheduler';
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
-import { setGlobalOptions }   from 'firebase-functions/v2';
 import * as admin             from 'firebase-admin';
 import { z }                  from 'zod';
 
 import { generateAndSendCQIReport, getActiveLabs } from './generator';
-
-setGlobalOptions({ region: 'southamerica-east1' });
 
 // ─── Scheduled: daily at 23:00 BRT ───────────────────────────────────────────
 

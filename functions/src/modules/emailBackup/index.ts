@@ -17,7 +17,6 @@ import './collectors/index';
 
 import { onSchedule }             from 'firebase-functions/v2/scheduler';
 import { onCall, HttpsError }     from 'firebase-functions/v2/https';
-import { setGlobalOptions }       from 'firebase-functions/v2';
 import * as admin                 from 'firebase-admin';
 
 import type { BackupReport, BackupLog, LabBackupConfig } from './types';
@@ -26,8 +25,7 @@ import { detectStaleness }                               from './services/stalen
 import { generateBackupPdf, computeContentHash }         from './services/pdfService';
 import { sendBackupEmail, RESEND_API_KEY }               from './services/emailService';
 
-// Region is set globally in index.ts; repeated here for module self-containment
-setGlobalOptions({ region: 'southamerica-east1' });
+// Region is set globally in functions/src/index.ts via setGlobalOptions.
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

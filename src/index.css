@@ -108,6 +108,20 @@ button:not(:active):not(:disabled) {
    .print-avoid-break — keeps chart + header together on the same page     */
 @media print {
 
+  /* ── Force A4 page geometry ───────────────────────────────────────────────── */
+  @page {
+    size: A4 portrait;
+    margin: 12mm 14mm;
+  }
+
+  /* Preserve colors exactly — critical for chart lines, badges, status tags */
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   /* Hide all non-report chrome */
   .no-print {
     display: none !important;
@@ -117,26 +131,42 @@ button:not(:active):not(:disabled) {
   body {
     background: white !important;
     color: black !important;
+    font-size: 10pt !important;
   }
 
   /* Remove dark background from app shell when printing */
-  #root>div {
+  #root,
+  #root > div {
     background: white !important;
   }
 
-  /* Report container fills the page */
+  /* Report container: exact A4 usable width, no scrollbar chrome */
   #cq-report {
     margin: 0 !important;
-    padding: 16mm 14mm !important;
+    padding: 0 !important;
     max-width: none !important;
     width: 100% !important;
     box-shadow: none !important;
+    font-size: 10pt !important;
   }
 
-  /* Avoid page breaks inside chart blocks */
+  /* Charts: let Recharts SVGs fill their container without overflow */
+  .recharts-wrapper,
+  .recharts-surface {
+    width: 100% !important;
+    overflow: visible !important;
+  }
+
+  /* Avoid page breaks inside chart/section blocks */
   .print-avoid-break {
     page-break-inside: avoid;
     break-inside: avoid;
+  }
+
+  /* Keep section headings with their content */
+  h2 {
+    break-after: avoid;
+    page-break-after: avoid;
   }
 
   /* Tables: avoid orphan header rows */
@@ -156,12 +186,6 @@ button:not(:active):not(:disabled) {
   /* Ensure links don't print URLs inline */
   a[href]::after {
     content: none !important;
-  }
-
-  /* Page margins */
-  @page {
-    margin: 10mm 14mm;
-    size: A4 portrait;
   }
 }
 
