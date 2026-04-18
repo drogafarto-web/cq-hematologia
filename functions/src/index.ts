@@ -10,6 +10,10 @@ import { syncClaims, syncModuleClaims } from './helpers/claims';
 // Re-export so Firebase CLI discovers scheduledDailyBackup and triggerLabBackup.
 export { scheduledDailyBackup, triggerLabBackup } from './modules/emailBackup/index';
 
+// ─── cqiReport module ────────────────────────────────────────────────────────
+// Re-export so Firebase CLI discovers scheduledDailyCQIReport and triggerCQIReport.
+export { scheduledDailyCQIReport, triggerCQIReport } from './modules/cqiReport/index';
+
 // All functions deploy to the same region as Firestore
 setGlobalOptions({ region: 'southamerica-east1' });
 

@@ -1,4 +1,4 @@
-import type * as admin from 'firebase-admin';
+import * as admin from 'firebase-admin';
 import type { ModuleCollector, ModuleBackupSection, StalenessAlert, BackupRow } from '../types';
 
 // ─── Hematologia Collector ────────────────────────────────────────────────────
@@ -89,7 +89,7 @@ export const hematologiaCollector: ModuleCollector = {
           'IA editado': r['isEdited'] ? 'Sim' : 'Não',
           'Operador':   operatorName,
           'Cargo':      r['operatorRole'] ?? '—',
-          'Assinatura': r['logicalSignature']?.slice(0, 12) + '…' ?? '—',
+          'Assinatura': (r['logicalSignature']?.slice(0, 12) ?? '—') + '…',
         });
       }
     }

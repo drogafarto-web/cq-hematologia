@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.approveUserForLab = exports.extractFromBula = exports.analyzeImmunoStrip = exports.extractFromImage = exports.setModulesClaims = exports.deleteUser = exports.removeUserFromLab = exports.updateUserLabRole = exports.addUserToLab = exports.setUserSuperAdmin = exports.setUserDisabled = exports.createUser = void 0;
+exports.approveUserForLab = exports.extractFromBula = exports.analyzeImmunoStrip = exports.extractFromImage = exports.setModulesClaims = exports.deleteUser = exports.removeUserFromLab = exports.updateUserLabRole = exports.addUserToLab = exports.setUserSuperAdmin = exports.setUserDisabled = exports.createUser = exports.triggerCQIReport = exports.scheduledDailyCQIReport = exports.triggerLabBackup = exports.scheduledDailyBackup = void 0;
 const https_1 = require("firebase-functions/v2/https");
 const v2_1 = require("firebase-functions/v2");
 const params_1 = require("firebase-functions/params");
@@ -8,6 +8,16 @@ const genai_1 = require("@google/genai");
 const zod_1 = require("zod");
 const admin = require("firebase-admin");
 const claims_1 = require("./helpers/claims");
+// ─── emailBackup module ───────────────────────────────────────────────────────
+// Re-export so Firebase CLI discovers scheduledDailyBackup and triggerLabBackup.
+var index_1 = require("./modules/emailBackup/index");
+Object.defineProperty(exports, "scheduledDailyBackup", { enumerable: true, get: function () { return index_1.scheduledDailyBackup; } });
+Object.defineProperty(exports, "triggerLabBackup", { enumerable: true, get: function () { return index_1.triggerLabBackup; } });
+// ─── cqiReport module ────────────────────────────────────────────────────────
+// Re-export so Firebase CLI discovers scheduledDailyCQIReport and triggerCQIReport.
+var index_2 = require("./modules/cqiReport/index");
+Object.defineProperty(exports, "scheduledDailyCQIReport", { enumerable: true, get: function () { return index_2.scheduledDailyCQIReport; } });
+Object.defineProperty(exports, "triggerCQIReport", { enumerable: true, get: function () { return index_2.triggerCQIReport; } });
 // All functions deploy to the same region as Firestore
 (0, v2_1.setGlobalOptions)({ region: 'southamerica-east1' });
 // Initialize Admin SDK once — runtime may reuse warm instances

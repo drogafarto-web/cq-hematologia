@@ -19,7 +19,6 @@ import { onSchedule }             from 'firebase-functions/v2/scheduler';
 import { onCall, HttpsError }     from 'firebase-functions/v2/https';
 import { setGlobalOptions }       from 'firebase-functions/v2';
 import * as admin                 from 'firebase-admin';
-import { createHash }             from 'crypto';
 
 import type { BackupReport, BackupLog, LabBackupConfig } from './types';
 import { moduleRegistry }                                from './registry';

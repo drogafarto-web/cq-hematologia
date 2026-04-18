@@ -1,4 +1,4 @@
-import PDFDocument from 'pdfkit';
+import PDFDocument = require('pdfkit');
 import { createHash } from 'crypto';
 import type { BackupReport, ModuleBackupSection } from '../types';
 
@@ -161,8 +161,6 @@ function renderCoverPage(doc: PDFKit.PDFDocument, report: BackupReport): void {
 
   // Period badge
   const periodY = 305;
-  const midX = margin + contentWidth / 2;
-
   doc
     .font(FONT_BOLD)
     .fontSize(8)
@@ -440,7 +438,7 @@ function renderDataTable(
       const val = row[col] ?? '—';
 
       // Color-code specific values
-      let cellColor = COLOR.textPrimary;
+      let cellColor: string = COLOR.textPrimary;
       if (val === 'Conforme' || val === 'Aprovada')    cellColor = COLOR.success;
       if (val === 'NÃO CONFORME' || val === 'Rejeitada') cellColor = COLOR.danger;
       if (val === 'Pendente')                           cellColor = COLOR.accentWarm;
