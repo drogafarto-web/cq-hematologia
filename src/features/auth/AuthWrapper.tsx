@@ -14,6 +14,7 @@ import { AnalyzerView } from '../analyzer/AnalyzerView';
 import { BulaProcessor } from '../bulaparser/BulaProcessor';
 import { ReportsView } from '../reports/ReportsView';
 import { CIQImunoDashboard } from '../ciq-imuno/components/CIQImunoDashboard';
+import { LabCQISettings }   from '../labSettings/LabCQISettings';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
 
@@ -49,6 +50,8 @@ function AppRouter() {
     view = <ReportsView />;
   } else if (currentView === 'ciq-imuno') {
     view = <CIQImunoDashboard />;
+  } else if (currentView === 'lab-settings') {
+    view = <LabCQISettings />;
   } else {
     view = <AnalyzerView />;
   }

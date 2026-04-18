@@ -95,8 +95,12 @@ export async function getActiveLabs(
   for (const doc of snap.docs) {
     const data   = doc.data();
     const backup = data['backup'];
-    if (backup?.enabled === true && typeof backup?.email === 'string' && backup.email) {
-      result.push({ labId: doc.id, labName: data['name'] ?? doc.id, email: backup.email });
+    // cqiEnabled/cqiEmail (set via lab settings panel) take precedence over
+    // the legacy backup.enabled/backup.email fields (set by SuperAdmin).
+    const enabled = backup?.['cqiEnabled'] ?? backup?.['enabled'];
+    const email   = backup?.['cqiEmail']   ?? backup?.['email'];
+    if (enabled === true && typeof email === 'string' && email) {
+      result.push({ labId: doc.id, labName: data['name'] ?? doc.id, email });
     }
   }
   return result;

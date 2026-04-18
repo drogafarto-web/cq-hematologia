@@ -155,6 +155,7 @@ export function ModuleHub() {
   const availableLabs = useAvailableLabs();
   const setCurrentView = useAppStore((s) => s.setCurrentView);
 
+  const canManageSettings = role === 'owner' || role === 'admin';
   const [menuOpen, setMenuOpen] = useState(false);
 
   const firstName =
@@ -301,6 +302,19 @@ export function ModuleHub() {
                   </svg>
                 }
               />
+              {canManageSettings && (
+                <ToolButton
+                  label="Configurações"
+                  onClick={() => setCurrentView('lab-settings')}
+                  icon={
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+                      <circle cx="6.5" cy="6.5" r="2" stroke="currentColor" strokeWidth="1.2" />
+                      <path d="M6.5 1v1.2M6.5 10.8V12M1 6.5h1.2M10.8 6.5H12M2.7 2.7l.85.85M9.45 9.45l.85.85M2.7 10.3l.85-.85M9.45 3.55l.85-.85"
+                        stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+                    </svg>
+                  }
+                />
+              )}
               {isSuperAdmin && (
                 <ToolButton
                   label="Super Admin"
