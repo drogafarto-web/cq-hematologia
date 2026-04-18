@@ -7,13 +7,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.triggerCQIReport = exports.scheduledDailyCQIReport = void 0;
 const scheduler_1 = require("firebase-functions/v2/scheduler");
 const https_1 = require("firebase-functions/v2/https");
-const v2_1 = require("firebase-functions/v2");
 const admin = require("firebase-admin");
 const zod_1 = require("zod");
 const generator_1 = require("./generator");
-(0, v2_1.setGlobalOptions)({ region: 'southamerica-east1' });
 // ─── Scheduled: daily at 23:00 BRT ───────────────────────────────────────────
-exports.scheduledDailyCQIReport = (0, scheduler_1.onSchedule)({ schedule: '0 2 * * *', timeZone: 'UTC' }, // 02:00 UTC = 23:00 BRT
+exports.scheduledDailyCQIReport = (0, scheduler_1.onSchedule)({ schedule: '0 2 * * *', timeZone: 'UTC', region: 'southamerica-east1' }, // 02:00 UTC = 23:00 BRT
 async () => {
     const db = admin.firestore();
     const labs = await (0, generator_1.getActiveLabs)(db);
@@ -27,7 +25,7 @@ const TriggerSchema = zod_1.z.object({
     labId: zod_1.z.string().min(1),
     date: zod_1.z.string().optional(), // ISO date string; defaults to today
 });
-exports.triggerCQIReport = (0, https_1.onCall)({ secrets: ['RESEND_API_KEY'] }, async (request) => {
+exports.triggerCQIReport = (0, https_1.onCall)({ secrets: ['RESEND_API_KEY'], region: 'southamerica-east1' }, async (request) => {
     // Auth guard — mirrors triggerLabBackup pattern
     if (!request.auth) {
         throw new https_1.HttpsError('unauthenticated', 'Autenticação necessária.');

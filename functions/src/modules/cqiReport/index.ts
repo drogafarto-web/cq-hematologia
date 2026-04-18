@@ -13,7 +13,7 @@ import { generateAndSendCQIReport, getActiveLabs } from './generator';
 // ─── Scheduled: daily at 23:00 BRT ───────────────────────────────────────────
 
 export const scheduledDailyCQIReport = onSchedule(
-  { schedule: '0 2 * * *', timeZone: 'UTC' },   // 02:00 UTC = 23:00 BRT
+  { schedule: '0 2 * * *', timeZone: 'UTC', region: 'southamerica-east1' },   // 02:00 UTC = 23:00 BRT
   async () => {
     const db   = admin.firestore();
     const labs = await getActiveLabs(db);
@@ -37,7 +37,7 @@ const TriggerSchema = z.object({
 });
 
 export const triggerCQIReport = onCall(
-  { secrets: ['RESEND_API_KEY'] },
+  { secrets: ['RESEND_API_KEY'], region: 'southamerica-east1' },
   async (request) => {
     // Auth guard — mirrors triggerLabBackup pattern
     if (!request.auth) {

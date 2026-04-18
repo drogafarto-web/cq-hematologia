@@ -18,14 +18,12 @@ exports.triggerLabBackup = exports.scheduledDailyBackup = void 0;
 require("./collectors/index");
 const scheduler_1 = require("firebase-functions/v2/scheduler");
 const https_1 = require("firebase-functions/v2/https");
-const v2_1 = require("firebase-functions/v2");
 const admin = require("firebase-admin");
 const registry_1 = require("./registry");
 const stalenessService_1 = require("./services/stalenessService");
 const pdfService_1 = require("./services/pdfService");
 const emailService_1 = require("./services/emailService");
-// Region is set globally in index.ts; repeated here for module self-containment
-(0, v2_1.setGlobalOptions)({ region: 'southamerica-east1' });
+// Region is set globally in functions/src/index.ts via setGlobalOptions.
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function periodDates() {
     const to = new Date();
@@ -117,6 +115,7 @@ function buildLogSubject(report) {
 exports.scheduledDailyBackup = (0, scheduler_1.onSchedule)({
     schedule: 'every day 23:45',
     timeZone: 'America/Sao_Paulo',
+    region: 'southamerica-east1',
     memory: '512MiB',
     timeoutSeconds: 540,
     secrets: [emailService_1.RESEND_API_KEY],
@@ -186,6 +185,7 @@ const TriggerBackupInputSchema = {
  *   triggerLabBackup({ labId: 'abc123', force: true }) // sends even if no data today
  */
 exports.triggerLabBackup = (0, https_1.onCall)({
+    region: 'southamerica-east1',
     memory: '512MiB',
     secrets: [emailService_1.RESEND_API_KEY],
 }, async (request) => {

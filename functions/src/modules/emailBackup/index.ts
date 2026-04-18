@@ -149,6 +149,7 @@ export const scheduledDailyBackup = onSchedule(
   {
     schedule:       'every day 23:45',
     timeZone:       'America/Sao_Paulo',
+    region:         'southamerica-east1',
     memory:         '512MiB',
     timeoutSeconds: 540,
     secrets:        [RESEND_API_KEY],
@@ -234,6 +235,7 @@ const TriggerBackupInputSchema = {
  */
 export const triggerLabBackup = onCall(
   {
+    region:  'southamerica-east1',
     memory:  '512MiB',
     secrets: [RESEND_API_KEY],
   },
