@@ -50,6 +50,55 @@
         { "fieldPath": "resultadoObtido", "order": "ASCENDING" },
         { "fieldPath": "dataRealizacao", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "insumos",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "validadeReal", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "insumos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tipo", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "insumos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "modulo", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "insumos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "insumos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tipo", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "insumo-movimentacoes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "insumoId", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

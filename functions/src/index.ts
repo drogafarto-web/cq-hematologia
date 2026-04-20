@@ -21,6 +21,14 @@ export {
   triggerFirestoreExport_onCall as triggerFirestoreExport,
 } from './modules/firestoreBackup/index';
 
+// ─── insumos module ──────────────────────────────────────────────────────────
+// Scheduled expiration: move insumos vencidos (validadeReal < now) de 'ativo'
+// para 'vencido'. Manual trigger disponível para admin/owner do lab.
+export {
+  scheduledExpireInsumos,
+  triggerInsumosExpiration,
+} from './modules/insumos/index';
+
 // All functions deploy to the same region as Firestore
 setGlobalOptions({ region: 'southamerica-east1' });
 
