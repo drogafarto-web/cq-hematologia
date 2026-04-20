@@ -78,6 +78,9 @@ export const SUBCOLLECTIONS = {
   CIQ_UROANALISE_META: 'ciq-uroanalise-meta',
   CIQ_UROANALISE_CONFIG: 'ciq-uroanalise-config',
   CIQ_UROANALISE_AUDIT: 'ciq-uroanalise-audit',
+  // Cadastro mestre de Insumos (controles, reagentes, tiras) — cross-module
+  INSUMOS: 'insumos',
+  INSUMO_MOVIMENTACOES: 'insumo-movimentacoes',
   // Módulos futuros — descomentar ao implementar:
   // CIQ_BIOQUIMICA: 'ciq-bioquimica',
 } as const;

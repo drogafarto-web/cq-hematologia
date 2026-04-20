@@ -289,6 +289,27 @@ service cloud.firestore {
         allow update, delete: if false;
       }
 
+      // ── Cadastro mestre de Insumos (controles, reagentes, tiras) ─────────
+      // Cross-module: não há gate por module claim. Qualquer membro ativo lê;
+      // só admin/owner cria/edita/deleta. Operadores consomem via dropdown
+      // em runs mas não alteram cadastro.
+      match /insumos/{insumoId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow delete: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      // Movimentações — log imutável de entrada/abertura/fechamento/descarte.
+      // Qualquer membro ativo pode registrar (é subproduto de ações legítimas);
+      // ninguém atualiza/deleta — audit trail preservado para inspeções RDC 786.
+      match /insumo-movimentacoes/{movId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update, delete: if false;
+      }
+
       // ── Módulos futuros — adicionar blocos aqui seguindo o mesmo padrão:
       // match /ciq-bioquimica/{lotId} { ... hasModuleAccess('bioquimica') ... }
     }
