@@ -84,7 +84,33 @@ function fmtDateTime(d: Date): string {
 export interface ActiveLab {
   labId:   string;
   labName: string;
-  email:   string;
+  /** Lista efetiva de destinatários já resolvida (novo schema + fallback legacy). */
+  emails:  string[];
+}
+
+/**
+ * Resolve os destinatários efetivos do CQI report para um doc de backup.
+ * Prioridade: cqiEmails[] → [cqiEmail] → emails[] (backup diário) → [email].
+ */
+function resolveCQIRecipients(backup: Record<string, unknown> | undefined): string[] {
+  if (!backup) return [];
+  const dedupe = (arr: string[]) => Array.from(new Set(
+    arr.filter(e => typeof e === 'string' && e.trim().length > 0).map(e => e.trim()),
+  ));
+
+  if (Array.isArray(backup['cqiEmails']) && (backup['cqiEmails'] as unknown[]).length > 0) {
+    return dedupe(backup['cqiEmails'] as string[]);
+  }
+  if (typeof backup['cqiEmail'] === 'string' && (backup['cqiEmail'] as string).trim()) {
+    return [(backup['cqiEmail'] as string).trim()];
+  }
+  if (Array.isArray(backup['emails']) && (backup['emails'] as unknown[]).length > 0) {
+    return dedupe(backup['emails'] as string[]);
+  }
+  if (typeof backup['email'] === 'string' && (backup['email'] as string).trim()) {
+    return [(backup['email'] as string).trim()];
+  }
+  return [];
 }
 
 export async function getActiveLabs(
@@ -94,13 +120,13 @@ export async function getActiveLabs(
   const result: ActiveLab[] = [];
   for (const doc of snap.docs) {
     const data   = doc.data();
-    const backup = data['backup'];
-    // cqiEnabled/cqiEmail (set via lab settings panel) take precedence over
-    // the legacy backup.enabled/backup.email fields (set by SuperAdmin).
+    const backup = data['backup'] as Record<string, unknown> | undefined;
+    // cqiEnabled (set via lab settings panel) takes precedence over the legacy
+    // backup.enabled field (set by SuperAdmin).
     const enabled = backup?.['cqiEnabled'] ?? backup?.['enabled'];
-    const email   = backup?.['cqiEmail']   ?? backup?.['email'];
-    if (enabled === true && typeof email === 'string' && email) {
-      result.push({ labId: doc.id, labName: data['name'] ?? doc.id, email });
+    const emails  = resolveCQIRecipients(backup);
+    if (enabled === true && emails.length > 0) {
+      result.push({ labId: doc.id, labName: data['name'] ?? doc.id, emails });
     }
   }
   return result;
@@ -599,7 +625,7 @@ async function sendHematologia(
   const analyteSet   = new Set(allTodayRuns.flatMap(r => r.results.map(res => res.analyteId)));
 
   await sendCQIEmail({
-    to:            lab.email,
+    to:            lab.emails,
     labName:       lab.labName,
     sector:        'hematologia' as SectorId,
     lotNumber:     lots.map(l => l.lotNumber).join(', '),
@@ -611,7 +637,7 @@ async function sendHematologia(
     pdfBuffer,
   });
 
-  console.log(`[cqiReport][hematologia] lab=${lab.labId} email sent to ${lab.email}`);
+  console.log(`[cqiReport][hematologia] lab=${lab.labId} email sent to ${lab.emails.join(', ')}`);
   return 'sent';
 }
 
@@ -633,7 +659,7 @@ async function sendImunologia(
   const nonConformes = allTodayRuns.filter(r => r.resultadoObtido !== r.resultadoEsperado).length;
 
   await sendCQIEmail({
-    to:            lab.email,
+    to:            lab.emails,
     labName:       lab.labName,
     sector:        'imunologia' as SectorId,
     lotNumber:     lots.map(l => l.lotNumber).join(', '),
@@ -645,7 +671,7 @@ async function sendImunologia(
     pdfBuffer,
   });
 
-  console.log(`[cqiReport][imunologia] lab=${lab.labId} email sent to ${lab.email}`);
+  console.log(`[cqiReport][imunologia] lab=${lab.labId} email sent to ${lab.emails.join(', ')}`);
   return 'sent';
 }
 
@@ -653,7 +679,8 @@ async function sendImunologia(
 
 export interface CQIReportResult {
   overall:   'sent' | 'no-data' | 'disabled' | 'partial' | 'failed';
-  email?:    string;
+  /** Destinatários efetivos do último envio (para exibir na UI). */
+  emails?:   string[];
   sectors: {
     hematologia: 'sent' | 'no-data' | 'failed';
     imunologia:  'sent' | 'no-data' | 'failed';
@@ -672,10 +699,12 @@ export async function generateAndSendCQIReport(
   const lab = await (async (): Promise<ActiveLab | null> => {
     const snap = await db.doc(`labs/${labId}`).get();
     if (!snap.exists) return null;
-    const data   = snap.data()!;
-    const backup = data['backup'];
-    if (!backup?.enabled || !backup?.email) return null;
-    return { labId, labName: data['name'] ?? labId, email: backup.email as string };
+    const data    = snap.data()!;
+    const backup  = data['backup'] as Record<string, unknown> | undefined;
+    const enabled = backup?.['cqiEnabled'] ?? backup?.['enabled'];
+    const emails  = resolveCQIRecipients(backup);
+    if (enabled !== true || emails.length === 0) return null;
+    return { labId, labName: data['name'] ?? labId, emails };
   })();
 
   if (!lab) {
@@ -719,5 +748,5 @@ export async function generateAndSendCQIReport(
   else if (sentCount > 0 && failedCount === 0)   overall = 'sent';
   else                                           overall = 'partial';
 
-  return { overall, email: lab.email, sectors };
+  return { overall, emails: lab.emails, sectors };
 }

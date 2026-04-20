@@ -156,10 +156,26 @@ export interface LabSubscription {
 }
 
 export interface LabBackupConfig {
-  /** Destination email for automated backup exports. Null disables delivery. */
-  email: string | null;
-  /** Master switch — false suspends backup without removing the email address. */
+  /**
+   * Destinatários do backup diário consolidado. Aceita N emails.
+   * Lista vazia desabilita o envio mesmo com `enabled: true`.
+   */
+  emails: string[];
+  /**
+   * @deprecated Use `emails`. Mantido para compatibilidade com documentos
+   * antigos — `normalizeLab()` migra automaticamente para `emails` na leitura.
+   */
+  email?: string | null;
+  /** Master switch — false suspends backup without removing recipients. */
   enabled: boolean;
+  /** Destinatários do relatório CQI diário (23:00 BRT). */
+  cqiEmails: string[];
+  /**
+   * @deprecated Use `cqiEmails`. Mantido para compatibilidade.
+   */
+  cqiEmail?: string | null;
+  /** Master switch do CQI — independente do `enabled` do backup. */
+  cqiEnabled: boolean;
   /**
    * Number of days without new runs before a staleness alert is included.
    * Warning threshold: [stalenessThresholdDays, 6] days.

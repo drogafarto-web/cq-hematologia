@@ -47,8 +47,11 @@ function CheckIcon() {
 
 interface CQIConfig {
   cqiEnabled: boolean;
-  cqiEmail:   string;
+  cqiEmails:  string[];
 }
+
+const EMAIL_RE  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_EMAILS = 10;
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 
@@ -56,6 +59,9 @@ type SectorStatus = 'sent' | 'no-data' | 'failed';
 interface TriggerCQIResult {
   ok:       boolean;
   overall:  'sent' | 'no-data' | 'disabled' | 'partial' | 'failed';
+  /** Lista de destinatários do envio efetivo (novo schema). */
+  emails?:  string[];
+  /** @deprecated Legacy — será removido quando todos os envios retornarem `emails`. */
   email?:   string;
   sectors: { hematologia: SectorStatus; imunologia: SectorStatus };
 }
@@ -65,6 +71,12 @@ type SendNowState =
   | { kind: 'sending' }
   | { kind: 'done'; result: TriggerCQIResult }
   | { kind: 'error'; message: string };
+
+// Legacy shape compatibility
+interface TriggerCQIResultLegacy extends Omit<TriggerCQIResult, 'emails'> {
+  email?:  string;
+  emails?: string[];
+}
 
 // ─── Toggle ───────────────────────────────────────────────────────────────────
 
@@ -152,7 +164,8 @@ export function LabCQISettings() {
   const canEdit     = role === 'owner' || role === 'admin';
   const canSendNow  = isSuperAdmin;
 
-  const [config,      setConfig]      = useState<CQIConfig>({ cqiEnabled: false, cqiEmail: '' });
+  const [config,      setConfig]      = useState<CQIConfig>({ cqiEnabled: false, cqiEmails: [] });
+  const [emailDraft,  setEmailDraft]  = useState('');
   const [loading,     setLoading]     = useState(true);
   const [saveState,   setSaveState]   = useState<SaveState>('idle');
   const [emailErr,    setEmailErr]    = useState('');
@@ -167,9 +180,26 @@ export function LabCQISettings() {
       if (cancelled || !snap.exists()) return;
       const d = snap.data();
       const backup = d['backup'] as Record<string, unknown> | undefined;
+
+      // Resolve recipients aceitando tanto o novo schema (cqiEmails[] / emails[])
+      // quanto legacy singulares (cqiEmail / email). Prioriza cqi-específico.
+      const resolveList = (): string[] => {
+        const arr = backup?.['cqiEmails'];
+        if (Array.isArray(arr) && arr.length > 0) return (arr as string[]).filter(Boolean);
+        if (typeof backup?.['cqiEmail'] === 'string' && (backup['cqiEmail'] as string).trim()) {
+          return [(backup['cqiEmail'] as string).trim()];
+        }
+        const backupArr = backup?.['emails'];
+        if (Array.isArray(backupArr) && backupArr.length > 0) return (backupArr as string[]).filter(Boolean);
+        if (typeof backup?.['email'] === 'string' && (backup['email'] as string).trim()) {
+          return [(backup['email'] as string).trim()];
+        }
+        return [];
+      };
+
       setConfig({
         cqiEnabled: Boolean(backup?.['cqiEnabled'] ?? backup?.['enabled'] ?? false),
-        cqiEmail:   String(backup?.['cqiEmail'] ?? backup?.['email'] ?? ''),
+        cqiEmails:  resolveList(),
       });
     }).finally(() => {
       if (!cancelled) setLoading(false);
@@ -178,22 +208,57 @@ export function LabCQISettings() {
     return () => { cancelled = true; };
   }, [activeLab]);
 
+  // ── Chip list helpers ──────────────────────────────────────────────────────
+  function commitEmailDraft(): boolean {
+    const v = emailDraft.trim();
+    if (!v) return false;
+    if (!EMAIL_RE.test(v)) {
+      setEmailErr('E-mail inválido.');
+      return false;
+    }
+    if (config.cqiEmails.some(e => e.toLowerCase() === v.toLowerCase())) {
+      setEmailErr('Esse e-mail já está na lista.');
+      return false;
+    }
+    if (config.cqiEmails.length >= MAX_EMAILS) {
+      setEmailErr(`Máximo de ${MAX_EMAILS} destinatários.`);
+      return false;
+    }
+    setConfig(c => ({ ...c, cqiEmails: [...c.cqiEmails, v] }));
+    setEmailDraft('');
+    setEmailErr('');
+    return true;
+  }
+
+  function removeEmail(target: string) {
+    setConfig(c => ({ ...c, cqiEmails: c.cqiEmails.filter(e => e !== target) }));
+    setEmailErr('');
+  }
+
   // ── Save ─────────────────────────────────────────────────────────────────────
   async function handleSave() {
     if (!activeLab || !canEdit) return;
 
-    const email = config.cqiEmail.trim();
-    if (config.cqiEnabled && !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-      setEmailErr('Digite um e-mail válido para ativar o envio.');
+    // Se houver draft digitada, tentar commitar antes de salvar —
+    // evita perder o email que o usuário digitou mas esqueceu de Enter.
+    if (emailDraft.trim() && !commitEmailDraft()) {
+      return;
+    }
+
+    if (config.cqiEnabled && config.cqiEmails.length === 0) {
+      setEmailErr('Adicione pelo menos um destinatário para ativar o envio.');
       return;
     }
     setEmailErr('');
     setSaveState('saving');
 
     try {
+      // Grava cqiEmails (novo schema) e cqiEmail (legacy = primeiro da lista)
+      // pra compat com leitores antigos durante período de transição.
       await updateDoc(doc(db, 'labs', activeLab.id), {
         'backup.cqiEnabled': config.cqiEnabled,
-        'backup.cqiEmail':   email,
+        'backup.cqiEmails':  config.cqiEmails,
+        'backup.cqiEmail':   config.cqiEmails[0] ?? null,
       });
       setSaveState('saved');
       setTimeout(() => setSaveState('idle'), 2500);
@@ -284,27 +349,84 @@ export function LabCQISettings() {
               </div>
             </section>
 
-            {/* ── Email ── */}
+            {/* ── Destinatários (chips) ── */}
             <section className="space-y-2">
               <label className={labelCls}>
                 <span className="flex items-center gap-1.5">
                   <MailIcon />
-                  E-mail destinatário
+                  Destinatários ({config.cqiEmails.length}/{MAX_EMAILS})
                 </span>
               </label>
-              <input
-                type="email"
-                value={config.cqiEmail}
-                onChange={(e) => { setConfig((c) => ({ ...c, cqiEmail: e.target.value })); setEmailErr(''); }}
-                placeholder="responsavel@seulab.com.br"
-                disabled={!canEdit}
-                className={inputCls + (!canEdit ? ' opacity-50 cursor-not-allowed' : '')}
-              />
-              {emailErr && (
-                <p className="text-xs text-red-500">{emailErr}</p>
-              )}
+
+              {/* Chip container + input */}
+              <div
+                className={`${inputCls} flex flex-wrap items-center gap-1.5 min-h-[46px] py-2 ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
+                onClick={(e) => {
+                  if (!canEdit) return;
+                  const t = e.target as HTMLElement;
+                  if (t.tagName !== 'INPUT' && t.tagName !== 'BUTTON') {
+                    (e.currentTarget.querySelector('input') as HTMLInputElement | null)?.focus();
+                  }
+                }}
+              >
+                {config.cqiEmails.map((email) => (
+                  <span
+                    key={email}
+                    className="inline-flex items-center gap-1 pl-2.5 pr-1 py-0.5 rounded-lg
+                               bg-violet-100 dark:bg-violet-500/15
+                               text-violet-700 dark:text-violet-300
+                               text-xs font-medium border border-violet-200 dark:border-violet-500/20"
+                  >
+                    {email}
+                    {canEdit && (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); removeEmail(email); }}
+                        className="ml-0.5 rounded-full hover:bg-violet-200 dark:hover:bg-violet-500/25 transition-colors w-5 h-5 flex items-center justify-center"
+                        title={`Remover ${email}`}
+                        aria-label={`Remover ${email}`}
+                      >
+                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                          <path d="M9 3L3 9M3 3l6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                      </button>
+                    )}
+                  </span>
+                ))}
+                {canEdit && config.cqiEmails.length < MAX_EMAILS && (
+                  <input
+                    type="email"
+                    value={emailDraft}
+                    onChange={(e) => { setEmailDraft(e.target.value); if (emailErr) setEmailErr(''); }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ',' || e.key === ';' || e.key === ' ') {
+                        e.preventDefault();
+                        commitEmailDraft();
+                      } else if (e.key === 'Backspace' && !emailDraft && config.cqiEmails.length > 0) {
+                        removeEmail(config.cqiEmails[config.cqiEmails.length - 1]);
+                      }
+                    }}
+                    onBlur={() => { if (emailDraft.trim()) commitEmailDraft(); }}
+                    onPaste={(e) => {
+                      const text = e.clipboardData.getData('text');
+                      if (/[,;\s]/.test(text)) {
+                        e.preventDefault();
+                        const parts = text.split(/[,;\s]+/).map(s => s.trim()).filter(Boolean);
+                        for (const p of parts) {
+                          setEmailDraft(p);
+                          if (!commitEmailDraft()) break;
+                        }
+                      }
+                    }}
+                    placeholder={config.cqiEmails.length === 0 ? 'adicione emails — Enter pra confirmar' : 'adicionar outro…'}
+                    className="flex-1 min-w-[160px] bg-transparent outline-none text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/20"
+                  />
+                )}
+              </div>
+
+              {emailErr && <p className="text-xs text-red-500">{emailErr}</p>}
               <p className="text-xs text-slate-400 dark:text-white/25">
-                O relatório PDF com gráficos Levey-Jennings e alertas Westgard será entregue neste endereço.
+                Pressione <kbd className="px-1 py-px rounded bg-slate-100 dark:bg-white/[0.06] text-slate-600 dark:text-white/50 text-[10px] font-mono">Enter</kbd>, vírgula ou espaço para adicionar. Máximo {MAX_EMAILS} destinatários. Todos recebem cada email em cópia nominal.
               </p>
             </section>
 
@@ -336,7 +458,7 @@ export function LabCQISettings() {
               <p className="text-[11px] font-semibold text-slate-500 dark:text-white/25 uppercase tracking-wider">
                 Próximo envio agendado
               </p>
-              <NextSendInfo enabled={config.cqiEnabled} email={config.cqiEmail} />
+              <NextSendInfo enabled={config.cqiEnabled} emails={config.cqiEmails} />
             </section>
 
             {/* ── Enviar agora (SuperAdmin) ── */}
@@ -355,7 +477,7 @@ export function LabCQISettings() {
                   <button
                     type="button"
                     onClick={handleSendNow}
-                    disabled={sendNow.kind === 'sending' || !config.cqiEnabled || !config.cqiEmail}
+                    disabled={sendNow.kind === 'sending' || !config.cqiEnabled || config.cqiEmails.length === 0}
                     className="shrink-0 px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-sm font-medium text-slate-700 dark:text-white/75 hover:bg-slate-50 dark:hover:bg-white/[0.07] active:bg-slate-100 dark:active:bg-white/[0.09] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                   >
                     {sendNow.kind === 'sending' ? 'Enviando…' : 'Testar envio'}
@@ -363,7 +485,17 @@ export function LabCQISettings() {
                 </div>
 
                 {sendNow.kind === 'done' && (() => {
-                  const { overall, email, sectors } = sendNow.result;
+                  const { overall, emails, email, sectors } = sendNow.result;
+                  const recipients = emails && emails.length > 0
+                    ? emails
+                    : email
+                      ? [email]
+                      : [];
+                  const destLabel = recipients.length === 0
+                    ? '—'
+                    : recipients.length === 1
+                      ? recipients[0]
+                      : `${recipients.length} destinatários`;
                   const sectorLabel = (id: 'hematologia' | 'imunologia') =>
                     id === 'hematologia' ? 'Hematologia' : 'Imunologia';
                   const sentSectors = (Object.keys(sectors) as Array<keyof typeof sectors>)
@@ -375,8 +507,8 @@ export function LabCQISettings() {
 
                   if (overall === 'sent') {
                     return (
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400">
-                        ✓ Relatório enviado para {email} ({sentSectors.join(', ')}).
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400" title={recipients.join(', ')}>
+                        ✓ Relatório enviado para {destLabel} ({sentSectors.join(', ')}).
                       </p>
                     );
                   }
@@ -412,7 +544,7 @@ export function LabCQISettings() {
                     Falha: {sendNow.message}
                   </p>
                 )}
-                {(!config.cqiEnabled || !config.cqiEmail) && (
+                {(!config.cqiEnabled || config.cqiEmails.length === 0) && (
                   <p className="text-xs text-slate-400 dark:text-white/25">
                     Ative o envio automático e defina um e-mail para usar o disparo manual.
                   </p>
@@ -456,7 +588,7 @@ export function LabCQISettings() {
 
 // ─── NextSendInfo ─────────────────────────────────────────────────────────────
 
-function NextSendInfo({ enabled, email }: { enabled: boolean; email: string }) {
+function NextSendInfo({ enabled, emails }: { enabled: boolean; emails: string[] }) {
   const now = new Date();
 
   const nextSend = new Date();
@@ -476,14 +608,18 @@ function NextSendInfo({ enabled, email }: { enabled: boolean; email: string }) {
     );
   }
 
-  const dest = email.trim() || '—';
+  const dest = emails.length === 0
+    ? '—'
+    : emails.length === 1
+      ? emails[0]
+      : `${emails[0]} + ${emails.length - 1} ${emails.length === 2 ? 'outro' : 'outros'}`;
 
   return (
     <div className="space-y-1">
       <p className="text-sm font-medium text-slate-700 dark:text-white/65">
         {fmt} às 23:00 BRT
       </p>
-      <p className="text-xs text-slate-400 dark:text-white/30">
+      <p className="text-xs text-slate-400 dark:text-white/30" title={emails.join(', ')}>
         Para: {dest}
       </p>
     </div>

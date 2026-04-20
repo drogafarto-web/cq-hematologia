@@ -3,16 +3,44 @@ import type * as admin from 'firebase-admin';
 // ─── Backup Config (stored in labs/{labId}.backup) ────────────────────────────
 
 export interface LabBackupConfig {
-  /** Destination email — null disables the backup for this lab */
-  email: string | null;
-  /** Master switch — set to false to suspend without removing the email */
+  /**
+   * Destinatários do backup diário. Aceita N emails.
+   * Vazio (ou undefined) desabilita envio mesmo com enabled=true.
+   */
+  emails?: string[];
+  /**
+   * @deprecated Legacy — usar `emails`. Kept for backward compat on documents
+   * que ainda não foram migrados. `resolveBackupRecipients()` trata a fallback.
+   */
+  email?: string | null;
+  /** Destinatários do relatório CQI — separado do backup diário. */
+  cqiEmails?: string[];
+  /** @deprecated Legacy — usar `cqiEmails`. */
+  cqiEmail?: string | null;
+  /** Master switch do backup diário. */
   enabled: boolean;
+  /** Master switch do CQI — independente do backup. */
+  cqiEnabled?: boolean;
   /**
    * Alert threshold in days.
    * If a module has data but no new runs in this many days, a staleness alert
    * is included in the email. Default: 3.
    */
   stalenessThresholdDays: number;
+}
+
+/**
+ * Resolve a lista efetiva de destinatários do backup diário.
+ * Prioridade: emails[] → [email] (legacy) → [].
+ */
+export function resolveBackupRecipients(cfg: LabBackupConfig): string[] {
+  if (Array.isArray(cfg.emails) && cfg.emails.length > 0) {
+    return cfg.emails.filter(e => typeof e === 'string' && e.trim().length > 0);
+  }
+  if (cfg.email && typeof cfg.email === 'string' && cfg.email.trim().length > 0) {
+    return [cfg.email.trim()];
+  }
+  return [];
 }
 
 // ─── Module Section ───────────────────────────────────────────────────────────

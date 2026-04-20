@@ -19,6 +19,7 @@ require("./collectors/index");
 const scheduler_1 = require("firebase-functions/v2/scheduler");
 const https_1 = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
+const types_1 = require("./types");
 const registry_1 = require("./registry");
 const stalenessService_1 = require("./services/stalenessService");
 const pdfService_1 = require("./services/pdfService");
@@ -33,6 +34,10 @@ function periodDates() {
     return { from, to };
 }
 async function processLabBackup(db, labId, backupConfig, force = false) {
+    const recipients = (0, types_1.resolveBackupRecipients)(backupConfig);
+    if (recipients.length === 0) {
+        return { sent: false, reason: 'no_recipients' };
+    }
     const { from, to } = periodDates();
     // 1. Collect data from all registered modules
     const collectors = registry_1.moduleRegistry.getAll();
@@ -75,7 +80,7 @@ async function processLabBackup(db, labId, backupConfig, force = false) {
     const pdfBuffer = await (0, pdfService_1.generateBackupPdf)(report);
     // 6. Send email
     await (0, emailService_1.sendBackupEmail)({
-        to: backupConfig.email,
+        to: recipients,
         report,
         pdfBuffer,
     });
@@ -83,7 +88,7 @@ async function processLabBackup(db, labId, backupConfig, force = false) {
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
     const logEntry = {
         sentAt: admin.firestore.Timestamp.now(),
-        toEmail: backupConfig.email,
+        toEmail: recipients.join(', '),
         labId,
         periodStart: from.toISOString(),
         periodEnd: to.toISOString(),
@@ -138,7 +143,7 @@ exports.scheduledDailyBackup = (0, scheduler_1.onSchedule)({
         const labId = labDoc.id;
         const labData = labDoc.data();
         const backupConfig = labData['backup'];
-        if (!backupConfig?.email) {
+        if (!backupConfig || (0, types_1.resolveBackupRecipients)(backupConfig).length === 0) {
             skipped++;
             continue;
         }
@@ -206,7 +211,7 @@ exports.triggerLabBackup = (0, https_1.onCall)({
         throw new https_1.HttpsError('not-found', `Laboratório ${labId} não encontrado.`);
     }
     const backupConfig = labSnap.data()?.['backup'];
-    if (!backupConfig?.email) {
+    if (!backupConfig || (0, types_1.resolveBackupRecipients)(backupConfig).length === 0) {
         throw new https_1.HttpsError('failed-precondition', 'Este laboratório não possui e-mail de backup configurado.');
     }
     if (!backupConfig.enabled && !force) {

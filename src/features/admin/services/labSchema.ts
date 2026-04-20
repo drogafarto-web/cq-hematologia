@@ -52,10 +52,20 @@ const LabSubscriptionSchema = z.object({
   currentPeriodEndsAt: z.date().optional(),
 });
 
+const EmailListSchema = z
+  .array(z.string().email({ message: 'E-mail inválido' }))
+  .max(10, { message: 'No máximo 10 destinatários' })
+  .default([]);
+
 const LabBackupConfigSchema = z.object({
-  email:                  z.string().email({ message: 'E-mail inválido' }).nullable(),
+  emails:                 EmailListSchema,
+  cqiEmails:              EmailListSchema,
   enabled:                z.boolean(),
+  cqiEnabled:             z.boolean(),
   stalenessThresholdDays: z.number().int().min(1).max(30),
+  // Campos legacy — aceitos como input para retrocompatibilidade, migrados pra arrays pelo normalizeLab.
+  email:                  z.string().email({ message: 'E-mail inválido' }).nullable().optional(),
+  cqiEmail:               z.string().email({ message: 'E-mail inválido' }).nullable().optional(),
 });
 
 // ─── Full create/update payload schema ───────────────────────────────────────
@@ -120,10 +130,52 @@ const DEFAULT_SUBSCRIPTION: LabSubscription = {
 };
 
 const DEFAULT_BACKUP: LabBackupConfig = {
-  email:                  null,
+  emails:                 [],
+  cqiEmails:              [],
   enabled:                false,
+  cqiEnabled:             false,
   stalenessThresholdDays: 3,
 };
+
+/**
+ * Migra doc de backup do schema legacy (email/cqiEmail singulares) pro novo
+ * (emails[] / cqiEmails[]). Idempotente — se já estiver no novo formato,
+ * passa direto. Chamado no `normalizeLab`, então toda leitura vê arrays.
+ */
+function normalizeBackup(raw: Partial<LabBackupConfig>): LabBackupConfig {
+  const dedupe = (list: string[]): string[] => {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const e of list) {
+      const k = e.trim().toLowerCase();
+      if (k && !seen.has(k)) { seen.add(k); out.push(e.trim()); }
+    }
+    return out;
+  };
+
+  const emails: string[] = Array.isArray(raw.emails)
+    ? dedupe(raw.emails as string[])
+    : raw.email
+      ? [raw.email]
+      : [];
+
+  const cqiEmails: string[] = Array.isArray(raw.cqiEmails)
+    ? dedupe(raw.cqiEmails as string[])
+    : raw.cqiEmail
+      ? [raw.cqiEmail]
+      // Fallback antigo: UI usava backup.email como padrão de CQI quando cqiEmail não existia
+      : raw.email
+        ? [raw.email]
+        : [];
+
+  return {
+    emails,
+    cqiEmails,
+    enabled:                raw.enabled    ?? DEFAULT_BACKUP.enabled,
+    cqiEnabled:             raw.cqiEnabled ?? raw.enabled ?? DEFAULT_BACKUP.cqiEnabled,
+    stalenessThresholdDays: raw.stalenessThresholdDays ?? DEFAULT_BACKUP.stalenessThresholdDays,
+  };
+}
 
 // ─── normalizeLab ─────────────────────────────────────────────────────────────
 /**
@@ -180,7 +232,7 @@ export function normalizeLab(raw: Record<string, any> & { id: string }): Lab {
       : DEFAULT_SUBSCRIPTION,
 
     backup: raw.backup
-      ? { ...DEFAULT_BACKUP, ...(raw.backup as Partial<LabBackupConfig>) }
+      ? normalizeBackup(raw.backup as Partial<LabBackupConfig>)
       : DEFAULT_BACKUP,
 
     createdAt: toDate(raw.createdAt) ?? new Date(),

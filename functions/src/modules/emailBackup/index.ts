@@ -20,6 +20,7 @@ import { onCall, HttpsError }     from 'firebase-functions/v2/https';
 import * as admin                 from 'firebase-admin';
 
 import type { BackupReport, BackupLog, LabBackupConfig } from './types';
+import { resolveBackupRecipients }                       from './types';
 import { moduleRegistry }                                from './registry';
 import { detectStaleness }                               from './services/stalenessService';
 import { generateBackupPdf, computeContentHash }         from './services/pdfService';
@@ -43,6 +44,11 @@ async function processLabBackup(
   backupConfig: LabBackupConfig,
   force: boolean = false,
 ): Promise<{ sent: boolean; reason?: string }> {
+  const recipients = resolveBackupRecipients(backupConfig);
+  if (recipients.length === 0) {
+    return { sent: false, reason: 'no_recipients' };
+  }
+
   const { from, to } = periodDates();
 
   // 1. Collect data from all registered modules
@@ -103,7 +109,7 @@ async function processLabBackup(
 
   // 6. Send email
   await sendBackupEmail({
-    to:        backupConfig.email!,
+    to:        recipients,
     report,
     pdfBuffer,
   });
@@ -112,7 +118,7 @@ async function processLabBackup(
   const today     = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
   const logEntry: BackupLog = {
     sentAt:           admin.firestore.Timestamp.now(),
-    toEmail:          backupConfig.email!,
+    toEmail:          recipients.join(', '),
     labId,
     periodStart:      from.toISOString(),
     periodEnd:        to.toISOString(),
@@ -179,7 +185,7 @@ export const scheduledDailyBackup = onSchedule(
       const labData     = labDoc.data();
       const backupConfig = labData['backup'] as LabBackupConfig | undefined;
 
-      if (!backupConfig?.email) {
+      if (!backupConfig || resolveBackupRecipients(backupConfig).length === 0) {
         skipped++;
         continue;
       }
@@ -261,7 +267,7 @@ export const triggerLabBackup = onCall(
     }
 
     const backupConfig = labSnap.data()?.['backup'] as LabBackupConfig | undefined;
-    if (!backupConfig?.email) {
+    if (!backupConfig || resolveBackupRecipients(backupConfig).length === 0) {
       throw new HttpsError(
         'failed-precondition',
         'Este laboratório não possui e-mail de backup configurado.',
