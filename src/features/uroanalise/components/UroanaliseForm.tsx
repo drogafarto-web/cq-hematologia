@@ -2,6 +2,8 @@ import React, { useState, useMemo, useRef } from 'react';
 import { UroanaliseFormSchema, daysToExpiry } from './UroanaliseForm.schema';
 import type { UroanaliseFormData } from './UroanaliseForm.schema';
 import { useUser } from '../../../store/useAuthStore';
+import { InsumoPicker } from '../../insumos/components/InsumoPicker';
+import type { Insumo } from '../../insumos/types/Insumo';
 import {
   URO_ANALITOS,
   URO_ANALITO_LABELS,
@@ -350,6 +352,39 @@ export function UroanaliseForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [ocrLoading, setOcrLoading] = useState(false);
 
+  // Seleção opcional de insumos cadastrados (tira + controle).
+  const [tiraInsumoId, setTiraInsumoId] = useState<string | null>(null);
+  const [controleInsumoId, setControleInsumoId] = useState<string | null>(null);
+
+  function toIsoDate(ts: { toDate: () => Date } | null): string {
+    if (!ts) return '';
+    const d = ts.toDate();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  function applyTiraInsumo(i: Insumo | null) {
+    setTiraInsumoId(i?.id ?? null);
+    if (!i) return;
+    setForm((prev) => ({
+      ...prev,
+      loteTira: i.lote,
+      fabricanteTira: i.fabricante,
+      validadeTira: toIsoDate(i.validade),
+    }));
+  }
+
+  function applyControleInsumo(i: Insumo | null) {
+    setControleInsumoId(i?.id ?? null);
+    if (!i) return;
+    setForm((prev) => ({
+      ...prev,
+      loteControle: i.lote,
+      fabricanteControle: i.fabricante,
+      aberturaControle: toIsoDate(i.dataAbertura),
+      validadeControle: toIsoDate(i.validade),
+    }));
+  }
+
   function setField<K extends keyof UroanaliseFormData>(key: K, value: UroanaliseFormData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
     if (errors[key])
@@ -671,6 +706,16 @@ export function UroanaliseForm({
       {/* Tiras */}
       <section>
         <SectionTitle>Tiras Reagentes</SectionTitle>
+        <div className="mb-3">
+          <InsumoPicker
+            tipo="tira-uro"
+            modulo="uroanalise"
+            value={tiraInsumoId}
+            onSelect={applyTiraInsumo}
+            placeholder="Selecionar tira cadastrada (opcional — auto-preenche abaixo)"
+            ariaLabel="Selecionar tira cadastrada"
+          />
+        </div>
         <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -730,6 +775,16 @@ export function UroanaliseForm({
       {/* Controle */}
       <section>
         <SectionTitle>Material de Controle</SectionTitle>
+        <div className="mb-3">
+          <InsumoPicker
+            tipo="controle"
+            modulo="uroanalise"
+            value={controleInsumoId}
+            onSelect={applyControleInsumo}
+            placeholder="Selecionar controle cadastrado (opcional — auto-preenche abaixo)"
+            ariaLabel="Selecionar controle cadastrado"
+          />
+        </div>
         <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>

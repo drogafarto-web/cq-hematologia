@@ -4,6 +4,8 @@ import type { CIQImunoFormData } from './CIQImunoForm.schema';
 import { useUser } from '../../../store/useAuthStore';
 import { useCIQTestTypes } from '../hooks/useCIQTestTypes';
 import { CIQTestTypeManager } from './CIQTestTypeManager';
+import { InsumoPicker } from '../../insumos/components/InsumoPicker';
+import type { Insumo } from '../../insumos/types/Insumo';
 
 // ─── Icon ─────────────────────────────────────────────────────────────────────
 
@@ -223,6 +225,27 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Seleção opcional de controle cadastrado.
+  const [controleInsumoId, setControleInsumoId] = useState<string | null>(null);
+
+  function toIsoDate(ts: { toDate: () => Date } | null): string {
+    if (!ts) return '';
+    const d = ts.toDate();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  function applyControleInsumo(i: Insumo | null) {
+    setControleInsumoId(i?.id ?? null);
+    if (!i) return;
+    setForm((prev) => ({
+      ...prev,
+      loteControle: i.lote,
+      fabricanteControle: i.fabricante,
+      aberturaControle: toIsoDate(i.dataAbertura),
+      validadeControle: toIsoDate(i.validade),
+    }));
+  }
+
   function set<K extends keyof CIQImunoFormData>(key: K, value: CIQImunoFormData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
     if (errors[key])
@@ -434,6 +457,16 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
       {/* ── Controle ───────────────────────────────────────────────────────── */}
       <div>
         <SectionTitle>Controle Interno</SectionTitle>
+        <div className="mb-3">
+          <InsumoPicker
+            tipo="controle"
+            modulo="imunologia"
+            value={controleInsumoId}
+            onSelect={applyControleInsumo}
+            placeholder="Selecionar controle cadastrado (opcional — auto-preenche abaixo)"
+            ariaLabel="Selecionar controle cadastrado"
+          />
+        </div>
         <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>

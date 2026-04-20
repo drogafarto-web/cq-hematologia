@@ -4,6 +4,8 @@ import type { CoagulacaoFormData } from './CoagulacaoForm.schema';
 import { useUser } from '../../../store/useAuthStore';
 import { COAG_ANALYTES, COAG_ANALYTE_IDS } from '../CoagAnalyteConfig';
 import type { CoagAnalyteId, CoagNivel } from '../types/_shared_refs';
+import { InsumoPicker } from '../../insumos/components/InsumoPicker';
+import type { Insumo } from '../../insumos/types/Insumo';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -213,6 +215,42 @@ export function CoagulacaoForm({
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Seleção opcional de insumo cadastrado (controle/reagente). IDs são apenas
+  // para UX — ao selecionar, os campos manuais são pré-preenchidos e o usuário
+  // pode editar. Rastreabilidade forte (insumoId em Run) é backlog futuro.
+  const [controleInsumoId, setControleInsumoId] = useState<string | null>(null);
+  const [reagenteInsumoId, setReagenteInsumoId] = useState<string | null>(null);
+
+  function toIsoDate(ts: { toDate: () => Date } | null): string {
+    if (!ts) return '';
+    const d = ts.toDate();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  function applyControleInsumo(i: Insumo | null) {
+    setControleInsumoId(i?.id ?? null);
+    if (!i) return;
+    setForm((prev) => ({
+      ...prev,
+      loteControle: i.lote,
+      fabricanteControle: i.fabricante,
+      aberturaControle: toIsoDate(i.dataAbertura),
+      validadeControle: toIsoDate(i.validade),
+    }));
+  }
+
+  function applyReagenteInsumo(i: Insumo | null) {
+    setReagenteInsumoId(i?.id ?? null);
+    if (!i) return;
+    setForm((prev) => ({
+      ...prev,
+      loteReagente: i.lote,
+      fabricanteReagente: i.fabricante,
+      aberturaReagente: toIsoDate(i.dataAbertura),
+      validadeReagente: toIsoDate(i.validade),
+    }));
+  }
+
   function set<K extends keyof CoagulacaoFormData>(key: K, value: CoagulacaoFormData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
     if (errors[key])
@@ -404,6 +442,16 @@ export function CoagulacaoForm({
       <section>
         <SectionTitle>Material de Controle</SectionTitle>
         <div className="space-y-3">
+          <div>
+            <InsumoPicker
+              tipo="controle"
+              modulo="coagulacao"
+              value={controleInsumoId}
+              onSelect={applyControleInsumo}
+              placeholder="Selecionar controle cadastrado (opcional — auto-preenche abaixo)"
+              ariaLabel="Selecionar controle cadastrado"
+            />
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label htmlFor="loteControle" required>
@@ -473,6 +521,16 @@ export function CoagulacaoForm({
       <section>
         <SectionTitle>Reagente (Tromboplastina / Ativador)</SectionTitle>
         <div className="space-y-3">
+          <div>
+            <InsumoPicker
+              tipo="reagente"
+              modulo="coagulacao"
+              value={reagenteInsumoId}
+              onSelect={applyReagenteInsumo}
+              placeholder="Selecionar reagente cadastrado (opcional — auto-preenche abaixo)"
+              ariaLabel="Selecionar reagente cadastrado"
+            />
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label htmlFor="loteReagente" required>
