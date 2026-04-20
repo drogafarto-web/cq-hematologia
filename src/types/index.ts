@@ -278,6 +278,7 @@ export type View =
   | 'ciq-imuno'
   | 'coagulacao'
   | 'uroanalise'
+  | 'insumos'
   | 'lab-settings';
 export type StatsSource = 'manufacturer' | 'internal';
 export type ImageState = 'ready' | 'uploading' | 'none';

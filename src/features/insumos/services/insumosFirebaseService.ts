@@ -32,8 +32,10 @@ import type { Unsubscribe } from '../../../shared/services/firebase';
 import { COLLECTIONS, SUBCOLLECTIONS } from '../../../constants';
 import type {
   Insumo,
+  InsumoControle,
+  InsumoReagente,
+  InsumoTiraUro,
   InsumoMovimentacao,
-  InsumoMovimentacaoTipo,
   InsumoFilters,
 } from '../types/Insumo';
 import { computeValidadeReal } from '../utils/validadeReal';
@@ -58,14 +60,19 @@ function movRef(labId: string, movId: string) {
 
 // ─── Input shapes ─────────────────────────────────────────────────────────────
 
-/** Payload aceito por `createInsumo` — campos derivados (id, timestamps, validadeReal) são preenchidos pelo service. */
-export type CreateInsumoPayload = Omit<
-  Insumo,
-  'id' | 'labId' | 'validadeReal' | 'createdAt' | 'status'
-> & {
-  /** Operador que está criando o registro — usado para auditoria. */
-  createdBy: string;
-};
+/**
+ * Campos auto-preenchidos pelo service (não podem vir do caller):
+ * id, labId, validadeReal, createdAt, status.
+ *
+ * O payload é um discriminated union explícito — `Omit<Insumo, ...>` quebraria
+ * o narrowing do TypeScript e forçaria casts em call sites.
+ */
+type DerivedFields = 'id' | 'labId' | 'validadeReal' | 'createdAt' | 'status';
+
+export type CreateInsumoPayload =
+  | (Omit<InsumoControle, DerivedFields> & { createdBy: string })
+  | (Omit<InsumoReagente, DerivedFields> & { createdBy: string })
+  | (Omit<InsumoTiraUro, DerivedFields> & { createdBy: string });
 
 /** Campos editáveis pós-criação. Lote/fabricante/validade são imutáveis por padrão. */
 export type UpdateInsumoPayload = Partial<

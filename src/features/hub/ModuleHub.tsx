@@ -376,6 +376,26 @@ export function ModuleHub() {
                   </svg>
                 }
               />
+              <ToolButton
+                label="Insumos"
+                onClick={() => setCurrentView('insumos')}
+                icon={
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+                    <path
+                      d="M2 3h9v7H2z"
+                      stroke="currentColor"
+                      strokeWidth="1.2"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M4.5 3V1.5h4V3M4.5 6h4M4.5 8h2.5"
+                      stroke="currentColor"
+                      strokeWidth="1.2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                }
+              />
               {canManageSettings && (
                 <ToolButton
                   label="Configurações"

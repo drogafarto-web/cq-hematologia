@@ -16,6 +16,7 @@ import { ReportsView } from '../reports/ReportsView';
 import { LabCQISettings } from '../labSettings/LabCQISettings';
 import { CoagulacaoView } from '../coagulacao/CoagulacaoView';
 import { UroanaliseView } from '../uroanalise/UroanaliseView';
+import { InsumosView } from '../insumos/InsumosView';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
 
@@ -65,6 +66,8 @@ function AppRouter() {
     view = <CoagulacaoView />;
   } else if (currentView === 'uroanalise') {
     view = <UroanaliseView />;
+  } else if (currentView === 'insumos') {
+    view = <InsumosView />;
   } else {
     view = <AnalyzerView />;
   }
