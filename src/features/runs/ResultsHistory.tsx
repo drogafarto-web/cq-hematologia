@@ -7,31 +7,29 @@ import type { Run, RunStatus } from '../../types';
 type Filter = 'all' | RunStatus;
 
 const FILTERS: { id: Filter; label: string }[] = [
-  { id: 'all',       label: 'Todas'     },
-  { id: 'Aprovada',  label: 'Aprovadas' },
+  { id: 'all', label: 'Todas' },
+  { id: 'Aprovada', label: 'Aprovadas' },
   { id: 'Rejeitada', label: 'Rejeitadas' },
 ];
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface ResultsHistoryProps {
-  runs:      Run[];
-  lotId:     string;
-  onDelete:  (lotId: string, runId: string) => Promise<void>;
+  runs: Run[];
+  lotId: string;
+  onDelete: (lotId: string, runId: string) => Promise<void>;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function ResultsHistory({ runs, lotId, onDelete }: ResultsHistoryProps) {
-  const [filter,    setFilter]    = useState<Filter>('all');
+  const [filter, setFilter] = useState<Filter>('all');
   const [collapsed, setCollapsed] = useState(false);
 
   // Sort newest first
   const sorted = [...runs].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
-  const filtered = filter === 'all'
-    ? sorted
-    : sorted.filter((r) => r.status === filter);
+  const filtered = filter === 'all' ? sorted : sorted.filter((r) => r.status === filter);
 
   const rejectedCount = runs.filter((r) => r.status === 'Rejeitada').length;
 
@@ -46,7 +44,9 @@ export function ResultsHistory({ runs, lotId, onDelete }: ResultsHistoryProps) {
         aria-label={collapsed ? 'Expandir histórico de corridas' : 'Recolher histórico de corridas'}
       >
         <div className="flex-1 flex items-center gap-3">
-          <p className="text-sm font-semibold text-slate-600 dark:text-white/70">Histórico de Corridas</p>
+          <p className="text-sm font-semibold text-slate-600 dark:text-white/70">
+            Histórico de Corridas
+          </p>
           <div className="flex items-center gap-1.5">
             <span className="text-xs font-medium text-slate-500 dark:text-white/40 bg-slate-100 dark:bg-white/[0.06] px-2 py-0.5 rounded-full">
               {runs.length}
@@ -59,10 +59,20 @@ export function ResultsHistory({ runs, lotId, onDelete }: ResultsHistoryProps) {
           </div>
         </div>
         <svg
-          width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden
+          width="14"
+          height="14"
+          viewBox="0 0 14 14"
+          fill="none"
+          aria-hidden
           className={`text-slate-400 dark:text-white/30 transition-transform ${collapsed ? 'rotate-180' : ''}`}
         >
-          <path d="M3 9l4-4 4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M3 9l4-4 4 4"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       </div>
 
@@ -70,7 +80,11 @@ export function ResultsHistory({ runs, lotId, onDelete }: ResultsHistoryProps) {
         <>
           {/* Filter tabs */}
           {runs.length > 0 && (
-            <div className="flex gap-0 px-4 border-t border-b border-slate-100 dark:border-white/[0.05]" role="group" aria-label="Filtrar corridas">
+            <div
+              className="flex gap-0 px-4 border-t border-b border-slate-100 dark:border-white/[0.05]"
+              role="group"
+              aria-label="Filtrar corridas"
+            >
               {FILTERS.map((f) => (
                 <button
                   key={f.id}
@@ -78,7 +92,9 @@ export function ResultsHistory({ runs, lotId, onDelete }: ResultsHistoryProps) {
                   onClick={() => setFilter(f.id)}
                   aria-pressed={filter === f.id}
                   className={`px-4 min-h-[44px] text-sm font-medium transition-all relative ${
-                    filter === f.id ? 'text-slate-900 dark:text-white/80' : 'text-slate-400 dark:text-white/30 hover:text-slate-600 dark:hover:text-white/55'
+                    filter === f.id
+                      ? 'text-slate-900 dark:text-white/80'
+                      : 'text-slate-400 dark:text-white/30 hover:text-slate-600 dark:hover:text-white/55'
                   }`}
                 >
                   {f.label}

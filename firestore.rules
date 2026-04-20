@@ -100,7 +100,13 @@ service cloud.firestore {
         allow read: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) &&
             (hasModuleAccess('hematologia') || !('modules' in request.auth.token)));
-        allow write: if isSuperAdmin() || (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+
+        // Members (operators) register lots and update operational fields
+        // (statistics, runCount, lot metadata edits via OCR). Symmetric with
+        // /ciq-imuno and with /lots/{lotId}/runs — the write surface matches
+        // the real operator workflow, not a stale admin-only assumption.
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if isSuperAdmin() || (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
 
         // /labs/{labId}/lots/{lotId}/runs
         match /runs/{runId} {
@@ -183,10 +189,138 @@ service cloud.firestore {
         allow update, delete: if false; // immutable
       }
 
+      // /labs/{labId}/ciq-coagulacao — Módulo Coagulação (CIQ quantitativo)
+      // Claim JWT: 'coagulacao'
+      // ROLLOUT: bypass ativo enquanto setModulesClaims não for rodado para todos.
+      match /ciq-coagulacao/{lotId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('coagulacao') || !('modules' in request.auth.token)));
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+
+        match /runs/{runId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) &&
+              (hasModuleAccess('coagulacao') || !('modules' in request.auth.token)));
+          allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow delete: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        }
+
+        match /audit/{auditId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) &&
+              (hasModuleAccess('coagulacao') || !('modules' in request.auth.token)));
+          allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow update, delete: if false;
+        }
+      }
+
+      match /ciq-coagulacao-meta/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('coagulacao') || !('modules' in request.auth.token)));
+        allow write: if isSuperAdmin() || isActiveMemberOfLab(labId);
+      }
+
+      match /ciq-coagulacao-config/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('coagulacao') || !('modules' in request.auth.token)));
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      match /ciq-coagulacao-audit/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update, delete: if false;
+      }
+
+      // /labs/{labId}/ciq-uroanalise — Módulo Uroanálise (CIQ híbrido — categórico + quantitativo)
+      // Claim JWT: 'uroanalise'
+      // ROLLOUT: bypass ativo enquanto setModulesClaims não for rodado para todos.
+      match /ciq-uroanalise/{lotId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('uroanalise') || !('modules' in request.auth.token)));
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+
+        match /runs/{runId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) &&
+              (hasModuleAccess('uroanalise') || !('modules' in request.auth.token)));
+          allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow delete: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        }
+
+        match /audit/{auditId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) &&
+              (hasModuleAccess('uroanalise') || !('modules' in request.auth.token)));
+          allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow update, delete: if false;
+        }
+      }
+
+      match /ciq-uroanalise-meta/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('uroanalise') || !('modules' in request.auth.token)));
+        allow write: if isSuperAdmin() || isActiveMemberOfLab(labId);
+      }
+
+      match /ciq-uroanalise-config/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('uroanalise') || !('modules' in request.auth.token)));
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      match /ciq-uroanalise-audit/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update, delete: if false;
+      }
+
+      // ── Cadastro mestre de Insumos (controles, reagentes, tiras) ─────────
+      // Cross-module: não há gate por module claim. Qualquer membro ativo lê;
+      // só admin/owner cria/edita/deleta. Operadores consomem via dropdown
+      // em runs mas não alteram cadastro.
+      match /insumos/{insumoId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow delete: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      // Movimentações — log imutável de entrada/abertura/fechamento/descarte.
+      // Qualquer membro ativo pode registrar (é subproduto de ações legítimas);
+      // ninguém atualiza/deleta — audit trail preservado para inspeções RDC 786.
+      match /insumo-movimentacoes/{movId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update, delete: if false;
+      }
+
       // ── Módulos futuros — adicionar blocos aqui seguindo o mesmo padrão:
       // match /ciq-bioquimica/{lotId} { ... hasModuleAccess('bioquimica') ... }
-      // match /ciq-coagulacao/{lotId}  { ... hasModuleAccess('coagulacao')  ... }
-      // match /ciq-urinalise/{lotId}   { ... hasModuleAccess('urinalise')   ... }
+    }
+
+    // ── /firestore-backup-logs ────────────────────────────────────────────────
+    // Audit trail of daily Firestore exports (GCS snapshots).
+    // Written exclusively by Cloud Functions (scheduledFirestoreExport /
+    // triggerFirestoreExport). Read restricted to SuperAdmin.
+    match /firestore-backup-logs/{logId} {
+      allow read:   if isSuperAdmin();
+      allow create, update, delete: if false; // server-side via Admin SDK only
     }
 
     // ── /user-data (Legacy) ───────────────────────────────────────────────────

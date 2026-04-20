@@ -18,7 +18,7 @@ class ModuleRegistry {
     if (this.collectors.has(collector.moduleId)) {
       throw new Error(
         `ModuleRegistry: duplicate moduleId "${collector.moduleId}". ` +
-        `Each module must have a unique identifier.`,
+          `Each module must have a unique identifier.`,
       );
     }
     this.collectors.set(collector.moduleId, collector);

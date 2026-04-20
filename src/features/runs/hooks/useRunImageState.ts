@@ -15,6 +15,6 @@ import type { Run, ImageState } from '../../../types';
  */
 export function resolveImageState(run: Run): ImageState {
   if (run.manualOverride === true) return 'none';
-  if (run.imageUrl)                return 'ready';
+  if (run.imageUrl) return 'ready';
   return 'uploading';
 }

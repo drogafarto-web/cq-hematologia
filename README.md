@@ -6,15 +6,15 @@ Sistema web SaaS de Controle de Qualidade Interno para laboratórios clínicos d
 
 ## Stack
 
-| Camada | Tecnologia |
-|---|---|
-| Frontend | React 19 + TypeScript 5.8 + Vite 6 |
-| Estilos | Tailwind CSS (CDN) |
-| Estado global | Zustand 5 |
-| Validação | Zod 3 |
-| Gráficos | Recharts 3 |
-| Backend | Firebase 10 (Auth + Firestore + Storage + Functions v2) |
-| IA / OCR | Gemini 3.1 Flash (GCP) + OpenRouter Fallback (Gemini 2.0 / Qwen VL) |
+| Camada        | Tecnologia                                                          |
+| ------------- | ------------------------------------------------------------------- |
+| Frontend      | React 19 + TypeScript 5.8 + Vite 6                                  |
+| Estilos       | Tailwind CSS (CDN)                                                  |
+| Estado global | Zustand 5                                                           |
+| Validação     | Zod 3                                                               |
+| Gráficos      | Recharts 3                                                          |
+| Backend       | Firebase 10 (Auth + Firestore + Storage + Functions v2)             |
+| IA / OCR      | Gemini 3.1 Flash (GCP) + OpenRouter Fallback (Gemini 2.0 / Qwen VL) |
 
 ---
 
@@ -140,25 +140,25 @@ login
 
 ## Regras de Westgard implementadas
 
-| Regra | Tipo | Condição |
-|---|---|---|
-| 1-2s | Warning | 1 valor além de ±2DP |
-| 1-3s | Rejeição | 1 valor além de ±3DP |
-| 2-2s | Rejeição | 2 consecutivos além de ±2DP (mesmo lado) |
-| R-4s | Rejeição | 2 consecutivos com amplitude >4DP (lados opostos) |
-| 4-1s | Rejeição | 4 consecutivos além de ±1DP (mesmo lado) |
-| 10x  | Rejeição | 10 consecutivos no mesmo lado da média |
+| Regra | Tipo     | Condição                                          |
+| ----- | -------- | ------------------------------------------------- |
+| 1-2s  | Warning  | 1 valor além de ±2DP                              |
+| 1-3s  | Rejeição | 1 valor além de ±3DP                              |
+| 2-2s  | Rejeição | 2 consecutivos além de ±2DP (mesmo lado)          |
+| R-4s  | Rejeição | 2 consecutivos com amplitude >4DP (lados opostos) |
+| 4-1s  | Rejeição | 4 consecutivos além de ±1DP (mesmo lado)          |
+| 10x   | Rejeição | 10 consecutivos no mesmo lado da média            |
 
 ---
 
 ## Papéis de usuário
 
-| Role | Permissões |
-|---|---|
-| `member` | Registrar e revisar corridas |
-| `admin` | + Criar/editar lotes, promover membros, excluir corridas |
-| `owner` | + Excluir lote, gerenciar admins |
-| `superAdmin` | Acesso total a todos os labs via painel dedicado |
+| Role         | Permissões                                               |
+| ------------ | -------------------------------------------------------- |
+| `member`     | Registrar e revisar corridas                             |
+| `admin`      | + Criar/editar lotes, promover membros, excluir corridas |
+| `owner`      | + Excluir lote, gerenciar admins                         |
+| `superAdmin` | Acesso total a todos os labs via painel dedicado         |
 
 ---
 
@@ -174,6 +174,7 @@ login
 ## Changelog
 
 ### v1.2.0 (Atualização Infra & Inteligência)
+
 - **BulaProcessor Multi-nível**: Reconhecimento simultâneo de lotes de Nível 1, 2 e 3 a partir de PDF da bula.
 - **Fallback de Equipamento**: IA agora localiza automaticamente parâmetros faltantes (Yumizen) na coluna de backup (Pentra).
 - **Tríplice Resiliência de OCR**: Implementado fallback via OpenRouter caso a cota do GCP esgote. Upgrade para **Gemini 3.1 Flash**.
@@ -181,11 +182,13 @@ login
 - **Infraestrutura**: Resolvido IAM e roteamento do Cloud Run Serverless para funções Firebase onCall.
 
 ### v1.1.0
+
 - Regras Firestore RBAC completas (substitui `allow read, write: if true`)
 - Subcoleção `/runs` coberta pelas regras de segurança
 - Índices compostos para queries de `accessRequests`
 - Seletor de role diretamente no modal de aprovação de solicitações
 
 ### v1.0.0
+
 - MVP completo: auth multi-tenant, lotes, corridas OCR, Levey-Jennings, Westgard
 - Painel Super Admin: labs, membros, solicitações de acesso

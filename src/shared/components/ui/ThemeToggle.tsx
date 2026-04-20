@@ -48,7 +48,7 @@ export const ThemeToggle = forwardRef<HTMLButtonElement, ThemeToggleProps>(
         </svg>
       </button>
     );
-  }
+  },
 );
 
 ThemeToggle.displayName = 'ThemeToggle';

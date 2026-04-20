@@ -26,8 +26,8 @@ export interface SaveCIQRunOptions {
 }
 
 export interface SaveCIQRunResult {
-  runId:  string;
-  lotId:  string;
+  runId: string;
+  lotId: string;
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
@@ -46,20 +46,20 @@ export interface SaveCIQRunResult {
  *  8. Upload da imagem do strip em background (não bloqueia o retorno)
  */
 export function useSaveCIQRun() {
-  const labId       = useActiveLabId();
-  const user        = useUser();
-  const { sign }    = useCIQSignature();
+  const labId = useActiveLabId();
+  const user = useUser();
+  const { sign } = useCIQSignature();
 
-  const [isSaving,  setIsSaving]  = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
   const save = useCallback(
     async (
       formData: CIQImunoFormData,
-      options:  SaveCIQRunOptions = {},
+      options: SaveCIQRunOptions = {},
     ): Promise<SaveCIQRunResult> => {
       if (!labId) throw new Error('Nenhum laboratório ativo.');
-      if (!user)  throw new Error('Usuário não autenticado.');
+      if (!user) throw new Error('Usuário não autenticado.');
 
       setIsSaving(true);
       setSaveError(null);
@@ -71,13 +71,13 @@ export function useSaveCIQRun() {
         if (!lotId) {
           lotId = await createCIQLot(labId, {
             labId,
-            testType:         formData.testType,
-            loteControle:     formData.loteControle,
+            testType: formData.testType,
+            loteControle: formData.loteControle,
             aberturaControle: formData.aberturaControle,
             validadeControle: formData.validadeControle,
-            runCount:         0,
-            lotStatus:        'sem_dados',
-            createdBy:        user.uid,
+            runCount: 0,
+            lotStatus: 'sem_dados',
+            createdBy: user.uid,
           });
         }
 
@@ -88,17 +88,17 @@ export function useSaveCIQRun() {
         // Inclui o run atual na simulação para refletir o estado pós-save.
         const simulatedRun: CIQImunoRun = buildRun(
           crypto.randomUUID(), // placeholder — será sobrescrito abaixo
-          'CI-TEMP',           // runCode provisório — não persistido
+          'CI-TEMP', // runCode provisório — não persistido
           labId,
           lotId,
           user.uid,
           user.displayName ?? user.email ?? 'Operador',
           formData,
-          [],     // westgardCategorico provisório
-          '',     // logicalSignature provisória
+          [], // westgardCategorico provisório
+          '', // logicalSignature provisória
         );
 
-        const allRuns      = [...existingRuns, simulatedRun];
+        const allRuns = [...existingRuns, simulatedRun];
         const { alerts, lotStatus } = computeWestgardCategorico(allRuns);
 
         // ── 4. Código sequencial + Assinatura SHA-256 ─────────────────────
@@ -109,10 +109,10 @@ export function useSaveCIQRun() {
         const { logicalSignature, signedBy, signedAt } = await sign({
           operatorDocument: user.email ?? user.uid,
           lotId,
-          testType:         formData.testType,
-          loteControle:     formData.loteControle,
-          resultadoObtido:  formData.resultadoObtido,
-          dataRealizacao:   formData.dataRealizacao,
+          testType: formData.testType,
+          loteControle: formData.loteControle,
+          resultadoObtido: formData.resultadoObtido,
+          dataRealizacao: formData.dataRealizacao,
         });
 
         // ── 5. Monta e persiste o run ──────────────────────────────────────
@@ -132,7 +132,7 @@ export function useSaveCIQRun() {
 
         // ── 6. Atualiza lote ───────────────────────────────────────────────
         await updateCIQLot(labId, lotId, {
-          runCount:  existingRuns.length + 1,
+          runCount: existingRuns.length + 1,
           lotStatus,
         });
 
@@ -143,10 +143,10 @@ export function useSaveCIQRun() {
           logicalSignature,
           signedBy,
           signedAt,
-          testType:        formData.testType,
+          testType: formData.testType,
           resultadoObtido: formData.resultadoObtido,
-          dataRealizacao:  formData.dataRealizacao,
-          westgardAlerts:  alerts,
+          dataRealizacao: formData.dataRealizacao,
+          westgardAlerts: alerts,
           lotStatus,
         });
 
@@ -164,11 +164,10 @@ export function useSaveCIQRun() {
         }
 
         return { runId, lotId };
-
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Erro ao salvar corrida.';
         setSaveError(msg);
-        throw new Error(msg);
+        throw new Error(msg, { cause: err });
       } finally {
         setIsSaving(false);
       }
@@ -187,60 +186,62 @@ export function useSaveCIQRun() {
 // ─── Builder ──────────────────────────────────────────────────────────────────
 
 function buildRun(
-  runId:            string,
-  runCode:          string,
-  labId:            string,
-  lotId:            string,
-  createdBy:        string,
-  operatorName:     string,
-  form:             CIQImunoFormData,
-  westgardAlertas:  CIQImunoRun['westgardCategorico'],
+  runId: string,
+  runCode: string,
+  labId: string,
+  lotId: string,
+  createdBy: string,
+  operatorName: string,
+  form: CIQImunoFormData,
+  westgardAlertas: CIQImunoRun['westgardCategorico'],
   logicalSignature: string,
 ): CIQImunoRun {
   const resultouConforme = form.resultadoObtido === form.resultadoEsperado;
   const status = resultouConforme ? 'Aprovada' : ('Rejeitada' as const);
 
   return {
-    id:               runId,
+    id: runId,
     runCode,
     labId,
     lotId,
     // Rastreabilidade RDC 978
-    operatorId:       createdBy,
+    operatorId: createdBy,
     operatorName,
-    operatorRole:     form.cargo,
+    operatorRole: form.cargo,
     // Campos herdados de CQRun
-    isEdited:         false,
+    isEdited: false,
     status,
-    version:          1,
+    version: 1,
     logicalSignature,
     createdBy,
-    imageUrl:         '',
+    imageUrl: '',
     // serverTimestamp injetados pelo service
-    confirmedAt:      null as unknown as import('firebase/firestore').Timestamp,
-    createdAt:        null as unknown as import('firebase/firestore').Timestamp,
+    confirmedAt: null as unknown as import('firebase/firestore').Timestamp,
+    createdAt: null as unknown as import('firebase/firestore').Timestamp,
     // Controle
-    testType:           form.testType,
-    loteControle:       form.loteControle,
+    testType: form.testType,
+    loteControle: form.loteControle,
     fabricanteControle: form.fabricanteControle,
-    aberturaControle:   form.aberturaControle,
-    validadeControle:   form.validadeControle,
+    aberturaControle: form.aberturaControle,
+    validadeControle: form.validadeControle,
     // Reagente
-    loteReagente:       form.loteReagente,
+    loteReagente: form.loteReagente,
     fabricanteReagente: form.fabricanteReagente,
-    reagenteStatus:     form.reagenteStatus,
-    aberturaReagente:   form.aberturaReagente,
-    validadeReagente:   form.validadeReagente,
-    ...(form.codigoKit       && { codigoKit:      form.codigoKit }),
-    ...(form.registroANVISA  && { registroANVISA: form.registroANVISA }),
+    reagenteStatus: form.reagenteStatus,
+    aberturaReagente: form.aberturaReagente,
+    validadeReagente: form.validadeReagente,
+    ...(form.codigoKit && { codigoKit: form.codigoKit }),
+    ...(form.registroANVISA && { registroANVISA: form.registroANVISA }),
     // Resultado
     resultadoEsperado: form.resultadoEsperado,
-    resultadoObtido:   form.resultadoObtido,
-    dataRealizacao:    form.dataRealizacao,
-    ...(form.acaoCorretiva   && { acaoCorretiva:  form.acaoCorretiva }),
+    resultadoObtido: form.resultadoObtido,
+    dataRealizacao: form.dataRealizacao,
+    ...(form.acaoCorretiva && { acaoCorretiva: form.acaoCorretiva }),
     // Equipamento
-    ...(form.equipamento         && { equipamento:         form.equipamento }),
-    ...(form.temperaturaAmbiente !== undefined && { temperaturaAmbiente: form.temperaturaAmbiente }),
+    ...(form.equipamento && { equipamento: form.equipamento }),
+    ...(form.temperaturaAmbiente !== undefined && {
+      temperaturaAmbiente: form.temperaturaAmbiente,
+    }),
     // Qualidade
     westgardCategorico: westgardAlertas,
   };

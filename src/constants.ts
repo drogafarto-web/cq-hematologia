@@ -7,18 +7,18 @@ import type { Analyte } from './types';
 // Order matches the equipment's printout layout for OCR alignment.
 
 export const ANALYTES: Analyte[] = [
-  { id: 'WBC',  name: 'WBC',  unit: '×10³/µL', decimals: 2 },
-  { id: 'RBC',  name: 'RBC',  unit: '×10⁶/µL', decimals: 2 },
-  { id: 'HGB',  name: 'HGB',  unit: 'g/dL',    decimals: 1 },
-  { id: 'HCT',  name: 'HCT',  unit: '%',        decimals: 1 },
-  { id: 'MCV',  name: 'MCV',  unit: 'fL',       decimals: 1 },
-  { id: 'MCH',  name: 'MCH',  unit: 'pg',       decimals: 1 },
-  { id: 'MCHC', name: 'MCHC', unit: 'g/dL',    decimals: 1 },
-  { id: 'PLT',  name: 'PLT',  unit: '×10³/µL', decimals: 0 },
-  { id: 'RDW',  name: 'RDW',  unit: '%',        decimals: 1 },
-  { id: 'MPV',  name: 'MPV',  unit: 'fL',       decimals: 1 },
-  { id: 'PCT',  name: 'PCT',  unit: '%',        decimals: 3 },
-  { id: 'PDW',  name: 'PDW',  unit: 'fL',       decimals: 1 },
+  { id: 'WBC', name: 'WBC', unit: '×10³/µL', decimals: 2 },
+  { id: 'RBC', name: 'RBC', unit: '×10⁶/µL', decimals: 2 },
+  { id: 'HGB', name: 'HGB', unit: 'g/dL', decimals: 1 },
+  { id: 'HCT', name: 'HCT', unit: '%', decimals: 1 },
+  { id: 'MCV', name: 'MCV', unit: 'fL', decimals: 1 },
+  { id: 'MCH', name: 'MCH', unit: 'pg', decimals: 1 },
+  { id: 'MCHC', name: 'MCHC', unit: 'g/dL', decimals: 1 },
+  { id: 'PLT', name: 'PLT', unit: '×10³/µL', decimals: 0 },
+  { id: 'RDW', name: 'RDW', unit: '%', decimals: 1 },
+  { id: 'MPV', name: 'MPV', unit: 'fL', decimals: 1 },
+  { id: 'PCT', name: 'PCT', unit: '%', decimals: 3 },
+  { id: 'PDW', name: 'PDW', unit: 'fL', decimals: 1 },
   { id: 'NEU#', name: 'NEU#', unit: '×10³/µL', decimals: 2 },
   { id: 'LYM#', name: 'LYM#', unit: '×10³/µL', decimals: 2 },
   { id: 'MON#', name: 'MON#', unit: '×10³/µL', decimals: 2 },
@@ -27,7 +27,7 @@ export const ANALYTES: Analyte[] = [
 ];
 
 export const ANALYTE_MAP: Record<string, Analyte> = Object.fromEntries(
-  ANALYTES.map((a) => [a.id, a])
+  ANALYTES.map((a) => [a.id, a]),
 );
 
 // ─── Westgard — minimum runs required per rule ────────────────────────────────
@@ -38,7 +38,7 @@ export const WESTGARD_MIN_RUNS = {
   '2-2s': 2,
   'R-4s': 2,
   '4-1s': 4,
-  '10x':  10,
+  '10x': 10,
 } as const;
 
 /** Minimum confirmed runs before internal statistics are computed */
@@ -58,25 +58,36 @@ export const COLLECTIONS = {
 export const SUBCOLLECTIONS = {
   // Core / infra
   MEMBERS: 'members',
-  DATA:    'data',
+  DATA: 'data',
   // Módulo: Hematologia (CIQ quantitativo)
   LOTS: 'lots',
   RUNS: 'runs',
   // Módulo: Imunologia (CIQ categórico R/NR — RDC 978/2025)
-  CIQ_IMUNO:        'ciq-imuno',
+  CIQ_IMUNO: 'ciq-imuno',
   CIQ_IMUNO_CONFIG: 'ciq-imuno-config',
-  CIQ_IMUNO_META:   'ciq-imuno-meta',   // contadores e metadados (runCount sequencial)
-  CIQ_AUDIT:        'ciq-audit',        // trilha de auditoria nível-lab (sobrevive à exclusão de lotes)
-  AUDIT:            'audit',            // subcoleção de auditoria dentro de um lote
+  CIQ_IMUNO_META: 'ciq-imuno-meta', // contadores e metadados (runCount sequencial)
+  CIQ_AUDIT: 'ciq-audit', // trilha de auditoria nível-lab (sobrevive à exclusão de lotes)
+  AUDIT: 'audit', // subcoleção de auditoria dentro de um lote
+  // Módulo: Coagulação (CIQ quantitativo)
+  CIQ_COAGULACAO: 'ciq-coagulacao',
+  CIQ_COAGULACAO_META: 'ciq-coagulacao-meta',
+  CIQ_COAGULACAO_CONFIG: 'ciq-coagulacao-config',
+  CIQ_COAGULACAO_AUDIT: 'ciq-coagulacao-audit',
+  // Módulo: Uroanálise (CIQ híbrido — categórico + quantitativo)
+  CIQ_UROANALISE: 'ciq-uroanalise',
+  CIQ_UROANALISE_META: 'ciq-uroanalise-meta',
+  CIQ_UROANALISE_CONFIG: 'ciq-uroanalise-config',
+  CIQ_UROANALISE_AUDIT: 'ciq-uroanalise-audit',
+  // Cadastro mestre de Insumos (controles, reagentes, tiras) — cross-module
+  INSUMOS: 'insumos',
+  INSUMO_MOVIMENTACOES: 'insumo-movimentacoes',
   // Módulos futuros — descomentar ao implementar:
   // CIQ_BIOQUIMICA: 'ciq-bioquimica',
-  // CIQ_COAGULACAO: 'ciq-coagulacao',
-  // CIQ_URINALISE:  'ciq-urinalise',
 } as const;
 
 export const STATIC_DOC_IDS = {
   APP_STATE: 'appState',
-  INIT:      'init',
+  INIT: 'init',
 } as const;
 
 // ─── Module JWT Claim Keys ────────────────────────────────────────────────────
@@ -86,10 +97,10 @@ export const STATIC_DOC_IDS = {
 
 export const MODULE_CLAIMS = {
   hematologia: 'hematologia',
-  imunologia:  'imunologia',
+  imunologia: 'imunologia',
+  coagulacao: 'coagulacao',
+  uroanalise: 'uroanalise',
   // bioquimica: 'bioquimica',
-  // coagulacao: 'coagulacao',
-  // urinalise:  'urinalise',
 } as const;
 
 export type ModuleClaim = (typeof MODULE_CLAIMS)[keyof typeof MODULE_CLAIMS];
@@ -103,9 +114,14 @@ export const storagePath = {
   // Imunologia — foto do strip de imunoensaio
   imunoStripImage: (labId: string, lotId: string, runId: string) =>
     `labs/${labId}/ciq-imuno/${lotId}/strips/${runId}.jpg`,
+  // Coagulação — foto opcional do printout do coagulômetro
+  coagRunImage: (labId: string, lotId: string, runId: string) =>
+    `labs/${labId}/ciq-coagulacao/${lotId}/runs/${runId}.jpg`,
+  // Uroanálise — foto da tira reagente (usada pelo OCR em v2)
+  uroTiraImage: (labId: string, lotId: string, runId: string) =>
+    `labs/${labId}/ciq-uroanalise/${lotId}/tiras/${runId}.jpg`,
   // Infra
-  labLogo: (labId: string) =>
-    `labs/${labId}/logo`,
+  labLogo: (labId: string) => `labs/${labId}/logo`,
 } as const;
 
 // ─── Audit QR Base URL ────────────────────────────────────────────────────────
@@ -113,12 +129,15 @@ export const storagePath = {
 // Definir VITE_AUDIT_BASE_URL no .env para sobrescrever em produção.
 
 export const AUDIT_BASE_URL: string =
-  (import.meta as { env?: { VITE_AUDIT_BASE_URL?: string } }).env?.VITE_AUDIT_BASE_URL
-  ?? 'https://cq.labclin.com.br/audit';
+  (import.meta as { env?: { VITE_AUDIT_BASE_URL?: string } }).env?.VITE_AUDIT_BASE_URL ??
+  'https://cq.labclin.com.br/audit';
 
 // ─── Gemini ───────────────────────────────────────────────────────────────────
 
 export const GEMINI_MODEL = 'gemini-2.5-flash-preview-04-17';
+
+// ─── Westgard — warning-only rules (excluded from rejection logic) ────────────
+export const WARNING_ONLY_WESTGARD_RULES = new Set<string>(['1-2s']);
 
 // ─── UI ───────────────────────────────────────────────────────────────────────
 

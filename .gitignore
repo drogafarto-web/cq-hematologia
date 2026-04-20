@@ -89,3 +89,6 @@ scripts/
 # Arquivos markdown temporários (exceto README e CLAUDE)
 THEME_UPDATE.md
 "popular produção.md"
+
+# TypeScript build output — regenerated from functions/src/
+functions/lib/

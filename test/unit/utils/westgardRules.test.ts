@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { checkWestgardRules, isRejection, isWarningOnly } from '../../../src/features/chart/utils/westgardRules';
+import {
+  checkWestgardRules,
+  isRejection,
+  isWarningOnly,
+} from '../../../src/features/chart/utils/westgardRules';
 import type { AnalyteStats } from '../../../src/types';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -279,8 +283,19 @@ describe('10x — rejeição: 10 consecutivos no mesmo lado da média', () => {
   it('usa exatamente os 10 mais recentes — anteriores além de 9 são ignorados', () => {
     // 9 positivos + 10 negativos mais antigos → 10x não deve ativar
     const prev = [
-      0.3, 0.4, 0.2, 0.6, 0.1, 0.5, 0.3, 0.4, 0.2, // 9 positivos (mais recentes)
-      -0.5, -0.3, -0.4, -0.2,                        // 4 negativos (ignorados)
+      0.3,
+      0.4,
+      0.2,
+      0.6,
+      0.1,
+      0.5,
+      0.3,
+      0.4,
+      0.2, // 9 positivos (mais recentes)
+      -0.5,
+      -0.3,
+      -0.4,
+      -0.2, // 4 negativos (ignorados)
     ];
     // current positivo + 9 positivos = 10 positivos na janela → ativa
     expect(check(0.1, prev)).toContain('10x');

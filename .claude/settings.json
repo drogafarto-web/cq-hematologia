@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm run lint:*)",
+      "Bash(npm run format:*)",
+      "Bash(npm run test:unit:*)",
+      "Bash(npm run test:coverage:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run preview:*)",
+      "Bash(npx tsc --noEmit:*)",
+      "Bash(npx tsc --noEmit -p:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npx prettier:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx vite build:*)",
+      "Bash(firebase functions:list:*)",
+      "Bash(firebase functions:log:*)",
+      "Bash(firebase functions:secrets:access:*)",
+      "Bash(firebase deploy --only hosting:*)",
+      "Bash(firebase deploy --only functions:*)",
+      "Bash(firebase deploy --only firestore:rules:*)",
+      "Bash(firebase hosting:sites:list:*)",
+      "Bash(firebase projects:list)",
+      "Bash(gcloud scheduler jobs list:*)",
+      "Bash(gcloud scheduler jobs run:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git branch:*)",
+      "Bash(git show:*)"
+    ]
+  }
+}

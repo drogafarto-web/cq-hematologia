@@ -13,14 +13,14 @@ export interface Analyte {
 // ─── Westgard ────────────────────────────────────────────────────────────────
 
 export type WestgardViolation =
-  | '1-2s'   // Warning:   1 value beyond ±2SD
-  | '1-3s'   // Rejection: 1 value beyond ±3SD
-  | '2-2s'   // Rejection: 2 consecutive values beyond ±2SD (same side)
-  | 'R-4s'   // Rejection: 2 consecutive values span >4SD (opposite sides)
-  | '4-1s'   // Rejection: 4 consecutive values beyond ±1SD (same side)
-  | '10x'    // Rejection: 10 consecutive values on same side of mean
-  | '6T'     // Rejection: 6 consecutive values monotonically rising or falling (trend)
-  | '6X';    // Rejection: 6 consecutive values all on the same side of mean (shift)
+  | '1-2s' // Warning:   1 value beyond ±2SD
+  | '1-3s' // Rejection: 1 value beyond ±3SD
+  | '2-2s' // Rejection: 2 consecutive values beyond ±2SD (same side)
+  | 'R-4s' // Rejection: 2 consecutive values span >4SD (opposite sides)
+  | '4-1s' // Rejection: 4 consecutive values beyond ±1SD (same side)
+  | '10x' // Rejection: 10 consecutive values on same side of mean
+  | '6T' // Rejection: 6 consecutive values monotonically rising or falling (trend)
+  | '6X'; // Rejection: 6 consecutive values all on the same side of mean (shift)
 
 // ─── Runs ────────────────────────────────────────────────────────────────────
 
@@ -156,10 +156,26 @@ export interface LabSubscription {
 }
 
 export interface LabBackupConfig {
-  /** Destination email for automated backup exports. Null disables delivery. */
-  email: string | null;
-  /** Master switch — false suspends backup without removing the email address. */
+  /**
+   * Destinatários do backup diário consolidado. Aceita N emails.
+   * Lista vazia desabilita o envio mesmo com `enabled: true`.
+   */
+  emails: string[];
+  /**
+   * @deprecated Use `emails`. Mantido para compatibilidade com documentos
+   * antigos — `normalizeLab()` migra automaticamente para `emails` na leitura.
+   */
+  email?: string | null;
+  /** Master switch — false suspends backup without removing recipients. */
   enabled: boolean;
+  /** Destinatários do relatório CQI diário (23:00 BRT). */
+  cqiEmails: string[];
+  /**
+   * @deprecated Use `cqiEmails`. Mantido para compatibilidade.
+   */
+  cqiEmail?: string | null;
+  /** Master switch do CQI — independente do `enabled` do backup. */
+  cqiEnabled: boolean;
   /**
    * Number of days without new runs before a staleness alert is included.
    * Warning threshold: [stalenessThresholdDays, 6] days.
@@ -231,11 +247,11 @@ export interface AccessRequest {
  * differs from the primary Yumizen H550 it signals a fallback analyte.
  */
 export interface BulaLevelData {
-  level:              1 | 2 | 3;
-  lotNumber:          string | null;
-  manufacturerStats:  ManufacturerStats;
+  level: 1 | 2 | 3;
+  lotNumber: string | null;
+  manufacturerStats: ManufacturerStats;
   /** analyteId → equipment name the value was read from (e.g. "Pentra 60") */
-  equipmentSources?:  Record<string, string>;
+  equipmentSources?: Record<string, string>;
 }
 
 /**
@@ -245,15 +261,25 @@ export interface BulaLevelData {
  */
 export interface PendingBulaData {
   controlName: string | null;
-  expiryDate:  Date | null;
-  levels:      BulaLevelData[];
-  warnings:    string[];
+  expiryDate: Date | null;
+  levels: BulaLevelData[];
+  warnings: string[];
 }
 
 // ─── UI State ─────────────────────────────────────────────────────────────────
 
 export type SyncStatus = 'saved' | 'saving' | 'offline' | 'error';
-export type View = 'hub' | 'analyzer' | 'bulaparser' | 'superadmin' | 'reports' | 'ciq-imuno' | 'lab-settings';
+export type View =
+  | 'hub'
+  | 'analyzer'
+  | 'bulaparser'
+  | 'superadmin'
+  | 'reports'
+  | 'ciq-imuno'
+  | 'coagulacao'
+  | 'uroanalise'
+  | 'insumos'
+  | 'lab-settings';
 export type StatsSource = 'manufacturer' | 'internal';
 export type ImageState = 'ready' | 'uploading' | 'none';
 
@@ -269,11 +295,27 @@ export interface StoredState {
 
 export type Unsubscribe = () => void;
 
+export interface AppStatePatch {
+  activeLotId: string | null;
+  selectedAnalyteId: string | null;
+}
+
 export interface DatabaseService {
+  // Full-state sync — legacy / bulk import only. Hot paths use the granular
+  // helpers below, because re-touching every lot document on a simple
+  // "select another lot" action trips the admin-only Firestore rule for
+  // lot metadata and breaks the UX for non-admin members.
   saveState(state: StoredState): Promise<void>;
   loadState(): Promise<StoredState | null>;
   subscribeToState(callback: (state: StoredState) => void): Unsubscribe;
   uploadFile(file: File, path: string): Promise<string>;
+
+  // Granular writes — preferred.
+  saveAppState(patch: AppStatePatch): Promise<void>;
+  saveLot(lot: ControlLot): Promise<void>;
+  deleteLot(lotId: string): Promise<void>;
+  saveRun(lotId: string, run: Run): Promise<void>;
+  deleteRun(lotId: string, runId: string): Promise<void>;
 }
 
 // ─── Gemini / AI ──────────────────────────────────────────────────────────────

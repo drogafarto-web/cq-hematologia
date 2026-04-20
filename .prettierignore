@@ -1,0 +1,18 @@
+dist
+coverage
+functions/lib
+node_modules
+public
+backup_13abr_18h50
+package-lock.json
+*.min.js
+*.min.css
+
+# Tooling/config dirs — não são código do projeto
+.agents
+.claude
+skills
+
+# Notas soltas em pt-BR (acento no nome) — documentação manual, preserva formato
+evolução ciq-imuno-orchestrator
+

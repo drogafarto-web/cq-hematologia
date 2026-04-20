@@ -30,15 +30,14 @@ export const useToastStore = create<ToastStore>((set) => ({
     }, 3500);
   },
 
-  remove: (id) =>
-    set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
+  remove: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
 }));
 
 // ─── Imperative API (usable outside React — in hooks, services) ───────────────
 
 export const toast = {
   success: (msg: string) => useToastStore.getState().add('success', msg),
-  error:   (msg: string) => useToastStore.getState().add('error',   msg),
+  error: (msg: string) => useToastStore.getState().add('error', msg),
   warning: (msg: string) => useToastStore.getState().add('warning', msg),
-  info:    (msg: string) => useToastStore.getState().add('info',    msg),
+  info: (msg: string) => useToastStore.getState().add('info', msg),
 };

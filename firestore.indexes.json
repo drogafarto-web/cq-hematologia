@@ -4,7 +4,7 @@
       "collectionGroup": "accessRequests",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status",    "order": "ASCENDING"  },
+        { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
@@ -12,7 +12,7 @@
       "collectionGroup": "accessRequests",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId",  "order": "ASCENDING" },
+        { "fieldPath": "labId", "order": "ASCENDING" },
         { "fieldPath": "status", "order": "ASCENDING" }
       ]
     },
@@ -20,8 +20,8 @@
       "collectionGroup": "accessRequests",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId",     "order": "ASCENDING"  },
-        { "fieldPath": "status",    "order": "ASCENDING"  },
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
@@ -29,7 +29,7 @@
       "collectionGroup": "runs",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId",          "order": "ASCENDING"  },
+        { "fieldPath": "labId", "order": "ASCENDING" },
         { "fieldPath": "dataRealizacao", "order": "DESCENDING" }
       ]
     },
@@ -37,8 +37,8 @@
       "collectionGroup": "runs",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId",          "order": "ASCENDING"  },
-        { "fieldPath": "testType",       "order": "ASCENDING"  },
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "testType", "order": "ASCENDING" },
         { "fieldPath": "dataRealizacao", "order": "DESCENDING" }
       ]
     },
@@ -46,9 +46,58 @@
       "collectionGroup": "runs",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId",           "order": "ASCENDING"  },
-        { "fieldPath": "resultadoObtido", "order": "ASCENDING"  },
-        { "fieldPath": "dataRealizacao",  "order": "DESCENDING" }
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "resultadoObtido", "order": "ASCENDING" },
+        { "fieldPath": "dataRealizacao", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "insumos",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "validadeReal", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "insumos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tipo", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "insumos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "modulo", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "insumos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "insumos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tipo", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "insumo-movimentacoes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "insumoId", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "ASCENDING" }
       ]
     }
   ],

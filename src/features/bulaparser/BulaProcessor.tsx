@@ -18,7 +18,13 @@ import type { BulaLevelData, PendingBulaData } from '../../types';
 function ArrowLeftIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M10 3L5 8l5 5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -26,12 +32,59 @@ function ArrowLeftIcon() {
 function PdfIcon() {
   return (
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden>
-      <rect x="4" y="2" width="18" height="24" rx="2" stroke="currentColor" strokeWidth="1.4" strokeOpacity="0.4" />
-      <path d="M18 2v7h8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.4" />
-      <rect x="8" y="18" width="16" height="12" rx="2" fill="currentColor" fillOpacity="0.08" stroke="currentColor" strokeWidth="1.2" strokeOpacity="0.3" />
-      <path d="M11.5 22.5h2c.8 0 1.5.6 1.5 1.5s-.7 1.5-1.5 1.5H11.5V22h0" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.6" />
-      <path d="M17 22.5h1.5c1.1 0 2 .9 2 2s-.9 2-2 2H17v-4z" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.6" />
-      <path d="M22 22.5h2.5M22 24.5h2" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeOpacity="0.6" />
+      <rect
+        x="4"
+        y="2"
+        width="18"
+        height="24"
+        rx="2"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeOpacity="0.4"
+      />
+      <path
+        d="M18 2v7h8"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeOpacity="0.4"
+      />
+      <rect
+        x="8"
+        y="18"
+        width="16"
+        height="12"
+        rx="2"
+        fill="currentColor"
+        fillOpacity="0.08"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeOpacity="0.3"
+      />
+      <path
+        d="M11.5 22.5h2c.8 0 1.5.6 1.5 1.5s-.7 1.5-1.5 1.5H11.5V22h0"
+        stroke="currentColor"
+        strokeWidth="1.1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeOpacity="0.6"
+      />
+      <path
+        d="M17 22.5h1.5c1.1 0 2 .9 2 2s-.9 2-2 2H17v-4z"
+        stroke="currentColor"
+        strokeWidth="1.1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeOpacity="0.6"
+      />
+      <path
+        d="M22 22.5h2.5M22 24.5h2"
+        stroke="currentColor"
+        strokeWidth="1.1"
+        strokeLinecap="round"
+        strokeOpacity="0.6"
+      />
     </svg>
   );
 }
@@ -39,8 +92,19 @@ function PdfIcon() {
 function UploadCloudIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden>
-      <path d="M9 18.5A5 5 0 019 8.5a5.5 5.5 0 0110.7-1.5A4.5 4.5 0 0124 11.5a4.5 4.5 0 01-4.5 4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M14 14v9M11 17l3-3 3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M9 18.5A5 5 0 019 8.5a5.5 5.5 0 0110.7-1.5A4.5 4.5 0 0124 11.5a4.5 4.5 0 01-4.5 4.5"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+      <path
+        d="M14 14v9M11 17l3-3 3 3"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -57,7 +121,12 @@ function WarnIcon() {
 function SparkleIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <path d="M7 1v2M7 11v2M1 7h2M11 7h2M3.2 3.2l1.4 1.4M9.4 9.4l1.4 1.4M3.2 10.8l1.4-1.4M9.4 4.6l1.4-1.4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+      <path
+        d="M7 1v2M7 11v2M1 7h2M11 7h2M3.2 3.2l1.4 1.4M9.4 9.4l1.4 1.4M3.2 10.8l1.4-1.4M9.4 4.6l1.4-1.4"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
       <circle cx="7" cy="7" r="2.5" stroke="currentColor" strokeWidth="1.3" />
     </svg>
   );
@@ -66,7 +135,13 @@ function SparkleIcon() {
 function CheckIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <path d="M2.5 7l3 3 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M2.5 7l3 3 6-6"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -74,7 +149,13 @@ function CheckIcon() {
 function DownloadIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <path d="M7 2v7M4.5 6.5L7 9l2.5-2.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M7 2v7M4.5 6.5L7 9l2.5-2.5"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
       <path d="M2 10.5h10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   );
@@ -83,14 +164,14 @@ function DownloadIcon() {
 // ─── Drop zone ────────────────────────────────────────────────────────────────
 
 interface DropZoneProps {
-  onFile:   (file: File) => void;
+  onFile: (file: File) => void;
   disabled: boolean;
 }
 
 function DropZone({ onFile, disabled }: DropZoneProps) {
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const inputId  = useId();
+  const inputId = useId();
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
@@ -108,21 +189,31 @@ function DropZone({ onFile, disabled }: DropZoneProps) {
 
   return (
     <div
-      onDragOver={(e) => { e.preventDefault(); if (!disabled) setDragging(true); }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        if (!disabled) setDragging(true);
+      }}
       onDragLeave={() => setDragging(false)}
       onDrop={handleDrop}
       onClick={() => !disabled && inputRef.current?.click()}
       role="button"
       tabIndex={disabled ? -1 : 0}
       aria-label="Área para soltar ou selecionar arquivo PDF"
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); inputRef.current?.click(); } }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          inputRef.current?.click();
+        }
+      }}
       className={`
         relative flex flex-col items-center justify-center gap-4
         rounded-2xl border-2 border-dashed transition-all cursor-pointer select-none
         py-16 px-8 text-center
-        ${dragging
-          ? 'border-violet-500/60 bg-violet-500/[0.06]'
-          : 'border-white/[0.1] hover:border-white/[0.2] bg-white/[0.02] hover:bg-white/[0.03]'}
+        ${
+          dragging
+            ? 'border-violet-500/60 bg-violet-500/[0.06]'
+            : 'border-white/[0.1] hover:border-white/[0.2] bg-white/[0.02] hover:bg-white/[0.03]'
+        }
         ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
       `}
     >
@@ -133,9 +224,7 @@ function DropZone({ onFile, disabled }: DropZoneProps) {
         <p className="text-sm font-medium text-white/60">
           {dragging ? 'Solte o PDF aqui' : 'Arraste a bula PDF ou clique para selecionar'}
         </p>
-        <p className="text-xs text-white/25 mt-1">
-          Apenas arquivos PDF · Máx. 10 MB
-        </p>
+        <p className="text-xs text-white/25 mt-1">Apenas arquivos PDF · Máx. 10 MB</p>
       </div>
       <input
         ref={inputRef}
@@ -163,15 +252,15 @@ function isFallbackSource(source: string | undefined): boolean {
 
 const LEVEL_TAB_COLORS: Record<number, { tab: string; badge: string }> = {
   1: {
-    tab:   'border-blue-500/50  text-blue-400  bg-blue-500/[0.08]',
+    tab: 'border-blue-500/50  text-blue-400  bg-blue-500/[0.08]',
     badge: 'text-blue-400 bg-blue-500/15 border-blue-500/25',
   },
   2: {
-    tab:   'border-amber-500/50 text-amber-400 bg-amber-500/[0.08]',
+    tab: 'border-amber-500/50 text-amber-400 bg-amber-500/[0.08]',
     badge: 'text-amber-400 bg-amber-500/15 border-amber-500/25',
   },
   3: {
-    tab:   'border-rose-500/50  text-rose-400  bg-rose-500/[0.08]',
+    tab: 'border-rose-500/50  text-rose-400  bg-rose-500/[0.08]',
     badge: 'text-rose-400 bg-rose-500/15 border-rose-500/25',
   },
 };
@@ -198,16 +287,24 @@ function LevelTable({ lvl }: { lvl: BulaLevelData }) {
   return (
     <div className="rounded-2xl border border-white/[0.07] overflow-hidden">
       <div className="grid grid-cols-[1fr_auto_auto_auto] bg-white/[0.03] border-b border-white/[0.07] px-4 py-2.5 gap-3">
-        <span className="text-[11px] font-semibold text-white/30 uppercase tracking-wider">Analito</span>
-        <span className="text-[11px] font-semibold text-white/30 uppercase tracking-wider text-right">Média</span>
-        <span className="text-[11px] font-semibold text-white/30 uppercase tracking-wider text-right">±DP</span>
-        <span className="text-[11px] font-semibold text-white/30 uppercase tracking-wider text-right">Fonte</span>
+        <span className="text-[11px] font-semibold text-white/30 uppercase tracking-wider">
+          Analito
+        </span>
+        <span className="text-[11px] font-semibold text-white/30 uppercase tracking-wider text-right">
+          Média
+        </span>
+        <span className="text-[11px] font-semibold text-white/30 uppercase tracking-wider text-right">
+          ±DP
+        </span>
+        <span className="text-[11px] font-semibold text-white/30 uppercase tracking-wider text-right">
+          Fonte
+        </span>
       </div>
       <div className="divide-y divide-white/[0.04] max-h-72 overflow-y-auto">
         {analytes.map(([id, stats]) => {
-          const meta      = ANALYTE_MAP[id];
-          const dp        = meta?.decimals ?? 2;
-          const source    = lvl.equipmentSources?.[id];
+          const meta = ANALYTE_MAP[id];
+          const dp = meta?.decimals ?? 2;
+          const source = lvl.equipmentSources?.[id];
           const isFallback = isFallbackSource(source);
 
           return (
@@ -220,7 +317,9 @@ function LevelTable({ lvl }: { lvl: BulaLevelData }) {
               `}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <span className={`text-sm font-medium ${isFallback ? 'text-amber-300' : 'text-white/80'}`}>
+                <span
+                  className={`text-sm font-medium ${isFallback ? 'text-amber-300' : 'text-white/80'}`}
+                >
                   {meta?.name ?? id}
                 </span>
                 {meta && <span className="text-xs text-white/25">{meta.unit}</span>}
@@ -255,22 +354,32 @@ function LevelTable({ lvl }: { lvl: BulaLevelData }) {
 // ─── Result panel ─────────────────────────────────────────────────────────────
 
 interface ResultPanelProps {
-  data:         PendingBulaData;
-  fileName:     string;
-  formData:     BulaExportFormData;
+  data: PendingBulaData;
+  fileName: string;
+  formData: BulaExportFormData;
   onFormChange: (patch: Partial<BulaExportFormData>) => void;
-  onReset:      () => void;
-  onDownload:   () => void;
-  onConfirm:    () => void;
+  onReset: () => void;
+  onDownload: () => void;
+  onConfirm: () => void;
 }
 
-function ResultPanel({ data, fileName, formData, onFormChange, onReset, onDownload, onConfirm }: ResultPanelProps) {
-  const [activeTab, setActiveTab] = useState<1 | 2 | 3>(
-    (data.levels[0]?.level ?? 1) as 1 | 2 | 3,
-  );
+function ResultPanel({
+  data,
+  fileName,
+  formData,
+  onFormChange,
+  onReset,
+  onDownload,
+  onConfirm,
+}: ResultPanelProps) {
+  const [activeTab, setActiveTab] = useState<1 | 2 | 3>((data.levels[0]?.level ?? 1) as 1 | 2 | 3);
 
   const fmtDate = data.expiryDate
-    ? data.expiryDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    ? data.expiryDate.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      })
     : null;
 
   const totalAnalytes = data.levels.reduce(
@@ -280,8 +389,8 @@ function ResultPanel({ data, fileName, formData, onFormChange, onReset, onDownlo
 
   const activeLevel = data.levels.find((l) => l.level === activeTab);
 
-  const hasFallbacks = data.levels.some(
-    (lvl) => Object.values(lvl.equipmentSources ?? {}).some(isFallbackSource),
+  const hasFallbacks = data.levels.some((lvl) =>
+    Object.values(lvl.equipmentSources ?? {}).some(isFallbackSource),
   );
 
   return (
@@ -299,8 +408,13 @@ function ResultPanel({ data, fileName, formData, onFormChange, onReset, onDownlo
       {data.warnings.length > 0 && (
         <div className="flex flex-col gap-1.5">
           {data.warnings.map((w, i) => (
-            <div key={i} className="flex items-start gap-2 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-xl px-3.5 py-2.5">
-              <span className="shrink-0 mt-0.5"><WarnIcon /></span>
+            <div
+              key={i}
+              className="flex items-start gap-2 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-xl px-3.5 py-2.5"
+            >
+              <span className="shrink-0 mt-0.5">
+                <WarnIcon />
+              </span>
               {w}
             </div>
           ))}
@@ -312,7 +426,9 @@ function ResultPanel({ data, fileName, formData, onFormChange, onReset, onDownlo
         {[
           {
             label: 'Controle',
-            value: data.controlName ?? <span className="text-white/25 italic">não identificado</span>,
+            value: data.controlName ?? (
+              <span className="text-white/25 italic">não identificado</span>
+            ),
           },
           {
             label: 'Vencimento',
@@ -348,10 +464,12 @@ function ResultPanel({ data, fileName, formData, onFormChange, onReset, onDownlo
       {/* Fallback legend */}
       {hasFallbacks && (
         <div className="flex items-start gap-2 text-xs text-amber-400/80 bg-amber-500/[0.06] border border-amber-500/[0.15] rounded-xl px-3.5 py-2.5">
-          <span className="shrink-0 mt-0.5"><WarnIcon /></span>
+          <span className="shrink-0 mt-0.5">
+            <WarnIcon />
+          </span>
           <span>
-            Alguns analitos foram extraídos do equipamento de fallback (Pentra) por ausência de dados
-            do Yumizen H550. Revise antes de confirmar.
+            Alguns analitos foram extraídos do equipamento de fallback (Pentra) por ausência de
+            dados do Yumizen H550. Revise antes de confirmar.
           </span>
         </div>
       )}
@@ -368,9 +486,11 @@ function ResultPanel({ data, fileName, formData, onFormChange, onReset, onDownlo
                 onClick={() => setActiveTab(l.level)}
                 className={`
                   flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-all
-                  ${isActive
-                    ? LEVEL_TAB_COLORS[l.level].tab
-                    : `border-transparent ${LEVEL_INACTIVE_COLORS[l.level]}`}
+                  ${
+                    isActive
+                      ? LEVEL_TAB_COLORS[l.level].tab
+                      : `border-transparent ${LEVEL_INACTIVE_COLORS[l.level]}`
+                  }
                 `}
               >
                 Nível {l.level}
@@ -389,7 +509,9 @@ function ResultPanel({ data, fileName, formData, onFormChange, onReset, onDownlo
       {/* Export form */}
       <div className="rounded-2xl bg-white/[0.03] border border-white/[0.07] divide-y divide-white/[0.05]">
         <div className="flex items-center justify-between px-4 py-3 gap-4">
-          <label htmlFor="bula-equipment" className="text-xs text-white/35 shrink-0">Equipamento</label>
+          <label htmlFor="bula-equipment" className="text-xs text-white/35 shrink-0">
+            Equipamento
+          </label>
           <input
             id="bula-equipment"
             type="text"
@@ -400,7 +522,9 @@ function ResultPanel({ data, fileName, formData, onFormChange, onReset, onDownlo
           />
         </div>
         <div className="flex items-center justify-between px-4 py-3 gap-4">
-          <label htmlFor="bula-serial" className="text-xs text-white/35 shrink-0">Serial</label>
+          <label htmlFor="bula-serial" className="text-xs text-white/35 shrink-0">
+            Serial
+          </label>
           <input
             id="bula-serial"
             type="text"
@@ -465,14 +589,14 @@ type Phase = 'idle' | 'converting' | 'extracting' | 'done' | 'error';
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function BulaProcessor() {
-  const setCurrentView     = useAppStore((s) => s.setCurrentView);
+  const setCurrentView = useAppStore((s) => s.setCurrentView);
   const setPendingBulaData = useAppStore((s) => s.setPendingBulaData);
 
-  const [phase,    setPhase]    = useState<Phase>('idle');
+  const [phase, setPhase] = useState<Phase>('idle');
   const [convProgress, setConvProgress] = useState({ current: 0, total: 0 });
-  const [result,   setResult]   = useState<PendingBulaData | null>(null);
+  const [result, setResult] = useState<PendingBulaData | null>(null);
   const [fileName, setFileName] = useState('');
-  const [error,    setError]    = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<BulaExportFormData>(DEFAULT_EXPORT_FORM);
 
   const handleFile = useCallback(async (file: File) => {
@@ -500,7 +624,7 @@ export function BulaProcessor() {
       // 2. Enviar imagem resultante para extração
       setPhase('extracting');
       const data = await extractDataFromBulaPdf(base64, mimeType);
-      
+
       setResult(data);
       setPhase('done');
     } catch (err) {
@@ -531,7 +655,6 @@ export function BulaProcessor() {
 
   return (
     <div className="min-h-screen bg-[#0c0c0c] text-white flex flex-col">
-
       {/* Header */}
       <header className="flex items-center gap-3 px-4 h-12 border-b border-white/[0.06] shrink-0">
         <button
@@ -546,10 +669,14 @@ export function BulaProcessor() {
         <div className="w-px h-4 bg-white/[0.08]" aria-hidden />
 
         <div className="flex items-center gap-2">
-          <div className="text-white/30"><PdfIcon /></div>
+          <div className="text-white/30">
+            <PdfIcon />
+          </div>
           <div>
             <p className="text-sm font-semibold text-white/80 leading-none">Importar bula PDF</p>
-            <p className="text-[11px] text-white/30 mt-0.5">Extração automática de metas via IA — todos os níveis</p>
+            <p className="text-[11px] text-white/30 mt-0.5">
+              Extração automática de metas via IA — todos os níveis
+            </p>
           </div>
         </div>
       </header>
@@ -557,10 +684,7 @@ export function BulaProcessor() {
       {/* Body */}
       <main className="flex-1 overflow-y-auto p-6 max-w-2xl mx-auto w-full">
         <div className="py-4 space-y-6">
-
-          {phase === 'idle' && (
-            <DropZone onFile={handleFile} disabled={false} />
-          )}
+          {phase === 'idle' && <DropZone onFile={handleFile} disabled={false} />}
 
           {phase === 'converting' && (
             <div className="flex flex-col items-center justify-center py-24 gap-5">
@@ -577,8 +701,8 @@ export function BulaProcessor() {
                   {convProgress.total > 0 && (
                     <div className="flex items-center justify-center gap-2 mt-2">
                       <div className="w-24 h-1 bg-white/5 rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-blue-500 transition-all duration-300" 
+                        <div
+                          className="h-full bg-blue-500 transition-all duration-300"
                           style={{ width: `${(convProgress.current / convProgress.total) * 100}%` }}
                         />
                       </div>
@@ -612,7 +736,9 @@ export function BulaProcessor() {
           {phase === 'error' && (
             <div className="space-y-4">
               <div className="flex items-start gap-3 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-2xl px-5 py-4">
-                <span className="shrink-0 mt-0.5"><WarnIcon /></span>
+                <span className="shrink-0 mt-0.5">
+                  <WarnIcon />
+                </span>
                 <div>
                   <p className="font-medium">Falha na extração</p>
                   <p className="text-red-400/70 text-xs mt-1">{error}</p>
@@ -639,7 +765,6 @@ export function BulaProcessor() {
               onConfirm={handleConfirm}
             />
           )}
-
         </div>
       </main>
     </div>

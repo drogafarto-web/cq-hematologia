@@ -14,9 +14,9 @@ interface Props {
 
 function maskCNPJ(v: string): string {
   const d = v.replace(/\D/g, '').slice(0, 14);
-  if (d.length <=  2) return d;
-  if (d.length <=  5) return `${d.slice(0, 2)}.${d.slice(2)}`;
-  if (d.length <=  8) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5)}`;
+  if (d.length <= 2) return d;
+  if (d.length <= 5) return `${d.slice(0, 2)}.${d.slice(2)}`;
+  if (d.length <= 8) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5)}`;
   if (d.length <= 12) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8)}`;
   return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`;
 }
@@ -28,8 +28,8 @@ function maskCEP(v: string): string {
 
 function maskPhone(v: string): string {
   const d = v.replace(/\D/g, '').slice(0, 11);
-  if (d.length <=  2) return d.length ? `(${d}` : '';
-  if (d.length <=  6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  if (d.length <= 2) return d.length ? `(${d}` : '';
+  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
   if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
 }
@@ -38,54 +38,59 @@ function maskPhone(v: string): string {
 
 export function LabAdminModal({ lab, onConfirm, onClose }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
-  const isEdit  = Boolean(lab);
+  const isEdit = Boolean(lab);
 
   /* Logo */
   const [logoFile, setLogoFile] = useState<File | undefined>();
-  const [preview,  setPreview]  = useState<string | null>(lab?.logoUrl ?? null);
+  const [preview, setPreview] = useState<string | null>(lab?.logoUrl ?? null);
 
   /* Identification */
-  const [name,      setName]      = useState(lab?.name ?? '');
+  const [name, setName] = useState(lab?.name ?? '');
   const [legalName, setLegalName] = useState(lab?.legalName ?? '');
-  const [cnpj,      setCnpj]      = useState(lab?.cnpj ?? '');
+  const [cnpj, setCnpj] = useState(lab?.cnpj ?? '');
 
   /* Contact */
   const [email, setEmail] = useState(lab?.contact?.email ?? '');
   const [phone, setPhone] = useState(lab?.contact?.phone ?? '');
 
   /* Address */
-  const [zipCode,      setZipCode]      = useState(lab?.address?.zipCode ?? '');
-  const [street,       setStreet]       = useState(lab?.address?.street ?? '');
-  const [number,       setNumber]       = useState(lab?.address?.number ?? '');
-  const [complement,   setComplement]   = useState(lab?.address?.complement ?? '');
+  const [zipCode, setZipCode] = useState(lab?.address?.zipCode ?? '');
+  const [street, setStreet] = useState(lab?.address?.street ?? '');
+  const [number, setNumber] = useState(lab?.address?.number ?? '');
+  const [complement, setComplement] = useState(lab?.address?.complement ?? '');
   const [neighborhood, setNeighborhood] = useState(lab?.address?.neighborhood ?? '');
-  const [city,         setCity]         = useState(lab?.address?.city ?? '');
-  const [uf,           setUf]           = useState(lab?.address?.state ?? '');
+  const [city, setCity] = useState(lab?.address?.city ?? '');
+  const [uf, setUf] = useState(lab?.address?.state ?? '');
 
   /* Compliance */
-  const [cnesCode,          setCnesCode]          = useState(lab?.compliance?.cnesCode ?? '');
-  const [anvisaLicense,     setAnvisaLicense]     = useState(lab?.compliance?.anvisaLicense ?? '');
-  const [iso15189,          setIso15189]          = useState(lab?.compliance?.iso15189 ?? false);
-  const [accreditationBody, setAccreditationBody] = useState(lab?.compliance?.accreditationBody ?? '');
+  const [cnesCode, setCnesCode] = useState(lab?.compliance?.cnesCode ?? '');
+  const [anvisaLicense, setAnvisaLicense] = useState(lab?.compliance?.anvisaLicense ?? '');
+  const [iso15189, setIso15189] = useState(lab?.compliance?.iso15189 ?? false);
+  const [accreditationBody, setAccreditationBody] = useState(
+    lab?.compliance?.accreditationBody ?? '',
+  );
 
   /* Backup */
-  const [backupEmail,     setBackupEmail]     = useState(lab?.backup?.email ?? '');
-  const [backupEnabled,   setBackupEnabled]   = useState(lab?.backup?.enabled ?? false);
+  const [backupEmail, setBackupEmail] = useState(lab?.backup?.email ?? '');
+  const [backupEnabled, setBackupEnabled] = useState(lab?.backup?.enabled ?? false);
   const [stalenessThreshold, setStalenessThreshold] = useState(
-    String(lab?.backup?.stalenessThresholdDays ?? 3)
+    String(lab?.backup?.stalenessThresholdDays ?? 3),
   );
 
   /* UI state */
-  const [saving,     setSaving]     = useState(false);
+  const [saving, setSaving] = useState(false);
   const [cepLoading, setCepLoading] = useState(false);
-  const [error,      setError]      = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) { setError('Logo deve ter no máximo 2 MB.'); return; }
+    if (file.size > 2 * 1024 * 1024) {
+      setError('Logo deve ter no máximo 2 MB.');
+      return;
+    }
     setLogoFile(file);
     setPreview(URL.createObjectURL(file));
     setError(null);
@@ -96,51 +101,57 @@ export function LabAdminModal({ lab, onConfirm, onClose }: Props) {
     if (digits.length !== 8) return;
     setCepLoading(true);
     try {
-      const res  = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
-      const data = await res.json() as Record<string, string>;
+      const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+      const data = (await res.json()) as Record<string, string>;
       if (!data['erro']) {
         setStreet(data['logradouro'] || '');
         setNeighborhood(data['bairro'] || '');
         setCity(data['localidade'] || '');
         setUf(data['uf'] || '');
       }
-    } catch { /* swallow */ }
-    finally { setCepLoading(false); }
+    } catch {
+      /* swallow */
+    } finally {
+      setCepLoading(false);
+    }
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const trimmedName = name.trim();
-    if (!trimmedName) { setError('Nome do laboratório é obrigatório.'); return; }
+    if (!trimmedName) {
+      setError('Nome do laboratório é obrigatório.');
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
       const payload: LabFormPayload = {
-        name:      trimmedName,
+        name: trimmedName,
         legalName: legalName.trim() || undefined,
-        cnpj:      cnpj.trim()      || undefined,
+        cnpj: cnpj.trim() || undefined,
         contact: {
           email: email.trim(),
           phone: phone.trim(),
         },
         address: {
-          zipCode:      zipCode.trim(),
-          street:       street.trim(),
-          number:       number.trim(),
-          complement:   complement.trim() || undefined,
+          zipCode: zipCode.trim(),
+          street: street.trim(),
+          number: number.trim(),
+          complement: complement.trim() || undefined,
           neighborhood: neighborhood.trim(),
-          city:         city.trim(),
-          state:        uf.trim().toUpperCase(),
+          city: city.trim(),
+          state: uf.trim().toUpperCase(),
         },
         compliance: {
-          cnesCode:          cnesCode.trim()          || undefined,
-          anvisaLicense:     anvisaLicense.trim()     || undefined,
+          cnesCode: cnesCode.trim() || undefined,
+          anvisaLicense: anvisaLicense.trim() || undefined,
           iso15189,
           accreditationBody: accreditationBody.trim() || undefined,
         },
         backup: {
-          email:                  backupEmail.trim() || null,
-          enabled:                backupEnabled,
+          email: backupEmail.trim() || null,
+          enabled: backupEnabled,
           stalenessThresholdDays: Math.max(1, Math.min(30, parseInt(stalenessThreshold, 10) || 3)),
         },
       };
@@ -171,21 +182,17 @@ export function LabAdminModal({ lab, onConfirm, onClose }: Props) {
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="w-full max-w-xl bg-[#141414] border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
-
         {/* ── Header ── */}
         <div className="px-6 py-5 border-b border-white/[0.07] shrink-0">
           <h2 className="text-base font-semibold text-white/90">
             {isEdit ? 'Editar laboratório' : 'Novo laboratório'}
           </h2>
-          <p className="text-xs text-white/35 mt-0.5">
-            Dados cadastrais do tenant
-          </p>
+          <p className="text-xs text-white/35 mt-0.5">Dados cadastrais do tenant</p>
         </div>
 
         {/* ── Scrollable form body + sticky footer ── */}
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-7">
-
             {/* ── Identificação ── */}
             <section className="space-y-4">
               <p className={sectionTitleCls}>Identificação</p>
@@ -200,9 +207,29 @@ export function LabAdminModal({ lab, onConfirm, onClose }: Props) {
                   {preview ? (
                     <img src={preview} alt="Logo" className="w-full h-full object-cover" />
                   ) : (
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-white/20">
-                      <path d="M4 16l4-4 4 4 4-6 4 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" strokeWidth="1.5" />
+                    <svg
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      className="text-white/20"
+                    >
+                      <path
+                        d="M4 16l4-4 4 4 4-6 4 6"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <rect
+                        x="3"
+                        y="3"
+                        width="18"
+                        height="18"
+                        rx="3"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                      />
                     </svg>
                   )}
                 </div>
@@ -435,13 +462,17 @@ export function LabAdminModal({ lab, onConfirm, onClose }: Props) {
                 >
                   {iso15189 && (
                     <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6l3 3 5-5" stroke="#000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                      <path
+                        d="M2 6l3 3 5-5"
+                        stroke="#000"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   )}
                 </span>
-                <span className="text-sm text-white/70 select-none">
-                  Acreditado ISO 15189
-                </span>
+                <span className="text-sm text-white/70 select-none">Acreditado ISO 15189</span>
               </button>
             </section>
 
@@ -459,7 +490,8 @@ export function LabAdminModal({ lab, onConfirm, onClose }: Props) {
                   className={inputCls}
                 />
                 <p className="mt-1.5 text-[11px] text-white/25">
-                  Relatório PDF dos últimos 30 dias enviado diariamente. Inclui alertas de inatividade por módulo.
+                  Relatório PDF dos últimos 30 dias enviado diariamente. Inclui alertas de
+                  inatividade por módulo.
                 </p>
               </div>
 
@@ -493,19 +525,21 @@ export function LabAdminModal({ lab, onConfirm, onClose }: Props) {
                 >
                   {backupEnabled && (
                     <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6l3 3 5-5" stroke="#000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                      <path
+                        d="M2 6l3 3 5-5"
+                        stroke="#000"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   )}
                 </span>
-                <span className="text-sm text-white/70 select-none">
-                  Backup automático ativado
-                </span>
+                <span className="text-sm text-white/70 select-none">Backup automático ativado</span>
               </button>
             </section>
 
-            {error && (
-              <p className="text-xs text-red-400">{error}</p>
-            )}
+            {error && <p className="text-xs text-red-400">{error}</p>}
           </div>
 
           {/* ── Footer ── */}

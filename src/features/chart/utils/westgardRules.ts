@@ -50,7 +50,7 @@ function rule_10x(last10: number[]): boolean {
  */
 function rule_6T(last6Newest: number[]): boolean {
   const chronological = [...last6Newest].reverse(); // oldest → newest
-  const rising  = chronological.every((v, i) => i === 0 || v > chronological[i - 1]);
+  const rising = chronological.every((v, i) => i === 0 || v > chronological[i - 1]);
   const falling = chronological.every((v, i) => i === 0 || v < chronological[i - 1]);
   return rising || falling;
 }
@@ -78,7 +78,7 @@ function rule_6X(last6: number[]): boolean {
 export function checkWestgardRules(
   current: number,
   previous: number[],
-  stats: AnalyteStats
+  stats: AnalyteStats,
 ): WestgardViolation[] {
   const { mean, sd } = stats;
   if (sd <= 0) return []; // Cannot evaluate without a valid SD
@@ -120,7 +120,15 @@ export function checkWestgardRules(
 }
 
 /** Rules that require run rejection (vs. warning-only) */
-const REJECTION_RULES = new Set<WestgardViolation>(['1-3s', '2-2s', 'R-4s', '4-1s', '10x', '6T', '6X']);
+const REJECTION_RULES = new Set<WestgardViolation>([
+  '1-3s',
+  '2-2s',
+  'R-4s',
+  '4-1s',
+  '10x',
+  '6T',
+  '6X',
+]);
 
 /** Returns true if any violation in the list triggers run rejection */
 export function isRejection(violations: WestgardViolation[]): boolean {

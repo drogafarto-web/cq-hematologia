@@ -5,19 +5,19 @@ import type { Analyte, GeminiExtractionResponse, GeminiAnalyteResult } from '../
 // ─── Callable reference ───────────────────────────────────────────────────────
 
 interface ExtractFromImagePayload {
-  base64:     string;
+  base64: string;
   analyteIds: string[];
-  mimeType:   string;
+  mimeType: string;
 }
 
 interface ExtractFromImageResult {
   sampleId: string | null;
-  results:  Record<string, GeminiAnalyteResult>;
+  results: Record<string, GeminiAnalyteResult>;
 }
 
 const _extractFromImage = httpsCallable<ExtractFromImagePayload, ExtractFromImageResult>(
   functions,
-  'extractFromImage'
+  'extractFromImage',
 );
 
 // ─── Public API ───────────────────────────────────────────────────────────────
@@ -34,9 +34,9 @@ const _extractFromImage = httpsCallable<ExtractFromImagePayload, ExtractFromImag
 export async function extractDataFromImage(
   base64: string,
   analytes: Analyte[],
-  mimeType: string
+  mimeType: string,
 ): Promise<GeminiExtractionResponse> {
-  if (!base64.trim())        throw new Error('Nenhuma imagem fornecida para extração.');
+  if (!base64.trim()) throw new Error('Nenhuma imagem fornecida para extração.');
   if (analytes.length === 0) throw new Error('Nenhum analito definido no lote.');
 
   let result: HttpsCallableResult<ExtractFromImageResult>;
@@ -73,7 +73,9 @@ function mapFunctionsError(err: unknown): Error {
       return new Error('Sessão expirada. Faça login novamente.');
     }
     if (code === 'functions/invalid-argument') {
-      return new Error('A imagem foi bloqueada por filtros de segurança. Tente uma foto diferente.');
+      return new Error(
+        'A imagem foi bloqueada por filtros de segurança. Tente uma foto diferente.',
+      );
     }
     if (code === 'functions/internal') {
       // Strip the "functions/internal:" prefix Firebase adds

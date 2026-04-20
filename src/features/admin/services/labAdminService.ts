@@ -69,10 +69,7 @@ export interface UpdateLabPayload {
 
 // ─── Lab CRUD ─────────────────────────────────────────────────────────────────
 
-export async function createLab(
-  payload: CreateLabPayload,
-  ownerUid: string
-): Promise<Lab> {
+export async function createLab(payload: CreateLabPayload, ownerUid: string): Promise<Lab> {
   if (!payload.name.trim()) throw new Error('Nome do laboratório é obrigatório.');
 
   const labRef = doc(collection(db, COLLECTIONS.LABS));
@@ -86,10 +83,10 @@ export async function createLab(
   // Build Firestore document with full defaults so normalizeLab is a no-op
   // on new documents (and migrations only affect truly legacy docs).
   const labData: Record<string, unknown> = {
-    name:      payload.name.trim(),
+    name: payload.name.trim(),
     legalName: payload.legalName?.trim() ?? null,
-    logoUrl:   logoUrl ?? null,
-    cnpj:      payload.cnpj?.trim() ?? null,
+    logoUrl: logoUrl ?? null,
+    cnpj: payload.cnpj?.trim() ?? null,
 
     contact: {
       email: '',
@@ -97,13 +94,13 @@ export async function createLab(
       ...(payload.contact ?? {}),
     },
     address: {
-      street:       '',
-      number:       '',
-      complement:   null,
+      street: '',
+      number: '',
+      complement: null,
       neighborhood: '',
-      city:         '',
-      state:        '',
-      zipCode:      '',
+      city: '',
+      state: '',
+      zipCode: '',
       ...(payload.address ?? {}),
     },
     qcSettings: {
@@ -113,27 +110,27 @@ export async function createLab(
         '2-2s': true,
         'R-4s': true,
         '4-1s': true,
-        '10x':  true,
-        ...((payload.qcSettings?.westgardRules) ?? {}),
+        '10x': true,
+        ...(payload.qcSettings?.westgardRules ?? {}),
       },
       minRunsForInternalStats: payload.qcSettings?.minRunsForInternalStats ?? 20,
     },
     compliance: {
-      cnesCode:          null,
-      anvisaLicense:     null,
-      iso15189:          false,
+      cnesCode: null,
+      anvisaLicense: null,
+      iso15189: false,
       accreditationBody: null,
       ...(payload.compliance ?? {}),
     },
     subscription: {
-      plan:   'free',
+      plan: 'free',
       status: 'active',
       ...(payload.subscription ?? {}),
     },
 
     backup: {
-      email:                  null,
-      enabled:                false,
+      email: null,
+      enabled: false,
       stalenessThresholdDays: 3,
       ...(payload.backup ?? {}),
     },
@@ -147,10 +144,10 @@ export async function createLab(
   batch.set(labRef, labData);
 
   // Owner member entry
-  batch.set(
-    doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.MEMBERS, ownerUid),
-    { role: 'owner', active: true }
-  );
+  batch.set(doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.MEMBERS, ownerUid), {
+    role: 'owner',
+    active: true,
+  });
 
   // Update user document
   const userRef = doc(db, COLLECTIONS.USERS, ownerUid);
@@ -170,15 +167,12 @@ export async function createLab(
   return normalizeLab({ ...labData, id: labId, createdAt: new Date() });
 }
 
-export async function updateLab(
-  labId: string,
-  payload: UpdateLabPayload
-): Promise<void> {
+export async function updateLab(labId: string, payload: UpdateLabPayload): Promise<void> {
   const updates: Record<string, unknown> = {};
 
-  if (payload.name !== undefined)      updates.name      = payload.name.trim();
+  if (payload.name !== undefined) updates.name = payload.name.trim();
   if (payload.legalName !== undefined) updates.legalName = payload.legalName.trim();
-  if (payload.cnpj !== undefined)      updates.cnpj      = payload.cnpj.trim();
+  if (payload.cnpj !== undefined) updates.cnpj = payload.cnpj.trim();
 
   if (payload.logoFile) {
     updates.logoUrl = await uploadLabLogo(labId, payload.logoFile);
@@ -233,7 +227,7 @@ export async function updateLab(
 export async function deleteLab(labId: string): Promise<void> {
   // Remove all members' lab references first
   const membersSnap = await getDocs(
-    collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.MEMBERS)
+    collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.MEMBERS),
   );
 
   const batch = writeBatch(db);
@@ -279,7 +273,7 @@ export async function deleteLabLogo(labId: string): Promise<void> {
 
 export async function getLabMembers(labId: string): Promise<LabMember[]> {
   const membersSnap = await getDocs(
-    collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.MEMBERS)
+    collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.MEMBERS),
   );
 
   const members: LabMember[] = [];
@@ -299,7 +293,7 @@ export async function getLabMembers(labId: string): Promise<LabMember[]> {
           active,
         });
       }
-    })
+    }),
   );
 
   return members.sort((a, b) => {
@@ -308,11 +302,7 @@ export async function getLabMembers(labId: string): Promise<LabMember[]> {
   });
 }
 
-export async function updateMemberRole(
-  labId: string,
-  uid: string,
-  role: UserRole
-): Promise<void> {
+export async function updateMemberRole(labId: string, uid: string, role: UserRole): Promise<void> {
   const batch = writeBatch(db);
   batch.update(doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.MEMBERS, uid), { role });
   batch.update(doc(db, COLLECTIONS.USERS, uid), { [`roles.${labId}`]: role });
@@ -337,7 +327,7 @@ export async function deactivateMember(labId: string, uid: string): Promise<void
 export async function reactivateMember(
   labId: string,
   uid: string,
-  role: UserRole = 'member'
+  role: UserRole = 'member',
 ): Promise<void> {
   const batch = writeBatch(db);
   batch.update(doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.MEMBERS, uid), {
@@ -362,14 +352,14 @@ export async function reactivateMember(
 // ─── Pending access requests for a specific lab ───────────────────────────────
 
 export async function getPendingRequestsForLab(
-  labId: string
+  labId: string,
 ): Promise<import('../../../types').AccessRequest[]> {
   const snap = await getDocs(
     query(
       collection(db, COLLECTIONS.ACCESS_REQUESTS),
       where('labId', '==', labId),
-      where('status', '==', 'pending')
-    )
+      where('status', '==', 'pending'),
+    ),
   );
 
   return snap.docs.map((d) => {
@@ -391,7 +381,7 @@ export async function approveMemberRequest(
   requestId: string,
   labId: string,
   uid: string,
-  role: UserRole = 'member'
+  role: UserRole = 'member',
 ): Promise<void> {
   const batch = writeBatch(db);
 

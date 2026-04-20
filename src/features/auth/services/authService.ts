@@ -111,14 +111,8 @@ export async function getOrCreateUserDocument(user: User): Promise<UserDocument>
  * who has no Firestore document. Must be called BEFORE signOut so the
  * user still has an auth token for the write.
  */
-export async function createPendingUser(
-  labId: string,
-  user: User,
-): Promise<void> {
-  const ref = doc(
-    collection(db, 'pending_users', labId, 'users'),
-    user.uid,
-  );
+export async function createPendingUser(labId: string, user: User): Promise<void> {
+  const ref = doc(collection(db, 'pending_users', labId, 'users'), user.uid);
   const data: PendingUserDocument = {
     email: user.email ?? '',
     displayName: user.displayName ?? user.email ?? 'Usuário',
@@ -141,13 +135,9 @@ export async function updateUserDocument(
 export async function getLabsForUser(labIds: string[] | undefined): Promise<Lab[]> {
   if (!labIds || labIds.length === 0) return [];
 
-  const snaps = await Promise.all(
-    labIds.map((id) => getDoc(doc(db, COLLECTIONS.LABS, id))),
-  );
+  const snaps = await Promise.all(labIds.map((id) => getDoc(doc(db, COLLECTIONS.LABS, id))));
 
-  return snaps
-    .filter((s) => s.exists())
-    .map((s) => normalizeLab({ ...s.data()!, id: s.id }));
+  return snaps.filter((s) => s.exists()).map((s) => normalizeLab({ ...s.data()!, id: s.id }));
 }
 
 // ─── Member role ──────────────────────────────────────────────────────────────
@@ -156,10 +146,7 @@ export async function getLabsForUser(labIds: string[] | undefined): Promise<Lab[
  * Returns the user's role if they are an active member of the lab, or null
  * if the document does not exist or the member is inactive.
  */
-export async function getUserRole(
-  labId: string,
-  userId: string,
-): Promise<UserRole | null> {
+export async function getUserRole(labId: string, userId: string): Promise<UserRole | null> {
   const ref = doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.MEMBERS, userId);
   const snap = await getDoc(ref);
 
