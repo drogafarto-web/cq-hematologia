@@ -14,18 +14,18 @@ export interface CoagSignaturePayload {
   /** Documento profissional do operador (ex: "CRBM-MG 12345") */
   operatorDocument: string;
   /** ID do lote de controle no Firestore */
-  lotId:            string;
+  lotId: string;
   /** Nível do material de controle: I = normal, II = anticoagulado/patológico */
-  nivel:            CoagNivel;
+  nivel: CoagNivel;
   /** Lote físico do material de controle */
-  loteControle:     string;
+  loteControle: string;
   /**
    * Hash determinístico dos resultados: JSON canônico de {ap, rni, ttpa} em ordem fixa.
    * Gerado por `canonicalizeCoagResultados` antes de passar ao payload.
    */
   resultadosCanonical: string;
   /** Data de realização (YYYY-MM-DD) */
-  dataRealizacao:   string;
+  dataRealizacao: string;
 }
 
 export interface CoagSignatureResult {
@@ -51,12 +51,10 @@ export interface CoagSignatureResult {
  * @param resultados  Mapa analito → valor numérico do tipo Record<CoagAnalyteId, number>.
  * @returns           String JSON canônica com chaves em ordem fixa.
  */
-export function canonicalizeCoagResultados(
-  resultados: Record<CoagAnalyteId, number>,
-): string {
+export function canonicalizeCoagResultados(resultados: Record<CoagAnalyteId, number>): string {
   return JSON.stringify({
-    ap:   resultados.atividadeProtrombinica,
-    rni:  resultados.rni,
+    ap: resultados.atividadeProtrombinica,
+    rni: resultados.rni,
     ttpa: resultados.ttpa,
   });
 }
@@ -70,21 +68,19 @@ export function canonicalizeCoagResultados(
  * Campos serializados em ordem canônica e imutável:
  *   doc, lot, niv, ctrl, res, date
  */
-export async function generateSignature(
-  payload: CoagSignaturePayload,
-): Promise<string> {
+export async function generateSignature(payload: CoagSignaturePayload): Promise<string> {
   const canonical = JSON.stringify({
-    doc:  payload.operatorDocument,
-    lot:  payload.lotId,
-    niv:  payload.nivel,
+    doc: payload.operatorDocument,
+    lot: payload.lotId,
+    niv: payload.nivel,
     ctrl: payload.loteControle,
-    res:  payload.resultadosCanonical,
+    res: payload.resultadosCanonical,
     date: payload.dataRealizacao,
   });
 
-  const encoded    = new TextEncoder().encode(canonical);
+  const encoded = new TextEncoder().encode(canonical);
   const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
-  const hashArray  = Array.from(new Uint8Array(hashBuffer));
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 

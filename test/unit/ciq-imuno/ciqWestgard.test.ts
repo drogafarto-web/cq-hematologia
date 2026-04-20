@@ -5,59 +5,60 @@ import type { CIQImunoRun } from '../../../src/features/ciq-imuno/types/CIQImuno
 // ─── Mock factory ─────────────────────────────────────────────────────────────
 
 const mockTimestamp = {
-  seconds:     1710000000,
+  seconds: 1710000000,
   nanoseconds: 0,
-  toDate:  () => new Date(1710000000 * 1000),
+  toDate: () => new Date(1710000000 * 1000),
   toMillis: () => 1710000000 * 1000,
   isEqual: () => false,
-  toJSON:  () => ({ seconds: 1710000000, nanoseconds: 0 }),
+  toJSON: () => ({ seconds: 1710000000, nanoseconds: 0 }),
   valueOf: () => 1710000000 * 1000,
-} as any;  
+} as any;
 
 /** Cria um CIQImunoRun mínimo válido para testes. */
 function makeRun(overrides: Partial<CIQImunoRun> = {}): CIQImunoRun {
   return {
-    id:               crypto.randomUUID(),
-    labId:            'lab-test',
-    lotId:            'lot-test',
-    operatorId:       'user-1',
-    operatorName:     'Operador Teste',
-    operatorRole:     'biomedico',
-    confirmedAt:      mockTimestamp,
-    isEdited:         false,
-    status:           'Aprovada',
-    version:          1,
-    createdBy:        'user-1',
-    createdAt:        mockTimestamp,
-    imageUrl:         '',
-    testType:         'HIV',
-    loteControle:     'L2024-001',
+    id: crypto.randomUUID(),
+    labId: 'lab-test',
+    lotId: 'lot-test',
+    operatorId: 'user-1',
+    operatorName: 'Operador Teste',
+    operatorRole: 'biomedico',
+    confirmedAt: mockTimestamp,
+    isEdited: false,
+    status: 'Aprovada',
+    version: 1,
+    createdBy: 'user-1',
+    createdAt: mockTimestamp,
+    imageUrl: '',
+    testType: 'HIV',
+    loteControle: 'L2024-001',
     aberturaControle: '2024-01-01',
     validadeControle: '2099-12-31', // futuro — não expira
-    loteReagente:     'R2024-001',
-    reagenteStatus:   'R',
+    loteReagente: 'R2024-001',
+    reagenteStatus: 'R',
     aberturaReagente: '2024-01-01',
     validadeReagente: '2099-12-31',
     resultadoEsperado: 'R',
-    resultadoObtido:   'R',
-    dataRealizacao:    '2024-06-01',
+    resultadoObtido: 'R',
+    dataRealizacao: '2024-06-01',
     ...overrides,
   };
 }
 
 /** Gera N runs com resultado R (conforme). */
 function makeRuns(n: number, overrides: Partial<CIQImunoRun> = {}): CIQImunoRun[] {
-  return Array.from({ length: n }, (_, i) => makeRun({
-    id: `run-${i + 1}`,
-    dataRealizacao: `2024-${String(Math.floor(i / 28) + 1).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`,
-    ...overrides,
-  }));
+  return Array.from({ length: n }, (_, i) =>
+    makeRun({
+      id: `run-${i + 1}`,
+      dataRealizacao: `2024-${String(Math.floor(i / 28) + 1).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`,
+      ...overrides,
+    }),
+  );
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 describe('computeWestgardCategorico', () => {
-
   // ── Estado inicial ───────────────────────────────────────────────────────────
 
   describe('sem runs', () => {
@@ -132,8 +133,18 @@ describe('computeWestgardCategorico', () => {
     it('NÃO ativa com 2 NR consecutivos', () => {
       const runs = [
         makeRun({ id: 'r1', dataRealizacao: '2024-01-01' }),
-        makeRun({ id: 'nr1', dataRealizacao: '2024-01-02', resultadoObtido: 'NR', status: 'Rejeitada' }),
-        makeRun({ id: 'nr2', dataRealizacao: '2024-01-03', resultadoObtido: 'NR', status: 'Rejeitada' }),
+        makeRun({
+          id: 'nr1',
+          dataRealizacao: '2024-01-02',
+          resultadoObtido: 'NR',
+          status: 'Rejeitada',
+        }),
+        makeRun({
+          id: 'nr2',
+          dataRealizacao: '2024-01-03',
+          resultadoObtido: 'NR',
+          status: 'Rejeitada',
+        }),
         makeRun({ id: 'r2', dataRealizacao: '2024-01-04' }),
       ];
       const result = computeWestgardCategorico(runs);
@@ -143,9 +154,24 @@ describe('computeWestgardCategorico', () => {
     it('ATIVA com exatamente 3 NR consecutivos', () => {
       const runs = [
         makeRun({ id: 'r1', dataRealizacao: '2024-01-01' }),
-        makeRun({ id: 'nr1', dataRealizacao: '2024-01-02', resultadoObtido: 'NR', status: 'Rejeitada' }),
-        makeRun({ id: 'nr2', dataRealizacao: '2024-01-03', resultadoObtido: 'NR', status: 'Rejeitada' }),
-        makeRun({ id: 'nr3', dataRealizacao: '2024-01-04', resultadoObtido: 'NR', status: 'Rejeitada' }),
+        makeRun({
+          id: 'nr1',
+          dataRealizacao: '2024-01-02',
+          resultadoObtido: 'NR',
+          status: 'Rejeitada',
+        }),
+        makeRun({
+          id: 'nr2',
+          dataRealizacao: '2024-01-03',
+          resultadoObtido: 'NR',
+          status: 'Rejeitada',
+        }),
+        makeRun({
+          id: 'nr3',
+          dataRealizacao: '2024-01-04',
+          resultadoObtido: 'NR',
+          status: 'Rejeitada',
+        }),
       ];
       const result = computeWestgardCategorico(runs);
       expect(result.alerts).toContain('consecutivos_3nr');
@@ -160,11 +186,31 @@ describe('computeWestgardCategorico', () => {
 
     it('NÃO ativa se NR consecutivos são interrompidos por R', () => {
       const runs = [
-        makeRun({ id: 'nr1', dataRealizacao: '2024-01-01', resultadoObtido: 'NR', status: 'Rejeitada' }),
-        makeRun({ id: 'nr2', dataRealizacao: '2024-01-02', resultadoObtido: 'NR', status: 'Rejeitada' }),
-        makeRun({ id: 'r1',  dataRealizacao: '2024-01-03' }),  // quebra a sequência
-        makeRun({ id: 'nr3', dataRealizacao: '2024-01-04', resultadoObtido: 'NR', status: 'Rejeitada' }),
-        makeRun({ id: 'nr4', dataRealizacao: '2024-01-05', resultadoObtido: 'NR', status: 'Rejeitada' }),
+        makeRun({
+          id: 'nr1',
+          dataRealizacao: '2024-01-01',
+          resultadoObtido: 'NR',
+          status: 'Rejeitada',
+        }),
+        makeRun({
+          id: 'nr2',
+          dataRealizacao: '2024-01-02',
+          resultadoObtido: 'NR',
+          status: 'Rejeitada',
+        }),
+        makeRun({ id: 'r1', dataRealizacao: '2024-01-03' }), // quebra a sequência
+        makeRun({
+          id: 'nr3',
+          dataRealizacao: '2024-01-04',
+          resultadoObtido: 'NR',
+          status: 'Rejeitada',
+        }),
+        makeRun({
+          id: 'nr4',
+          dataRealizacao: '2024-01-05',
+          resultadoObtido: 'NR',
+          status: 'Rejeitada',
+        }),
       ];
       const result = computeWestgardCategorico(runs);
       expect(result.alerts).not.toContain('consecutivos_3nr');
@@ -177,9 +223,24 @@ describe('computeWestgardCategorico', () => {
     it('NÃO ativa com 3 NR nos últimos 10', () => {
       const runs = [
         ...makeRuns(7),
-        makeRun({ id: 'nr1', dataRealizacao: '2024-02-01', resultadoObtido: 'NR', status: 'Rejeitada' }),
-        makeRun({ id: 'nr2', dataRealizacao: '2024-02-02', resultadoObtido: 'NR', status: 'Rejeitada' }),
-        makeRun({ id: 'nr3', dataRealizacao: '2024-02-03', resultadoObtido: 'NR', status: 'Rejeitada' }),
+        makeRun({
+          id: 'nr1',
+          dataRealizacao: '2024-02-01',
+          resultadoObtido: 'NR',
+          status: 'Rejeitada',
+        }),
+        makeRun({
+          id: 'nr2',
+          dataRealizacao: '2024-02-02',
+          resultadoObtido: 'NR',
+          status: 'Rejeitada',
+        }),
+        makeRun({
+          id: 'nr3',
+          dataRealizacao: '2024-02-03',
+          resultadoObtido: 'NR',
+          status: 'Rejeitada',
+        }),
       ];
       const result = computeWestgardCategorico(runs);
       expect(result.alerts).not.toContain('consecutivos_4nr');
@@ -188,10 +249,30 @@ describe('computeWestgardCategorico', () => {
     it('ATIVA com exatamente 4 NR nos últimos 10', () => {
       const runs = [
         ...makeRuns(6),
-        makeRun({ id: 'nr1', dataRealizacao: '2024-02-01', resultadoObtido: 'NR', status: 'Rejeitada' }),
-        makeRun({ id: 'nr2', dataRealizacao: '2024-02-02', resultadoObtido: 'NR', status: 'Rejeitada' }),
-        makeRun({ id: 'nr3', dataRealizacao: '2024-02-03', resultadoObtido: 'NR', status: 'Rejeitada' }),
-        makeRun({ id: 'nr4', dataRealizacao: '2024-02-04', resultadoObtido: 'NR', status: 'Rejeitada' }),
+        makeRun({
+          id: 'nr1',
+          dataRealizacao: '2024-02-01',
+          resultadoObtido: 'NR',
+          status: 'Rejeitada',
+        }),
+        makeRun({
+          id: 'nr2',
+          dataRealizacao: '2024-02-02',
+          resultadoObtido: 'NR',
+          status: 'Rejeitada',
+        }),
+        makeRun({
+          id: 'nr3',
+          dataRealizacao: '2024-02-03',
+          resultadoObtido: 'NR',
+          status: 'Rejeitada',
+        }),
+        makeRun({
+          id: 'nr4',
+          dataRealizacao: '2024-02-04',
+          resultadoObtido: 'NR',
+          status: 'Rejeitada',
+        }),
       ];
       const result = computeWestgardCategorico(runs);
       expect(result.alerts).toContain('consecutivos_4nr');
@@ -201,10 +282,15 @@ describe('computeWestgardCategorico', () => {
       // 5 NR antigos + 11 R recentes → janela de 10 contém apenas os 10 R mais recentes
       // Total: 16 runs. Os 5 NR ficam fora da janela de 10.
       const old = Array.from({ length: 5 }, (_, i) =>
-        makeRun({ id: `old-nr-${i}`, dataRealizacao: `2022-0${i + 1}-01`, resultadoObtido: 'NR', status: 'Rejeitada' })
+        makeRun({
+          id: `old-nr-${i}`,
+          dataRealizacao: `2022-0${i + 1}-01`,
+          resultadoObtido: 'NR',
+          status: 'Rejeitada',
+        }),
       );
       const recent = Array.from({ length: 11 }, (_, i) =>
-        makeRun({ id: `new-r-${i}`, dataRealizacao: `2024-${String(i + 1).padStart(2, '0')}-01` })
+        makeRun({ id: `new-r-${i}`, dataRealizacao: `2024-${String(i + 1).padStart(2, '0')}-01` }),
       );
       const result = computeWestgardCategorico([...old, ...recent]);
       expect(result.alerts).not.toContain('consecutivos_4nr');
@@ -224,9 +310,9 @@ describe('computeWestgardCategorico', () => {
     it('NÃO ativa quando validadeControle é hoje (data local)', () => {
       // Usa formato local explícito — evita drift de timezone do toISOString() (UTC)
       const now = new Date();
-      const y   = now.getFullYear();
-      const mo  = String(now.getMonth() + 1).padStart(2, '0');
-      const d   = String(now.getDate()).padStart(2, '0');
+      const y = now.getFullYear();
+      const mo = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
       const today = `${y}-${mo}-${d}`;
       const run = makeRun({ validadeControle: today });
       const result = computeWestgardCategorico([run]);
@@ -236,9 +322,27 @@ describe('computeWestgardCategorico', () => {
     it('reprovado prevalece sobre outros alertas de menor severidade', () => {
       // 3 NR consecutivos (atencao) + lote expirado (reprovado)
       const runs = [
-        makeRun({ id: 'nr1', dataRealizacao: '2024-01-01', resultadoObtido: 'NR', validadeControle: '2020-01-01', status: 'Rejeitada' }),
-        makeRun({ id: 'nr2', dataRealizacao: '2024-01-02', resultadoObtido: 'NR', validadeControle: '2020-01-01', status: 'Rejeitada' }),
-        makeRun({ id: 'nr3', dataRealizacao: '2024-01-03', resultadoObtido: 'NR', validadeControle: '2020-01-01', status: 'Rejeitada' }),
+        makeRun({
+          id: 'nr1',
+          dataRealizacao: '2024-01-01',
+          resultadoObtido: 'NR',
+          validadeControle: '2020-01-01',
+          status: 'Rejeitada',
+        }),
+        makeRun({
+          id: 'nr2',
+          dataRealizacao: '2024-01-02',
+          resultadoObtido: 'NR',
+          validadeControle: '2020-01-01',
+          status: 'Rejeitada',
+        }),
+        makeRun({
+          id: 'nr3',
+          dataRealizacao: '2024-01-03',
+          resultadoObtido: 'NR',
+          validadeControle: '2020-01-01',
+          status: 'Rejeitada',
+        }),
       ];
       const result = computeWestgardCategorico(runs);
       expect(result.lotStatus).toBe('reprovado');
@@ -254,9 +358,9 @@ describe('computeWestgardCategorico', () => {
       const near = new Date();
       near.setDate(near.getDate() + 15);
       // Usa data local explícita para evitar drift de UTC (toISOString usa UTC)
-      const y  = near.getFullYear();
+      const y = near.getFullYear();
       const mo = String(near.getMonth() + 1).padStart(2, '0');
-      const d  = String(near.getDate()).padStart(2, '0');
+      const d = String(near.getDate()).padStart(2, '0');
       const run = makeRun({ validadeControle: `${y}-${mo}-${d}` });
       const result = computeWestgardCategorico([run]);
       expect(result.alerts).toContain('validade_30d');
@@ -266,9 +370,9 @@ describe('computeWestgardCategorico', () => {
     it('NÃO ativa quando validade é em 30+ dias', () => {
       const far = new Date();
       far.setDate(far.getDate() + 45);
-      const y  = far.getFullYear();
+      const y = far.getFullYear();
       const mo = String(far.getMonth() + 1).padStart(2, '0');
-      const d  = String(far.getDate()).padStart(2, '0');
+      const d = String(far.getDate()).padStart(2, '0');
       const run = makeRun({ validadeControle: `${y}-${mo}-${d}` });
       const result = computeWestgardCategorico([run]);
       expect(result.alerts).not.toContain('validade_30d');

@@ -49,7 +49,9 @@ function applyTheme(next: Theme): void {
   _theme = next;
   try {
     localStorage.setItem(STORAGE_KEY, next);
-  } catch { /* storage bloqueado — ignora */ }
+  } catch {
+    /* storage bloqueado — ignora */
+  }
 
   const html = document.documentElement;
   if (next === 'dark') {
@@ -75,7 +77,9 @@ export function useTheme(): {
     if (theme !== _theme) setTheme(_theme);
 
     _listeners.add(setTheme);
-    return () => { _listeners.delete(setTheme); };
+    return () => {
+      _listeners.delete(setTheme);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -33,10 +33,7 @@ export type CoagNivel = 'I' | 'II';
  *
  * Analitos opcionais (Fibrinogênio, D-dímero, Fatores V/VII/VIII/IX) são v2.
  */
-export type CoagAnalyteId =
-  | 'atividadeProtrombinica'
-  | 'rni'
-  | 'ttpa';
+export type CoagAnalyteId = 'atividadeProtrombinica' | 'rni' | 'ttpa';
 
 /** Labels de exibição para cada CoagAnalyteId — usar em UI e relatórios. */
 export const COAG_ANALYTE_LABELS: Record<CoagAnalyteId, string> = {

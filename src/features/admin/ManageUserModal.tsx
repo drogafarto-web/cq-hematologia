@@ -34,7 +34,12 @@ function XIcon() {
 function ShieldIcon({ size = 12 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 14 14" fill="none" aria-hidden>
-      <path d="M7 1L1 4v4c0 3.5 3 5.5 6 6 3-.5 6-2.5 6-6V4L7 1z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+      <path
+        d="M7 1L1 4v4c0 3.5 3 5.5 6 6 3-.5 6-2.5 6-6V4L7 1z"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -52,7 +57,13 @@ function CheckCircleIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
       <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.4" />
-      <path d="M5.5 8l2 2 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M5.5 8l2 2 3-3"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -76,7 +87,13 @@ function XSmallIcon() {
 function TrashIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <path d="M2 4h12M5 4V2.5A.5.5 0 015.5 2h5a.5.5 0 01.5.5V4M6 7v5M10 7v5M3 4l1 9a1 1 0 001 1h6a1 1 0 001-1l1-9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M2 4h12M5 4V2.5A.5.5 0 015.5 2h5a.5.5 0 01.5.5V4M6 7v5M10 7v5M3 4l1 9a1 1 0 001 1h6a1 1 0 001-1l1-9"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -101,29 +118,35 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, onUserDeleted }: Props) {
+export function ManageUserModal({
+  user,
+  currentUserUid,
+  onClose,
+  onUserUpdated,
+  onUserDeleted,
+}: Props) {
   const isSelf = user.uid === currentUserUid;
 
   // Local mirror so UI reacts instantly without prop drilling
-  const [local, setLocal]               = useState<AdminUserRecord>(user);
-  const [allLabs, setAllLabs]           = useState<AdminLabRecord[]>([]);
-  const [labsLoading, setLabsLoading]   = useState(true);
+  const [local, setLocal] = useState<AdminUserRecord>(user);
+  const [allLabs, setAllLabs] = useState<AdminLabRecord[]>([]);
+  const [labsLoading, setLabsLoading] = useState(true);
 
   // Action state
-  const [busyAction, setBusyAction]     = useState<string | null>(null);
-  const [error, setError]               = useState<string | null>(null);
+  const [busyAction, setBusyAction] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // "Add to lab" form state
-  const [addLabId, setAddLabId]         = useState('');
-  const [addRole, setAddRole]           = useState<'admin' | 'member'>('member');
+  const [addLabId, setAddLabId] = useState('');
+  const [addRole, setAddRole] = useState<'admin' | 'member'>('member');
 
   // Delete confirmation state: null → step1 → step2
-  const [deleteStep, setDeleteStep]     = useState<null | 'confirm' | 'type-email'>(null);
+  const [deleteStep, setDeleteStep] = useState<null | 'confirm' | 'type-email'>(null);
   const [deleteEmailInput, setDeleteEmailInput] = useState('');
 
   const panelRef = useRef<HTMLDivElement>(null);
-  const titleId  = useId();
-  const errorId  = useId();
+  const titleId = useId();
+  const errorId = useId();
 
   // Focus management
   useEffect(() => {
@@ -134,7 +157,9 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
 
   // Escape closes
   useEffect(() => {
-    const h = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    const h = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
     document.addEventListener('keydown', h);
     return () => document.removeEventListener('keydown', h);
   }, [onClose]);
@@ -146,13 +171,18 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
     const h = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
       const focusable = panel.querySelectorAll<HTMLElement>(
-        'button:not([disabled]), select:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        'button:not([disabled]), select:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
       );
       if (!focusable.length) return;
       const first = focusable[0];
-      const last  = focusable[focusable.length - 1];
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     panel.addEventListener('keydown', h);
     return () => panel.removeEventListener('keydown', h);
@@ -162,14 +192,24 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
   useEffect(() => {
     let cancelled = false;
     fetchAllLabs()
-      .then((labs) => { if (!cancelled) setAllLabs(labs); })
-      .catch(() => { if (!cancelled) setError('Erro ao carregar laboratórios.'); })
-      .finally(() => { if (!cancelled) setLabsLoading(false); });
-    return () => { cancelled = true; };
+      .then((labs) => {
+        if (!cancelled) setAllLabs(labs);
+      })
+      .catch(() => {
+        if (!cancelled) setError('Erro ao carregar laboratórios.');
+      })
+      .finally(() => {
+        if (!cancelled) setLabsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Reset "add to lab" select when user membership changes
-  useEffect(() => { setAddLabId(''); }, [local.labIds]);
+  useEffect(() => {
+    setAddLabId('');
+  }, [local.labIds]);
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -182,9 +222,13 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
   async function run(key: string, fn: () => Promise<void>) {
     setBusyAction(key);
     setError(null);
-    try { await fn(); }
-    catch (e) { setError(e instanceof Error ? e.message : 'Erro inesperado.'); }
-    finally { setBusyAction(null); }
+    try {
+      await fn();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro inesperado.');
+    } finally {
+      setBusyAction(null);
+    }
   }
 
   // ── Actions ────────────────────────────────────────────────────────────────
@@ -217,7 +261,7 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
       await removeUserFromLab(labId, local.uid);
       patch({
         labIds: local.labIds.filter((id) => id !== labId),
-        roles:  Object.fromEntries(Object.entries(local.roles).filter(([k]) => k !== labId)),
+        roles: Object.fromEntries(Object.entries(local.roles).filter(([k]) => k !== labId)),
       });
     });
   }
@@ -228,7 +272,7 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
       await addUserToLab(local.uid, addLabId, addRole);
       patch({
         labIds: [...local.labIds, addLabId],
-        roles:  { ...local.roles, [addLabId]: addRole },
+        roles: { ...local.roles, [addLabId]: addRole },
       });
     });
   }
@@ -255,11 +299,7 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       {/* Clickable backdrop */}
-      <div
-        className="flex-1 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-        aria-hidden
-      />
+      <div className="flex-1 bg-black/50 backdrop-blur-sm" onClick={onClose} aria-hidden />
 
       {/* Side panel */}
       <div
@@ -274,7 +314,10 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
         {/* Header */}
         <div className="px-6 pt-6 pb-5 border-b border-white/[0.07] shrink-0">
           <div className="flex items-start justify-between mb-5">
-            <h2 id={titleId} className="text-sm font-semibold text-white/60 uppercase tracking-wider">
+            <h2
+              id={titleId}
+              className="text-sm font-semibold text-white/60 uppercase tracking-wider"
+            >
               Gerenciar usuário
             </h2>
             <button
@@ -365,10 +408,13 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
                       : 'text-red-400 bg-red-500/10 hover:bg-red-500/20'
                   }`}
                 >
-                  {busyAction === 'suspend'
-                    ? <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                    : local.disabled ? <CheckCircleIcon /> : <BanIcon />
-                  }
+                  {busyAction === 'suspend' ? (
+                    <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : local.disabled ? (
+                    <CheckCircleIcon />
+                  ) : (
+                    <BanIcon />
+                  )}
                   {local.disabled ? 'Reabilitar' : 'Suspender'}
                 </button>
               </div>
@@ -390,10 +436,11 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
                       : 'text-white/40 bg-white/[0.06] hover:bg-white/[0.1]'
                   }`}
                 >
-                  {busyAction === 'superadmin'
-                    ? <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                    : <ShieldIcon />
-                  }
+                  {busyAction === 'superadmin' ? (
+                    <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <ShieldIcon />
+                  )}
                   {local.isSuperAdmin ? 'Revogar' : 'Promover'}
                 </button>
               </div>
@@ -403,7 +450,9 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
                 <div className="flex items-center justify-between px-4 py-3.5 rounded-xl bg-red-500/[0.04] border border-red-500/15">
                   <div>
                     <p className="text-sm font-medium text-red-400/80">Deletar conta</p>
-                    <p className="text-xs text-white/30 mt-0.5">Permanente — remove Auth + Firestore</p>
+                    <p className="text-xs text-white/30 mt-0.5">
+                      Permanente — remove Auth + Firestore
+                    </p>
                   </div>
                   <button
                     type="button"
@@ -423,9 +472,7 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
           <Section title="Laboratórios">
             {/* Current memberships */}
             {local.labIds.length === 0 ? (
-              <p className="text-sm text-white/25 text-center py-4">
-                Sem laboratório associado
-              </p>
+              <p className="text-sm text-white/25 text-center py-4">Sem laboratório associado</p>
             ) : (
               <ul className="space-y-1.5 list-none p-0 m-0">
                 {local.labIds.map((labId) => {
@@ -443,7 +490,9 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
                       {/* Lab name */}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-white/80 truncate">
-                          {lab?.name ?? <span className="font-mono text-white/30">{labId.slice(0, 8)}…</span>}
+                          {lab?.name ?? (
+                            <span className="font-mono text-white/30">{labId.slice(0, 8)}…</span>
+                          )}
                         </p>
                       </div>
 
@@ -455,9 +504,15 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
                         aria-label={`Papel em ${lab?.name ?? labId}`}
                         className="text-xs bg-white/[0.05] border border-white/10 rounded-lg px-2 py-1 text-white/60 focus:outline-none focus:border-white/20 disabled:opacity-40 shrink-0"
                       >
-                        <option value="owner" className="bg-[#111111] text-white/90">Proprietário</option>
-                        <option value="admin" className="bg-[#111111] text-white/90">Admin</option>
-                        <option value="member" className="bg-[#111111] text-white/90">Membro</option>
+                        <option value="owner" className="bg-[#111111] text-white/90">
+                          Proprietário
+                        </option>
+                        <option value="admin" className="bg-[#111111] text-white/90">
+                          Admin
+                        </option>
+                        <option value="member" className="bg-[#111111] text-white/90">
+                          Membro
+                        </option>
                       </select>
 
                       {/* Remove — Super Admin pode remover qualquer membro, inclusive owner */}
@@ -468,10 +523,11 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
                         aria-label={`Remover de ${lab?.name ?? labId}`}
                         className="p-1.5 rounded-lg text-white/20 hover:text-red-400 hover:bg-red-500/10 disabled:opacity-40 transition-colors shrink-0"
                       >
-                        {busyAction === removeKey
-                          ? <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin inline-block" />
-                          : <XSmallIcon />
-                        }
+                        {busyAction === removeKey ? (
+                          <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin inline-block" />
+                        ) : (
+                          <XSmallIcon />
+                        )}
                       </button>
                     </li>
                   );
@@ -497,9 +553,13 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
                   aria-label="Selecionar laboratório"
                   className="flex-1 min-w-0 text-xs bg-white/[0.05] border border-white/10 rounded-lg px-2.5 py-2 text-white/60 focus:outline-none focus:border-white/20 disabled:opacity-40"
                 >
-                  <option value="" className="bg-[#111111] text-white/90">Selecionar lab…</option>
+                  <option value="" className="bg-[#111111] text-white/90">
+                    Selecionar lab…
+                  </option>
                   {labsAvailableToAdd.map((l) => (
-                    <option key={l.id} value={l.id} className="bg-[#111111] text-white/90">{l.name}</option>
+                    <option key={l.id} value={l.id} className="bg-[#111111] text-white/90">
+                      {l.name}
+                    </option>
                   ))}
                 </select>
 
@@ -510,8 +570,12 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
                   aria-label="Papel no laboratório"
                   className="text-xs bg-white/[0.05] border border-white/10 rounded-lg px-2 py-2 text-white/60 focus:outline-none focus:border-white/20 disabled:opacity-40 shrink-0"
                 >
-                  <option value="member" className="bg-[#111111] text-white/90">Membro</option>
-                  <option value="admin" className="bg-[#111111] text-white/90">Admin</option>
+                  <option value="member" className="bg-[#111111] text-white/90">
+                    Membro
+                  </option>
+                  <option value="admin" className="bg-[#111111] text-white/90">
+                    Admin
+                  </option>
                 </select>
 
                 <button
@@ -521,10 +585,11 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
                   aria-label="Adicionar ao laboratório"
                   className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0"
                 >
-                  {busyAction === `add-${addLabId}`
-                    ? <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                    : <PlusIcon />
-                  }
+                  {busyAction === `add-${addLabId}` ? (
+                    <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <PlusIcon />
+                  )}
                   Adicionar
                 </button>
               </div>
@@ -553,9 +618,7 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
 
       {/* ── Delete confirmation — Step 1 ──────────────────────────────── */}
       {deleteStep === 'confirm' && (
-        <div
-          className="absolute inset-0 z-10 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm"
-        >
+        <div className="absolute inset-0 z-10 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-[#161616] border border-white/10 rounded-2xl p-6 shadow-2xl space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center text-red-400 shrink-0">
@@ -567,7 +630,9 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
               </div>
             </div>
             <p className="text-xs text-white/50 leading-relaxed">
-              A conta de <span className="text-white/80 font-medium">{local.email}</span> será permanentemente removida do Firebase Auth e do Firestore, incluindo todas as associações de laboratório.
+              A conta de <span className="text-white/80 font-medium">{local.email}</span> será
+              permanentemente removida do Firebase Auth e do Firestore, incluindo todas as
+              associações de laboratório.
             </p>
             <div className="flex gap-2 pt-1">
               <button
@@ -579,7 +644,10 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
               </button>
               <button
                 type="button"
-                onClick={() => { setDeleteEmailInput(''); setDeleteStep('type-email'); }}
+                onClick={() => {
+                  setDeleteEmailInput('');
+                  setDeleteStep('type-email');
+                }}
                 className="flex-1 py-2 rounded-xl bg-red-500/15 border border-red-500/25 text-sm text-red-400 hover:bg-red-500/25 transition-all"
               >
                 Continuar
@@ -591,9 +659,7 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
 
       {/* ── Delete confirmation — Step 2 (type email) ─────────────────── */}
       {deleteStep === 'type-email' && (
-        <div
-          className="absolute inset-0 z-10 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm"
-        >
+        <div className="absolute inset-0 z-10 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-[#161616] border border-white/10 rounded-2xl p-6 shadow-2xl space-y-4">
             <p className="text-sm font-semibold text-white/90">Confirme digitando o e-mail</p>
             <p className="text-xs text-white/40 leading-relaxed">
@@ -615,7 +681,10 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={() => { setDeleteStep(null); setError(null); }}
+                onClick={() => {
+                  setDeleteStep(null);
+                  setError(null);
+                }}
                 className="flex-1 py-2 rounded-xl border border-white/10 text-sm text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all"
               >
                 Cancelar
@@ -626,10 +695,11 @@ export function ManageUserModal({ user, currentUserUid, onClose, onUserUpdated, 
                 disabled={deleteEmailInput.trim() !== local.email || busyAction === 'delete'}
                 className="flex-1 py-2 rounded-xl bg-red-500/15 border border-red-500/25 text-sm text-red-400 hover:bg-red-500/25 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
               >
-                {busyAction === 'delete'
-                  ? <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  : <TrashIcon />
-                }
+                {busyAction === 'delete' ? (
+                  <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <TrashIcon />
+                )}
                 Deletar definitivamente
               </button>
             </div>

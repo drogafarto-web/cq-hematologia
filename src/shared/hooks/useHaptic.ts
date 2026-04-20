@@ -24,21 +24,25 @@ interface HapticAPI {
 
 function vibrate(pattern: number | number[]): void {
   if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-    try { navigator.vibrate(pattern); } catch { /* unsupported — noop */ }
+    try {
+      navigator.vibrate(pattern);
+    } catch {
+      /* unsupported — noop */
+    }
   }
 }
 
 export function useHaptic(): HapticAPI {
   return {
     confirm: () => vibrate(40),
-    error:   () => vibrate([60, 40, 60]),
-    heavy:   () => vibrate(120),
+    error: () => vibrate([60, 40, 60]),
+    heavy: () => vibrate(120),
   };
 }
 
 /** Imperative version — usable outside React components */
 export const haptic: HapticAPI = {
   confirm: () => vibrate(40),
-  error:   () => vibrate([60, 40, 60]),
-  heavy:   () => vibrate(120),
+  error: () => vibrate([60, 40, 60]),
+  heavy: () => vibrate(120),
 };

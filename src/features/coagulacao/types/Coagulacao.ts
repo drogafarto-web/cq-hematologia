@@ -29,7 +29,8 @@ import type {
  * Compliance: RDC 302/2005 · RDC 978/2025 · RDC 67/2009 + RDC 551/2021
  * Referências: CLSI H21-A5, H47-A2, H54-A · ISTH guidelines
  */
-export interface CoagulacaoRun extends Omit<CQRun,
+export interface CoagulacaoRun extends Omit<
+  CQRun,
   | 'westgardViolations'
   | 'level'
   | 'aiData'
@@ -295,5 +296,12 @@ export interface CoagulacaoLot {
 
 // ─── Re-exports para conveniência dos importers do módulo ─────────────────────
 
-export type { CoagNivel, CoagAnalyteId, CoagStatus, CoagLotStatus, CoagFrequencia, CoagEquipamento };
+export type {
+  CoagNivel,
+  CoagAnalyteId,
+  CoagStatus,
+  CoagLotStatus,
+  CoagFrequencia,
+  CoagEquipamento,
+};
 export { COAG_ANALYTE_LABELS } from './_shared_refs';

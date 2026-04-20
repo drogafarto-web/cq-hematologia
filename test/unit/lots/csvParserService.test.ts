@@ -38,7 +38,6 @@ hemoglobina,14.2,0.5
 plaquetas,250,20
 `.trim();
 
-
 /** CSV no formato multi-level de bula (parseMultiLevelLotCsv). */
 const BULA_CSV = `
 // Info
@@ -57,7 +56,6 @@ HGB,11.0,0.50,14.2,0.60,17.0,0.70
 // ─── parseControlLotCSV — single-level ───────────────────────────────────────
 
 describe('parseControlLotCSV — single-level', () => {
-
   it('extrai metadados do CSV', () => {
     const r = parseControlLotCSV(SINGLE_LEVEL_CSV);
     expect(r.lotNumber).toBe('L2024-001');
@@ -84,7 +82,7 @@ describe('parseControlLotCSV — single-level', () => {
   });
 
   it('extrai valores corretos de mean e SD', () => {
-    const r   = parseControlLotCSV(SINGLE_LEVEL_CSV);
+    const r = parseControlLotCSV(SINGLE_LEVEL_CSV);
     const wbc = r.stats.find((s) => s.analyteId === 'WBC');
     expect(wbc?.mean).toBe(7.5);
     expect(wbc?.sd).toBe(0.3);
@@ -99,19 +97,18 @@ describe('parseControlLotCSV — single-level', () => {
 // ─── parseControlLotCSV — sinônimos de analitos ───────────────────────────────
 
 describe('parseControlLotCSV — resolução de sinônimos', () => {
-
   it('resolve nomes em português para IDs canônicos', () => {
-    const r   = parseControlLotCSV(CSV_SYNONYMS);
+    const r = parseControlLotCSV(CSV_SYNONYMS);
     const ids = r.stats.map((s) => s.analyteId);
-    expect(ids).toContain('WBC');   // leucocitos
-    expect(ids).toContain('RBC');   // hemacias
-    expect(ids).toContain('HGB');   // hemoglobina
-    expect(ids).toContain('PLT');   // plaquetas
+    expect(ids).toContain('WBC'); // leucocitos
+    expect(ids).toContain('RBC'); // hemacias
+    expect(ids).toContain('HGB'); // hemoglobina
+    expect(ids).toContain('PLT'); // plaquetas
   });
 
   it('resolve abreviações minúsculas (wbc, rbc)', () => {
     const csv = `Analyte,Mean,SD\nwbc,7.5,0.3\nrbc,4.8,0.2`;
-    const r   = parseControlLotCSV(csv);
+    const r = parseControlLotCSV(csv);
     const ids = r.stats.map((s) => s.analyteId);
     expect(ids).toContain('WBC');
     expect(ids).toContain('RBC');
@@ -119,7 +116,7 @@ describe('parseControlLotCSV — resolução de sinônimos', () => {
 
   it('ignora analitos desconhecidos e gera warning', () => {
     const csv = `Analyte,Mean,SD\nXXX,1.0,0.1\nWBC,7.5,0.3`;
-    const r   = parseControlLotCSV(csv);
+    const r = parseControlLotCSV(csv);
     expect(r.stats.length).toBe(1);
     expect(r.stats[0].analyteId).toBe('WBC');
     expect(r.warnings.some((w) => w.includes('XXX'))).toBe(true);
@@ -129,10 +126,9 @@ describe('parseControlLotCSV — resolução de sinônimos', () => {
 // ─── parseControlLotCSV — formatos de data ───────────────────────────────────
 
 describe('parseControlLotCSV — formatos de data (expiryDate)', () => {
-
   it('parseia MM/YYYY → último dia do mês', () => {
     const csv = `Expiry,06/2025\nAnalyte,Mean,SD\nWBC,7.5,0.3`;
-    const r   = parseControlLotCSV(csv);
+    const r = parseControlLotCSV(csv);
     expect(r.expiryDate?.getFullYear()).toBe(2025);
     expect(r.expiryDate?.getMonth()).toBe(5); // junho = 5
   });
@@ -141,7 +137,7 @@ describe('parseControlLotCSV — formatos de data (expiryDate)', () => {
     // O parser usa `new Date('YYYY-MM-DD')` que cria UTC midnight.
     // Usar getUTC* para testar o valor armazenado, independente do fuso local.
     const csv = `Expiry,2025-12-15\nAnalyte,Mean,SD\nWBC,7.5,0.3`;
-    const r   = parseControlLotCSV(csv);
+    const r = parseControlLotCSV(csv);
     expect(r.expiryDate?.getUTCFullYear()).toBe(2025);
     expect(r.expiryDate?.getUTCMonth()).toBe(11); // dezembro
     expect(r.expiryDate?.getUTCDate()).toBe(15);
@@ -149,7 +145,7 @@ describe('parseControlLotCSV — formatos de data (expiryDate)', () => {
 
   it('parseia DD/MM/YYYY (formato brasileiro)', () => {
     const csv = `Expiry,31/12/2025\nAnalyte,Mean,SD\nWBC,7.5,0.3`;
-    const r   = parseControlLotCSV(csv);
+    const r = parseControlLotCSV(csv);
     expect(r.expiryDate?.getFullYear()).toBe(2025);
     expect(r.expiryDate?.getMonth()).toBe(11);
     expect(r.expiryDate?.getDate()).toBe(31);
@@ -157,7 +153,7 @@ describe('parseControlLotCSV — formatos de data (expiryDate)', () => {
 
   it('retorna expiryDate null para data inválida', () => {
     const csv = `Expiry,invalid-date\nAnalyte,Mean,SD\nWBC,7.5,0.3`;
-    const r   = parseControlLotCSV(csv);
+    const r = parseControlLotCSV(csv);
     expect(r.expiryDate).toBeNull();
   });
 });
@@ -165,7 +161,6 @@ describe('parseControlLotCSV — formatos de data (expiryDate)', () => {
 // ─── parseControlLotCSV — CSV mal formado ────────────────────────────────────
 
 describe('parseControlLotCSV — CSV mal formado', () => {
-
   it('retorna warning quando CSV não tem cabeçalho reconhecível', () => {
     const r = parseControlLotCSV('col1,col2\n1,2\n3,4');
     expect(r.warnings.length).toBeGreaterThan(0);
@@ -179,7 +174,7 @@ describe('parseControlLotCSV — CSV mal formado', () => {
 
   it('ignora linha com mean/sd não numéricos e gera warning', () => {
     const csv = `Analyte,Mean,SD\nWBC,N/A,0.3\nRBC,4.8,0.2`;
-    const r   = parseControlLotCSV(csv);
+    const r = parseControlLotCSV(csv);
     // WBC ignorado (mean inválido), RBC extraído
     expect(r.stats.length).toBe(1);
     expect(r.stats[0].analyteId).toBe('RBC');
@@ -188,14 +183,13 @@ describe('parseControlLotCSV — CSV mal formado', () => {
 
   it('retorna metadados nulos quando ausentes', () => {
     const csv = `Analyte,Mean,SD\nWBC,7.5,0.3`;
-    const r   = parseControlLotCSV(csv);
+    const r = parseControlLotCSV(csv);
     expect(r.lotNumber).toBeNull();
     expect(r.controlName).toBeNull();
     expect(r.level).toBeNull();
     expect(r.expiryDate).toBeNull();
   });
 });
-
 
 // ─── parseControlLotCSV — multi-level ────────────────────────────────────────
 
@@ -208,23 +202,22 @@ HGB,14.2,0.6,17.0,0.7,19.5,0.9
 `.trim();
 
 describe('parseControlLotCSV — multi-level (Level N Mean/SD)', () => {
-
   it('extrai nível 1 por padrão', () => {
-    const r   = parseControlLotCSV(MULTI_LEVEL_CSV);
+    const r = parseControlLotCSV(MULTI_LEVEL_CSV);
     const wbc = r.stats.find((s) => s.analyteId === 'WBC');
     expect(wbc?.mean).toBe(7.5);
     expect(wbc?.sd).toBe(0.3);
   });
 
   it('extrai nível 2 quando targetLevel=2', () => {
-    const r   = parseControlLotCSV(MULTI_LEVEL_CSV, 2);
+    const r = parseControlLotCSV(MULTI_LEVEL_CSV, 2);
     const wbc = r.stats.find((s) => s.analyteId === 'WBC');
     expect(wbc?.mean).toBe(12.0);
     expect(wbc?.sd).toBe(0.5);
   });
 
   it('extrai nível 3 quando targetLevel=3', () => {
-    const r   = parseControlLotCSV(MULTI_LEVEL_CSV, 3);
+    const r = parseControlLotCSV(MULTI_LEVEL_CSV, 3);
     const wbc = r.stats.find((s) => s.analyteId === 'WBC');
     expect(wbc?.mean).toBe(18.0);
     expect(wbc?.sd).toBe(0.8);
@@ -244,7 +237,6 @@ describe('parseControlLotCSV — multi-level (Level N Mean/SD)', () => {
 // ─── parseMultiLevelLotCsv ────────────────────────────────────────────────────
 
 describe('parseMultiLevelLotCsv — formato bula', () => {
-
   it('parseia os três níveis de info corretamente', () => {
     const r = parseMultiLevelLotCsv(BULA_CSV);
     expect(r.levels).toHaveLength(3);
@@ -255,7 +247,7 @@ describe('parseMultiLevelLotCsv — formato bula', () => {
   });
 
   it('parseia datas de expiryDate e startDate', () => {
-    const r    = parseMultiLevelLotCsv(BULA_CSV);
+    const r = parseMultiLevelLotCsv(BULA_CSV);
     const lvl1 = r.levels.find((l) => l.level === 1);
     expect(lvl1?.expiryDate).toBeInstanceOf(Date);
     expect(lvl1?.startDate).toBeInstanceOf(Date);
@@ -263,10 +255,10 @@ describe('parseMultiLevelLotCsv — formato bula', () => {
   });
 
   it('parseia stats dos três níveis para cada analito', () => {
-    const r   = parseMultiLevelLotCsv(BULA_CSV);
+    const r = parseMultiLevelLotCsv(BULA_CSV);
     const rbc = r.stats.find((s) => s.analyteId === 'RBC');
     expect(rbc?.byLevel[1]).toEqual({ mean: 3.5, sd: 0.15 });
-    expect(rbc?.byLevel[2]).toEqual({ mean: 4.8, sd: 0.20 });
+    expect(rbc?.byLevel[2]).toEqual({ mean: 4.8, sd: 0.2 });
     expect(rbc?.byLevel[3]).toEqual({ mean: 5.8, sd: 0.25 });
   });
 
@@ -320,7 +312,6 @@ RBC,3.5,0.15,4.8,0.20
 // ─── statsToManufacturerStats ─────────────────────────────────────────────────
 
 describe('statsToManufacturerStats', () => {
-
   it('converte ParsedStat[] para ManufacturerStats indexado por analyteId', () => {
     const stats: ParsedStat[] = [
       { analyteId: 'WBC', mean: 7.5, sd: 0.3 },

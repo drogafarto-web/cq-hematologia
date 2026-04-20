@@ -23,98 +23,91 @@ export function daysToExpiry(dateStr: string): number {
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
-const dateField  = (msg = 'Formato inválido (YYYY-MM-DD)') =>
-  z.string().regex(DATE_REGEX, msg);
+const dateField = (msg = 'Formato inválido (YYYY-MM-DD)') => z.string().regex(DATE_REGEX, msg);
 
 export const CIQImunoFormSchema = z
   .object({
     // Tipo de teste — lista dinâmica gerenciada via useCIQTestTypes (Firestore)
-    testType: z.string({ required_error: 'Selecione o tipo de teste.' })
-               .min(1, 'Selecione o tipo de teste.'),
+    testType: z
+      .string({ required_error: 'Selecione o tipo de teste.' })
+      .min(1, 'Selecione o tipo de teste.'),
 
     // Controle
-    loteControle:       z.string().min(1, 'Lote do controle é obrigatório.'),
+    loteControle: z.string().min(1, 'Lote do controle é obrigatório.'),
     fabricanteControle: z.string().min(1, 'Fabricante do controle é obrigatório.'),
-    aberturaControle:   dateField('Data de abertura do controle inválida.'),
-    validadeControle:   dateField('Data de validade do controle inválida.'),
+    aberturaControle: dateField('Data de abertura do controle inválida.'),
+    validadeControle: dateField('Data de validade do controle inválida.'),
 
     // Reagente
-    loteReagente:       z.string().min(1, 'Lote do reagente é obrigatório.'),
+    loteReagente: z.string().min(1, 'Lote do reagente é obrigatório.'),
     fabricanteReagente: z.string().min(1, 'Fabricante do reagente é obrigatório.'),
-    reagenteStatus:     z.enum(['R', 'NR'], { required_error: 'Status de abertura do reagente obrigatório.' }),
-    aberturaReagente:   dateField('Data de abertura do reagente inválida.'),
-    validadeReagente:   dateField('Data de validade do reagente inválida.'),
-    codigoKit:          z.string().optional(),
-    registroANVISA:     z.string().optional(),
+    reagenteStatus: z.enum(['R', 'NR'], {
+      required_error: 'Status de abertura do reagente obrigatório.',
+    }),
+    aberturaReagente: dateField('Data de abertura do reagente inválida.'),
+    validadeReagente: dateField('Data de validade do reagente inválida.'),
+    codigoKit: z.string().optional(),
+    registroANVISA: z.string().optional(),
 
     // Operador
-    cargo: z.enum(
-      ['biomedico', 'tecnico', 'farmaceutico'],
-      { required_error: 'Selecione o cargo do operador.' }
-    ),
+    cargo: z.enum(['biomedico', 'tecnico', 'farmaceutico'], {
+      required_error: 'Selecione o cargo do operador.',
+    }),
 
     // Resultado
     resultadoEsperado: z.enum(['R', 'NR'], { required_error: 'Resultado esperado obrigatório.' }),
-    resultadoObtido:   z.enum(['R', 'NR'], { required_error: 'Resultado obtido obrigatório.' }),
-    dataRealizacao:    dateField('Data de realização inválida.'),
-    acaoCorretiva:     z.string().optional(),
+    resultadoObtido: z.enum(['R', 'NR'], { required_error: 'Resultado obtido obrigatório.' }),
+    dataRealizacao: dateField('Data de realização inválida.'),
+    acaoCorretiva: z.string().optional(),
 
     // Equipamento (opcionais)
-    equipamento:        z.string().optional(),
+    equipamento: z.string().optional(),
     temperaturaAmbiente: z.coerce.number().optional(),
 
     // Notificação sanitária — aplicável a não conformidades (RDC 67/2009 + 551/2021)
-    notivisaTipo:          z.enum(['queixa_tecnica', 'evento_adverso']).optional(),
-    notivisaStatus:        z.enum(['pendente', 'notificado', 'dispensado']).optional(),
-    notivisaProtocolo:     z.string().optional(),
-    notivisaDataEnvio:     z.string().regex(DATE_REGEX, 'Data de envio inválida (YYYY-MM-DD).').optional().or(z.literal('')),
+    notivisaTipo: z.enum(['queixa_tecnica', 'evento_adverso']).optional(),
+    notivisaStatus: z.enum(['pendente', 'notificado', 'dispensado']).optional(),
+    notivisaProtocolo: z.string().optional(),
+    notivisaDataEnvio: z
+      .string()
+      .regex(DATE_REGEX, 'Data de envio inválida (YYYY-MM-DD).')
+      .optional()
+      .or(z.literal('')),
     notivisaJustificativa: z.string().optional(),
   })
   // Regra RDC 978: realização não pode ser após a validade do controle
   .refine((d) => d.dataRealizacao <= d.validadeControle, {
     message: 'Data de realização posterior à validade do controle.',
-    path:    ['dataRealizacao'],
+    path: ['dataRealizacao'],
   })
   // Regra RDC 978: realização não pode ser após a validade do reagente
   .refine((d) => d.dataRealizacao <= d.validadeReagente, {
     message: 'Data de realização posterior à validade do reagente.',
-    path:    ['dataRealizacao'],
+    path: ['dataRealizacao'],
   })
   // Abertura do controle não pode ser futura
   .refine((d) => d.aberturaControle <= d.dataRealizacao, {
     message: 'Data de abertura do controle não pode ser posterior à realização.',
-    path:    ['aberturaControle'],
+    path: ['aberturaControle'],
   })
   // RDC 978 Art.128: ação corretiva obrigatória em caso de não conformidade
-  .refine(
-    (d) => d.resultadoObtido === d.resultadoEsperado || Boolean(d.acaoCorretiva?.trim()),
-    {
-      message: 'Ação corretiva é obrigatória quando o resultado não está conforme.',
-      path:    ['acaoCorretiva'],
-    },
-  )
+  .refine((d) => d.resultadoObtido === d.resultadoEsperado || Boolean(d.acaoCorretiva?.trim()), {
+    message: 'Ação corretiva é obrigatória quando o resultado não está conforme.',
+    path: ['acaoCorretiva'],
+  })
   // Se status = 'notificado' → protocolo e data de envio obrigatórios
-  .refine(
-    (d) => d.notivisaStatus !== 'notificado' || Boolean(d.notivisaProtocolo?.trim()),
-    {
-      message: 'Protocolo do NOTIVISA é obrigatório quando status = notificado.',
-      path:    ['notivisaProtocolo'],
-    },
-  )
-  .refine(
-    (d) => d.notivisaStatus !== 'notificado' || Boolean(d.notivisaDataEnvio?.trim()),
-    {
-      message: 'Data de envio é obrigatória quando status = notificado.',
-      path:    ['notivisaDataEnvio'],
-    },
-  )
+  .refine((d) => d.notivisaStatus !== 'notificado' || Boolean(d.notivisaProtocolo?.trim()), {
+    message: 'Protocolo do NOTIVISA é obrigatório quando status = notificado.',
+    path: ['notivisaProtocolo'],
+  })
+  .refine((d) => d.notivisaStatus !== 'notificado' || Boolean(d.notivisaDataEnvio?.trim()), {
+    message: 'Data de envio é obrigatória quando status = notificado.',
+    path: ['notivisaDataEnvio'],
+  })
   // Se status = 'dispensado' → justificativa obrigatória (auditoria)
-  .refine(
-    (d) => d.notivisaStatus !== 'dispensado' || Boolean(d.notivisaJustificativa?.trim()),
-    {
-      message: 'Justificativa é obrigatória quando a notificação é dispensada.',
-      path:    ['notivisaJustificativa'],
-    },
-  );
+  .refine((d) => d.notivisaStatus !== 'dispensado' || Boolean(d.notivisaJustificativa?.trim()), {
+    message: 'Justificativa é obrigatória quando a notificação é dispensada.',
+    path: ['notivisaJustificativa'],
+  });
 
 export type CIQImunoFormData = z.infer<typeof CIQImunoFormSchema>;

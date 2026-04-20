@@ -9,9 +9,9 @@
 //   2. Import it here and call moduleRegistry.register(bioquimicaCollector)
 //   3. Done — the backup system picks it up on next deploy
 
-import { moduleRegistry }       from '../registry';
+import { moduleRegistry } from '../registry';
 import { hematologiaCollector } from './hematologiaCollector';
-import { imunoCollector }       from './imunoCollector';
+import { imunoCollector } from './imunoCollector';
 
 moduleRegistry.register(hematologiaCollector);
 moduleRegistry.register(imunoCollector);

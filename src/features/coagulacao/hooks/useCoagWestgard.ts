@@ -122,7 +122,7 @@ export function computeCoagWestgard(
   // ── Step 1: resultado imediato para lote sem dados ───────────────────────────
   if (runs.length === 0) {
     return {
-      byRun:     new Map(),
+      byRun: new Map(),
       lotStatus: 'sem_dados',
       lotAlerts: [],
     };
@@ -137,8 +137,8 @@ export function computeCoagWestgard(
   // Inicializado vazio; cresce a cada run processado.
   const historyByAnalyte: Record<CoagAnalyteId, number[]> = {
     atividadeProtrombinica: [],
-    rni:                    [],
-    ttpa:                   [],
+    rni: [],
+    ttpa: [],
   };
 
   // ── Step 4: mapa de resultados por corrida ────────────────────────────────────
@@ -148,8 +148,8 @@ export function computeCoagWestgard(
     const violationsByAnalyte = {} as Record<CoagAnalyteId, WestgardViolation[]>;
 
     for (const analyteId of COAG_ANALYTE_IDS) {
-      const value   = run.resultados[analyteId];
-      const stats   = getCoagStats(analyteId, nivel);
+      const value = run.resultados[analyteId];
+      const stats = getCoagStats(analyteId, nivel);
       const history = historyByAnalyte[analyteId];
 
       // Filtra apenas as regras configuradas para este analito
@@ -173,14 +173,14 @@ export function computeCoagWestgard(
     // Deduplica mantendo ordem de aparição
     const allViolations = [...new Set(allViolsSets)] as WestgardViolation[];
 
-    const analitosComViolacao = (Object.keys(violationsByAnalyte) as CoagAnalyteId[]).filter(
-      (id) => isRejection(violationsByAnalyte[id]),
+    const analitosComViolacao = (Object.keys(violationsByAnalyte) as CoagAnalyteId[]).filter((id) =>
+      isRejection(violationsByAnalyte[id]),
     );
 
     const conformidade: 'A' | 'R' = analitosComViolacao.length > 0 ? 'R' : 'A';
 
     byRun.set(run.id, {
-      runId:               run.id,
+      runId: run.id,
       violationsByAnalyte,
       allViolations,
       analitosComViolacao,
@@ -200,8 +200,8 @@ export function computeCoagWestgard(
 
   // ── Step 6: derivar lotStatus ────────────────────────────────────────────────
   const hasAnyRejection = [...byRun.values()].some((r) => r.conformidade === 'R');
-  const hasExpirado     = lotAlerts.includes('lote_expirado');
-  const hasWarningOnly  = lotAlerts.includes('validade_30d');
+  const hasExpirado = lotAlerts.includes('lote_expirado');
+  const hasWarningOnly = lotAlerts.includes('validade_30d');
 
   let lotStatus: CoagLotStatus;
 

@@ -31,7 +31,10 @@ import type {
 // ─── Serialization ────────────────────────────────────────────────────────────
 // Firestore stores Date as Timestamp. We always convert at the boundary.
 
-type FirestoreLotDoc = Omit<ControlLot, 'id' | 'runs' | 'startDate' | 'expiryDate' | 'createdAt'> & {
+type FirestoreLotDoc = Omit<
+  ControlLot,
+  'id' | 'runs' | 'startDate' | 'expiryDate' | 'createdAt'
+> & {
   startDate: Timestamp;
   expiryDate: Timestamp;
   createdAt: Timestamp;
@@ -60,20 +63,20 @@ function deserializeLot(id: string, raw: Record<string, unknown>, runs: Run[]): 
   const d = raw as FirestoreLotDoc;
   return {
     id,
-    labId:            d.labId,
-    lotNumber:        d.lotNumber,
-    controlName:      d.controlName,
-    equipmentName:    d.equipmentName,
-    serialNumber:     d.serialNumber,
-    level:            d.level,
+    labId: d.labId,
+    lotNumber: d.lotNumber,
+    controlName: d.controlName,
+    equipmentName: d.equipmentName,
+    serialNumber: d.serialNumber,
+    level: d.level,
     requiredAnalytes: d.requiredAnalytes ?? [],
     manufacturerStats: (d.manufacturerStats ?? {}) as ManufacturerStats,
-    statistics:       (d.statistics ?? null) as InternalStats | null,
-    runCount:         d.runCount ?? 0,
-    createdBy:        d.createdBy,
-    startDate:        d.startDate.toDate(),
-    expiryDate:       d.expiryDate.toDate(),
-    createdAt:        d.createdAt.toDate(),
+    statistics: (d.statistics ?? null) as InternalStats | null,
+    runCount: d.runCount ?? 0,
+    createdBy: d.createdBy,
+    startDate: d.startDate.toDate(),
+    expiryDate: d.expiryDate.toDate(),
+    createdAt: d.createdAt.toDate(),
     runs,
   };
 }
@@ -83,7 +86,7 @@ function serializeRun(run: Run): FirestoreRunDoc {
   return {
     ...rest,
     // Optional fields: only include when truthy — Firestore rejects undefined values
-    ...(sampleId      && { sampleId }),
+    ...(sampleId && { sampleId }),
     ...(manualOverride && { manualOverride }),
     timestamp: Timestamp.fromDate(timestamp),
     results: results.map((r) => ({
@@ -98,20 +101,21 @@ function deserializeRun(id: string, raw: Record<string, unknown>): Run {
   const d = raw as FirestoreRunDoc;
   return {
     id,
-    lotId:     d.lotId,
-    labId:     d.labId,
-    imageUrl:  d.imageUrl,
-    status:    d.status,
+    lotId: d.lotId,
+    labId: d.labId,
+    imageUrl: d.imageUrl,
+    status: d.status,
     createdBy: d.createdBy,
     // Optional fields: only include when present to avoid undefined in memory
-    ...(d.sampleId       && { sampleId:       d.sampleId }),
+    ...(d.sampleId && { sampleId: d.sampleId }),
     ...(d.manualOverride && { manualOverride: d.manualOverride }),
     timestamp: d.timestamp.toDate(),
     results: d.results.map((r) => ({
       ...r,
-      timestamp: r.timestamp instanceof Timestamp
-        ? r.timestamp.toDate()
-        : new Date(r.timestamp as unknown as string),
+      timestamp:
+        r.timestamp instanceof Timestamp
+          ? r.timestamp.toDate()
+          : new Date(r.timestamp as unknown as string),
       violations: r.violations ?? [],
     })) as AnalyteResult[],
   };
@@ -149,11 +153,7 @@ export class FirebaseService implements DatabaseService {
   // ── Firestore path helpers ─────────────────────────────────────────────────
 
   private appStateRef() {
-    return doc(
-      db,
-      COLLECTIONS.LABS, this.labId,
-      SUBCOLLECTIONS.DATA, STATIC_DOC_IDS.APP_STATE
-    );
+    return doc(db, COLLECTIONS.LABS, this.labId, SUBCOLLECTIONS.DATA, STATIC_DOC_IDS.APP_STATE);
   }
 
   private lotsCol() {
@@ -167,18 +167,23 @@ export class FirebaseService implements DatabaseService {
   private runsCol(lotId: string) {
     return collection(
       db,
-      COLLECTIONS.LABS, this.labId,
-      SUBCOLLECTIONS.LOTS, lotId,
-      SUBCOLLECTIONS.RUNS
+      COLLECTIONS.LABS,
+      this.labId,
+      SUBCOLLECTIONS.LOTS,
+      lotId,
+      SUBCOLLECTIONS.RUNS,
     );
   }
 
   private runRef(lotId: string, runId: string) {
     return doc(
       db,
-      COLLECTIONS.LABS, this.labId,
-      SUBCOLLECTIONS.LOTS, lotId,
-      SUBCOLLECTIONS.RUNS, runId
+      COLLECTIONS.LABS,
+      this.labId,
+      SUBCOLLECTIONS.LOTS,
+      lotId,
+      SUBCOLLECTIONS.RUNS,
+      runId,
     );
   }
 
@@ -194,11 +199,8 @@ export class FirebaseService implements DatabaseService {
     await Promise.all(
       lotsSnap.docs.map(async (lotDoc) => {
         const runsSnap = await getDocs(this.runsCol(lotDoc.id));
-        this.knownRunIds!.set(
-          lotDoc.id,
-          new Set(runsSnap.docs.map((d) => d.id))
-        );
-      })
+        this.knownRunIds!.set(lotDoc.id, new Set(runsSnap.docs.map((d) => d.id)));
+      }),
     );
   }
 
@@ -218,7 +220,11 @@ export class FirebaseService implements DatabaseService {
       for (const lotId of removedLotIds) {
         const runIds = this.knownRunIds!.get(lotId) ?? new Set<string>();
         await runBatched([
-          ...[...runIds].map((runId): BatchOp => (b) => b.delete(this.runRef(lotId, runId))),
+          ...[...runIds].map(
+            (runId): BatchOp =>
+              (b) =>
+                b.delete(this.runRef(lotId, runId)),
+          ),
           (b) => b.delete(this.lotRef(lotId)),
         ]);
         this.knownLotIds!.delete(lotId);
@@ -227,11 +233,12 @@ export class FirebaseService implements DatabaseService {
 
       // 2. Upsert appState + all lot documents (without runs array)
       await runBatched([
-        (b) => b.set(this.appStateRef(), {
-          activeLotId,
-          selectedAnalyteId,
-          lastUpdated: serverTimestamp(),
-        }),
+        (b) =>
+          b.set(this.appStateRef(), {
+            activeLotId,
+            selectedAnalyteId,
+            lastUpdated: serverTimestamp(),
+          }),
         ...lots.map((lot): BatchOp => {
           const { runs: _runs, ...lotWithoutRuns } = lot;
           return (b) => b.set(this.lotRef(lot.id), serializeLot(lotWithoutRuns));
@@ -248,9 +255,15 @@ export class FirebaseService implements DatabaseService {
         const removedRunIds = [...existingRunIds].filter((id) => !incomingRunIds.has(id));
 
         await runBatched([
-          ...removedRunIds.map((id): BatchOp => (b) => b.delete(this.runRef(lot.id, id))),
-          ...lot.runs.map((run): BatchOp => (b) =>
-            b.set(this.runRef(lot.id, run.id), serializeRun(run))
+          ...removedRunIds.map(
+            (id): BatchOp =>
+              (b) =>
+                b.delete(this.runRef(lot.id, id)),
+          ),
+          ...lot.runs.map(
+            (run): BatchOp =>
+              (b) =>
+                b.set(this.runRef(lot.id, run.id), serializeRun(run)),
           ),
         ]);
 
@@ -277,18 +290,18 @@ export class FirebaseService implements DatabaseService {
         lotsSnap.docs.map(async (lotDoc) => {
           const runsSnap = await getDocs(this.runsCol(lotDoc.id));
           const runs = runsSnap.docs.map((d) =>
-            deserializeRun(d.id, d.data() as Record<string, unknown>)
+            deserializeRun(d.id, d.data() as Record<string, unknown>),
           );
           return deserializeLot(lotDoc.id, lotDoc.data() as Record<string, unknown>, runs);
-        })
+        }),
       );
 
       const appData = appStateSnap.exists() ? appStateSnap.data() : {};
 
       return {
         lots,
-        activeLotId:        (appData.activeLotId        as string | null) ?? null,
-        selectedAnalyteId:  (appData.selectedAnalyteId  as string | null) ?? null,
+        activeLotId: (appData.activeLotId as string | null) ?? null,
+        selectedAnalyteId: (appData.selectedAnalyteId as string | null) ?? null,
       };
     } catch (err) {
       throw new Error(firestoreErrorMessage(err));
@@ -302,7 +315,7 @@ export class FirebaseService implements DatabaseService {
 
   subscribeToState(callback: (state: StoredState) => void): Unsubscribe {
     let appStateData = {
-      activeLotId:       null as string | null,
+      activeLotId: null as string | null,
       selectedAnalyteId: null as string | null,
     };
 
@@ -312,7 +325,7 @@ export class FirebaseService implements DatabaseService {
 
     // Guards — ensure we only emit after all layers are ready
     let appStateReady = false;
-    let lotsReady     = false;
+    let lotsReady = false;
     // Track lot IDs whose runs haven't delivered a first snapshot yet
     const pendingRunInit = new Set<string>();
 
@@ -333,13 +346,13 @@ export class FirebaseService implements DatabaseService {
       (snap) => {
         const d = snap.exists() ? snap.data() : {};
         appStateData = {
-          activeLotId:       (d.activeLotId       as string | null) ?? null,
+          activeLotId: (d.activeLotId as string | null) ?? null,
           selectedAnalyteId: (d.selectedAnalyteId as string | null) ?? null,
         };
         appStateReady = true;
         emit();
       },
-      (err) => console.error('[FirebaseService] appState listener error:', err)
+      (err) => console.error('[FirebaseService] appState listener error:', err),
     );
 
     // Layer 2: lots collection
@@ -359,11 +372,7 @@ export class FirebaseService implements DatabaseService {
 
           // Add or modify: update metadata, preserve existing runs
           const existing = lotsMap.get(lotId);
-          const fullLot  = deserializeLot(
-            lotId,
-            change.doc.data() as Record<string, unknown>,
-            []
-          );
+          const fullLot = deserializeLot(lotId, change.doc.data() as Record<string, unknown>, []);
           const { runs: _runs, ...meta } = fullLot;
 
           lotsMap.set(lotId, { meta, runs: existing?.runs ?? [] });
@@ -376,7 +385,7 @@ export class FirebaseService implements DatabaseService {
               this.runsCol(lotId),
               (runsSnap) => {
                 const runs = runsSnap.docs.map((d) =>
-                  deserializeRun(d.id, d.data() as Record<string, unknown>)
+                  deserializeRun(d.id, d.data() as Record<string, unknown>),
                 );
                 const entry = lotsMap.get(lotId);
                 if (entry) lotsMap.set(lotId, { ...entry, runs });
@@ -384,7 +393,7 @@ export class FirebaseService implements DatabaseService {
                 pendingRunInit.delete(lotId); // first snapshot received
                 emit();
               },
-              (err) => console.error(`[FirebaseService] runs[${lotId}] listener error:`, err)
+              (err) => console.error(`[FirebaseService] runs[${lotId}] listener error:`, err),
             );
 
             runUnsubbers.set(lotId, runUnsub);
@@ -394,7 +403,7 @@ export class FirebaseService implements DatabaseService {
         lotsReady = true;
         emit();
       },
-      (err) => console.error('[FirebaseService] lots listener error:', err)
+      (err) => console.error('[FirebaseService] lots listener error:', err),
     );
 
     return () => {
@@ -414,7 +423,7 @@ export class FirebaseService implements DatabaseService {
       return await getDownloadURL(storageRef);
     } catch (err) {
       throw new Error(
-        err instanceof Error ? err.message : 'Falha no upload do arquivo. Tente novamente.'
+        err instanceof Error ? err.message : 'Falha no upload do arquivo. Tente novamente.',
       );
     }
   }
@@ -451,7 +460,11 @@ export class FirebaseService implements DatabaseService {
       await this.ensureTracking();
       const runIds = this.knownRunIds!.get(lotId) ?? new Set<string>();
       await runBatched([
-        ...[...runIds].map((runId): BatchOp => (b) => b.delete(this.runRef(lotId, runId))),
+        ...[...runIds].map(
+          (runId): BatchOp =>
+            (b) =>
+              b.delete(this.runRef(lotId, runId)),
+        ),
         (b) => b.delete(this.lotRef(lotId)),
       ]);
       this.knownLotIds!.delete(lotId);

@@ -19,7 +19,14 @@ interface Props {
 
 function UserXIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+    >
       <circle cx="6" cy="5" r="3" stroke="currentColor" strokeWidth="1.4" />
       <path d="M1 14c0-3 2-5 5-5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
       <path d="M11 9l4 4M15 9l-4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
@@ -29,10 +36,23 @@ function UserXIcon() {
 
 function UserCheckIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+    >
       <circle cx="6" cy="5" r="3" stroke="currentColor" strokeWidth="1.4" />
       <path d="M1 14c0-3 2-5 5-5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M11 10l2 2 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M11 10l2 2 3-3"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -40,14 +60,14 @@ function UserCheckIcon() {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const ROLE_LABEL: Record<UserRole, string> = {
-  owner:  'Proprietário',
-  admin:  'Admin',
+  owner: 'Proprietário',
+  admin: 'Admin',
   member: 'Membro',
 };
 
 const ROLE_STYLE: Record<UserRole, string> = {
-  owner:  'bg-violet-500/15 text-violet-300 border-violet-500/25',
-  admin:  'bg-blue-500/15 text-blue-300 border-blue-500/25',
+  owner: 'bg-violet-500/15 text-violet-300 border-violet-500/25',
+  admin: 'bg-blue-500/15 text-blue-300 border-blue-500/25',
   member: 'bg-white/10 text-white/50 border-white/10',
 };
 
@@ -62,7 +82,14 @@ interface MemberRowProps {
   onToggleActive: (member: LabMember) => void;
 }
 
-function MemberRow({ member, isSelf, isOwner, busy, onRoleChange, onToggleActive }: MemberRowProps) {
+function MemberRow({
+  member,
+  isSelf,
+  isOwner,
+  busy,
+  onRoleChange,
+  onToggleActive,
+}: MemberRowProps) {
   // Fix #11: safe fallback prevents crash when both fields are empty
   const displayName = member.displayName || member.email || '?';
   const avatarInitial = displayName[0].toUpperCase();
@@ -92,7 +119,10 @@ function MemberRow({ member, isSelf, isOwner, busy, onRoleChange, onToggleActive
           <p className="text-sm text-white/80 truncate">{displayName}</p>
           {/* Fix #15: "você" is decorative — reading "John Doe você" is redundant noise */}
           {isSelf && (
-            <span aria-hidden="true" className="text-[10px] text-white/30 bg-white/5 px-1.5 py-0.5 rounded-full">
+            <span
+              aria-hidden="true"
+              className="text-[10px] text-white/30 bg-white/5 px-1.5 py-0.5 rounded-full"
+            >
               você
             </span>
           )}
@@ -103,7 +133,9 @@ function MemberRow({ member, isSelf, isOwner, busy, onRoleChange, onToggleActive
 
       {/* Role badge / selector */}
       {isOwner || isSelf ? (
-        <span className={`text-xs px-2 py-0.5 rounded-full border font-medium shrink-0 ${ROLE_STYLE[member.role]}`}>
+        <span
+          className={`text-xs px-2 py-0.5 rounded-full border font-medium shrink-0 ${ROLE_STYLE[member.role]}`}
+        >
           {ROLE_LABEL[member.role]}
         </span>
       ) : (
@@ -149,10 +181,10 @@ function MemberRow({ member, isSelf, isOwner, busy, onRoleChange, onToggleActive
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function UserManagementModal({ labId, labName, currentUserUid, onClose }: Props) {
-  const [members, setMembers]   = useState<LabMember[]>([]);
-  const [loading, setLoading]   = useState(true);
+  const [members, setMembers] = useState<LabMember[]>([]);
+  const [loading, setLoading] = useState(true);
   const [actionId, setActionId] = useState<string | null>(null);
-  const [error, setError]       = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -185,12 +217,12 @@ export function UserManagementModal({ labId, labName, currentUserUid, onClose }:
       if (e.key !== 'Tab') return;
 
       const focusable = dialog!.querySelectorAll<HTMLElement>(
-        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
       );
       if (focusable.length === 0) return;
 
       const first = focusable[0];
-      const last  = focusable[focusable.length - 1];
+      const last = focusable[focusable.length - 1];
 
       if (e.shiftKey) {
         if (document.activeElement === first) {
@@ -215,48 +247,60 @@ export function UserManagementModal({ labId, labName, currentUserUid, onClose }:
 
     setLoading(true);
     getLabMembers(labId)
-      .then((data)  => { if (!cancelled) setMembers(data); })
-      .catch(()     => { if (!cancelled) setError('Erro ao carregar membros.'); })
-      .finally(()   => { if (!cancelled) setLoading(false); });
+      .then((data) => {
+        if (!cancelled) setMembers(data);
+      })
+      .catch(() => {
+        if (!cancelled) setError('Erro ao carregar membros.');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [labId]);
 
   // Fix #10: clear stale error before each new action
-  const handleRoleChange = useCallback(async (member: LabMember, role: UserRole) => {
-    if (member.role === role) return;
-    setActionId(member.uid);
-    setError(null);
-    try {
-      await updateMemberRole(labId, member.uid, role);
-      setMembers((prev) =>
-        prev.map((m) => (m.uid === member.uid ? { ...m, role } : m))
-      );
-    } catch {
-      setError('Erro ao atualizar papel. Tente novamente.');
-    } finally {
-      setActionId(null);
-    }
-  }, [labId]);
-
-  const handleToggleActive = useCallback(async (member: LabMember) => {
-    setActionId(member.uid);
-    setError(null);
-    try {
-      if (member.active) {
-        await deactivateMember(labId, member.uid);
-      } else {
-        await reactivateMember(labId, member.uid, member.role);
+  const handleRoleChange = useCallback(
+    async (member: LabMember, role: UserRole) => {
+      if (member.role === role) return;
+      setActionId(member.uid);
+      setError(null);
+      try {
+        await updateMemberRole(labId, member.uid, role);
+        setMembers((prev) => prev.map((m) => (m.uid === member.uid ? { ...m, role } : m)));
+      } catch {
+        setError('Erro ao atualizar papel. Tente novamente.');
+      } finally {
+        setActionId(null);
       }
-      setMembers((prev) =>
-        prev.map((m) => (m.uid === member.uid ? { ...m, active: !m.active } : m))
-      );
-    } catch {
-      setError('Erro ao atualizar membro. Tente novamente.');
-    } finally {
-      setActionId(null);
-    }
-  }, [labId]);
+    },
+    [labId],
+  );
+
+  const handleToggleActive = useCallback(
+    async (member: LabMember) => {
+      setActionId(member.uid);
+      setError(null);
+      try {
+        if (member.active) {
+          await deactivateMember(labId, member.uid);
+        } else {
+          await reactivateMember(labId, member.uid, member.role);
+        }
+        setMembers((prev) =>
+          prev.map((m) => (m.uid === member.uid ? { ...m, active: !m.active } : m)),
+        );
+      } catch {
+        setError('Erro ao atualizar membro. Tente novamente.');
+      } finally {
+        setActionId(null);
+      }
+    },
+    [labId],
+  );
 
   return (
     // Backdrop: click-outside-to-close; no ARIA role (the dialog inside owns semantics)
@@ -296,8 +340,20 @@ export function UserManagementModal({ labId, labName, currentUserUid, onClose }:
             className="p-2 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.07] transition-all"
           >
             {/* Fix #16: explicit aria-hidden="true" and focusable="false" */}
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
-              <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M12 4L4 12M4 4l8 8"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
             </svg>
           </button>
         </div>
@@ -324,7 +380,10 @@ export function UserManagementModal({ labId, labName, currentUserUid, onClose }:
               aria-label="Carregando membros"
               className="flex items-center gap-2 text-white/40 text-sm py-8 justify-center"
             >
-              <span aria-hidden="true" className="animate-spin w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full inline-block" />
+              <span
+                aria-hidden="true"
+                className="animate-spin w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full inline-block"
+              />
               Carregando...
             </div>
           ) : members.length === 0 ? (

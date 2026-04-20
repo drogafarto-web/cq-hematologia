@@ -10,10 +10,10 @@
 
 ## Contexto — duas camadas de defesa
 
-| Camada | Ferramenta | Janela | Granularidade | Uso |
-|---|---|---|---|---|
-| **1** | **PITR** (Point-in-Time Recovery) | **7 dias** | Segundos | Rollback rápido (delete/overwrite acidental, bug recente) |
-| **2** | **Scheduled export** (GCS) | **90 dias** (Nearline 30d → Coldline 60d) | Diário, 03:00 BRT | Incidente antigo, catástrofe, auditoria |
+| Camada | Ferramenta                        | Janela                                    | Granularidade     | Uso                                                       |
+| ------ | --------------------------------- | ----------------------------------------- | ----------------- | --------------------------------------------------------- |
+| **1**  | **PITR** (Point-in-Time Recovery) | **7 dias**                                | Segundos          | Rollback rápido (delete/overwrite acidental, bug recente) |
+| **2**  | **Scheduled export** (GCS)        | **90 dias** (Nearline 30d → Coldline 60d) | Diário, 03:00 BRT | Incidente antigo, catástrofe, auditoria                   |
 
 PITR é **sempre** a primeira escolha se o incidente for das últimas 168h (7 dias). O export é fallback para incidentes mais antigos ou para reconstrução total em outro projeto.
 
@@ -196,13 +196,13 @@ Registro auditável no Firestore: coleção `firestore-backup-logs` (SuperAdmin-
 
 ## Custos estimados
 
-| Item | Estimativa mensal (banco <1GB) |
-|---|---|
-| PITR (7 dias retenção) | ~$0.10/GB/mês → **~$0.10** |
-| Export diário (Nearline 30d) | ~$0.01/GB/dia → **~$0.30** |
-| Coldline (30-90d) | ~$0.004/GB/mês → **negligível** |
+| Item                                    | Estimativa mensal (banco <1GB)           |
+| --------------------------------------- | ---------------------------------------- |
+| PITR (7 dias retenção)                  | ~$0.10/GB/mês → **~$0.10**               |
+| Export diário (Nearline 30d)            | ~$0.01/GB/dia → **~$0.30**               |
+| Coldline (30-90d)                       | ~$0.004/GB/mês → **negligível**          |
 | Operações de import (apenas em restore) | $0.18/GB importado — pago só quando usar |
-| **Total** | **~$0.50/mês** |
+| **Total**                               | **~$0.50/mês**                           |
 
 Escala linear com o tamanho do banco. Custo irrelevante comparado ao risco mitigado.
 

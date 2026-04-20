@@ -51,41 +51,40 @@ export interface SaveUroRunResult {
  *  9. Upload da foto da tira em background (condicional a options.stripImage)
  */
 export function useSaveUroRun() {
-  const labId    = useActiveLabId();
-  const user     = useUser();
+  const labId = useActiveLabId();
+  const user = useUser();
   const { sign } = useUroSignature();
 
-  const [isSaving,  setIsSaving]  = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
   const save = useCallback(
     async (
       formData: UroanaliseFormData,
-      options:  SaveUroRunOptions = {},
+      options: SaveUroRunOptions = {},
     ): Promise<SaveUroRunResult> => {
       if (!labId) throw new Error('Nenhum laboratório ativo.');
-      if (!user)  throw new Error('Usuário não autenticado.');
+      if (!user) throw new Error('Usuário não autenticado.');
 
       setIsSaving(true);
       setSaveError(null);
 
       try {
         // ── 1. Encontra ou cria o lote ─────────────────────────────────────
-        let lotId =
-          (await findUroLot(labId, formData.nivel, formData.loteControle))?.id ?? null;
+        let lotId = (await findUroLot(labId, formData.nivel, formData.loteControle))?.id ?? null;
 
         if (!lotId) {
           lotId = await createUroLot(labId, {
             labId,
-            nivel:              formData.nivel,
-            loteControle:       formData.loteControle,
+            nivel: formData.nivel,
+            loteControle: formData.loteControle,
             fabricanteControle: formData.fabricanteControle,
-            aberturaControle:   formData.aberturaControle,
-            validadeControle:   formData.validadeControle,
+            aberturaControle: formData.aberturaControle,
+            validadeControle: formData.validadeControle,
             resultadosEsperados: formData.resultadosEsperadosRun,
-            runCount:           0,
-            lotStatus:          'sem_dados',
-            createdBy:          user.uid,
+            runCount: 0,
+            lotStatus: 'sem_dados',
+            createdBy: user.uid,
           });
         }
 
@@ -94,27 +93,27 @@ export function useSaveUroRun() {
 
         // ── 3. Validação ordinal categórica ────────────────────────────────
         // Inclui o run atual na simulação para refletir o estado pós-save.
-        const simulatedId  = crypto.randomUUID();
+        const simulatedId = crypto.randomUUID();
         const simulatedRun = buildRun(
           simulatedId,
-          'UR-TEMP',    // runCode provisório — não persistido
+          'UR-TEMP', // runCode provisório — não persistido
           labId,
           lotId,
           user.uid,
           formData,
-          [],           // analitosNaoConformes provisório
-          [],           // alertas provisório
-          'A',          // conformidade provisória
-          '',           // logicalSignature provisória
+          [], // analitosNaoConformes provisório
+          [], // alertas provisório
+          'A', // conformidade provisória
+          '', // logicalSignature provisória
         );
 
-        const allRuns        = [...existingRuns, simulatedRun];
+        const allRuns = [...existingRuns, simulatedRun];
         const validatorResult = computeUroValidator(allRuns, formData.validadeControle);
-        const simAvaliacao   = validatorResult.byRun.get(simulatedId);
-        const lotStatus      = validatorResult.lotStatus;
+        const simAvaliacao = validatorResult.byRun.get(simulatedId);
+        const lotStatus = validatorResult.lotStatus;
 
         const analitosNaoConformes = simAvaliacao?.analitosNaoConformes ?? [];
-        const alertas              = validatorResult.alerts;
+        const alertas = validatorResult.alerts;
         const conformidade: 'A' | 'R' = simAvaliacao?.conformidade ?? 'A';
 
         // ── 4. Código sequencial + UUID ────────────────────────────────────
@@ -125,13 +124,13 @@ export function useSaveUroRun() {
 
         // ── 5. Assinatura SHA-256 ──────────────────────────────────────────
         const { logicalSignature, signedBy, signedAt } = await sign({
-          operatorDocument:    formData.operatorDocument,
+          operatorDocument: formData.operatorDocument,
           lotId,
-          nivel:               formData.nivel,
-          loteControle:        formData.loteControle,
-          loteTira:            formData.loteTira,
+          nivel: formData.nivel,
+          loteControle: formData.loteControle,
+          loteTira: formData.loteTira,
           resultadosCanonical: canonicalizeUroResultados(formData.resultados),
-          dataRealizacao:      formData.dataRealizacao,
+          dataRealizacao: formData.dataRealizacao,
         });
 
         // ── 6. Monta e persiste o run ──────────────────────────────────────
@@ -152,7 +151,7 @@ export function useSaveUroRun() {
 
         // ── 7. Atualiza lote ───────────────────────────────────────────────
         await updateUroLot(labId, lotId, {
-          runCount:  existingRuns.length + 1,
+          runCount: existingRuns.length + 1,
           lotStatus,
         });
 
@@ -163,14 +162,14 @@ export function useSaveUroRun() {
           logicalSignature,
           signedBy,
           signedAt,
-          nivel:              formData.nivel,
-          loteControle:       formData.loteControle,
-          loteTira:           formData.loteTira,
+          nivel: formData.nivel,
+          loteControle: formData.loteControle,
+          loteTira: formData.loteTira,
           analitosNaoConformes,
           alertas,
           conformidade,
           lotStatus,
-          dataRealizacao:     formData.dataRealizacao,
+          dataRealizacao: formData.dataRealizacao,
         });
 
         // ── 9. Upload da foto da tira em background ────────────────────────
@@ -188,7 +187,6 @@ export function useSaveUroRun() {
         }
 
         return { runId, lotId };
-
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Erro ao salvar corrida.';
         setSaveError(msg);
@@ -216,66 +214,68 @@ export function useSaveUroRun() {
  * para evitar duplicação entre o run simulado e o run final.
  */
 function buildRun(
-  runId:               string,
-  runCode:             string,
-  labId:               string,
-  lotId:               string,
-  createdBy:           string,
-  form:                UroanaliseFormData,
+  runId: string,
+  runCode: string,
+  labId: string,
+  lotId: string,
+  createdBy: string,
+  form: UroanaliseFormData,
   analitosNaoConformes: UroAnalitoId[],
-  alertas:             UroAlert[],
-  conformidade:        'A' | 'R',
-  logicalSignature:    string,
+  alertas: UroAlert[],
+  conformidade: 'A' | 'R',
+  logicalSignature: string,
 ): UroanaliseRun {
   return {
-    id:               runId,
+    id: runId,
     runCode,
     labId,
     lotId,
     // Rastreabilidade RDC 978
-    operatorId:       createdBy,
-    operatorName:     form.operatorName ?? '',
-    operatorRole:     form.cargo,
+    operatorId: createdBy,
+    operatorName: form.operatorName ?? '',
+    operatorRole: form.cargo,
     operatorDocument: form.operatorDocument,
     // Campos herdados de CQRun
-    isEdited:         false,
-    status:           conformidade === 'A' ? 'Aprovada' : ('Rejeitada' as const),
-    version:          1,
+    isEdited: false,
+    status: conformidade === 'A' ? 'Aprovada' : ('Rejeitada' as const),
+    version: 1,
     logicalSignature,
     createdBy,
-    imageUrl:         '',
+    imageUrl: '',
     // serverTimestamp injetados pelo service
     confirmedAt: null as unknown as import('firebase/firestore').Timestamp,
-    createdAt:   null as unknown as import('firebase/firestore').Timestamp,
+    createdAt: null as unknown as import('firebase/firestore').Timestamp,
     // Identificação do nível e insumos
-    nivel:              form.nivel,
-    frequencia:         form.frequencia,
-    loteTira:           form.loteTira,
-    loteControle:       form.loteControle,
+    nivel: form.nivel,
+    frequencia: form.frequencia,
+    loteTira: form.loteTira,
+    loteControle: form.loteControle,
     fabricanteControle: form.fabricanteControle,
-    aberturaControle:   form.aberturaControle,
-    validadeControle:   form.validadeControle,
+    aberturaControle: form.aberturaControle,
+    validadeControle: form.validadeControle,
     // Tiras (opcional)
-    ...(form.tiraMarca      && { tiraMarca:      form.tiraMarca }),
+    ...(form.tiraMarca && { tiraMarca: form.tiraMarca }),
     ...(form.fabricanteTira && { fabricanteTira: form.fabricanteTira }),
-    ...(form.validadeTira   && { validadeTira:   form.validadeTira }),
+    ...(form.validadeTira && { validadeTira: form.validadeTira }),
     // Ambiente (opcional)
-    ...(form.temperaturaAmbiente !== undefined && { temperaturaAmbiente: form.temperaturaAmbiente }),
-    ...(form.umidadeAmbiente     !== undefined && { umidadeAmbiente:     form.umidadeAmbiente }),
+    ...(form.temperaturaAmbiente !== undefined && {
+      temperaturaAmbiente: form.temperaturaAmbiente,
+    }),
+    ...(form.umidadeAmbiente !== undefined && { umidadeAmbiente: form.umidadeAmbiente }),
     // Data e resultados
-    dataRealizacao:      form.dataRealizacao,
+    dataRealizacao: form.dataRealizacao,
     resultadosEsperados: form.resultadosEsperadosRun,
-    resultados:          form.resultados,
+    resultados: form.resultados,
     // Conformidade
     conformidade,
     analitosNaoConformes,
     ...(alertas.length > 0 && { alertas }),
     ...(form.acaoCorretiva && { acaoCorretiva: form.acaoCorretiva }),
     // Tecnovigilância (opcional)
-    ...(form.notivisaTipo          && { notivisaTipo:          form.notivisaTipo }),
-    ...(form.notivisaStatus        && { notivisaStatus:        form.notivisaStatus }),
-    ...(form.notivisaProtocolo     && { notivisaProtocolo:     form.notivisaProtocolo }),
-    ...(form.notivisaDataEnvio     && { notivisaDataEnvio:     form.notivisaDataEnvio }),
+    ...(form.notivisaTipo && { notivisaTipo: form.notivisaTipo }),
+    ...(form.notivisaStatus && { notivisaStatus: form.notivisaStatus }),
+    ...(form.notivisaProtocolo && { notivisaProtocolo: form.notivisaProtocolo }),
+    ...(form.notivisaDataEnvio && { notivisaDataEnvio: form.notivisaDataEnvio }),
     ...(form.notivisaJustificativa && { notivisaJustificativa: form.notivisaJustificativa }),
   };
 }

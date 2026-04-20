@@ -17,47 +17,47 @@ Guia de referência para qualquer designer ou desenvolvedor que trabalhar neste 
 
 ### Luz (padrão)
 
-| Token          | Hex       | Tailwind          | Uso                              |
-|----------------|-----------|-------------------|----------------------------------|
-| Primary        | `#2563EB` | `blue-600`        | CTAs, nav ativa, links           |
-| Primary hover  | `#1D4ED8` | `blue-700`        | Hover de botão primário          |
-| Primary soft   | `#EFF4FF` | `blue-50`         | Fundo de badge, nav ativa bg     |
-| Success        | `#10B981` | `emerald-500`     | Aprovado, sem violações          |
-| Warning        | `#F59E0B` | `amber-500`       | Alerta 1-2s (não rejeita)        |
-| Danger         | `#EF4444` | `red-500`         | Rejeição Westgard, erro          |
-| BG             | `#F8FAFC` | `slate-50`        | Background da página             |
-| Card           | `#FFFFFF` | `white`           | Background de cards e sidebar    |
-| Border         | `#E2E8F0` | `slate-200`       | Bordas padrão                    |
-| Border strong  | `#CBD5E1` | `slate-300`       | Bordas em hover/focus            |
-| Text           | `#0F172A` | `slate-900`       | Texto principal                  |
-| Text muted     | `#64748B` | `slate-500`       | Labels, metadados                |
-| Text faint     | `#94A3B8` | `slate-400`       | Placeholders, kbd hints          |
+| Token         | Hex       | Tailwind      | Uso                           |
+| ------------- | --------- | ------------- | ----------------------------- |
+| Primary       | `#2563EB` | `blue-600`    | CTAs, nav ativa, links        |
+| Primary hover | `#1D4ED8` | `blue-700`    | Hover de botão primário       |
+| Primary soft  | `#EFF4FF` | `blue-50`     | Fundo de badge, nav ativa bg  |
+| Success       | `#10B981` | `emerald-500` | Aprovado, sem violações       |
+| Warning       | `#F59E0B` | `amber-500`   | Alerta 1-2s (não rejeita)     |
+| Danger        | `#EF4444` | `red-500`     | Rejeição Westgard, erro       |
+| BG            | `#F8FAFC` | `slate-50`    | Background da página          |
+| Card          | `#FFFFFF` | `white`       | Background de cards e sidebar |
+| Border        | `#E2E8F0` | `slate-200`   | Bordas padrão                 |
+| Border strong | `#CBD5E1` | `slate-300`   | Bordas em hover/focus         |
+| Text          | `#0F172A` | `slate-900`   | Texto principal               |
+| Text muted    | `#64748B` | `slate-500`   | Labels, metadados             |
+| Text faint    | `#94A3B8` | `slate-400`   | Placeholders, kbd hints       |
 
 ### Escuro (dark mode via `.dark`)
 
 O dark mode usa as mesmas primitivas Tailwind com prefixo `dark:`. Padrões:
 
-| Elemento        | Dark class                          |
-|-----------------|-------------------------------------|
-| BG da página    | `dark:bg-[#0B0F14]`                 |
-| Sidebar/topbar  | `dark:bg-[#0F1318]`                 |
-| Card            | `dark:bg-white/[0.03]`              |
-| Border          | `dark:border-white/[0.06]`          |
-| Texto           | `dark:text-white`                   |
-| Texto muted     | `dark:text-slate-400`               |
-| Texto faint     | `dark:text-slate-500`               |
+| Elemento       | Dark class                 |
+| -------------- | -------------------------- |
+| BG da página   | `dark:bg-[#0B0F14]`        |
+| Sidebar/topbar | `dark:bg-[#0F1318]`        |
+| Card           | `dark:bg-white/[0.03]`     |
+| Border         | `dark:border-white/[0.06]` |
+| Texto          | `dark:text-white`          |
+| Texto muted    | `dark:text-slate-400`      |
+| Texto faint    | `dark:text-slate-500`      |
 
 ---
 
 ## Tipografia
 
-| Classe        | Tamanho | Peso | Uso                            |
-|---------------|---------|------|--------------------------------|
-| `.h1` / page  | 24px    | 700  | Título da página               |
-| `.h2`         | 18px    | 600  | Título de seção                |
-| `text-sm`     | 14px    | 400  | Corpo padrão                   |
-| `text-xs`     | 12px    | —    | Metadados, labels              |
-| `text-[10px]` | 10px    | 600  | Labels UPPERCASE com tracking  |
+| Classe        | Tamanho | Peso | Uso                           |
+| ------------- | ------- | ---- | ----------------------------- |
+| `.h1` / page  | 24px    | 700  | Título da página              |
+| `.h2`         | 18px    | 600  | Título de seção               |
+| `text-sm`     | 14px    | 400  | Corpo padrão                  |
+| `text-xs`     | 12px    | —    | Metadados, labels             |
+| `text-[10px]` | 10px    | 600  | Labels UPPERCASE com tracking |
 
 **Fonte display:** Inter (Google Fonts)  
 **Fonte mono:** JetBrains Mono — usada em: IDs de corrida, valores numéricos, atalhos de teclado, timestamps
@@ -150,6 +150,7 @@ Radius sempre `rounded-xl` (12px). Nunca `rounded-2xl` em cards de dados.
 ```
 
 Sempre com dot (1.5px, rounded-full) + texto. Estrutura:
+
 ```tsx
 <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border">
   <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-emerald-500" />
@@ -162,7 +163,10 @@ Sempre com dot (1.5px, rounded-full) + texto. Estrutura:
 ```tsx
 <div className="relative bg-white dark:bg-white/[0.03] border ... rounded-xl p-5 overflow-hidden">
   {/* Barra vertical de acento — 3px, cor semântica */}
-  <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-xl" style={{ background: accent }} />
+  <div
+    className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-xl"
+    style={{ background: accent }}
+  />
   <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">Label</div>
   <div className="text-[28px] font-semibold tracking-tight tabular-nums">Valor</div>
   <div className="mt-2.5 text-xs text-slate-500">Tendência</div>
@@ -196,10 +200,13 @@ Padding de célula: `px-4 py-3`. Valores numéricos: `tabular-nums text-right`.
 
 ```tsx
 <div className="inline-flex bg-slate-100 dark:bg-white/[0.06] rounded-lg p-0.5 gap-0.5">
-  <button className={`px-3 h-7 rounded-md text-xs font-medium transition-colors ${
-    active ? 'bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow-sm'
-           : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
-  }`}>
+  <button
+    className={`px-3 h-7 rounded-md text-xs font-medium transition-colors ${
+      active
+        ? 'bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow-sm'
+        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
+    }`}
+  >
     Label
   </button>
 </div>
@@ -226,16 +233,22 @@ Padding de célula: `px-4 py-3`. Valores numéricos: `tabular-nums text-right`.
   {steps.map((label, i) => (
     <React.Fragment key={label}>
       <div className="flex items-center gap-2.5">
-        <div className={`w-[22px] h-[22px] rounded-full flex items-center justify-center text-[11px] font-semibold ${
-          done   ? 'bg-emerald-500 text-white' :
-          active ? 'bg-blue-600 text-white' :
-          'bg-white border border-slate-200 text-slate-400'
-        }`}>
+        <div
+          className={`w-[22px] h-[22px] rounded-full flex items-center justify-center text-[11px] font-semibold ${
+            done
+              ? 'bg-emerald-500 text-white'
+              : active
+                ? 'bg-blue-600 text-white'
+                : 'bg-white border border-slate-200 text-slate-400'
+          }`}
+        >
           {done ? <CheckIcon /> : i + 1}
         </div>
         <span className={active ? 'text-slate-800' : 'text-slate-400'}>{label}</span>
       </div>
-      {i < steps.length - 1 && <div className={`flex-1 h-px mx-3 ${done ? 'bg-emerald-300' : 'bg-slate-200'}`} />}
+      {i < steps.length - 1 && (
+        <div className={`flex-1 h-px mx-3 ${done ? 'bg-emerald-300' : 'bg-slate-200'}`} />
+      )}
     </React.Fragment>
   ))}
 </div>
@@ -250,12 +263,21 @@ Todos os ícones são SVG inline customizados. **Não usar bibliotecas externas 
 Tamanho padrão: `16×16px` na sidebar, `14×14px` em botões, `13×13px` em contextos densos.
 
 Padrão de componente:
+
 ```tsx
 function NomeIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
-      aria-hidden>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <path d="..." />
     </svg>
   );
@@ -270,13 +292,13 @@ function NomeIcon() {
 
 ## Spacing & layout
 
-| Espaço        | Valor     | Uso                              |
-|---------------|-----------|----------------------------------|
-| Page padding  | `px-8 py-6` | Padding padrão do conteúdo      |
-| Card gap      | `gap-4`   | Entre cards em grids             |
-| Section gap   | `gap-6` / `mb-6` | Entre seções da página    |
-| Inline gap    | `gap-2` / `gap-2.5` | Ícone + texto em botão  |
-| Table padding | `px-4 py-3` | Células de tabela               |
+| Espaço        | Valor               | Uso                        |
+| ------------- | ------------------- | -------------------------- |
+| Page padding  | `px-8 py-6`         | Padding padrão do conteúdo |
+| Card gap      | `gap-4`             | Entre cards em grids       |
+| Section gap   | `gap-6` / `mb-6`    | Entre seções da página     |
+| Inline gap    | `gap-2` / `gap-2.5` | Ícone + texto em botão     |
+| Table padding | `px-4 py-3`         | Células de tabela          |
 
 Grid de KPI: `grid-cols-4 gap-4`  
 Grid hero + sidebar: `grid-cols-[2fr_1fr] gap-4`  
@@ -288,15 +310,16 @@ Grid 2 colunas: `grid-cols-2 gap-4`
 
 O `AnalyzerView` controla a navegação por estado local `page: Page`.
 
-| Page       | Kbd | Componente                    |
-|------------|-----|-------------------------------|
-| dashboard  | D   | `DashboardScreen`             |
-| nova       | N   | `NovaCorridaScreen`           |
-| analise    | A   | `AnaliseScreen`               |
-| historico  | H   | `HistoricoScreen`             |
-| lotes      | —   | `LotManager` (inline)         |
+| Page      | Kbd | Componente            |
+| --------- | --- | --------------------- |
+| dashboard | D   | `DashboardScreen`     |
+| nova      | N   | `NovaCorridaScreen`   |
+| analise   | A   | `AnaliseScreen`       |
+| historico | H   | `HistoricoScreen`     |
+| lotes     | —   | `LotManager` (inline) |
 
 Adicionar uma nova tela:
+
 1. Criar `src/features/analyzer/screens/NovaTela.tsx`
 2. Adicionar `'novatela'` ao tipo `Page` em `AnalyzerView.tsx`
 3. Adicionar entry no `PAGE_META`
@@ -307,21 +330,22 @@ Adicionar uma nova tela:
 
 ## Regras de domínio (Westgard)
 
-| Regra  | Tipo     | Critério                                           |
-|--------|----------|----------------------------------------------------|
-| 1-2s   | Aviso    | 1 valor além de ±2 SD — não rejeita               |
-| 1-3s   | Rejeição | 1 valor além de ±3 SD                             |
-| 2-2s   | Rejeição | 2 consecutivos além de ±2 SD no mesmo lado        |
-| R-4s   | Rejeição | 2 consecutivos spanning >4 SD (lados opostos)     |
-| 4-1s   | Rejeição | 4 consecutivos além de ±1 SD no mesmo lado        |
-| 10x    | Rejeição | 10 consecutivos do mesmo lado da média            |
-| 6T     | Rejeição | 6 consecutivos monotonicamente crescentes/decrescentes |
-| 6X     | Rejeição | 6 consecutivos do mesmo lado da média (shift)     |
+| Regra | Tipo     | Critério                                               |
+| ----- | -------- | ------------------------------------------------------ |
+| 1-2s  | Aviso    | 1 valor além de ±2 SD — não rejeita                    |
+| 1-3s  | Rejeição | 1 valor além de ±3 SD                                  |
+| 2-2s  | Rejeição | 2 consecutivos além de ±2 SD no mesmo lado             |
+| R-4s  | Rejeição | 2 consecutivos spanning >4 SD (lados opostos)          |
+| 4-1s  | Rejeição | 4 consecutivos além de ±1 SD no mesmo lado             |
+| 10x   | Rejeição | 10 consecutivos do mesmo lado da média                 |
+| 6T    | Rejeição | 6 consecutivos monotonicamente crescentes/decrescentes |
+| 6X    | Rejeição | 6 consecutivos do mesmo lado da média (shift)          |
 
 **Regra de ouro:** `'1-2s'` é o único aviso. Todos os outros são rejeição.  
 Em código: `const isRejection = violations.some(v => v !== '1-2s')`.
 
 O gráfico Levey-Jennings usa bandas coloridas:
+
 - Verde `#ECFDF5`: ±1 SD (zona normal)
 - Âmbar `#FFFBEB`: entre ±2 SD e ±3 SD (zona de aviso)
 - Vermelho `#FEF2F2`: além de ±3 SD (zona de rejeição)
@@ -336,9 +360,10 @@ O gráfico Levey-Jennings usa bandas coloridas:
 - `useAppStore` — lots, activeLotId, selectedAnalyteId, syncStatus, currentView
 
 **Seletores atômicos** (evitar re-renders desnecessários):
+
 ```ts
-const activeLab = useActiveLab();        // não: useAuthStore(s => s.appProfile)
-const isSuperAdmin = useIsSuperAdmin();  // não: useAuthStore(s => s.appProfile?.isSuperAdmin)
+const activeLab = useActiveLab(); // não: useAuthStore(s => s.appProfile)
+const isSuperAdmin = useIsSuperAdmin(); // não: useAuthStore(s => s.appProfile?.isSuperAdmin)
 ```
 
 **Persistência:** Firebase Firestore (realtime) + Firebase Storage (imagens).  
@@ -389,4 +414,4 @@ src/
 
 ---
 
-*Última atualização: abril 2026 — após implementação do novo shell com navegação lateral (UX Claude Design).*
+_Última atualização: abril 2026 — após implementação do novo shell com navegação lateral (UX Claude Design)._

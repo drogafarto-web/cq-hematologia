@@ -35,7 +35,7 @@ export interface LabBackupConfig {
  */
 export function resolveBackupRecipients(cfg: LabBackupConfig): string[] {
   if (Array.isArray(cfg.emails) && cfg.emails.length > 0) {
-    return cfg.emails.filter(e => typeof e === 'string' && e.trim().length > 0);
+    return cfg.emails.filter((e) => typeof e === 'string' && e.trim().length > 0);
   }
   if (cfg.email && typeof cfg.email === 'string' && cfg.email.trim().length > 0) {
     return [cfg.email.trim()];

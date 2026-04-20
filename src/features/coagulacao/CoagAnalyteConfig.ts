@@ -28,7 +28,7 @@ export interface CoagAnalyteBaselineByLevel {
   /** Média alvo conforme bula do fabricante. */
   mean: number;
   /** Limite inferior de aceitação (mean − 2SD conforme fabricante). */
-  low:  number;
+  low: number;
   /** Limite superior de aceitação (mean + 2SD conforme fabricante). */
   high: number;
   /**
@@ -36,7 +36,7 @@ export interface CoagAnalyteBaselineByLevel {
    * Calculado como `(high - low) / 4` — assume distribuição ±2σ dentro do intervalo.
    * Usado para z-score nas regras de Westgard quantitativas.
    */
-  sd:   number;
+  sd: number;
   /** Unidade de medida do analito (% para AP, adimensional para RNI, "s" para TTPA). */
   unit: string;
 }
@@ -47,9 +47,9 @@ export interface CoagAnalyteBaselineByLevel {
  */
 export interface CoagAnalyteConfig {
   /** Identificador canônico do analito — chave de todos os maps do módulo. */
-  id:       CoagAnalyteId;
+  id: CoagAnalyteId;
   /** Label de exibição para UI e relatórios impressos. */
-  label:    string;
+  label: string;
   /**
    * Número de casas decimais para exibição em tooltip, carta de Levey-Jennings e relatório.
    * AP: 0 (inteiro %); RNI: 2 (precisão clínica relevante); TTPA: 1 (resolução de 0.1 s).
@@ -105,69 +105,69 @@ const CLSI_WESTGARD_RULES: readonly WestgardViolation[] = [
  */
 export const COAG_ANALYTES: Record<CoagAnalyteId, CoagAnalyteConfig> = {
   atividadeProtrombinica: {
-    id:            'atividadeProtrombinica',
-    label:         'Atividade de Protrombina (%)',
-    decimals:      0,
+    id: 'atividadeProtrombinica',
+    label: 'Atividade de Protrombina (%)',
+    decimals: 0,
     westgardRules: CLSI_WESTGARD_RULES,
     levels: {
       I: {
         mean: 98,
-        low:  82,
+        low: 82,
         high: 114,
-        sd:   estimateSd(82, 114), // (114 - 82) / 4 = 8.0
+        sd: estimateSd(82, 114), // (114 - 82) / 4 = 8.0
         unit: '%',
       },
       II: {
         mean: 67,
-        low:  53,
+        low: 53,
         high: 81,
-        sd:   estimateSd(53, 81), // (81 - 53) / 4 = 7.0
+        sd: estimateSd(53, 81), // (81 - 53) / 4 = 7.0
         unit: '%',
       },
     },
   },
 
   rni: {
-    id:            'rni',
-    label:         'RNI',
-    decimals:      2,
+    id: 'rni',
+    label: 'RNI',
+    decimals: 2,
     westgardRules: CLSI_WESTGARD_RULES,
     levels: {
       I: {
         mean: 0.98,
-        low:  0.82,
+        low: 0.82,
         high: 1.14,
-        sd:   estimateSd(0.82, 1.14), // (1.14 - 0.82) / 4 = 0.08
+        sd: estimateSd(0.82, 1.14), // (1.14 - 0.82) / 4 = 0.08
         unit: '',
       },
       II: {
-        mean: 1.20,
-        low:  0.96,
+        mean: 1.2,
+        low: 0.96,
         high: 1.44,
-        sd:   estimateSd(0.96, 1.44), // (1.44 - 0.96) / 4 = 0.12
+        sd: estimateSd(0.96, 1.44), // (1.44 - 0.96) / 4 = 0.12
         unit: '',
       },
     },
   },
 
   ttpa: {
-    id:            'ttpa',
-    label:         'TTPA (s)',
-    decimals:      1,
+    id: 'ttpa',
+    label: 'TTPA (s)',
+    decimals: 1,
     westgardRules: CLSI_WESTGARD_RULES,
     levels: {
       I: {
         mean: 39,
-        low:  31,
+        low: 31,
         high: 47,
-        sd:   estimateSd(31, 47), // (47 - 31) / 4 = 4.0
+        sd: estimateSd(31, 47), // (47 - 31) / 4 = 4.0
         unit: 's',
       },
       II: {
         mean: 43,
-        low:  35,
+        low: 35,
         high: 51,
-        sd:   estimateSd(35, 51), // (51 - 35) / 4 = 4.0
+        sd: estimateSd(35, 51), // (51 - 35) / 4 = 4.0
         unit: 's',
       },
     },
@@ -199,6 +199,6 @@ export const COAG_ANALYTE_IDS: readonly CoagAnalyteId[] = [
  */
 export function getCoagStats(id: CoagAnalyteId, nivel: CoagNivel): AnalyteStats {
   const config = COAG_ANALYTES[id];
-  const level  = config.levels[nivel];
+  const level = config.levels[nivel];
   return { mean: level.mean, sd: level.sd };
 }

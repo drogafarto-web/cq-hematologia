@@ -6,8 +6,8 @@
 // (src/constants.ts). A local copy of the 17 analyte descriptors is kept here
 // so Cloud Functions never import from src/.
 
-import * as admin    from 'firebase-admin';
-import PDFDocument   = require('pdfkit');
+import * as admin from 'firebase-admin';
+import PDFDocument = require('pdfkit');
 
 import { calculateMean, calculateSD, calculateCV } from './stats/calculator';
 import {
@@ -21,18 +21,18 @@ import { sendCQIEmail, type SectorId } from './email/cqiTemplate';
 // ─── Local analyte map (mirrors src/constants.ts) ─────────────────────────────
 
 const ANALYTE_INFO: Record<string, { name: string; unit: string }> = {
-  'WBC':  { name: 'WBC',  unit: '×10³/µL' },
-  'RBC':  { name: 'RBC',  unit: '×10⁶/µL' },
-  'HGB':  { name: 'HGB',  unit: 'g/dL'    },
-  'HCT':  { name: 'HCT',  unit: '%'        },
-  'MCV':  { name: 'MCV',  unit: 'fL'       },
-  'MCH':  { name: 'MCH',  unit: 'pg'       },
-  'MCHC': { name: 'MCHC', unit: 'g/dL'    },
-  'PLT':  { name: 'PLT',  unit: '×10³/µL' },
-  'RDW':  { name: 'RDW',  unit: '%'        },
-  'MPV':  { name: 'MPV',  unit: 'fL'       },
-  'PCT':  { name: 'PCT',  unit: '%'        },
-  'PDW':  { name: 'PDW',  unit: 'fL'       },
+  WBC: { name: 'WBC', unit: '×10³/µL' },
+  RBC: { name: 'RBC', unit: '×10⁶/µL' },
+  HGB: { name: 'HGB', unit: 'g/dL' },
+  HCT: { name: 'HCT', unit: '%' },
+  MCV: { name: 'MCV', unit: 'fL' },
+  MCH: { name: 'MCH', unit: 'pg' },
+  MCHC: { name: 'MCHC', unit: 'g/dL' },
+  PLT: { name: 'PLT', unit: '×10³/µL' },
+  RDW: { name: 'RDW', unit: '%' },
+  MPV: { name: 'MPV', unit: 'fL' },
+  PCT: { name: 'PCT', unit: '%' },
+  PDW: { name: 'PDW', unit: 'fL' },
   'NEU#': { name: 'NEU#', unit: '×10³/µL' },
   'LYM#': { name: 'LYM#', unit: '×10³/µL' },
   'MON#': { name: 'MON#', unit: '×10³/µL' },
@@ -44,7 +44,7 @@ const ANALYTE_INFO: Record<string, { name: string; unit: string }> = {
 
 const SECTOR_COLOR: Record<string, string> = {
   hematologia: '#1e3a5f',
-  imunologia:  '#1a4731',
+  imunologia: '#1a4731',
 };
 
 function sectorColor(sector: string): string {
@@ -60,32 +60,38 @@ function dayBounds(date: Date): { start: Date; end: Date } {
   const brtStr = date.toLocaleDateString('pt-BR', { timeZone: TZ });
   const [d, m, y] = brtStr.split('/').map(Number);
   return {
-    start: new Date(Date.UTC(y, m - 1, d,      3, 0, 0, 0)),   // 00:00 BRT
-    end:   new Date(Date.UTC(y, m - 1, d + 1,  2, 59, 59, 999)), // 23:59:59 BRT
+    start: new Date(Date.UTC(y, m - 1, d, 3, 0, 0, 0)), // 00:00 BRT
+    end: new Date(Date.UTC(y, m - 1, d + 1, 2, 59, 59, 999)), // 23:59:59 BRT
   };
 }
 
 function fmtDate(d: Date): string {
   return d.toLocaleDateString('pt-BR', {
-    timeZone: TZ, day: '2-digit', month: '2-digit', year: 'numeric',
+    timeZone: TZ,
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
   });
 }
 
 function fmtDateTime(d: Date): string {
   return d.toLocaleString('pt-BR', {
     timeZone: TZ,
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 }
 
 // ─── Active labs query ────────────────────────────────────────────────────────
 
 export interface ActiveLab {
-  labId:   string;
+  labId: string;
   labName: string;
   /** Lista efetiva de destinatários já resolvida (novo schema + fallback legacy). */
-  emails:  string[];
+  emails: string[];
 }
 
 /**
@@ -94,9 +100,10 @@ export interface ActiveLab {
  */
 function resolveCQIRecipients(backup: Record<string, unknown> | undefined): string[] {
   if (!backup) return [];
-  const dedupe = (arr: string[]) => Array.from(new Set(
-    arr.filter(e => typeof e === 'string' && e.trim().length > 0).map(e => e.trim()),
-  ));
+  const dedupe = (arr: string[]) =>
+    Array.from(
+      new Set(arr.filter((e) => typeof e === 'string' && e.trim().length > 0).map((e) => e.trim())),
+    );
 
   if (Array.isArray(backup['cqiEmails']) && (backup['cqiEmails'] as unknown[]).length > 0) {
     return dedupe(backup['cqiEmails'] as string[]);
@@ -113,18 +120,16 @@ function resolveCQIRecipients(backup: Record<string, unknown> | undefined): stri
   return [];
 }
 
-export async function getActiveLabs(
-  db: admin.firestore.Firestore,
-): Promise<ActiveLab[]> {
+export async function getActiveLabs(db: admin.firestore.Firestore): Promise<ActiveLab[]> {
   const snap = await db.collection('labs').get();
   const result: ActiveLab[] = [];
   for (const doc of snap.docs) {
-    const data   = doc.data();
+    const data = doc.data();
     const backup = data['backup'] as Record<string, unknown> | undefined;
     // cqiEnabled (set via lab settings panel) takes precedence over the legacy
     // backup.enabled field (set by SuperAdmin).
     const enabled = backup?.['cqiEnabled'] ?? backup?.['enabled'];
-    const emails  = resolveCQIRecipients(backup);
+    const emails = resolveCQIRecipients(backup);
     if (enabled === true && emails.length > 0) {
       result.push({ labId: doc.id, labName: data['name'] ?? doc.id, emails });
     }
@@ -135,40 +140,40 @@ export async function getActiveLabs(
 // ─── Internal data shapes ─────────────────────────────────────────────────────
 
 interface RunResult {
-  analyteId:  string;
-  value:      number;
+  analyteId: string;
+  value: number;
   violations: string[];
 }
 
 interface HemaRun {
-  runCode:     string;
+  runCode: string;
   confirmedAt: Date;
   operatorName: string;
-  status:      string;
-  results:     RunResult[];
+  status: string;
+  results: RunResult[];
 }
 
 interface ImunoRun {
-  runCode:          string;
-  confirmedAt:      Date;
-  operatorName:     string;
-  testType:         string;
-  resultadoObtido:  string;
+  runCode: string;
+  confirmedAt: Date;
+  operatorName: string;
+  testType: string;
+  resultadoObtido: string;
   resultadoEsperado: string;
 }
 
 interface HemaLot {
-  lotId:        string;
-  lotNumber:    string;
-  level:        string;
+  lotId: string;
+  lotNumber: string;
+  level: string;
   equipmentName: string;
   requiredAnalytes: string[];
-  todayRuns:    HemaRun[];
-  last20Runs:   Array<{ confirmedAt: Date; results: RunResult[] }>;
+  todayRuns: HemaRun[];
+  last20Runs: Array<{ confirmedAt: Date; results: RunResult[] }>;
 }
 
 interface ImunoLot {
-  lotId:    string;
+  lotId: string;
   lotNumber: string;
   todayRuns: ImunoRun[];
 }
@@ -176,8 +181,8 @@ interface ImunoLot {
 // ─── Hematologia data fetch ───────────────────────────────────────────────────
 
 async function fetchHemaLots(
-  db:     admin.firestore.Firestore,
-  labId:  string,
+  db: admin.firestore.Firestore,
+  labId: string,
   bounds: { start: Date; end: Date },
 ): Promise<HemaLot[]> {
   const lotsSnap = await db.collection(`labs/${labId}/lots`).get();
@@ -203,31 +208,31 @@ async function fetchHemaLots(
       .limit(20)
       .get();
 
-    const todayRuns: HemaRun[] = todaySnap.docs.map(d => {
+    const todayRuns: HemaRun[] = todaySnap.docs.map((d) => {
       const r = d.data();
       return {
-        runCode:      r['runCode']     ?? d.id.slice(0, 8).toUpperCase(),
-        confirmedAt:  (r['confirmedAt'] as admin.firestore.Timestamp).toDate(),
+        runCode: r['runCode'] ?? d.id.slice(0, 8).toUpperCase(),
+        confirmedAt: (r['confirmedAt'] as admin.firestore.Timestamp).toDate(),
         operatorName: r['operatorName'] ?? '—',
-        status:       r['status']       ?? 'Pendente',
-        results:      (r['results']     ?? []) as RunResult[],
+        status: r['status'] ?? 'Pendente',
+        results: (r['results'] ?? []) as RunResult[],
       };
     });
 
     // Reverse so chart shows oldest → newest
-    const last20Runs = chartSnap.docs.reverse().map(d => {
+    const last20Runs = chartSnap.docs.reverse().map((d) => {
       const r = d.data();
       return {
         confirmedAt: (r['confirmedAt'] as admin.firestore.Timestamp).toDate(),
-        results:     (r['results'] ?? []) as RunResult[],
+        results: (r['results'] ?? []) as RunResult[],
       };
     });
 
     result.push({
-      lotId:            lotDoc.id,
-      lotNumber:        lotData['lotNumber']    ?? lotDoc.id,
-      level:            lotData['level']        ?? '—',
-      equipmentName:    lotData['equipmentName'] ?? '—',
+      lotId: lotDoc.id,
+      lotNumber: lotData['lotNumber'] ?? lotDoc.id,
+      level: lotData['level'] ?? '—',
+      equipmentName: lotData['equipmentName'] ?? '—',
       requiredAnalytes: (lotData['requiredAnalytes'] ?? []) as string[],
       todayRuns,
       last20Runs,
@@ -240,8 +245,8 @@ async function fetchHemaLots(
 // ─── Imunologia data fetch ────────────────────────────────────────────────────
 
 async function fetchImunoLots(
-  db:     admin.firestore.Firestore,
-  labId:  string,
+  db: admin.firestore.Firestore,
+  labId: string,
   bounds: { start: Date; end: Date },
 ): Promise<ImunoLot[]> {
   const lotsSnap = await db.collection(`labs/${labId}/ciq-imuno`).get();
@@ -261,15 +266,15 @@ async function fetchImunoLots(
 
     if (todaySnap.empty) continue;
 
-    const todayRuns: ImunoRun[] = todaySnap.docs.map(d => {
+    const todayRuns: ImunoRun[] = todaySnap.docs.map((d) => {
       const r = d.data();
       return {
-        runCode:           r['runCode']            ?? d.id.slice(0, 8).toUpperCase(),
-        confirmedAt:       (r['confirmedAt'] as admin.firestore.Timestamp).toDate(),
-        operatorName:      r['operatorName']       ?? '—',
-        testType:          r['testType']            ?? '—',
-        resultadoObtido:   r['resultadoObtido']    ?? '—',
-        resultadoEsperado: r['resultadoEsperado']  ?? '—',
+        runCode: r['runCode'] ?? d.id.slice(0, 8).toUpperCase(),
+        confirmedAt: (r['confirmedAt'] as admin.firestore.Timestamp).toDate(),
+        operatorName: r['operatorName'] ?? '—',
+        testType: r['testType'] ?? '—',
+        resultadoObtido: r['resultadoObtido'] ?? '—',
+        resultadoEsperado: r['resultadoEsperado'] ?? '—',
       };
     });
 
@@ -284,16 +289,16 @@ async function fetchImunoLots(
 function renderCoverPage(
   doc: PDFKit.PDFDocument,
   opts: {
-    labName:      string;
-    sector:       string;
-    lots:         Array<{ lotNumber: string; level: string; equipmentName?: string }>;
-    date:         Date;
-    totalRuns:    number;
-    accentColor:  string;
+    labName: string;
+    sector: string;
+    lots: Array<{ lotNumber: string; level: string; equipmentName?: string }>;
+    date: Date;
+    totalRuns: number;
+    accentColor: string;
   },
 ): void {
   const { labName, sector, lots, date, totalRuns, accentColor } = opts;
-  const M  = 40;
+  const M = 40;
   const PW = 595.28;
   const PH = 841.89;
   const CW = PW - M * 2;
@@ -302,40 +307,62 @@ function renderCoverPage(
   doc.rect(0, 0, PW, 8).fillColor(accentColor).fill();
 
   // System name
-  doc.font('Helvetica-Bold').fontSize(10).fillColor(accentColor)
-    .text('HC QUALITY', M, 24);
-  doc.font('Helvetica').fontSize(8).fillColor('#9ca3af')
+  doc.font('Helvetica-Bold').fontSize(10).fillColor(accentColor).text('HC QUALITY', M, 24);
+  doc
+    .font('Helvetica')
+    .fontSize(8)
+    .fillColor('#9ca3af')
     .text('Sistema de Controle de Qualidade Interno', M, 38);
 
-  doc.moveTo(M, 56).lineTo(PW - M, 56).lineWidth(0.5).strokeColor('#e5e7eb').stroke();
+  doc
+    .moveTo(M, 56)
+    .lineTo(PW - M, 56)
+    .lineWidth(0.5)
+    .strokeColor('#e5e7eb')
+    .stroke();
 
   // Main title
-  doc.font('Helvetica-Bold').fontSize(16).fillColor('#111827')
-    .text('RELATÓRIO DIÁRIO DE', M, 76);
-  doc.font('Helvetica-Bold').fontSize(16).fillColor('#111827')
+  doc.font('Helvetica-Bold').fontSize(16).fillColor('#111827').text('RELATÓRIO DIÁRIO DE', M, 76);
+  doc
+    .font('Helvetica-Bold')
+    .fontSize(16)
+    .fillColor('#111827')
     .text('CONTROLE DE QUALIDADE INTERNO', M, 98);
 
   // Sector badge
   doc.rect(M, 136, CW, 34).fillColor(accentColor).fill();
-  doc.font('Helvetica-Bold').fontSize(13).fillColor('#ffffff')
+  doc
+    .font('Helvetica-Bold')
+    .fontSize(13)
+    .fillColor('#ffffff')
     .text(`SETOR: ${sector.toUpperCase()}`, M + 16, 150, { width: CW - 32 });
 
   // Info card
   const cardY = 192;
   const infoRows: Array<[string, string]> = [
     ['Laboratório', labName],
-    ['Data',        fmtDate(date)],
-    ['Lotes',       lots.map(l => `${l.lotNumber}${l.level ? ' — ' + l.level : ''}`).join(', ')],
+    ['Data', fmtDate(date)],
+    ['Lotes', lots.map((l) => `${l.lotNumber}${l.level ? ' — ' + l.level : ''}`).join(', ')],
     ['Equipamento', lots[0]?.equipmentName ?? '—'],
     ['Total de corridas', String(totalRuns)],
   ];
 
-  doc.rect(M, cardY, CW, infoRows.length * 24 + 16).lineWidth(0.5).strokeColor('#e5e7eb').stroke();
+  doc
+    .rect(M, cardY, CW, infoRows.length * 24 + 16)
+    .lineWidth(0.5)
+    .strokeColor('#e5e7eb')
+    .stroke();
   let infoY = cardY + 12;
   for (const [label, value] of infoRows) {
-    doc.font('Helvetica-Bold').fontSize(7).fillColor('#9ca3af')
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(7)
+      .fillColor('#9ca3af')
       .text(label, M + 14, infoY, { width: CW * 0.34 });
-    doc.font('Helvetica-Bold').fontSize(8.5).fillColor('#111827')
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(8.5)
+      .fillColor('#111827')
       .text(value, M + CW * 0.36, infoY, { width: CW * 0.6, ellipsis: true });
     infoY += 24;
   }
@@ -346,58 +373,75 @@ function renderCoverPage(
     'Este relatório foi gerado automaticamente em conformidade com a RDC 978/2025 (ANVISA) ' +
     'e os requisitos de Controle de Qualidade Interno para laboratórios clínicos.';
   doc.rect(M, noticeY, CW, 48).fillColor('#f0f9ff').stroke();
-  doc.font('Helvetica').fontSize(7.5).fillColor('#0369a1')
+  doc
+    .font('Helvetica')
+    .fontSize(7.5)
+    .fillColor('#0369a1')
     .text(noticeText, M + 12, noticeY + 10, { width: CW - 24 });
 
   // Footer
-  doc.font('Helvetica').fontSize(7).fillColor('#9ca3af')
+  doc
+    .font('Helvetica')
+    .fontSize(7)
+    .fillColor('#9ca3af')
     .text(
       `Gerado automaticamente pelo hc-quality · ${fmtDateTime(new Date())} · Confidencial`,
-      M, PH - 52, { width: CW, align: 'center' },
+      M,
+      PH - 52,
+      { width: CW, align: 'center' },
     );
-  doc.rect(0, PH - 8, PW, 8).fillColor(accentColor).fill();
+  doc
+    .rect(0, PH - 8, PW, 8)
+    .fillColor(accentColor)
+    .fill();
 }
 
 // ─── Daily runs summary table ─────────────────────────────────────────────────
 
 interface SummaryRow {
-  runCode:      string;
-  confirmedAt:  Date;
+  runCode: string;
+  confirmedAt: Date;
   operatorName: string;
-  status?:      string;
-  alertCount?:  number;
-  conforme?:    boolean;
+  status?: string;
+  alertCount?: number;
+  conforme?: boolean;
 }
 
 function renderRunsSummaryTable(
-  doc:     PDFKit.PDFDocument,
-  rows:    SummaryRow[],
-  sector:  string,
-  startY:  number,
+  doc: PDFKit.PDFDocument,
+  rows: SummaryRow[],
+  sector: string,
+  startY: number,
 ): number {
-  const M      = 40;
-  const PH     = 841.89;
-  const CW     = 595.28 - M * 2;
-  const rowH   = 14;
+  const M = 40;
+  const PH = 841.89;
+  const CW = 595.28 - M * 2;
+  const rowH = 14;
   let y = startY;
 
-  doc.font('Helvetica-Bold').fontSize(10).fillColor('#111827')
+  doc
+    .font('Helvetica-Bold')
+    .fontSize(10)
+    .fillColor('#111827')
     .text('Resumo das Corridas do Dia', M, y);
   y += 16;
 
   const isHema = sector === 'hematologia';
-  const cols   = isHema
+  const cols = isHema
     ? ['Nº', 'Corrida', 'Hora', 'Operador', 'Status', 'Alertas Westgard']
     : ['Nº', 'Corrida', 'Hora', 'Operador', 'Conforme?'];
   const widths = isHema
-    ? [CW * 0.05, CW * 0.15, CW * 0.1, CW * 0.28, CW * 0.12, CW * 0.30]
+    ? [CW * 0.05, CW * 0.15, CW * 0.1, CW * 0.28, CW * 0.12, CW * 0.3]
     : [CW * 0.06, CW * 0.18, CW * 0.12, CW * 0.38, CW * 0.26];
 
   // Header
   doc.rect(M, y, CW, 15).fillColor('#f1f5f9').fill();
   let cx = M;
   for (let i = 0; i < cols.length; i++) {
-    doc.font('Helvetica-Bold').fontSize(6.5).fillColor('#475569')
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(6.5)
+      .fillColor('#475569')
       .text(cols[i], cx + 4, y + 5, { width: widths[i] - 8 });
     cx += widths[i];
   }
@@ -412,21 +456,43 @@ function renderRunsSummaryTable(
     if (ri % 2 === 1) doc.rect(M, y, CW, rowH).fillColor('#f9fafb').fill();
 
     const timeStr = r.confirmedAt.toLocaleTimeString('pt-BR', {
-      timeZone: TZ, hour: '2-digit', minute: '2-digit',
+      timeZone: TZ,
+      hour: '2-digit',
+      minute: '2-digit',
     });
 
     const cells = isHema
-      ? [String(ri + 1), r.runCode, timeStr, r.operatorName, r.status ?? '—', String(r.alertCount ?? 0)]
-      : [String(ri + 1), r.runCode, timeStr, r.operatorName, r.conforme ? 'Conforme' : 'NÃO CONFORME'];
+      ? [
+          String(ri + 1),
+          r.runCode,
+          timeStr,
+          r.operatorName,
+          r.status ?? '—',
+          String(r.alertCount ?? 0),
+        ]
+      : [
+          String(ri + 1),
+          r.runCode,
+          timeStr,
+          r.operatorName,
+          r.conforme ? 'Conforme' : 'NÃO CONFORME',
+        ];
 
     cx = M;
     for (let i = 0; i < cells.length; i++) {
       const isStatusCol = (isHema && i === 4) || (!isHema && i === 4);
       const v = cells[i];
       const color = isStatusCol
-        ? (v === 'Aprovada' || v === 'Conforme' ? '#16a34a' : v === 'Reprovada' || v === 'NÃO CONFORME' ? '#dc2626' : '#111827')
+        ? v === 'Aprovada' || v === 'Conforme'
+          ? '#16a34a'
+          : v === 'Reprovada' || v === 'NÃO CONFORME'
+            ? '#dc2626'
+            : '#111827'
         : '#111827';
-      doc.font(isStatusCol ? 'Helvetica-Bold' : 'Helvetica').fontSize(6.5).fillColor(color)
+      doc
+        .font(isStatusCol ? 'Helvetica-Bold' : 'Helvetica')
+        .fontSize(6.5)
+        .fillColor(color)
         .text(v, cx + 4, y + 4, { width: widths[i] - 8, ellipsis: true });
       cx += widths[i];
     }
@@ -438,51 +504,56 @@ function renderRunsSummaryTable(
 
 // ─── PDF builders ─────────────────────────────────────────────────────────────
 
-function makePdfPromise(
-  drawFn: (doc: PDFKit.PDFDocument) => void,
-): Promise<Buffer> {
+function makePdfPromise(drawFn: (doc: PDFKit.PDFDocument) => void): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const doc    = new PDFDocument({
-      size:    'A4',
+    const doc = new PDFDocument({
+      size: 'A4',
       margins: { top: 40, bottom: 40, left: 40, right: 40 },
-      info:    { Title: 'Relatório CQI — HC Quality', Author: 'hc-quality', Creator: 'hc-quality CQI Module' },
+      info: {
+        Title: 'Relatório CQI — HC Quality',
+        Author: 'hc-quality',
+        Creator: 'hc-quality CQI Module',
+      },
     });
     const chunks: Buffer[] = [];
-    doc.on('data',  (c: Buffer) => chunks.push(c));
-    doc.on('end',   () => resolve(Buffer.concat(chunks)));
+    doc.on('data', (c: Buffer) => chunks.push(c));
+    doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
     drawFn(doc);
     doc.end();
   });
 }
 
-async function buildHematologiaPdf(
-  labName: string,
-  lots:    HemaLot[],
-  date:    Date,
-): Promise<Buffer> {
+async function buildHematologiaPdf(labName: string, lots: HemaLot[], date: Date): Promise<Buffer> {
   // Pre-compute analyte data (outside Promise so errors surface before PDF starts)
-  const allTodayRuns = lots.flatMap(l => l.todayRuns);
-  const totalRuns    = allTodayRuns.length;
+  const allTodayRuns = lots.flatMap((l) => l.todayRuns);
+  const totalRuns = allTodayRuns.length;
 
   // Per-analyte aggregation across all lots
-  const analyteMap = new Map<string, {
-    todayValues: QuantitativeAnalyteData['todayValues'];
-    last20Values: QuantitativeAnalyteData['last20Values'];
-    lotNumber: string;
-  }>();
+  const analyteMap = new Map<
+    string,
+    {
+      todayValues: QuantitativeAnalyteData['todayValues'];
+      last20Values: QuantitativeAnalyteData['last20Values'];
+      lotNumber: string;
+    }
+  >();
 
   for (const lot of lots) {
     // Collect today's values per analyte
     for (const run of lot.todayRuns) {
       for (const res of run.results) {
         if (!analyteMap.has(res.analyteId)) {
-          analyteMap.set(res.analyteId, { todayValues: [], last20Values: [], lotNumber: lot.lotNumber });
+          analyteMap.set(res.analyteId, {
+            todayValues: [],
+            last20Values: [],
+            lotNumber: lot.lotNumber,
+          });
         }
         analyteMap.get(res.analyteId)!.todayValues.push({
-          value:      res.value,
-          timestamp:  run.confirmedAt,
-          runCode:    run.runCode,
+          value: res.value,
+          timestamp: run.confirmedAt,
+          runCode: run.runCode,
           violations: res.violations,
         });
       }
@@ -491,10 +562,14 @@ async function buildHematologiaPdf(
     for (const run of lot.last20Runs) {
       for (const res of run.results) {
         if (!analyteMap.has(res.analyteId)) {
-          analyteMap.set(res.analyteId, { todayValues: [], last20Values: [], lotNumber: lot.lotNumber });
+          analyteMap.set(res.analyteId, {
+            todayValues: [],
+            last20Values: [],
+            lotNumber: lot.lotNumber,
+          });
         }
         analyteMap.get(res.analyteId)!.last20Values.push({
-          value:     res.value,
+          value: res.value,
           timestamp: run.confirmedAt,
         });
       }
@@ -502,36 +577,41 @@ async function buildHematologiaPdf(
   }
 
   // Build QuantitativeAnalyteData[] ordered by requiredAnalytes list of first lot
-  const orderedIds = lots[0]?.requiredAnalytes.length > 0
-    ? lots[0].requiredAnalytes
-    : [...analyteMap.keys()];
+  const orderedIds =
+    lots[0]?.requiredAnalytes.length > 0 ? lots[0].requiredAnalytes : [...analyteMap.keys()];
 
   const analyteDataList: QuantitativeAnalyteData[] = orderedIds
-    .filter(id => analyteMap.has(id))
-    .map(id => {
-      const entry   = analyteMap.get(id)!;
-      const vals    = entry.todayValues.map(v => v.value);
-      const mean    = calculateMean(vals);
-      const sd      = calculateSD(vals, mean);
-      const cv      = calculateCV(sd, mean);
-      const info    = ANALYTE_INFO[id] ?? { name: id, unit: '' };
+    .filter((id) => analyteMap.has(id))
+    .map((id) => {
+      const entry = analyteMap.get(id)!;
+      const vals = entry.todayValues.map((v) => v.value);
+      const mean = calculateMean(vals);
+      const sd = calculateSD(vals, mean);
+      const cv = calculateCV(sd, mean);
+      const info = ANALYTE_INFO[id] ?? { name: id, unit: '' };
       return {
-        analyteId:    id,
-        name:         info.name,
-        unit:         info.unit,
-        lotNumber:    entry.lotNumber,
-        todayValues:  entry.todayValues,
+        analyteId: id,
+        name: info.name,
+        unit: info.unit,
+        lotNumber: entry.lotNumber,
+        todayValues: entry.todayValues,
         last20Values: entry.last20Values,
-        mean, sd, cv,
+        mean,
+        sd,
+        cv,
       };
     });
 
-  return makePdfPromise(doc => {
+  return makePdfPromise((doc) => {
     // Cover
     renderCoverPage(doc, {
       labName,
-      sector:    'hematologia',
-      lots:      lots.map(l => ({ lotNumber: l.lotNumber, level: l.level, equipmentName: l.equipmentName })),
+      sector: 'hematologia',
+      lots: lots.map((l) => ({
+        lotNumber: l.lotNumber,
+        level: l.level,
+        equipmentName: l.equipmentName,
+      })),
       date,
       totalRuns,
       accentColor: sectorColor('hematologia'),
@@ -539,12 +619,12 @@ async function buildHematologiaPdf(
 
     // Summary table
     doc.addPage();
-    const summaryRows: SummaryRow[] = allTodayRuns.map(r => ({
-      runCode:      r.runCode,
-      confirmedAt:  r.confirmedAt,
+    const summaryRows: SummaryRow[] = allTodayRuns.map((r) => ({
+      runCode: r.runCode,
+      confirmedAt: r.confirmedAt,
       operatorName: r.operatorName,
-      status:       r.status,
-      alertCount:   r.results.reduce((s, res) => s + res.violations.length, 0),
+      status: r.status,
+      alertCount: r.results.reduce((s, res) => s + res.violations.length, 0),
     }));
     let y = renderRunsSummaryTable(doc, summaryRows, 'hematologia', 40);
 
@@ -555,44 +635,40 @@ async function buildHematologiaPdf(
   });
 }
 
-async function buildImunologiaPdf(
-  labName: string,
-  lots:    ImunoLot[],
-  date:    Date,
-): Promise<Buffer> {
-  const allTodayRuns = lots.flatMap(l => l.todayRuns);
-  const totalRuns    = allTodayRuns.length;
+async function buildImunologiaPdf(labName: string, lots: ImunoLot[], date: Date): Promise<Buffer> {
+  const allTodayRuns = lots.flatMap((l) => l.todayRuns);
+  const totalRuns = allTodayRuns.length;
 
   // Group runs by testType
   const byTestType = new Map<string, CategoricalRunData[]>();
   for (const run of allTodayRuns) {
     if (!byTestType.has(run.testType)) byTestType.set(run.testType, []);
     byTestType.get(run.testType)!.push({
-      runCode:           run.runCode,
-      timestamp:         run.confirmedAt,
-      testType:          run.testType,
-      resultadoObtido:   run.resultadoObtido,
+      runCode: run.runCode,
+      timestamp: run.confirmedAt,
+      testType: run.testType,
+      resultadoObtido: run.resultadoObtido,
       resultadoEsperado: run.resultadoEsperado,
-      conforme:          run.resultadoObtido === run.resultadoEsperado,
+      conforme: run.resultadoObtido === run.resultadoEsperado,
     });
   }
 
-  return makePdfPromise(doc => {
+  return makePdfPromise((doc) => {
     renderCoverPage(doc, {
       labName,
-      sector:    'imunologia',
-      lots:      lots.map(l => ({ lotNumber: l.lotNumber, level: '' })),
+      sector: 'imunologia',
+      lots: lots.map((l) => ({ lotNumber: l.lotNumber, level: '' })),
       date,
       totalRuns,
       accentColor: sectorColor('imunologia'),
     });
 
     doc.addPage();
-    const summaryRows: SummaryRow[] = allTodayRuns.map(r => ({
-      runCode:      r.runCode,
-      confirmedAt:  r.confirmedAt,
+    const summaryRows: SummaryRow[] = allTodayRuns.map((r) => ({
+      runCode: r.runCode,
+      confirmedAt: r.confirmedAt,
       operatorName: r.operatorName,
-      conforme:     r.resultadoObtido === r.resultadoEsperado,
+      conforme: r.resultadoObtido === r.resultadoEsperado,
     }));
     let y = renderRunsSummaryTable(doc, summaryRows, 'imunologia', 40);
 
@@ -607,10 +683,10 @@ async function buildImunologiaPdf(
 export type SectorStatus = 'sent' | 'no-data';
 
 async function sendHematologia(
-  db:      admin.firestore.Firestore,
-  lab:     ActiveLab,
-  date:    Date,
-  bounds:  { start: Date; end: Date },
+  db: admin.firestore.Firestore,
+  lab: ActiveLab,
+  date: Date,
+  bounds: { start: Date; end: Date },
 ): Promise<SectorStatus> {
   const lots = await fetchHemaLots(db, lab.labId, bounds);
   if (lots.length === 0) {
@@ -619,21 +695,23 @@ async function sendHematologia(
   }
 
   console.log(`[cqiReport][hematologia] lab=${lab.labId} lots=${lots.length} building PDF`);
-  const pdfBuffer   = await buildHematologiaPdf(lab.labName, lots, date);
-  const allTodayRuns = lots.flatMap(l => l.todayRuns);
-  const alertCount   = allTodayRuns.flatMap(r => r.results).reduce((s, r) => s + r.violations.length, 0);
-  const analyteSet   = new Set(allTodayRuns.flatMap(r => r.results.map(res => res.analyteId)));
+  const pdfBuffer = await buildHematologiaPdf(lab.labName, lots, date);
+  const allTodayRuns = lots.flatMap((l) => l.todayRuns);
+  const alertCount = allTodayRuns
+    .flatMap((r) => r.results)
+    .reduce((s, r) => s + r.violations.length, 0);
+  const analyteSet = new Set(allTodayRuns.flatMap((r) => r.results.map((res) => res.analyteId)));
 
   await sendCQIEmail({
-    to:            lab.emails,
-    labName:       lab.labName,
-    sector:        'hematologia' as SectorId,
-    lotNumber:     lots.map(l => l.lotNumber).join(', '),
+    to: lab.emails,
+    labName: lab.labName,
+    sector: 'hematologia' as SectorId,
+    lotNumber: lots.map((l) => l.lotNumber).join(', '),
     date,
-    totalRuns:     allTodayRuns.length,
-    analyteCount:  analyteSet.size,
+    totalRuns: allTodayRuns.length,
+    analyteCount: analyteSet.size,
     alertCount,
-    hasRejections: allTodayRuns.some(r => r.status === 'Reprovada'),
+    hasRejections: allTodayRuns.some((r) => r.status === 'Reprovada'),
     pdfBuffer,
   });
 
@@ -642,9 +720,9 @@ async function sendHematologia(
 }
 
 async function sendImunologia(
-  db:     admin.firestore.Firestore,
-  lab:    ActiveLab,
-  date:   Date,
+  db: admin.firestore.Firestore,
+  lab: ActiveLab,
+  date: Date,
   bounds: { start: Date; end: Date },
 ): Promise<SectorStatus> {
   const lots = await fetchImunoLots(db, lab.labId, bounds);
@@ -654,19 +732,19 @@ async function sendImunologia(
   }
 
   console.log(`[cqiReport][imunologia] lab=${lab.labId} lots=${lots.length} building PDF`);
-  const pdfBuffer    = await buildImunologiaPdf(lab.labName, lots, date);
-  const allTodayRuns = lots.flatMap(l => l.todayRuns);
-  const nonConformes = allTodayRuns.filter(r => r.resultadoObtido !== r.resultadoEsperado).length;
+  const pdfBuffer = await buildImunologiaPdf(lab.labName, lots, date);
+  const allTodayRuns = lots.flatMap((l) => l.todayRuns);
+  const nonConformes = allTodayRuns.filter((r) => r.resultadoObtido !== r.resultadoEsperado).length;
 
   await sendCQIEmail({
-    to:            lab.emails,
-    labName:       lab.labName,
-    sector:        'imunologia' as SectorId,
-    lotNumber:     lots.map(l => l.lotNumber).join(', '),
+    to: lab.emails,
+    labName: lab.labName,
+    sector: 'imunologia' as SectorId,
+    lotNumber: lots.map((l) => l.lotNumber).join(', '),
     date,
-    totalRuns:     allTodayRuns.length,
-    analyteCount:  new Set(allTodayRuns.map(r => r.testType)).size,
-    alertCount:    nonConformes,
+    totalRuns: allTodayRuns.length,
+    analyteCount: new Set(allTodayRuns.map((r) => r.testType)).size,
+    alertCount: nonConformes,
     hasRejections: nonConformes > 0,
     pdfBuffer,
   });
@@ -678,12 +756,12 @@ async function sendImunologia(
 // ─── Main orchestrator ────────────────────────────────────────────────────────
 
 export interface CQIReportResult {
-  overall:   'sent' | 'no-data' | 'disabled' | 'partial' | 'failed';
+  overall: 'sent' | 'no-data' | 'disabled' | 'partial' | 'failed';
   /** Destinatários efetivos do último envio (para exibir na UI). */
-  emails?:   string[];
+  emails?: string[];
   sectors: {
     hematologia: 'sent' | 'no-data' | 'failed';
-    imunologia:  'sent' | 'no-data' | 'failed';
+    imunologia: 'sent' | 'no-data' | 'failed';
   };
 }
 
@@ -693,16 +771,16 @@ export interface CQIReportResult {
  */
 export async function generateAndSendCQIReport(
   labId: string,
-  date:  Date,
+  date: Date,
 ): Promise<CQIReportResult> {
-  const db  = admin.firestore();
+  const db = admin.firestore();
   const lab = await (async (): Promise<ActiveLab | null> => {
     const snap = await db.doc(`labs/${labId}`).get();
     if (!snap.exists) return null;
-    const data    = snap.data()!;
-    const backup  = data['backup'] as Record<string, unknown> | undefined;
+    const data = snap.data()!;
+    const backup = data['backup'] as Record<string, unknown> | undefined;
     const enabled = backup?.['cqiEnabled'] ?? backup?.['enabled'];
-    const emails  = resolveCQIRecipients(backup);
+    const emails = resolveCQIRecipients(backup);
     if (enabled !== true || emails.length === 0) return null;
     return { labId, labName: data['name'] ?? labId, emails };
   })();
@@ -736,17 +814,17 @@ export async function generateAndSendCQIReport(
 
   const sectors = {
     hematologia: sectorStatus(0),
-    imunologia:  sectorStatus(1),
+    imunologia: sectorStatus(1),
   };
 
-  const sentCount   = Object.values(sectors).filter(s => s === 'sent').length;
-  const failedCount = Object.values(sectors).filter(s => s === 'failed').length;
+  const sentCount = Object.values(sectors).filter((s) => s === 'sent').length;
+  const failedCount = Object.values(sectors).filter((s) => s === 'failed').length;
 
   let overall: CQIReportResult['overall'];
-  if (failedCount === 2)                     overall = 'failed';
+  if (failedCount === 2) overall = 'failed';
   else if (sentCount === 0 && failedCount === 0) overall = 'no-data';
-  else if (sentCount > 0 && failedCount === 0)   overall = 'sent';
-  else                                           overall = 'partial';
+  else if (sentCount > 0 && failedCount === 0) overall = 'sent';
+  else overall = 'partial';
 
   return { overall, emails: lab.emails, sectors };
 }

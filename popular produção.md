@@ -1,33 +1,21 @@
+areatecnicalabclin labclin - (usuario)
+areatecnicalabclinlabclin@gmail.com
 
-
-areatecnicalabclin labclin  - (usuario)
-areatecnicalabclinlabclin@gmail.com  
- 
-
-
-Qualidade Labclin  (adimin)
-gqlabclin@gmail.com  
+Qualidade Labclin (adimin)
+gqlabclin@gmail.com
 
 bruno pires (Super Admin)  
-drogafarto@gmail.com  
-
+drogafarto@gmail.com
 
 drogafartomercadolivre@gmail.com( Admin)  
-drogafartomercadolivre@gmail.com  
- 
+drogafartomercadolivre@gmail.com
 
-Ernani Gomes  (usuario)
-ernanigomes06@gmail.com 
-
-
+Ernani Gomes (usuario)
+ernanigomes06@gmail.com
 
 senha todos: 123456
 
-
-
- 
-Laboratórios  
+Laboratórios
 
 LabClin Rio Pomba MG  
-0 membros · Criado em 12/04/2026  
-
+0 membros · Criado em 12/04/2026

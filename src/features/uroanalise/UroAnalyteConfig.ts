@@ -56,27 +56,27 @@ export type UroCriterio = UroCriterioCategoricoList | UroCriterioNumerico;
 export const URO_CRITERIOS: Record<UroNivel, Record<UroAnalitoId, UroCriterio>> = {
   N: {
     urobilinogenio: ['NORMAL'],
-    glicose:        ['NEGATIVO'],
-    cetonas:        ['NEGATIVO'],
-    bilirrubina:    ['NEGATIVO'],
-    proteina:       ['NEGATIVO'],
-    nitrito:        ['NEGATIVO'],
-    ph:             { min: 5.0, max: 6.0 },
-    sangue:         ['NEGATIVO'],
-    densidade:      { min: 1.005, max: 1.020 },
-    leucocitos:     ['NEGATIVO'],
+    glicose: ['NEGATIVO'],
+    cetonas: ['NEGATIVO'],
+    bilirrubina: ['NEGATIVO'],
+    proteina: ['NEGATIVO'],
+    nitrito: ['NEGATIVO'],
+    ph: { min: 5.0, max: 6.0 },
+    sangue: ['NEGATIVO'],
+    densidade: { min: 1.005, max: 1.02 },
+    leucocitos: ['NEGATIVO'],
   },
   P: {
     urobilinogenio: ['AUMENTADO'],
-    glicose:        ['1+', '2+', '3+', '4+'],
-    cetonas:        ['1+', '2+', '3+', '4+'],
-    bilirrubina:    ['1+', '2+', '3+', '4+'],
-    proteina:       ['1+', '2+', '3+'],
-    nitrito:        ['PRESENTE'],
-    ph:             { min: 6.0, max: 8.0 },
-    sangue:         ['1+', '2+', '3+'],
-    densidade:      { min: 1.015, max: 1.030 },
-    leucocitos:     ['1+', '2+', '3+', '4+'],
+    glicose: ['1+', '2+', '3+', '4+'],
+    cetonas: ['1+', '2+', '3+', '4+'],
+    bilirrubina: ['1+', '2+', '3+', '4+'],
+    proteina: ['1+', '2+', '3+'],
+    nitrito: ['PRESENTE'],
+    ph: { min: 6.0, max: 8.0 },
+    sangue: ['1+', '2+', '3+'],
+    densidade: { min: 1.015, max: 1.03 },
+    leucocitos: ['1+', '2+', '3+', '4+'],
   },
 };
 
@@ -103,13 +103,13 @@ export const URO_CRITERIOS: Record<UroNivel, Record<UroAnalitoId, UroCriterio>> 
  */
 export const OPCOES_POR_ANALITO: Partial<Record<UroAnalitoId, readonly UroValorCategorico[]>> = {
   urobilinogenio: ['NORMAL', 'AUMENTADO'],
-  glicose:        ['NEGATIVO', '1+', '2+', '3+', '4+'],
-  cetonas:        ['NEGATIVO', 'TRACOS', '1+', '2+', '3+'],
-  bilirrubina:    ['NEGATIVO', '1+', '2+', '3+'],
-  proteina:       ['NEGATIVO', 'TRACOS', '1+', '2+', '3+', '4+'],
-  nitrito:        ['NEGATIVO', 'PRESENTE'],
-  sangue:         ['NEGATIVO', 'TRACOS', '1+', '2+', '3+'],
-  leucocitos:     ['NEGATIVO', 'TRACOS', '1+', '2+', '3+', '4+'],
+  glicose: ['NEGATIVO', '1+', '2+', '3+', '4+'],
+  cetonas: ['NEGATIVO', 'TRACOS', '1+', '2+', '3+'],
+  bilirrubina: ['NEGATIVO', '1+', '2+', '3+'],
+  proteina: ['NEGATIVO', 'TRACOS', '1+', '2+', '3+', '4+'],
+  nitrito: ['NEGATIVO', 'PRESENTE'],
+  sangue: ['NEGATIVO', 'TRACOS', '1+', '2+', '3+'],
+  leucocitos: ['NEGATIVO', 'TRACOS', '1+', '2+', '3+', '4+'],
   // pH e densidade são numéricos — sem button-grid.
 };
 
@@ -121,15 +121,15 @@ export const OPCOES_POR_ANALITO: Partial<Record<UroAnalitoId, readonly UroValorC
  */
 export const URO_ANALITO_LABELS: Record<UroAnalitoId, string> = {
   urobilinogenio: 'Urobilinogênio',
-  glicose:        'Glicose',
-  cetonas:        'Cetonas',
-  bilirrubina:    'Bilirrubina',
-  proteina:       'Proteína',
-  nitrito:        'Nitrito',
-  sangue:         'Sangue oculto',
-  leucocitos:     'Leucócitos',
-  ph:             'pH',
-  densidade:      'Densidade',
+  glicose: 'Glicose',
+  cetonas: 'Cetonas',
+  bilirrubina: 'Bilirrubina',
+  proteina: 'Proteína',
+  nitrito: 'Nitrito',
+  sangue: 'Sangue oculto',
+  leucocitos: 'Leucócitos',
+  ph: 'pH',
+  densidade: 'Densidade',
 };
 
 // ─── URO_ANALITOS ─────────────────────────────────────────────────────────────

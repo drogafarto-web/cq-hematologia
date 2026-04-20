@@ -24,9 +24,9 @@ import {
 export function useCIQTestTypes() {
   const labId = useActiveLabId();
 
-  const [types,   setTypes]   = useState<string[]>([]);
+  const [types, setTypes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!labId) {
@@ -43,7 +43,10 @@ export function useCIQTestTypes() {
       labId,
       (incoming) => {
         setTypes(incoming);
-        if (firstSnap) { setLoading(false); firstSnap = false; }
+        if (firstSnap) {
+          setLoading(false);
+          firstSnap = false;
+        }
       },
       (err) => {
         setError(err.message);
@@ -54,25 +57,37 @@ export function useCIQTestTypes() {
     return unsub;
   }, [labId]);
 
-  const addType = useCallback(async (name: string): Promise<void> => {
-    if (!labId) return;
-    await addTestType(labId, name);
-  }, [labId]);
+  const addType = useCallback(
+    async (name: string): Promise<void> => {
+      if (!labId) return;
+      await addTestType(labId, name);
+    },
+    [labId],
+  );
 
-  const renameType = useCallback(async (oldName: string, newName: string): Promise<void> => {
-    if (!labId) return;
-    await renameTestType(labId, oldName, newName);
-  }, [labId]);
+  const renameType = useCallback(
+    async (oldName: string, newName: string): Promise<void> => {
+      if (!labId) return;
+      await renameTestType(labId, oldName, newName);
+    },
+    [labId],
+  );
 
-  const removeType = useCallback(async (name: string): Promise<void> => {
-    if (!labId) return;
-    await removeTestType(labId, name);
-  }, [labId]);
+  const removeType = useCallback(
+    async (name: string): Promise<void> => {
+      if (!labId) return;
+      await removeTestType(labId, name);
+    },
+    [labId],
+  );
 
-  const reorder = useCallback(async (ordered: string[]): Promise<void> => {
-    if (!labId) return;
-    await reorderTestTypes(labId, ordered);
-  }, [labId]);
+  const reorder = useCallback(
+    async (ordered: string[]): Promise<void> => {
+      if (!labId) return;
+      await reorderTestTypes(labId, ordered);
+    },
+    [labId],
+  );
 
   return { types, loading, error, addType, renameType, removeType, reorder } as const;
 }

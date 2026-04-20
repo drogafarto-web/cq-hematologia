@@ -12,30 +12,30 @@
 
 ### Kits reagentes (testes rápidos)
 
-| # | Teste | Marca | Lote | Abertura | Validade | Status abertura |
-|---|-------|-------|------|----------|----------|-----------------|
-| 1 | Dengue NS1 | Wama | `WMD-1587-A` | 2026-04-20 | 2027-06-30 | R (reagente) |
-| 2 | HIV 1/2 | Wama | `WMH-2041` | 2026-03-10 | 2027-02-28 | R |
-| 3 | HBsAg | Wama | `WMB-8822` | 2026-04-18 | 2027-01-15 | R |
-| 4 | Anti-HCV | Wama | `WMC-3315` | 2026-04-01 | 2027-03-20 | R |
-| 5 | Sífilis (dupla banda) | Wama | `WMS-7710-EXP` | 2026-04-01 | **2026-04-18** (vencido há 2 dias) | R |
+| #   | Teste                 | Marca | Lote           | Abertura   | Validade                           | Status abertura |
+| --- | --------------------- | ----- | -------------- | ---------- | ---------------------------------- | --------------- |
+| 1   | Dengue NS1            | Wama  | `WMD-1587-A`   | 2026-04-20 | 2027-06-30                         | R (reagente)    |
+| 2   | HIV 1/2               | Wama  | `WMH-2041`     | 2026-03-10 | 2027-02-28                         | R               |
+| 3   | HBsAg                 | Wama  | `WMB-8822`     | 2026-04-18 | 2027-01-15                         | R               |
+| 4   | Anti-HCV              | Wama  | `WMC-3315`     | 2026-04-01 | 2027-03-20                         | R               |
+| 5   | Sífilis (dupla banda) | Wama  | `WMS-7710-EXP` | 2026-04-01 | **2026-04-18** (vencido há 2 dias) | R               |
 
 ### Material de controle (Controlab)
 
-| # | Lote | Tipo | Abertura | Validade | Observação |
-|---|------|------|----------|----------|------------|
-| A | `BT3938` | Reagente positivo | 2026-04-20 | 2026-12-15 | Controle principal — longe do vencimento |
-| B | `BT4112` | Não-reagente | 2026-04-20 | 2026-11-28 | Controle negativo — par do BT3938 |
-| C | `BT4999` | Reagente positivo | 2026-04-10 | **2026-04-25** | **Validade crítica — 5 dias** |
-| D | `BT4501-EXP` | Reagente positivo | 2026-04-01 | **2026-04-18** | **Vencido há 2 dias** |
+| #   | Lote         | Tipo              | Abertura   | Validade       | Observação                               |
+| --- | ------------ | ----------------- | ---------- | -------------- | ---------------------------------------- |
+| A   | `BT3938`     | Reagente positivo | 2026-04-20 | 2026-12-15     | Controle principal — longe do vencimento |
+| B   | `BT4112`     | Não-reagente      | 2026-04-20 | 2026-11-28     | Controle negativo — par do BT3938        |
+| C   | `BT4999`     | Reagente positivo | 2026-04-10 | **2026-04-25** | **Validade crítica — 5 dias**            |
+| D   | `BT4501-EXP` | Reagente positivo | 2026-04-01 | **2026-04-18** | **Vencido há 2 dias**                    |
 
 ### Usuários (já existentes no sistema)
 
-| Email | Papel | Senha |
-|---|---|---|
-| drogafarto@gmail.com | Owner · SuperAdmin · RT | 12345678 |
-| gqlabclin@gmail.com | Admin (Coordenadora Qualidade — "Ana Costa") | 12345678 |
-| areatecnicalabclinlabclin@gmail.com | Member (Técnico Área) | 12345678 |
+| Email                               | Papel                                        | Senha    |
+| ----------------------------------- | -------------------------------------------- | -------- |
+| drogafarto@gmail.com                | Owner · SuperAdmin · RT                      | 12345678 |
+| gqlabclin@gmail.com                 | Admin (Coordenadora Qualidade — "Ana Costa") | 12345678 |
+| areatecnicalabclinlabclin@gmail.com | Member (Técnico Área)                        | 12345678 |
 
 ### URLs
 
@@ -47,12 +47,12 @@
 ## PROMPT (cole tudo abaixo no Antigravity Gemini)
 
 ```
-Você é um auditor de sistema simulando o uso diário de um SaaS de Controle 
-de Qualidade Interno laboratorial (CIQ) chamado "HC Quality", conforme 
+Você é um auditor de sistema simulando o uso diário de um SaaS de Controle
+de Qualidade Interno laboratorial (CIQ) chamado "HC Quality", conforme
 RDC 978/2025 da ANVISA. Laboratório de referência: LabClin Rio Pomba MG.
 
-Sua missão: executar 9 cenários end-to-end e produzir um relatório 
-objetivo com cada cenário marcado como [PASS], [FAIL] ou [PARTIAL], 
+Sua missão: executar 9 cenários end-to-end e produzir um relatório
+objetivo com cada cenário marcado como [PASS], [FAIL] ou [PARTIAL],
 com screenshots e justificativa.
 
 ---
@@ -95,8 +95,8 @@ Módulo a testar: CIQ-Imuno (imunoensaios rápidos).
 
 ### Cenário 1 — Happy path: validação de lote novo de kit Dengue
 
-Premissa: hoje (20/abr/2026) chegou uma caixa nova do kit Dengue NS1 
-Wama lote WMD-1587-A. A RDC 978/2025 exige CIQ antes de liberar o lote 
+Premissa: hoje (20/abr/2026) chegou uma caixa nova do kit Dengue NS1
+Wama lote WMD-1587-A. A RDC 978/2025 exige CIQ antes de liberar o lote
 para uso em pacientes.
 
 Passos:
@@ -135,7 +135,7 @@ Validações esperadas:
 
 ### Cenário 2 — Não conformidade (falso negativo)
 
-Premissa: rodando o BT3938 (esperado POSITIVO) com outro kit, o teste 
+Premissa: rodando o BT3938 (esperado POSITIVO) com outro kit, o teste
 deu NEGATIVO. É um sinal de falha do kit ou armazenamento.
 
 Passos:
@@ -165,7 +165,7 @@ Passos:
 Validações esperadas:
 [ ] Corrida salva.
 [ ] No header do lote HIV/BT4999 aparece badge vermelho "⚠ Controle vence em 5d".
-[ ] Acima da tabela de corridas aparece banner vermelho claro: 
+[ ] Acima da tabela de corridas aparece banner vermelho claro:
     "Controle vence em 5 dia(s). Peça reposição urgente."
 
 ### Cenário 4 — Controle EXPIRADO (bloqueio / alerta forte)
@@ -178,11 +178,11 @@ Passos:
 5. Data realização: 2026-04-20
 
 Validações esperadas:
-[ ] O sistema DEVE rejeitar o save com mensagem de validação 
+[ ] O sistema DEVE rejeitar o save com mensagem de validação
     ("Data de realização posterior à validade do controle").
 [ ] Se conseguir salvar (bug), verificar se badge "⚠ Controle EXPIRADO há 2d"
     aparece em vermelho forte.
-[ ] Banner acima da tabela: "Controle expirado há 2 dia(s). Não registre 
+[ ] Banner acima da tabela: "Controle expirado há 2 dia(s). Não registre
     mais corridas neste lote — substitua o material de controle."
 
 ### Cenário 5 — Reagente EXPIRADO
@@ -202,7 +202,7 @@ Validações esperadas:
 ### Cenário 6 — Gerenciamento de tipos de teste
 
 Passos:
-1. Na tela de nova corrida, clique no botão "Gerenciar" ao lado do 
+1. Na tela de nova corrida, clique no botão "Gerenciar" ao lado do
    dropdown "Imunoensaio".
 2. Adicione um teste novo chamado "Chikungunya".
 3. Feche o modal.
@@ -212,8 +212,8 @@ Passos:
 Validações esperadas:
 [ ] Adição persiste (reload da página mantém).
 [ ] Deleção persiste.
-[ ] Não há race condition — se abrir o modal em outra aba simultânea 
-    e adicionar, o estado continua consistente (edge case, difícil de 
+[ ] Não há race condition — se abrir o modal em outra aba simultânea
+    e adicionar, o estado continua consistente (edge case, difícil de
     testar via Gemini — pule se complicado).
 
 ### Cenário 7 — Configuração de múltiplos destinatários de relatório
@@ -233,11 +233,11 @@ Passos:
 Validações esperadas:
 [ ] Os 3 emails aparecem como chips separados.
 [ ] Salvar funciona sem erro.
-[ ] Mensagem após "Testar envio": 
-    "✓ Relatório enviado para 3 destinatários (Hematologia, Imunologia)." 
-    OU 
+[ ] Mensagem após "Testar envio":
+    "✓ Relatório enviado para 3 destinatários (Hematologia, Imunologia)."
+    OU
     "Nenhum setor com corridas hoje — nenhum relatório foi enviado."
-    (Depende se foram rodadas corridas hoje — veja se os cenários 
+    (Depende se foram rodadas corridas hoje — veja se os cenários
     anteriores geraram dados.)
 
 ### Cenário 8 — Aprovação formal de lote pelo RT
@@ -263,10 +263,10 @@ Passos:
 3. Clique em "FR-036 CSV". Verifique se baixa um CSV.
 
 Validações esperadas:
-[ ] PDF abre e tem: identificação do laboratório, nome do RT, lote, 
+[ ] PDF abre e tem: identificação do laboratório, nome do RT, lote,
     corridas listadas, campo para assinatura física.
-[ ] CSV tem colunas: Código, Data, Operador, Cargo, Lote Controle, 
-    Lote Reagente, Resultado Esperado, Resultado Obtido, Conformidade, 
+[ ] CSV tem colunas: Código, Data, Operador, Cargo, Lote Controle,
+    Lote Reagente, Resultado Esperado, Resultado Obtido, Conformidade,
     Assinatura.
 
 ---
@@ -276,23 +276,23 @@ Validações esperadas:
 Ao terminar, produza um relatório em Markdown com:
 
 1. Resumo executivo (X de 9 cenários passaram).
-2. Para cada cenário: [PASS] / [FAIL] / [PARTIAL] + screenshots chave + 
+2. Para cada cenário: [PASS] / [FAIL] / [PARTIAL] + screenshots chave +
    observações.
-3. Lista de bugs encontrados (cada um com: passos para reproduzir, 
+3. Lista de bugs encontrados (cada um com: passos para reproduzir,
    comportamento observado, comportamento esperado).
-4. Sugestões de melhoria UX (campos confusos, mensagens de erro, 
+4. Sugestões de melhoria UX (campos confusos, mensagens de erro,
    fluxos que quebram expectativa).
-5. Avaliação geral de aderência à RDC 978/2025 (é possível rodar o 
-   CIQ completo de um laboratório usando só essa ferramenta? o que 
+5. Avaliação geral de aderência à RDC 978/2025 (é possível rodar o
+   CIQ completo de um laboratório usando só essa ferramenta? o que
    ainda falta?).
 
 IMPORTANTE:
 - Use EXATAMENTE os lotes e datas acima. Qualquer desvio cria ruído.
-- Registre data/hora de cada ação (timestamps ajudam a correlacionar 
+- Registre data/hora de cada ação (timestamps ajudam a correlacionar
   com logs do servidor).
-- Se um cenário depender de dado que não existe ainda, crie na hora, 
+- Se um cenário depender de dado que não existe ainda, crie na hora,
   mas documente que foi criado.
-- Se encontrar bug crítico (perda de dado, email não enviado, crash), 
+- Se encontrar bug crítico (perda de dado, email não enviado, crash),
   marque [CRITICAL] e pare para reportar antes de seguir.
 ```
 
@@ -309,6 +309,7 @@ IMPORTANTE:
 ## O que esperar
 
 O Gemini vai:
+
 - Clicar, digitar, tirar screenshot
 - Fazer logout/login várias vezes
 - Testar tanto o happy path quanto casos borderline (validades no limite)
@@ -317,6 +318,7 @@ O Gemini vai:
 ## Limpeza depois
 
 Os dados dos cenários vão criar corridas reais no Firestore. Como é produção de um lab único, depois de auditar:
+
 - Você pode excluir os lotes de teste via UI (botão "Excluir" em cada lote)
 - O audit trail (CIQ audit log) mantém registro da exclusão
 - Se preferir zerar tudo, me peça e eu rodo um script com Admin SDK

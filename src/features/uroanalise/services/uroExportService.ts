@@ -18,7 +18,7 @@ import type { UroAnalitoId } from '../types/_shared_refs';
  * - Triggers download automático no browser
  */
 export function exportUroRunsToCSV(
-  runs:     UroanaliseRun[],
+  runs: UroanaliseRun[],
   filename: string = 'FR036_Uroanalise',
 ): void {
   if (runs.length === 0) {
@@ -29,61 +29,62 @@ export function exportUroRunsToCSV(
 
   const rows: Row[] = runs.map((r) => {
     const row: Row = {
-      'Código':                 r.runCode ?? '—',
-      'Data Realização':        r.dataRealizacao,
-      'Frequência':             r.frequencia === 'DIARIA' ? 'Diária' : 'Por lote',
-      'Nível':                  r.nivel === 'N' ? 'N (Normal)' : 'P (Patológico)',
-      'Lote Tira':              r.loteTira,
-      'Marca Tira':             r.tiraMarca ?? '—',
-      'Fabricante Tira':        r.fabricanteTira ?? '—',
-      'Validade Tira':          r.validadeTira ?? '—',
-      'Lote Controle':          r.loteControle,
-      'Fabricante Controle':    r.fabricanteControle,
-      'Abertura Controle':      r.aberturaControle,
-      'Validade Controle':      r.validadeControle,
+      Código: r.runCode ?? '—',
+      'Data Realização': r.dataRealizacao,
+      Frequência: r.frequencia === 'DIARIA' ? 'Diária' : 'Por lote',
+      Nível: r.nivel === 'N' ? 'N (Normal)' : 'P (Patológico)',
+      'Lote Tira': r.loteTira,
+      'Marca Tira': r.tiraMarca ?? '—',
+      'Fabricante Tira': r.fabricanteTira ?? '—',
+      'Validade Tira': r.validadeTira ?? '—',
+      'Lote Controle': r.loteControle,
+      'Fabricante Controle': r.fabricanteControle,
+      'Abertura Controle': r.aberturaControle,
+      'Validade Controle': r.validadeControle,
     };
 
     // Colunas dinâmicas: esperado + obtido por analito
     for (const id of URO_ANALITOS) {
       const label = URO_ANALITO_LABELS[id];
       row[`${label} — Esperado`] = formatEsperado(id, r.resultadosEsperados?.[id]);
-      row[`${label} — Obtido`]   = formatObtido(r.resultados[id]);
-      row[`${label} — Origem`]   = r.resultados[id]?.origem ?? '—';
+      row[`${label} — Obtido`] = formatObtido(r.resultados[id]);
+      row[`${label} — Origem`] = r.resultados[id]?.origem ?? '—';
     }
 
-    row['Conformidade']           = r.conformidade === 'A' ? 'Aceitável' : 'Rejeitado';
+    row['Conformidade'] = r.conformidade === 'A' ? 'Aceitável' : 'Rejeitado';
     row['Analitos Não Conformes'] = r.analitosNaoConformes.join('; ') || '—';
-    row['Alertas']                = (r.alertas ?? []).join('; ') || '—';
-    row['Ação Corretiva']         = r.acaoCorretiva ?? '—';
-    row['Temperatura (°C)']       = r.temperaturaAmbiente !== undefined ? String(r.temperaturaAmbiente) : '—';
-    row['Umidade (%)']            = r.umidadeAmbiente     !== undefined ? String(r.umidadeAmbiente)     : '—';
-    row['NOTIVISA Tipo']          = r.notivisaTipo          ?? '—';
-    row['NOTIVISA Status']        = r.notivisaStatus        ?? '—';
-    row['NOTIVISA Protocolo']     = r.notivisaProtocolo     ?? '—';
-    row['NOTIVISA Data Envio']    = r.notivisaDataEnvio     ?? '—';
+    row['Alertas'] = (r.alertas ?? []).join('; ') || '—';
+    row['Ação Corretiva'] = r.acaoCorretiva ?? '—';
+    row['Temperatura (°C)'] =
+      r.temperaturaAmbiente !== undefined ? String(r.temperaturaAmbiente) : '—';
+    row['Umidade (%)'] = r.umidadeAmbiente !== undefined ? String(r.umidadeAmbiente) : '—';
+    row['NOTIVISA Tipo'] = r.notivisaTipo ?? '—';
+    row['NOTIVISA Status'] = r.notivisaStatus ?? '—';
+    row['NOTIVISA Protocolo'] = r.notivisaProtocolo ?? '—';
+    row['NOTIVISA Data Envio'] = r.notivisaDataEnvio ?? '—';
     row['NOTIVISA Justificativa'] = r.notivisaJustificativa ?? '—';
-    row['Operador']               = r.operatorName;
-    row['Cargo']                  = r.operatorRole;
+    row['Operador'] = r.operatorName;
+    row['Cargo'] = r.operatorRole;
     row['Documento Profissional'] = r.operatorDocument ?? '—';
-    row['Assinatura Digital']     = r.logicalSignature ?? '—';
-    row['Registrado Em']          = formatTimestamp(r.createdAt);
+    row['Assinatura Digital'] = r.logicalSignature ?? '—';
+    row['Registrado Em'] = formatTimestamp(r.createdAt);
 
     return row;
   });
 
   const csv = Papa.unparse(rows, {
     delimiter: ';',
-    header:    true,
-    newline:   '\r\n',
+    header: true,
+    newline: '\r\n',
   });
 
-  const bom     = '\uFEFF';
+  const bom = '\uFEFF';
   const content = bom + csv;
-  const blob    = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-  const url     = URL.createObjectURL(blob);
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
 
-  const link    = document.createElement('a');
-  link.href     = url;
+  const link = document.createElement('a');
+  link.href = url;
   link.download = `${filename}.csv`;
   link.style.display = 'none';
 
@@ -113,9 +114,7 @@ function formatObtido(field: UroanaliseRun['resultados'][UroAnalitoId] | undefin
   return String(field.valor);
 }
 
-function formatTimestamp(
-  ts: import('firebase/firestore').Timestamp | null | undefined,
-): string {
+function formatTimestamp(ts: import('firebase/firestore').Timestamp | null | undefined): string {
   if (!ts) return '—';
   try {
     return ts.toDate().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });

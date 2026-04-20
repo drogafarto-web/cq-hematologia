@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import {
-  db, doc, onSnapshot, setDoc, serverTimestamp,
-} from '../../../shared/services/firebase';
+import { db, doc, onSnapshot, setDoc, serverTimestamp } from '../../../shared/services/firebase';
 import { COLLECTIONS, SUBCOLLECTIONS } from '../../../constants';
 import { useActiveLabId } from '../../../store/useAuthStore';
 
@@ -14,9 +12,9 @@ function ocrSettingRef(labId: string) {
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export interface UseUroOcrSettingResult {
-  enabled:    boolean;
-  loading:    boolean;
-  error:      string | null;
+  enabled: boolean;
+  loading: boolean;
+  error: string | null;
   setEnabled: (v: boolean) => Promise<void>;
 }
 
@@ -36,11 +34,15 @@ export function useUroOcrSetting(): UseUroOcrSettingResult {
   const labId = useActiveLabId();
 
   const [enabled, setEnabledState] = useState(false);
-  const [loading, setLoading]      = useState(true);
-  const [error,   setError]        = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!labId) { setEnabledState(false); setLoading(false); return; }
+    if (!labId) {
+      setEnabledState(false);
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -66,20 +68,23 @@ export function useUroOcrSetting(): UseUroOcrSettingResult {
     return unsub;
   }, [labId]);
 
-  const setEnabled = useCallback(async (v: boolean) => {
-    if (!labId) throw new Error('Nenhum laboratório ativo.');
-    try {
-      await setDoc(
-        ocrSettingRef(labId),
-        { ocrEnabled: v, updatedAt: serverTimestamp() },
-        { merge: true },
-      );
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro ao salvar preferência.';
-      setError(msg);
-      throw new Error(msg);
-    }
-  }, [labId]);
+  const setEnabled = useCallback(
+    async (v: boolean) => {
+      if (!labId) throw new Error('Nenhum laboratório ativo.');
+      try {
+        await setDoc(
+          ocrSettingRef(labId),
+          { ocrEnabled: v, updatedAt: serverTimestamp() },
+          { merge: true },
+        );
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Erro ao salvar preferência.';
+        setError(msg);
+        throw new Error(msg);
+      }
+    },
+    [labId],
+  );
 
   return { enabled, loading, error, setEnabled };
 }

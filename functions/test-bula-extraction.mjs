@@ -7,19 +7,43 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { GoogleGenAI } from '@google/genai';
 
-const apiKey    = process.env.GEMINI_API_KEY;
-const pdfPath   = process.argv[2];
+const apiKey = process.env.GEMINI_API_KEY;
+const pdfPath = process.argv[2];
 const equipName = process.argv[3] ?? 'Yumizen H550';
 
-if (!apiKey) { console.error('❌  Set GEMINI_API_KEY env var.'); process.exit(1); }
-if (!pdfPath) { console.error('❌  Pass PDF path as first argument.'); process.exit(1); }
+if (!apiKey) {
+  console.error('❌  Set GEMINI_API_KEY env var.');
+  process.exit(1);
+}
+if (!pdfPath) {
+  console.error('❌  Pass PDF path as first argument.');
+  process.exit(1);
+}
 
 // ─── Analyte IDs ──────────────────────────────────────────────────────────────
 
 const ANALYTE_IDS = [
-  'WBC','RBC','HGB','HCT','MCV','MCH','MCHC','PLT','RDW',
-  'MPV','PCT','PDW','NEU','LYM','MON','EOS','BAS',
-  'NEU#','LYM#','MON#','EOS#',
+  'WBC',
+  'RBC',
+  'HGB',
+  'HCT',
+  'MCV',
+  'MCH',
+  'MCHC',
+  'PLT',
+  'RDW',
+  'MPV',
+  'PCT',
+  'PDW',
+  'NEU',
+  'LYM',
+  'MON',
+  'EOS',
+  'BAS',
+  'NEU#',
+  'LYM#',
+  'MON#',
+  'EOS#',
 ].join(', ');
 
 // ─── Prompt ───────────────────────────────────────────────────────────────────
@@ -77,25 +101,28 @@ async function callGemini(base64) {
         console.log(`    [${model}] attempt ${attempt}...`);
         const response = await client.models.generateContent({
           model,
-          contents: [{
-            role: 'user',
-            parts: [
-              { text: PROMPT },
-              { inlineData: { mimeType: 'application/pdf', data: base64 } },
-            ],
-          }],
+          contents: [
+            {
+              role: 'user',
+              parts: [
+                { text: PROMPT },
+                { inlineData: { mimeType: 'application/pdf', data: base64 } },
+              ],
+            },
+          ],
           config: { responseMimeType: 'application/json' },
         });
         console.log(`    ✅  Success with ${model}`);
         return { model, text: response.text ?? '' };
       } catch (err) {
         const msg = err.message ?? String(err);
-        const is503 = msg.includes('503') || msg.includes('UNAVAILABLE') || msg.includes('high demand');
+        const is503 =
+          msg.includes('503') || msg.includes('UNAVAILABLE') || msg.includes('high demand');
         const is429 = msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED');
         if (is503 && attempt < 3) {
           const wait = attempt * 8000;
-          console.log(`    ⏳  503 overloaded — waiting ${wait/1000}s...`);
-          await new Promise(r => setTimeout(r, wait));
+          console.log(`    ⏳  503 overloaded — waiting ${wait / 1000}s...`);
+          await new Promise((r) => setTimeout(r, wait));
           continue;
         }
         if (is429) {
@@ -115,7 +142,7 @@ async function callGemini(base64) {
 async function main() {
   console.log(`📄  Reading: ${pdfPath}`);
   const pdfBytes = readFileSync(pdfPath);
-  const base64   = pdfBytes.toString('base64');
+  const base64 = pdfBytes.toString('base64');
   console.log(`    ${(pdfBytes.length / 1024).toFixed(1)} KB\n`);
 
   console.log(`🤖  Extracting "${equipName}" from bula...`);
@@ -137,17 +164,19 @@ async function main() {
 
   console.log('═══════════════════════════════════════════════════');
   console.log(`  Control   : ${parsed.controlName ?? '(not found)'}`);
-  console.log(`  Expiry    : ${parsed.expiryDate  ?? '(not found)'}`);
+  console.log(`  Expiry    : ${parsed.expiryDate ?? '(not found)'}`);
   console.log(`  Equipment : ${parsed.equipmentName ?? '(not found)'}`);
   console.log(`  Levels    : ${parsed.levels?.length ?? 0}`);
   console.log('═══════════════════════════════════════════════════\n');
 
-  for (const lvl of (parsed.levels ?? [])) {
-    const primary  = lvl.analytes.filter(a => a.equipmentSource === equipName);
-    const fallback = lvl.analytes.filter(a => a.equipmentSource !== equipName);
+  for (const lvl of parsed.levels ?? []) {
+    const primary = lvl.analytes.filter((a) => a.equipmentSource === equipName);
+    const fallback = lvl.analytes.filter((a) => a.equipmentSource !== equipName);
 
     console.log(`  ▸ Level ${lvl.level} — Lot: ${lvl.lotNumber}`);
-    console.log(`    ${lvl.analytes.length} analytes  (${primary.length} primary · ${fallback.length} fallback)\n`);
+    console.log(
+      `    ${lvl.analytes.length} analytes  (${primary.length} primary · ${fallback.length} fallback)\n`,
+    );
 
     if (primary.length) {
       console.log(`    ✅  ${equipName}:`);
@@ -159,7 +188,9 @@ async function main() {
       console.log('');
       console.log('    ⚠️   Fallback:');
       for (const a of fallback) {
-        console.log(`        ${a.analyteId.padEnd(6)}  mean=${a.mean}  sd=${a.sd}  ← ${a.equipmentSource}`);
+        console.log(
+          `        ${a.analyteId.padEnd(6)}  mean=${a.mean}  sd=${a.sd}  ← ${a.equipmentSource}`,
+        );
       }
     }
     console.log('');
@@ -172,4 +203,7 @@ async function main() {
   console.log(`💾  Saved: ${outPath}`);
 }
 
-main().catch(err => { console.error('❌', err.message); process.exit(1); });
+main().catch((err) => {
+  console.error('❌', err.message);
+  process.exit(1);
+});

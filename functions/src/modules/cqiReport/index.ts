@@ -3,27 +3,25 @@
 // Manual:    triggerCQIReport (onCall, SuperAdmin only) — same pattern as
 //            triggerLabBackup in the emailBackup module.
 
-import { onSchedule }         from 'firebase-functions/v2/scheduler';
+import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
-import * as admin             from 'firebase-admin';
-import { z }                  from 'zod';
+import * as admin from 'firebase-admin';
+import { z } from 'zod';
 
 import { generateAndSendCQIReport, getActiveLabs } from './generator';
 
 // ─── Scheduled: daily at 23:00 BRT ───────────────────────────────────────────
 
 export const scheduledDailyCQIReport = onSchedule(
-  { schedule: '0 2 * * *', timeZone: 'UTC', region: 'southamerica-east1' },   // 02:00 UTC = 23:00 BRT
+  { schedule: '0 2 * * *', timeZone: 'UTC', region: 'southamerica-east1' }, // 02:00 UTC = 23:00 BRT
   async () => {
-    const db   = admin.firestore();
+    const db = admin.firestore();
     const labs = await getActiveLabs(db);
     const date = new Date();
 
     console.log(`[scheduledDailyCQIReport] processing ${labs.length} labs`);
 
-    await Promise.allSettled(
-      labs.map(lab => generateAndSendCQIReport(lab.labId, date)),
-    );
+    await Promise.allSettled(labs.map((lab) => generateAndSendCQIReport(lab.labId, date)));
 
     console.log('[scheduledDailyCQIReport] done');
   },
@@ -33,7 +31,7 @@ export const scheduledDailyCQIReport = onSchedule(
 
 const TriggerSchema = z.object({
   labId: z.string().min(1),
-  date:  z.string().optional(),   // ISO date string; defaults to today
+  date: z.string().optional(), // ISO date string; defaults to today
 });
 
 export const triggerCQIReport = onCall(
@@ -44,19 +42,23 @@ export const triggerCQIReport = onCall(
       throw new HttpsError('unauthenticated', 'Autenticação necessária.');
     }
 
-    const uid   = request.auth.uid;
+    const uid = request.auth.uid;
     const token = request.auth.token as Record<string, unknown>;
 
     // SuperAdmin check: custom claim first, Firestore fallback
-    const isSuperAdmin = token?.isSuperAdmin === true
-      ? true
-      : await (async () => {
-          const snap = await admin.firestore().doc(`users/${uid}`).get();
-          return snap.exists && snap.data()?.isSuperAdmin === true;
-        })();
+    const isSuperAdmin =
+      token?.isSuperAdmin === true
+        ? true
+        : await (async () => {
+            const snap = await admin.firestore().doc(`users/${uid}`).get();
+            return snap.exists && snap.data()?.isSuperAdmin === true;
+          })();
 
     if (!isSuperAdmin) {
-      throw new HttpsError('permission-denied', 'Apenas Super Admins podem disparar este relatório.');
+      throw new HttpsError(
+        'permission-denied',
+        'Apenas Super Admins podem disparar este relatório.',
+      );
     }
 
     const parsed = TriggerSchema.safeParse(request.data);

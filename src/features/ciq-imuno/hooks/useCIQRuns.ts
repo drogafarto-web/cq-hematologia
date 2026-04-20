@@ -19,9 +19,9 @@ import type { CIQImunoRun } from '../types/CIQImuno';
 export function useCIQRuns(lotId: string | null) {
   const labId = useActiveLabId();
 
-  const [runs,      setRuns]      = useState<CIQImunoRun[]>([]);
+  const [runs, setRuns] = useState<CIQImunoRun[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error,     setError]     = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!labId || !lotId) {

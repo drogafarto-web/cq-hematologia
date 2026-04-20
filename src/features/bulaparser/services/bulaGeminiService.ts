@@ -5,27 +5,27 @@ import type { ManufacturerStats, BulaLevelData, PendingBulaData } from '../../..
 // ─── Callable payload / result types ─────────────────────────────────────────
 
 interface ExtractFromBulaPayload {
-  base64:   string;
+  base64: string;
   mimeType: string;
 }
 
 interface RawBulaAnalyte {
-  analyteId:       string;
-  mean:            number;
-  sd:              number;
+  analyteId: string;
+  mean: number;
+  sd: number;
   equipmentSource?: string;
 }
 
 interface RawBulaLevel {
-  level:     1 | 2 | 3;
+  level: 1 | 2 | 3;
   lotNumber?: string | null;
-  analytes:  RawBulaAnalyte[];
+  analytes: RawBulaAnalyte[];
 }
 
 interface ExtractFromBulaResult {
   controlName?: string | null;
-  expiryDate?:  string | null;
-  levels:       RawBulaLevel[];
+  expiryDate?: string | null;
+  levels: RawBulaLevel[];
 }
 
 const _extractFromBula = httpsCallable<ExtractFromBulaPayload, ExtractFromBulaResult>(
@@ -48,7 +48,7 @@ const _extractFromBula = httpsCallable<ExtractFromBulaPayload, ExtractFromBulaRe
  * @param mimeType Should be 'application/pdf'
  */
 export async function extractDataFromBulaPdf(
-  base64:   string,
+  base64: string,
   mimeType: string = 'application/pdf',
 ): Promise<PendingBulaData> {
   if (!base64.trim()) throw new Error('Nenhum arquivo fornecido para extração.');
@@ -88,10 +88,10 @@ export async function extractDataFromBulaPdf(
     }
 
     return {
-      level:             rawLevel.level,
-      lotNumber:         rawLevel.lotNumber ?? null,
+      level: rawLevel.level,
+      lotNumber: rawLevel.lotNumber ?? null,
       manufacturerStats,
-      equipmentSources:  Object.keys(equipmentSources).length > 0 ? equipmentSources : undefined,
+      equipmentSources: Object.keys(equipmentSources).length > 0 ? equipmentSources : undefined,
     };
   });
 
@@ -127,7 +127,7 @@ export async function extractDataFromBulaPdf(
 
 function mapFunctionsError(err: unknown): Error {
   if (err && typeof err === 'object' && 'code' in err) {
-    const code    = (err as { code: string }).code;
+    const code = (err as { code: string }).code;
     const message = err instanceof Error ? err.message : String(err);
 
     if (code === 'functions/resource-exhausted') {

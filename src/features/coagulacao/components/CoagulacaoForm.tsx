@@ -8,16 +8,16 @@ import type { CoagAnalyteId, CoagNivel } from '../types/_shared_refs';
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const CARGO_OPTIONS: { value: CoagulacaoFormData['cargo']; label: string }[] = [
-  { value: 'biomedico',    label: 'Biomédico(a)' },
-  { value: 'tecnico',      label: 'Técnico(a) de Laboratório' },
+  { value: 'biomedico', label: 'Biomédico(a)' },
+  { value: 'tecnico', label: 'Técnico(a) de Laboratório' },
   { value: 'farmaceutico', label: 'Farmacêutico(a)' },
 ];
 
 const today = () => {
   const now = new Date();
-  const y   = now.getFullYear();
-  const m   = String(now.getMonth() + 1).padStart(2, '0');
-  const d   = String(now.getDate()).padStart(2, '0');
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
 };
 
@@ -43,13 +43,20 @@ const INPUT_OUT_OF_RANGE = INPUT.replace(
 
 // ─── Primitives ───────────────────────────────────────────────────────────────
 
-function Label({ htmlFor, children, required }: {
+function Label({
+  htmlFor,
+  children,
+  required,
+}: {
   htmlFor: string;
   children: React.ReactNode;
   required?: boolean;
 }) {
   return (
-    <label htmlFor={htmlFor} className="block text-xs font-medium text-slate-500 dark:text-white/45 mb-1.5 ml-0.5">
+    <label
+      htmlFor={htmlFor}
+      className="block text-xs font-medium text-slate-500 dark:text-white/45 mb-1.5 ml-0.5"
+    >
       {children}
       {required && <span className="text-red-400 ml-0.5">*</span>}
     </label>
@@ -73,7 +80,11 @@ function SectionTitle({ children, hint }: { children: React.ReactNode; hint?: st
 }
 
 /** Toggle I / II — nivel do controle */
-function NivelToggle({ value, onChange, error }: {
+function NivelToggle({
+  value,
+  onChange,
+  error,
+}: {
   value: CoagNivel | undefined;
   onChange: (v: CoagNivel) => void;
   error?: string;
@@ -83,9 +94,10 @@ function NivelToggle({ value, onChange, error }: {
       <div className="flex gap-2">
         {(['I', 'II'] as const).map((opt) => {
           const label = opt === 'I' ? 'I — Normal' : 'II — Patológico';
-          const sub   = opt === 'I'
-            ? 'valores dentro do intervalo terapêutico'
-            : 'anticoagulado / protrombótico';
+          const sub =
+            opt === 'I'
+              ? 'valores dentro do intervalo terapêutico'
+              : 'anticoagulado / protrombótico';
           return (
             <button
               key={opt}
@@ -113,12 +125,14 @@ function ExpiryWarning({ label, days }: { label: string; days: number }) {
   if (days >= 30) return null;
   const expired = days < 0;
   return (
-    <div className={[
-      'flex items-start gap-2 px-3.5 py-2.5 rounded-xl border text-xs mt-1.5',
-      expired
-        ? 'bg-red-500/[0.07] border-red-400/20 text-red-500 dark:text-red-400'
-        : 'bg-amber-500/[0.07] border-amber-500/20 text-amber-600 dark:text-amber-400',
-    ].join(' ')}>
+    <div
+      className={[
+        'flex items-start gap-2 px-3.5 py-2.5 rounded-xl border text-xs mt-1.5',
+        expired
+          ? 'bg-red-500/[0.07] border-red-400/20 text-red-500 dark:text-red-400'
+          : 'bg-amber-500/[0.07] border-amber-500/20 text-amber-600 dark:text-amber-400',
+      ].join(' ')}
+    >
       <span className="mt-px shrink-0">{expired ? '✕' : '⚠'}</span>
       <span>
         {expired
@@ -133,24 +147,32 @@ function ExpiryWarning({ label, days }: { label: string; days: number }) {
 function RangeBadge({ outOfRange }: { outOfRange: CoagAnalyteId[] }) {
   const conforme = outOfRange.length === 0;
   return (
-    <div className={[
-      'flex items-center gap-3 px-3.5 py-3 rounded-xl border',
-      conforme
-        ? 'bg-emerald-500/[0.07] border-emerald-500/25'
-        : 'bg-amber-500/[0.07] border-amber-500/25',
-    ].join(' ')}>
-      <div className={[
-        'w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-sm font-bold',
+    <div
+      className={[
+        'flex items-center gap-3 px-3.5 py-3 rounded-xl border',
         conforme
-          ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
-          : 'bg-amber-500/20 text-amber-600 dark:text-amber-400',
-      ].join(' ')}>
+          ? 'bg-emerald-500/[0.07] border-emerald-500/25'
+          : 'bg-amber-500/[0.07] border-amber-500/25',
+      ].join(' ')}
+    >
+      <div
+        className={[
+          'w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-sm font-bold',
+          conforme
+            ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+            : 'bg-amber-500/20 text-amber-600 dark:text-amber-400',
+        ].join(' ')}
+      >
         {conforme ? '✓' : '!'}
       </div>
       <div>
-        <p className={`text-sm font-semibold ${
-          conforme ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'
-        }`}>
+        <p
+          className={`text-sm font-semibold ${
+            conforme
+              ? 'text-emerald-600 dark:text-emerald-400'
+              : 'text-amber-700 dark:text-amber-400'
+          }`}
+        >
           {conforme ? 'Resultados dentro do intervalo' : 'Valores fora do intervalo do fabricante'}
         </p>
         <p className="text-[10px] text-slate-400 dark:text-white/30 mt-0.5">
@@ -166,7 +188,7 @@ function RangeBadge({ outOfRange }: { outOfRange: CoagAnalyteId[] }) {
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface CoagulacaoFormProps {
-  onSave:    (data: CoagulacaoFormData) => Promise<void>;
+  onSave: (data: CoagulacaoFormData) => Promise<void>;
   isSaving?: boolean;
   onCancel?: () => void;
   /** Pré-seleciona nível ao abrir (útil quando se clica "Novo run Nível I"). */
@@ -175,20 +197,30 @@ interface CoagulacaoFormProps {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNivel }: CoagulacaoFormProps) {
+export function CoagulacaoForm({
+  onSave,
+  isSaving = false,
+  onCancel,
+  initialNivel,
+}: CoagulacaoFormProps) {
   const user = useUser();
 
   const [form, setForm] = useState<Partial<CoagulacaoFormData>>({
-    equipamento:    'Clotimer Duo',
-    frequencia:     'DIARIA',
+    equipamento: 'Clotimer Duo',
+    frequencia: 'DIARIA',
     dataRealizacao: today(),
-    nivel:          initialNivel,
+    nivel: initialNivel,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   function set<K extends keyof CoagulacaoFormData>(key: K, value: CoagulacaoFormData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
-    if (errors[key]) setErrors((prev) => { const n = { ...prev }; delete n[key]; return n; });
+    if (errors[key])
+      setErrors((prev) => {
+        const n = { ...prev };
+        delete n[key];
+        return n;
+      });
   }
 
   function setResultado(analyte: CoagAnalyteId, raw: string) {
@@ -201,7 +233,12 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
       },
     }));
     const key = `resultados.${analyte}`;
-    if (errors[key]) setErrors((prev) => { const n = { ...prev }; delete n[key]; return n; });
+    if (errors[key])
+      setErrors((prev) => {
+        const n = { ...prev };
+        delete n[key];
+        return n;
+      });
   }
 
   // ── Valores derivados ──────────────────────────────────────────────────────
@@ -219,7 +256,7 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
     });
   }, [form.nivel, form.resultados]);
 
-  const naoConforme    = outOfRange.length > 0;
+  const naoConforme = outOfRange.length > 0;
   const requireCorrect = naoConforme && !form.acaoCorretiva?.trim();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -230,20 +267,22 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
 
     if (!result.success) {
       const flat = result.error.flatten().fieldErrors;
-      setErrors(
-        Object.fromEntries(
-          Object.entries(flat).map(([k, v]) => [k, v?.[0] ?? '']),
-        ),
-      );
-      document.querySelector('[data-field-error]')
+      setErrors(Object.fromEntries(Object.entries(flat).map(([k, v]) => [k, v?.[0] ?? ''])));
+      document
+        .querySelector('[data-field-error]')
         ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
     // Soft-gate runtime: se algum resultado está fora do intervalo e não há ação corretiva, bloquear.
     if (naoConforme && !result.data.acaoCorretiva?.trim()) {
-      setErrors({ acaoCorretiva: 'Ação corretiva é obrigatória quando há valores fora do intervalo (RDC 978/2025 Art. 128).' });
-      document.querySelector('#acaoCorretiva')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setErrors({
+        acaoCorretiva:
+          'Ação corretiva é obrigatória quando há valores fora do intervalo (RDC 978/2025 Art. 128).',
+      });
+      document
+        .querySelector('#acaoCorretiva')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
@@ -253,17 +292,20 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
 
   return (
     <form onSubmit={handleSubmit} className="space-y-7" noValidate>
-
       {/* ── Operador ───────────────────────────────────────────────────────── */}
       <section>
         <SectionTitle>Operador</SectionTitle>
         <div className="space-y-3">
-          <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl
+          <div
+            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl
                           bg-slate-50 dark:bg-white/[0.04]
-                          border border-slate-200 dark:border-white/[0.07]">
-            <div className="w-8 h-8 rounded-full bg-rose-500/15 border border-rose-500/25
+                          border border-slate-200 dark:border-white/[0.07]"
+          >
+            <div
+              className="w-8 h-8 rounded-full bg-rose-500/15 border border-rose-500/25
                             flex items-center justify-center shrink-0
-                            text-rose-600 dark:text-rose-400 text-xs font-bold select-none">
+                            text-rose-600 dark:text-rose-400 text-xs font-bold select-none"
+            >
               {(user?.displayName ?? user?.email ?? 'O').charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
@@ -278,7 +320,9 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="cargo" required>Cargo profissional</Label>
+              <Label htmlFor="cargo" required>
+                Cargo profissional
+              </Label>
               <select
                 id="cargo"
                 title="Cargo profissional do operador"
@@ -286,16 +330,22 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
                 onChange={(e) => set('cargo', e.target.value as CoagulacaoFormData['cargo'])}
                 className={errors.cargo ? INPUT_ERR : INPUT}
               >
-                <option value="" disabled>Selecione o cargo…</option>
+                <option value="" disabled>
+                  Selecione o cargo…
+                </option>
                 {CARGO_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
                 ))}
               </select>
               <FieldError msg={errors.cargo} />
             </div>
 
             <div>
-              <Label htmlFor="operatorDocument" required>Documento profissional</Label>
+              <Label htmlFor="operatorDocument" required>
+                Documento profissional
+              </Label>
               <input
                 id="operatorDocument"
                 type="text"
@@ -314,20 +364,20 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
       <section>
         <SectionTitle hint="Clotimer Duo · CLSI H47-A2">Corrida</SectionTitle>
         <div className="space-y-3">
-          <NivelToggle
-            value={form.nivel}
-            onChange={(v) => set('nivel', v)}
-            error={errors.nivel}
-          />
+          <NivelToggle value={form.nivel} onChange={(v) => set('nivel', v)} error={errors.nivel} />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="frequencia" required>Frequência</Label>
+              <Label htmlFor="frequencia" required>
+                Frequência
+              </Label>
               <select
                 id="frequencia"
                 title="Frequência do controle"
                 value={form.frequencia ?? ''}
-                onChange={(e) => set('frequencia', e.target.value as CoagulacaoFormData['frequencia'])}
+                onChange={(e) =>
+                  set('frequencia', e.target.value as CoagulacaoFormData['frequencia'])
+                }
                 className={errors.frequencia ? INPUT_ERR : INPUT}
               >
                 <option value="DIARIA">Diária — RDC 302/2005</option>
@@ -356,7 +406,9 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
         <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="loteControle" required>Lote do controle</Label>
+              <Label htmlFor="loteControle" required>
+                Lote do controle
+              </Label>
               <input
                 id="loteControle"
                 type="text"
@@ -368,7 +420,9 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
               <FieldError msg={errors.loteControle} />
             </div>
             <div>
-              <Label htmlFor="fabricanteControle" required>Fabricante</Label>
+              <Label htmlFor="fabricanteControle" required>
+                Fabricante
+              </Label>
               <input
                 id="fabricanteControle"
                 type="text"
@@ -383,7 +437,9 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="aberturaControle" required>Abertura</Label>
+              <Label htmlFor="aberturaControle" required>
+                Abertura
+              </Label>
               <input
                 id="aberturaControle"
                 type="date"
@@ -395,7 +451,9 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
               <FieldError msg={errors.aberturaControle} />
             </div>
             <div>
-              <Label htmlFor="validadeControle" required>Validade</Label>
+              <Label htmlFor="validadeControle" required>
+                Validade
+              </Label>
               <input
                 id="validadeControle"
                 type="date"
@@ -417,7 +475,9 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
         <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="loteReagente" required>Lote do reagente</Label>
+              <Label htmlFor="loteReagente" required>
+                Lote do reagente
+              </Label>
               <input
                 id="loteReagente"
                 type="text"
@@ -429,7 +489,9 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
               <FieldError msg={errors.loteReagente} />
             </div>
             <div>
-              <Label htmlFor="fabricanteReagente" required>Fabricante</Label>
+              <Label htmlFor="fabricanteReagente" required>
+                Fabricante
+              </Label>
               <input
                 id="fabricanteReagente"
                 type="text"
@@ -444,7 +506,9 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="aberturaReagente" required>Abertura</Label>
+              <Label htmlFor="aberturaReagente" required>
+                Abertura
+              </Label>
               <input
                 id="aberturaReagente"
                 type="date"
@@ -456,7 +520,9 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
               <FieldError msg={errors.aberturaReagente} />
             </div>
             <div>
-              <Label htmlFor="validadeReagente" required>Validade</Label>
+              <Label htmlFor="validadeReagente" required>
+                Validade
+              </Label>
               <input
                 id="validadeReagente"
                 type="date"
@@ -487,7 +553,9 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
               min="0"
               placeholder="ex: 1.02"
               value={form.isi ?? ''}
-              onChange={(e) => set('isi', e.target.value === '' ? undefined : Number(e.target.value))}
+              onChange={(e) =>
+                set('isi', e.target.value === '' ? undefined : Number(e.target.value))
+              }
               className={errors.isi ? INPUT_ERR : INPUT}
             />
             <FieldError msg={errors.isi} />
@@ -501,7 +569,9 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
               min="0"
               placeholder="ex: 11.8"
               value={form.mnpt ?? ''}
-              onChange={(e) => set('mnpt', e.target.value === '' ? undefined : Number(e.target.value))}
+              onChange={(e) =>
+                set('mnpt', e.target.value === '' ? undefined : Number(e.target.value))
+              }
               className={errors.mnpt ? INPUT_ERR : INPUT}
             />
             <FieldError msg={errors.mnpt} />
@@ -514,9 +584,7 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
 
       {/* ── Ambiente (opcional) ───────────────────────────────────────────── */}
       <section>
-        <SectionTitle hint="opcional — registrar quando exigido pela RT">
-          Ambiente
-        </SectionTitle>
+        <SectionTitle hint="opcional — registrar quando exigido pela RT">Ambiente</SectionTitle>
         <div className="grid grid-cols-2 gap-3">
           <div>
             <Label htmlFor="temperaturaAmbiente">Temperatura (°C)</Label>
@@ -526,7 +594,12 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
               step="0.1"
               placeholder="ex: 22.5"
               value={form.temperaturaAmbiente ?? ''}
-              onChange={(e) => set('temperaturaAmbiente', e.target.value === '' ? undefined : Number(e.target.value))}
+              onChange={(e) =>
+                set(
+                  'temperaturaAmbiente',
+                  e.target.value === '' ? undefined : Number(e.target.value),
+                )
+              }
               className={errors.temperaturaAmbiente ? INPUT_ERR : INPUT}
             />
             <FieldError msg={errors.temperaturaAmbiente} />
@@ -541,7 +614,9 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
               max="100"
               placeholder="ex: 55"
               value={form.umidadeAmbiente ?? ''}
-              onChange={(e) => set('umidadeAmbiente', e.target.value === '' ? undefined : Number(e.target.value))}
+              onChange={(e) =>
+                set('umidadeAmbiente', e.target.value === '' ? undefined : Number(e.target.value))
+              }
               className={errors.umidadeAmbiente ? INPUT_ERR : INPUT}
             />
             <FieldError msg={errors.umidadeAmbiente} />
@@ -551,26 +626,30 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
 
       {/* ── Resultados ────────────────────────────────────────────────────── */}
       <section>
-        <SectionTitle hint={form.nivel ? `baseline Nível ${form.nivel}` : 'selecione o nível primeiro'}>
+        <SectionTitle
+          hint={form.nivel ? `baseline Nível ${form.nivel}` : 'selecione o nível primeiro'}
+        >
           Resultados da Corrida
         </SectionTitle>
 
         <div className="space-y-3">
           {COAG_ANALYTE_IDS.map((id) => {
-            const cfg      = COAG_ANALYTES[id];
+            const cfg = COAG_ANALYTES[id];
             const baseline = form.nivel ? cfg.levels[form.nivel] : null;
-            const value    = form.resultados?.[id];
+            const value = form.resultados?.[id];
             const valueStr = value !== undefined && !Number.isNaN(value) ? String(value) : '';
-            const isOut    = outOfRange.includes(id);
-            const hint     = baseline
+            const isOut = outOfRange.includes(id);
+            const hint = baseline
               ? `esperado: ${baseline.low}–${baseline.high}${baseline.unit ? ` ${baseline.unit}` : ''}`
               : '—';
-            const errMsg   = errors[`resultados.${id}`] ?? errors[id];
+            const errMsg = errors[`resultados.${id}`] ?? errors[id];
 
             return (
               <div key={id} className="grid grid-cols-[1fr_120px_90px] gap-3 items-start">
                 <div className="pt-2.5">
-                  <p className="text-sm font-medium text-slate-700 dark:text-white/75">{cfg.label}</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-white/75">
+                    {cfg.label}
+                  </p>
                   <p className="text-[10px] text-slate-400 dark:text-white/25 mt-0.5">{hint}</p>
                 </div>
                 <div>
@@ -582,7 +661,7 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
                     placeholder={baseline ? String(baseline.mean) : ''}
                     value={valueStr}
                     onChange={(e) => setResultado(id, e.target.value)}
-                    className={errMsg ? INPUT_ERR : (isOut ? INPUT_OUT_OF_RANGE : INPUT)}
+                    className={errMsg ? INPUT_ERR : isOut ? INPUT_OUT_OF_RANGE : INPUT}
                   />
                   <FieldError msg={errMsg} />
                 </div>
@@ -634,9 +713,9 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
             Notificação sanitária — NOTIVISA
           </SectionTitle>
           <p className="text-xs text-slate-600 dark:text-white/50 mb-4">
-            Classifique a ocorrência. Queixa técnica para desvio de produto sem dano;
-            evento adverso quando houve impacto em conduta clínica. Pode ser dispensada
-            se a causa for operacional — justifique para auditoria.
+            Classifique a ocorrência. Queixa técnica para desvio de produto sem dano; evento adverso
+            quando houve impacto em conduta clínica. Pode ser dispensada se a causa for operacional
+            — justifique para auditoria.
           </p>
 
           <div className="space-y-3">
@@ -646,12 +725,14 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
                 <select
                   id="notivisaTipo"
                   value={form.notivisaTipo ?? ''}
-                  onChange={(e) => set(
-                    'notivisaTipo',
-                    e.target.value === ''
-                      ? undefined
-                      : (e.target.value as CoagulacaoFormData['notivisaTipo']),
-                  )}
+                  onChange={(e) =>
+                    set(
+                      'notivisaTipo',
+                      e.target.value === ''
+                        ? undefined
+                        : (e.target.value as CoagulacaoFormData['notivisaTipo']),
+                    )
+                  }
                   className={errors.notivisaTipo ? INPUT_ERR : INPUT}
                 >
                   <option value="">— selecione —</option>
@@ -666,12 +747,14 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
                 <select
                   id="notivisaStatus"
                   value={form.notivisaStatus ?? ''}
-                  onChange={(e) => set(
-                    'notivisaStatus',
-                    e.target.value === ''
-                      ? undefined
-                      : (e.target.value as CoagulacaoFormData['notivisaStatus']),
-                  )}
+                  onChange={(e) =>
+                    set(
+                      'notivisaStatus',
+                      e.target.value === ''
+                        ? undefined
+                        : (e.target.value as CoagulacaoFormData['notivisaStatus']),
+                    )
+                  }
                   className={errors.notivisaStatus ? INPUT_ERR : INPUT}
                 >
                   <option value="">— selecione —</option>
@@ -686,7 +769,9 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
             {form.notivisaStatus === 'notificado' && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor="notivisaProtocolo" required>Protocolo NOTIVISA</Label>
+                  <Label htmlFor="notivisaProtocolo" required>
+                    Protocolo NOTIVISA
+                  </Label>
                   <input
                     id="notivisaProtocolo"
                     type="text"
@@ -698,7 +783,9 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
                   <FieldError msg={errors.notivisaProtocolo} />
                 </div>
                 <div>
-                  <Label htmlFor="notivisaDataEnvio" required>Data de envio</Label>
+                  <Label htmlFor="notivisaDataEnvio" required>
+                    Data de envio
+                  </Label>
                   <input
                     id="notivisaDataEnvio"
                     type="date"
@@ -714,7 +801,9 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
 
             {form.notivisaStatus === 'dispensado' && (
               <div>
-                <Label htmlFor="notivisaJustificativa" required>Justificativa</Label>
+                <Label htmlFor="notivisaJustificativa" required>
+                  Justificativa
+                </Label>
                 <textarea
                   id="notivisaJustificativa"
                   rows={3}
@@ -759,8 +848,20 @@ export function CoagulacaoForm({ onSave, isSaving = false, onCancel, initialNive
           {isSaving ? (
             <>
               <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
-                <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeOpacity="0.25"
+                />
+                <path
+                  d="M22 12a10 10 0 00-10-10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
               </svg>
               Salvando…
             </>

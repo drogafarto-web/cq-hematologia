@@ -56,8 +56,10 @@ function lotRef(labId: string, lotId: string) {
 function runsCol(labId: string, lotId: string) {
   return collection(
     db,
-    COLLECTIONS.LABS, labId,
-    SUBCOLLECTIONS.CIQ_COAGULACAO, lotId,
+    COLLECTIONS.LABS,
+    labId,
+    SUBCOLLECTIONS.CIQ_COAGULACAO,
+    lotId,
     SUBCOLLECTIONS.RUNS,
   );
 }
@@ -66,9 +68,12 @@ function runsCol(labId: string, lotId: string) {
 function runRef(labId: string, lotId: string, runId: string) {
   return doc(
     db,
-    COLLECTIONS.LABS, labId,
-    SUBCOLLECTIONS.CIQ_COAGULACAO, lotId,
-    SUBCOLLECTIONS.RUNS, runId,
+    COLLECTIONS.LABS,
+    labId,
+    SUBCOLLECTIONS.CIQ_COAGULACAO,
+    lotId,
+    SUBCOLLECTIONS.RUNS,
+    runId,
   );
 }
 
@@ -82,14 +87,14 @@ function runRef(labId: string, lotId: string, runId: string) {
  * Usado para reaproveitar um lote ao registrar uma nova corrida.
  */
 export async function findCoagLot(
-  labId:        string,
-  nivel:        CoagulacaoLot['nivel'],
+  labId: string,
+  nivel: CoagulacaoLot['nivel'],
   loteControle: string,
 ): Promise<CoagulacaoLot | null> {
   try {
     const q = query(
       lotsCol(labId),
-      where('nivel',        '==', nivel),
+      where('nivel', '==', nivel),
       where('loteControle', '==', loteControle),
     );
     const snap = await getDocs(q);
@@ -107,10 +112,10 @@ export async function findCoagLot(
  */
 export async function createCoagLot(
   labId: string,
-  lot:   Omit<CoagulacaoLot, 'id' | 'createdAt'>,
+  lot: Omit<CoagulacaoLot, 'id' | 'createdAt'>,
 ): Promise<string> {
   try {
-    const id     = crypto.randomUUID();
+    const id = crypto.randomUUID();
     const newRef = lotRef(labId, id);
     await setDoc(newRef, {
       ...lot,
@@ -126,11 +131,11 @@ export async function createCoagLot(
  * Atualiza campos mutáveis de um lote (runCount, lotStatus, coagDecision, decisão).
  */
 export async function updateCoagLot(
-  labId:  string,
-  lotId:  string,
-  fields: Partial<Pick<CoagulacaoLot,
-    'runCount' | 'lotStatus' | 'coagDecision' | 'decisionBy' | 'decisionAt'
-  >>,
+  labId: string,
+  lotId: string,
+  fields: Partial<
+    Pick<CoagulacaoLot, 'runCount' | 'lotStatus' | 'coagDecision' | 'decisionBy' | 'decisionAt'>
+  >,
 ): Promise<void> {
   try {
     await updateDoc(lotRef(labId, lotId), fields as Record<string, unknown>);
@@ -144,9 +149,9 @@ export async function updateCoagLot(
  * Grava coagDecision, decisionBy e decisionAt atomicamente.
  */
 export async function updateCoagLotDecision(
-  labId:      string,
-  lotId:      string,
-  decision:   CoagulacaoLot['coagDecision'],
+  labId: string,
+  lotId: string,
+  decision: CoagulacaoLot['coagDecision'],
   decisionBy: string,
 ): Promise<void> {
   try {
@@ -167,30 +172,29 @@ export async function updateCoagLotDecision(
  * Registra audit imutável em ciq-coagulacao/{lotId}/audit/{uuid} ANTES de persistir.
  */
 export async function updateCoagLotMeta(
-  labId:      string,
-  lotId:      string,
-  fields:     Partial<Pick<CoagulacaoLot,
-    'aberturaControle' | 'validadeControle' | 'mean' | 'sd'
-  >>,
-  actorUid:   string,
-  prevValues: Partial<Pick<CoagulacaoLot,
-    'aberturaControle' | 'validadeControle' | 'mean' | 'sd'
-  >>,
+  labId: string,
+  lotId: string,
+  fields: Partial<Pick<CoagulacaoLot, 'aberturaControle' | 'validadeControle' | 'mean' | 'sd'>>,
+  actorUid: string,
+  prevValues: Partial<Pick<CoagulacaoLot, 'aberturaControle' | 'validadeControle' | 'mean' | 'sd'>>,
 ): Promise<void> {
   try {
     // Audit first — imutável via Firestore Rules (só create, nunca update/delete)
     const auditDocRef = doc(
       db,
-      COLLECTIONS.LABS, labId,
-      SUBCOLLECTIONS.CIQ_COAGULACAO, lotId,
-      SUBCOLLECTIONS.AUDIT, crypto.randomUUID(),
+      COLLECTIONS.LABS,
+      labId,
+      SUBCOLLECTIONS.CIQ_COAGULACAO,
+      lotId,
+      SUBCOLLECTIONS.AUDIT,
+      crypto.randomUUID(),
     );
     await setDoc(auditDocRef, {
-      action:    'lot_edit',
+      action: 'lot_edit',
       actorUid,
       prevValues,
-      newValues:  fields,
-      createdAt:  serverTimestamp(),
+      newValues: fields,
+      createdAt: serverTimestamp(),
     });
 
     await updateDoc(lotRef(labId, lotId), fields as Record<string, unknown>);
@@ -206,30 +210,30 @@ export async function updateCoagLotMeta(
  * o registro sobrevive à exclusão do lote e é rastreável mesmo sem o documento.
  */
 export async function deleteCoagLot(
-  labId:       string,
-  lotId:       string,
-  lotSnapshot: Pick<CoagulacaoLot,
-    'nivel' | 'loteControle' | 'runCount' | 'validadeControle'
-  >,
-  actorUid:    string,
+  labId: string,
+  lotId: string,
+  lotSnapshot: Pick<CoagulacaoLot, 'nivel' | 'loteControle' | 'runCount' | 'validadeControle'>,
+  actorUid: string,
 ): Promise<void> {
   try {
     // Audit gravado no nível do lab — sobrevive à exclusão do lote
     const auditDocRef = doc(
       db,
-      COLLECTIONS.LABS, labId,
-      SUBCOLLECTIONS.CIQ_COAGULACAO_AUDIT, crypto.randomUUID(),
+      COLLECTIONS.LABS,
+      labId,
+      SUBCOLLECTIONS.CIQ_COAGULACAO_AUDIT,
+      crypto.randomUUID(),
     );
     await setDoc(auditDocRef, {
-      action:      'lot_delete',
+      action: 'lot_delete',
       lotId,
       actorUid,
       lotSnapshot,
-      createdAt:   serverTimestamp(),
+      createdAt: serverTimestamp(),
     });
 
     const runsSnap = await getDocs(runsCol(labId, lotId));
-    const batch    = writeBatch(db);
+    const batch = writeBatch(db);
     runsSnap.docs.forEach((d) => batch.delete(d.ref));
     batch.delete(lotRef(labId, lotId));
     await batch.commit();
@@ -250,15 +254,17 @@ export async function deleteCoagLot(
 export async function generateCoagRunCode(labId: string): Promise<string> {
   const counterRef = doc(
     db,
-    COLLECTIONS.LABS, labId,
-    SUBCOLLECTIONS.CIQ_COAGULACAO_META, 'counters',
+    COLLECTIONS.LABS,
+    labId,
+    SUBCOLLECTIONS.CIQ_COAGULACAO_META,
+    'counters',
   );
   const year = new Date().getFullYear();
 
   const nextCount = await runTransaction(db, async (tx) => {
-    const snap    = await tx.get(counterRef);
+    const snap = await tx.get(counterRef);
     const current = snap.exists() ? (snap.data().runCount as number) : 0;
-    const next    = current + 1;
+    const next = current + 1;
     tx.set(counterRef, { runCount: next, updatedAt: serverTimestamp() }, { merge: true });
     return next;
   });
@@ -272,17 +278,13 @@ export async function generateCoagRunCode(labId: string): Promise<string> {
  * Persiste uma corrida de coagulação no Firestore.
  * O run.id deve ser gerado pelo caller (crypto.randomUUID()).
  */
-export async function saveCoagRun(
-  labId: string,
-  lotId: string,
-  run:   CoagulacaoRun,
-): Promise<void> {
+export async function saveCoagRun(labId: string, lotId: string, run: CoagulacaoRun): Promise<void> {
   try {
     const { id, ...data } = run;
     await setDoc(runRef(labId, lotId, id), {
       ...data,
       // Garante que createdAt e confirmedAt são serverTimestamp no primeiro save
-      createdAt:   serverTimestamp(),
+      createdAt: serverTimestamp(),
       confirmedAt: serverTimestamp(),
     });
   } catch (err) {
@@ -294,12 +296,9 @@ export async function saveCoagRun(
  * Busca todas as corridas de um lote (uma vez, sem listener).
  * Usado pelo useSaveCoagRun para análise de Westgard antes de salvar.
  */
-export async function getCoagRuns(
-  labId: string,
-  lotId: string,
-): Promise<CoagulacaoRun[]> {
+export async function getCoagRuns(labId: string, lotId: string): Promise<CoagulacaoRun[]> {
   try {
-    const q    = query(runsCol(labId, lotId), orderBy('dataRealizacao', 'asc'));
+    const q = query(runsCol(labId, lotId), orderBy('dataRealizacao', 'asc'));
     const snap = await getDocs(q);
     return snap.docs.map((d) => ({
       id: d.id,
@@ -320,9 +319,9 @@ export async function uploadCoagRunImage(
   labId: string,
   lotId: string,
   runId: string,
-  file:  File,
+  file: File,
 ): Promise<string> {
-  const path       = storagePath.coagRunImage(labId, lotId, runId);
+  const path = storagePath.coagRunImage(labId, lotId, runId);
   const storageRef = ref(storage, path);
   await uploadBytes(storageRef, file, { contentType: file.type });
   return getDownloadURL(storageRef);
@@ -335,7 +334,7 @@ export async function uploadCoagRunImage(
  * Ordena por createdAt decrescente (mais recentes primeiro).
  */
 export function subscribeToCoagLots(
-  labId:    string,
+  labId: string,
   callback: (lots: CoagulacaoLot[]) => void,
   onError?: (err: Error) => void,
 ): Unsubscribe {
@@ -362,8 +361,8 @@ export function subscribeToCoagLots(
  * Ordena por dataRealizacao crescente (cronológico).
  */
 export function subscribeToCoagRuns(
-  labId:    string,
-  lotId:    string,
+  labId: string,
+  lotId: string,
   callback: (runs: CoagulacaoRun[]) => void,
   onError?: (err: Error) => void,
 ): Unsubscribe {
@@ -393,17 +392,20 @@ export function subscribeToCoagRuns(
  * Falha silenciosa — não bloqueia o fluxo principal.
  */
 export async function writeCoagAuditRecord(
-  labId:  string,
-  lotId:  string,
-  runId:  string,
+  labId: string,
+  lotId: string,
+  runId: string,
   record: Record<string, unknown>,
 ): Promise<void> {
   try {
     const auditDocRef = doc(
       db,
-      COLLECTIONS.LABS, labId,
-      SUBCOLLECTIONS.CIQ_COAGULACAO, lotId,
-      SUBCOLLECTIONS.AUDIT, runId,
+      COLLECTIONS.LABS,
+      labId,
+      SUBCOLLECTIONS.CIQ_COAGULACAO,
+      lotId,
+      SUBCOLLECTIONS.AUDIT,
+      runId,
     );
     await setDoc(auditDocRef, {
       ...record,

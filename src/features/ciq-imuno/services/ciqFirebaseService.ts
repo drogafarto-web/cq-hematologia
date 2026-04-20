@@ -45,8 +45,10 @@ function lotRef(labId: string, lotId: string) {
 function runsCol(labId: string, lotId: string) {
   return collection(
     db,
-    COLLECTIONS.LABS, labId,
-    SUBCOLLECTIONS.CIQ_IMUNO, lotId,
+    COLLECTIONS.LABS,
+    labId,
+    SUBCOLLECTIONS.CIQ_IMUNO,
+    lotId,
     SUBCOLLECTIONS.RUNS,
   );
 }
@@ -54,9 +56,12 @@ function runsCol(labId: string, lotId: string) {
 function runRef(labId: string, lotId: string, runId: string) {
   return doc(
     db,
-    COLLECTIONS.LABS, labId,
-    SUBCOLLECTIONS.CIQ_IMUNO, lotId,
-    SUBCOLLECTIONS.RUNS, runId,
+    COLLECTIONS.LABS,
+    labId,
+    SUBCOLLECTIONS.CIQ_IMUNO,
+    lotId,
+    SUBCOLLECTIONS.RUNS,
+    runId,
   );
 }
 
@@ -67,14 +72,14 @@ function runRef(labId: string, lotId: string, runId: string) {
  * Usado para re-aproveitar um lote já existente ao registrar uma nova corrida.
  */
 export async function findCIQLot(
-  labId:       string,
-  testType:    CIQImunoLot['testType'],
+  labId: string,
+  testType: CIQImunoLot['testType'],
   loteControle: string,
 ): Promise<CIQImunoLot | null> {
   try {
     const q = query(
       lotsCol(labId),
-      where('testType',     '==', testType),
+      where('testType', '==', testType),
       where('loteControle', '==', loteControle),
     );
     const snap = await getDocs(q);
@@ -92,10 +97,10 @@ export async function findCIQLot(
  */
 export async function createCIQLot(
   labId: string,
-  lot:   Omit<CIQImunoLot, 'id' | 'createdAt'>,
+  lot: Omit<CIQImunoLot, 'id' | 'createdAt'>,
 ): Promise<string> {
   try {
-    const id  = crypto.randomUUID();
+    const id = crypto.randomUUID();
     const ref = lotRef(labId, id);
     await setDoc(ref, {
       ...lot,
@@ -111,9 +116,11 @@ export async function createCIQLot(
  * Atualiza campos mutáveis de um lote (runCount, lotStatus, ciqDecision).
  */
 export async function updateCIQLot(
-  labId:  string,
-  lotId:  string,
-  fields: Partial<Pick<CIQImunoLot, 'runCount' | 'lotStatus' | 'ciqDecision' | 'decisionBy' | 'decisionAt'>>,
+  labId: string,
+  lotId: string,
+  fields: Partial<
+    Pick<CIQImunoLot, 'runCount' | 'lotStatus' | 'ciqDecision' | 'decisionBy' | 'decisionAt'>
+  >,
 ): Promise<void> {
   try {
     await updateDoc(lotRef(labId, lotId), fields as Record<string, unknown>);
@@ -127,9 +134,9 @@ export async function updateCIQLot(
  * Grava ciqDecision, decisionBy e decisionAt atomicamente.
  */
 export async function updateLotDecision(
-  labId:      string,
-  lotId:      string,
-  decision:   CIQImunoLot['ciqDecision'],
+  labId: string,
+  lotId: string,
+  decision: CIQImunoLot['ciqDecision'],
   decisionBy: string,
 ): Promise<void> {
   try {
@@ -150,26 +157,29 @@ export async function updateLotDecision(
  * Registra audit imutável em ciq-imuno/{lotId}/audit/{uuid} antes de persistir.
  */
 export async function updateLotMeta(
-  labId:      string,
-  lotId:      string,
-  fields:     Partial<Pick<CIQImunoLot, 'aberturaControle' | 'validadeControle'>>,
-  actorUid:   string,
+  labId: string,
+  lotId: string,
+  fields: Partial<Pick<CIQImunoLot, 'aberturaControle' | 'validadeControle'>>,
+  actorUid: string,
   prevValues: Partial<Pick<CIQImunoLot, 'aberturaControle' | 'validadeControle'>>,
 ): Promise<void> {
   try {
     // Audit first — imutável via Firestore Rules (só setDoc, nunca update/delete)
     const auditRef = doc(
       db,
-      COLLECTIONS.LABS, labId,
-      SUBCOLLECTIONS.CIQ_IMUNO, lotId,
-      SUBCOLLECTIONS.AUDIT, crypto.randomUUID(),
+      COLLECTIONS.LABS,
+      labId,
+      SUBCOLLECTIONS.CIQ_IMUNO,
+      lotId,
+      SUBCOLLECTIONS.AUDIT,
+      crypto.randomUUID(),
     );
     await setDoc(auditRef, {
-      action:     'lot_edit',
+      action: 'lot_edit',
       actorUid,
       prevValues,
-      newValues:  fields,
-      createdAt:  serverTimestamp(),
+      newValues: fields,
+      createdAt: serverTimestamp(),
     });
 
     await updateDoc(lotRef(labId, lotId), fields as Record<string, unknown>);
@@ -185,24 +195,30 @@ export async function updateLotMeta(
  * o registro sobrevive à exclusão do lote e é rastreável mesmo sem o documento.
  */
 export async function deleteCIQLot(
-  labId:       string,
-  lotId:       string,
+  labId: string,
+  lotId: string,
   lotSnapshot: Pick<CIQImunoLot, 'testType' | 'loteControle' | 'runCount' | 'validadeControle'>,
-  actorUid:    string,
+  actorUid: string,
 ): Promise<void> {
   try {
     // Audit gravado no nível do lab — sobrevive à exclusão do lote
-    const auditRef = doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.CIQ_AUDIT, crypto.randomUUID());
+    const auditRef = doc(
+      db,
+      COLLECTIONS.LABS,
+      labId,
+      SUBCOLLECTIONS.CIQ_AUDIT,
+      crypto.randomUUID(),
+    );
     await setDoc(auditRef, {
-      action:      'lot_delete',
+      action: 'lot_delete',
       lotId,
       actorUid,
       lotSnapshot,
-      createdAt:   serverTimestamp(),
+      createdAt: serverTimestamp(),
     });
 
     const runsSnap = await getDocs(runsCol(labId, lotId));
-    const batch    = writeBatch(db);
+    const batch = writeBatch(db);
     runsSnap.docs.forEach((d) => batch.delete(d.ref));
     batch.delete(lotRef(labId, lotId));
     await batch.commit();
@@ -222,12 +238,12 @@ export async function deleteCIQLot(
  */
 export async function generateRunCode(labId: string): Promise<string> {
   const counterRef = doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.CIQ_IMUNO_META, 'counters');
-  const year       = new Date().getFullYear();
+  const year = new Date().getFullYear();
 
   const nextCount = await runTransaction(db, async (tx) => {
-    const snap    = await tx.get(counterRef);
+    const snap = await tx.get(counterRef);
     const current = snap.exists() ? (snap.data().runCount as number) : 0;
-    const next    = current + 1;
+    const next = current + 1;
     tx.set(counterRef, { runCount: next, updatedAt: serverTimestamp() }, { merge: true });
     return next;
   });
@@ -241,17 +257,13 @@ export async function generateRunCode(labId: string): Promise<string> {
  * Persiste uma corrida CIQ-Imuno no Firestore.
  * O run.id deve ser gerado pelo caller (crypto.randomUUID()).
  */
-export async function saveCIQRun(
-  labId: string,
-  lotId: string,
-  run:   CIQImunoRun,
-): Promise<void> {
+export async function saveCIQRun(labId: string, lotId: string, run: CIQImunoRun): Promise<void> {
   try {
     const { id, ...data } = run;
     await setDoc(runRef(labId, lotId, id), {
       ...data,
       // Garante que createdAt e confirmedAt são serverTimestamp no primeiro save
-      createdAt:   serverTimestamp(),
+      createdAt: serverTimestamp(),
       confirmedAt: serverTimestamp(),
     });
   } catch (err) {
@@ -263,12 +275,9 @@ export async function saveCIQRun(
  * Busca todas as corridas de um lote (uma vez, sem listener).
  * Usado pelo useCIQWestgard para análise estatística antes de salvar.
  */
-export async function getCIQRuns(
-  labId: string,
-  lotId: string,
-): Promise<CIQImunoRun[]> {
+export async function getCIQRuns(labId: string, lotId: string): Promise<CIQImunoRun[]> {
   try {
-    const q    = query(runsCol(labId, lotId), orderBy('dataRealizacao', 'asc'));
+    const q = query(runsCol(labId, lotId), orderBy('dataRealizacao', 'asc'));
     const snap = await getDocs(q);
     return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<CIQImunoRun, 'id'>) }));
   } catch (err) {
@@ -286,9 +295,9 @@ export async function uploadStripImage(
   labId: string,
   lotId: string,
   runId: string,
-  file:  File,
+  file: File,
 ): Promise<string> {
-  const path     = storagePath.imunoStripImage(labId, lotId, runId);
+  const path = storagePath.imunoStripImage(labId, lotId, runId);
   const storageRef = ref(storage, path);
   await uploadBytes(storageRef, file, { contentType: file.type });
   return getDownloadURL(storageRef);
@@ -301,7 +310,7 @@ export async function uploadStripImage(
  * Ordena por createdAt decrescente (mais recentes primeiro).
  */
 export function subscribeToCIQLots(
-  labId:    string,
+  labId: string,
   callback: (lots: CIQImunoLot[]) => void,
   onError?: (err: Error) => void,
 ): Unsubscribe {
@@ -328,8 +337,8 @@ export function subscribeToCIQLots(
  * Ordena por dataRealizacao crescente (cronológico).
  */
 export function subscribeToCIQRuns(
-  labId:    string,
-  lotId:    string,
+  labId: string,
+  lotId: string,
   callback: (runs: CIQImunoRun[]) => void,
   onError?: (err: Error) => void,
 ): Unsubscribe {
@@ -358,17 +367,20 @@ export function subscribeToCIQRuns(
  * Firestore Rules bloqueiam update/delete nesta subcoleção.
  */
 export async function writeCIQAuditRecord(
-  labId:  string,
-  lotId:  string,
-  runId:  string,
+  labId: string,
+  lotId: string,
+  runId: string,
   record: Record<string, unknown>,
 ): Promise<void> {
   try {
     const auditRef = doc(
       db,
-      COLLECTIONS.LABS, labId,
-      SUBCOLLECTIONS.CIQ_IMUNO, lotId,
-      SUBCOLLECTIONS.AUDIT, runId,
+      COLLECTIONS.LABS,
+      labId,
+      SUBCOLLECTIONS.CIQ_IMUNO,
+      lotId,
+      SUBCOLLECTIONS.AUDIT,
+      runId,
     );
     await setDoc(auditRef, {
       ...record,
@@ -383,8 +395,16 @@ export async function writeCIQAuditRecord(
 // ─── Test Types config ────────────────────────────────────────────────────────
 
 const DEFAULT_TEST_TYPES = [
-  'HCG', 'BhCG', 'HIV', 'HBsAg', 'Anti-HCV',
-  'Sifilis', 'Dengue', 'COVID', 'PCR', 'Troponina',
+  'HCG',
+  'BhCG',
+  'HIV',
+  'HBsAg',
+  'Anti-HCV',
+  'Sifilis',
+  'Dengue',
+  'COVID',
+  'PCR',
+  'Troponina',
 ];
 
 function testTypesDocRef(labId: string) {
@@ -397,7 +417,7 @@ function testTypesDocRef(labId: string) {
  * tratar a ausência de doc e o campo inválido no mesmo ponto.
  */
 async function readTypesInTx(
-  tx:  Parameters<Parameters<typeof runTransaction>[1]>[0],
+  tx: Parameters<Parameters<typeof runTransaction>[1]>[0],
   ref: ReturnType<typeof testTypesDocRef>,
 ): Promise<string[]> {
   const snap = await tx.get(ref);
@@ -413,7 +433,7 @@ async function readTypesInTx(
  * de forma atômica, evitando races entre seed e primeira adição.
  */
 export function subscribeToTestTypes(
-  labId:    string,
+  labId: string,
   callback: (types: string[]) => void,
   onError?: (err: Error) => void,
 ): Unsubscribe {
@@ -455,7 +475,7 @@ export async function addTestType(labId: string, name: string): Promise<void> {
   try {
     await runTransaction(db, async (tx) => {
       const curr = await readTypesInTx(tx, ref);
-      if (curr.some(t => t.toLowerCase() === trimmed.toLowerCase())) return;
+      if (curr.some((t) => t.toLowerCase() === trimmed.toLowerCase())) return;
       tx.set(ref, { types: [...curr, trimmed], updatedAt: serverTimestamp() });
     });
   } catch (err) {
@@ -471,7 +491,7 @@ export async function removeTestType(labId: string, name: string): Promise<void>
   try {
     await runTransaction(db, async (tx) => {
       const curr = await readTypesInTx(tx, ref);
-      const next = curr.filter(t => t !== name);
+      const next = curr.filter((t) => t !== name);
       if (next.length === curr.length) return; // nada a remover
       tx.set(ref, { types: next, updatedAt: serverTimestamp() });
     });
@@ -485,7 +505,7 @@ export async function removeTestType(labId: string, name: string): Promise<void>
  * Bloqueia se o novo nome colide (case-insensitive) com outro existente.
  */
 export async function renameTestType(
-  labId:   string,
+  labId: string,
   oldName: string,
   newName: string,
 ): Promise<void> {
@@ -495,13 +515,11 @@ export async function renameTestType(
   try {
     await runTransaction(db, async (tx) => {
       const curr = await readTypesInTx(tx, ref);
-      const collides = curr.some(
-        t => t !== oldName && t.toLowerCase() === trimmed.toLowerCase(),
-      );
+      const collides = curr.some((t) => t !== oldName && t.toLowerCase() === trimmed.toLowerCase());
       if (collides) {
         throw new Error(`Já existe um teste com o nome "${trimmed}".`);
       }
-      const next = curr.map(t => (t === oldName ? trimmed : t));
+      const next = curr.map((t) => (t === oldName ? trimmed : t));
       tx.set(ref, { types: next, updatedAt: serverTimestamp() });
     });
   } catch (err) {
@@ -523,7 +541,7 @@ export async function reorderTestTypes(labId: string, ordered: string[]): Promis
         throw new Error('Reordenação inválida: a lista divergiu. Recarregue e tente novamente.');
       }
       const currSet = new Set(curr);
-      if (ordered.some(t => !currSet.has(t))) {
+      if (ordered.some((t) => !currSet.has(t))) {
         throw new Error('Reordenação inválida: conteúdo divergiu. Recarregue e tente novamente.');
       }
       tx.set(ref, { types: ordered, updatedAt: serverTimestamp() });

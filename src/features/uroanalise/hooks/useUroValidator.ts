@@ -75,7 +75,7 @@ export interface UroValidatorResult {
 const MIN_RUNS_FOR_RATE_RULE = 10;
 
 /** Percentual máximo de NCs aceitável no lote (10%). */
-const MAX_NC_RATE = 0.10;
+const MAX_NC_RATE = 0.1;
 
 /** Janela de runs recentes para a regra de 4+ NCs. */
 const WINDOW_RECENT_RUNS = 10;
@@ -138,7 +138,7 @@ export function validateUroResultado(
   if (valor === null) return null;
 
   const criterioNivel = URO_CRITERIOS[nivel];
-  const criterio      = criterioNivel[analito];
+  const criterio = criterioNivel[analito];
 
   if (!criterio) return null;
 
@@ -187,7 +187,7 @@ export function avaliarRunUro(run: UroanaliseRun): UroRunAvaliacao {
   const conformidade: 'A' | 'R' = analitosNaoConformes.length > 0 ? 'R' : 'A';
 
   return {
-    runId:                  run.id,
+    runId: run.id,
     conformidadePorAnalito,
     analitosNaoConformes,
     conformidade,
@@ -255,7 +255,7 @@ export function computeUroValidator(
   }
 
   // ── Regra: consecutivos_4nc (4+ NCs nos últimos 10 runs) ─────────────────────
-  const ultimos10  = recentes.slice(0, WINDOW_RECENT_RUNS);
+  const ultimos10 = recentes.slice(0, WINDOW_RECENT_RUNS);
   const ncNaJanela = ultimos10.filter((r) => byRun.get(r.id)?.conformidade === 'R').length;
   if (ncNaJanela >= THRESHOLD_WINDOW_NC) {
     alerts.push('consecutivos_4nc');
@@ -273,9 +273,7 @@ export function computeUroValidator(
   const isReprovado = alerts.includes('taxa_nc_10pct') || alerts.includes('lote_expirado');
 
   const lotStatus: UroLotStatus =
-    alerts.length === 0 ? 'valido'    :
-    isReprovado         ? 'reprovado' :
-                          'atencao';
+    alerts.length === 0 ? 'valido' : isReprovado ? 'reprovado' : 'atencao';
 
   return { byRun, lotStatus, alerts };
 }
@@ -305,8 +303,5 @@ export function useUroValidator(
   runs: UroanaliseRun[],
   validadeControle: string,
 ): UroValidatorResult {
-  return useMemo(
-    () => computeUroValidator(runs, validadeControle),
-    [runs, validadeControle],
-  );
+  return useMemo(() => computeUroValidator(runs, validadeControle), [runs, validadeControle]);
 }

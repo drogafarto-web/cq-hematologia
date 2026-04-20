@@ -18,16 +18,16 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-const db   = admin.firestore();
+const db = admin.firestore();
 const auth = admin.auth();
 
 interface UserDocData {
   isSuperAdmin?: boolean;
-  displayName?:  string;
-  email?:        string;
-  disabled?:     boolean;
-  contact?:      Record<string, unknown>;
-  audit?:        Record<string, unknown>;
+  displayName?: string;
+  email?: string;
+  disabled?: boolean;
+  contact?: Record<string, unknown>;
+  audit?: Record<string, unknown>;
 }
 
 async function migrate(): Promise<void> {
@@ -38,10 +38,10 @@ async function migrate(): Promise<void> {
 
   let updated = 0;
   const skipped = 0;
-  let errors  = 0;
+  let errors = 0;
 
   for (const docSnap of snap.docs) {
-    const uid  = docSnap.id;
+    const uid = docSnap.id;
     const data = docSnap.data() as UserDocData;
 
     try {
@@ -52,8 +52,8 @@ async function migrate(): Promise<void> {
       // 2. Normalise missing Firestore fields (never overwrite existing values)
       const patch: Record<string, unknown> = {};
 
-      if (data.disabled === undefined)   patch.disabled = false;
-      if (!data.contact)                 patch.contact  = {};
+      if (data.disabled === undefined) patch.disabled = false;
+      if (!data.contact) patch.contact = {};
       if (!data.audit) {
         patch['audit.migratedAt'] = admin.firestore.FieldValue.serverTimestamp();
       }

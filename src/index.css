@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /*
   Dark mode via class — Tailwind v4
@@ -28,13 +28,21 @@ button:active:not(:disabled) {
 
 /* Soltar o botão volta com spring (transição na ausência do :active) */
 button:not(:active):not(:disabled) {
-  transition: transform 320ms var(--ease-spring), background-color 150ms ease, color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, opacity 150ms ease;
+  transition:
+    transform 320ms var(--ease-spring),
+    background-color 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    opacity 150ms ease;
 }
 
 /* ─── iOS-feel: reduced-motion override ─────────────────────────────────────
    Respeita preferência de acessibilidade do sistema. */
 @media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
+  *,
+  ::before,
+  ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -54,8 +62,20 @@ button:not(:active):not(:disabled) {
    distracting from the content. Pure CSS — zero JS or image deps.         */
 .lj-grid-bg {
   background-image:
-    repeating-linear-gradient(90deg, rgba(139, 92, 246, 0.06) 0px, rgba(139, 92, 246, 0.06) 1px, transparent 1px, transparent 40px),
-    repeating-linear-gradient(0deg, rgba(139, 92, 246, 0.06) 0px, rgba(139, 92, 246, 0.06) 1px, transparent 1px, transparent 40px);
+    repeating-linear-gradient(
+      90deg,
+      rgba(139, 92, 246, 0.06) 0px,
+      rgba(139, 92, 246, 0.06) 1px,
+      transparent 1px,
+      transparent 40px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(139, 92, 246, 0.06) 0px,
+      rgba(139, 92, 246, 0.06) 1px,
+      transparent 1px,
+      transparent 40px
+    );
 }
 
 /* ─── Progress bar: stats-source toggle ─────────────────────────────────────
@@ -107,7 +127,6 @@ button:not(:active):not(:disabled) {
    .no-print  — interactive elements hidden when printing
    .print-avoid-break — keeps chart + header together on the same page     */
 @media print {
-
   /* ── Force A4 page geometry ───────────────────────────────────────────────── */
   @page {
     size: A4 portrait;

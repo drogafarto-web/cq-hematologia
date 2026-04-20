@@ -56,8 +56,10 @@ function lotRef(labId: string, lotId: string) {
 function runsCol(labId: string, lotId: string) {
   return collection(
     db,
-    COLLECTIONS.LABS, labId,
-    SUBCOLLECTIONS.CIQ_UROANALISE, lotId,
+    COLLECTIONS.LABS,
+    labId,
+    SUBCOLLECTIONS.CIQ_UROANALISE,
+    lotId,
     SUBCOLLECTIONS.RUNS,
   );
 }
@@ -66,9 +68,12 @@ function runsCol(labId: string, lotId: string) {
 function runRef(labId: string, lotId: string, runId: string) {
   return doc(
     db,
-    COLLECTIONS.LABS, labId,
-    SUBCOLLECTIONS.CIQ_UROANALISE, lotId,
-    SUBCOLLECTIONS.RUNS, runId,
+    COLLECTIONS.LABS,
+    labId,
+    SUBCOLLECTIONS.CIQ_UROANALISE,
+    lotId,
+    SUBCOLLECTIONS.RUNS,
+    runId,
   );
 }
 
@@ -82,14 +87,14 @@ function runRef(labId: string, lotId: string, runId: string) {
  * Usado para reaproveitar um lote ao registrar uma nova corrida.
  */
 export async function findUroLot(
-  labId:        string,
-  nivel:        UroanaliseLot['nivel'],
+  labId: string,
+  nivel: UroanaliseLot['nivel'],
   loteControle: string,
 ): Promise<UroanaliseLot | null> {
   try {
     const q = query(
       lotsCol(labId),
-      where('nivel',        '==', nivel),
+      where('nivel', '==', nivel),
       where('loteControle', '==', loteControle),
     );
     const snap = await getDocs(q);
@@ -107,10 +112,10 @@ export async function findUroLot(
  */
 export async function createUroLot(
   labId: string,
-  lot:   Omit<UroanaliseLot, 'id' | 'createdAt'>,
+  lot: Omit<UroanaliseLot, 'id' | 'createdAt'>,
 ): Promise<string> {
   try {
-    const id     = crypto.randomUUID();
+    const id = crypto.randomUUID();
     const newRef = lotRef(labId, id);
     await setDoc(newRef, {
       ...lot,
@@ -126,11 +131,11 @@ export async function createUroLot(
  * Atualiza campos mutáveis de um lote (runCount, lotStatus, uroDecision, decisão).
  */
 export async function updateUroLot(
-  labId:  string,
-  lotId:  string,
-  fields: Partial<Pick<UroanaliseLot,
-    'runCount' | 'lotStatus' | 'uroDecision' | 'decisionBy' | 'decisionAt'
-  >>,
+  labId: string,
+  lotId: string,
+  fields: Partial<
+    Pick<UroanaliseLot, 'runCount' | 'lotStatus' | 'uroDecision' | 'decisionBy' | 'decisionAt'>
+  >,
 ): Promise<void> {
   try {
     await updateDoc(lotRef(labId, lotId), fields as Record<string, unknown>);
@@ -144,9 +149,9 @@ export async function updateUroLot(
  * Grava uroDecision, decisionBy e decisionAt atomicamente.
  */
 export async function updateUroLotDecision(
-  labId:      string,
-  lotId:      string,
-  decision:   UroanaliseLot['uroDecision'],
+  labId: string,
+  lotId: string,
+  decision: UroanaliseLot['uroDecision'],
   decisionBy: string,
 ): Promise<void> {
   try {
@@ -168,30 +173,33 @@ export async function updateUroLotDecision(
  * Registra audit imutável em ciq-uroanalise/{lotId}/audit/{uuid} ANTES de persistir.
  */
 export async function updateUroLotMeta(
-  labId:      string,
-  lotId:      string,
-  fields:     Partial<Pick<UroanaliseLot,
-    'aberturaControle' | 'validadeControle' | 'resultadosEsperados'
-  >>,
-  actorUid:   string,
-  prevValues: Partial<Pick<UroanaliseLot,
-    'aberturaControle' | 'validadeControle' | 'resultadosEsperados'
-  >>,
+  labId: string,
+  lotId: string,
+  fields: Partial<
+    Pick<UroanaliseLot, 'aberturaControle' | 'validadeControle' | 'resultadosEsperados'>
+  >,
+  actorUid: string,
+  prevValues: Partial<
+    Pick<UroanaliseLot, 'aberturaControle' | 'validadeControle' | 'resultadosEsperados'>
+  >,
 ): Promise<void> {
   try {
     // Audit first — imutável via Firestore Rules (só create, nunca update/delete)
     const auditDocRef = doc(
       db,
-      COLLECTIONS.LABS, labId,
-      SUBCOLLECTIONS.CIQ_UROANALISE, lotId,
-      SUBCOLLECTIONS.AUDIT, crypto.randomUUID(),
+      COLLECTIONS.LABS,
+      labId,
+      SUBCOLLECTIONS.CIQ_UROANALISE,
+      lotId,
+      SUBCOLLECTIONS.AUDIT,
+      crypto.randomUUID(),
     );
     await setDoc(auditDocRef, {
-      action:    'lot_edit',
+      action: 'lot_edit',
       actorUid,
       prevValues,
-      newValues:  fields,
-      createdAt:  serverTimestamp(),
+      newValues: fields,
+      createdAt: serverTimestamp(),
     });
 
     await updateDoc(lotRef(labId, lotId), fields as Record<string, unknown>);
@@ -207,30 +215,30 @@ export async function updateUroLotMeta(
  * o registro sobrevive à exclusão do lote e é rastreável mesmo sem o documento.
  */
 export async function deleteUroLot(
-  labId:       string,
-  lotId:       string,
-  lotSnapshot: Pick<UroanaliseLot,
-    'nivel' | 'loteControle' | 'runCount' | 'validadeControle'
-  >,
-  actorUid:    string,
+  labId: string,
+  lotId: string,
+  lotSnapshot: Pick<UroanaliseLot, 'nivel' | 'loteControle' | 'runCount' | 'validadeControle'>,
+  actorUid: string,
 ): Promise<void> {
   try {
     // Audit gravado no nível do lab — sobrevive à exclusão do lote
     const auditDocRef = doc(
       db,
-      COLLECTIONS.LABS, labId,
-      SUBCOLLECTIONS.CIQ_UROANALISE_AUDIT, crypto.randomUUID(),
+      COLLECTIONS.LABS,
+      labId,
+      SUBCOLLECTIONS.CIQ_UROANALISE_AUDIT,
+      crypto.randomUUID(),
     );
     await setDoc(auditDocRef, {
-      action:      'lot_delete',
+      action: 'lot_delete',
       lotId,
       actorUid,
       lotSnapshot,
-      createdAt:   serverTimestamp(),
+      createdAt: serverTimestamp(),
     });
 
     const runsSnap = await getDocs(runsCol(labId, lotId));
-    const batch    = writeBatch(db);
+    const batch = writeBatch(db);
     runsSnap.docs.forEach((d) => batch.delete(d.ref));
     batch.delete(lotRef(labId, lotId));
     await batch.commit();
@@ -251,15 +259,17 @@ export async function deleteUroLot(
 export async function generateUroRunCode(labId: string): Promise<string> {
   const counterRef = doc(
     db,
-    COLLECTIONS.LABS, labId,
-    SUBCOLLECTIONS.CIQ_UROANALISE_META, 'counters',
+    COLLECTIONS.LABS,
+    labId,
+    SUBCOLLECTIONS.CIQ_UROANALISE_META,
+    'counters',
   );
   const year = new Date().getFullYear();
 
   const nextCount = await runTransaction(db, async (tx) => {
-    const snap    = await tx.get(counterRef);
+    const snap = await tx.get(counterRef);
     const current = snap.exists() ? (snap.data().runCount as number) : 0;
-    const next    = current + 1;
+    const next = current + 1;
     tx.set(counterRef, { runCount: next, updatedAt: serverTimestamp() }, { merge: true });
     return next;
   });
@@ -273,17 +283,13 @@ export async function generateUroRunCode(labId: string): Promise<string> {
  * Persiste uma corrida de uroanálise no Firestore.
  * O run.id deve ser gerado pelo caller (crypto.randomUUID()).
  */
-export async function saveUroRun(
-  labId: string,
-  lotId: string,
-  run:   UroanaliseRun,
-): Promise<void> {
+export async function saveUroRun(labId: string, lotId: string, run: UroanaliseRun): Promise<void> {
   try {
     const { id, ...data } = run;
     await setDoc(runRef(labId, lotId, id), {
       ...data,
       // Garante que createdAt e confirmedAt são serverTimestamp no primeiro save
-      createdAt:   serverTimestamp(),
+      createdAt: serverTimestamp(),
       confirmedAt: serverTimestamp(),
     });
   } catch (err) {
@@ -295,12 +301,9 @@ export async function saveUroRun(
  * Busca todas as corridas de um lote (uma vez, sem listener).
  * Usado pelo useSaveUroRun para análise de conformidade antes de salvar.
  */
-export async function getUroRuns(
-  labId: string,
-  lotId: string,
-): Promise<UroanaliseRun[]> {
+export async function getUroRuns(labId: string, lotId: string): Promise<UroanaliseRun[]> {
   try {
-    const q    = query(runsCol(labId, lotId), orderBy('dataRealizacao', 'asc'));
+    const q = query(runsCol(labId, lotId), orderBy('dataRealizacao', 'asc'));
     const snap = await getDocs(q);
     return snap.docs.map((d) => ({
       id: d.id,
@@ -321,9 +324,9 @@ export async function uploadUroTiraImage(
   labId: string,
   lotId: string,
   runId: string,
-  file:  File,
+  file: File,
 ): Promise<string> {
-  const path       = storagePath.uroTiraImage(labId, lotId, runId);
+  const path = storagePath.uroTiraImage(labId, lotId, runId);
   const storageRef = ref(storage, path);
   await uploadBytes(storageRef, file, { contentType: file.type });
   return getDownloadURL(storageRef);
@@ -336,7 +339,7 @@ export async function uploadUroTiraImage(
  * Ordena por createdAt decrescente (mais recentes primeiro).
  */
 export function subscribeToUroLots(
-  labId:    string,
+  labId: string,
   callback: (lots: UroanaliseLot[]) => void,
   onError?: (err: Error) => void,
 ): Unsubscribe {
@@ -363,8 +366,8 @@ export function subscribeToUroLots(
  * Ordena por dataRealizacao crescente (cronológico).
  */
 export function subscribeToUroRuns(
-  labId:    string,
-  lotId:    string,
+  labId: string,
+  lotId: string,
   callback: (runs: UroanaliseRun[]) => void,
   onError?: (err: Error) => void,
 ): Unsubscribe {
@@ -394,17 +397,20 @@ export function subscribeToUroRuns(
  * Falha silenciosa — não bloqueia o fluxo principal.
  */
 export async function writeUroAuditRecord(
-  labId:  string,
-  lotId:  string,
-  runId:  string,
+  labId: string,
+  lotId: string,
+  runId: string,
   record: Record<string, unknown>,
 ): Promise<void> {
   try {
     const auditDocRef = doc(
       db,
-      COLLECTIONS.LABS, labId,
-      SUBCOLLECTIONS.CIQ_UROANALISE, lotId,
-      SUBCOLLECTIONS.AUDIT, runId,
+      COLLECTIONS.LABS,
+      labId,
+      SUBCOLLECTIONS.CIQ_UROANALISE,
+      lotId,
+      SUBCOLLECTIONS.AUDIT,
+      runId,
     );
     await setDoc(auditDocRef, {
       ...record,

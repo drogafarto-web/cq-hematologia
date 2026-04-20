@@ -17,9 +17,9 @@ import type { CIQImunoLot } from '../types/CIQImuno';
 export function useCIQLots() {
   const labId = useActiveLabId();
 
-  const [lots,      setLots]      = useState<CIQImunoLot[]>([]);
+  const [lots, setLots] = useState<CIQImunoLot[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error,     setError]     = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!labId) {

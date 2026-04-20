@@ -11,23 +11,27 @@ function SettingsIcon() {
   return (
     <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
       <circle cx="6.5" cy="6.5" r="1.5" stroke="currentColor" strokeWidth="1.3" />
-      <path d="M6.5 1v1.2M6.5 10.8V12M1 6.5h1.2M10.8 6.5H12M2.4 2.4l.85.85M9.75 9.75l.85.85M2.4 10.6l.85-.85M9.75 3.25l.85-.85"
-            stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <path
+        d="M6.5 1v1.2M6.5 10.8V12M1 6.5h1.2M10.8 6.5H12M2.4 2.4l.85.85M9.75 9.75l.85.85M2.4 10.6l.85-.85M9.75 3.25l.85-.85"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
 
 const CARGO_OPTIONS: { value: CIQImunoFormData['cargo']; label: string }[] = [
-  { value: 'biomedico',    label: 'Biomédico(a)' },
-  { value: 'tecnico',      label: 'Técnico(a) de Laboratório' },
+  { value: 'biomedico', label: 'Biomédico(a)' },
+  { value: 'tecnico', label: 'Técnico(a) de Laboratório' },
   { value: 'farmaceutico', label: 'Farmacêutico(a)' },
 ];
 
 const today = () => {
   const now = new Date();
-  const y   = now.getFullYear();
-  const m   = String(now.getMonth() + 1).padStart(2, '0');
-  const d   = String(now.getDate()).padStart(2, '0');
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
 };
 
@@ -43,18 +47,25 @@ const INPUT = [
 
 const INPUT_ERR = INPUT.replace(
   'border-slate-200 dark:border-white/[0.09]',
-  'border-red-400/60 dark:border-red-400/40'
+  'border-red-400/60 dark:border-red-400/40',
 );
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function Label({ htmlFor, children, required }: {
+function Label({
+  htmlFor,
+  children,
+  required,
+}: {
   htmlFor: string;
   children: React.ReactNode;
   required?: boolean;
 }) {
   return (
-    <label htmlFor={htmlFor} className="block text-xs font-medium text-slate-500 dark:text-white/45 mb-1.5 ml-0.5">
+    <label
+      htmlFor={htmlFor}
+      className="block text-xs font-medium text-slate-500 dark:text-white/45 mb-1.5 ml-0.5"
+    >
       {children}
       {required && <span className="text-red-400 ml-0.5">*</span>}
     </label>
@@ -75,7 +86,12 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 }
 
 /** Toggle R / NR */
-function RNRToggle({ id, value, onChange, error }: {
+function RNRToggle({
+  id,
+  value,
+  onChange,
+  error,
+}: {
   id: string;
   value: 'R' | 'NR' | undefined;
   onChange: (v: 'R' | 'NR') => void;
@@ -113,12 +129,14 @@ function ExpiryWarning({ label, days }: { label: string; days: number }) {
   if (days >= 30) return null;
   const expired = days < 0;
   return (
-    <div className={[
-      'flex items-start gap-2 px-3.5 py-2.5 rounded-xl border text-xs mt-1.5',
-      expired
-        ? 'bg-red-500/[0.07] border-red-400/20 text-red-500 dark:text-red-400'
-        : 'bg-amber-500/[0.07] border-amber-500/20 text-amber-600 dark:text-amber-400',
-    ].join(' ')}>
+    <div
+      className={[
+        'flex items-start gap-2 px-3.5 py-2.5 rounded-xl border text-xs mt-1.5',
+        expired
+          ? 'bg-red-500/[0.07] border-red-400/20 text-red-500 dark:text-red-400'
+          : 'bg-amber-500/[0.07] border-amber-500/20 text-amber-600 dark:text-amber-400',
+      ].join(' ')}
+    >
       <span className="mt-px shrink-0">{expired ? '✕' : '⚠'}</span>
       <span>
         {expired
@@ -143,22 +161,28 @@ function ReagentOpenAlert() {
 /** Aprovação derivada automaticamente — resultadoObtido === resultadoEsperado */
 function ApprovalBadge({ conforme }: { conforme: boolean }) {
   return (
-    <div className={[
-      'flex items-center gap-3 px-3.5 py-3 rounded-xl border',
-      conforme
-        ? 'bg-emerald-500/[0.07] border-emerald-500/25'
-        : 'bg-red-500/[0.07] border-red-400/20',
-    ].join(' ')}>
-      <div className={[
-        'w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-sm font-bold',
+    <div
+      className={[
+        'flex items-center gap-3 px-3.5 py-3 rounded-xl border',
         conforme
-          ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
-          : 'bg-red-500/15 text-red-600 dark:text-red-400',
-      ].join(' ')}>
+          ? 'bg-emerald-500/[0.07] border-emerald-500/25'
+          : 'bg-red-500/[0.07] border-red-400/20',
+      ].join(' ')}
+    >
+      <div
+        className={[
+          'w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-sm font-bold',
+          conforme
+            ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+            : 'bg-red-500/15 text-red-600 dark:text-red-400',
+        ].join(' ')}
+      >
         {conforme ? '✓' : '✕'}
       </div>
       <div>
-        <p className={`text-sm font-semibold ${conforme ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+        <p
+          className={`text-sm font-semibold ${conforme ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}
+        >
           {conforme ? 'Aprovado' : 'Não aprovado'}
         </p>
         <p className="text-[10px] text-slate-400 dark:text-white/30 mt-0.5">
@@ -174,7 +198,7 @@ function ApprovalBadge({ conforme }: { conforme: boolean }) {
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface CIQImunoFormProps {
-  onSave:    (data: CIQImunoFormData) => Promise<void>;
+  onSave: (data: CIQImunoFormData) => Promise<void>;
   isSaving?: boolean;
   onCancel?: () => void;
 }
@@ -184,9 +208,9 @@ interface CIQImunoFormProps {
 export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFormProps) {
   const user = useUser();
   const {
-    types:      testTypes,
-    loading:    typesLoading,
-    error:      typesError,
+    types: testTypes,
+    loading: typesLoading,
+    error: typesError,
     addType,
     renameType,
     removeType,
@@ -195,13 +219,18 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
 
   const [form, setForm] = useState<Partial<CIQImunoFormData>>({
     resultadoEsperado: 'R',
-    dataRealizacao:    today(),
+    dataRealizacao: today(),
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   function set<K extends keyof CIQImunoFormData>(key: K, value: CIQImunoFormData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
-    if (errors[key]) setErrors((prev) => { const n = { ...prev }; delete n[key]; return n; });
+    if (errors[key])
+      setErrors((prev) => {
+        const n = { ...prev };
+        delete n[key];
+        return n;
+      });
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -213,11 +242,7 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
 
     if (!result.success) {
       const flat = result.error.flatten().fieldErrors;
-      setErrors(
-        Object.fromEntries(
-          Object.entries(flat).map(([k, v]) => [k, v?.[0] ?? ''])
-        )
-      );
+      setErrors(Object.fromEntries(Object.entries(flat).map(([k, v]) => [k, v?.[0] ?? ''])));
       const firstErrEl = document.querySelector('[data-field-error]');
       firstErrEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
@@ -229,31 +254,37 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
 
   const ctrlDays = form.validadeControle ? daysToExpiry(form.validadeControle) : null;
   const reagDays = form.validadeReagente ? daysToExpiry(form.validadeReagente) : null;
-  const naoConforme = form.resultadoObtido !== undefined &&
-                      form.resultadoEsperado !== undefined &&
-                      form.resultadoObtido !== form.resultadoEsperado;
-  const aprovacaoDerived = form.resultadoObtido !== undefined && form.resultadoEsperado !== undefined;
+  const naoConforme =
+    form.resultadoObtido !== undefined &&
+    form.resultadoEsperado !== undefined &&
+    form.resultadoObtido !== form.resultadoEsperado;
+  const aprovacaoDerived =
+    form.resultadoObtido !== undefined && form.resultadoEsperado !== undefined;
 
   // Data de hoje formatada para exibição
   const todayFormatted = new Date().toLocaleDateString('pt-BR', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
   });
 
   return (
     <form onSubmit={handleSubmit} className="space-y-7" noValidate>
-
       {/* ── Operador ───────────────────────────────────────────────────────── */}
       <div>
         <SectionTitle>Operador</SectionTitle>
         <div className="space-y-3">
-
           {/* Responsável — read-only, vem do usuário logado */}
-          <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl
+          <div
+            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl
                           bg-slate-50 dark:bg-white/[0.04]
-                          border border-slate-200 dark:border-white/[0.07]">
-            <div className="w-8 h-8 rounded-full bg-emerald-500/15 border border-emerald-500/25
+                          border border-slate-200 dark:border-white/[0.07]"
+          >
+            <div
+              className="w-8 h-8 rounded-full bg-emerald-500/15 border border-emerald-500/25
                             flex items-center justify-center shrink-0
-                            text-emerald-600 dark:text-emerald-400 text-xs font-bold select-none">
+                            text-emerald-600 dark:text-emerald-400 text-xs font-bold select-none"
+            >
               {(user?.displayName ?? user?.email ?? 'O').charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
@@ -267,7 +298,9 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
           </div>
 
           <div>
-            <Label htmlFor="cargo" required>Cargo profissional</Label>
+            <Label htmlFor="cargo" required>
+              Cargo profissional
+            </Label>
             <select
               id="cargo"
               title="Cargo profissional do operador"
@@ -275,9 +308,13 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
               onChange={(e) => set('cargo', e.target.value as CIQImunoFormData['cargo'])}
               className={errors.cargo ? INPUT_ERR : INPUT}
             >
-              <option value="" disabled>Selecione o cargo…</option>
+              <option value="" disabled>
+                Selecione o cargo…
+              </option>
               {CARGO_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
               ))}
             </select>
             <FieldError msg={errors.cargo} />
@@ -309,27 +346,45 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
           </button>
         </div>
         <div>
-          <Label htmlFor="testType" required>Imunoensaio</Label>
+          <Label htmlFor="testType" required>
+            Imunoensaio
+          </Label>
           {typesError && !typesLoading && (
-            <div className="flex items-start gap-2 px-3.5 py-2.5 rounded-xl border text-xs mb-2
-                            bg-red-500/[0.07] border-red-500/20 text-red-600 dark:text-red-400">
+            <div
+              className="flex items-start gap-2 px-3.5 py-2.5 rounded-xl border text-xs mb-2
+                            bg-red-500/[0.07] border-red-500/20 text-red-600 dark:text-red-400"
+            >
               <span className="mt-px shrink-0">⚠</span>
-              <span>
-                Não foi possível carregar os tipos de teste: {typesError}
-              </span>
+              <span>Não foi possível carregar os tipos de teste: {typesError}</span>
             </div>
           )}
           {typesLoading ? (
-            <div className={`${INPUT} flex items-center gap-2 text-slate-400 dark:text-white/25 cursor-default`}>
+            <div
+              className={`${INPUT} flex items-center gap-2 text-slate-400 dark:text-white/25 cursor-default`}
+            >
               <svg className="animate-spin w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
-                <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeOpacity="0.25"
+                />
+                <path
+                  d="M22 12a10 10 0 00-10-10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
               </svg>
               Carregando tipos de teste…
             </div>
           ) : testTypes.length === 0 ? (
-            <div className="flex items-start gap-2 px-3.5 py-2.5 rounded-xl border text-xs mt-0.5
-                            bg-amber-500/[0.07] border-amber-500/20 text-amber-600 dark:text-amber-400">
+            <div
+              className="flex items-start gap-2 px-3.5 py-2.5 rounded-xl border text-xs mt-0.5
+                            bg-amber-500/[0.07] border-amber-500/20 text-amber-600 dark:text-amber-400"
+            >
               <span className="mt-px shrink-0">⚠</span>
               <span>
                 Nenhum tipo de teste cadastrado.{' '}
@@ -339,8 +394,8 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
                   className="underline font-medium"
                 >
                   Cadastre um aqui
-                </button>
-                {' '}para continuar.
+                </button>{' '}
+                para continuar.
               </span>
             </div>
           ) : (
@@ -351,9 +406,13 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
               onChange={(e) => set('testType', e.target.value)}
               className={errors.testType ? INPUT_ERR : INPUT}
             >
-              <option value="" disabled>Selecione o tipo de teste…</option>
+              <option value="" disabled>
+                Selecione o tipo de teste…
+              </option>
               {testTypes.map((t) => (
-                <option key={t} value={t}>{t}</option>
+                <option key={t} value={t}>
+                  {t}
+                </option>
               ))}
             </select>
           )}
@@ -376,10 +435,11 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
       <div>
         <SectionTitle>Controle Interno</SectionTitle>
         <div className="space-y-3">
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="loteControle" required>Lote do controle</Label>
+              <Label htmlFor="loteControle" required>
+                Lote do controle
+              </Label>
               <input
                 id="loteControle"
                 type="text"
@@ -392,7 +452,9 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
             </div>
 
             <div>
-              <Label htmlFor="fabricanteControle" required>Fabricante</Label>
+              <Label htmlFor="fabricanteControle" required>
+                Fabricante
+              </Label>
               <input
                 id="fabricanteControle"
                 type="text"
@@ -407,7 +469,9 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="aberturaControle" required>Abertura do controle</Label>
+              <Label htmlFor="aberturaControle" required>
+                Abertura do controle
+              </Label>
               <input
                 id="aberturaControle"
                 type="date"
@@ -420,7 +484,9 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
             </div>
 
             <div>
-              <Label htmlFor="validadeControle" required>Validade do controle</Label>
+              <Label htmlFor="validadeControle" required>
+                Validade do controle
+              </Label>
               <input
                 id="validadeControle"
                 type="date"
@@ -440,10 +506,11 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
       <div>
         <SectionTitle>Reagente</SectionTitle>
         <div className="space-y-3">
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="loteReagente" required>Lote do reagente</Label>
+              <Label htmlFor="loteReagente" required>
+                Lote do reagente
+              </Label>
               <input
                 id="loteReagente"
                 type="text"
@@ -456,7 +523,9 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
             </div>
 
             <div>
-              <Label htmlFor="fabricanteReagente" required>Fabricante</Label>
+              <Label htmlFor="fabricanteReagente" required>
+                Fabricante
+              </Label>
               <input
                 id="fabricanteReagente"
                 type="text"
@@ -496,7 +565,9 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
           </div>
 
           <div>
-            <Label htmlFor="reagenteStatus" required>Status na abertura do kit</Label>
+            <Label htmlFor="reagenteStatus" required>
+              Status na abertura do kit
+            </Label>
             <RNRToggle
               id="reagenteStatus"
               value={form.reagenteStatus}
@@ -508,7 +579,9 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="aberturaReagente" required>Abertura do reagente</Label>
+              <Label htmlFor="aberturaReagente" required>
+                Abertura do reagente
+              </Label>
               <input
                 id="aberturaReagente"
                 type="date"
@@ -521,7 +594,9 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
             </div>
 
             <div>
-              <Label htmlFor="validadeReagente" required>Validade do reagente</Label>
+              <Label htmlFor="validadeReagente" required>
+                Validade do reagente
+              </Label>
               <input
                 id="validadeReagente"
                 type="date"
@@ -541,9 +616,10 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
       <div>
         <SectionTitle>Resultado</SectionTitle>
         <div className="space-y-4">
-
           <div>
-            <Label htmlFor="resultadoEsperado" required>Resultado esperado (fabricante)</Label>
+            <Label htmlFor="resultadoEsperado" required>
+              Resultado esperado (fabricante)
+            </Label>
             <RNRToggle
               id="resultadoEsperado"
               value={form.resultadoEsperado}
@@ -553,7 +629,9 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
           </div>
 
           <div>
-            <Label htmlFor="resultadoObtido" required>Resultado obtido</Label>
+            <Label htmlFor="resultadoObtido" required>
+              Resultado obtido
+            </Label>
             <RNRToggle
               id="resultadoObtido"
               value={form.resultadoObtido}
@@ -580,9 +658,7 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
                          border border-slate-200 dark:border-white/[0.07]
                          cursor-default select-none"
             >
-              <span className="text-sm text-slate-700 dark:text-white/65">
-                {todayFormatted}
-              </span>
+              <span className="text-sm text-slate-700 dark:text-white/65">{todayFormatted}</span>
               <span className="text-xs text-slate-400 dark:text-white/25">
                 · hora exata capturada ao registrar
               </span>
@@ -617,21 +693,30 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
         <div>
           <SectionTitle>Notificação Sanitária</SectionTitle>
           <p className="text-[11px] text-slate-500 dark:text-white/40 -mt-2 mb-4 leading-relaxed">
-            Queixas técnicas e eventos adversos de produtos para saúde devem ser notificados
-            ao NOTIVISA (RDC 67/2009 + RDC 551/2021). Prazo: até 72h para eventos graves.
+            Queixas técnicas e eventos adversos de produtos para saúde devem ser notificados ao
+            NOTIVISA (RDC 67/2009 + RDC 551/2021). Prazo: até 72h para eventos graves.
           </p>
           <div className="space-y-4">
-
             <div>
               <Label htmlFor="notivisaTipo">Tipo de notificação</Label>
               <select
                 id="notivisaTipo"
                 value={form.notivisaTipo ?? ''}
-                onChange={(e) => set('notivisaTipo', (e.target.value || undefined) as 'queixa_tecnica' | 'evento_adverso' | undefined)}
+                onChange={(e) =>
+                  set(
+                    'notivisaTipo',
+                    (e.target.value || undefined) as
+                      | 'queixa_tecnica'
+                      | 'evento_adverso'
+                      | undefined,
+                  )
+                }
                 className={INPUT}
               >
                 <option value="">— selecione —</option>
-                <option value="queixa_tecnica">Queixa Técnica (desvio de qualidade do produto)</option>
+                <option value="queixa_tecnica">
+                  Queixa Técnica (desvio de qualidade do produto)
+                </option>
                 <option value="evento_adverso">Evento Adverso (impacto clínico)</option>
               </select>
             </div>
@@ -641,20 +726,33 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
               <select
                 id="notivisaStatus"
                 value={form.notivisaStatus ?? ''}
-                onChange={(e) => set('notivisaStatus', (e.target.value || undefined) as 'pendente' | 'notificado' | 'dispensado' | undefined)}
+                onChange={(e) =>
+                  set(
+                    'notivisaStatus',
+                    (e.target.value || undefined) as
+                      | 'pendente'
+                      | 'notificado'
+                      | 'dispensado'
+                      | undefined,
+                  )
+                }
                 className={INPUT}
               >
                 <option value="">— selecione —</option>
                 <option value="pendente">Pendente — investigação em andamento</option>
                 <option value="notificado">Notificado — protocolo emitido</option>
-                <option value="dispensado">Dispensado — causa operacional, não defeito de produto</option>
+                <option value="dispensado">
+                  Dispensado — causa operacional, não defeito de produto
+                </option>
               </select>
             </div>
 
             {form.notivisaStatus === 'notificado' && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor="notivisaProtocolo" required>Protocolo NOTIVISA</Label>
+                  <Label htmlFor="notivisaProtocolo" required>
+                    Protocolo NOTIVISA
+                  </Label>
                   <input
                     id="notivisaProtocolo"
                     type="text"
@@ -666,7 +764,9 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
                   <FieldError msg={errors.notivisaProtocolo} />
                 </div>
                 <div>
-                  <Label htmlFor="notivisaDataEnvio" required>Data de envio</Label>
+                  <Label htmlFor="notivisaDataEnvio" required>
+                    Data de envio
+                  </Label>
                   <input
                     id="notivisaDataEnvio"
                     type="date"
@@ -681,7 +781,9 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
 
             {form.notivisaStatus === 'dispensado' && (
               <div>
-                <Label htmlFor="notivisaJustificativa" required>Justificativa da dispensa</Label>
+                <Label htmlFor="notivisaJustificativa" required>
+                  Justificativa da dispensa
+                </Label>
                 <textarea
                   id="notivisaJustificativa"
                   rows={3}
@@ -704,7 +806,6 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
       <div>
         <SectionTitle>Equipamento</SectionTitle>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
           <div>
             <Label htmlFor="equipamento">Equipamento / analisador</Label>
             <input
@@ -728,10 +829,9 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
               placeholder="ex: 22.5"
               title="Temperatura ambiente em graus Celsius"
               value={form.temperaturaAmbiente ?? ''}
-              onChange={(e) => set(
-                'temperaturaAmbiente',
-                e.target.value ? Number(e.target.value) : undefined,
-              )}
+              onChange={(e) =>
+                set('temperaturaAmbiente', e.target.value ? Number(e.target.value) : undefined)
+              }
               className={INPUT}
             />
           </div>

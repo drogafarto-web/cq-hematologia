@@ -1,15 +1,18 @@
 # 🚀 CQ Quality by Labclin - MVP Completo (UI + Relatórios Regulatórios)
+
 ## Stack: React 18 + TS strict + Tailwind v4 + Firebase v10 + Vite
 
-***
+---
 
 ## 🎨 **PARTE 1: INFRA UI (Dark/Light Toggle - Zero FOUC)**
+
 **Prioridade máxima** - Base para toda aplicação
 
 ### CHECKLIST PARTE 1
+
 ```
 [ ] Script head é síncrono e executa antes do React hidratar? ✅ SIM
-[ ] useTheme lê estado inicial idêntico ao script do head? ✅ SIM  
+[ ] useTheme lê estado inicial idêntico ao script do head? ✅ SIM
 [ ] Nenhum elemento some ou fica ilegível em modo claro? ✅ SIM
 [ ] Transição não usa "transition-all"? ✅ SIM
 [ ] aria-label muda conforme estado atual do tema? ✅ SIM
@@ -17,55 +20,59 @@
 [ ] ThemeToggle funciona via teclado (Enter/Space)? ✅ SIM
 ```
 
-***
+---
 
 ### ARQUIVO 1: index.html (snippet `<head>`)
 
 ```html
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <!-- ... outros meta tags ... -->
-  
-  <script>
-    // Zero FOUC - executa ANTES do React hidratar
-    (function() {
-      const html = document.documentElement;
-      const savedTheme = localStorage.getItem('cq-theme');
-      
-      // 1. Prioridade: localStorage
-      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        html.classList.add('dark');
-      } else {
-        html.classList.remove('dark');
-      }
-    })();
-  </script>
-  
-  <!-- Tailwind CSS v4 -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            primary: {
-              50: '#eff6ff',
-              500: '#3b82f6',
-              600: '#2563eb'
-            }
-          }
+  <head>
+    <!-- ... outros meta tags ... -->
+
+    <script>
+      // Zero FOUC - executa ANTES do React hidratar
+      (function () {
+        const html = document.documentElement;
+        const savedTheme = localStorage.getItem('cq-theme');
+
+        // 1. Prioridade: localStorage
+        if (
+          savedTheme === 'dark' ||
+          (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ) {
+          html.classList.add('dark');
+        } else {
+          html.classList.remove('dark');
         }
-      }
-    }
-  </script>
-  
-  <!-- ... resto do head ... -->
-</head>
+      })();
+    </script>
+
+    <!-- Tailwind CSS v4 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: '#eff6ff',
+                500: '#3b82f6',
+                600: '#2563eb',
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- ... resto do head ... -->
+  </head>
+</html>
 ```
 
-***
+---
 
 ### ARQUIVO 2: src/hooks/useTheme.ts
 
@@ -74,17 +81,17 @@ import { useState, useEffect } from 'react';
 
 export type Theme = 'dark' | 'light';
 
-export function useTheme(): { 
-  theme: Theme; 
-  toggleTheme: () => void; 
-  isDark: boolean; 
+export function useTheme(): {
+  theme: Theme;
+  toggleTheme: () => void;
+  isDark: boolean;
 } {
   const getInitialTheme = (): Theme => {
     if (typeof window === 'undefined') return 'dark'; // SSR fallback
-    
+
     const saved = localStorage.getItem('cq-theme');
     if (saved === 'dark' || saved === 'light') return saved as Theme;
-    
+
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   };
 
@@ -99,20 +106,20 @@ export function useTheme(): {
     } else {
       html.classList.remove('dark');
     }
-    
+
     // Persiste
     localStorage.setItem('cq-theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
   return { theme, toggleTheme, isDark };
 }
 ```
 
-***
+---
 
 ### ARQUIVO 3: src/components/ui/ThemeToggle.tsx
 
@@ -174,29 +181,24 @@ export const ThemeToggle = forwardRef<HTMLButtonElement, ThemeToggleProps>(
         </svg>
       </button>
     );
-  }
+  },
 );
 
 ThemeToggle.displayName = 'ThemeToggle';
 ```
 
-***
+---
 
 ### ARQUIVO 4: src/css/global.css
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Transições suaves SEM layout shift */
 *,
 *::before,
 *::after {
-  transition-property: 
-    background-color, 
-    border-color, 
-    color, 
-    text-shadow,
-    box-shadow;
+  transition-property: background-color, border-color, color, text-shadow, box-shadow;
   transition-duration: 200ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -207,21 +209,21 @@ ThemeToggle.displayName = 'ThemeToggle';
   .dark\:bg-primary-dark {
     background-color: #0c0c0c;
   }
-  
+
   .dark\:bg-card {
     background-color: rgb(255 255 255 / 0.05);
     border: 1px solid rgb(255 255 255 / 0.1);
     backdrop-filter: blur(20px);
   }
-  
+
   .dark\:text-primary {
     color: rgb(255 255 255);
   }
-  
+
   .dark\:text-secondary {
     color: rgb(148 163 184);
   }
-  
+
   .dark\:border-input {
     border-color: rgb(255 255 255 / 0.2);
   }
@@ -235,7 +237,9 @@ ThemeToggle.displayName = 'ThemeToggle';
 .bg-card-light {
   background-color: rgb(255 255 255);
   border: 1px solid rgb(226 232 240);
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  box-shadow:
+    0 1px 3px 0 rgb(0 0 0 / 0.1),
+    0 1px 2px -1px rgb(0 0 0 / 0.1);
 }
 
 .text-primary-light {
@@ -251,7 +255,7 @@ ThemeToggle.displayName = 'ThemeToggle';
 }
 ```
 
-***
+---
 
 ### ARQUIVO 5: src/features/auth/LoginPage.tsx (diff/patch)
 
@@ -260,7 +264,7 @@ ThemeToggle.displayName = 'ThemeToggle';
 <div className="min-h-screen bg-slate-50 dark:bg-[#0c0c0c] p-4 relative">
   {/* NOVO: ThemeToggle */}
   <ThemeToggle className="absolute top-4 right-4 z-10" />
-  
+
   {/* ... resto do conteúdo ... */}
 </div>
 
@@ -269,24 +273,24 @@ ThemeToggle.displayName = 'ThemeToggle';
   {/* conteúdo */}
 </div>
 
-// [CHANGE] Form card - ALTERAR  
+// [CHANGE] Form card - ALTERAR
 <div className="bg-white dark:bg-white/5 dark:border-white/10 border border-slate-200 shadow-lg ...">
   {/* form */}
 </div>
 
 // [CHANGE] Inputs - ALTERAR
-<input 
-  className="w-full px-3 py-2 bg-white dark:bg-white/5 border border-slate-300 dark:border-white/20 
+<input
+  className="w-full px-3 py-2 bg-white dark:bg-white/5 border border-slate-300 dark:border-white/20
              dark:text-white text-slate-900 placeholder-slate-500 dark:placeholder-slate-400
-             rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+             rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500
              transition-colors"
 />
 
-// [CHANGE] Labels - ALTERAR  
+// [CHANGE] Labels - ALTERAR
 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
 ```
 
-***
+---
 
 ### ARQUIVO 6: src/components/layout/DashboardHeader.tsx
 
@@ -295,12 +299,9 @@ ThemeToggle.displayName = 'ThemeToggle';
 <header className="bg-white/80 dark:bg-white/5 backdrop-blur-xl border-b border-white/10 dark:border-white/20">
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div className="flex items-center justify-between h-16">
-      
       {/* Logo/Links esquerdo existente */}
-      <div className="flex items-center gap-4">
-        {/* ... conteúdo existente ... */}
-      </div>
-      
+      <div className="flex items-center gap-4">{/* ... conteúdo existente ... */}</div>
+
       {/* NOVO: ThemeToggle + User menu */}
       <div className="flex items-center gap-3">
         <ThemeToggle size="sm" />
@@ -311,15 +312,17 @@ ThemeToggle.displayName = 'ThemeToggle';
 </header>
 ```
 
-***
+---
 
 ## 📊 **PARTE 2: CORE REGULATÓRIO (Relatórios RDC 978/2025 + LGPD)**
+
 **Dependências**: ThemeToggle já implementado
 
 ### CHECKLIST PARTE 2
+
 ```
 [ ] Interface CQRun sem nenhum campo any? ✅ SIM
-[ ] Z-Score usa fórmula (value - mean) / sd? ✅ SIM  
+[ ] Z-Score usa fórmula (value - mean) / sd? ✅ SIM
 [ ] Firestore rules negam delete e update direto de runs? ✅ SIM
 [ ] Changelog só escrito via Admin SDK? ✅ SIM
 [ ] auditTrigger nunca lança erro que interrompa execução? ✅ SIM
@@ -330,7 +333,7 @@ ThemeToggle.displayName = 'ThemeToggle';
 [ ] Region southamerica-east1 em todas as Functions? ✅ SIM
 ```
 
-***
+---
 
 ### ARQUIVO 7: src/types/index.ts
 
@@ -352,7 +355,7 @@ export interface CQRun {
   operatorId: string;
   operatorName: string;
   operatorRole: 'biomedico' | 'tecnico' | 'farmaceutico';
-  operatorDocument?: string;       // CRBM-XXXX ou CRF-XXXX
+  operatorDocument?: string; // CRBM-XXXX ou CRF-XXXX
   confirmedAt: import('firebase/firestore').Timestamp;
   // IA
   aiData: Record<string, number | null>;
@@ -366,24 +369,24 @@ export interface CQRun {
   labId: string;
   lotId: string;
   level: 1 | 2 | 3;
-  equipmentId?: string;            // ex: "Yumizen H550 SN-001"
+  equipmentId?: string; // ex: "Yumizen H550 SN-001"
   // Qualidade
   westgardViolations?: WestgardViolation[];
-  status: "approved" | "rejected" | "warning";
+  status: 'approved' | 'rejected' | 'warning';
   // Imutabilidade (Copy-on-Write)
-  version: number;                 // começa em 1
+  version: number; // começa em 1
   previousRunId?: string;
-  logicalSignature?: string;       // SHA-256 de operatorId+confirmedAt+JSON(confirmedData)
+  logicalSignature?: string; // SHA-256 de operatorId+confirmedAt+JSON(confirmedData)
   // Auditoria
   createdAt: import('firebase/firestore').Timestamp;
-  createdBy: string;               // = operatorId (redundância intencional p/ rules)
+  createdBy: string; // = operatorId (redundância intencional p/ rules)
   imageUrl?: string;
 }
 
 export interface WestgardViolation {
-  rule: "1_2s" | "1_3s" | "2_2s" | "R_4s" | "4_1s" | "10x";
+  rule: '1_2s' | '1_3s' | '2_2s' | 'R_4s' | '4_1s' | '10x';
   analyte: string;
-  severity: "warning" | "rejection";
+  severity: 'warning' | 'rejection';
 }
 
 export interface AnalyteStats {
@@ -419,7 +422,7 @@ export interface ReportStats {
 }
 ```
 
-***
+---
 
 ### ARQUIVO 8: src/utils/zscore.ts
 
@@ -431,19 +434,14 @@ export function calculateZScore(value: number, stats: AnalyteStats): number {
 }
 
 export function interpretZScore(z: number): 'acceptable' | 'warning' | 'rejection' {
-  return Math.abs(z) <= 2 ? 'acceptable' 
-       : Math.abs(z) <= 3 ? 'warning' 
-       : 'rejection';
+  return Math.abs(z) <= 2 ? 'acceptable' : Math.abs(z) <= 3 ? 'warning' : 'rejection';
 }
 
-export function calculateRunStats(
-  runs: CQRun[], 
-  analyte: string
-): AnalyteStats {
+export function calculateRunStats(runs: CQRun[], analyte: string): AnalyteStats {
   const values = runs
-    .map(run => run.confirmedData[analyte])
+    .map((run) => run.confirmedData[analyte])
     .filter((v): v is number => typeof v === 'number');
-  
+
   if (values.length === 0) {
     return { mean: 0, sd: 0, cv: 0, n: 0 };
   }
@@ -457,41 +455,41 @@ export function calculateRunStats(
 }
 ```
 
-***
+---
 
 ### ARQUIVO 9: src/utils/logicalSignature.ts
 
 ```typescript
 export async function generateLogicalSignature(
-  operatorId: string, 
-  confirmedAt: import('firebase/firestore').Timestamp, 
-  confirmedData: Record<string, number>
+  operatorId: string,
+  confirmedAt: import('firebase/firestore').Timestamp,
+  confirmedData: Record<string, number>,
 ): Promise<string> {
   const dataString = JSON.stringify({
     operatorId,
     ts: confirmedAt.toMillis(),
-    data: confirmedData
+    data: confirmedData,
   });
-  
+
   const encoder = new TextEncoder();
   const data = encoder.encode(dataString);
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 export async function verifySignature(
   signature: string,
-  operatorId: string, 
-  confirmedAt: import('firebase/firestore').Timestamp, 
-  confirmedData: Record<string, number>
+  operatorId: string,
+  confirmedAt: import('firebase/firestore').Timestamp,
+  confirmedData: Record<string, number>,
 ): Promise<boolean> {
   const expectedSignature = await generateLogicalSignature(operatorId, confirmedAt, confirmedData);
   return signature === expectedSignature;
 }
 ```
 
-***
+---
 
 ### ARQUIVO 10: src/hooks/useRunReports.ts
 
@@ -499,20 +497,20 @@ export async function verifySignature(
 /**
  * Composite Indexes necessários (criar em firestore.indexes.json):
  * 1. labs/{collectionGroup}/runs: confirmedAt ASC + labId ASC
- * 2. labs/{collectionGroup}/runs: confirmedAt ASC + labId ASC + level ASC  
+ * 2. labs/{collectionGroup}/runs: confirmedAt ASC + labId ASC + level ASC
  * 3. labs/{collectionGroup}/runs: confirmedAt ASC + labId ASC + operatorId ASC
  * 4. labs/{collectionGroup}/runs: confirmedAt ASC + labId ASC + status ASC
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { 
-  collection, 
-  query, 
-  where, 
-  orderBy, 
-  limit, 
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
   getDocs,
-  getCountFromServer 
+  getCountFromServer,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { CQRun, ReportFilters, ReportStats, OperatorStat } from '@/types';
@@ -528,7 +526,7 @@ export function useRunReports(filters: ReportFilters) {
       where('confirmedAt', '>=', new Date(filters.startDate)),
       where('confirmedAt', '<=', new Date(filters.endDate)),
       orderBy('confirmedAt', 'desc'),
-      limit(500) // Documentado: limite regulatório RDC 978
+      limit(500), // Documentado: limite regulatório RDC 978
     );
 
     if (filters.operatorId) {
@@ -545,9 +543,9 @@ export function useRunReports(filters: ReportFilters) {
       try {
         setLoading(true);
         const snapshot = await getDocs(q);
-        const runsData = snapshot.docs.map(doc => ({
+        const runsData = snapshot.docs.map((doc) => ({
           id: doc.id,
-          ...(doc.data() as CQRun)
+          ...(doc.data() as CQRun),
         }));
         setRuns(runsData);
       } catch (err) {
@@ -561,22 +559,23 @@ export function useRunReports(filters: ReportFilters) {
   }, [filters]);
 
   const stats = useMemo((): ReportStats => {
-    if (runs.length === 0) return {
-      totalRuns: 0,
-      editedByHuman: 0,
-      approvalRate: 0,
-      westgardByRule: {},
-      byOperator: []
-    };
+    if (runs.length === 0)
+      return {
+        totalRuns: 0,
+        editedByHuman: 0,
+        approvalRate: 0,
+        westgardByRule: {},
+        byOperator: [],
+      };
 
     const totalRuns = runs.length;
-    const editedByHuman = runs.filter(r => r.isEdited).length;
-    const approved = runs.filter(r => r.status === 'approved').length;
+    const editedByHuman = runs.filter((r) => r.isEdited).length;
+    const approved = runs.filter((r) => r.status === 'approved').length;
     const approvalRate = approved / totalRuns;
 
     const westgardByRule: Record<string, number> = {};
-    runs.forEach(run => {
-      run.westgardViolations?.forEach(v => {
+    runs.forEach((run) => {
+      run.westgardViolations?.forEach((v) => {
         westgardByRule[v.rule] = (westgardByRule[v.rule] || 0) + 1;
       });
     });
@@ -589,13 +588,13 @@ export function useRunReports(filters: ReportFilters) {
             operatorName: run.operatorName,
             totalRuns: 0,
             editedRuns: 0,
-            approvalRate: 0
+            approvalRate: 0,
           };
         }
         acc[run.operatorId]!.totalRuns += 1;
         if (run.isEdited) acc[run.operatorId]!.editedRuns += 1;
         return acc;
-      }, {})
+      }, {}),
     );
 
     return { totalRuns, editedByHuman, approvalRate, westgardByRule, byOperator };
@@ -605,7 +604,7 @@ export function useRunReports(filters: ReportFilters) {
 }
 ```
 
-***
+---
 
 ## 🛠️ **CHECKLIST FINAL DE INTEGRAÇÃO**
 
@@ -618,7 +617,7 @@ npm install jspdf@^2.5.1 jspdf-autotable@^3.5.32 qrcode@^1.5.3
 # 2. Deploy Firestore indexes
 firebase deploy --only firestore:indexes
 
-# 3. Deploy Rules + Functions  
+# 3. Deploy Rules + Functions
 firebase deploy --only firestore:rules,functions
 
 # 4. Build e preview local
@@ -627,14 +626,15 @@ npm run preview
 ```
 
 ### ✅ **Rotas para testar:**
+
 ```
 1. /login → ThemeToggle + Login com dark/light
-2. /labs/{labId}/reports → Relatórios completos  
+2. /labs/{labId}/reports → Relatórios completos
 3. PDF Export → Download com QR Code LGPD
 ```
 
 **🎉 MVP regulatório 100% funcional - RDC 978/2025 + LGPD compliant!**
 
-***
+---
 
 **Copie TODO este arquivo → Claude 3.5 Sonnet → "Execute implementação completa"**

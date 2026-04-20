@@ -62,7 +62,8 @@ export interface UroFieldAuditado<T> {
  * Compliance: RDC 302/2005 · RDC 978/2025 · RDC 67/2009 + RDC 551/2021
  * Referências: CLSI GP16-A3 · European Urinalysis Guidelines (EUG) · CLSI AUTO10-A
  */
-export interface UroanaliseRun extends Omit<CQRun,
+export interface UroanaliseRun extends Omit<
+  CQRun,
   | 'westgardViolations'
   | 'level'
   | 'aiData'
@@ -143,23 +144,23 @@ export interface UroanaliseRun extends Omit<CQRun,
     /** Urobilinogênio esperado: tipicamente 'NORMAL' para nível N, 'AUMENTADO' para nível P. */
     urobilinogenio: UroValorCategorico;
     /** Glicose esperada: tipicamente 'NEGATIVO' para nível N. */
-    glicose:        UroValorCategorico;
+    glicose: UroValorCategorico;
     /** Cetonas esperadas: tipicamente 'NEGATIVO' para nível N. */
-    cetonas:        UroValorCategorico;
+    cetonas: UroValorCategorico;
     /** Bilirrubina esperada: tipicamente 'NEGATIVO' para nível N. */
-    bilirrubina:    UroValorCategorico;
+    bilirrubina: UroValorCategorico;
     /** Proteína esperada: tipicamente 'NEGATIVO' ou 'TRACOS' para nível N. */
-    proteina:       UroValorCategorico;
+    proteina: UroValorCategorico;
     /** Nitrito esperado: tipicamente 'NEGATIVO' para nível N. */
-    nitrito:        UroValorCategorico;
+    nitrito: UroValorCategorico;
     /** Sangue oculto esperado: tipicamente 'NEGATIVO' para nível N. */
-    sangue:         UroValorCategorico;
+    sangue: UroValorCategorico;
     /** Leucócitos esperados: tipicamente 'NEGATIVO' para nível N. */
-    leucocitos:     UroValorCategorico;
+    leucocitos: UroValorCategorico;
     /** pH esperado: faixa aceitável em unidades de pH (5.0–8.5, passo 0.5). */
-    ph:             { min: number; max: number };
+    ph: { min: number; max: number };
     /** Densidade esperada: faixa aceitável (1.000–1.030, passo 0.005). */
-    densidade:      { min: number; max: number };
+    densidade: { min: number; max: number };
   }>;
 
   // ── Resultados Obtidos ────────────────────────────────────────────────────
@@ -177,23 +178,23 @@ export interface UroanaliseRun extends Omit<CQRun,
     /** Urobilinogênio obtido (escala NORMAL / AUMENTADO / 1+ / 2+ / 3+). */
     urobilinogenio?: UroFieldAuditado<UroValorCategorico>;
     /** Glicose obtida (escala NEGATIVO / 1+ / 2+ / 3+ / 4+). */
-    glicose?:        UroFieldAuditado<UroValorCategorico>;
+    glicose?: UroFieldAuditado<UroValorCategorico>;
     /** Cetonas obtidas (escala NEGATIVO / TRACOS / 1+ / 2+ / 3+). */
-    cetonas?:        UroFieldAuditado<UroValorCategorico>;
+    cetonas?: UroFieldAuditado<UroValorCategorico>;
     /** Bilirrubina obtida (escala NEGATIVO / 1+ / 2+ / 3+). */
-    bilirrubina?:    UroFieldAuditado<UroValorCategorico>;
+    bilirrubina?: UroFieldAuditado<UroValorCategorico>;
     /** Proteína obtida (escala NEGATIVO / TRACOS / 1+ / 2+ / 3+ / 4+). */
-    proteina?:       UroFieldAuditado<UroValorCategorico>;
+    proteina?: UroFieldAuditado<UroValorCategorico>;
     /** Nitrito obtido (NEGATIVO = ausente; PRESENTE = bacteriúria significativa). */
-    nitrito?:        UroFieldAuditado<UroValorCategorico>;
+    nitrito?: UroFieldAuditado<UroValorCategorico>;
     /** Sangue oculto obtido (escala NEGATIVO / TRACOS / 1+ / 2+ / 3+). */
-    sangue?:         UroFieldAuditado<UroValorCategorico>;
+    sangue?: UroFieldAuditado<UroValorCategorico>;
     /** Leucócitos obtidos (escala NEGATIVO / TRACOS / 1+ / 2+ / 3+). */
-    leucocitos?:     UroFieldAuditado<UroValorCategorico>;
+    leucocitos?: UroFieldAuditado<UroValorCategorico>;
     /** pH urinário obtido (valor numérico; escala ordinal 5.0–8.5). */
-    ph?:             UroFieldAuditado<number>;
+    ph?: UroFieldAuditado<number>;
     /** Densidade urinária obtida (valor numérico; escala 1.000–1.030). */
-    densidade?:      UroFieldAuditado<number>;
+    densidade?: UroFieldAuditado<number>;
   };
 
   // ── Conformidade ──────────────────────────────────────────────────────────

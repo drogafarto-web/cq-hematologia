@@ -1,5 +1,14 @@
 import React, { useMemo } from 'react';
-import { BarChart, Bar, Cell, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  Cell,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  Tooltip,
+  CartesianGrid,
+} from 'recharts';
 import { URO_ANALITOS, URO_ANALITO_LABELS } from '../UroAnalyteConfig';
 import { avaliarRunUro } from '../hooks/useUroValidator';
 import { useTheme } from '../../../shared/hooks/useTheme';
@@ -14,16 +23,16 @@ interface UroHitRateChartProps {
 
 interface ChartRow {
   analyte: UroAnalitoId;
-  label:   string;
-  taxa:    number;   // % aprovação
-  total:   number;   // corridas que tinham valor para esse analito
-  nc:      number;   // corridas não conformes
+  label: string;
+  taxa: number; // % aprovação
+  total: number; // corridas que tinham valor para esse analito
+  nc: number; // corridas não conformes
 }
 
 // ─── Tooltip ──────────────────────────────────────────────────────────────────
 
 interface TooltipProps {
-  active?:  boolean;
+  active?: boolean;
   payload?: Array<{ payload: ChartRow }>;
 }
 
@@ -33,9 +42,7 @@ function CustomTooltip({ active, payload }: TooltipProps) {
   return (
     <div className="rounded-xl bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-white/[0.1] px-3.5 py-2.5 shadow-xl text-xs">
       <p className="font-semibold text-slate-800 dark:text-white/85 mb-1">{r.label}</p>
-      <p className="text-slate-500 dark:text-white/50 font-mono">
-        {r.taxa.toFixed(1)}% aprovação
-      </p>
+      <p className="text-slate-500 dark:text-white/50 font-mono">{r.taxa.toFixed(1)}% aprovação</p>
       <p className="text-slate-400 dark:text-white/35 text-[11px] mt-0.5">
         {r.total - r.nc} de {r.total} conformes
       </p>
@@ -59,7 +66,7 @@ export function UroHitRateChart({ runs }: UroHitRateChartProps) {
     const rows: ChartRow[] = URO_ANALITOS.map((id) => {
       // Corridas que tinham valor para esse analito (não-null)
       let total = 0;
-      let nc    = 0;
+      let nc = 0;
       for (const run of runs) {
         const field = run.resultados[id];
         if (!field || field.valor === null || field.valor === undefined) continue;
@@ -78,7 +85,9 @@ export function UroHitRateChart({ runs }: UroHitRateChartProps) {
   if (runs.length === 0) {
     return (
       <div className="flex items-center justify-center h-56 rounded-2xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.01]">
-        <p className="text-sm text-slate-400 dark:text-white/30">Sem dados para calcular taxa de conformidade</p>
+        <p className="text-sm text-slate-400 dark:text-white/30">
+          Sem dados para calcular taxa de conformidade
+        </p>
       </div>
     );
   }
@@ -86,7 +95,7 @@ export function UroHitRateChart({ runs }: UroHitRateChartProps) {
   const barColor = (taxa: number): string => {
     if (taxa >= 95) return '#34d399'; // emerald-400
     if (taxa >= 85) return '#fbbf24'; // amber-400
-    return '#f87171';                  // red-400
+    return '#f87171'; // red-400
   };
 
   return (
@@ -122,10 +131,18 @@ export function UroHitRateChart({ runs }: UroHitRateChartProps) {
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip content={<CustomTooltip/>} cursor={{ fill: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.04)' }}/>
+          <Tooltip
+            content={<CustomTooltip />}
+            cursor={{ fill: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.04)' }}
+          />
           <Bar dataKey="taxa" radius={[0, 4, 4, 0]}>
             {data.map((row, idx) => (
-              <BarCell key={row.analyte} fill={barColor(row.taxa)} index={idx} total={data.length}/>
+              <BarCell
+                key={row.analyte}
+                fill={barColor(row.taxa)}
+                index={idx}
+                total={data.length}
+              />
             ))}
           </Bar>
         </BarChart>
@@ -135,5 +152,5 @@ export function UroHitRateChart({ runs }: UroHitRateChartProps) {
 }
 
 function BarCell({ fill }: { fill: string; index: number; total: number }) {
-  return <Cell fill={fill}/>;
+  return <Cell fill={fill} />;
 }

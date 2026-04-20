@@ -23,9 +23,9 @@ interface UroanaliseSettingsModalProps {
  */
 export function UroanaliseSettingsModal({ onClose }: UroanaliseSettingsModalProps) {
   const { enabled, loading, error, setEnabled } = useUroOcrSetting();
-  const userRole     = useUserRole();
+  const userRole = useUserRole();
   const isSuperAdmin = useIsSuperAdmin();
-  const canEdit      = isSuperAdmin || userRole === 'owner' || userRole === 'admin';
+  const canEdit = isSuperAdmin || userRole === 'owner' || userRole === 'admin';
 
   const [toggling, setToggling] = useState(false);
   const [localErr, setLocalErr] = useState<string | null>(null);
@@ -44,7 +44,11 @@ export function UroanaliseSettingsModal({ onClose }: UroanaliseSettingsModalProp
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm" role="dialog" aria-modal="true">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+    >
       <div className="max-w-xl w-full max-h-[92vh] overflow-y-auto rounded-2xl bg-white dark:bg-[#0F1318] border border-slate-200 dark:border-white/[0.08] shadow-2xl">
         <div className="flex items-start gap-4 px-6 py-5 border-b border-slate-100 dark:border-white/[0.05]">
           <div className="min-w-0 flex-1">
@@ -61,12 +65,22 @@ export function UroanaliseSettingsModal({ onClose }: UroanaliseSettingsModalProp
             className="p-1.5 rounded-lg text-slate-400 dark:text-white/30 hover:text-slate-800 dark:hover:text-white/80 hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-all"
             aria-label="Fechar"
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden><path d="M18 6 6 18M6 6l12 12"/></svg>
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              aria-hidden
+            >
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
           </button>
         </div>
 
         <div className="px-6 py-5 space-y-5">
-
           {/* OCR Toggle */}
           <section>
             <div className="flex items-start justify-between gap-4">
@@ -75,9 +89,9 @@ export function UroanaliseSettingsModal({ onClose }: UroanaliseSettingsModalProp
                   Leitura OCR de tiras — experimental
                 </p>
                 <p className="text-xs text-slate-500 dark:text-white/45 mt-1 leading-relaxed">
-                  Quando habilitado, o formulário de nova corrida passa a exibir um botão
-                  de câmera. Ao fotografar a tira reagente, a IA (Gemini) pré-preenche
-                  os campos com alta confiança — o operador sempre revisa antes de confirmar.
+                  Quando habilitado, o formulário de nova corrida passa a exibir um botão de câmera.
+                  Ao fotografar a tira reagente, a IA (Gemini) pré-preenche os campos com alta
+                  confiança — o operador sempre revisa antes de confirmar.
                 </p>
               </div>
               <Toggle
@@ -89,16 +103,14 @@ export function UroanaliseSettingsModal({ onClose }: UroanaliseSettingsModalProp
 
             {enabled && (
               <div className="mt-3 rounded-xl border border-amber-300 dark:border-amber-500/25 bg-amber-50 dark:bg-amber-500/[0.06] text-amber-800 dark:text-amber-400 px-3.5 py-2.5 text-xs leading-relaxed">
-                <strong>Recurso experimental.</strong> O resultado da IA nunca substitui a
-                revisão do operador. Bilirrubina, Urobilinogênio e Densidade são sempre
-                processados manualmente — contraste ótico insuficiente na cromatografia.
+                <strong>Recurso experimental.</strong> O resultado da IA nunca substitui a revisão
+                do operador. Bilirrubina, Urobilinogênio e Densidade são sempre processados
+                manualmente — contraste ótico insuficiente na cromatografia.
               </div>
             )}
 
             {(error || localErr) && (
-              <p className="mt-2 text-xs text-red-500 dark:text-red-400/80">
-                {error ?? localErr}
-              </p>
+              <p className="mt-2 text-xs text-red-500 dark:text-red-400/80">{error ?? localErr}</p>
             )}
           </section>
 
@@ -127,8 +139,12 @@ export function UroanaliseSettingsModal({ onClose }: UroanaliseSettingsModalProp
 
 // ─── Toggle ───────────────────────────────────────────────────────────────────
 
-function Toggle({ checked, onChange, disabled }: {
-  checked:  boolean;
+function Toggle({
+  checked,
+  onChange,
+  disabled,
+}: {
+  checked: boolean;
   onChange: (v: boolean) => void;
   disabled: boolean;
 }) {

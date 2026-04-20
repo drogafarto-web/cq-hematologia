@@ -11,7 +11,7 @@
  */
 
 export enum DatabaseProvider {
-  Firebase     = 'firebase',
+  Firebase = 'firebase',
   LocalStorage = 'local',
 }
 
@@ -22,11 +22,11 @@ const VALID_PROVIDERS = Object.values(DatabaseProvider) as string[];
 if (!VALID_PROVIDERS.includes(raw)) {
   throw new Error(
     `[database.config] Invalid VITE_DATABASE_PROVIDER: "${raw}". ` +
-    `Valid values: ${VALID_PROVIDERS.join(', ')}.`
+      `Valid values: ${VALID_PROVIDERS.join(', ')}.`,
   );
 }
 
 export const ACTIVE_DATABASE_PROVIDER = raw as DatabaseProvider;
 
-export const isFirebase     = ACTIVE_DATABASE_PROVIDER === DatabaseProvider.Firebase;
+export const isFirebase = ACTIVE_DATABASE_PROVIDER === DatabaseProvider.Firebase;
 export const isLocalStorage = ACTIVE_DATABASE_PROVIDER === DatabaseProvider.LocalStorage;

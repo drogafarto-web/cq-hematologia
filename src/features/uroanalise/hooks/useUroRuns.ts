@@ -19,9 +19,9 @@ import type { UroanaliseRun } from '../types/Uroanalise';
 export function useUroRuns(lotId: string | null) {
   const labId = useActiveLabId();
 
-  const [runs,      setRuns]      = useState<UroanaliseRun[]>([]);
+  const [runs, setRuns] = useState<UroanaliseRun[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error,     setError]     = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!labId || !lotId) {

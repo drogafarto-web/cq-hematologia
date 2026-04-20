@@ -13,42 +13,41 @@
 //
 // Restore: see docs/runbooks/firestore-restore.md.
 
-import { onSchedule }         from 'firebase-functions/v2/scheduler';
+import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
-import * as admin             from 'firebase-admin';
-import { GoogleAuth }         from 'google-auth-library';
+import * as admin from 'firebase-admin';
+import { GoogleAuth } from 'google-auth-library';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const PROJECT_ID    = 'hmatologia2';
-const DATABASE_ID   = '(default)';
+const PROJECT_ID = 'hmatologia2';
+const DATABASE_ID = '(default)';
 const BACKUP_BUCKET = 'hmatologia2-firestore-backups';
 
-const FIRESTORE_ADMIN_API =
-  `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/${encodeURIComponent(DATABASE_ID)}:exportDocuments`;
+const FIRESTORE_ADMIN_API = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/${encodeURIComponent(DATABASE_ID)}:exportDocuments`;
 
 // ─── Core export logic ──────────────────────────────────────────────────────
 
 interface ExportRequestBody {
-  outputUriPrefix:    string;
-  collectionIds?:     string[];       // omit = export all collections
-  namespaceIds?:      string[];
-  snapshotTime?:      string;         // RFC 3339; PITR-based consistent snapshot
+  outputUriPrefix: string;
+  collectionIds?: string[]; // omit = export all collections
+  namespaceIds?: string[];
+  snapshotTime?: string; // RFC 3339; PITR-based consistent snapshot
 }
 
 interface ExportResult {
-  operationName:  string;
-  outputUri:      string;
-  triggeredAt:    string;
+  operationName: string;
+  outputUri: string;
+  triggeredAt: string;
 }
 
 async function triggerFirestoreExport(): Promise<ExportResult> {
-  const today     = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
   const outputUri = `gs://${BACKUP_BUCKET}/daily/${today}`;
 
-  const auth  = new GoogleAuth({ scopes: 'https://www.googleapis.com/auth/datastore' });
+  const auth = new GoogleAuth({ scopes: 'https://www.googleapis.com/auth/datastore' });
   const client = await auth.getClient();
-  const token  = await client.getAccessToken();
+  const token = await client.getAccessToken();
 
   if (!token.token) {
     throw new Error('[firestoreBackup] Failed to obtain OAuth token');
@@ -68,8 +67,8 @@ async function triggerFirestoreExport(): Promise<ExportResult> {
   const res = await fetch(FIRESTORE_ADMIN_API, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token.token}`,
-      'Content-Type':  'application/json',
+      Authorization: `Bearer ${token.token}`,
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
   });
@@ -79,27 +78,40 @@ async function triggerFirestoreExport(): Promise<ExportResult> {
     throw new Error(`[firestoreBackup] Export API returned ${res.status}: ${text}`);
   }
 
-  const json = await res.json() as { name?: string };
+  const json = (await res.json()) as { name?: string };
   if (!json.name) {
-    throw new Error(`[firestoreBackup] Export response missing operation name: ${JSON.stringify(json)}`);
+    throw new Error(
+      `[firestoreBackup] Export response missing operation name: ${JSON.stringify(json)}`,
+    );
   }
 
   return {
     operationName: json.name,
     outputUri,
-    triggeredAt:   new Date().toISOString(),
+    triggeredAt: new Date().toISOString(),
   };
 }
 
-async function writeBackupLog(result: ExportResult, kind: 'scheduled' | 'manual', actorUid?: string): Promise<void> {
+async function writeBackupLog(
+  result: ExportResult,
+  kind: 'scheduled' | 'manual',
+  actorUid?: string,
+): Promise<void> {
   try {
-    await admin.firestore().collection('firestore-backup-logs').doc(result.triggeredAt.slice(0, 10)).set({
-      kind,
-      actorUid:      actorUid ?? null,
-      operationName: result.operationName,
-      outputUri:     result.outputUri,
-      triggeredAt:   admin.firestore.Timestamp.now(),
-    }, { merge: true });
+    await admin
+      .firestore()
+      .collection('firestore-backup-logs')
+      .doc(result.triggeredAt.slice(0, 10))
+      .set(
+        {
+          kind,
+          actorUid: actorUid ?? null,
+          operationName: result.operationName,
+          outputUri: result.outputUri,
+          triggeredAt: admin.firestore.Timestamp.now(),
+        },
+        { merge: true },
+      );
   } catch (err) {
     // Non-blocking — if logging fails, export is still underway
     console.error('[firestoreBackup] Failed to write backup log:', err);
@@ -118,10 +130,10 @@ async function writeBackupLog(result: ExportResult, kind: 'scheduled' | 'manual'
  */
 export const scheduledFirestoreExport = onSchedule(
   {
-    schedule:       'every day 03:00',
-    timeZone:       'America/Sao_Paulo',
-    region:         'southamerica-east1',
-    memory:         '256MiB',
+    schedule: 'every day 03:00',
+    timeZone: 'America/Sao_Paulo',
+    region: 'southamerica-east1',
+    memory: '256MiB',
     timeoutSeconds: 540,
   },
   async () => {
@@ -129,7 +141,7 @@ export const scheduledFirestoreExport = onSchedule(
       const result = await triggerFirestoreExport();
       console.log(
         `[firestoreBackup][scheduled] Triggered export. ` +
-        `operation=${result.operationName} output=${result.outputUri}`,
+          `operation=${result.operationName} output=${result.outputUri}`,
       );
       await writeBackupLog(result, 'scheduled');
     } catch (err) {
@@ -147,8 +159,8 @@ export const scheduledFirestoreExport = onSchedule(
  */
 export const triggerFirestoreExport_onCall = onCall(
   {
-    region:         'southamerica-east1',
-    memory:         '256MiB',
+    region: 'southamerica-east1',
+    memory: '256MiB',
     timeoutSeconds: 540,
   },
   async (request) => {
@@ -156,18 +168,22 @@ export const triggerFirestoreExport_onCall = onCall(
       throw new HttpsError('unauthenticated', 'Autenticação necessária.');
     }
 
-    const uid   = request.auth.uid;
+    const uid = request.auth.uid;
     const token = request.auth.token as Record<string, unknown>;
 
-    const isSuperAdmin = token?.isSuperAdmin === true
-      ? true
-      : await (async () => {
-          const snap = await admin.firestore().doc(`users/${uid}`).get();
-          return snap.exists && snap.data()?.isSuperAdmin === true;
-        })();
+    const isSuperAdmin =
+      token?.isSuperAdmin === true
+        ? true
+        : await (async () => {
+            const snap = await admin.firestore().doc(`users/${uid}`).get();
+            return snap.exists && snap.data()?.isSuperAdmin === true;
+          })();
 
     if (!isSuperAdmin) {
-      throw new HttpsError('permission-denied', 'Apenas Super Admins podem disparar backups manuais.');
+      throw new HttpsError(
+        'permission-denied',
+        'Apenas Super Admins podem disparar backups manuais.',
+      );
     }
 
     console.log(`[firestoreBackup][manual] Triggered by uid=${uid}`);
@@ -175,10 +191,10 @@ export const triggerFirestoreExport_onCall = onCall(
     await writeBackupLog(result, 'manual', uid);
 
     return {
-      ok:            true,
+      ok: true,
       operationName: result.operationName,
-      outputUri:     result.outputUri,
-      triggeredAt:   result.triggeredAt,
+      outputUri: result.outputUri,
+      triggeredAt: result.triggeredAt,
     };
   },
 );

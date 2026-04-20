@@ -19,9 +19,9 @@ import type { CoagulacaoRun } from '../types/Coagulacao';
 export function useCoagRuns(lotId: string | null) {
   const labId = useActiveLabId();
 
-  const [runs,      setRuns]      = useState<CoagulacaoRun[]>([]);
+  const [runs, setRuns] = useState<CoagulacaoRun[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error,     setError]     = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!labId || !lotId) {

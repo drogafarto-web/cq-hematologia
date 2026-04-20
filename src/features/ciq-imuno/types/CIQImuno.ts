@@ -20,7 +20,8 @@ import type { TestType, WestgardCatAlert, CIQStatus, CIQLotStatus } from './_sha
  *
  * Firestore path: labs/{labId}/ciq-imuno/{lotId}/runs/{runId}
  */
-export interface CIQImunoRun extends Omit<CQRun,
+export interface CIQImunoRun extends Omit<
+  CQRun,
   | 'westgardViolations'
   | 'level'
   | 'aiData'

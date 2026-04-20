@@ -16,13 +16,13 @@ export interface UroSignaturePayload {
   /** Documento profissional do operador (ex: "CRBM-MG 12345") */
   operatorDocument: string;
   /** ID do lote de controle no Firestore */
-  lotId:            string;
+  lotId: string;
   /** Nível do material de controle: N = normal/negativo, P = patológico/elevado */
-  nivel:            UroNivel;
+  nivel: UroNivel;
   /** Lote físico do material de controle urinário */
-  loteControle:     string;
+  loteControle: string;
   /** Lote das tiras reagentes utilizadas */
-  loteTira:         string;
+  loteTira: string;
   /**
    * Hash determinístico dos resultados (categóricos + numéricos).
    * Gerado por `canonicalizeUroResultados` antes de passar ao payload.
@@ -31,7 +31,7 @@ export interface UroSignaturePayload {
    */
   resultadosCanonical: string;
   /** Data de realização (YYYY-MM-DD) */
-  dataRealizacao:   string;
+  dataRealizacao: string;
 }
 
 export interface UroSignatureResult {
@@ -58,9 +58,7 @@ export interface UroSignatureResult {
  * @param resultados  Mapa de resultados da corrida (`UroanaliseRun['resultados']`).
  * @returns           String JSON canônica com chaves em ordem fixa (URO_ANALITOS).
  */
-export function canonicalizeUroResultados(
-  resultados: UroanaliseRun['resultados'],
-): string {
+export function canonicalizeUroResultados(resultados: UroanaliseRun['resultados']): string {
   const canonical: Record<string, UroValorCategorico | number | null> = {};
 
   for (const analito of URO_ANALITOS) {
@@ -84,22 +82,20 @@ export function canonicalizeUroResultados(
  * Campos serializados em ordem canônica e imutável:
  *   doc, lot, niv, ctrl, tira, res, date
  */
-export async function generateSignature(
-  payload: UroSignaturePayload,
-): Promise<string> {
+export async function generateSignature(payload: UroSignaturePayload): Promise<string> {
   const canonical = JSON.stringify({
-    doc:  payload.operatorDocument,
-    lot:  payload.lotId,
-    niv:  payload.nivel,
+    doc: payload.operatorDocument,
+    lot: payload.lotId,
+    niv: payload.nivel,
     ctrl: payload.loteControle,
     tira: payload.loteTira,
-    res:  payload.resultadosCanonical,
+    res: payload.resultadosCanonical,
     date: payload.dataRealizacao,
   });
 
-  const encoded    = new TextEncoder().encode(canonical);
+  const encoded = new TextEncoder().encode(canonical);
   const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
-  const hashArray  = Array.from(new Uint8Array(hashBuffer));
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 

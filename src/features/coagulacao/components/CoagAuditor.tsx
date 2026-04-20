@@ -6,7 +6,7 @@ import type { CoagulacaoRun } from '../types/Coagulacao';
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface CoagAuditorProps {
-  run:   CoagulacaoRun;
+  run: CoagulacaoRun;
   lotId: string;
   /** Tamanho do QR Code em px. Default: 128 */
   size?: number;
@@ -33,19 +33,15 @@ export function CoagAuditor({ run, lotId, size = 128 }: CoagAuditorProps) {
   const sigShort = sig ? sig.slice(0, 8) : '—';
 
   return (
-    <div className="inline-flex flex-col items-center gap-2.5
+    <div
+      className="inline-flex flex-col items-center gap-2.5
                     p-4 rounded-xl
                     bg-white dark:bg-white/[0.04]
-                    border border-slate-200 dark:border-white/[0.08]">
-
+                    border border-slate-200 dark:border-white/[0.08]"
+    >
       {/* QR Code — fundo branco é necessário para leitores ópticos */}
       <div className="p-2 bg-white rounded-lg">
-        <QRCodeSVG
-          value={auditURL}
-          size={size}
-          level="M"
-          includeMargin={false}
-        />
+        <QRCodeSVG value={auditURL} size={size} level="M" includeMargin={false} />
       </div>
 
       <div className="text-center space-y-0.5">

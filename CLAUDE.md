@@ -1,4 +1,5 @@
 # 🚀 INIT — CQ Hematologia Labclin (Reimplementação Profissional)
+
 ## Para usar no Antigravity com Claude Sonnet + Opus
 
 ---
@@ -188,8 +189,7 @@ export interface AnalyteResult {
   violations?: WestgardViolation[];
 }
 
-export type WestgardViolation =
-  | '1-2s' | '1-3s' | '2-2s' | 'R-4s' | '4-1s' | '10x' | 'warning';
+export type WestgardViolation = '1-2s' | '1-3s' | '2-2s' | 'R-4s' | '4-1s' | '10x' | 'warning';
 
 export type RunStatus = 'Aprovada' | 'Rejeitada' | 'Pendente';
 
@@ -306,9 +306,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   setProfile: (profile) => set({ appProfile: profile, isLoading: false, error: null }),
   setActiveLab: (lab, role) =>
     set((state) => ({
-      appProfile: state.appProfile
-        ? { ...state.appProfile, activeLab: lab, role }
-        : null,
+      appProfile: state.appProfile ? { ...state.appProfile, activeLab: lab, role } : null,
     })),
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error, isLoading: false }),

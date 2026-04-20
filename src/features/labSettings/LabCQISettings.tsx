@@ -11,8 +11,13 @@ import { useAppStore } from '../../store/useAppStore';
 function BackIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <path d="M9 11L5 7l4-4" stroke="currentColor" strokeWidth="1.5"
-        strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M9 11L5 7l4-4"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -30,7 +35,13 @@ function ClockIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
       <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.2" />
-      <path d="M7 4v3.5l2 1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M7 4v3.5l2 1.5"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -38,7 +49,13 @@ function ClockIcon() {
 function CheckIcon() {
   return (
     <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
-      <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M2 6l3 3 5-5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -47,22 +64,22 @@ function CheckIcon() {
 
 interface CQIConfig {
   cqiEnabled: boolean;
-  cqiEmails:  string[];
+  cqiEmails: string[];
 }
 
-const EMAIL_RE  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_EMAILS = 10;
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 
 type SectorStatus = 'sent' | 'no-data' | 'failed';
 interface TriggerCQIResult {
-  ok:       boolean;
-  overall:  'sent' | 'no-data' | 'disabled' | 'partial' | 'failed';
+  ok: boolean;
+  overall: 'sent' | 'no-data' | 'disabled' | 'partial' | 'failed';
   /** Lista de destinatários do envio efetivo (novo schema). */
-  emails?:  string[];
+  emails?: string[];
   /** @deprecated Legacy — será removido quando todos os envios retornarem `emails`. */
-  email?:   string;
+  email?: string;
   sectors: { hematologia: SectorStatus; imunologia: SectorStatus };
 }
 
@@ -74,13 +91,17 @@ type SendNowState =
 
 // Legacy shape compatibility
 interface TriggerCQIResultLegacy extends Omit<TriggerCQIResult, 'emails'> {
-  email?:  string;
+  email?: string;
   emails?: string[];
 }
 
 // ─── Toggle ───────────────────────────────────────────────────────────────────
 
-function Toggle({ value, onChange, disabled }: {
+function Toggle({
+  value,
+  onChange,
+  disabled,
+}: {
   value: boolean;
   onChange: (v: boolean) => void;
   disabled?: boolean;
@@ -106,12 +127,18 @@ function Toggle({ value, onChange, disabled }: {
 
 // ─── Frequency option ─────────────────────────────────────────────────────────
 
-function FreqOption({ label, description, selected, soon, onClick }: {
-  label:       string;
+function FreqOption({
+  label,
+  description,
+  selected,
+  soon,
+  onClick,
+}: {
+  label: string;
   description: string;
-  selected:    boolean;
-  soon?:       boolean;
-  onClick?:    () => void;
+  selected: boolean;
+  soon?: boolean;
+  onClick?: () => void;
 }) {
   return (
     <button
@@ -119,16 +146,20 @@ function FreqOption({ label, description, selected, soon, onClick }: {
       onClick={soon ? undefined : onClick}
       disabled={soon}
       className={`w-full text-left p-4 rounded-xl border transition-all duration-150
-        ${selected && !soon
-          ? 'border-violet-500/40 bg-violet-500/5 dark:bg-violet-500/10'
-          : 'border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.02]'}
+        ${
+          selected && !soon
+            ? 'border-violet-500/40 bg-violet-500/5 dark:bg-violet-500/10'
+            : 'border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.02]'
+        }
         ${soon ? 'opacity-40 cursor-not-allowed' : 'hover:border-slate-300 dark:hover:border-white/15 cursor-pointer'}
       `}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className={`text-sm font-medium ${selected && !soon ? 'text-violet-700 dark:text-violet-300' : 'text-slate-700 dark:text-white/70'}`}>
+            <span
+              className={`text-sm font-medium ${selected && !soon ? 'text-violet-700 dark:text-violet-300' : 'text-slate-700 dark:text-white/70'}`}
+            >
               {label}
             </span>
             {soon && (
@@ -141,10 +172,13 @@ function FreqOption({ label, description, selected, soon, onClick }: {
             {description}
           </p>
         </div>
-        <span className={`shrink-0 mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center transition-all
-          ${selected && !soon
-            ? 'bg-violet-500 border-violet-500 text-white'
-            : 'border-slate-300 dark:border-white/20'}`}
+        <span
+          className={`shrink-0 mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center transition-all
+          ${
+            selected && !soon
+              ? 'bg-violet-500 border-violet-500 text-white'
+              : 'border-slate-300 dark:border-white/20'
+          }`}
         >
           {selected && !soon && <CheckIcon />}
         </span>
@@ -156,56 +190,61 @@ function FreqOption({ label, description, selected, soon, onClick }: {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export function LabCQISettings() {
-  const activeLab     = useActiveLab();
-  const role          = useUserRole();
-  const isSuperAdmin  = useIsSuperAdmin();
+  const activeLab = useActiveLab();
+  const role = useUserRole();
+  const isSuperAdmin = useIsSuperAdmin();
   const setCurrentView = useAppStore((s) => s.setCurrentView);
 
-  const canEdit     = role === 'owner' || role === 'admin';
-  const canSendNow  = isSuperAdmin;
+  const canEdit = role === 'owner' || role === 'admin';
+  const canSendNow = isSuperAdmin;
 
-  const [config,      setConfig]      = useState<CQIConfig>({ cqiEnabled: false, cqiEmails: [] });
-  const [emailDraft,  setEmailDraft]  = useState('');
-  const [loading,     setLoading]     = useState(true);
-  const [saveState,   setSaveState]   = useState<SaveState>('idle');
-  const [emailErr,    setEmailErr]    = useState('');
-  const [sendNow,     setSendNow]     = useState<SendNowState>({ kind: 'idle' });
+  const [config, setConfig] = useState<CQIConfig>({ cqiEnabled: false, cqiEmails: [] });
+  const [emailDraft, setEmailDraft] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saveState, setSaveState] = useState<SaveState>('idle');
+  const [emailErr, setEmailErr] = useState('');
+  const [sendNow, setSendNow] = useState<SendNowState>({ kind: 'idle' });
 
   // ── Load current config from Firestore ──────────────────────────────────────
   useEffect(() => {
     if (!activeLab) return;
     let cancelled = false;
 
-    getDoc(doc(db, 'labs', activeLab.id)).then((snap) => {
-      if (cancelled || !snap.exists()) return;
-      const d = snap.data();
-      const backup = d['backup'] as Record<string, unknown> | undefined;
+    getDoc(doc(db, 'labs', activeLab.id))
+      .then((snap) => {
+        if (cancelled || !snap.exists()) return;
+        const d = snap.data();
+        const backup = d['backup'] as Record<string, unknown> | undefined;
 
-      // Resolve recipients aceitando tanto o novo schema (cqiEmails[] / emails[])
-      // quanto legacy singulares (cqiEmail / email). Prioriza cqi-específico.
-      const resolveList = (): string[] => {
-        const arr = backup?.['cqiEmails'];
-        if (Array.isArray(arr) && arr.length > 0) return (arr as string[]).filter(Boolean);
-        if (typeof backup?.['cqiEmail'] === 'string' && (backup['cqiEmail'] as string).trim()) {
-          return [(backup['cqiEmail'] as string).trim()];
-        }
-        const backupArr = backup?.['emails'];
-        if (Array.isArray(backupArr) && backupArr.length > 0) return (backupArr as string[]).filter(Boolean);
-        if (typeof backup?.['email'] === 'string' && (backup['email'] as string).trim()) {
-          return [(backup['email'] as string).trim()];
-        }
-        return [];
-      };
+        // Resolve recipients aceitando tanto o novo schema (cqiEmails[] / emails[])
+        // quanto legacy singulares (cqiEmail / email). Prioriza cqi-específico.
+        const resolveList = (): string[] => {
+          const arr = backup?.['cqiEmails'];
+          if (Array.isArray(arr) && arr.length > 0) return (arr as string[]).filter(Boolean);
+          if (typeof backup?.['cqiEmail'] === 'string' && (backup['cqiEmail'] as string).trim()) {
+            return [(backup['cqiEmail'] as string).trim()];
+          }
+          const backupArr = backup?.['emails'];
+          if (Array.isArray(backupArr) && backupArr.length > 0)
+            return (backupArr as string[]).filter(Boolean);
+          if (typeof backup?.['email'] === 'string' && (backup['email'] as string).trim()) {
+            return [(backup['email'] as string).trim()];
+          }
+          return [];
+        };
 
-      setConfig({
-        cqiEnabled: Boolean(backup?.['cqiEnabled'] ?? backup?.['enabled'] ?? false),
-        cqiEmails:  resolveList(),
+        setConfig({
+          cqiEnabled: Boolean(backup?.['cqiEnabled'] ?? backup?.['enabled'] ?? false),
+          cqiEmails: resolveList(),
+        });
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
-    }).finally(() => {
-      if (!cancelled) setLoading(false);
-    });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [activeLab]);
 
   // ── Chip list helpers ──────────────────────────────────────────────────────
@@ -216,7 +255,7 @@ export function LabCQISettings() {
       setEmailErr('E-mail inválido.');
       return false;
     }
-    if (config.cqiEmails.some(e => e.toLowerCase() === v.toLowerCase())) {
+    if (config.cqiEmails.some((e) => e.toLowerCase() === v.toLowerCase())) {
       setEmailErr('Esse e-mail já está na lista.');
       return false;
     }
@@ -224,14 +263,14 @@ export function LabCQISettings() {
       setEmailErr(`Máximo de ${MAX_EMAILS} destinatários.`);
       return false;
     }
-    setConfig(c => ({ ...c, cqiEmails: [...c.cqiEmails, v] }));
+    setConfig((c) => ({ ...c, cqiEmails: [...c.cqiEmails, v] }));
     setEmailDraft('');
     setEmailErr('');
     return true;
   }
 
   function removeEmail(target: string) {
-    setConfig(c => ({ ...c, cqiEmails: c.cqiEmails.filter(e => e !== target) }));
+    setConfig((c) => ({ ...c, cqiEmails: c.cqiEmails.filter((e) => e !== target) }));
     setEmailErr('');
   }
 
@@ -257,8 +296,8 @@ export function LabCQISettings() {
       // pra compat com leitores antigos durante período de transição.
       await updateDoc(doc(db, 'labs', activeLab.id), {
         'backup.cqiEnabled': config.cqiEnabled,
-        'backup.cqiEmails':  config.cqiEmails,
-        'backup.cqiEmail':   config.cqiEmails[0] ?? null,
+        'backup.cqiEmails': config.cqiEmails,
+        'backup.cqiEmail': config.cqiEmails[0] ?? null,
       });
       setSaveState('saved');
       setTimeout(() => setSaveState('idle'), 2500);
@@ -273,8 +312,11 @@ export function LabCQISettings() {
     setSendNow({ kind: 'sending' });
 
     try {
-      const call = httpsCallable<{ labId: string }, TriggerCQIResult>(functions, 'triggerCQIReport');
-      const res  = await call({ labId: activeLab.id });
+      const call = httpsCallable<{ labId: string }, TriggerCQIResult>(
+        functions,
+        'triggerCQIReport',
+      );
+      const res = await call({ labId: activeLab.id });
       setSendNow({ kind: 'done', result: res.data });
       setTimeout(() => setSendNow({ kind: 'idle' }), 8000);
     } catch (err) {
@@ -286,14 +328,15 @@ export function LabCQISettings() {
 
   // ── Render ───────────────────────────────────────────────────────────────────
 
-  const labelCls = 'block text-[11px] font-semibold text-slate-500 dark:text-white/35 uppercase tracking-wider mb-1.5';
-  const inputCls = 'w-full bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/20 focus:outline-none focus:border-violet-400 dark:focus:border-violet-500/50 transition-all';
+  const labelCls =
+    'block text-[11px] font-semibold text-slate-500 dark:text-white/35 uppercase tracking-wider mb-1.5';
+  const inputCls =
+    'w-full bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/20 focus:outline-none focus:border-violet-400 dark:focus:border-violet-500/50 transition-all';
 
   if (!activeLab) return null;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F14] text-slate-900 dark:text-white">
-
       {/* ── Header ── */}
       <header className="sticky top-0 z-10 flex items-center gap-3 px-4 sm:px-6 h-12 border-b border-slate-200/80 dark:border-white/[0.06] bg-slate-50/80 dark:bg-[#0B0F14]/80 backdrop-blur-md">
         <button
@@ -313,15 +356,12 @@ export function LabCQISettings() {
 
       {/* ── Body ── */}
       <div className="max-w-lg mx-auto px-4 sm:px-6 py-10 space-y-8">
-
         {/* Title */}
         <div>
           <h1 className="text-xl font-semibold text-slate-900 dark:text-white tracking-tight">
             Relatório CQI por E-mail
           </h1>
-          <p className="text-sm text-slate-500 dark:text-white/35 mt-1">
-            {activeLab.name}
-          </p>
+          <p className="text-sm text-slate-500 dark:text-white/35 mt-1">{activeLab.name}</p>
         </div>
 
         {loading ? (
@@ -381,13 +421,21 @@ export function LabCQISettings() {
                     {canEdit && (
                       <button
                         type="button"
-                        onClick={(e) => { e.stopPropagation(); removeEmail(email); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeEmail(email);
+                        }}
                         className="ml-0.5 rounded-full hover:bg-violet-200 dark:hover:bg-violet-500/25 transition-colors w-5 h-5 flex items-center justify-center"
                         title={`Remover ${email}`}
                         aria-label={`Remover ${email}`}
                       >
                         <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                          <path d="M9 3L3 9M3 3l6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                          <path
+                            d="M9 3L3 9M3 3l6 6"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                          />
                         </svg>
                       </button>
                     )}
@@ -397,28 +445,44 @@ export function LabCQISettings() {
                   <input
                     type="email"
                     value={emailDraft}
-                    onChange={(e) => { setEmailDraft(e.target.value); if (emailErr) setEmailErr(''); }}
+                    onChange={(e) => {
+                      setEmailDraft(e.target.value);
+                      if (emailErr) setEmailErr('');
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ',' || e.key === ';' || e.key === ' ') {
                         e.preventDefault();
                         commitEmailDraft();
-                      } else if (e.key === 'Backspace' && !emailDraft && config.cqiEmails.length > 0) {
+                      } else if (
+                        e.key === 'Backspace' &&
+                        !emailDraft &&
+                        config.cqiEmails.length > 0
+                      ) {
                         removeEmail(config.cqiEmails[config.cqiEmails.length - 1]);
                       }
                     }}
-                    onBlur={() => { if (emailDraft.trim()) commitEmailDraft(); }}
+                    onBlur={() => {
+                      if (emailDraft.trim()) commitEmailDraft();
+                    }}
                     onPaste={(e) => {
                       const text = e.clipboardData.getData('text');
                       if (/[,;\s]/.test(text)) {
                         e.preventDefault();
-                        const parts = text.split(/[,;\s]+/).map(s => s.trim()).filter(Boolean);
+                        const parts = text
+                          .split(/[,;\s]+/)
+                          .map((s) => s.trim())
+                          .filter(Boolean);
                         for (const p of parts) {
                           setEmailDraft(p);
                           if (!commitEmailDraft()) break;
                         }
                       }
                     }}
-                    placeholder={config.cqiEmails.length === 0 ? 'adicione emails — Enter pra confirmar' : 'adicionar outro…'}
+                    placeholder={
+                      config.cqiEmails.length === 0
+                        ? 'adicione emails — Enter pra confirmar'
+                        : 'adicionar outro…'
+                    }
                     className="flex-1 min-w-[160px] bg-transparent outline-none text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/20"
                   />
                 )}
@@ -426,7 +490,12 @@ export function LabCQISettings() {
 
               {emailErr && <p className="text-xs text-red-500">{emailErr}</p>}
               <p className="text-xs text-slate-400 dark:text-white/25">
-                Pressione <kbd className="px-1 py-px rounded bg-slate-100 dark:bg-white/[0.06] text-slate-600 dark:text-white/50 text-[10px] font-mono">Enter</kbd>, vírgula ou espaço para adicionar. Máximo {MAX_EMAILS} destinatários. Todos recebem cada email em cópia nominal.
+                Pressione{' '}
+                <kbd className="px-1 py-px rounded bg-slate-100 dark:bg-white/[0.06] text-slate-600 dark:text-white/50 text-[10px] font-mono">
+                  Enter
+                </kbd>
+                , vírgula ou espaço para adicionar. Máximo {MAX_EMAILS} destinatários. Todos recebem
+                cada email em cópia nominal.
               </p>
             </section>
 
@@ -470,75 +539,81 @@ export function LabCQISettings() {
                       Enviar agora
                     </p>
                     <p className="text-xs text-slate-400 dark:text-white/30 mt-0.5 leading-relaxed">
-                      Dispara o relatório imediatamente, sem esperar o agendamento.
-                      Só envia se houver corridas confirmadas no dia.
+                      Dispara o relatório imediatamente, sem esperar o agendamento. Só envia se
+                      houver corridas confirmadas no dia.
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={handleSendNow}
-                    disabled={sendNow.kind === 'sending' || !config.cqiEnabled || config.cqiEmails.length === 0}
+                    disabled={
+                      sendNow.kind === 'sending' ||
+                      !config.cqiEnabled ||
+                      config.cqiEmails.length === 0
+                    }
                     className="shrink-0 px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-sm font-medium text-slate-700 dark:text-white/75 hover:bg-slate-50 dark:hover:bg-white/[0.07] active:bg-slate-100 dark:active:bg-white/[0.09] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                   >
                     {sendNow.kind === 'sending' ? 'Enviando…' : 'Testar envio'}
                   </button>
                 </div>
 
-                {sendNow.kind === 'done' && (() => {
-                  const { overall, emails, email, sectors } = sendNow.result;
-                  const recipients = emails && emails.length > 0
-                    ? emails
-                    : email
-                      ? [email]
-                      : [];
-                  const destLabel = recipients.length === 0
-                    ? '—'
-                    : recipients.length === 1
-                      ? recipients[0]
-                      : `${recipients.length} destinatários`;
-                  const sectorLabel = (id: 'hematologia' | 'imunologia') =>
-                    id === 'hematologia' ? 'Hematologia' : 'Imunologia';
-                  const sentSectors = (Object.keys(sectors) as Array<keyof typeof sectors>)
-                    .filter(k => sectors[k] === 'sent')
-                    .map(sectorLabel);
-                  const failedSectors = (Object.keys(sectors) as Array<keyof typeof sectors>)
-                    .filter(k => sectors[k] === 'failed')
-                    .map(sectorLabel);
+                {sendNow.kind === 'done' &&
+                  (() => {
+                    const { overall, emails, email, sectors } = sendNow.result;
+                    const recipients = emails && emails.length > 0 ? emails : email ? [email] : [];
+                    const destLabel =
+                      recipients.length === 0
+                        ? '—'
+                        : recipients.length === 1
+                          ? recipients[0]
+                          : `${recipients.length} destinatários`;
+                    const sectorLabel = (id: 'hematologia' | 'imunologia') =>
+                      id === 'hematologia' ? 'Hematologia' : 'Imunologia';
+                    const sentSectors = (Object.keys(sectors) as Array<keyof typeof sectors>)
+                      .filter((k) => sectors[k] === 'sent')
+                      .map(sectorLabel);
+                    const failedSectors = (Object.keys(sectors) as Array<keyof typeof sectors>)
+                      .filter((k) => sectors[k] === 'failed')
+                      .map(sectorLabel);
 
-                  if (overall === 'sent') {
+                    if (overall === 'sent') {
+                      return (
+                        <p
+                          className="text-xs text-emerald-600 dark:text-emerald-400"
+                          title={recipients.join(', ')}
+                        >
+                          ✓ Relatório enviado para {destLabel} ({sentSectors.join(', ')}).
+                        </p>
+                      );
+                    }
+                    if (overall === 'partial') {
+                      return (
+                        <p className="text-xs text-amber-600 dark:text-amber-400/80">
+                          Enviado parcialmente: {sentSectors.join(', ')}. Falhou:{' '}
+                          {failedSectors.join(', ')}.
+                        </p>
+                      );
+                    }
+                    if (overall === 'no-data') {
+                      return (
+                        <p className="text-xs text-slate-500 dark:text-white/40">
+                          Nenhum setor com corridas hoje — nenhum relatório foi enviado.
+                        </p>
+                      );
+                    }
+                    if (overall === 'disabled') {
+                      return (
+                        <p className="text-xs text-amber-600 dark:text-amber-400/80">
+                          Envio desabilitado no Firestore (backup.enabled = false).
+                        </p>
+                      );
+                    }
                     return (
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400" title={recipients.join(', ')}>
-                        ✓ Relatório enviado para {destLabel} ({sentSectors.join(', ')}).
+                      <p className="text-xs text-red-500 dark:text-red-400/80">
+                        Falha no envio em ambos os setores. Verifique os logs.
                       </p>
                     );
-                  }
-                  if (overall === 'partial') {
-                    return (
-                      <p className="text-xs text-amber-600 dark:text-amber-400/80">
-                        Enviado parcialmente: {sentSectors.join(', ')}. Falhou: {failedSectors.join(', ')}.
-                      </p>
-                    );
-                  }
-                  if (overall === 'no-data') {
-                    return (
-                      <p className="text-xs text-slate-500 dark:text-white/40">
-                        Nenhum setor com corridas hoje — nenhum relatório foi enviado.
-                      </p>
-                    );
-                  }
-                  if (overall === 'disabled') {
-                    return (
-                      <p className="text-xs text-amber-600 dark:text-amber-400/80">
-                        Envio desabilitado no Firestore (backup.enabled = false).
-                      </p>
-                    );
-                  }
-                  return (
-                    <p className="text-xs text-red-500 dark:text-red-400/80">
-                      Falha no envio em ambos os setores. Verifique os logs.
-                    </p>
-                  );
-                })()}
+                  })()}
                 {sendNow.kind === 'error' && (
                   <p className="text-xs text-red-500 dark:text-red-400/80">
                     Falha: {sendNow.message}
@@ -562,12 +637,20 @@ export function LabCQISettings() {
             {/* ── Footer ── */}
             {canEdit && (
               <div className="flex items-center justify-between pt-2">
-                <p className={`text-xs transition-all duration-300 ${
-                  saveState === 'saved' ? 'text-emerald-600 dark:text-emerald-400' :
-                  saveState === 'error' ? 'text-red-500' : 'text-transparent'
-                }`}>
-                  {saveState === 'saved' ? '✓ Configurações salvas' :
-                   saveState === 'error' ? 'Erro ao salvar. Tente novamente.' : '.'}
+                <p
+                  className={`text-xs transition-all duration-300 ${
+                    saveState === 'saved'
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : saveState === 'error'
+                        ? 'text-red-500'
+                        : 'text-transparent'
+                  }`}
+                >
+                  {saveState === 'saved'
+                    ? '✓ Configurações salvas'
+                    : saveState === 'error'
+                      ? 'Erro ao salvar. Tente novamente.'
+                      : '.'}
                 </p>
                 <button
                   type="button"
@@ -596,7 +679,9 @@ function NextSendInfo({ enabled, emails }: { enabled: boolean; emails: string[] 
   if (now.getHours() >= 23) nextSend.setDate(nextSend.getDate() + 1);
 
   const fmt = nextSend.toLocaleDateString('pt-BR', {
-    weekday: 'long', day: '2-digit', month: 'long',
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
     timeZone: 'America/Sao_Paulo',
   });
 
@@ -608,17 +693,16 @@ function NextSendInfo({ enabled, emails }: { enabled: boolean; emails: string[] 
     );
   }
 
-  const dest = emails.length === 0
-    ? '—'
-    : emails.length === 1
-      ? emails[0]
-      : `${emails[0]} + ${emails.length - 1} ${emails.length === 2 ? 'outro' : 'outros'}`;
+  const dest =
+    emails.length === 0
+      ? '—'
+      : emails.length === 1
+        ? emails[0]
+        : `${emails[0]} + ${emails.length - 1} ${emails.length === 2 ? 'outro' : 'outros'}`;
 
   return (
     <div className="space-y-1">
-      <p className="text-sm font-medium text-slate-700 dark:text-white/65">
-        {fmt} às 23:00 BRT
-      </p>
+      <p className="text-sm font-medium text-slate-700 dark:text-white/65">{fmt} às 23:00 BRT</p>
       <p className="text-xs text-slate-400 dark:text-white/30" title={emails.join(', ')}>
         Para: {dest}
       </p>

@@ -38,29 +38,21 @@ export type AuthStatus =
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useAuthFlow() {
-  const {
-    appProfile,
-    isLoading,
-    error,
-    setProfile,
-    setActiveLab,
-    setLoading,
-    setError,
-    reset,
-  } = useAuthStore();
+  const { appProfile, isLoading, error, setProfile, setActiveLab, setLoading, setError, reset } =
+    useAuthStore();
 
   // Module-level ref moved here: isolated to hook instance, resets with unmount
-  const pendingLabIdRef  = useRef<string | null>(null);
-  const isSuspendedRef   = useRef(false);
-  const isUnverifiedRef  = useRef(false);
+  const pendingLabIdRef = useRef<string | null>(null);
+  const isSuspendedRef = useRef(false);
+  const isUnverifiedRef = useRef(false);
 
   // ── Bootstrap: subscribe to Firebase auth state ──────────────────────────
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       // Reset per-user derived flags on every auth change
-      pendingLabIdRef.current  = null;
-      isSuspendedRef.current   = false;
-      isUnverifiedRef.current  = false;
+      pendingLabIdRef.current = null;
+      isSuspendedRef.current = false;
+      isUnverifiedRef.current = false;
 
       if (!firebaseUser) {
         reset();
@@ -86,9 +78,7 @@ export function useAuthFlow() {
             // Sign them out immediately and surface an error.
             await signOut();
             reset();
-            setError(
-              'Acesso não autorizado. Solicite ao administrador do seu laboratório.',
-            );
+            setError('Acesso não autorizado. Solicite ao administrador do seu laboratório.');
             return;
           }
           // Legacy email/password fallback — create a skeleton document.
@@ -157,9 +147,7 @@ export function useAuthFlow() {
 
         pendingLabIdRef.current = userDoc.pendingLabId;
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : 'Erro ao carregar perfil. Tente novamente.',
-        );
+        setError(err instanceof Error ? err.message : 'Erro ao carregar perfil. Tente novamente.');
       }
     });
 

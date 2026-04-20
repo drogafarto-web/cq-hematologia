@@ -5,8 +5,8 @@
 // deduplicates secrets with the same name at deploy time, so declaring it here
 // is safe and independent of emailService.ts).
 
-import { Resend }        from 'resend';
-import { defineSecret }  from 'firebase-functions/params';
+import { Resend } from 'resend';
+import { defineSecret } from 'firebase-functions/params';
 
 const RESEND_API_KEY = defineSecret('RESEND_API_KEY');
 
@@ -18,7 +18,7 @@ export type SectorId = 'hematologia' | 'imunologia' | string;
 
 const SECTOR_META: Record<string, { headerColor: string; label: string }> = {
   hematologia: { headerColor: '#1e3a5f', label: 'HEMATOLOGIA' },
-  imunologia:  { headerColor: '#1a4731', label: 'IMUNOLOGIA'  },
+  imunologia: { headerColor: '#1a4731', label: 'IMUNOLOGIA' },
 };
 
 function meta(sector: SectorId) {
@@ -29,16 +29,16 @@ function meta(sector: SectorId) {
 
 export interface CQIEmailOptions {
   /** Um ou mais destinatários do relatório CQI. */
-  to:            string | string[];
-  labName:       string;
-  sector:        SectorId;
-  lotNumber:     string;
-  date:          Date;
-  totalRuns:     number;
-  analyteCount:  number;
-  alertCount:    number;
+  to: string | string[];
+  labName: string;
+  sector: SectorId;
+  lotNumber: string;
+  date: Date;
+  totalRuns: number;
+  analyteCount: number;
+  alertCount: number;
   hasRejections: boolean;
-  pdfBuffer:     Buffer;
+  pdfBuffer: Buffer;
 }
 
 // ─── Subject ──────────────────────────────────────────────────────────────────
@@ -47,7 +47,10 @@ function buildSubject(opts: CQIEmailOptions): string {
   const { sector, labName, date, lotNumber } = opts;
   const { label } = meta(sector);
   const dateStr = date.toLocaleDateString('pt-BR', {
-    timeZone: TZ, day: '2-digit', month: '2-digit', year: 'numeric',
+    timeZone: TZ,
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
   });
   const shortLot = lotNumber.length > 14 ? `${lotNumber.slice(0, 14)}…` : lotNumber;
   return `[CQI][${label}] ${labName} · ${dateStr} · Lote #${shortLot}`;
@@ -56,8 +59,10 @@ function buildSubject(opts: CQIEmailOptions): string {
 // ─── Status line ──────────────────────────────────────────────────────────────
 
 function statusLine(opts: CQIEmailOptions): { icon: string; text: string; color: string } {
-  if (opts.hasRejections) return { icon: '❌', text: 'Corridas reprovadas registradas', color: '#dc2626' };
-  if (opts.alertCount > 0) return { icon: '⚠️', text: 'Alertas Westgard presentes',     color: '#d97706' };
+  if (opts.hasRejections)
+    return { icon: '❌', text: 'Corridas reprovadas registradas', color: '#dc2626' };
+  if (opts.alertCount > 0)
+    return { icon: '⚠️', text: 'Alertas Westgard presentes', color: '#d97706' };
   return { icon: '✅', text: 'Dentro do controle', color: '#16a34a' };
 }
 
@@ -65,10 +70,13 @@ function statusLine(opts: CQIEmailOptions): { icon: string; text: string; color:
 
 function buildHtml(opts: CQIEmailOptions): string {
   const { labName, sector, lotNumber, date, totalRuns, analyteCount, alertCount } = opts;
-  const m      = meta(sector);
-  const st     = statusLine(opts);
+  const m = meta(sector);
+  const st = statusLine(opts);
   const dateStr = date.toLocaleDateString('pt-BR', {
-    timeZone: TZ, day: '2-digit', month: '2-digit', year: 'numeric',
+    timeZone: TZ,
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
   });
   const generatedAt = new Date().toLocaleString('pt-BR', { timeZone: TZ });
 
@@ -136,10 +144,11 @@ function buildHtml(opts: CQIEmailOptions): string {
 
 function buildFilename(opts: CQIEmailOptions): string {
   const { label } = meta(opts.sector);
-  const d = opts.date
-    .toLocaleDateString('pt-BR', { timeZone: TZ })
-    .replace(/\//g, '-');
-  const safeName = opts.labName.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '').slice(0, 20);
+  const d = opts.date.toLocaleDateString('pt-BR', { timeZone: TZ }).replace(/\//g, '-');
+  const safeName = opts.labName
+    .replace(/\s+/g, '_')
+    .replace(/[^a-zA-Z0-9_]/g, '')
+    .slice(0, 20);
   return `cqi_${label.toLowerCase()}_${safeName}_${d}.pdf`;
 }
 
@@ -159,14 +168,14 @@ export async function sendCQIEmail(opts: CQIEmailOptions): Promise<void> {
   }
 
   const { error } = await resend.emails.send({
-    from:        'HC Quality CQI <cqi@app.labclinmg.com.br>',
-    to:          recipients,
-    subject:     buildSubject(opts),
-    html:        buildHtml(opts),
+    from: 'HC Quality CQI <cqi@app.labclinmg.com.br>',
+    to: recipients,
+    subject: buildSubject(opts),
+    html: buildHtml(opts),
     attachments: [
       {
         filename: buildFilename(opts),
-        content:  opts.pdfBuffer,
+        content: opts.pdfBuffer,
       },
     ],
   });

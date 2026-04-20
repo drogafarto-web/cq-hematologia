@@ -41,9 +41,9 @@ type SerializedAnalyteResult = Omit<AnalyteResult, 'timestamp'> & {
 function serializeLot(lot: ControlLot): SerializedLot {
   return {
     ...lot,
-    startDate:  lot.startDate.toISOString(),
+    startDate: lot.startDate.toISOString(),
     expiryDate: lot.expiryDate.toISOString(),
-    createdAt:  lot.createdAt.toISOString(),
+    createdAt: lot.createdAt.toISOString(),
     runs: lot.runs.map(serializeRun),
   };
 }
@@ -51,9 +51,9 @@ function serializeLot(lot: ControlLot): SerializedLot {
 function deserializeLot(s: SerializedLot): ControlLot {
   return {
     ...s,
-    startDate:  new Date(s.startDate),
+    startDate: new Date(s.startDate),
     expiryDate: new Date(s.expiryDate),
-    createdAt:  new Date(s.createdAt),
+    createdAt: new Date(s.createdAt),
     runs: s.runs.map(deserializeRun),
   };
 }
@@ -96,10 +96,10 @@ export class LocalStorageService implements DatabaseService {
 
   async saveState(state: StoredState): Promise<void> {
     const persisted: PersistedState = {
-      v:                 SCHEMA_VERSION,
-      activeLotId:       state.activeLotId,
+      v: SCHEMA_VERSION,
+      activeLotId: state.activeLotId,
       selectedAnalyteId: state.selectedAnalyteId,
-      lots:              state.lots.map(serializeLot),
+      lots: state.lots.map(serializeLot),
     };
 
     try {
@@ -107,7 +107,7 @@ export class LocalStorageService implements DatabaseService {
     } catch {
       // QuotaExceededError — common in private/incognito mode or heavy usage
       throw new Error(
-        'Armazenamento local insuficiente. Verifique o espaço disponível no navegador.'
+        'Armazenamento local insuficiente. Verifique o espaço disponível no navegador.',
       );
     }
 
@@ -127,16 +127,16 @@ export class LocalStorageService implements DatabaseService {
       if (persisted.v !== SCHEMA_VERSION) {
         // Schema mismatch — discard rather than crash or corrupt
         console.warn(
-          `[LocalStorageService] Schema mismatch (stored v${persisted.v}, expected v${SCHEMA_VERSION}). Discarding.`
+          `[LocalStorageService] Schema mismatch (stored v${persisted.v}, expected v${SCHEMA_VERSION}). Discarding.`,
         );
         localStorage.removeItem(this.key);
         return null;
       }
 
       return {
-        activeLotId:       persisted.activeLotId,
+        activeLotId: persisted.activeLotId,
         selectedAnalyteId: persisted.selectedAnalyteId,
-        lots:              persisted.lots.map(deserializeLot),
+        lots: persisted.lots.map(deserializeLot),
       };
     } catch (err) {
       console.error('[LocalStorageService] Failed to parse stored state:', err);
@@ -163,9 +163,9 @@ export class LocalStorageService implements DatabaseService {
       try {
         const persisted = JSON.parse(e.newValue) as PersistedState;
         callback({
-          activeLotId:       persisted.activeLotId,
+          activeLotId: persisted.activeLotId,
           selectedAnalyteId: persisted.selectedAnalyteId,
-          lots:              persisted.lots.map(deserializeLot),
+          lots: persisted.lots.map(deserializeLot),
         });
       } catch {
         // Ignore malformed events from other tabs
@@ -194,12 +194,20 @@ export class LocalStorageService implements DatabaseService {
   // still matters for the Firebase implementation, which has real cost.
 
   async saveAppState(patch: AppStatePatch): Promise<void> {
-    const current = (await this.loadState()) ?? { lots: [], activeLotId: null, selectedAnalyteId: null };
+    const current = (await this.loadState()) ?? {
+      lots: [],
+      activeLotId: null,
+      selectedAnalyteId: null,
+    };
     await this.saveState({ ...current, ...patch });
   }
 
   async saveLot(lot: ControlLot): Promise<void> {
-    const current = (await this.loadState()) ?? { lots: [], activeLotId: null, selectedAnalyteId: null };
+    const current = (await this.loadState()) ?? {
+      lots: [],
+      activeLotId: null,
+      selectedAnalyteId: null,
+    };
     const existed = current.lots.some((l) => l.id === lot.id);
     const lots = existed
       ? current.lots.map((l) => (l.id === lot.id ? lot : l))
@@ -208,29 +216,39 @@ export class LocalStorageService implements DatabaseService {
   }
 
   async deleteLot(lotId: string): Promise<void> {
-    const current = (await this.loadState()) ?? { lots: [], activeLotId: null, selectedAnalyteId: null };
+    const current = (await this.loadState()) ?? {
+      lots: [],
+      activeLotId: null,
+      selectedAnalyteId: null,
+    };
     const lots = current.lots.filter((l) => l.id !== lotId);
     const activeLotId = current.activeLotId === lotId ? (lots[0]?.id ?? null) : current.activeLotId;
     await this.saveState({ ...current, lots, activeLotId });
   }
 
   async saveRun(lotId: string, run: Run): Promise<void> {
-    const current = (await this.loadState()) ?? { lots: [], activeLotId: null, selectedAnalyteId: null };
+    const current = (await this.loadState()) ?? {
+      lots: [],
+      activeLotId: null,
+      selectedAnalyteId: null,
+    };
     const lots = current.lots.map((l) => {
       if (l.id !== lotId) return l;
       const existed = l.runs.some((r) => r.id === run.id);
-      const runs = existed
-        ? l.runs.map((r) => (r.id === run.id ? run : r))
-        : [...l.runs, run];
+      const runs = existed ? l.runs.map((r) => (r.id === run.id ? run : r)) : [...l.runs, run];
       return { ...l, runs };
     });
     await this.saveState({ ...current, lots });
   }
 
   async deleteRun(lotId: string, runId: string): Promise<void> {
-    const current = (await this.loadState()) ?? { lots: [], activeLotId: null, selectedAnalyteId: null };
+    const current = (await this.loadState()) ?? {
+      lots: [],
+      activeLotId: null,
+      selectedAnalyteId: null,
+    };
     const lots = current.lots.map((l) =>
-      l.id === lotId ? { ...l, runs: l.runs.filter((r) => r.id !== runId) } : l
+      l.id === lotId ? { ...l, runs: l.runs.filter((r) => r.id !== runId) } : l,
     );
     await this.saveState({ ...current, lots });
   }

@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
-import { useActiveLab, useIsSuperAdmin, useUser, useUserRole, useAvailableLabs } from '../../store/useAuthStore';
+import {
+  useActiveLab,
+  useIsSuperAdmin,
+  useUser,
+  useUserRole,
+  useAvailableLabs,
+} from '../../store/useAuthStore';
 import { useAppStore } from '../../store/useAppStore';
 import { useAuthFlow } from '../auth/hooks/useAuthFlow';
 import { ThemeToggle } from '../../shared/components/ui/ThemeToggle';
 import type { View } from '../../types';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
-
 
 function DotsIcon() {
   return (
@@ -21,7 +26,13 @@ function DotsIcon() {
 function ArrowRight() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M3 7h8M8 4l3 3-3 3"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -33,7 +44,12 @@ function HematologyIcon() {
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
       <circle cx="10" cy="10" r="4.5" stroke="currentColor" strokeWidth="1.5" />
       <circle cx="10" cy="10" r="1.5" fill="currentColor" />
-      <path d="M10 2.5v2.5M10 15v2.5M2.5 10H5M15 10h2.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+      <path
+        d="M10 2.5v2.5M10 15v2.5M2.5 10H5M15 10h2.5"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -41,9 +57,23 @@ function HematologyIcon() {
 function BiochemIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-      <path d="M7.5 3h5l1.5 4H6L7.5 3z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
-      <path d="M6 7l-1.5 9.5h11L14 7" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
-      <path d="M8.5 12.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5" stroke="currentColor" strokeWidth="1.2" />
+      <path
+        d="M7.5 3h5l1.5 4H6L7.5 3z"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M6 7l-1.5 9.5h11L14 7"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8.5 12.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5"
+        stroke="currentColor"
+        strokeWidth="1.2"
+      />
     </svg>
   );
 }
@@ -51,7 +81,14 @@ function BiochemIcon() {
 function CoagIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-      <path d="M2.5 10C4 7 6 13 8 10C10 7 12 13 14 10C15.5 7.5 17 10 17.5 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path
+        d="M2.5 10C4 7 6 13 8 10C10 7 12 13 14 10C15.5 7.5 17 10 17.5 10"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
     </svg>
   );
 }
@@ -59,8 +96,18 @@ function CoagIcon() {
 function UrineIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-      <path d="M10 2.5C10 2.5 5 9 5 13a5 5 0 0 0 10 0C15 9 10 2.5 10 2.5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-      <path d="M7.5 14.5C7.5 15.6 8.6 16.3 10 16.3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <path
+        d="M10 2.5C10 2.5 5 9 5 13a5 5 0 0 0 10 0C15 9 10 2.5 10 2.5z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M7.5 14.5C7.5 15.6 8.6 16.3 10 16.3"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -69,7 +116,12 @@ function ImunoIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
       <circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="1.4" />
-      <path d="M10 2v3M10 15v3M2 10h3M15 10h3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <path
+        d="M10 2v3M10 15v3M2 10h3M15 10h3"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
       <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" />
     </svg>
   );
@@ -160,21 +212,13 @@ export function ModuleHub() {
   const canManageSettings = role === 'owner' || role === 'admin';
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const firstName =
-    user?.displayName?.split(' ')[0] ??
-    user?.email?.split('@')[0] ??
-    'Você';
+  const firstName = user?.displayName?.split(' ')[0] ?? user?.email?.split('@')[0] ?? 'Você';
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F14] text-slate-900 dark:text-white flex flex-col transition-colors duration-300">
-
       {/* ── Header ───────────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-20 flex items-center gap-3 px-4 sm:px-6 h-12 border-b border-slate-200/80 dark:border-white/[0.06] shrink-0 bg-slate-50/80 dark:bg-[#0B0F14]/80 backdrop-blur-md supports-[backdrop-filter]:bg-slate-50/60 dark:supports-[backdrop-filter]:bg-[#0B0F14]/60">
-        <img
-          src="/assets/labclin-logo.png"
-          alt="CQ Labclin"
-          className="h-8 w-auto"
-        />
+        <img src="/assets/labclin-logo.png" alt="CQ Labclin" className="h-8 w-auto" />
 
         <p className="text-sm font-semibold text-slate-800 dark:text-white/85 flex-1 min-w-0 truncate">
           CQ Labclin
@@ -211,7 +255,10 @@ export function ModuleHub() {
                 {isSuperAdmin && (
                   <button
                     type="button"
-                    onClick={() => { setCurrentView('superadmin'); setMenuOpen(false); }}
+                    onClick={() => {
+                      setCurrentView('superadmin');
+                      setMenuOpen(false);
+                    }}
                     className="w-full px-4 min-h-[44px] px-4 text-left text-sm text-slate-600 dark:text-white/55 hover:text-slate-900 dark:hover:text-white/85 hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all flex items-center"
                   >
                     Painel Super Admin
@@ -248,7 +295,6 @@ export function ModuleHub() {
       {/* ── Body ─────────────────────────────────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-
           {/* Greeting */}
           <div className="mb-10">
             <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white tracking-tight">
@@ -289,8 +335,21 @@ export function ModuleHub() {
                 onClick={() => setCurrentView('bulaparser')}
                 icon={
                   <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
-                    <rect x="1.5" y="0.5" width="8" height="12" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
-                    <path d="M4 3.5h3.5M4 6h3.5M4 8.5h2" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+                    <rect
+                      x="1.5"
+                      y="0.5"
+                      width="8"
+                      height="12"
+                      rx="1.5"
+                      stroke="currentColor"
+                      strokeWidth="1.2"
+                    />
+                    <path
+                      d="M4 3.5h3.5M4 6h3.5M4 8.5h2"
+                      stroke="currentColor"
+                      strokeWidth="1.1"
+                      strokeLinecap="round"
+                    />
                   </svg>
                 }
               />
@@ -299,8 +358,21 @@ export function ModuleHub() {
                 onClick={() => setCurrentView('reports')}
                 icon={
                   <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
-                    <rect x="1" y="1" width="11" height="11" rx="2" stroke="currentColor" strokeWidth="1.2" />
-                    <path d="M4 9.5V6.5M6.5 9.5V4M9 9.5V7.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                    <rect
+                      x="1"
+                      y="1"
+                      width="11"
+                      height="11"
+                      rx="2"
+                      stroke="currentColor"
+                      strokeWidth="1.2"
+                    />
+                    <path
+                      d="M4 9.5V6.5M6.5 9.5V4M9 9.5V7.5"
+                      stroke="currentColor"
+                      strokeWidth="1.2"
+                      strokeLinecap="round"
+                    />
                   </svg>
                 }
               />
@@ -311,8 +383,12 @@ export function ModuleHub() {
                   icon={
                     <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
                       <circle cx="6.5" cy="6.5" r="2" stroke="currentColor" strokeWidth="1.2" />
-                      <path d="M6.5 1v1.2M6.5 10.8V12M1 6.5h1.2M10.8 6.5H12M2.7 2.7l.85.85M9.45 9.45l.85.85M2.7 10.3l.85-.85M9.45 3.55l.85-.85"
-                        stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+                      <path
+                        d="M6.5 1v1.2M6.5 10.8V12M1 6.5h1.2M10.8 6.5H12M2.7 2.7l.85.85M9.45 9.45l.85.85M2.7 10.3l.85-.85M9.45 3.55l.85-.85"
+                        stroke="currentColor"
+                        strokeWidth="1.1"
+                        strokeLinecap="round"
+                      />
                     </svg>
                   }
                 />
@@ -323,14 +399,18 @@ export function ModuleHub() {
                   onClick={() => setCurrentView('superadmin')}
                   icon={
                     <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
-                      <path d="M6.5 1L2 3.5v3.5C2 9.8 4 11.5 6.5 12 9 11.5 11 9.8 11 7V3.5L6.5 1z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+                      <path
+                        d="M6.5 1L2 3.5v3.5C2 9.8 4 11.5 6.5 12 9 11.5 11 9.8 11 7V3.5L6.5 1z"
+                        stroke="currentColor"
+                        strokeWidth="1.2"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   }
                 />
               )}
             </div>
           </section>
-
         </div>
       </div>
     </div>
@@ -348,17 +428,23 @@ function ModuleCard({ mod, onNavigate }: ModuleCardProps) {
   if (mod.status === 'soon') {
     return (
       <div className="flex items-start gap-3.5 p-4 rounded-xl border border-slate-200 dark:border-white/[0.05] bg-white dark:bg-white/[0.01] opacity-40 select-none">
-        <div className={`w-8 h-8 rounded-lg ${mod.iconBg} ${mod.iconColor} flex items-center justify-center shrink-0`}>
+        <div
+          className={`w-8 h-8 rounded-lg ${mod.iconBg} ${mod.iconColor} flex items-center justify-center shrink-0`}
+        >
           {mod.icon}
         </div>
         <div className="flex-1 min-w-0 pt-0.5">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-slate-700 dark:text-white/55">{mod.name}</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-white/55">
+              {mod.name}
+            </span>
             <span className="text-[10px] px-1.5 py-px rounded bg-slate-100 dark:bg-white/[0.06] text-slate-400 dark:text-white/25 font-medium shrink-0">
               Em breve
             </span>
           </div>
-          <p className="text-xs text-slate-400 dark:text-white/25 mt-0.5 leading-relaxed">{mod.tagline}</p>
+          <p className="text-xs text-slate-400 dark:text-white/25 mt-0.5 leading-relaxed">
+            {mod.tagline}
+          </p>
         </div>
       </div>
     );
@@ -370,12 +456,16 @@ function ModuleCard({ mod, onNavigate }: ModuleCardProps) {
       onClick={() => mod.view && onNavigate(mod.view)}
       className="group flex items-start gap-3.5 p-4 rounded-xl border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.02] hover:border-violet-400/50 dark:hover:border-violet-500/25 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-all duration-150 text-left w-full"
     >
-      <div className={`w-8 h-8 rounded-lg ${mod.iconBg} ${mod.iconColor} flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-150`}>
+      <div
+        className={`w-8 h-8 rounded-lg ${mod.iconBg} ${mod.iconColor} flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-150`}
+      >
         {mod.icon}
       </div>
       <div className="flex-1 min-w-0 pt-0.5">
         <p className="text-sm font-medium text-slate-800 dark:text-white/85">{mod.name}</p>
-        <p className="text-xs text-slate-400 dark:text-white/35 mt-0.5 leading-relaxed">{mod.tagline}</p>
+        <p className="text-xs text-slate-400 dark:text-white/35 mt-0.5 leading-relaxed">
+          {mod.tagline}
+        </p>
       </div>
       <span className="shrink-0 mt-1 text-slate-300 dark:text-white/20 group-hover:text-violet-500 dark:group-hover:text-violet-400 group-hover:translate-x-0.5 transition-all duration-150">
         <ArrowRight />

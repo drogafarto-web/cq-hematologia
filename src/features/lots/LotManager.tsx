@@ -9,7 +9,13 @@ import { groupByMonth } from '../../shared/utils/lotUtils';
 function TrashIcon() {
   return (
     <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <path d="M2 3.5h10M5.5 3.5V2.5a.5.5 0 01.5-.5h2a.5.5 0 01.5.5v1M12 3.5l-.8 8a1 1 0 01-1 .9H3.8a1 1 0 01-1-.9L2 3.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M2 3.5h10M5.5 3.5V2.5a.5.5 0 01.5-.5h2a.5.5 0 01.5.5v1M12 3.5l-.8 8a1 1 0 01-1 .9H3.8a1 1 0 01-1-.9L2 3.5"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -33,18 +39,26 @@ function LotBadge({ level }: { level: 1 | 2 | 3 }) {
 function ExpiryLabel({ date }: { date: Date }) {
   const diff = date.getTime() - Date.now();
   const days = Math.ceil(diff / 86_400_000);
-  const fmtd = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  if (days < 0)   return <span className="text-xs text-red-600 dark:text-red-400/80">Vencido</span>;
-  if (days <= 30) return <span className="text-xs text-amber-600 dark:text-amber-400/80">{fmtd} ({days}d)</span>;
+  const fmtd = date.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+  if (days < 0) return <span className="text-xs text-red-600 dark:text-red-400/80">Vencido</span>;
+  if (days <= 30)
+    return (
+      <span className="text-xs text-amber-600 dark:text-amber-400/80">
+        {fmtd} ({days}d)
+      </span>
+    );
   return <span className="text-xs text-slate-400 dark:text-white/30">{fmtd}</span>;
 }
-
 
 // ─── Lot row ──────────────────────────────────────────────────────────────────
 
 interface LotRowProps {
-  lot:      ControlLot;
-  active:   boolean;
+  lot: ControlLot;
+  active: boolean;
   onSelect: () => void;
   onDelete: () => void;
 }
@@ -54,7 +68,10 @@ function LotRow({ lot, active, onSelect, onDelete }: LotRowProps) {
 
   function handleDelete(e: React.MouseEvent) {
     e.stopPropagation();
-    if (!confirmDelete) { setConfirmDelete(true); return; }
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
     onDelete();
   }
 
@@ -75,7 +92,9 @@ function LotRow({ lot, active, onSelect, onDelete }: LotRowProps) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
           <LotBadge level={lot.level} />
-          <span className={`text-sm font-medium truncate ${active ? 'text-slate-900 dark:text-white/90' : 'text-slate-600 dark:text-white/70'}`}>
+          <span
+            className={`text-sm font-medium truncate ${active ? 'text-slate-900 dark:text-white/90' : 'text-slate-600 dark:text-white/70'}`}
+          >
             {lot.controlName}
           </span>
         </div>
@@ -105,20 +124,28 @@ function LotRow({ lot, active, onSelect, onDelete }: LotRowProps) {
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface LotManagerProps {
-  lots:        ControlLot[];
+  lots: ControlLot[];
   activeLotId: string | null;
-  showAdd:     boolean;
-  onCloseAdd:  () => void;
-  onAdd:       (input: AddLotInput) => Promise<string>;
-  onDelete:    (lotId: string) => Promise<void>;
-  onSelect:    (id: string) => Promise<void>;
+  showAdd: boolean;
+  onCloseAdd: () => void;
+  onAdd: (input: AddLotInput) => Promise<string>;
+  onDelete: (lotId: string) => Promise<void>;
+  onSelect: (id: string) => Promise<void>;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function LotManager({ lots, activeLotId, showAdd, onCloseAdd, onAdd, onDelete, onSelect }: LotManagerProps) {
+export function LotManager({
+  lots,
+  activeLotId,
+  showAdd,
+  onCloseAdd,
+  onAdd,
+  onDelete,
+  onSelect,
+}: LotManagerProps) {
   const groups = groupByMonth(lots);
-  const today  = new Date();
+  const today = new Date();
 
   if (lots.length === 0) {
     return (
@@ -126,12 +153,29 @@ export function LotManager({ lots, activeLotId, showAdd, onCloseAdd, onAdd, onDe
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.07] flex items-center justify-center mb-3 text-slate-400 dark:text-white/20">
             <svg width="20" height="20" viewBox="0 0 18 18" fill="none" aria-hidden>
-              <rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.3" />
-              <path d="M9 6v6M6 9h6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+              <rect
+                x="2"
+                y="2"
+                width="14"
+                height="14"
+                rx="2"
+                stroke="currentColor"
+                strokeWidth="1.3"
+              />
+              <path
+                d="M9 6v6M6 9h6"
+                stroke="currentColor"
+                strokeWidth="1.3"
+                strokeLinecap="round"
+              />
             </svg>
           </div>
-          <p className="text-sm text-slate-500 dark:text-white/40 font-medium">Nenhum lote cadastrado</p>
-          <p className="text-xs text-slate-400 dark:text-white/20 mt-1">Clique em "+ Novo lote" para começar</p>
+          <p className="text-sm text-slate-500 dark:text-white/40 font-medium">
+            Nenhum lote cadastrado
+          </p>
+          <p className="text-xs text-slate-400 dark:text-white/20 mt-1">
+            Clique em "+ Novo lote" para começar
+          </p>
         </div>
         {showAdd && <AddLotModal onAdd={onAdd} onClose={onCloseAdd} />}
       </>
@@ -143,9 +187,12 @@ export function LotManager({ lots, activeLotId, showAdd, onCloseAdd, onAdd, onDe
       <div className="space-y-6">
         {groups.map(({ key, label, lots: groupLots }) => {
           const hasAtual = groupLots.some((l) => l.expiryDate >= today);
-          const sorted   = [...groupLots].sort((a, b) => (a.level ?? 0) - (b.level ?? 0));
+          const sorted = [...groupLots].sort((a, b) => (a.level ?? 0) - (b.level ?? 0));
           return (
-            <div key={key} className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-xl overflow-hidden shadow-sm dark:shadow-none">
+            <div
+              key={key}
+              className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-xl overflow-hidden shadow-sm dark:shadow-none"
+            >
               {/* Month header */}
               <div className="flex items-center gap-2.5 px-4 py-3 border-b border-slate-100 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.02]">
                 <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 capitalize">

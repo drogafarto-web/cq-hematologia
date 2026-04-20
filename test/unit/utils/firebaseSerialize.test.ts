@@ -18,7 +18,7 @@ function serializeRunContract(run: Run): Record<string, unknown> {
   const { id: _id, timestamp, results, sampleId, manualOverride, ...rest } = run;
   return {
     ...rest,
-    ...(sampleId      && { sampleId }),
+    ...(sampleId && { sampleId }),
     ...(manualOverride && { manualOverride }),
     timestamp: timestamp.getTime(), // simulamos Timestamp.fromDate
     results: results.map((r) => ({
@@ -31,16 +31,22 @@ function serializeRunContract(run: Run): Record<string, unknown> {
 
 function deserializeRunContract(raw: Record<string, unknown>): Partial<Run> {
   const d = raw as {
-    lotId: string; labId: string; imageUrl: string; status: string;
-    createdBy: string; timestamp: number; results: unknown[];
-    sampleId?: string; manualOverride?: boolean;
+    lotId: string;
+    labId: string;
+    imageUrl: string;
+    status: string;
+    createdBy: string;
+    timestamp: number;
+    results: unknown[];
+    sampleId?: string;
+    manualOverride?: boolean;
   };
   return {
-    lotId:     d.lotId,
-    labId:     d.labId,
-    imageUrl:  d.imageUrl,
+    lotId: d.lotId,
+    labId: d.labId,
+    imageUrl: d.imageUrl,
     createdBy: d.createdBy,
-    ...(d.sampleId       && { sampleId:       d.sampleId }),
+    ...(d.sampleId && { sampleId: d.sampleId }),
     ...(d.manualOverride && { manualOverride: d.manualOverride }),
   };
 }
@@ -48,26 +54,26 @@ function deserializeRunContract(raw: Record<string, unknown>): Partial<Run> {
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 const BASE_RESULT: AnalyteResult = {
-  id:         'res-1',
-  runId:      'run-1',
-  analyteId:  'WBC',
-  value:      5.0,
+  id: 'res-1',
+  runId: 'run-1',
+  analyteId: 'WBC',
+  value: 5.0,
   confidence: 1.0,
-  reasoning:  'extracted',
-  timestamp:  new Date('2026-04-16T10:00:00Z'),
+  reasoning: 'extracted',
+  timestamp: new Date('2026-04-16T10:00:00Z'),
   violations: [] as WestgardViolation[],
 };
 
 function makeRun(overrides: Partial<Run> = {}): Run {
   return {
-    id:        'run-1',
-    lotId:     'lot-1',
-    labId:     'lab-1',
-    imageUrl:  '',
-    status:    'Aprovada',
+    id: 'run-1',
+    lotId: 'lot-1',
+    labId: 'lab-1',
+    imageUrl: '',
+    status: 'Aprovada',
     createdBy: 'user-1',
     timestamp: new Date('2026-04-16T10:00:00Z'),
-    results:   [BASE_RESULT],
+    results: [BASE_RESULT],
     ...overrides,
   };
 }
@@ -75,7 +81,6 @@ function makeRun(overrides: Partial<Run> = {}): Run {
 // ─── serializeRun — campos opcionais ─────────────────────────────────────────
 
 describe('serializeRun — campos opcionais', () => {
-
   it('NÃO inclui sampleId quando undefined (evita erro Firestore)', () => {
     const run = makeRun({ sampleId: undefined });
     const out = serializeRunContract(run);
@@ -113,7 +118,10 @@ describe('serializeRun — campos opcionais', () => {
   });
 
   it('serializa violations como array vazio quando ausente', () => {
-    const resultSemViolations: AnalyteResult = { ...BASE_RESULT, violations: undefined as unknown as WestgardViolation[] };
+    const resultSemViolations: AnalyteResult = {
+      ...BASE_RESULT,
+      violations: undefined as unknown as WestgardViolation[],
+    };
     const run = makeRun({ results: [resultSemViolations] });
     const out = serializeRunContract(run) as { results: Array<{ violations: unknown }> };
     expect(out.results[0].violations).toEqual([]);
@@ -135,27 +143,60 @@ describe('serializeRun — campos opcionais', () => {
 // ─── deserializeRun — campos opcionais ───────────────────────────────────────
 
 describe('deserializeRun — campos opcionais', () => {
-
   it('NÃO inclui sampleId quando campo ausente no Firestore', () => {
-    const raw = { lotId: 'l', labId: 'l', imageUrl: '', status: 'Aprovada', createdBy: 'u', timestamp: 0, results: [] };
+    const raw = {
+      lotId: 'l',
+      labId: 'l',
+      imageUrl: '',
+      status: 'Aprovada',
+      createdBy: 'u',
+      timestamp: 0,
+      results: [],
+    };
     const out = deserializeRunContract(raw);
     expect(out).not.toHaveProperty('sampleId');
   });
 
   it('NÃO inclui manualOverride quando campo ausente no Firestore', () => {
-    const raw = { lotId: 'l', labId: 'l', imageUrl: '', status: 'Aprovada', createdBy: 'u', timestamp: 0, results: [] };
+    const raw = {
+      lotId: 'l',
+      labId: 'l',
+      imageUrl: '',
+      status: 'Aprovada',
+      createdBy: 'u',
+      timestamp: 0,
+      results: [],
+    };
     const out = deserializeRunContract(raw);
     expect(out).not.toHaveProperty('manualOverride');
   });
 
   it('INCLUI sampleId quando presente no Firestore', () => {
-    const raw = { lotId: 'l', labId: 'l', imageUrl: '', status: 'Aprovada', createdBy: 'u', timestamp: 0, results: [], sampleId: 'HHI1372' };
+    const raw = {
+      lotId: 'l',
+      labId: 'l',
+      imageUrl: '',
+      status: 'Aprovada',
+      createdBy: 'u',
+      timestamp: 0,
+      results: [],
+      sampleId: 'HHI1372',
+    };
     const out = deserializeRunContract(raw);
     expect(out.sampleId).toBe('HHI1372');
   });
 
   it('INCLUI manualOverride:true quando presente no Firestore', () => {
-    const raw = { lotId: 'l', labId: 'l', imageUrl: '', status: 'Aprovada', createdBy: 'u', timestamp: 0, results: [], manualOverride: true };
+    const raw = {
+      lotId: 'l',
+      labId: 'l',
+      imageUrl: '',
+      status: 'Aprovada',
+      createdBy: 'u',
+      timestamp: 0,
+      results: [],
+      manualOverride: true,
+    };
     const out = deserializeRunContract(raw);
     expect(out.manualOverride).toBe(true);
   });
@@ -181,7 +222,6 @@ describe('deserializeRun — campos opcionais', () => {
 // ─── confirmRun — objeto Run construído sem undefined ────────────────────────
 
 describe('construção do objeto Run em confirmRun', () => {
-
   it('manualOverride=false → campo omitido com spread condicional', () => {
     const manualOverride = false;
     const run = {

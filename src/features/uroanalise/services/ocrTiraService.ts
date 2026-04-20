@@ -20,28 +20,28 @@ export type OcrResult = Record<UroAnalitoId, OcrField>;
 // ─── Callable contract ────────────────────────────────────────────────────────
 
 interface ParseUrinaPayload {
-  base64:   string;
+  base64: string;
   mimeType: string;
 }
 
 interface CfFieldString {
-  valor:      string | null;
+  valor: string | null;
   confidence: number;
 }
 
 interface CfFieldNumber {
-  valor:      number | null;
+  valor: number | null;
   confidence: number;
 }
 
 interface ParseUrinaResult {
-  glicose:    CfFieldString;
-  cetonas:    CfFieldString;
-  proteina:   CfFieldString;
-  nitrito:    CfFieldString;
-  sangue:     CfFieldString;
+  glicose: CfFieldString;
+  cetonas: CfFieldString;
+  proteina: CfFieldString;
+  nitrito: CfFieldString;
+  sangue: CfFieldString;
   leucocitos: CfFieldString;
-  ph:         CfFieldNumber;
+  ph: CfFieldNumber;
 }
 
 const _parseUrinaTira = httpsCallable<ParseUrinaPayload, ParseUrinaResult>(
@@ -107,10 +107,7 @@ function fileToBase64(file: File): Promise<{ base64: string; mimeType: string }>
  * @param image  Foto da tira reagente (JPG/PNG/WebP).
  * @param _labId Reservado — a autenticação é feita server-side via Firebase Auth.
  */
-export async function parseTiraReagente(
-  image: File,
-  _labId: string,
-): Promise<OcrResult> {
+export async function parseTiraReagente(image: File, _labId: string): Promise<OcrResult> {
   // Validação local antes de gastar quota da IA
   if (image.size > MAX_IMAGE_BYTES) {
     throw new Error('Imagem muito grande. Máximo: 4 MB.');
@@ -145,7 +142,7 @@ export async function parseTiraReagente(
       continue;
     }
     result[id] = {
-      valor:      cf.valor as UroValorCategorico | null,
+      valor: cf.valor as UroValorCategorico | null,
       confidence: cf.confidence,
     };
   }

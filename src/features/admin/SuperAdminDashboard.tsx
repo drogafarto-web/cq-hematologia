@@ -18,9 +18,19 @@ function UsersIcon({ size = 18 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none" aria-hidden>
       <circle cx="7" cy="6" r="3" stroke="currentColor" strokeWidth="1.4" />
-      <path d="M1 18c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path
+        d="M1 18c0-3.3 2.7-6 6-6s6 2.7 6 6"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
       <circle cx="15" cy="6" r="2.5" stroke="currentColor" strokeWidth="1.4" />
-      <path d="M19 17c0-2.5-1.6-4.3-4-4.8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path
+        d="M19 17c0-2.5-1.6-4.3-4-4.8"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -28,7 +38,13 @@ function UsersIcon({ size = 18 }: { size?: number }) {
 function BeakerIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden>
-      <path d="M7 3v6.5L3 15a1.5 1.5 0 001.4 2h11.2A1.5 1.5 0 0017 15l-4-5.5V3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M7 3v6.5L3 15a1.5 1.5 0 001.4 2h11.2A1.5 1.5 0 0017 15l-4-5.5V3"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
       <path d="M6 3h8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   );
@@ -46,8 +62,19 @@ function ClockIcon() {
 function SignOutIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M11 5l3 3-3 3M14 8H7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+      <path
+        d="M11 5l3 3-3 3M14 8H7"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -55,7 +82,12 @@ function SignOutIcon() {
 function ShieldIcon() {
   return (
     <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <path d="M7 1L1 4v4c0 3.5 3 5.5 6 6 3-.5 6-2.5 6-6V4L7 1z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+      <path
+        d="M7 1L1 4v4c0 3.5 3 5.5 6 6 3-.5 6-2.5 6-6V4L7 1z"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -72,7 +104,9 @@ interface StatCardProps {
 function StatCard({ icon, label, value, accent }: StatCardProps) {
   return (
     <div className="flex items-center gap-4 px-5 py-4 rounded-2xl bg-white/[0.03] border border-white/[0.07]">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${accent ?? 'bg-white/[0.07] text-white/50'}`}>
+      <div
+        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${accent ?? 'bg-white/[0.07] text-white/50'}`}
+      >
         {icon}
       </div>
       <div>
@@ -88,13 +122,13 @@ function StatCard({ icon, label, value, accent }: StatCardProps) {
 // ─── Users Tab ────────────────────────────────────────────────────────────────
 
 function UsersTab() {
-  const currentUser                         = useUser();
-  const [users, setUsers]                   = useState<AdminUserRecord[]>([]);
-  const [loading, setLoading]               = useState(true);
-  const [error, setError]                   = useState<string | null>(null);
-  const [search, setSearch]                 = useState('');
-  const [selectedUser, setSelectedUser]     = useState<AdminUserRecord | null>(null);
-  const [showCreate, setShowCreate]         = useState(false);
+  const currentUser = useUser();
+  const [users, setUsers] = useState<AdminUserRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+  const [selectedUser, setSelectedUser] = useState<AdminUserRecord | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -108,15 +142,13 @@ function UsersTab() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   function handleUserUpdated(updated: Partial<AdminUserRecord> & { uid: string }) {
-    setUsers((prev) =>
-      prev.map((u) => u.uid === updated.uid ? { ...u, ...updated } : u)
-    );
-    setSelectedUser((prev) =>
-      prev && prev.uid === updated.uid ? { ...prev, ...updated } : prev
-    );
+    setUsers((prev) => prev.map((u) => (u.uid === updated.uid ? { ...u, ...updated } : u)));
+    setSelectedUser((prev) => (prev && prev.uid === updated.uid ? { ...prev, ...updated } : prev));
   }
 
   function handleUserDeleted(uid: string) {
@@ -147,7 +179,12 @@ function UsersTab() {
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.07] hover:bg-white/[0.11] border border-white/10 text-sm text-white/70 hover:text-white/90 transition-all shrink-0"
           >
             <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden>
-              <path d="M7 2v10M2 7h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <path
+                d="M7 2v10M2 7h10"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
             </svg>
             Criar usuário
           </button>
@@ -196,7 +233,9 @@ function UsersTab() {
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className={`text-sm font-medium truncate ${user.disabled ? 'text-white/35' : 'text-white/90'}`}>
+                        <p
+                          className={`text-sm font-medium truncate ${user.disabled ? 'text-white/35' : 'text-white/90'}`}
+                        >
                           {displayName}
                         </p>
                         {isSelf && (
@@ -228,11 +267,20 @@ function UsersTab() {
 
                     {/* Chevron */}
                     <svg
-                      width="14" height="14" viewBox="0 0 14 14" fill="none"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 14 14"
+                      fill="none"
                       aria-hidden
                       className="text-white/20 group-hover:text-white/40 transition-colors shrink-0"
                     >
-                      <path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                      <path
+                        d="M5 3l4 4-4 4"
+                        stroke="currentColor"
+                        strokeWidth="1.3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </div>
                 </button>
@@ -255,7 +303,10 @@ function UsersTab() {
       {showCreate && (
         <CreateUserModal
           onClose={() => setShowCreate(false)}
-          onCreated={() => { setShowCreate(false); load(); }}
+          onCreated={() => {
+            setShowCreate(false);
+            load();
+          }}
         />
       )}
     </>
@@ -268,32 +319,39 @@ type Tab = 'requests' | 'labs' | 'users';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'requests', label: 'Solicitações' },
-  { id: 'labs',     label: 'Laboratórios' },
-  { id: 'users',    label: 'Usuários' },
+  { id: 'labs', label: 'Laboratórios' },
+  { id: 'users', label: 'Usuários' },
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function SuperAdminDashboard() {
-  const user                      = useUser();
-  const setCurrentView            = useAppStore((s) => s.setCurrentView);
-  const [tab, setTab]             = useState<Tab>('requests');
-  const [stats, setStats]           = useState<SuperAdminStats | null>(null);
+  const user = useUser();
+  const setCurrentView = useAppStore((s) => s.setCurrentView);
+  const [tab, setTab] = useState<Tab>('requests');
+  const [stats, setStats] = useState<SuperAdminStats | null>(null);
   const [statsError, setStatsError] = useState<string | null>(null);
 
   const refreshStats = useCallback(() => {
     fetchSuperAdminStats()
-      .then((result) => { setStats(result); setStatsError(null); })
+      .then((result) => {
+        setStats(result);
+        setStatsError(null);
+      })
       .catch((err) => {
         console.error('[SuperAdminDashboard] failed to fetch stats:', err);
         setStatsError(err instanceof Error ? err.message : 'Falha ao carregar estatísticas.');
       });
   }, []);
 
-  useEffect(() => { refreshStats(); }, [refreshStats]);
+  useEffect(() => {
+    refreshStats();
+  }, [refreshStats]);
 
   // Refresh stats whenever the tab changes so counts stay accurate
-  useEffect(() => { refreshStats(); }, [tab, refreshStats]);
+  useEffect(() => {
+    refreshStats();
+  }, [tab, refreshStats]);
 
   return (
     <div className="min-h-screen bg-[#0c0c0c] text-white">
@@ -302,7 +360,11 @@ export function SuperAdminDashboard() {
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shrink-0">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M7 1L1 4v4c0 3.5 3 5.5 6 6 3-0.5 6-2.5 6-6V4L7 1z" fill="white" fillOpacity="0.9" />
+              <path
+                d="M7 1L1 4v4c0 3.5 3 5.5 6 6 3-0.5 6-2.5 6-6V4L7 1z"
+                fill="white"
+                fillOpacity="0.9"
+              />
             </svg>
           </div>
           <div>
@@ -322,8 +384,10 @@ export function SuperAdminDashboard() {
 
       <main className="max-w-3xl mx-auto px-6 py-8 space-y-8">
         {statsError && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl border
-                          bg-red-500/[0.07] border-red-500/20 text-red-400 text-sm">
+          <div
+            className="flex items-center gap-3 px-4 py-3 rounded-xl border
+                          bg-red-500/[0.07] border-red-500/20 text-red-400 text-sm"
+          >
             <span aria-hidden>⚠</span>
             <span className="flex-1">Não foi possível carregar as estatísticas: {statsError}</span>
             <button
@@ -370,9 +434,7 @@ export function SuperAdminDashboard() {
                 key={t.id}
                 onClick={() => setTab(t.id)}
                 className={`px-4 py-3 text-sm font-medium transition-all relative ${
-                  tab === t.id
-                    ? 'text-white/90'
-                    : 'text-white/35 hover:text-white/60'
+                  tab === t.id ? 'text-white/90' : 'text-white/35 hover:text-white/60'
                 }`}
               >
                 {t.label}
@@ -384,8 +446,8 @@ export function SuperAdminDashboard() {
           </div>
 
           {tab === 'requests' && <AccessRequestsTab />}
-          {tab === 'labs'     && <LabManagementTab />}
-          {tab === 'users'    && <UsersTab />}
+          {tab === 'labs' && <LabManagementTab />}
+          {tab === 'users' && <UsersTab />}
         </div>
       </main>
     </div>

@@ -42,17 +42,19 @@ export function getResultadosEsperadosDefault(
   const criterios = URO_CRITERIOS[nivel];
 
   return {
-    urobilinogenio: pickCategoricoDefault(criterios.urobilinogenio as readonly UroValorCategorico[]),
-    glicose:        pickCategoricoDefault(criterios.glicose        as readonly UroValorCategorico[]),
-    cetonas:        pickCategoricoDefault(criterios.cetonas        as readonly UroValorCategorico[]),
-    bilirrubina:    pickCategoricoDefault(criterios.bilirrubina    as readonly UroValorCategorico[]),
-    proteina:       pickCategoricoDefault(criterios.proteina       as readonly UroValorCategorico[]),
-    nitrito:        pickCategoricoDefault(criterios.nitrito        as readonly UroValorCategorico[]),
-    sangue:         pickCategoricoDefault(criterios.sangue         as readonly UroValorCategorico[]),
-    leucocitos:     pickCategoricoDefault(criterios.leucocitos     as readonly UroValorCategorico[]),
+    urobilinogenio: pickCategoricoDefault(
+      criterios.urobilinogenio as readonly UroValorCategorico[],
+    ),
+    glicose: pickCategoricoDefault(criterios.glicose as readonly UroValorCategorico[]),
+    cetonas: pickCategoricoDefault(criterios.cetonas as readonly UroValorCategorico[]),
+    bilirrubina: pickCategoricoDefault(criterios.bilirrubina as readonly UroValorCategorico[]),
+    proteina: pickCategoricoDefault(criterios.proteina as readonly UroValorCategorico[]),
+    nitrito: pickCategoricoDefault(criterios.nitrito as readonly UroValorCategorico[]),
+    sangue: pickCategoricoDefault(criterios.sangue as readonly UroValorCategorico[]),
+    leucocitos: pickCategoricoDefault(criterios.leucocitos as readonly UroValorCategorico[]),
     // pH e densidade são numéricos — usa shape {min, max} diretamente.
-    ph:             criterios.ph        as { min: number; max: number },
-    densidade:      criterios.densidade as { min: number; max: number },
+    ph: criterios.ph as { min: number; max: number },
+    densidade: criterios.densidade as { min: number; max: number },
   };
 }
 

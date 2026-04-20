@@ -13,7 +13,13 @@ import { firestoreErrorMessage } from '../../shared/utils/firebaseErrors';
 function CheckIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <path d="M13 4L6 11L3 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M13 4L6 11L3 8"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -29,7 +35,13 @@ function XIcon() {
 function TrashIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <path d="M2 4h12M6 4V2h4v2M5 4l1 9h4l1-9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M2 4h12M6 4V2h4v2M5 4l1 9h4l1-9"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -65,25 +77,25 @@ const STATUS_LABELS: Record<FilterStatus, string> = {
 };
 
 const STATUS_BADGE: Record<string, string> = {
-  pending:  'bg-amber-500/15 text-amber-400 border border-amber-500/25',
+  pending: 'bg-amber-500/15 text-amber-400 border border-amber-500/25',
   approved: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25',
-  denied:   'bg-red-500/15 text-red-400 border border-red-500/25',
+  denied: 'bg-red-500/15 text-red-400 border border-red-500/25',
 };
 
 const STATUS_PT: Record<string, string> = {
-  pending:  'Pendente',
+  pending: 'Pendente',
   approved: 'Aprovada',
-  denied:   'Negada',
+  denied: 'Negada',
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function AccessRequestsTab() {
-  const [requests, setRequests]     = useState<AccessRequest[]>([]);
-  const [filter, setFilter]         = useState<FilterStatus>('pending');
-  const [loading, setLoading]       = useState(true);
-  const [actionId, setActionId]     = useState<string | null>(null);
-  const [error, setError]           = useState<string | null>(null);
+  const [requests, setRequests] = useState<AccessRequest[]>([]);
+  const [filter, setFilter] = useState<FilterStatus>('pending');
+  const [loading, setLoading] = useState(true);
+  const [actionId, setActionId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [pendingRoles, setPendingRoles] = useState<Record<string, UserRole>>({});
 
   const load = useCallback(async () => {
@@ -100,7 +112,9 @@ export function AccessRequestsTab() {
     }
   }, [filter]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   function getRoleForRequest(reqId: string): UserRole {
     return pendingRoles[reqId] ?? 'member';
@@ -156,9 +170,7 @@ export function AccessRequestsTab() {
             type="button"
             onClick={() => setFilter(s)}
             className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-              filter === s
-                ? 'bg-white/10 text-white'
-                : 'text-white/40 hover:text-white/70'
+              filter === s ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/70'
             }`}
           >
             {STATUS_LABELS[s]}
@@ -180,7 +192,9 @@ export function AccessRequestsTab() {
       ) : requests.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-12 text-white/30">
           <ClockIcon />
-          <p className="text-sm">Nenhuma solicitação {filter !== 'all' && STATUS_PT[filter]?.toLowerCase()}</p>
+          <p className="text-sm">
+            Nenhuma solicitação {filter !== 'all' && STATUS_PT[filter]?.toLowerCase()}
+          </p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -196,7 +210,9 @@ export function AccessRequestsTab() {
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white/90 truncate">{req.displayName || req.email}</p>
+                <p className="text-sm font-medium text-white/90 truncate">
+                  {req.displayName || req.email}
+                </p>
                 <p className="text-xs text-white/40 truncate">{req.email}</p>
                 <p className="text-xs text-white/30 mt-0.5">
                   Lab: <span className="text-white/50">{req.labName || req.labId}</span>
@@ -205,7 +221,9 @@ export function AccessRequestsTab() {
               </div>
 
               {/* Status badge */}
-              <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${STATUS_BADGE[req.status]}`}>
+              <span
+                className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${STATUS_BADGE[req.status]}`}
+              >
                 {STATUS_PT[req.status]}
               </span>
 

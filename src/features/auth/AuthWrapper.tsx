@@ -13,18 +13,28 @@ import { ModuleHub } from '../hub/ModuleHub';
 import { AnalyzerView } from '../analyzer/AnalyzerView';
 import { BulaProcessor } from '../bulaparser/BulaProcessor';
 import { ReportsView } from '../reports/ReportsView';
-import { LabCQISettings }   from '../labSettings/LabCQISettings';
-import { CoagulacaoView }   from '../coagulacao/CoagulacaoView';
-import { UroanaliseView }   from '../uroanalise/UroanaliseView';
+import { LabCQISettings } from '../labSettings/LabCQISettings';
+import { CoagulacaoView } from '../coagulacao/CoagulacaoView';
+import { UroanaliseView } from '../uroanalise/UroanaliseView';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
 
 function FullScreenLoader() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0c0c0c] flex items-center justify-center transition-colors duration-300">
-      <svg className="animate-spin w-6 h-6 text-slate-300 dark:text-white/20" viewBox="0 0 24 24" fill="none" aria-label="Carregando">
+      <svg
+        className="animate-spin w-6 h-6 text-slate-300 dark:text-white/20"
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-label="Carregando"
+      >
         <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
-        <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+        <path
+          d="M22 12a10 10 0 00-10-10"
+          stroke="currentColor"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
       </svg>
     </div>
   );
@@ -77,13 +87,21 @@ export const AuthWrapper: React.FC = () => {
   const { status } = useAuthFlow();
 
   switch (status) {
-    case 'loading': return <FullScreenLoader />;
-    case 'unauthenticated': return <LoginScreen />;
-    case 'suspended': return <SuspendedScreen />;
-    case 'email_not_verified': return <EmailVerificationScreen />;
-    case 'first_setup': return <FirstLabSetupScreen />;
-    case 'pending_access': return <PendingLabAccessScreen />;
-    case 'select_lab': return <LabSelectorScreen />;
-    case 'ready': return <AppRouter />;
+    case 'loading':
+      return <FullScreenLoader />;
+    case 'unauthenticated':
+      return <LoginScreen />;
+    case 'suspended':
+      return <SuspendedScreen />;
+    case 'email_not_verified':
+      return <EmailVerificationScreen />;
+    case 'first_setup':
+      return <FirstLabSetupScreen />;
+    case 'pending_access':
+      return <PendingLabAccessScreen />;
+    case 'select_lab':
+      return <LabSelectorScreen />;
+    case 'ready':
+      return <AppRouter />;
   }
 };

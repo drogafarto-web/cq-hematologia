@@ -22,28 +22,28 @@
 
 ### Kits reagentes (Wama Diagnóstica)
 
-| # | Ensaio | Lote | Abertura | Validade | Status | Notas |
-|---|--------|------|----------|----------|--------|-------|
-| K1 | Dengue NS1 | `WMD-1587-A` | 2026-04-20 | 2027-06-30 | R | lote novo — teste happy path |
-| K2 | HIV 1/2 | `WMH-2041` | 2026-03-10 | 2027-02-28 | R | lote médio prazo |
-| K3 | HBsAg | `WMB-8822` | 2026-04-18 | 2027-01-15 | R | usar em Cenário 10 |
-| K4 | Anti-HCV | `WMC-3315` | 2026-04-01 | 2027-03-20 | R | usar em Cenário 11 |
-| K5 | Sífilis | `WMS-7710-EXP` | 2026-04-01 | **2026-04-18** | R | **reagente vencido há 2d** |
-| K6 | COVID-19 Ag | `WMC19-9900` | 2026-04-20 | **2026-04-27** | R | **vence em 7d — limite crítico** |
-| K7 | BhCG | `WMBH-0502` | 2026-04-20 | **2026-05-04** | R | **vence em 14d — limite warning** |
-| K8 | Troponina | `WMT-4410-XSS` | 2026-04-20 | 2027-05-30 | R | lote com string especial pra fuzz: `WMT<script>4410` |
+| #   | Ensaio      | Lote           | Abertura   | Validade       | Status | Notas                                                |
+| --- | ----------- | -------------- | ---------- | -------------- | ------ | ---------------------------------------------------- |
+| K1  | Dengue NS1  | `WMD-1587-A`   | 2026-04-20 | 2027-06-30     | R      | lote novo — teste happy path                         |
+| K2  | HIV 1/2     | `WMH-2041`     | 2026-03-10 | 2027-02-28     | R      | lote médio prazo                                     |
+| K3  | HBsAg       | `WMB-8822`     | 2026-04-18 | 2027-01-15     | R      | usar em Cenário 10                                   |
+| K4  | Anti-HCV    | `WMC-3315`     | 2026-04-01 | 2027-03-20     | R      | usar em Cenário 11                                   |
+| K5  | Sífilis     | `WMS-7710-EXP` | 2026-04-01 | **2026-04-18** | R      | **reagente vencido há 2d**                           |
+| K6  | COVID-19 Ag | `WMC19-9900`   | 2026-04-20 | **2026-04-27** | R      | **vence em 7d — limite crítico**                     |
+| K7  | BhCG        | `WMBH-0502`    | 2026-04-20 | **2026-05-04** | R      | **vence em 14d — limite warning**                    |
+| K8  | Troponina   | `WMT-4410-XSS` | 2026-04-20 | 2027-05-30     | R      | lote com string especial pra fuzz: `WMT<script>4410` |
 
 ### Controles (Controlab + hipotéticos)
 
-| # | Lote | Tipo | Fabricante | Abertura | Validade | Notas |
-|---|------|------|------------|----------|----------|-------|
-| C1 | `BT3938` | Reagente positivo | Controlab | 2026-04-20 | 2026-12-15 | controle principal — 239d |
-| C2 | `BT4112` | Não-reagente | Controlab | 2026-04-20 | 2026-11-28 | par negativo de C1 |
-| C3 | `BT4999` | Reagente positivo | Controlab | 2026-04-10 | **2026-04-25** | **critical — 5d restantes** |
-| C4 | `BT4501-EXP` | Reagente positivo | Controlab | 2026-04-01 | **2026-04-18** | **expirado há 2d** |
-| C5 | `BT-UNICODE-São` | Reagente positivo | Controllab Ltda. | 2026-04-20 | 2026-12-01 | acentos pra teste de serialização |
-| C6 | `BT5050` | Reagente positivo | Controlab | 2026-04-20 | 2026-11-15 | usar em apenas 1 corrida |
-| C7 | `BT6060` | Não-reagente | Controlab | 2026-04-20 | 2026-10-30 | usar em 3 corridas e aprovar |
+| #   | Lote             | Tipo              | Fabricante       | Abertura   | Validade       | Notas                             |
+| --- | ---------------- | ----------------- | ---------------- | ---------- | -------------- | --------------------------------- |
+| C1  | `BT3938`         | Reagente positivo | Controlab        | 2026-04-20 | 2026-12-15     | controle principal — 239d         |
+| C2  | `BT4112`         | Não-reagente      | Controlab        | 2026-04-20 | 2026-11-28     | par negativo de C1                |
+| C3  | `BT4999`         | Reagente positivo | Controlab        | 2026-04-10 | **2026-04-25** | **critical — 5d restantes**       |
+| C4  | `BT4501-EXP`     | Reagente positivo | Controlab        | 2026-04-01 | **2026-04-18** | **expirado há 2d**                |
+| C5  | `BT-UNICODE-São` | Reagente positivo | Controllab Ltda. | 2026-04-20 | 2026-12-01     | acentos pra teste de serialização |
+| C6  | `BT5050`         | Reagente positivo | Controlab        | 2026-04-20 | 2026-11-15     | usar em apenas 1 corrida          |
+| C7  | `BT6060`         | Não-reagente      | Controlab        | 2026-04-20 | 2026-10-30     | usar em 3 corridas e aprovar      |
 
 ### Ensaios hipotéticos pra test type manager
 
@@ -56,12 +56,12 @@
 
 ### Usuários (já criados em produção)
 
-| Email | Senha | Papel | Nome | CRBM |
-|-------|-------|-------|------|------|
-| drogafarto@gmail.com | 12345678 | Owner/SuperAdmin/RT | Bruno Pires | MG 12345 |
-| gqlabclin@gmail.com | 12345678 | Admin | Ana Costa | — |
-| areatecnicalabclinlabclin@gmail.com | 12345678 | Member | Areatecnica Labclin | — |
-| drogafartomercadolivre@gmail.com | 12345678 | Admin | Drogafarto Admin | — |
+| Email                               | Senha    | Papel               | Nome                | CRBM     |
+| ----------------------------------- | -------- | ------------------- | ------------------- | -------- |
+| drogafarto@gmail.com                | 12345678 | Owner/SuperAdmin/RT | Bruno Pires         | MG 12345 |
+| gqlabclin@gmail.com                 | 12345678 | Admin               | Ana Costa           | —        |
+| areatecnicalabclinlabclin@gmail.com | 12345678 | Member              | Areatecnica Labclin | —        |
+| drogafartomercadolivre@gmail.com    | 12345678 | Admin               | Drogafarto Admin    | —        |
 
 ### Cenário de carga (concorrência)
 
@@ -71,7 +71,7 @@ Para phases que exigem simulação de duas abas simultâneas, abrir 2 janelas do
 
 ## PROMPT (colar no Antigravity — Agent mode)
 
-````
+```
 # IDENTIDADE
 
 Você é um QA Engineer sênior conduzindo verificação E2E profunda do HC Quality
@@ -586,7 +586,7 @@ Durante todo o teste, anote se encontrar:
 - Racing saves (clicar salvar + voltar rapidamente).
 - Estados visuais inconsistentes (loading spinner que não some).
 
-````
+```
 
 ---
 

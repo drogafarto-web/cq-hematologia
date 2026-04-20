@@ -6,7 +6,7 @@ import type { UroanaliseRun } from '../types/Uroanalise';
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface UroAuditorProps {
-  run:   UroanaliseRun;
+  run: UroanaliseRun;
   lotId: string;
   /** Tamanho do QR Code em px. Default: 128 */
   size?: number;
@@ -32,17 +32,14 @@ export function UroAuditor({ run, lotId, size = 128 }: UroAuditorProps) {
   const sigShort = sig ? sig.slice(0, 8) : '—';
 
   return (
-    <div className="inline-flex flex-col items-center gap-2.5
+    <div
+      className="inline-flex flex-col items-center gap-2.5
                     p-4 rounded-xl
                     bg-white dark:bg-white/[0.04]
-                    border border-slate-200 dark:border-white/[0.08]">
+                    border border-slate-200 dark:border-white/[0.08]"
+    >
       <div className="p-2 bg-white rounded-lg">
-        <QRCodeSVG
-          value={auditURL}
-          size={size}
-          level="M"
-          includeMargin={false}
-        />
+        <QRCodeSVG value={auditURL} size={size} level="M" includeMargin={false} />
       </div>
 
       <div className="text-center space-y-0.5">

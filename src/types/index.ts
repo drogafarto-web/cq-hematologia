@@ -13,14 +13,14 @@ export interface Analyte {
 // ─── Westgard ────────────────────────────────────────────────────────────────
 
 export type WestgardViolation =
-  | '1-2s'   // Warning:   1 value beyond ±2SD
-  | '1-3s'   // Rejection: 1 value beyond ±3SD
-  | '2-2s'   // Rejection: 2 consecutive values beyond ±2SD (same side)
-  | 'R-4s'   // Rejection: 2 consecutive values span >4SD (opposite sides)
-  | '4-1s'   // Rejection: 4 consecutive values beyond ±1SD (same side)
-  | '10x'    // Rejection: 10 consecutive values on same side of mean
-  | '6T'     // Rejection: 6 consecutive values monotonically rising or falling (trend)
-  | '6X';    // Rejection: 6 consecutive values all on the same side of mean (shift)
+  | '1-2s' // Warning:   1 value beyond ±2SD
+  | '1-3s' // Rejection: 1 value beyond ±3SD
+  | '2-2s' // Rejection: 2 consecutive values beyond ±2SD (same side)
+  | 'R-4s' // Rejection: 2 consecutive values span >4SD (opposite sides)
+  | '4-1s' // Rejection: 4 consecutive values beyond ±1SD (same side)
+  | '10x' // Rejection: 10 consecutive values on same side of mean
+  | '6T' // Rejection: 6 consecutive values monotonically rising or falling (trend)
+  | '6X'; // Rejection: 6 consecutive values all on the same side of mean (shift)
 
 // ─── Runs ────────────────────────────────────────────────────────────────────
 
@@ -247,11 +247,11 @@ export interface AccessRequest {
  * differs from the primary Yumizen H550 it signals a fallback analyte.
  */
 export interface BulaLevelData {
-  level:              1 | 2 | 3;
-  lotNumber:          string | null;
-  manufacturerStats:  ManufacturerStats;
+  level: 1 | 2 | 3;
+  lotNumber: string | null;
+  manufacturerStats: ManufacturerStats;
   /** analyteId → equipment name the value was read from (e.g. "Pentra 60") */
-  equipmentSources?:  Record<string, string>;
+  equipmentSources?: Record<string, string>;
 }
 
 /**
@@ -261,15 +261,24 @@ export interface BulaLevelData {
  */
 export interface PendingBulaData {
   controlName: string | null;
-  expiryDate:  Date | null;
-  levels:      BulaLevelData[];
-  warnings:    string[];
+  expiryDate: Date | null;
+  levels: BulaLevelData[];
+  warnings: string[];
 }
 
 // ─── UI State ─────────────────────────────────────────────────────────────────
 
 export type SyncStatus = 'saved' | 'saving' | 'offline' | 'error';
-export type View = 'hub' | 'analyzer' | 'bulaparser' | 'superadmin' | 'reports' | 'ciq-imuno' | 'coagulacao' | 'uroanalise' | 'lab-settings';
+export type View =
+  | 'hub'
+  | 'analyzer'
+  | 'bulaparser'
+  | 'superadmin'
+  | 'reports'
+  | 'ciq-imuno'
+  | 'coagulacao'
+  | 'uroanalise'
+  | 'lab-settings';
 export type StatsSource = 'manufacturer' | 'internal';
 export type ImageState = 'ready' | 'uploading' | 'none';
 

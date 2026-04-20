@@ -5,14 +5,14 @@ import type { TestType } from '../types/_shared_refs';
 // ─── Callable payload / result types ─────────────────────────────────────────
 
 interface AnalyzeStripPayload {
-  base64:   string;
+  base64: string;
   mimeType: string;
   testType: TestType;
 }
 
 interface AnalyzeStripResult {
   resultadoObtido: 'R' | 'NR';
-  confidence:      'high' | 'medium' | 'low';
+  confidence: 'high' | 'medium' | 'low';
 }
 
 const _analyzeImmunoStrip = httpsCallable<AnalyzeStripPayload, AnalyzeStripResult>(
@@ -33,7 +33,7 @@ type AcceptedMimeType = (typeof ACCEPTED_MIME_TYPES)[number];
 
 export interface StripAnalysisResult {
   resultadoObtido: 'R' | 'NR';
-  confidence:      'high' | 'medium' | 'low';
+  confidence: 'high' | 'medium' | 'low';
 }
 
 /**
@@ -47,7 +47,7 @@ export interface StripAnalysisResult {
  * @param testType Tipo de imunoensaio (informado ao prompt da IA para maior precisão)
  */
 export async function analyzeStripImage(
-  file:     File,
+  file: File,
   testType: TestType,
 ): Promise<StripAnalysisResult> {
   // Valida tipo MIME antes de fazer qualquer I/O
@@ -60,9 +60,7 @@ export async function analyzeStripImage(
   // Valida tamanho antes de converter (evita travar a UI em arquivos grandes)
   if (file.size > MAX_IMAGE_BYTES) {
     const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-    throw new Error(
-      `Imagem muito grande (${sizeMB} MB). O tamanho máximo é 4 MB.`,
-    );
+    throw new Error(`Imagem muito grande (${sizeMB} MB). O tamanho máximo é 4 MB.`);
   }
 
   const base64 = await fileToBase64(file);
@@ -88,7 +86,7 @@ export async function analyzeStripImage(
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload  = () => {
+    reader.onload = () => {
       const result = reader.result as string;
       // Remove o prefixo "data:<mime>;base64," — o backend espera base64 puro
       const base64 = result.split(',')[1];
@@ -107,7 +105,7 @@ function fileToBase64(file: File): Promise<string> {
 
 function mapFunctionsError(err: unknown): Error {
   if (err && typeof err === 'object' && 'code' in err) {
-    const code    = (err as { code: string }).code;
+    const code = (err as { code: string }).code;
     const message = err instanceof Error ? err.message : String(err);
 
     if (code === 'functions/unauthenticated') {

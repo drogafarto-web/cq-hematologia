@@ -57,7 +57,10 @@ export function ConfirmModal({
         <h3 id="confirm-modal-title" className="text-xl font-bold text-white mb-2">
           {title}
         </h3>
-        <p id="confirm-modal-desc" className="text-sm text-white/70 mb-6 whitespace-pre-wrap leading-relaxed">
+        <p
+          id="confirm-modal-desc"
+          className="text-sm text-white/70 mb-6 whitespace-pre-wrap leading-relaxed"
+        >
           {message}
         </p>
 
@@ -73,7 +76,11 @@ export function ConfirmModal({
           </button>
           <button
             type="button"
-            onClick={() => { haptic.heavy(); onConfirm(); onCancel(); }}
+            onClick={() => {
+              haptic.heavy();
+              onConfirm();
+              onCancel();
+            }}
             className={`min-h-[44px] px-6 rounded-xl text-sm font-semibold transition-all order-1 sm:order-2 ${confirmBtnClass}`}
           >
             {confirmLabel}

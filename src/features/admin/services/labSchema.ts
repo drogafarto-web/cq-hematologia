@@ -17,13 +17,16 @@ const LabContactSchema = z.object({
 });
 
 const LabAddressSchema = z.object({
-  street:       z.string().max(200),
-  number:       z.string().max(20),
-  complement:   z.string().max(100).optional(),
+  street: z.string().max(200),
+  number: z.string().max(20),
+  complement: z.string().max(100).optional(),
   neighborhood: z.string().max(100),
-  city:         z.string().max(100),
-  state:        z.string().length(2, { message: 'UF deve ter 2 caracteres' }),
-  zipCode:      z.string().regex(/^\d{5}-?\d{3}$/, { message: 'CEP inválido' }).or(z.literal('')),
+  city: z.string().max(100),
+  state: z.string().length(2, { message: 'UF deve ter 2 caracteres' }),
+  zipCode: z
+    .string()
+    .regex(/^\d{5}-?\d{3}$/, { message: 'CEP inválido' })
+    .or(z.literal('')),
 });
 
 const LabQCSettingsSchema = z.object({
@@ -33,22 +36,22 @@ const LabQCSettingsSchema = z.object({
     '2-2s': z.boolean(),
     'R-4s': z.boolean(),
     '4-1s': z.boolean(),
-    '10x':  z.boolean(),
+    '10x': z.boolean(),
   }),
   minRunsForInternalStats: z.number().int().min(5).max(100),
 });
 
 const LabComplianceSchema = z.object({
-  cnesCode:          z.string().max(20).optional(),
-  anvisaLicense:     z.string().max(50).optional(),
-  iso15189:          z.boolean(),
+  cnesCode: z.string().max(20).optional(),
+  anvisaLicense: z.string().max(50).optional(),
+  iso15189: z.boolean(),
   accreditationBody: z.string().max(100).optional(),
 });
 
 const LabSubscriptionSchema = z.object({
-  plan:                z.enum(['free', 'basic', 'professional', 'enterprise']),
-  status:              z.enum(['active', 'trialing', 'past_due', 'canceled']),
-  trialEndsAt:         z.date().optional(),
+  plan: z.enum(['free', 'basic', 'professional', 'enterprise']),
+  status: z.enum(['active', 'trialing', 'past_due', 'canceled']),
+  trialEndsAt: z.date().optional(),
   currentPeriodEndsAt: z.date().optional(),
 });
 
@@ -58,14 +61,14 @@ const EmailListSchema = z
   .default([]);
 
 const LabBackupConfigSchema = z.object({
-  emails:                 EmailListSchema,
-  cqiEmails:              EmailListSchema,
-  enabled:                z.boolean(),
-  cqiEnabled:             z.boolean(),
+  emails: EmailListSchema,
+  cqiEmails: EmailListSchema,
+  enabled: z.boolean(),
+  cqiEnabled: z.boolean(),
   stalenessThresholdDays: z.number().int().min(1).max(30),
   // Campos legacy — aceitos como input para retrocompatibilidade, migrados pra arrays pelo normalizeLab.
-  email:                  z.string().email({ message: 'E-mail inválido' }).nullable().optional(),
-  cqiEmail:               z.string().email({ message: 'E-mail inválido' }).nullable().optional(),
+  email: z.string().email({ message: 'E-mail inválido' }).nullable().optional(),
+  cqiEmail: z.string().email({ message: 'E-mail inválido' }).nullable().optional(),
 });
 
 // ─── Full create/update payload schema ───────────────────────────────────────
@@ -73,19 +76,19 @@ const LabBackupConfigSchema = z.object({
 // system-managed fields, never accepted from user input.
 
 export const LabSchema = z.object({
-  name:         z.string().min(2, { message: 'Nome deve ter no mínimo 2 caracteres' }).max(100).trim(),
-  legalName:    z.string().max(200).trim().optional(),
-  cnpj:         z
+  name: z.string().min(2, { message: 'Nome deve ter no mínimo 2 caracteres' }).max(100).trim(),
+  legalName: z.string().max(200).trim().optional(),
+  cnpj: z
     .string()
     .regex(/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/, { message: 'CNPJ inválido' })
     .or(z.literal(''))
     .optional(),
-  contact:      LabContactSchema,
-  address:      LabAddressSchema,
-  qcSettings:   LabQCSettingsSchema,
-  compliance:   LabComplianceSchema,
+  contact: LabContactSchema,
+  address: LabAddressSchema,
+  qcSettings: LabQCSettingsSchema,
+  compliance: LabComplianceSchema,
   subscription: LabSubscriptionSchema,
-  backup:       LabBackupConfigSchema,
+  backup: LabBackupConfigSchema,
 });
 
 export type LabFormValues = z.infer<typeof LabSchema>;
@@ -100,12 +103,12 @@ const DEFAULT_CONTACT: LabContact = {
 };
 
 const DEFAULT_ADDRESS: LabAddress = {
-  street:       '',
-  number:       '',
+  street: '',
+  number: '',
   neighborhood: '',
-  city:         '',
-  state:        '',
-  zipCode:      '',
+  city: '',
+  state: '',
+  zipCode: '',
 };
 
 const DEFAULT_QC_SETTINGS: LabQCSettings = {
@@ -115,7 +118,7 @@ const DEFAULT_QC_SETTINGS: LabQCSettings = {
     '2-2s': true,
     'R-4s': true,
     '4-1s': true,
-    '10x':  true,
+    '10x': true,
   },
   minRunsForInternalStats: 20,
 };
@@ -125,15 +128,15 @@ const DEFAULT_COMPLIANCE: LabCompliance = {
 };
 
 const DEFAULT_SUBSCRIPTION: LabSubscription = {
-  plan:   'free',
+  plan: 'free',
   status: 'active',
 };
 
 const DEFAULT_BACKUP: LabBackupConfig = {
-  emails:                 [],
-  cqiEmails:              [],
-  enabled:                false,
-  cqiEnabled:             false,
+  emails: [],
+  cqiEmails: [],
+  enabled: false,
+  cqiEnabled: false,
   stalenessThresholdDays: 3,
 };
 
@@ -148,7 +151,10 @@ function normalizeBackup(raw: Partial<LabBackupConfig>): LabBackupConfig {
     const out: string[] = [];
     for (const e of list) {
       const k = e.trim().toLowerCase();
-      if (k && !seen.has(k)) { seen.add(k); out.push(e.trim()); }
+      if (k && !seen.has(k)) {
+        seen.add(k);
+        out.push(e.trim());
+      }
     }
     return out;
   };
@@ -163,16 +169,16 @@ function normalizeBackup(raw: Partial<LabBackupConfig>): LabBackupConfig {
     ? dedupe(raw.cqiEmails as string[])
     : raw.cqiEmail
       ? [raw.cqiEmail]
-      // Fallback antigo: UI usava backup.email como padrão de CQI quando cqiEmail não existia
-      : raw.email
+      : // Fallback antigo: UI usava backup.email como padrão de CQI quando cqiEmail não existia
+        raw.email
         ? [raw.email]
         : [];
 
   return {
     emails,
     cqiEmails,
-    enabled:                raw.enabled    ?? DEFAULT_BACKUP.enabled,
-    cqiEnabled:             raw.cqiEnabled ?? raw.enabled ?? DEFAULT_BACKUP.cqiEnabled,
+    enabled: raw.enabled ?? DEFAULT_BACKUP.enabled,
+    cqiEnabled: raw.cqiEnabled ?? raw.enabled ?? DEFAULT_BACKUP.cqiEnabled,
     stalenessThresholdDays: raw.stalenessThresholdDays ?? DEFAULT_BACKUP.stalenessThresholdDays,
   };
 }
@@ -198,11 +204,11 @@ export function normalizeLab(raw: Record<string, any> & { id: string }): Lab {
   };
 
   return {
-    id:        raw.id,
-    name:      raw.name as string,
+    id: raw.id,
+    name: raw.name as string,
     legalName: raw.legalName as string | undefined,
-    logoUrl:   raw.logoUrl as string | undefined,
-    cnpj:      raw.cnpj as string | undefined,
+    logoUrl: raw.logoUrl as string | undefined,
+    cnpj: raw.cnpj as string | undefined,
 
     contact: raw.contact
       ? { ...DEFAULT_CONTACT, ...(raw.contact as Partial<LabContact>) }
@@ -231,9 +237,7 @@ export function normalizeLab(raw: Record<string, any> & { id: string }): Lab {
       ? { ...DEFAULT_SUBSCRIPTION, ...(raw.subscription as Partial<LabSubscription>) }
       : DEFAULT_SUBSCRIPTION,
 
-    backup: raw.backup
-      ? normalizeBackup(raw.backup as Partial<LabBackupConfig>)
-      : DEFAULT_BACKUP,
+    backup: raw.backup ? normalizeBackup(raw.backup as Partial<LabBackupConfig>) : DEFAULT_BACKUP,
 
     createdAt: toDate(raw.createdAt) ?? new Date(),
     createdBy: (raw.createdBy as string | undefined) ?? '',
