@@ -10,7 +10,8 @@ export const RESEND_API_KEY = defineSecret('RESEND_API_KEY');
 // ─── Email Service ────────────────────────────────────────────────────────────
 
 export interface SendBackupEmailOptions {
-  to:        string;
+  /** Um ou mais destinatários. Array vazio é erro do chamador (filtre antes). */
+  to:        string | string[];
   report:    BackupReport;
   pdfBuffer: Buffer;
 }
@@ -19,11 +20,17 @@ export interface SendBackupEmailOptions {
  * Sends the daily backup email with the PDF attached.
  * Uses Resend — configure RESEND_API_KEY via Firebase secrets.
  *
- * The FROM address must be verified in your Resend account.
- * Default: backup@hcquality.com.br — change to match your verified domain.
+ * Aceita múltiplos destinatários: Resend envia UM email com N endereços no
+ * header `To:` (lab admin + coordenador + RT recebem cópia nominal). Para
+ * anonimato entre destinatários (um não vê o outro) usar bcc no futuro.
  */
 export async function sendBackupEmail(opts: SendBackupEmailOptions): Promise<void> {
   const { to, report, pdfBuffer } = opts;
+
+  const recipients = Array.isArray(to) ? to : [to];
+  if (recipients.length === 0) {
+    throw new Error('[sendBackupEmail] recipients list is empty');
+  }
 
   const resend = new Resend(RESEND_API_KEY.value());
 
@@ -34,8 +41,8 @@ export async function sendBackupEmail(opts: SendBackupEmailOptions): Promise<voi
   const filename = buildFilename(report);
 
   const { error } = await resend.emails.send({
-    from:        'HC Quality Backup <onboarding@resend.dev>',
-    to:          [to],
+    from:        'HC Quality Backup <backup@app.labclinmg.com.br>',
+    to:          recipients,
     subject,
     html,
     text,

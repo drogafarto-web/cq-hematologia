@@ -28,7 +28,8 @@ function meta(sector: SectorId) {
 // ─── Options ──────────────────────────────────────────────────────────────────
 
 export interface CQIEmailOptions {
-  to:            string;
+  /** Um ou mais destinatários do relatório CQI. */
+  to:            string | string[];
   labName:       string;
   sector:        SectorId;
   lotNumber:     string;
@@ -152,9 +153,14 @@ function buildFilename(opts: CQIEmailOptions): string {
 export async function sendCQIEmail(opts: CQIEmailOptions): Promise<void> {
   const resend = new Resend(RESEND_API_KEY.value());
 
+  const recipients = Array.isArray(opts.to) ? opts.to : [opts.to];
+  if (recipients.length === 0) {
+    throw new Error('[sendCQIEmail] recipients list is empty');
+  }
+
   const { error } = await resend.emails.send({
-    from:        'HC Quality CQI <onboarding@resend.dev>',
-    to:          [opts.to],
+    from:        'HC Quality CQI <cqi@app.labclinmg.com.br>',
+    to:          recipients,
     subject:     buildSubject(opts),
     html:        buildHtml(opts),
     attachments: [

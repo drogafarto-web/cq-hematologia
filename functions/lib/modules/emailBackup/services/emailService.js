@@ -12,19 +12,24 @@ exports.RESEND_API_KEY = (0, params_1.defineSecret)('RESEND_API_KEY');
  * Sends the daily backup email with the PDF attached.
  * Uses Resend — configure RESEND_API_KEY via Firebase secrets.
  *
- * The FROM address must be verified in your Resend account.
- * Default: backup@hcquality.com.br — change to match your verified domain.
+ * Aceita múltiplos destinatários: Resend envia UM email com N endereços no
+ * header `To:` (lab admin + coordenador + RT recebem cópia nominal). Para
+ * anonimato entre destinatários (um não vê o outro) usar bcc no futuro.
  */
 async function sendBackupEmail(opts) {
     const { to, report, pdfBuffer } = opts;
+    const recipients = Array.isArray(to) ? to : [to];
+    if (recipients.length === 0) {
+        throw new Error('[sendBackupEmail] recipients list is empty');
+    }
     const resend = new resend_1.Resend(exports.RESEND_API_KEY.value());
     const subject = buildSubject(report);
     const html = buildHtmlBody(report);
     const text = buildTextBody(report);
     const filename = buildFilename(report);
     const { error } = await resend.emails.send({
-        from: 'HC Quality Backup <onboarding@resend.dev>',
-        to: [to],
+        from: 'HC Quality Backup <backup@app.labclinmg.com.br>',
+        to: recipients,
         subject,
         html,
         text,

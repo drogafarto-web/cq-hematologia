@@ -121,9 +121,13 @@ function buildFilename(opts) {
  */
 async function sendCQIEmail(opts) {
     const resend = new resend_1.Resend(RESEND_API_KEY.value());
+    const recipients = Array.isArray(opts.to) ? opts.to : [opts.to];
+    if (recipients.length === 0) {
+        throw new Error('[sendCQIEmail] recipients list is empty');
+    }
     const { error } = await resend.emails.send({
-        from: 'HC Quality CQI <onboarding@resend.dev>',
-        to: [opts.to],
+        from: 'HC Quality CQI <cqi@app.labclinmg.com.br>',
+        to: recipients,
         subject: buildSubject(opts),
         html: buildHtml(opts),
         attachments: [
