@@ -153,7 +153,7 @@ export async function sendCQIEmail(opts: CQIEmailOptions): Promise<void> {
   const resend = new Resend(RESEND_API_KEY.value());
 
   const { error } = await resend.emails.send({
-    from:        'HC Quality CQI <cqi@hcquality.com.br>',
+    from:        'HC Quality CQI <onboarding@resend.dev>',
     to:          [opts.to],
     subject:     buildSubject(opts),
     html:        buildHtml(opts),

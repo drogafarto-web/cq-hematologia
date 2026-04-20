@@ -34,7 +34,7 @@ export async function sendBackupEmail(opts: SendBackupEmailOptions): Promise<voi
   const filename = buildFilename(report);
 
   const { error } = await resend.emails.send({
-    from:        'HC Quality Backup <backup@hcquality.com.br>',
+    from:        'HC Quality Backup <onboarding@resend.dev>',
     to:          [to],
     subject,
     html,
