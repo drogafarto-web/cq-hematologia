@@ -37,7 +37,7 @@ async function migrate(): Promise<void> {
   console.log(`Found ${snap.size} user documents.`);
 
   let updated = 0;
-  let skipped = 0;
+  const skipped = 0;
   let errors  = 0;
 
   for (const docSnap of snap.docs) {
