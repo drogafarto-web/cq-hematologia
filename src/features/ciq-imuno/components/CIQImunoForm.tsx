@@ -183,7 +183,14 @@ interface CIQImunoFormProps {
 
 export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFormProps) {
   const user = useUser();
-  const { types: testTypes, loading: typesLoading, addType, renameType, removeType } = useCIQTestTypes();
+  const {
+    types:      testTypes,
+    loading:    typesLoading,
+    error:      typesError,
+    addType,
+    renameType,
+    removeType,
+  } = useCIQTestTypes();
   const [showManager, setShowManager] = useState(false);
 
   const [form, setForm] = useState<Partial<CIQImunoFormData>>({
@@ -287,13 +294,15 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
           <button
             type="button"
             onClick={() => setShowManager(true)}
+            disabled={typesLoading}
             className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px]
                        text-slate-400 dark:text-white/30
                        hover:text-slate-700 dark:hover:text-white/60
                        hover:bg-slate-100 dark:hover:bg-white/[0.06]
                        border border-transparent hover:border-slate-200 dark:hover:border-white/[0.08]
+                       disabled:opacity-40 disabled:cursor-not-allowed
                        transition-all -mt-1"
-            title="Gerenciar tipos de teste"
+            title={typesLoading ? 'Aguarde o carregamento…' : 'Gerenciar tipos de teste'}
           >
             <SettingsIcon />
             Gerenciar
@@ -301,6 +310,15 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
         </div>
         <div>
           <Label htmlFor="testType" required>Imunoensaio</Label>
+          {typesError && !typesLoading && (
+            <div className="flex items-start gap-2 px-3.5 py-2.5 rounded-xl border text-xs mb-2
+                            bg-red-500/[0.07] border-red-500/20 text-red-600 dark:text-red-400">
+              <span className="mt-px shrink-0">⚠</span>
+              <span>
+                Não foi possível carregar os tipos de teste: {typesError}
+              </span>
+            </div>
+          )}
           {typesLoading ? (
             <div className={`${INPUT} flex items-center gap-2 text-slate-400 dark:text-white/25 cursor-default`}>
               <svg className="animate-spin w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none">

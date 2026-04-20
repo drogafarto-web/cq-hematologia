@@ -1,6 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useActiveLabId } from '../../../store/useAuthStore';
-import { subscribeToTestTypes, saveTestTypes } from '../services/ciqFirebaseService';
+import {
+  subscribeToTestTypes,
+  addTestType,
+  removeTestType,
+  renameTestType,
+  reorderTestTypes,
+} from '../services/ciqFirebaseService';
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
@@ -8,7 +14,9 @@ import { subscribeToTestTypes, saveTestTypes } from '../services/ciqFirebaseServ
  * useCIQTestTypes — gerencia a lista configurável de tipos de teste (imunoensaios).
  *
  * Tipos são armazenados em Firestore: labs/{labId}/ciq-imuno-config/testTypes
- * Na primeira chamada, semeia os 10 tipos padrão se o documento não existir.
+ * Todas as mutações rodam sob transação Firestore — add/remove/rename são
+ * atômicos e não dependem do estado local do hook, o que elimina a perda de
+ * escritas concorrentes entre abas/operadores.
  *
  * Uso:
  *   const { types, loading, addType, renameType, removeType } = useCIQTestTypes();
@@ -47,26 +55,23 @@ export function useCIQTestTypes() {
   }, [labId]);
 
   const addType = useCallback(async (name: string): Promise<void> => {
-    const trimmed = name.trim();
-    if (!labId || !trimmed) return;
-    if (types.map(t => t.toLowerCase()).includes(trimmed.toLowerCase())) return;
-    await saveTestTypes(labId, [...types, trimmed]);
-  }, [labId, types]);
+    if (!labId) return;
+    await addTestType(labId, name);
+  }, [labId]);
 
   const renameType = useCallback(async (oldName: string, newName: string): Promise<void> => {
-    const trimmed = newName.trim();
-    if (!labId || !trimmed || oldName === trimmed) return;
-    await saveTestTypes(labId, types.map((t) => (t === oldName ? trimmed : t)));
-  }, [labId, types]);
+    if (!labId) return;
+    await renameTestType(labId, oldName, newName);
+  }, [labId]);
 
   const removeType = useCallback(async (name: string): Promise<void> => {
     if (!labId) return;
-    await saveTestTypes(labId, types.filter((t) => t !== name));
-  }, [labId, types]);
+    await removeTestType(labId, name);
+  }, [labId]);
 
   const reorder = useCallback(async (ordered: string[]): Promise<void> => {
     if (!labId) return;
-    await saveTestTypes(labId, ordered);
+    await reorderTestTypes(labId, ordered);
   }, [labId]);
 
   return { types, loading, error, addType, renameType, removeType, reorder } as const;

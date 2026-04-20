@@ -392,8 +392,25 @@ function testTypesDocRef(labId: string) {
 }
 
 /**
+ * Lê o array corrente dentro de uma transação — retorna DEFAULT_TEST_TYPES
+ * quando o documento ainda não foi semeado. Consolidar a leitura aqui permite
+ * tratar a ausência de doc e o campo inválido no mesmo ponto.
+ */
+async function readTypesInTx(
+  tx:  Parameters<Parameters<typeof runTransaction>[1]>[0],
+  ref: ReturnType<typeof testTypesDocRef>,
+): Promise<string[]> {
+  const snap = await tx.get(ref);
+  if (!snap.exists()) return [...DEFAULT_TEST_TYPES];
+  const raw = snap.data().types;
+  return Array.isArray(raw) ? (raw as string[]) : [...DEFAULT_TEST_TYPES];
+}
+
+/**
  * Assina a lista de tipos de teste em tempo real.
- * Na primeira chamada, se o documento não existir, semeia os tipos padrão.
+ * Quando o documento ainda não existe, emite os tipos padrão sem tentar
+ * semear — a primeira mutação de um admin (addTestType etc.) cria o doc
+ * de forma atômica, evitando races entre seed e primeira adição.
  */
 export function subscribeToTestTypes(
   labId:    string,
@@ -404,13 +421,18 @@ export function subscribeToTestTypes(
     testTypesDocRef(labId),
     (snap) => {
       if (!snap.exists()) {
-        setDoc(testTypesDocRef(labId), {
-          types:     DEFAULT_TEST_TYPES,
-          updatedAt: serverTimestamp(),
-        }).catch(() => {});
-        callback(DEFAULT_TEST_TYPES);
+        callback([...DEFAULT_TEST_TYPES]);
+        return;
+      }
+      const raw = snap.data().types;
+      if (Array.isArray(raw)) {
+        callback(raw as string[]);
       } else {
-        callback((snap.data().types as string[]) ?? DEFAULT_TEST_TYPES);
+        console.warn(
+          `[ciqFirebaseService] testTypes doc for lab=${labId} has non-array "types" field:`,
+          raw,
+        );
+        callback([...DEFAULT_TEST_TYPES]);
       }
     },
     (err) => {
@@ -421,11 +443,91 @@ export function subscribeToTestTypes(
 }
 
 /**
- * Persiste a lista completa de tipos de teste (substitui anterior).
+ * Adiciona um tipo de teste de forma atômica.
+ * Transação garante que: (a) o doc é semeado com DEFAULTS se ainda não existe,
+ * (b) adições concorrentes nunca perdem dados, (c) duplicatas case-insensitive
+ * são ignoradas idempotentemente.
  */
-export async function saveTestTypes(labId: string, types: string[]): Promise<void> {
+export async function addTestType(labId: string, name: string): Promise<void> {
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  const ref = testTypesDocRef(labId);
   try {
-    await setDoc(testTypesDocRef(labId), { types, updatedAt: serverTimestamp() });
+    await runTransaction(db, async (tx) => {
+      const curr = await readTypesInTx(tx, ref);
+      if (curr.some(t => t.toLowerCase() === trimmed.toLowerCase())) return;
+      tx.set(ref, { types: [...curr, trimmed], updatedAt: serverTimestamp() });
+    });
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err));
+  }
+}
+
+/**
+ * Remove um tipo de teste de forma atômica, preservando a ordem dos demais.
+ */
+export async function removeTestType(labId: string, name: string): Promise<void> {
+  const ref = testTypesDocRef(labId);
+  try {
+    await runTransaction(db, async (tx) => {
+      const curr = await readTypesInTx(tx, ref);
+      const next = curr.filter(t => t !== name);
+      if (next.length === curr.length) return; // nada a remover
+      tx.set(ref, { types: next, updatedAt: serverTimestamp() });
+    });
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err));
+  }
+}
+
+/**
+ * Renomeia um tipo in-place, preservando a posição no array.
+ * Bloqueia se o novo nome colide (case-insensitive) com outro existente.
+ */
+export async function renameTestType(
+  labId:   string,
+  oldName: string,
+  newName: string,
+): Promise<void> {
+  const trimmed = newName.trim();
+  if (!trimmed || trimmed === oldName) return;
+  const ref = testTypesDocRef(labId);
+  try {
+    await runTransaction(db, async (tx) => {
+      const curr = await readTypesInTx(tx, ref);
+      const collides = curr.some(
+        t => t !== oldName && t.toLowerCase() === trimmed.toLowerCase(),
+      );
+      if (collides) {
+        throw new Error(`Já existe um teste com o nome "${trimmed}".`);
+      }
+      const next = curr.map(t => (t === oldName ? trimmed : t));
+      tx.set(ref, { types: next, updatedAt: serverTimestamp() });
+    });
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err));
+  }
+}
+
+/**
+ * Reordena a lista de tipos. Valida que o array recebido é uma permutação
+ * exata do array persistido — evita que uma reordenação concorrente com
+ * uma adição apague o novo item.
+ */
+export async function reorderTestTypes(labId: string, ordered: string[]): Promise<void> {
+  const ref = testTypesDocRef(labId);
+  try {
+    await runTransaction(db, async (tx) => {
+      const curr = await readTypesInTx(tx, ref);
+      if (curr.length !== ordered.length) {
+        throw new Error('Reordenação inválida: a lista divergiu. Recarregue e tente novamente.');
+      }
+      const currSet = new Set(curr);
+      if (ordered.some(t => !currSet.has(t))) {
+        throw new Error('Reordenação inválida: conteúdo divergiu. Recarregue e tente novamente.');
+      }
+      tx.set(ref, { types: ordered, updatedAt: serverTimestamp() });
+    });
   } catch (err) {
     throw new Error(firestoreErrorMessage(err));
   }
