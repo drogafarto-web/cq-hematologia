@@ -562,6 +562,19 @@ const OPENROUTER_QWEN = 'qwen/qwen-vl-plus';
 // ─── AI Service Helper ────────────────────────────────────────────────────────
 // Logic for calling Gemini with failover to OpenRouter (Qwen)
 
+/** Multimodal message part accepted by OpenRouter's chat completions endpoint. */
+type OpenRouterContentPart =
+  | { type: 'text'; text: string }
+  | { type: 'image_url'; image_url: { url: string } }
+  | { type: 'file'; file: { filename: string; file_data: string } };
+
+/** Minimal shape of an OpenRouter chat.completions response we consume. */
+interface OpenRouterChatResponse {
+  choices?: Array<{
+    message?: { content?: string };
+  }>;
+}
+
 async function callAIWithFallback(params: {
   prompt: string;
   base64: string;
@@ -599,15 +612,23 @@ async function callAIWithFallback(params: {
   // ─── NÍVEL 2: Gemini via OpenRouter ───────────────────
   // Mantém a qualidade e velocidade do Gemini usando saldo OpenRouter
   try {
-    const content: any[] = [{ type: 'text', text: prompt }];
+    const content: OpenRouterContentPart[] = [{ type: 'text', text: prompt }];
     // Gemini no OpenRouter suporta PDFs nativamente ou via Vision em muitos casos.
     // Usaremos a estrutura multimodal padrão do OpenRouter.
-    content.push({
-      type: isPdf ? 'file' : 'image_url',
-      [isPdf ? 'file' : 'image_url']: isPdf
-        ? { filename: 'document.pdf', file_data: `data:${mimeType};base64,${base64}` }
-        : { url: `data:${mimeType};base64,${base64}` },
-    });
+    content.push(
+      isPdf
+        ? {
+            type: 'file',
+            file: {
+              filename: 'document.pdf',
+              file_data: `data:${mimeType};base64,${base64}`,
+            },
+          }
+        : {
+            type: 'image_url',
+            image_url: { url: `data:${mimeType};base64,${base64}` },
+          },
+    );
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -623,7 +644,7 @@ async function callAIWithFallback(params: {
     });
 
     if (response.ok) {
-      const data = (await response.json()) as any;
+      const data = (await response.json()) as OpenRouterChatResponse;
       const text = data.choices?.[0]?.message?.content ?? '';
       if (text.trim()) {
         console.log('✅ Extração bem-sucedida: Nível 2 (Gemini OpenRouter)');
@@ -640,7 +661,7 @@ async function callAIWithFallback(params: {
   // ─── NÍVEL 3: Qwen VL via OpenRouter ──────────────────
   // Segurança máxima para OCR complexo (mais lento)
   try {
-    const content: any[] = [{ type: 'text', text: prompt }];
+    const content: OpenRouterContentPart[] = [{ type: 'text', text: prompt }];
 
     if (isPdf) {
       content.push({
@@ -676,7 +697,7 @@ async function callAIWithFallback(params: {
       throw new Error(`OpenRouter API error (${response.status}): ${errorText}`);
     }
 
-    const data = (await response.json()) as any;
+    const data = (await response.json()) as OpenRouterChatResponse;
     const text = data.choices?.[0]?.message?.content ?? '';
     if (text.trim()) {
       console.log('✅ Extração bem-sucedida: Nível 3 (Qwen OpenRouter)');

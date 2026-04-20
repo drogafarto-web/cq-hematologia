@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback } from 'react';
 import { onAuthStateChanged, sendEmailVerification } from 'firebase/auth';
 import { auth } from '../../../shared/services/firebase';
 import { useAuthStore } from '../../../store/useAuthStore';
@@ -38,21 +38,30 @@ export type AuthStatus =
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useAuthFlow() {
-  const { appProfile, isLoading, error, setProfile, setActiveLab, setLoading, setError, reset } =
-    useAuthStore();
-
-  // Module-level ref moved here: isolated to hook instance, resets with unmount
-  const pendingLabIdRef = useRef<string | null>(null);
-  const isSuspendedRef = useRef(false);
-  const isUnverifiedRef = useRef(false);
+  const {
+    appProfile,
+    isLoading,
+    error,
+    isSuspended,
+    isUnverified,
+    pendingLabId,
+    setProfile,
+    setActiveLab,
+    setLoading,
+    setError,
+    setSuspended,
+    setUnverified,
+    setPendingLabId,
+    reset,
+  } = useAuthStore();
 
   // ── Bootstrap: subscribe to Firebase auth state ──────────────────────────
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       // Reset per-user derived flags on every auth change
-      pendingLabIdRef.current = null;
-      isSuspendedRef.current = false;
-      isUnverifiedRef.current = false;
+      setPendingLabId(null);
+      setSuspended(false);
+      setUnverified(false);
 
       if (!firebaseUser) {
         reset();
@@ -89,14 +98,14 @@ export function useAuthFlow() {
         if (userDoc.disabled) {
           await signOut();
           reset();
-          isSuspendedRef.current = true;
+          setSuspended(true);
           setError('Conta suspensa. Entre em contato com o administrador.');
           return;
         }
 
         // ── ITEM 6: Email verification check (skip for SuperAdmins) ──────
         if (!firebaseUser.emailVerified && !userDoc.isSuperAdmin) {
-          isUnverifiedRef.current = true;
+          setUnverified(true);
           // We still set a minimal profile so the verification screen can
           // show user info and offer the resend option.
           setProfile({
@@ -145,7 +154,7 @@ export function useAuthFlow() {
           isSuperAdmin: userDoc.isSuperAdmin,
         });
 
-        pendingLabIdRef.current = userDoc.pendingLabId;
+        setPendingLabId(userDoc.pendingLabId ?? null);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erro ao carregar perfil. Tente novamente.');
       }
@@ -160,12 +169,12 @@ export function useAuthFlow() {
     if (isLoading) return 'loading';
 
     // Suspended: userDoc.disabled was true → signOut → no appProfile
-    if (isSuspendedRef.current && !appProfile) return 'suspended';
+    if (isSuspended && !appProfile) return 'suspended';
 
     if (!appProfile) return 'unauthenticated';
 
     // Email not verified
-    if (isUnverifiedRef.current) return 'email_not_verified';
+    if (isUnverified) return 'email_not_verified';
 
     const { activeLab, labs, isSuperAdmin } = appProfile;
 
@@ -173,7 +182,7 @@ export function useAuthFlow() {
     if (isSuperAdmin && !activeLab) return 'ready';
 
     if (labs.length === 0) {
-      return pendingLabIdRef.current ? 'pending_access' : 'first_setup';
+      return pendingLabId ? 'pending_access' : 'first_setup';
     }
 
     if (!activeLab) return 'select_lab';
