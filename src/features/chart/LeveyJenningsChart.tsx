@@ -137,6 +137,9 @@ interface LeveyJenningsChartProps {
 export function LeveyJenningsChart({ chartData, analyte }: LeveyJenningsChartProps) {
   const { chartData: data, currentStats: stats, westgardAlerts } = chartData;
 
+  // Hooks devem ser chamados incondicionalmente, antes de qualquer early return
+  const { isDark } = useTheme();
+
   if (!stats || data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-64 rounded-2xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.01] transition-colors duration-300">
@@ -152,8 +155,6 @@ export function LeveyJenningsChart({ chartData, analyte }: LeveyJenningsChartPro
 
   // Recent alerts (last 5)
   const recentAlerts = [...westgardAlerts].slice(-5).reverse();
-
-  const { isDark } = useTheme();
 
   return (
     <div className="space-y-3">
