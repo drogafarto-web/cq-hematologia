@@ -60,7 +60,7 @@ export function useRunReports(filters: ReportFilters) {
     };
 
     fetchRuns();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [labId, startDate, endDate, operatorId, level, status]);
 
   const stats = useMemo((): ReportStats => {

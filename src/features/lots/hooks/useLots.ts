@@ -2,7 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { useActiveLabId, useUser } from '../../../store/useAuthStore';
 import { getDatabaseService } from '../../../shared/services/databaseService';
-import type { ControlLot, StoredState, InternalStats } from '../../../types';
+import type { ControlLot, InternalStats, DatabaseService } from '../../../types';
 import { toast } from '../../../shared/store/useToastStore';
 import { haptic } from '../../../shared/hooks/useHaptic';
 
@@ -77,13 +77,15 @@ export function useLots() {
   }, [labId]);
 
   // ── Persistence helper ─────────────────────────────────────────────────────
+  // Runs a granular write through the database service. Wraps sync-status and
+  // error surfacing so callers only need to describe *what* to persist.
 
-  const persist = useCallback(
-    async (state: StoredState): Promise<void> => {
+  const withSync = useCallback(
+    async (op: (db: DatabaseService) => Promise<void>): Promise<void> => {
       if (!labId) return;
       setSyncStatus('saving');
       try {
-        await getDatabaseService(labId).saveState(state);
+        await op(getDatabaseService(labId));
         setSyncStatus('saved');
       } catch (err) {
         setSyncStatus('error');
@@ -117,11 +119,10 @@ export function useLots() {
         createdBy:  user?.uid ?? '',
       };
 
-      const newLots = [...lots, newLot];
       const prevLots = lots;
-      setLots(newLots);
+      setLots([...lots, newLot]);
       try {
-        await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+        await withSync((db) => db.saveLot(newLot));
       } catch (err) {
         setLots(prevLots);
         throw err;
@@ -130,7 +131,7 @@ export function useLots() {
       toast.success(`Lote "${input.controlName}" adicionado.`);
       return newLot.id;
     },
-    [labId, user, lots, activeLotId, selectedAnalyteId, setLots, persist]
+    [labId, user, lots, setLots, withSync]
   );
 
   /** Partially updates a lot's metadata fields. */
@@ -139,17 +140,20 @@ export function useLots() {
       lotId: string,
       changes: Partial<Omit<ControlLot, 'id' | 'labId' | 'runs' | 'createdAt' | 'createdBy'>>
     ): Promise<void> => {
-      const newLots  = applyLotUpdate(lots, lotId, (lot) => ({ ...lot, ...changes }));
+      const target = lots.find((l) => l.id === lotId);
+      if (!target) return;
+      const updated: ControlLot = { ...target, ...changes };
+      const newLots  = applyLotUpdate(lots, lotId, () => updated);
       const prevLots = lots;
       setLots(newLots);
       try {
-        await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+        await withSync((db) => db.saveLot(updated));
       } catch (err) {
         setLots(prevLots);
         throw err;
       }
     },
-    [lots, activeLotId, selectedAnalyteId, setLots, persist]
+    [lots, setLots, withSync]
   );
 
   /**
@@ -158,21 +162,20 @@ export function useLots() {
    */
   const updateLotStats = useCallback(
     async (lotId: string, statistics: InternalStats | null, runCount: number): Promise<void> => {
-      const newLots  = applyLotUpdate(lots, lotId, (lot) => ({
-        ...lot,
-        statistics,
-        runCount,
-      }));
+      const target = lots.find((l) => l.id === lotId);
+      if (!target) return;
+      const updated: ControlLot = { ...target, statistics, runCount };
+      const newLots  = applyLotUpdate(lots, lotId, () => updated);
       const prevLots = lots;
       setLots(newLots);
       try {
-        await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+        await withSync((db) => db.saveLot(updated));
       } catch (err) {
         setLots(prevLots);
         throw err;
       }
     },
-    [lots, activeLotId, selectedAnalyteId, setLots, persist]
+    [lots, setLots, withSync]
   );
 
   /**
@@ -182,6 +185,7 @@ export function useLots() {
   const deleteLot = useCallback(
     async (lotId: string): Promise<void> => {
       const newLots      = lots.filter((l) => l.id !== lotId);
+      const prevActiveLotId = activeLotId;
       const newActiveLotId =
         activeLotId === lotId ? (newLots[0]?.id ?? null) : activeLotId;
 
@@ -189,34 +193,51 @@ export function useLots() {
       setLots(newLots);
       setActiveLotId(newActiveLotId);
       try {
-        await persist({ lots: newLots, activeLotId: newActiveLotId, selectedAnalyteId });
+        await withSync(async (db) => {
+          await db.deleteLot(lotId);
+          if (newActiveLotId !== prevActiveLotId) {
+            await db.saveAppState({ activeLotId: newActiveLotId, selectedAnalyteId });
+          }
+        });
       } catch (err) {
         setLots(prevLots);
-        setActiveLotId(activeLotId);
+        setActiveLotId(prevActiveLotId);
         throw err;
       }
       haptic.heavy();
       toast.success('Lote excluído.');
     },
-    [lots, activeLotId, selectedAnalyteId, setLots, setActiveLotId, persist]
+    [lots, activeLotId, selectedAnalyteId, setLots, setActiveLotId, withSync]
   );
 
   /** Sets the active lot and persists the selection. */
   const selectLot = useCallback(
     async (id: string | null): Promise<void> => {
+      const prev = activeLotId;
       setActiveLotId(id);
-      await persist({ lots, activeLotId: id, selectedAnalyteId });
+      try {
+        await withSync((db) => db.saveAppState({ activeLotId: id, selectedAnalyteId }));
+      } catch (err) {
+        setActiveLotId(prev);
+        throw err;
+      }
     },
-    [lots, selectedAnalyteId, setActiveLotId, persist]
+    [activeLotId, selectedAnalyteId, setActiveLotId, withSync]
   );
 
   /** Sets the selected analyte for the chart and persists. */
   const setSelectedAnalyte = useCallback(
     async (analyteId: string | null): Promise<void> => {
+      const prev = selectedAnalyteId;
       setSelectedAnalyteId(analyteId);
-      await persist({ lots, activeLotId, selectedAnalyteId: analyteId });
+      try {
+        await withSync((db) => db.saveAppState({ activeLotId, selectedAnalyteId: analyteId }));
+      } catch (err) {
+        setSelectedAnalyteId(prev);
+        throw err;
+      }
     },
-    [lots, activeLotId, setSelectedAnalyteId, persist]
+    [activeLotId, selectedAnalyteId, setSelectedAnalyteId, withSync]
   );
 
   return {

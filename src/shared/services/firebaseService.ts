@@ -17,6 +17,7 @@ import {
 } from './firebase';
 import { COLLECTIONS, SUBCOLLECTIONS, STATIC_DOC_IDS } from '../../constants';
 import type {
+  AppStatePatch,
   DatabaseService,
   StoredState,
   ControlLot,
@@ -415,6 +416,70 @@ export class FirebaseService implements DatabaseService {
       throw new Error(
         err instanceof Error ? err.message : 'Falha no upload do arquivo. Tente novamente.'
       );
+    }
+  }
+
+  // ── Granular writes ────────────────────────────────────────────────────────
+  // Touch only the document the caller intends to change. This keeps selectLot
+  // / setSelectedAnalyte inside the appState rule (writable by any member) and
+  // prevents the admin-only lots/{lotId} rule from bouncing member actions.
+
+  async saveAppState(patch: AppStatePatch): Promise<void> {
+    try {
+      await setDoc(
+        this.appStateRef(),
+        { ...patch, lastUpdated: serverTimestamp() },
+        { merge: true },
+      );
+    } catch (err) {
+      throw new Error(firestoreErrorMessage(err));
+    }
+  }
+
+  async saveLot(lot: ControlLot): Promise<void> {
+    try {
+      const { runs: _runs, ...lotWithoutRuns } = lot;
+      await setDoc(this.lotRef(lot.id), serializeLot(lotWithoutRuns));
+      if (this.knownLotIds) this.knownLotIds.add(lot.id);
+    } catch (err) {
+      throw new Error(firestoreErrorMessage(err));
+    }
+  }
+
+  async deleteLot(lotId: string): Promise<void> {
+    try {
+      await this.ensureTracking();
+      const runIds = this.knownRunIds!.get(lotId) ?? new Set<string>();
+      await runBatched([
+        ...[...runIds].map((runId): BatchOp => (b) => b.delete(this.runRef(lotId, runId))),
+        (b) => b.delete(this.lotRef(lotId)),
+      ]);
+      this.knownLotIds!.delete(lotId);
+      this.knownRunIds!.delete(lotId);
+    } catch (err) {
+      throw new Error(firestoreErrorMessage(err));
+    }
+  }
+
+  async saveRun(lotId: string, run: Run): Promise<void> {
+    try {
+      await setDoc(this.runRef(lotId, run.id), serializeRun(run));
+      if (this.knownRunIds) {
+        const set = this.knownRunIds.get(lotId) ?? new Set<string>();
+        set.add(run.id);
+        this.knownRunIds.set(lotId, set);
+      }
+    } catch (err) {
+      throw new Error(firestoreErrorMessage(err));
+    }
+  }
+
+  async deleteRun(lotId: string, runId: string): Promise<void> {
+    try {
+      await runBatched([(b) => b.delete(this.runRef(lotId, runId))]);
+      this.knownRunIds?.get(lotId)?.delete(runId);
+    } catch (err) {
+      throw new Error(firestoreErrorMessage(err));
     }
   }
 }

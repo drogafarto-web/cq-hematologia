@@ -145,9 +145,7 @@ interface BatchFormProps {
 function BatchCreationForm({ controlName, levels, onAdd, onClose, clearBulaData }: BatchFormProps) {
   const [equipmentName, setEquipmentName] = useState('Yumizen H550');
   const [serialNumber,  setSerialNumber]  = useState('');
-  const [startDate,     setStartDate]     = useState(
-    () => new Date().toISOString().slice(0, 10),
-  );
+  const [startDate,     setStartDate]     = useState('');
   const [expiryDate,    setExpiryDate]    = useState('');
   const [submitting,    setSubmitting]    = useState(false);
   const [error,         setError]         = useState<string | null>(null);
@@ -157,6 +155,7 @@ function BatchCreationForm({ controlName, levels, onAdd, onClose, clearBulaData 
     e.preventDefault();
     setError(null);
 
+    if (!startDate)  { setError('Data de início é obrigatória.'); return; }
     if (!expiryDate) { setError('Data de vencimento é obrigatória.'); return; }
     if (!controlName.trim()) { setError('Nome do controle não identificado na bula.'); return; }
 
@@ -232,7 +231,7 @@ function BatchCreationForm({ controlName, levels, onAdd, onClose, clearBulaData 
             className={INPUT_CLS}
           />
         </Field>
-        <Field id="batch-start" label="Início do Uso" required>
+        <Field id="batch-start" label="Início do Uso" required hint="Define o agrupamento mensal na tela de análise">
           <input
             id="batch-start"
             type="date"
@@ -309,9 +308,7 @@ export function AddLotModal({ onAdd, onClose }: AddLotModalProps) {
   const [level,         setLevel]         = useState<1 | 2 | 3>(1);
   const [equipmentName, setEquipmentName] = useState('Yumizen H550');
   const [serialNumber,  setSerialNumber]  = useState('');
-  const [startDate,     setStartDate]     = useState(
-    () => new Date().toISOString().slice(0, 10),
-  );
+  const [startDate,     setStartDate]     = useState('');
   const [expiryDate,    setExpiryDate]    = useState('');
 
   // CSV state
@@ -394,7 +391,7 @@ export function AddLotModal({ onAdd, onClose }: AddLotModalProps) {
   function toggleAnalyte(id: string) {
     setSelectedAnalytes((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
   }
@@ -407,6 +404,7 @@ export function AddLotModal({ onAdd, onClose }: AddLotModalProps) {
 
     if (!lotNumber.trim())   { setError('Número do lote é obrigatório.');   return; }
     if (!controlName.trim()) { setError('Nome do controle é obrigatório.'); return; }
+    if (!startDate)          { setError('Data de início é obrigatória.'); return; }
     if (!expiryDate)         { setError('Data de vencimento é obrigatória.'); return; }
     if (selectedAnalytes.size === 0) { setError('Selecione ao menos um analito.'); return; }
 
@@ -608,7 +606,12 @@ export function AddLotModal({ onAdd, onClose }: AddLotModalProps) {
                 />
               </Field>
 
-              <Field id="start-date" label="Início do Uso" required>
+              <Field 
+                id="start-date" 
+                label="Início do Uso" 
+                required
+                hint="Esta data define o agrupamento mensal na tela de análise."
+              >
                 <input
                   id="start-date"
                   type="date"

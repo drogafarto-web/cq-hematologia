@@ -12,11 +12,11 @@ import type {
   Run,
   ControlLot,
   AnalyteResult,
-  StoredState,
   RunStatus,
   InternalStats,
   AnalyteStats,
   WestgardViolation,
+  DatabaseService,
 } from '../../../types';
 
 // ─── Pure helpers ─────────────────────────────────────────────────────────────
@@ -150,7 +150,6 @@ export function useRuns() {
   // ── Zustand atoms ──────────────────────────────────────────────────────────
   const lots            = useAppStore((s) => s.lots);
   const activeLotId     = useAppStore((s) => s.activeLotId);
-  const selectedAnalyteId = useAppStore((s) => s.selectedAnalyteId);
   const pendingRun      = useAppStore((s) => s.pendingRun);
 
   const setLots       = useAppStore((s) => s.setLots);
@@ -167,18 +166,15 @@ export function useRuns() {
 
   const activeLot = lots.find((l) => l.id === activeLotId) ?? null;
 
-  const getState = (): StoredState => {
-    // Read current store state without subscribing — safe for async closures
-    const s = useAppStore.getState();
-    return { lots: s.lots, activeLotId: s.activeLotId, selectedAnalyteId: s.selectedAnalyteId };
-  };
-
-  const persist = useCallback(
-    async (state: StoredState): Promise<void> => {
+  // Granular-write wrapper: surfaces sync status without forcing callers to
+  // rebuild a whole StoredState envelope (which would tempt us back into the
+  // full-sync pattern that caused the original permission-denied regressions).
+  const withSync = useCallback(
+    async (op: (db: DatabaseService) => Promise<void>): Promise<void> => {
       if (!labId) return;
       setSyncStatus('saving');
       try {
-        await getDatabaseService(labId).saveState(state);
+        await op(getDatabaseService(labId));
         setSyncStatus('saved');
       } catch (err) {
         setSyncStatus('error');
@@ -304,7 +300,12 @@ export function useRuns() {
         const prevLots = lots;
         setLots(newLots);
         try {
-          await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+          await withSync(async (db) => {
+            await db.saveRun(activeLot.id, newRun);
+            // Persist the lot's updated stats + runCount (metadata only — runs
+            // aren't duplicated here because saveLot drops the runs array).
+            await db.saveLot(lotWithNewRun);
+          });
         } catch (err) {
           // Rollback — prevent ghost runs from accumulating in the store
           setLots(prevLots);
@@ -329,15 +330,15 @@ export function useRuns() {
             const path = storagePath.runImage(labId, activeLot.id, runId);
             const url  = await getDatabaseService(labId).uploadFile(pendingRun.file, path);
 
-            // Read fresh store state to avoid stale closure
-            const current = getState();
+            const current = useAppStore.getState();
             const updated = updateRunInLots(current.lots, activeLot.id, runId, (r) => ({
               ...r,
               imageUrl: url,
             }));
 
             setLots(updated);
-            await persist({ ...current, lots: updated });
+            const runWithImage: Run = { ...newRun, imageUrl: url };
+            await withSync((db) => db.saveRun(activeLot.id, runWithImage));
           } catch (err) {
             console.error('[useRuns] Background image upload failed:', err);
             // Non-fatal: run data is already saved; image URL will be empty
@@ -353,7 +354,7 @@ export function useRuns() {
         setIsConfirming(false);
       }
     },
-    [pendingRun, activeLot, labId, user, lots, activeLotId, selectedAnalyteId, setLots, setPendingRun, setError, persist]
+    [pendingRun, activeLot, labId, user, lots, setLots, setPendingRun, setError, withSync]
   );
 
   /** Discards the current pending run without saving. */
@@ -375,27 +376,34 @@ export function useRuns() {
       const lot = lots.find((l) => l.id === lotId);
       if (!lot) return;
 
-      let newLots = updateRunInLots(lots, lotId, runId, (r) => ({ ...r, ...changes }));
+      const targetRun = lot.runs.find((r) => r.id === runId);
+      if (!targetRun) return;
+      const updatedRun: Run = { ...targetRun, ...changes };
 
-      // Recalculate stats if status changed (approved run count may differ)
-      if ('status' in changes) {
-        const updatedLot = newLots.find((l) => l.id === lotId)!;
-        const newStats   = calculateInternalStats(updatedLot);
-        newLots = newLots.map((l) =>
-          l.id === lotId ? { ...l, statistics: newStats } : l
-        );
+      let newLots = updateRunInLots(lots, lotId, runId, () => updatedRun);
+
+      // Recalculate stats only when status changed — approved run count may differ
+      const statusChanged = 'status' in changes;
+      let updatedLot = newLots.find((l) => l.id === lotId)!;
+      if (statusChanged) {
+        const newStats = calculateInternalStats(updatedLot);
+        updatedLot = { ...updatedLot, statistics: newStats };
+        newLots = newLots.map((l) => (l.id === lotId ? updatedLot : l));
       }
 
       const prevLots = lots;
       setLots(newLots);
       try {
-        await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+        await withSync(async (db) => {
+          await db.saveRun(lotId, updatedRun);
+          if (statusChanged) await db.saveLot(updatedLot);
+        });
       } catch (err) {
         setLots(prevLots);
         throw err;
       }
     },
-    [lots, activeLotId, selectedAnalyteId, setLots, persist]
+    [lots, setLots, withSync]
   );
 
   /**
@@ -418,7 +426,10 @@ export function useRuns() {
       const prevLots = lots;
       setLots(newLots);
       try {
-        await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+        await withSync(async (db) => {
+          await db.deleteRun(lotId, runId);
+          await db.saveLot(updatedLot);
+        });
       } catch (err) {
         setLots(prevLots);
         throw err;
@@ -426,7 +437,7 @@ export function useRuns() {
       haptic.heavy();
       toast.success('Corrida excluída.');
     },
-    [lots, activeLotId, selectedAnalyteId, setLots, persist]
+    [lots, setLots, withSync]
   );
 
   return {

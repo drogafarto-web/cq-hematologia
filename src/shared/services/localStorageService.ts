@@ -1,4 +1,5 @@
 import type {
+  AppStatePatch,
   DatabaseService,
   StoredState,
   ControlLot,
@@ -185,5 +186,52 @@ export class LocalStorageService implements DatabaseService {
 
   async uploadFile(file: File, _path: string): Promise<string> {
     return URL.createObjectURL(file);
+  }
+
+  // ── Granular writes ────────────────────────────────────────────────────────
+  // LocalStorage has no partial-write story, so each helper rebuilds the full
+  // state from disk, applies the change, and writes it back. The granularity
+  // still matters for the Firebase implementation, which has real cost.
+
+  async saveAppState(patch: AppStatePatch): Promise<void> {
+    const current = (await this.loadState()) ?? { lots: [], activeLotId: null, selectedAnalyteId: null };
+    await this.saveState({ ...current, ...patch });
+  }
+
+  async saveLot(lot: ControlLot): Promise<void> {
+    const current = (await this.loadState()) ?? { lots: [], activeLotId: null, selectedAnalyteId: null };
+    const existed = current.lots.some((l) => l.id === lot.id);
+    const lots = existed
+      ? current.lots.map((l) => (l.id === lot.id ? lot : l))
+      : [...current.lots, lot];
+    await this.saveState({ ...current, lots });
+  }
+
+  async deleteLot(lotId: string): Promise<void> {
+    const current = (await this.loadState()) ?? { lots: [], activeLotId: null, selectedAnalyteId: null };
+    const lots = current.lots.filter((l) => l.id !== lotId);
+    const activeLotId = current.activeLotId === lotId ? (lots[0]?.id ?? null) : current.activeLotId;
+    await this.saveState({ ...current, lots, activeLotId });
+  }
+
+  async saveRun(lotId: string, run: Run): Promise<void> {
+    const current = (await this.loadState()) ?? { lots: [], activeLotId: null, selectedAnalyteId: null };
+    const lots = current.lots.map((l) => {
+      if (l.id !== lotId) return l;
+      const existed = l.runs.some((r) => r.id === run.id);
+      const runs = existed
+        ? l.runs.map((r) => (r.id === run.id ? run : r))
+        : [...l.runs, run];
+      return { ...l, runs };
+    });
+    await this.saveState({ ...current, lots });
+  }
+
+  async deleteRun(lotId: string, runId: string): Promise<void> {
+    const current = (await this.loadState()) ?? { lots: [], activeLotId: null, selectedAnalyteId: null };
+    const lots = current.lots.map((l) =>
+      l.id === lotId ? { ...l, runs: l.runs.filter((r) => r.id !== runId) } : l
+    );
+    await this.saveState({ ...current, lots });
   }
 }
