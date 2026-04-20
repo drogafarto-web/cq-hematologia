@@ -1317,3 +1317,107 @@ export const approveUserForLab = onCall(
     return { success: true };
   },
 );
+
+// ─── parseUrinaTira ───────────────────────────────────────────────────────────
+// Callable: lê foto de tira reagente urinária e retorna os valores de cada
+// analito (glicose, cetonas, proteína, nitrito, sangue, leucócitos, pH) com
+// confiança individual. Bilirrubina, urobilinogênio e densidade NUNCA são
+// processados — contraste ótico insuficiente, sempre manual.
+
+const URO_OCR_RESULT_SCHEMA = z.object({
+  glicose:    z.object({ valor: z.string().nullable(), confidence: z.number().min(0).max(1) }),
+  cetonas:    z.object({ valor: z.string().nullable(), confidence: z.number().min(0).max(1) }),
+  proteina:   z.object({ valor: z.string().nullable(), confidence: z.number().min(0).max(1) }),
+  nitrito:    z.object({ valor: z.string().nullable(), confidence: z.number().min(0).max(1) }),
+  sangue:     z.object({ valor: z.string().nullable(), confidence: z.number().min(0).max(1) }),
+  leucocitos: z.object({ valor: z.string().nullable(), confidence: z.number().min(0).max(1) }),
+  ph:         z.object({ valor: z.number().nullable(), confidence: z.number().min(0).max(1) }),
+});
+
+const PARSE_URINA_INPUT_SCHEMA = z.object({
+  base64:   z.string().min(1, 'Imagem obrigatória.'),
+  mimeType: z.string().min(1, 'mimeType obrigatório.'),
+});
+
+export const parseUrinaTira = onCall(
+  {
+    secrets:        [geminiApiKey, openRouterApiKey],
+    memory:         '512MiB',
+    timeoutSeconds: 60,
+  },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Autenticação necessária.');
+    }
+
+    const inputValidation = PARSE_URINA_INPUT_SCHEMA.safeParse(request.data);
+    if (!inputValidation.success) {
+      throw new HttpsError(
+        'invalid-argument',
+        `Payload inválido: ${inputValidation.error.message}`,
+      );
+    }
+
+    const { base64, mimeType } = inputValidation.data;
+
+    const prompt = `Você é um analista de controle de qualidade laboratorial. Leia a foto da tira reagente urinária comparando com o padrão de cores impresso no frasco/rótulo.
+
+Parâmetros a identificar (7) com valores exatos:
+- glicose:    "NEGATIVO" | "1+" | "2+" | "3+" | "4+"
+- cetonas:    "NEGATIVO" | "TRACOS" | "1+" | "2+" | "3+"
+- proteina:   "NEGATIVO" | "TRACOS" | "1+" | "2+" | "3+" | "4+"
+- nitrito:    "NEGATIVO" | "PRESENTE"
+- sangue:     "NEGATIVO" | "TRACOS" | "1+" | "2+" | "3+"
+- leucocitos: "NEGATIVO" | "TRACOS" | "1+" | "2+" | "3+" | "4+"
+- ph:         número entre 5.0 e 8.5 (múltiplo de 0.5)
+
+NÃO processar: bilirrubina, urobilinogênio, densidade (ambíguos oticamente).
+
+confidence: 0.95+ clara · 0.70-0.95 dúvida mínima · <0.70 ambíguo.
+Se não puder ler um parâmetro, use { "valor": null, "confidence": 0 }.
+
+Responda APENAS com JSON válido, sem markdown:
+{
+  "glicose": { "valor": "...", "confidence": 0..1 },
+  "cetonas": { "valor": "...", "confidence": 0..1 },
+  "proteina": { "valor": "...", "confidence": 0..1 },
+  "nitrito": { "valor": "...", "confidence": 0..1 },
+  "sangue": { "valor": "...", "confidence": 0..1 },
+  "leucocitos": { "valor": "...", "confidence": 0..1 },
+  "ph": { "valor": 5.0..8.5, "confidence": 0..1 }
+}`.trim();
+
+    const rawText = await callAIWithFallback({
+      prompt,
+      base64,
+      mimeType,
+      geminiKey:     geminiApiKey.value(),
+      openRouterKey: openRouterApiKey.value(),
+    });
+
+    if (!rawText.trim()) {
+      throw new HttpsError('internal', 'A IA retornou uma resposta vazia.');
+    }
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(rawText);
+    } catch (err) {
+      console.error('❌ parseUrinaTira: JSON inválido da IA:', rawText, err);
+      throw new HttpsError('internal', 'IA retornou resposta não-JSON.');
+    }
+
+    const validation = URO_OCR_RESULT_SCHEMA.safeParse(parsed);
+    if (!validation.success) {
+      console.error('❌ parseUrinaTira: formato inválido (Zod):', validation.error.format());
+      throw new HttpsError(
+        'internal',
+        `Formato inválido da IA: ${validation.error.message}`,
+      );
+    }
+
+    console.log('✅ parseUrinaTira: leitura bem-sucedida');
+
+    return validation.data;
+  },
+);

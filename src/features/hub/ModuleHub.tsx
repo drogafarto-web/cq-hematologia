@@ -111,20 +111,22 @@ const MODULES: ModuleDef[] = [
   {
     id: 'coagulation',
     name: 'Coagulação',
-    tagline: 'Monitoramento de hemostasia e anticoagulação',
+    tagline: 'CIQ quantitativo · AP · RNI · TTPA · Clotimer Duo',
     icon: <CoagIcon />,
-    iconBg: 'bg-rose-500/10',
-    iconColor: 'text-rose-400/50',
-    status: 'soon',
+    iconBg: 'bg-rose-500/15',
+    iconColor: 'text-rose-400',
+    status: 'active',
+    view: 'coagulacao',
   },
   {
     id: 'urinalysis',
-    name: 'Urinálise',
-    tagline: 'Controle de qualidade para urina rotina',
+    name: 'Uroanálise',
+    tagline: 'CIQ híbrido · tiras reagentes · 10 analitos · CLSI GP16',
     icon: <UrineIcon />,
-    iconBg: 'bg-amber-500/10',
-    iconColor: 'text-amber-400/50',
-    status: 'soon',
+    iconBg: 'bg-amber-500/15',
+    iconColor: 'text-amber-400',
+    status: 'active',
+    view: 'uroanalise',
   },
   {
     id: 'ciq-imuno',
@@ -184,7 +186,7 @@ export function ModuleHub() {
           <button
             type="button"
             aria-label="Abrir menu de conta"
-            aria-expanded={menuOpen ? 'true' : 'false'}
+            aria-haspopup="menu"
             onClick={() => setMenuOpen((v) => !v)}
             className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-slate-400 dark:text-white/30 hover:text-slate-600 dark:hover:text-white/60 hover:bg-slate-200 dark:hover:bg-white/[0.07] transition-all"
           >

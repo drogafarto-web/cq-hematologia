@@ -13,8 +13,9 @@ import { ModuleHub } from '../hub/ModuleHub';
 import { AnalyzerView } from '../analyzer/AnalyzerView';
 import { BulaProcessor } from '../bulaparser/BulaProcessor';
 import { ReportsView } from '../reports/ReportsView';
-import { CIQImunoDashboard } from '../ciq-imuno/components/CIQImunoDashboard';
 import { LabCQISettings }   from '../labSettings/LabCQISettings';
+import { CoagulacaoView }   from '../coagulacao/CoagulacaoView';
+import { UroanaliseView }   from '../uroanalise/UroanaliseView';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
 
@@ -48,17 +49,23 @@ function AppRouter() {
     view = <BulaProcessor />;
   } else if (currentView === 'reports') {
     view = <ReportsView />;
-  } else if (currentView === 'ciq-imuno') {
-    view = <CIQImunoDashboard />;
   } else if (currentView === 'lab-settings') {
     view = <LabCQISettings />;
+  } else if (currentView === 'coagulacao') {
+    view = <CoagulacaoView />;
+  } else if (currentView === 'uroanalise') {
+    view = <UroanaliseView />;
   } else {
     view = <AnalyzerView />;
   }
 
-  // key forces unmount → remount on view change, triggering .view-enter animation
+  // Shell views (analyzer + ciq-imuno) share the same key so AnalyzerView
+  // persists across module switches; other views get their own key.
+  const shellViews = new Set(['analyzer', 'ciq-imuno']);
+  const viewKey = shellViews.has(currentView) ? 'shell' : currentView;
+
   return (
-    <div key={currentView} className="view-enter">
+    <div key={viewKey} className="view-enter">
       {view}
     </div>
   );

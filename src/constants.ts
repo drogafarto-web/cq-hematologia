@@ -68,10 +68,18 @@ export const SUBCOLLECTIONS = {
   CIQ_IMUNO_META:   'ciq-imuno-meta',   // contadores e metadados (runCount sequencial)
   CIQ_AUDIT:        'ciq-audit',        // trilha de auditoria nível-lab (sobrevive à exclusão de lotes)
   AUDIT:            'audit',            // subcoleção de auditoria dentro de um lote
+  // Módulo: Coagulação (CIQ quantitativo)
+  CIQ_COAGULACAO:        'ciq-coagulacao',
+  CIQ_COAGULACAO_META:   'ciq-coagulacao-meta',
+  CIQ_COAGULACAO_CONFIG: 'ciq-coagulacao-config',
+  CIQ_COAGULACAO_AUDIT:  'ciq-coagulacao-audit',
+  // Módulo: Uroanálise (CIQ híbrido — categórico + quantitativo)
+  CIQ_UROANALISE:        'ciq-uroanalise',
+  CIQ_UROANALISE_META:   'ciq-uroanalise-meta',
+  CIQ_UROANALISE_CONFIG: 'ciq-uroanalise-config',
+  CIQ_UROANALISE_AUDIT:  'ciq-uroanalise-audit',
   // Módulos futuros — descomentar ao implementar:
   // CIQ_BIOQUIMICA: 'ciq-bioquimica',
-  // CIQ_COAGULACAO: 'ciq-coagulacao',
-  // CIQ_URINALISE:  'ciq-urinalise',
 } as const;
 
 export const STATIC_DOC_IDS = {
@@ -87,9 +95,9 @@ export const STATIC_DOC_IDS = {
 export const MODULE_CLAIMS = {
   hematologia: 'hematologia',
   imunologia:  'imunologia',
+  coagulacao:  'coagulacao',
+  uroanalise:  'uroanalise',
   // bioquimica: 'bioquimica',
-  // coagulacao: 'coagulacao',
-  // urinalise:  'urinalise',
 } as const;
 
 export type ModuleClaim = (typeof MODULE_CLAIMS)[keyof typeof MODULE_CLAIMS];
@@ -103,6 +111,12 @@ export const storagePath = {
   // Imunologia — foto do strip de imunoensaio
   imunoStripImage: (labId: string, lotId: string, runId: string) =>
     `labs/${labId}/ciq-imuno/${lotId}/strips/${runId}.jpg`,
+  // Coagulação — foto opcional do printout do coagulômetro
+  coagRunImage: (labId: string, lotId: string, runId: string) =>
+    `labs/${labId}/ciq-coagulacao/${lotId}/runs/${runId}.jpg`,
+  // Uroanálise — foto da tira reagente (usada pelo OCR em v2)
+  uroTiraImage: (labId: string, lotId: string, runId: string) =>
+    `labs/${labId}/ciq-uroanalise/${lotId}/tiras/${runId}.jpg`,
   // Infra
   labLogo: (labId: string) =>
     `labs/${labId}/logo`,
@@ -119,6 +133,9 @@ export const AUDIT_BASE_URL: string =
 // ─── Gemini ───────────────────────────────────────────────────────────────────
 
 export const GEMINI_MODEL = 'gemini-2.5-flash-preview-04-17';
+
+// ─── Westgard — warning-only rules (excluded from rejection logic) ────────────
+export const WARNING_ONLY_WESTGARD_RULES = new Set<string>(['1-2s']);
 
 // ─── UI ───────────────────────────────────────────────────────────────────────
 

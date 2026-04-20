@@ -269,7 +269,7 @@ export interface PendingBulaData {
 // ─── UI State ─────────────────────────────────────────────────────────────────
 
 export type SyncStatus = 'saved' | 'saving' | 'offline' | 'error';
-export type View = 'hub' | 'analyzer' | 'bulaparser' | 'superadmin' | 'reports' | 'ciq-imuno' | 'lab-settings';
+export type View = 'hub' | 'analyzer' | 'bulaparser' | 'superadmin' | 'reports' | 'ciq-imuno' | 'coagulacao' | 'uroanalise' | 'lab-settings';
 export type StatsSource = 'manufacturer' | 'internal';
 export type ImageState = 'ready' | 'uploading' | 'none';
 
@@ -285,11 +285,27 @@ export interface StoredState {
 
 export type Unsubscribe = () => void;
 
+export interface AppStatePatch {
+  activeLotId: string | null;
+  selectedAnalyteId: string | null;
+}
+
 export interface DatabaseService {
+  // Full-state sync — legacy / bulk import only. Hot paths use the granular
+  // helpers below, because re-touching every lot document on a simple
+  // "select another lot" action trips the admin-only Firestore rule for
+  // lot metadata and breaks the UX for non-admin members.
   saveState(state: StoredState): Promise<void>;
   loadState(): Promise<StoredState | null>;
   subscribeToState(callback: (state: StoredState) => void): Unsubscribe;
   uploadFile(file: File, path: string): Promise<string>;
+
+  // Granular writes — preferred.
+  saveAppState(patch: AppStatePatch): Promise<void>;
+  saveLot(lot: ControlLot): Promise<void>;
+  deleteLot(lotId: string): Promise<void>;
+  saveRun(lotId: string, run: Run): Promise<void>;
+  deleteRun(lotId: string, runId: string): Promise<void>;
 }
 
 // ─── Gemini / AI ──────────────────────────────────────────────────────────────
