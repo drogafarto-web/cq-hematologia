@@ -12,7 +12,7 @@ const mockTimestamp = {
   isEqual: () => false,
   toJSON:  () => ({ seconds: 1710000000, nanoseconds: 0 }),
   valueOf: () => 1710000000 * 1000,
-} as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+} as any;  
 
 /** Cria um CIQImunoRun mínimo válido para testes. */
 function makeRun(overrides: Partial<CIQImunoRun> = {}): CIQImunoRun {

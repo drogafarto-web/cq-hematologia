@@ -11,7 +11,7 @@ const makeTimestamp = (seconds: number) => ({
   isEqual:  () => false,
   toJSON:   () => ({ seconds, nanoseconds: 0 }),
   valueOf:  () => seconds * 1000,
-} as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+} as any);  
 
 const TS      = makeTimestamp(1710000000);
 const TS_NEXT = makeTimestamp(1710000001);

@@ -1,0 +1,9 @@
+dist
+coverage
+functions/lib
+node_modules
+public
+backup_13abr_18h50
+package-lock.json
+*.min.js
+*.min.css
