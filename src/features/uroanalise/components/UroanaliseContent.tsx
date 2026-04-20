@@ -252,7 +252,9 @@ export function UroanaliseContent({
   const [qrRunId, setQrRunId] = useState<string | null>(null);
   const [detailRunId, setDetailRunId] = useState<string | null>(null);
 
+  // Event-via-counter — ver CoagulacaoContent para justificativa.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (newRunTrigger > 0) setShowForm(true);
   }, [newRunTrigger]);
 

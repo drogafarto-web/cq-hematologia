@@ -660,13 +660,16 @@ export function CIQImunoContent({
   const [showForm, setShowForm] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  // Open form when sidebar "Nova corrida" is clicked
+  // Event-via-counter: pai incrementa `newRunTrigger` ao clicar "Nova corrida"
+  // no sidebar. Evita prop drilling de showForm/setShowForm por 2 níveis.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (newRunTrigger > 0) {
       setFormError(null);
       setShowForm(true);
     }
   }, [newRunTrigger]);
+  /* eslint-enable react-hooks/set-state-in-effect */
   const [qrRun, setQRRun] = useState<CIQImunoRun | null>(null);
   const [exportErr, setExportErr] = useState<string | null>(null);
   const [decidingLot, setDecidingLot] = useState(false);

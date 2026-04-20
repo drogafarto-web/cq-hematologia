@@ -379,6 +379,10 @@ export function AddLotModal({ onAdd, onClose }: AddLotModalProps) {
   // Track whether bula data was applied
   const [bulaApplied, setBulaApplied] = useState(false);
 
+  // Pre-fill do formulário a partir de PendingBulaData — acontece UMA vez no
+  // mount pq o contexto externo (useAppStore.pendingBulaData) é consumido e
+  // limpado. Sem alternativa derivada — bula é input pontual.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!pendingBulaData || isBatchMode) return;
 
@@ -398,6 +402,7 @@ export function AddLotModal({ onAdd, onClose }: AddLotModalProps) {
     // run only on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Submission
   const [submitting, setSubmitting] = useState(false);

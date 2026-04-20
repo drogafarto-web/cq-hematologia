@@ -112,7 +112,11 @@ export function AccessRequestsTab() {
     }
   }, [filter]);
 
+  // Load-on-mount pattern canônico — sem React Query/SWR no projeto, data
+  // fetch via effect é aceito. load() internamente chama setLoading/setError
+  // de forma síncrona, o que a rule flagra mas é correto aqui.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
 

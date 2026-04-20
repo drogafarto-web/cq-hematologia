@@ -28,6 +28,8 @@ export function useCIQTestTypes() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Guard + subscription pattern — ver useCIQLots para justificativa.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!labId) {
       setLoading(false);
@@ -56,6 +58,7 @@ export function useCIQTestTypes() {
 
     return unsub;
   }, [labId]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const addType = useCallback(
     async (name: string): Promise<void> => {

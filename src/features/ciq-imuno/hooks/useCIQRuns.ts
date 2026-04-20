@@ -23,6 +23,8 @@ export function useCIQRuns(lotId: string | null) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Guard + subscription pattern — ver useCIQLots para justificativa.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!labId || !lotId) {
       setRuns([]);
@@ -53,6 +55,7 @@ export function useCIQRuns(lotId: string | null) {
 
     return unsub;
   }, [labId, lotId]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return { runs, isLoading, error } as const;
 }

@@ -241,7 +241,9 @@ export function UserManagementModal({ labId, labName, currentUserUid, onClose }:
     return () => dialog.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Fix #12: cancellation flag prevents state updates on unmounted component
+  // Fix #12: cancellation flag prevents state updates on unmounted component.
+  // Load-on-mount pattern canônico — setLoading(true) síncrono é intencional.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     let cancelled = false;
 
@@ -261,6 +263,7 @@ export function UserManagementModal({ labId, labName, currentUserUid, onClose }:
       cancelled = true;
     };
   }, [labId]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Fix #10: clear stale error before each new action
   const handleRoleChange = useCallback(

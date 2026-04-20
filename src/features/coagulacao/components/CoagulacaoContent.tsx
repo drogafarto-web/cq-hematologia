@@ -342,7 +342,12 @@ export function CoagulacaoContent({
   const [selectedAnalyte, setSelectedAnalyte] = useState<CoagAnalyteId>('atividadeProtrombinica');
 
   // ── Sidebar externo pede nova corrida ─────────────────────────────────────
+  // Event-via-counter: pai incrementa `newRunTrigger` a cada clique do botão
+  // no Sidebar; este useEffect abre o formulário. Padrão aceito para eventos
+  // imperativos sem lift de estado (evita prop drilling showForm/setShowForm
+  // por 2 níveis). Alternativa seria ref API, que o React desencoraja.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (newRunTrigger > 0) setShowForm(true);
   }, [newRunTrigger]);
 

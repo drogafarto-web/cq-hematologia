@@ -142,7 +142,9 @@ function UsersTab() {
     }
   }, []);
 
+  // Load-on-mount pattern canônico — ver AccessRequestsTab.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
 

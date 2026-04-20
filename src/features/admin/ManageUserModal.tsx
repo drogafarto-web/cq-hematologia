@@ -206,8 +206,11 @@ export function ManageUserModal({
     };
   }, []);
 
-  // Reset "add to lab" select when user membership changes
+  // Reset "add to lab" select when user membership changes.
+  // Padrão canônico de "clear controlled input ao trocar entidade de referência".
+  // Alternativas (key-remount, reducer) são mais custosas e não agregam.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAddLabId('');
   }, [local.labIds]);
 

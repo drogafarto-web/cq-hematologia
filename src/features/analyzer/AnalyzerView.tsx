@@ -777,15 +777,13 @@ export function AnalyzerView() {
 
   // ── CIQ-Imuno state ─────────────────────────────────────────────────────────
   const { lots: ciqLots } = useCIQLots();
-  const [ciqActiveLotId, setCiqActiveLotId] = useState<string | null>(null);
+  const [userSelectedCiqLotId, setCiqActiveLotId] = useState<string | null>(null);
   const [ciqNewRunTrigger, setCiqNewRunTrigger] = useState(0);
 
-  // Auto-select first lot on load
-  useEffect(() => {
-    if (module === 'ciq-imuno' && !ciqActiveLotId && ciqLots.length > 0) {
-      setCiqActiveLotId(ciqLots[0].id);
-    }
-  }, [module, ciqActiveLotId, ciqLots]);
+  // Lote ativo derivado (escolha do usuário OU primeiro disponível).
+  // Só "vira" real quando estamos no módulo ciq-imuno — outros módulos ignoram.
+  const ciqActiveLotId =
+    module === 'ciq-imuno' ? (userSelectedCiqLotId ?? ciqLots[0]?.id ?? null) : userSelectedCiqLotId;
 
   const userName = user?.displayName || user?.email?.split('@')[0] || 'Operador';
 

@@ -11,7 +11,7 @@
  *   3. 'dark'                           (fallback seguro)
  */
 
-import { useState, useEffect } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 
 export type Theme = 'dark' | 'light';
 
@@ -42,7 +42,7 @@ function resolveInitial(): Theme {
 
 // Inicializa UMA vez quando o módulo é importado
 let _theme: Theme = resolveInitial();
-const _listeners = new Set<(t: Theme) => void>();
+const _listeners = new Set<() => void>();
 
 /** Aplica tema no DOM + persiste + notifica todos os hooks ativos */
 function applyTheme(next: Theme): void {
@@ -60,28 +60,31 @@ function applyTheme(next: Theme): void {
     html.classList.remove('dark');
   }
 
-  _listeners.forEach((fn) => fn(next));
+  _listeners.forEach((fn) => fn());
 }
 
 // ─── Hook ────────────────────────────────────────────────────────────────────
+
+/** Subscribe function for useSyncExternalStore — shared across all hook instances. */
+function subscribe(onChange: () => void): () => void {
+  _listeners.add(onChange);
+  return () => {
+    _listeners.delete(onChange);
+  };
+}
+
+function getSnapshot(): Theme {
+  return _theme;
+}
 
 export function useTheme(): {
   theme: Theme;
   toggleTheme: () => void;
   isDark: boolean;
 } {
-  const [theme, setTheme] = useState<Theme>(_theme);
-
-  useEffect(() => {
-    // Sincroniza se outro componente já alterou antes deste montar
-    if (theme !== _theme) setTheme(_theme);
-
-    _listeners.add(setTheme);
-    return () => {
-      _listeners.delete(setTheme);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Canonical React 18+ pattern for external store subscription — elimina
+  // o setState-in-effect do padrão antigo (useState + useEffect sync).
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
   // Observa mudanças de SO em runtime — só aplica sem preferência salva
   useEffect(() => {

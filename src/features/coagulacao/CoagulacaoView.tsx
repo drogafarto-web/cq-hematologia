@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useActiveLab, useIsSuperAdmin, useUser, useUserRole } from '../../store/useAuthStore';
 import { useAppStore } from '../../store/useAppStore';
 import { useAuthFlow } from '../auth/hooks/useAuthFlow';
@@ -348,15 +348,13 @@ export function CoagulacaoView() {
   const setCurrentView = useAppStore((s) => s.setCurrentView);
 
   const { lots } = useCoagLots();
-  const [activeLotId, setActiveLotId] = useState<string | null>(null);
+  const [userSelectedLotId, setActiveLotId] = useState<string | null>(null);
   const [newRunTrigger, setNewRunTrigger] = useState(0);
 
-  // Auto-seleciona primeiro lote quando disponível
-  useEffect(() => {
-    if (!activeLotId && lots.length > 0) {
-      setActiveLotId(lots[0].id);
-    }
-  }, [activeLotId, lots]);
+  // Lote ativo derivado: escolha explícita do usuário OU primeiro disponível.
+  // Evita setState-in-effect (antipadrão) — React computa o default a cada render
+  // e não persiste seleção sincronizada em estado local.
+  const activeLotId = userSelectedLotId ?? lots[0]?.id ?? null;
 
   const userName = user?.displayName || user?.email?.split('@')[0] || 'Operador';
 

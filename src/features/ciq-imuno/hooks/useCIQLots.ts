@@ -21,6 +21,10 @@ export function useCIQLots() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Guard + subscription pattern: ao trocar labId, limpa estado anterior
+  // antes da nova subscription chegar. Rule too-strict aqui — sem o clear
+  // explícito, o consumidor vê dados stale do lab anterior por ~1 frame.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!labId) {
       setLots([]);
@@ -50,6 +54,7 @@ export function useCIQLots() {
 
     return unsub;
   }, [labId]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return { lots, isLoading, error } as const;
 }

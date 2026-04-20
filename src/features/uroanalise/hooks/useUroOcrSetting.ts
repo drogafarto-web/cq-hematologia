@@ -37,6 +37,8 @@ export function useUroOcrSetting(): UseUroOcrSettingResult {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Guard + subscription pattern — ver useCIQLots para justificativa.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!labId) {
       setEnabledState(false);
@@ -67,6 +69,7 @@ export function useUroOcrSetting(): UseUroOcrSettingResult {
 
     return unsub;
   }, [labId]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const setEnabled = useCallback(
     async (v: boolean) => {
