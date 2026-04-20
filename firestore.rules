@@ -189,6 +189,15 @@ service cloud.firestore {
       // match /ciq-urinalise/{lotId}   { ... hasModuleAccess('urinalise')   ... }
     }
 
+    // ── /firestore-backup-logs ────────────────────────────────────────────────
+    // Audit trail of daily Firestore exports (GCS snapshots).
+    // Written exclusively by Cloud Functions (scheduledFirestoreExport /
+    // triggerFirestoreExport). Read restricted to SuperAdmin.
+    match /firestore-backup-logs/{logId} {
+      allow read:   if isSuperAdmin();
+      allow create, update, delete: if false; // server-side via Admin SDK only
+    }
+
     // ── /user-data (Legacy) ───────────────────────────────────────────────────
 
     match /user-data/{uid} {

@@ -14,6 +14,13 @@ export { scheduledDailyBackup, triggerLabBackup } from './modules/emailBackup/in
 // Re-export so Firebase CLI discovers scheduledDailyCQIReport and triggerCQIReport.
 export { scheduledDailyCQIReport, triggerCQIReport } from './modules/cqiReport/index';
 
+// ─── firestoreBackup module ──────────────────────────────────────────────────
+// Daily Firestore export to GCS + manual SuperAdmin trigger. Complements PITR.
+export {
+  scheduledFirestoreExport,
+  triggerFirestoreExport_onCall as triggerFirestoreExport,
+} from './modules/firestoreBackup/index';
+
 // All functions deploy to the same region as Firestore
 setGlobalOptions({ region: 'southamerica-east1' });
 

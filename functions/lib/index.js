@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.approveUserForLab = exports.extractFromBula = exports.analyzeImmunoStrip = exports.extractFromImage = exports.setModulesClaims = exports.deleteUser = exports.removeUserFromLab = exports.updateUserLabRole = exports.addUserToLab = exports.setUserSuperAdmin = exports.setUserDisabled = exports.createUser = exports.triggerCQIReport = exports.scheduledDailyCQIReport = exports.triggerLabBackup = exports.scheduledDailyBackup = void 0;
+exports.approveUserForLab = exports.extractFromBula = exports.analyzeImmunoStrip = exports.extractFromImage = exports.setModulesClaims = exports.deleteUser = exports.removeUserFromLab = exports.updateUserLabRole = exports.addUserToLab = exports.setUserSuperAdmin = exports.setUserDisabled = exports.createUser = exports.triggerFirestoreExport = exports.scheduledFirestoreExport = exports.triggerCQIReport = exports.scheduledDailyCQIReport = exports.triggerLabBackup = exports.scheduledDailyBackup = void 0;
 const https_1 = require("firebase-functions/v2/https");
 const v2_1 = require("firebase-functions/v2");
 const params_1 = require("firebase-functions/params");
@@ -18,6 +18,11 @@ Object.defineProperty(exports, "triggerLabBackup", { enumerable: true, get: func
 var index_2 = require("./modules/cqiReport/index");
 Object.defineProperty(exports, "scheduledDailyCQIReport", { enumerable: true, get: function () { return index_2.scheduledDailyCQIReport; } });
 Object.defineProperty(exports, "triggerCQIReport", { enumerable: true, get: function () { return index_2.triggerCQIReport; } });
+// ─── firestoreBackup module ──────────────────────────────────────────────────
+// Daily Firestore export to GCS + manual SuperAdmin trigger. Complements PITR.
+var index_3 = require("./modules/firestoreBackup/index");
+Object.defineProperty(exports, "scheduledFirestoreExport", { enumerable: true, get: function () { return index_3.scheduledFirestoreExport; } });
+Object.defineProperty(exports, "triggerFirestoreExport", { enumerable: true, get: function () { return index_3.triggerFirestoreExport_onCall; } });
 // All functions deploy to the same region as Firestore
 (0, v2_1.setGlobalOptions)({ region: 'southamerica-east1' });
 // Initialize Admin SDK once — runtime may reuse warm instances
