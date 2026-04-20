@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { httpsCallable } from 'firebase/functions';
 import { doc, updateDoc, getDoc } from '../../shared/services/firebase';
 import { db } from '../../shared/services/firebase';
-import { useActiveLab, useUserRole } from '../../store/useAuthStore';
+import { functions } from '../../config/firebase.config';
+import { useActiveLab, useUserRole, useIsSuperAdmin } from '../../store/useAuthStore';
 import { useAppStore } from '../../store/useAppStore';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -49,6 +51,20 @@ interface CQIConfig {
 }
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error';
+
+type SectorStatus = 'sent' | 'no-data' | 'failed';
+interface TriggerCQIResult {
+  ok:       boolean;
+  overall:  'sent' | 'no-data' | 'disabled' | 'partial' | 'failed';
+  email?:   string;
+  sectors: { hematologia: SectorStatus; imunologia: SectorStatus };
+}
+
+type SendNowState =
+  | { kind: 'idle' }
+  | { kind: 'sending' }
+  | { kind: 'done'; result: TriggerCQIResult }
+  | { kind: 'error'; message: string };
 
 // ─── Toggle ───────────────────────────────────────────────────────────────────
 
@@ -130,14 +146,17 @@ function FreqOption({ label, description, selected, soon, onClick }: {
 export function LabCQISettings() {
   const activeLab     = useActiveLab();
   const role          = useUserRole();
+  const isSuperAdmin  = useIsSuperAdmin();
   const setCurrentView = useAppStore((s) => s.setCurrentView);
 
-  const canEdit = role === 'owner' || role === 'admin';
+  const canEdit     = role === 'owner' || role === 'admin';
+  const canSendNow  = isSuperAdmin;
 
-  const [config,    setConfig]    = useState<CQIConfig>({ cqiEnabled: false, cqiEmail: '' });
-  const [loading,   setLoading]   = useState(true);
-  const [saveState, setSaveState] = useState<SaveState>('idle');
-  const [emailErr,  setEmailErr]  = useState('');
+  const [config,      setConfig]      = useState<CQIConfig>({ cqiEnabled: false, cqiEmail: '' });
+  const [loading,     setLoading]     = useState(true);
+  const [saveState,   setSaveState]   = useState<SaveState>('idle');
+  const [emailErr,    setEmailErr]    = useState('');
+  const [sendNow,     setSendNow]     = useState<SendNowState>({ kind: 'idle' });
 
   // ── Load current config from Firestore ──────────────────────────────────────
   useEffect(() => {
@@ -180,6 +199,23 @@ export function LabCQISettings() {
       setTimeout(() => setSaveState('idle'), 2500);
     } catch {
       setSaveState('error');
+    }
+  }
+
+  // ── Send now (SuperAdmin only) ──────────────────────────────────────────────
+  async function handleSendNow() {
+    if (!activeLab || !canSendNow) return;
+    setSendNow({ kind: 'sending' });
+
+    try {
+      const call = httpsCallable<{ labId: string }, TriggerCQIResult>(functions, 'triggerCQIReport');
+      const res  = await call({ labId: activeLab.id });
+      setSendNow({ kind: 'done', result: res.data });
+      setTimeout(() => setSendNow({ kind: 'idle' }), 8000);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao disparar envio.';
+      setSendNow({ kind: 'error', message });
+      setTimeout(() => setSendNow({ kind: 'idle' }), 6000);
     }
   }
 
@@ -302,6 +338,87 @@ export function LabCQISettings() {
               </p>
               <NextSendInfo enabled={config.cqiEnabled} email={config.cqiEmail} />
             </section>
+
+            {/* ── Enviar agora (SuperAdmin) ── */}
+            {canSendNow && (
+              <section className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.07] rounded-2xl p-5 space-y-3">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-800 dark:text-white/80">
+                      Enviar agora
+                    </p>
+                    <p className="text-xs text-slate-400 dark:text-white/30 mt-0.5 leading-relaxed">
+                      Dispara o relatório imediatamente, sem esperar o agendamento.
+                      Só envia se houver corridas confirmadas no dia.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSendNow}
+                    disabled={sendNow.kind === 'sending' || !config.cqiEnabled || !config.cqiEmail}
+                    className="shrink-0 px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-sm font-medium text-slate-700 dark:text-white/75 hover:bg-slate-50 dark:hover:bg-white/[0.07] active:bg-slate-100 dark:active:bg-white/[0.09] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  >
+                    {sendNow.kind === 'sending' ? 'Enviando…' : 'Testar envio'}
+                  </button>
+                </div>
+
+                {sendNow.kind === 'done' && (() => {
+                  const { overall, email, sectors } = sendNow.result;
+                  const sectorLabel = (id: 'hematologia' | 'imunologia') =>
+                    id === 'hematologia' ? 'Hematologia' : 'Imunologia';
+                  const sentSectors = (Object.keys(sectors) as Array<keyof typeof sectors>)
+                    .filter(k => sectors[k] === 'sent')
+                    .map(sectorLabel);
+                  const failedSectors = (Object.keys(sectors) as Array<keyof typeof sectors>)
+                    .filter(k => sectors[k] === 'failed')
+                    .map(sectorLabel);
+
+                  if (overall === 'sent') {
+                    return (
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                        ✓ Relatório enviado para {email} ({sentSectors.join(', ')}).
+                      </p>
+                    );
+                  }
+                  if (overall === 'partial') {
+                    return (
+                      <p className="text-xs text-amber-600 dark:text-amber-400/80">
+                        Enviado parcialmente: {sentSectors.join(', ')}. Falhou: {failedSectors.join(', ')}.
+                      </p>
+                    );
+                  }
+                  if (overall === 'no-data') {
+                    return (
+                      <p className="text-xs text-slate-500 dark:text-white/40">
+                        Nenhum setor com corridas hoje — nenhum relatório foi enviado.
+                      </p>
+                    );
+                  }
+                  if (overall === 'disabled') {
+                    return (
+                      <p className="text-xs text-amber-600 dark:text-amber-400/80">
+                        Envio desabilitado no Firestore (backup.enabled = false).
+                      </p>
+                    );
+                  }
+                  return (
+                    <p className="text-xs text-red-500 dark:text-red-400/80">
+                      Falha no envio em ambos os setores. Verifique os logs.
+                    </p>
+                  );
+                })()}
+                {sendNow.kind === 'error' && (
+                  <p className="text-xs text-red-500 dark:text-red-400/80">
+                    Falha: {sendNow.message}
+                  </p>
+                )}
+                {(!config.cqiEnabled || !config.cqiEmail) && (
+                  <p className="text-xs text-slate-400 dark:text-white/25">
+                    Ative o envio automático e defina um e-mail para usar o disparo manual.
+                  </p>
+                )}
+              </section>
+            )}
 
             {/* ── Permissão ── */}
             {!canEdit && (

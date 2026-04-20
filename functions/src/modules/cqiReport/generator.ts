@@ -578,16 +578,18 @@ async function buildImunologiaPdf(
 
 // ─── Per-sector send helpers ──────────────────────────────────────────────────
 
+export type SectorStatus = 'sent' | 'no-data';
+
 async function sendHematologia(
   db:      admin.firestore.Firestore,
   lab:     ActiveLab,
   date:    Date,
   bounds:  { start: Date; end: Date },
-): Promise<void> {
+): Promise<SectorStatus> {
   const lots = await fetchHemaLots(db, lab.labId, bounds);
   if (lots.length === 0) {
     console.log(`[cqiReport][hematologia] lab=${lab.labId} no runs today — skip`);
-    return;
+    return 'no-data';
   }
 
   console.log(`[cqiReport][hematologia] lab=${lab.labId} lots=${lots.length} building PDF`);
@@ -610,6 +612,7 @@ async function sendHematologia(
   });
 
   console.log(`[cqiReport][hematologia] lab=${lab.labId} email sent to ${lab.email}`);
+  return 'sent';
 }
 
 async function sendImunologia(
@@ -617,11 +620,11 @@ async function sendImunologia(
   lab:    ActiveLab,
   date:   Date,
   bounds: { start: Date; end: Date },
-): Promise<void> {
+): Promise<SectorStatus> {
   const lots = await fetchImunoLots(db, lab.labId, bounds);
   if (lots.length === 0) {
     console.log(`[cqiReport][imunologia] lab=${lab.labId} no runs today — skip`);
-    return;
+    return 'no-data';
   }
 
   console.log(`[cqiReport][imunologia] lab=${lab.labId} lots=${lots.length} building PDF`);
@@ -643,9 +646,19 @@ async function sendImunologia(
   });
 
   console.log(`[cqiReport][imunologia] lab=${lab.labId} email sent to ${lab.email}`);
+  return 'sent';
 }
 
 // ─── Main orchestrator ────────────────────────────────────────────────────────
+
+export interface CQIReportResult {
+  overall:   'sent' | 'no-data' | 'disabled' | 'partial' | 'failed';
+  email?:    string;
+  sectors: {
+    hematologia: 'sent' | 'no-data' | 'failed';
+    imunologia:  'sent' | 'no-data' | 'failed';
+  };
+}
 
 /**
  * Generates and sends daily CQI reports for all active sectors of a lab.
@@ -654,7 +667,7 @@ async function sendImunologia(
 export async function generateAndSendCQIReport(
   labId: string,
   date:  Date,
-): Promise<void> {
+): Promise<CQIReportResult> {
   const db  = admin.firestore();
   const lab = await (async (): Promise<ActiveLab | null> => {
     const snap = await db.doc(`labs/${labId}`).get();
@@ -667,7 +680,10 @@ export async function generateAndSendCQIReport(
 
   if (!lab) {
     console.log(`[cqiReport] lab=${labId} backup disabled or no email — skip`);
-    return;
+    return {
+      overall: 'disabled',
+      sectors: { hematologia: 'no-data', imunologia: 'no-data' },
+    };
   }
 
   const bounds = dayBounds(date);
@@ -679,10 +695,29 @@ export async function generateAndSendCQIReport(
     sendImunologia(db, lab, date, bounds),
   ]);
 
-  for (const [i, res] of results.entries()) {
-    const sector = i === 0 ? 'hematologia' : 'imunologia';
+  const sectorStatus = (i: number): 'sent' | 'no-data' | 'failed' => {
+    const res = results[i];
     if (res.status === 'rejected') {
+      const sector = i === 0 ? 'hematologia' : 'imunologia';
       console.error(`[cqiReport][${sector}] lab=${labId} FAILED:`, res.reason);
+      return 'failed';
     }
-  }
+    return res.value;
+  };
+
+  const sectors = {
+    hematologia: sectorStatus(0),
+    imunologia:  sectorStatus(1),
+  };
+
+  const sentCount   = Object.values(sectors).filter(s => s === 'sent').length;
+  const failedCount = Object.values(sectors).filter(s => s === 'failed').length;
+
+  let overall: CQIReportResult['overall'];
+  if (failedCount === 2)                     overall = 'failed';
+  else if (sentCount === 0 && failedCount === 0) overall = 'no-data';
+  else if (sentCount > 0 && failedCount === 0)   overall = 'sent';
+  else                                           overall = 'partial';
+
+  return { overall, email: lab.email, sectors };
 }

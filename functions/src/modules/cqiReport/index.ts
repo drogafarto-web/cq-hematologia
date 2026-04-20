@@ -68,8 +68,8 @@ export const triggerCQIReport = onCall(
     const date = dateStr ? new Date(dateStr) : new Date();
 
     console.log(`[triggerCQIReport] uid=${uid} labId=${labId} date=${date.toISOString()}`);
-    await generateAndSendCQIReport(labId, date);
+    const result = await generateAndSendCQIReport(labId, date);
 
-    return { ok: true, labId, date: date.toISOString() };
+    return { ok: true, labId, date: date.toISOString(), ...result };
   },
 );

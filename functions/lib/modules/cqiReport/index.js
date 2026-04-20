@@ -49,7 +49,7 @@ exports.triggerCQIReport = (0, https_1.onCall)({ secrets: ['RESEND_API_KEY'], re
     const { labId, date: dateStr } = parsed.data;
     const date = dateStr ? new Date(dateStr) : new Date();
     console.log(`[triggerCQIReport] uid=${uid} labId=${labId} date=${date.toISOString()}`);
-    await (0, generator_1.generateAndSendCQIReport)(labId, date);
-    return { ok: true, labId, date: date.toISOString() };
+    const result = await (0, generator_1.generateAndSendCQIReport)(labId, date);
+    return { ok: true, labId, date: date.toISOString(), ...result };
 });
 //# sourceMappingURL=index.js.map

@@ -409,12 +409,11 @@ async function buildImunologiaPdf(labName, lots, date) {
         }
     });
 }
-// ─── Per-sector send helpers ──────────────────────────────────────────────────
 async function sendHematologia(db, lab, date, bounds) {
     const lots = await fetchHemaLots(db, lab.labId, bounds);
     if (lots.length === 0) {
         console.log(`[cqiReport][hematologia] lab=${lab.labId} no runs today — skip`);
-        return;
+        return 'no-data';
     }
     console.log(`[cqiReport][hematologia] lab=${lab.labId} lots=${lots.length} building PDF`);
     const pdfBuffer = await buildHematologiaPdf(lab.labName, lots, date);
@@ -434,12 +433,13 @@ async function sendHematologia(db, lab, date, bounds) {
         pdfBuffer,
     });
     console.log(`[cqiReport][hematologia] lab=${lab.labId} email sent to ${lab.email}`);
+    return 'sent';
 }
 async function sendImunologia(db, lab, date, bounds) {
     const lots = await fetchImunoLots(db, lab.labId, bounds);
     if (lots.length === 0) {
         console.log(`[cqiReport][imunologia] lab=${lab.labId} no runs today — skip`);
-        return;
+        return 'no-data';
     }
     console.log(`[cqiReport][imunologia] lab=${lab.labId} lots=${lots.length} building PDF`);
     const pdfBuffer = await buildImunologiaPdf(lab.labName, lots, date);
@@ -458,8 +458,8 @@ async function sendImunologia(db, lab, date, bounds) {
         pdfBuffer,
     });
     console.log(`[cqiReport][imunologia] lab=${lab.labId} email sent to ${lab.email}`);
+    return 'sent';
 }
-// ─── Main orchestrator ────────────────────────────────────────────────────────
 /**
  * Generates and sends daily CQI reports for all active sectors of a lab.
  * Sectors are processed independently — a failure in one does not abort the other.
@@ -478,7 +478,10 @@ async function generateAndSendCQIReport(labId, date) {
     })();
     if (!lab) {
         console.log(`[cqiReport] lab=${labId} backup disabled or no email — skip`);
-        return;
+        return {
+            overall: 'disabled',
+            sectors: { hematologia: 'no-data', imunologia: 'no-data' },
+        };
     }
     const bounds = dayBounds(date);
     console.log(`[cqiReport] lab=${labId} date=${fmtDate(date)} processing sectors`);
@@ -487,11 +490,30 @@ async function generateAndSendCQIReport(labId, date) {
         sendHematologia(db, lab, date, bounds),
         sendImunologia(db, lab, date, bounds),
     ]);
-    for (const [i, res] of results.entries()) {
-        const sector = i === 0 ? 'hematologia' : 'imunologia';
+    const sectorStatus = (i) => {
+        const res = results[i];
         if (res.status === 'rejected') {
+            const sector = i === 0 ? 'hematologia' : 'imunologia';
             console.error(`[cqiReport][${sector}] lab=${labId} FAILED:`, res.reason);
+            return 'failed';
         }
-    }
+        return res.value;
+    };
+    const sectors = {
+        hematologia: sectorStatus(0),
+        imunologia: sectorStatus(1),
+    };
+    const sentCount = Object.values(sectors).filter(s => s === 'sent').length;
+    const failedCount = Object.values(sectors).filter(s => s === 'failed').length;
+    let overall;
+    if (failedCount === 2)
+        overall = 'failed';
+    else if (sentCount === 0 && failedCount === 0)
+        overall = 'no-data';
+    else if (sentCount > 0 && failedCount === 0)
+        overall = 'sent';
+    else
+        overall = 'partial';
+    return { overall, email: lab.email, sectors };
 }
 //# sourceMappingURL=generator.js.map
