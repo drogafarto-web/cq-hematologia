@@ -193,7 +193,7 @@ export function useSaveCoagRun() {
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Erro ao salvar corrida.';
         setSaveError(msg);
-        throw new Error(msg);
+        throw new Error(msg, { cause: err });
       } finally {
         setIsSaving(false);
       }

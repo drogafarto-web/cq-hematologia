@@ -271,7 +271,7 @@ export class FirebaseService implements DatabaseService {
       }
     } catch (err) {
       console.error('[FirebaseService] saveState error:', err);
-      throw new Error(firestoreErrorMessage(err));
+      throw new Error(firestoreErrorMessage(err), { cause: err });
     }
   }
 
@@ -304,7 +304,7 @@ export class FirebaseService implements DatabaseService {
         selectedAnalyteId: (appData.selectedAnalyteId as string | null) ?? null,
       };
     } catch (err) {
-      throw new Error(firestoreErrorMessage(err));
+      throw new Error(firestoreErrorMessage(err), { cause: err });
     }
   }
 
@@ -424,6 +424,7 @@ export class FirebaseService implements DatabaseService {
     } catch (err) {
       throw new Error(
         err instanceof Error ? err.message : 'Falha no upload do arquivo. Tente novamente.',
+        { cause: err },
       );
     }
   }
@@ -441,7 +442,7 @@ export class FirebaseService implements DatabaseService {
         { merge: true },
       );
     } catch (err) {
-      throw new Error(firestoreErrorMessage(err));
+      throw new Error(firestoreErrorMessage(err), { cause: err });
     }
   }
 
@@ -451,7 +452,7 @@ export class FirebaseService implements DatabaseService {
       await setDoc(this.lotRef(lot.id), serializeLot(lotWithoutRuns));
       if (this.knownLotIds) this.knownLotIds.add(lot.id);
     } catch (err) {
-      throw new Error(firestoreErrorMessage(err));
+      throw new Error(firestoreErrorMessage(err), { cause: err });
     }
   }
 
@@ -470,7 +471,7 @@ export class FirebaseService implements DatabaseService {
       this.knownLotIds!.delete(lotId);
       this.knownRunIds!.delete(lotId);
     } catch (err) {
-      throw new Error(firestoreErrorMessage(err));
+      throw new Error(firestoreErrorMessage(err), { cause: err });
     }
   }
 
@@ -483,7 +484,7 @@ export class FirebaseService implements DatabaseService {
         this.knownRunIds.set(lotId, set);
       }
     } catch (err) {
-      throw new Error(firestoreErrorMessage(err));
+      throw new Error(firestoreErrorMessage(err), { cause: err });
     }
   }
 
@@ -492,7 +493,7 @@ export class FirebaseService implements DatabaseService {
       await runBatched([(b) => b.delete(this.runRef(lotId, runId))]);
       this.knownRunIds?.get(lotId)?.delete(runId);
     } catch (err) {
-      throw new Error(firestoreErrorMessage(err));
+      throw new Error(firestoreErrorMessage(err), { cause: err });
     }
   }
 }

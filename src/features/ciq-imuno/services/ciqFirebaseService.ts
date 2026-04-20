@@ -87,7 +87,7 @@ export async function findCIQLot(
     const d = snap.docs[0];
     return { id: d.id, ...(d.data() as Omit<CIQImunoLot, 'id'>) };
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -108,7 +108,7 @@ export async function createCIQLot(
     });
     return id;
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -125,7 +125,7 @@ export async function updateCIQLot(
   try {
     await updateDoc(lotRef(labId, lotId), fields as Record<string, unknown>);
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -146,7 +146,7 @@ export async function updateLotDecision(
       decisionAt: serverTimestamp(),
     });
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -184,7 +184,7 @@ export async function updateLotMeta(
 
     await updateDoc(lotRef(labId, lotId), fields as Record<string, unknown>);
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -223,7 +223,7 @@ export async function deleteCIQLot(
     batch.delete(lotRef(labId, lotId));
     await batch.commit();
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -267,7 +267,7 @@ export async function saveCIQRun(labId: string, lotId: string, run: CIQImunoRun)
       confirmedAt: serverTimestamp(),
     });
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -281,7 +281,7 @@ export async function getCIQRuns(labId: string, lotId: string): Promise<CIQImuno
     const snap = await getDocs(q);
     return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<CIQImunoRun, 'id'>) }));
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -479,7 +479,7 @@ export async function addTestType(labId: string, name: string): Promise<void> {
       tx.set(ref, { types: [...curr, trimmed], updatedAt: serverTimestamp() });
     });
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -496,7 +496,7 @@ export async function removeTestType(labId: string, name: string): Promise<void>
       tx.set(ref, { types: next, updatedAt: serverTimestamp() });
     });
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -523,7 +523,7 @@ export async function renameTestType(
       tx.set(ref, { types: next, updatedAt: serverTimestamp() });
     });
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -547,7 +547,7 @@ export async function reorderTestTypes(labId: string, ordered: string[]): Promis
       tx.set(ref, { types: ordered, updatedAt: serverTimestamp() });
     });
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 

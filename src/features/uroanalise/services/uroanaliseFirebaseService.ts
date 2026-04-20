@@ -102,7 +102,7 @@ export async function findUroLot(
     const d = snap.docs[0];
     return { id: d.id, ...(d.data() as Omit<UroanaliseLot, 'id'>) };
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -123,7 +123,7 @@ export async function createUroLot(
     });
     return id;
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -140,7 +140,7 @@ export async function updateUroLot(
   try {
     await updateDoc(lotRef(labId, lotId), fields as Record<string, unknown>);
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -161,7 +161,7 @@ export async function updateUroLotDecision(
       decisionAt: serverTimestamp(),
     });
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -204,7 +204,7 @@ export async function updateUroLotMeta(
 
     await updateDoc(lotRef(labId, lotId), fields as Record<string, unknown>);
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -243,7 +243,7 @@ export async function deleteUroLot(
     batch.delete(lotRef(labId, lotId));
     await batch.commit();
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -293,7 +293,7 @@ export async function saveUroRun(labId: string, lotId: string, run: UroanaliseRu
       confirmedAt: serverTimestamp(),
     });
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -310,7 +310,7 @@ export async function getUroRuns(labId: string, lotId: string): Promise<Uroanali
       ...(d.data() as Omit<UroanaliseRun, 'id'>),
     }));
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 

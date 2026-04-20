@@ -102,7 +102,7 @@ export async function findCoagLot(
     const d = snap.docs[0];
     return { id: d.id, ...(d.data() as Omit<CoagulacaoLot, 'id'>) };
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -123,7 +123,7 @@ export async function createCoagLot(
     });
     return id;
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -140,7 +140,7 @@ export async function updateCoagLot(
   try {
     await updateDoc(lotRef(labId, lotId), fields as Record<string, unknown>);
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -161,7 +161,7 @@ export async function updateCoagLotDecision(
       decisionAt: serverTimestamp(),
     });
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -199,7 +199,7 @@ export async function updateCoagLotMeta(
 
     await updateDoc(lotRef(labId, lotId), fields as Record<string, unknown>);
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -238,7 +238,7 @@ export async function deleteCoagLot(
     batch.delete(lotRef(labId, lotId));
     await batch.commit();
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -288,7 +288,7 @@ export async function saveCoagRun(labId: string, lotId: string, run: CoagulacaoR
       confirmedAt: serverTimestamp(),
     });
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 
@@ -305,7 +305,7 @@ export async function getCoagRuns(labId: string, lotId: string): Promise<Coagula
       ...(d.data() as Omit<CoagulacaoRun, 'id'>),
     }));
   } catch (err) {
-    throw new Error(firestoreErrorMessage(err));
+    throw new Error(firestoreErrorMessage(err), { cause: err });
   }
 }
 

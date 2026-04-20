@@ -91,7 +91,7 @@ export function useLots() {
         setSyncStatus('error');
         const msg = err instanceof Error ? err.message : 'Erro ao salvar dados.';
         setError(msg);
-        throw new Error(msg);
+        throw new Error(msg, { cause: err });
       }
     },
     [labId, setSyncStatus, setError],
