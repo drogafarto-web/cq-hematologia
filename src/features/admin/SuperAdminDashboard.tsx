@@ -278,10 +278,16 @@ export function SuperAdminDashboard() {
   const user                      = useUser();
   const setCurrentView            = useAppStore((s) => s.setCurrentView);
   const [tab, setTab]             = useState<Tab>('requests');
-  const [stats, setStats]         = useState<SuperAdminStats | null>(null);
+  const [stats, setStats]           = useState<SuperAdminStats | null>(null);
+  const [statsError, setStatsError] = useState<string | null>(null);
 
   const refreshStats = useCallback(() => {
-    fetchSuperAdminStats().then(setStats).catch(() => {});
+    fetchSuperAdminStats()
+      .then((result) => { setStats(result); setStatsError(null); })
+      .catch((err) => {
+        console.error('[SuperAdminDashboard] failed to fetch stats:', err);
+        setStatsError(err instanceof Error ? err.message : 'Falha ao carregar estatísticas.');
+      });
   }, []);
 
   useEffect(() => { refreshStats(); }, [refreshStats]);
@@ -315,6 +321,21 @@ export function SuperAdminDashboard() {
       </header>
 
       <main className="max-w-3xl mx-auto px-6 py-8 space-y-8">
+        {statsError && (
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl border
+                          bg-red-500/[0.07] border-red-500/20 text-red-400 text-sm">
+            <span aria-hidden>⚠</span>
+            <span className="flex-1">Não foi possível carregar as estatísticas: {statsError}</span>
+            <button
+              type="button"
+              onClick={refreshStats}
+              className="text-xs px-2.5 py-1 rounded border border-red-500/30
+                         hover:bg-red-500/10 transition-colors"
+            >
+              Tentar novamente
+            </button>
+          </div>
+        )}
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3">
           <StatCard

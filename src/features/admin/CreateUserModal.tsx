@@ -91,6 +91,7 @@ export function CreateUserModal({ onClose, onCreated }: Props) {
   const [labId, setLabId]             = useState('');
   const [role, setRole]               = useState<'admin' | 'member'>('member');
   const [labs, setLabs]               = useState<AdminLabRecord[]>([]);
+  const [labsError, setLabsError]     = useState<string | null>(null);
   const [loading, setLoading]         = useState(false);
   const [error, setError]             = useState<string | null>(null);
   const [success, setSuccess]         = useState(false);
@@ -134,9 +135,16 @@ export function CreateUserModal({ onClose, onCreated }: Props) {
     return () => dialog.removeEventListener('keydown', h);
   }, []);
 
-  // Load labs for optional assignment
+  // Load labs for optional assignment — falha não impede criar usuário sem lab,
+  // mas precisa ser visível: um admin confundir "não há labs" com "failed silently"
+  // já aconteceu antes.
   useEffect(() => {
-    fetchAllLabs().then(setLabs).catch(() => {});
+    fetchAllLabs()
+      .then((result) => { setLabs(result); setLabsError(null); })
+      .catch((err) => {
+        console.error('[CreateUserModal] failed to load labs:', err);
+        setLabsError(err instanceof Error ? err.message : 'Falha ao carregar laboratórios.');
+      });
   }, []);
 
   function handleGenerate() {
@@ -314,11 +322,17 @@ export function CreateUserModal({ onClose, onCreated }: Props) {
               </label>
 
               {assignToLab && (
-                <div className="flex gap-2 pl-6">
+                <div className="flex flex-col gap-2 pl-6">
+                  {labsError && (
+                    <p className="text-[11px] text-red-400/80">
+                      Falha ao carregar laboratórios: {labsError}
+                    </p>
+                  )}
+                  <div className="flex gap-2">
                   <select
                     value={labId}
                     onChange={(e) => setLabId(e.target.value)}
-                    disabled={loading || success}
+                    disabled={loading || success || !!labsError}
                     aria-label="Selecionar laboratório"
                     className="flex-1 min-w-0 text-xs bg-white/[0.05] border border-white/10 rounded-xl px-3 py-2.5 text-white/60 focus:outline-none focus:border-white/20 disabled:opacity-40"
                   >
@@ -337,6 +351,7 @@ export function CreateUserModal({ onClose, onCreated }: Props) {
                     <option value="member">Membro</option>
                     <option value="admin">Admin</option>
                   </select>
+                  </div>
                 </div>
               )}
             </div>
