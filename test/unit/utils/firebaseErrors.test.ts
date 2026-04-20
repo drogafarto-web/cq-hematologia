@@ -4,7 +4,6 @@ import { firestoreErrorMessage } from '../../../src/shared/utils/firebaseErrors'
 // ─── firestoreErrorMessage ────────────────────────────────────────────────────
 
 describe('firestoreErrorMessage', () => {
-
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -66,12 +65,16 @@ describe('firestoreErrorMessage', () => {
 
   it('mapeia unavailable', () => {
     const err = Object.assign(new Error('down'), { code: 'unavailable' });
-    expect(firestoreErrorMessage(err)).toBe('Serviço temporariamente indisponível. Verifique sua conexão.');
+    expect(firestoreErrorMessage(err)).toBe(
+      'Serviço temporariamente indisponível. Verifique sua conexão.',
+    );
   });
 
   it('mapeia invalid-argument (novo mapeamento adicionado na correção)', () => {
     const err = Object.assign(new Error('bad data'), { code: 'invalid-argument' });
-    expect(firestoreErrorMessage(err)).toBe('Dados inválidos. Verifique os valores e tente novamente.');
+    expect(firestoreErrorMessage(err)).toBe(
+      'Dados inválidos. Verifique os valores e tente novamente.',
+    );
   });
 
   it('retorna Erro Firebase: <code> para código desconhecido', () => {
@@ -89,7 +92,9 @@ describe('firestoreErrorMessage', () => {
 
   it('mapeia firestore/invalid-argument (prefixo Firebase base class)', () => {
     const err = Object.assign(new Error('bad data'), { code: 'firestore/invalid-argument' });
-    expect(firestoreErrorMessage(err)).toBe('Dados inválidos. Verifique os valores e tente novamente.');
+    expect(firestoreErrorMessage(err)).toBe(
+      'Dados inválidos. Verifique os valores e tente novamente.',
+    );
   });
 
   it('mapeia firestore/unauthenticated (prefixo Firebase base class)', () => {

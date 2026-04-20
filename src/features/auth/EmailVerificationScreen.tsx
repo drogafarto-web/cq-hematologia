@@ -7,7 +7,7 @@ import { useAuthFlow } from './hooks/useAuthFlow';
 
 export function EmailVerificationScreen() {
   const { profile, resendVerificationEmail, signOut } = useAuthFlow();
-  const [sent,    setSent]    = useState(false);
+  const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const email = profile?.user.email ?? '';
@@ -31,9 +31,20 @@ export function EmailVerificationScreen() {
       <div className="w-full max-w-sm">
         {/* Icon */}
         <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-6">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="text-amber-400" aria-hidden>
-            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-            <polyline points="22,6 12,13 2,6"/>
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-amber-400"
+            aria-hidden
+          >
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+            <polyline points="22,6 12,13 2,6" />
           </svg>
         </div>
 
@@ -44,7 +55,8 @@ export function EmailVerificationScreen() {
           <p className="text-sm text-white/35 leading-relaxed">
             Enviamos um link de verificação para{' '}
             <span className="text-white/60 font-medium">{email}</span>.
-            <br />Confirme para continuar.
+            <br />
+            Confirme para continuar.
           </p>
         </div>
 

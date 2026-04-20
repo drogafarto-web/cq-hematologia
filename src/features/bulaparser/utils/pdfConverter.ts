@@ -4,7 +4,7 @@ import * as pdfjs from 'pdfjs-dist';
 // Usamos a versão legacy ou build dependendo da instalação
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.mjs',
-  import.meta.url
+  import.meta.url,
 ).toString();
 
 export interface ConversionProgress {
@@ -20,14 +20,14 @@ export interface ConversionProgress {
 export async function convertPdfToImage(
   file: File,
   maxPages = 4,
-  onProgress?: (p: ConversionProgress) => void
+  onProgress?: (p: ConversionProgress) => void,
 ): Promise<{ base64: string; mimeType: string }> {
   const arrayBuffer = await file.arrayBuffer();
   const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
-  
+
   onProgress?.({ current: 0, total: 0, phase: 'loading' });
   const pdf = await loadingTask.promise;
-  
+
   const numPages = Math.min(pdf.numPages, maxPages);
   const canvases: HTMLCanvasElement[] = [];
   let totalHeight = 0;
@@ -37,10 +37,10 @@ export async function convertPdfToImage(
   for (let i = 1; i <= numPages; i++) {
     onProgress?.({ current: i, total: numPages, phase: 'rendering' });
     const page = await pdf.getPage(i);
-    
+
     // Escala 2.0 para garantir que letras pequenas fiquem legíveis
     const viewport = page.getViewport({ scale: 2.0 });
-    
+
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     if (!context) throw new Error('Falha ao criar contexto 2D do Canvas.');
@@ -65,7 +65,7 @@ export async function convertPdfToImage(
   finalCanvas.width = maxWidth;
   finalCanvas.height = totalHeight;
   const finalCtx = finalCanvas.getContext('2d');
-  
+
   if (!finalCtx) throw new Error('Falha ao criar canvas final.');
 
   // Preencher fundo branco (importante para JPG)

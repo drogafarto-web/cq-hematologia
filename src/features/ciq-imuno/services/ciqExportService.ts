@@ -5,35 +5,35 @@ import type { CIQImunoRun } from '../types/CIQImuno';
 
 /** Colunas do formulário FR-036 (RDC 978/2025) */
 interface FR036Row {
-  'Código':               string;
-  'Data Realização':      string;
-  'Tipo de Teste':        string;
+  Código: string;
+  'Data Realização': string;
+  'Tipo de Teste': string;
   // Controle
-  'Lote Controle':        string;
-  'Fabricante Controle':  string;
-  'Abertura Controle':    string;
-  'Validade Controle':    string;
+  'Lote Controle': string;
+  'Fabricante Controle': string;
+  'Abertura Controle': string;
+  'Validade Controle': string;
   // Reagente
-  'Lote Reagente':        string;
-  'Fabricante Reagente':  string;
-  'Código Kit':           string;
-  'Registro ANVISA':      string;
-  'Status Abertura Kit':  string;
+  'Lote Reagente': string;
+  'Fabricante Reagente': string;
+  'Código Kit': string;
+  'Registro ANVISA': string;
+  'Status Abertura Kit': string;
   // Resultado
-  'Resultado Esperado':   string;
-  'Resultado Obtido':     string;
-  'Conformidade':         string;
-  'Ação Corretiva':       string;
+  'Resultado Esperado': string;
+  'Resultado Obtido': string;
+  Conformidade: string;
+  'Ação Corretiva': string;
   // Qualidade
-  'Alertas Westgard':     string;
+  'Alertas Westgard': string;
   // Equipamento
-  'Equipamento':          string;
-  'Temperatura (°C)':     string;
+  Equipamento: string;
+  'Temperatura (°C)': string;
   // Operador
-  'Operador':             string;
-  'Cargo':                string;
-  'Assinatura Digital':   string;
-  'Registrado Em':        string;
+  Operador: string;
+  Cargo: string;
+  'Assinatura Digital': string;
+  'Registrado Em': string;
 }
 
 // ─── Export ───────────────────────────────────────────────────────────────────
@@ -48,60 +48,57 @@ interface FR036Row {
  * @param runs      Corridas a exportar (já ordenadas pelo caller, se necessário)
  * @param filename  Nome do arquivo sem extensão (ex: "FR036_HIV_2026-04")
  */
-export function exportRunsToCSV(
-  runs:     CIQImunoRun[],
-  filename: string = 'FR036_CIQ_Imuno',
-): void {
+export function exportRunsToCSV(runs: CIQImunoRun[], filename: string = 'FR036_CIQ_Imuno'): void {
   if (runs.length === 0) {
     throw new Error('Nenhuma corrida disponível para exportação.');
   }
 
   const rows: FR036Row[] = runs.map((r) => ({
-    'Código':               r.runCode ?? '—',
-    'Data Realização':      r.dataRealizacao,
-    'Tipo de Teste':        r.testType,
+    Código: r.runCode ?? '—',
+    'Data Realização': r.dataRealizacao,
+    'Tipo de Teste': r.testType,
     // Controle
-    'Lote Controle':        r.loteControle,
-    'Fabricante Controle':  r.fabricanteControle ?? '—',
-    'Abertura Controle':    r.aberturaControle,
-    'Validade Controle':    r.validadeControle,
+    'Lote Controle': r.loteControle,
+    'Fabricante Controle': r.fabricanteControle ?? '—',
+    'Abertura Controle': r.aberturaControle,
+    'Validade Controle': r.validadeControle,
     // Reagente
-    'Lote Reagente':        r.loteReagente,
-    'Fabricante Reagente':  r.fabricanteReagente ?? '—',
-    'Código Kit':           r.codigoKit ?? '—',
-    'Registro ANVISA':      r.registroANVISA ?? '—',
-    'Status Abertura Kit':  r.reagenteStatus === 'R' ? 'Reagente' : 'Não Reagente',
+    'Lote Reagente': r.loteReagente,
+    'Fabricante Reagente': r.fabricanteReagente ?? '—',
+    'Código Kit': r.codigoKit ?? '—',
+    'Registro ANVISA': r.registroANVISA ?? '—',
+    'Status Abertura Kit': r.reagenteStatus === 'R' ? 'Reagente' : 'Não Reagente',
     // Resultado
-    'Resultado Esperado':   r.resultadoEsperado === 'R' ? 'Reagente' : 'Não Reagente',
-    'Resultado Obtido':     r.resultadoObtido   === 'R' ? 'Reagente' : 'Não Reagente',
-    'Conformidade':         r.resultadoObtido === r.resultadoEsperado ? 'Conforme' : 'Não Conforme',
-    'Ação Corretiva':       r.acaoCorretiva ?? '—',
+    'Resultado Esperado': r.resultadoEsperado === 'R' ? 'Reagente' : 'Não Reagente',
+    'Resultado Obtido': r.resultadoObtido === 'R' ? 'Reagente' : 'Não Reagente',
+    Conformidade: r.resultadoObtido === r.resultadoEsperado ? 'Conforme' : 'Não Conforme',
+    'Ação Corretiva': r.acaoCorretiva ?? '—',
     // Qualidade
-    'Alertas Westgard':     (r.westgardCategorico ?? []).join('; ') || '—',
+    'Alertas Westgard': (r.westgardCategorico ?? []).join('; ') || '—',
     // Equipamento
-    'Equipamento':          r.equipamento ?? '—',
-    'Temperatura (°C)':     r.temperaturaAmbiente !== undefined ? String(r.temperaturaAmbiente) : '—',
+    Equipamento: r.equipamento ?? '—',
+    'Temperatura (°C)': r.temperaturaAmbiente !== undefined ? String(r.temperaturaAmbiente) : '—',
     // Operador
-    'Operador':             r.operatorName,
-    'Cargo':                r.operatorRole,
-    'Assinatura Digital':   r.logicalSignature ?? '—',
-    'Registrado Em':        formatTimestamp(r.createdAt),
+    Operador: r.operatorName,
+    Cargo: r.operatorRole,
+    'Assinatura Digital': r.logicalSignature ?? '—',
+    'Registrado Em': formatTimestamp(r.createdAt),
   }));
 
   const csv = Papa.unparse(rows, {
     delimiter: ';',
-    header:    true,
-    newline:   '\r\n',
+    header: true,
+    newline: '\r\n',
   });
 
   // UTF-8 BOM para leitura correta no Excel BR
-  const bom     = '\uFEFF';
+  const bom = '\uFEFF';
   const content = bom + csv;
-  const blob    = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-  const url     = URL.createObjectURL(blob);
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
 
-  const link    = document.createElement('a');
-  link.href     = url;
+  const link = document.createElement('a');
+  link.href = url;
   link.download = `${filename}.csv`;
   link.style.display = 'none';
 
@@ -114,9 +111,7 @@ export function exportRunsToCSV(
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
-function formatTimestamp(
-  ts: import('firebase/firestore').Timestamp | null | undefined
-): string {
+function formatTimestamp(ts: import('firebase/firestore').Timestamp | null | undefined): string {
   if (!ts) return '—';
   try {
     return ts.toDate().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });

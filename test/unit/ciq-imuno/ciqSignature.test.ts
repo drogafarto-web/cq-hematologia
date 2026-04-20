@@ -6,17 +6,16 @@ import type { CIQSignaturePayload } from '../../../src/features/ciq-imuno/hooks/
 
 const BASE_PAYLOAD: CIQSignaturePayload = {
   operatorDocument: 'CRBM-MG 12345',
-  lotId:            'lot-abc123',
-  testType:         'HIV',
-  loteControle:     'L2024-001',
-  resultadoObtido:  'R',
-  dataRealizacao:   '2026-04-15',
+  lotId: 'lot-abc123',
+  testType: 'HIV',
+  loteControle: 'L2024-001',
+  resultadoObtido: 'R',
+  dataRealizacao: '2026-04-15',
 };
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 describe('generateSignature', () => {
-
   it('retorna string hex de 64 caracteres (SHA-256)', async () => {
     const sig = await generateSignature(BASE_PAYLOAD);
     expect(sig).toHaveLength(64);
@@ -75,11 +74,11 @@ describe('generateSignature', () => {
 
     // Mesmo payload com chaves em ordem de inserção inversa
     const reversed: CIQSignaturePayload = {
-      dataRealizacao:   BASE_PAYLOAD.dataRealizacao,
-      resultadoObtido:  BASE_PAYLOAD.resultadoObtido,
-      loteControle:     BASE_PAYLOAD.loteControle,
-      testType:         BASE_PAYLOAD.testType,
-      lotId:            BASE_PAYLOAD.lotId,
+      dataRealizacao: BASE_PAYLOAD.dataRealizacao,
+      resultadoObtido: BASE_PAYLOAD.resultadoObtido,
+      loteControle: BASE_PAYLOAD.loteControle,
+      testType: BASE_PAYLOAD.testType,
+      lotId: BASE_PAYLOAD.lotId,
       operatorDocument: BASE_PAYLOAD.operatorDocument,
     };
     const sig2 = await generateSignature(reversed);
@@ -90,25 +89,33 @@ describe('generateSignature', () => {
   });
 
   it('R e NR produzem assinaturas diferentes (sem colisão)', async () => {
-    const sigR  = await generateSignature({ ...BASE_PAYLOAD, resultadoObtido: 'R' });
+    const sigR = await generateSignature({ ...BASE_PAYLOAD, resultadoObtido: 'R' });
     const sigNR = await generateSignature({ ...BASE_PAYLOAD, resultadoObtido: 'NR' });
     expect(sigR).not.toBe(sigNR);
   });
 
   it('cada campo contribui independentemente — nenhum é ignorado', async () => {
     const fields: (keyof CIQSignaturePayload)[] = [
-      'operatorDocument', 'lotId', 'testType', 'loteControle', 'resultadoObtido', 'dataRealizacao',
+      'operatorDocument',
+      'lotId',
+      'testType',
+      'loteControle',
+      'resultadoObtido',
+      'dataRealizacao',
     ];
     const base = await generateSignature(BASE_PAYLOAD);
 
     // Para cada campo, verificar que alterar apenas ele muda a assinatura
-    const alternatives: Record<keyof CIQSignaturePayload, CIQSignaturePayload[typeof fields[number]]> = {
+    const alternatives: Record<
+      keyof CIQSignaturePayload,
+      CIQSignaturePayload[(typeof fields)[number]]
+    > = {
       operatorDocument: 'CRF-MG-000',
-      lotId:            'lot-OTHER',
-      testType:         'HBsAg',
-      loteControle:     'L9999-999',
-      resultadoObtido:  'NR',
-      dataRealizacao:   '2000-01-01',
+      lotId: 'lot-OTHER',
+      testType: 'HBsAg',
+      loteControle: 'L9999-999',
+      resultadoObtido: 'NR',
+      dataRealizacao: '2000-01-01',
     };
 
     for (const field of fields) {

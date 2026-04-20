@@ -3,26 +3,26 @@ import { generateLogicalSignature, verifySignature } from '../../../src/utils/lo
 
 // ─── Mock Firestore Timestamp ─────────────────────────────────────────────────
 
-const makeTimestamp = (seconds: number) => ({
-  seconds,
-  nanoseconds: 0,
-  toDate:   () => new Date(seconds * 1000),
-  toMillis: () => seconds * 1000,
-  isEqual:  () => false,
-  toJSON:   () => ({ seconds, nanoseconds: 0 }),
-  valueOf:  () => seconds * 1000,
-} as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+const makeTimestamp = (seconds: number) =>
+  ({
+    seconds,
+    nanoseconds: 0,
+    toDate: () => new Date(seconds * 1000),
+    toMillis: () => seconds * 1000,
+    isEqual: () => false,
+    toJSON: () => ({ seconds, nanoseconds: 0 }),
+    valueOf: () => seconds * 1000,
+  }) as any;
 
-const TS      = makeTimestamp(1710000000);
+const TS = makeTimestamp(1710000000);
 const TS_NEXT = makeTimestamp(1710000001);
 
-const BASE_OP   = 'user-1234';
+const BASE_OP = 'user-1234';
 const BASE_DATA: Record<string, number> = { WBC: 7.5, RBC: 4.8, HGB: 14.2 };
 
 // ─── generateLogicalSignature ─────────────────────────────────────────────────
 
 describe('generateLogicalSignature', () => {
-
   it('retorna string hex de 64 caracteres (SHA-256)', async () => {
     const sig = await generateLogicalSignature(BASE_OP, TS, BASE_DATA);
     expect(sig).toHaveLength(64);
@@ -44,7 +44,7 @@ describe('generateLogicalSignature', () => {
   });
 
   it('muda ao alterar timestamp (toMillis)', async () => {
-    const s1 = await generateLogicalSignature(BASE_OP, TS,      BASE_DATA);
+    const s1 = await generateLogicalSignature(BASE_OP, TS, BASE_DATA);
     const s2 = await generateLogicalSignature(BASE_OP, TS_NEXT, BASE_DATA);
     expect(s1).not.toBe(s2);
   });
@@ -83,9 +83,9 @@ describe('generateLogicalSignature', () => {
   it('cada campo contribui independentemente — nenhum é ignorado', async () => {
     const base = await generateLogicalSignature(BASE_OP, TS, BASE_DATA);
     const alternatives: Array<Parameters<typeof generateLogicalSignature>> = [
-      ['other-op',  TS,      BASE_DATA],
-      [BASE_OP,     TS_NEXT, BASE_DATA],
-      [BASE_OP,     TS,      { ...BASE_DATA, WBC: 99 }],
+      ['other-op', TS, BASE_DATA],
+      [BASE_OP, TS_NEXT, BASE_DATA],
+      [BASE_OP, TS, { ...BASE_DATA, WBC: 99 }],
     ];
     for (const args of alternatives) {
       const sig = await generateLogicalSignature(...args);
@@ -97,9 +97,8 @@ describe('generateLogicalSignature', () => {
 // ─── verifySignature ──────────────────────────────────────────────────────────
 
 describe('verifySignature', () => {
-
   it('retorna true para assinatura válida (roundtrip)', async () => {
-    const sig   = await generateLogicalSignature(BASE_OP, TS, BASE_DATA);
+    const sig = await generateLogicalSignature(BASE_OP, TS, BASE_DATA);
     const valid = await verifySignature(sig, BASE_OP, TS, BASE_DATA);
     expect(valid).toBe(true);
   });

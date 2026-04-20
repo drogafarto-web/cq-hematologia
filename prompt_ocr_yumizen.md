@@ -8,6 +8,7 @@ Acesse o arquivo de backend das Cloud Functions:
 Siga rigorosamente estas 3 etapas:
 
 ### 1. Atualizar a Constante do Prompt
+
 Substitua a string atual da variável `OCR_PROMPT` para a versão abaixo. (Você pode remover a passagem de array dinâmica `analyteIds` original, pois este prompt já contém a lista fixa de tudo o que importa para a máquina informada na seção "PARÂMETROS A EXTRAIR").
 
 ```typescript
@@ -220,14 +221,18 @@ A confiabilidade dos dados é mais importante que preencher todos os campos.
 ```
 
 ### 2. Substituir o Validador Zod do Schema
-O Novo Prompt retorna um nó `values` (numéricos ou nulos) e um nó `fieldConfidence` (strings em vez de numéricos), descartando a formatação anterior. 
+
+O Novo Prompt retorna um nó `values` (numéricos ou nulos) e um nó `fieldConfidence` (strings em vez de numéricos), descartando a formatação anterior.
 No arquivo `index.ts`, modifique a seção Zod de validação `OcrResponseSchema` (Remova o `AnalyteResultSchema` original e altere para refletir perfeitamente o novo design). Utilize `z.record(z.number().nullable())` e `z.record(z.enum(['high', 'medium', 'low']))`.
 
 ### 3. Fazer o Mapper (Backend → Frontend)
+
 Para evitar ter que ir reestruturar os tipos no Frontend Client (`ReviewRunModal` e `useRuns`), faça a conversão dentro do próprio corpo da Cloud Function (logo antes do `return` de `extractFromImage`).
 Itere pelas chaves de `data.values`. Para qualquer um que NÃO seja `null`:
-- Encontre seu valor de `fieldConfidence`. Se for 'high', atribua a `confidence`: `1.0`. Se for 'medium', atribua `0.75`. Se for 'low', atribua `0.5`.  Se a chave não existir em `fieldConfidence`, use fallback para `0.5`.
-- Transforme a resposta de volta ao formato esperado pela View: 
+
+- Encontre seu valor de `fieldConfidence`. Se for 'high', atribua a `confidence`: `1.0`. Se for 'medium', atribua `0.75`. Se for 'low', atribua `0.5`. Se a chave não existir em `fieldConfidence`, use fallback para `0.5`.
+- Transforme a resposta de volta ao formato esperado pela View:
+
 ```typescript
 {
   [analyteId]: {
@@ -237,6 +242,7 @@ Itere pelas chaves de `data.values`. Para qualquer um que NÃO seja `null`:
   }
 }
 ```
+
 Dessa forma o fluxo retorna limpo, pronto para ser validado na interface modal com as exatas "bolinhas de cores âmbar, verdes e vermelhas" originais.
 
 Após concluídas as três etapas, verifique a compilação do TypeScript dentro da pasta `functions` (`npm run build`) para assegurar o funcionamento. Faça o commit e realize o deploy nas Firebase Functions.

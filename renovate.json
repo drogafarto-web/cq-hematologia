@@ -1,0 +1,91 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":gitSignOff",
+    ":disableRateLimiting",
+    "schedule:earlyMondays"
+  ],
+  "timezone": "America/Sao_Paulo",
+  "labels": ["dependencies"],
+  "prHourlyLimit": 4,
+  "prConcurrentLimit": 8,
+  "rangeStrategy": "bump",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 5am on the first day of the month"]
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security", "dependencies"]
+  },
+  "packageRules": [
+    {
+      "description": "Agrupar patches não-relacionados pra reduzir ruído",
+      "matchUpdateTypes": ["patch"],
+      "groupName": "patch updates",
+      "automerge": true,
+      "platformAutomerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Dev dependencies minor+patch juntas; automerge só em testes verdes",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "dev deps (minor+patch)",
+      "automerge": true,
+      "platformAutomerge": true
+    },
+    {
+      "description": "Firebase — ecossistema crítico, manter agrupado mas PR manual",
+      "matchPackagePatterns": ["^firebase", "^@firebase"],
+      "groupName": "firebase",
+      "automerge": false,
+      "labels": ["dependencies", "firebase"]
+    },
+    {
+      "description": "React / React DOM — atualizar juntos sempre",
+      "matchPackageNames": ["react", "react-dom", "@types/react", "@types/react-dom"],
+      "groupName": "react",
+      "automerge": false
+    },
+    {
+      "description": "Major updates — nunca automerge, sempre revisão manual",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "major"]
+    },
+    {
+      "description": "ESLint + TypeScript toolchain",
+      "matchPackageNames": [
+        "eslint",
+        "typescript",
+        "typescript-eslint",
+        "@typescript-eslint/parser",
+        "@typescript-eslint/eslint-plugin",
+        "prettier"
+      ],
+      "groupName": "lint & typescript",
+      "automerge": true,
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "description": "Testing toolchain",
+      "matchPackageNames": [
+        "vitest",
+        "@vitest/ui",
+        "@vitest/coverage-v8",
+        "@testing-library/dom",
+        "@testing-library/jest-dom",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "jsdom"
+      ],
+      "groupName": "testing",
+      "automerge": true,
+      "matchUpdateTypes": ["minor", "patch"]
+    }
+  ]
+}

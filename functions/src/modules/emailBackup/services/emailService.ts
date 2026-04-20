@@ -10,8 +10,9 @@ export const RESEND_API_KEY = defineSecret('RESEND_API_KEY');
 // ─── Email Service ────────────────────────────────────────────────────────────
 
 export interface SendBackupEmailOptions {
-  to:        string;
-  report:    BackupReport;
+  /** Um ou mais destinatários. Array vazio é erro do chamador (filtre antes). */
+  to: string | string[];
+  report: BackupReport;
   pdfBuffer: Buffer;
 }
 
@@ -19,23 +20,29 @@ export interface SendBackupEmailOptions {
  * Sends the daily backup email with the PDF attached.
  * Uses Resend — configure RESEND_API_KEY via Firebase secrets.
  *
- * The FROM address must be verified in your Resend account.
- * Default: backup@hcquality.com.br — change to match your verified domain.
+ * Aceita múltiplos destinatários: Resend envia UM email com N endereços no
+ * header `To:` (lab admin + coordenador + RT recebem cópia nominal). Para
+ * anonimato entre destinatários (um não vê o outro) usar bcc no futuro.
  */
 export async function sendBackupEmail(opts: SendBackupEmailOptions): Promise<void> {
   const { to, report, pdfBuffer } = opts;
 
+  const recipients = Array.isArray(to) ? to : [to];
+  if (recipients.length === 0) {
+    throw new Error('[sendBackupEmail] recipients list is empty');
+  }
+
   const resend = new Resend(RESEND_API_KEY.value());
 
   const subject = buildSubject(report);
-  const html    = buildHtmlBody(report);
-  const text    = buildTextBody(report);
+  const html = buildHtmlBody(report);
+  const text = buildTextBody(report);
 
   const filename = buildFilename(report);
 
   const { error } = await resend.emails.send({
-    from:        'HC Quality Backup <backup@hcquality.com.br>',
-    to:          [to],
+    from: 'HC Quality Backup <backup@app.labclinmg.com.br>',
+    to: recipients,
     subject,
     html,
     text,
@@ -55,13 +62,13 @@ export async function sendBackupEmail(opts: SendBackupEmailOptions): Promise<voi
 // ─── Subject Builder ──────────────────────────────────────────────────────────
 
 function buildSubject(report: BackupReport): string {
-  const hasCritical = report.stalenessAlerts.some(a => a.level === 'critical');
-  const hasWarning  = report.stalenessAlerts.some(a => a.level === 'warning');
-  const dateStr     = new Date(report.generatedAt).toLocaleDateString('pt-BR', {
+  const hasCritical = report.stalenessAlerts.some((a) => a.level === 'critical');
+  const hasWarning = report.stalenessAlerts.some((a) => a.level === 'warning');
+  const dateStr = new Date(report.generatedAt).toLocaleDateString('pt-BR', {
     timeZone: 'America/Sao_Paulo',
-    day:   '2-digit',
+    day: '2-digit',
     month: '2-digit',
-    year:  'numeric',
+    year: 'numeric',
   });
 
   if (hasCritical) {
@@ -73,7 +80,7 @@ function buildSubject(report: BackupReport): string {
 
   const totalRuns = report.sections.reduce((s, m) => s + m.totalRuns, 0);
   const isMonthly = new Date().getDate() === 1;
-  const prefix    = isMonthly ? 'Resumo Mensal' : 'Backup Diário';
+  const prefix = isMonthly ? 'Resumo Mensal' : 'Backup Diário';
 
   return `[HC Quality] ${prefix} — ${report.labName} — ${dateStr} (${totalRuns} corrida${totalRuns !== 1 ? 's' : ''})`;
 }
@@ -83,7 +90,7 @@ function buildSubject(report: BackupReport): string {
 function buildHtmlBody(report: BackupReport): string {
   const periodStr = `${formatDateBR(report.periodStart)} – ${formatDateBR(report.periodEnd)}`;
   const totalRuns = report.sections.reduce((s, m) => s + m.totalRuns, 0);
-  const totalNC   = report.sections.reduce((s, m) => s + m.nonConformingRuns, 0);
+  const totalNC = report.sections.reduce((s, m) => s + m.nonConformingRuns, 0);
   const generatedAt = new Date(report.generatedAt).toLocaleString('pt-BR', {
     timeZone: 'America/Sao_Paulo',
   });
@@ -91,10 +98,10 @@ function buildHtmlBody(report: BackupReport): string {
   let alertsBlock = '';
   if (report.stalenessAlerts.length > 0) {
     const alertItems = report.stalenessAlerts
-      .map(a => {
+      .map((a) => {
         const isCrit = a.level === 'critical';
-        const color  = isCrit ? '#ef4444' : '#f59e0b';
-        const bg     = isCrit ? '#3b0f0f' : '#3b2c0a';
+        const color = isCrit ? '#ef4444' : '#f59e0b';
+        const bg = isCrit ? '#3b0f0f' : '#3b2c0a';
         const daysStr = isFinite(a.daysSinceLastRun)
           ? `${a.daysSinceLastRun} dia(s) sem registros`
           : 'nenhum registro encontrado';
@@ -119,11 +126,13 @@ function buildHtmlBody(report: BackupReport): string {
   let moduleSummaries = '';
   for (const section of report.sections) {
     const summaryRows = Object.entries(section.summary)
-      .map(([k, v]) => `
+      .map(
+        ([k, v]) => `
         <tr>
           <td style="color:#71717a;font-size:12px;padding:4px 0">${k}</td>
           <td style="color:#f4f4f5;font-size:12px;padding:4px 0;text-align:right"><strong>${v}</strong></td>
-        </tr>`)
+        </tr>`,
+      )
       .join('');
 
     moduleSummaries += `
@@ -245,7 +254,7 @@ function buildTextBody(report: BackupReport): string {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function buildFilename(report: BackupReport): string {
-  const date  = new Date(report.generatedAt)
+  const date = new Date(report.generatedAt)
     .toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })
     .replace(/\//g, '-');
   const labId = report.labId.slice(0, 8);
@@ -255,8 +264,8 @@ function buildFilename(report: BackupReport): string {
 function formatDateBR(d: Date): string {
   return d.toLocaleDateString('pt-BR', {
     timeZone: 'America/Sao_Paulo',
-    day:   '2-digit',
+    day: '2-digit',
     month: '2-digit',
-    year:  'numeric',
+    year: 'numeric',
   });
 }

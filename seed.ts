@@ -13,35 +13,30 @@ import {
   signInWithEmailAndPassword,
   connectAuthEmulator,
 } from 'firebase/auth';
-import {
-  getFirestore,
-  doc,
-  setDoc,
-  connectFirestoreEmulator,
-} from 'firebase/firestore';
+import { getFirestore, doc, setDoc, connectFirestoreEmulator } from 'firebase/firestore';
 
 // ─── Config ────────────────────────────────────────────────────────────────────
 
 const firebaseConfig = {
-  apiKey:            process.env.VITE_FIREBASE_API_KEY!,
-  authDomain:        process.env.VITE_FIREBASE_AUTH_DOMAIN!,
-  projectId:         process.env.VITE_FIREBASE_PROJECT_ID!,
-  storageBucket:     process.env.VITE_FIREBASE_STORAGE_BUCKET!,
+  apiKey: process.env.VITE_FIREBASE_API_KEY!,
+  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN!,
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID!,
+  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET!,
   messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID!,
-  appId:             process.env.VITE_FIREBASE_APP_ID!,
+  appId: process.env.VITE_FIREBASE_APP_ID!,
 };
 
 const USE_EMULATOR = process.env.VITE_USE_EMULATOR === 'true';
 
-const DEMO_EMAIL    = 'demo@labclin.com';
+const DEMO_EMAIL = 'demo@labclin.com';
 const DEMO_PASSWORD = '123456';
-const LAB_ID        = 'labclin-riopomba';
+const LAB_ID = 'labclin-riopomba';
 
 // ─── Init ──────────────────────────────────────────────────────────────────────
 
-const app  = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const auth = getAuth(app);
-const db   = getFirestore(app);
+const db = getFirestore(app);
 
 if (USE_EMULATOR) {
   connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
@@ -71,26 +66,26 @@ async function seed() {
 
   // 2. User document
   await setDoc(doc(db, 'users', uid), {
-    email:        DEMO_EMAIL,
-    displayName:  'Demo Admin',
-    labIds:       [LAB_ID],
-    roles:        { [LAB_ID]: 'owner' },
+    email: DEMO_EMAIL,
+    displayName: 'Demo Admin',
+    labIds: [LAB_ID],
+    roles: { [LAB_ID]: 'owner' },
     isSuperAdmin: true,
-    activeLabId:  LAB_ID,
+    activeLabId: LAB_ID,
     pendingLabId: null,
   });
   console.log(`✅  /users/${uid} atualizado`);
 
   // 3. Lab document
   await setDoc(doc(db, 'labs', LAB_ID), {
-    name:      'LabClin Rio Pomba MG',
+    name: 'LabClin Rio Pomba MG',
     createdAt: new Date(),
   });
   console.log(`✅  /labs/${LAB_ID} criado`);
 
   // 4. Lab member
   await setDoc(doc(db, 'labs', LAB_ID, 'members', uid), {
-    role:   'owner',
+    role: 'owner',
     active: true,
   });
   console.log(`✅  /labs/${LAB_ID}/members/${uid} criado`);

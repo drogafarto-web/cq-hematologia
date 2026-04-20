@@ -16,9 +16,7 @@ export function interpretZScore(z: number): 'acceptable' | 'warning' | 'rejectio
   if (isNaN(z)) return 'warning';
   // Westgard 1-2s: valor em ou além de ±2SD → warning
   // Westgard 1-3s: valor em ou além de ±3SD → rejection (limites inclusivos)
-  return Math.abs(z) < 2 ? 'acceptable'
-       : Math.abs(z) < 3 ? 'warning'
-       : 'rejection';
+  return Math.abs(z) < 2 ? 'acceptable' : Math.abs(z) < 3 ? 'warning' : 'rejection';
 }
 
 /**
@@ -26,12 +24,9 @@ export function interpretZScore(z: number): 'acceptable' | 'warning' | 'rejectio
  *
  * Usa desvio padrão AMOSTRAL (÷ n-1) conforme ISO 5725 / CLSI EP05.
  */
-export function calculateRunStats(
-  runs: CQRun[],
-  analyte: string
-): Required<AnalyteStats> {
+export function calculateRunStats(runs: CQRun[], analyte: string): Required<AnalyteStats> {
   const values = runs
-    .map(run => run.confirmedData[analyte])
+    .map((run) => run.confirmedData[analyte])
     .filter((v): v is number => typeof v === 'number');
 
   if (values.length === 0) {
@@ -41,11 +36,12 @@ export function calculateRunStats(
   const mean = values.reduce((a, b) => a + b, 0) / values.length;
 
   // Desvio padrão AMOSTRAL (ISO 5725 / CLSI EP05) — divisor n-1
-  const sd = values.length < 2
-    ? 0
-    : Math.sqrt(
-        values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / (values.length - 1)
-      );
+  const sd =
+    values.length < 2
+      ? 0
+      : Math.sqrt(
+          values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / (values.length - 1),
+        );
 
   // Guard: mean === 0 evita CV = Infinity
   const cv = mean !== 0 ? (sd / mean) * 100 : 0;

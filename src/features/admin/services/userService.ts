@@ -49,14 +49,14 @@ export interface AdminLabRecord extends Lab {
 function mapUserDoc(uid: string, data: UserDocument): AdminUserRecord {
   return {
     uid,
-    email:        data.email,
-    displayName:  data.displayName,
+    email: data.email,
+    displayName: data.displayName,
     isSuperAdmin: data.isSuperAdmin,
-    labIds:       data.labIds ?? [],
-    roles:        data.roles ?? {},
-    activeLabId:  data.activeLabId ?? null,
-    disabled:     data.disabled ?? false,
-    createdAt:    data.createdAt?.toDate() ?? null,
+    labIds: data.labIds ?? [],
+    roles: data.roles ?? {},
+    activeLabId: data.activeLabId ?? null,
+    disabled: data.disabled ?? false,
+    createdAt: data.createdAt?.toDate() ?? null,
   };
 }
 
@@ -105,24 +105,19 @@ export async function deleteUserViaFunction(uid: string): Promise<void> {
 
 interface CreateUserPayload {
   displayName: string;
-  email:       string;
-  password:    string;
-  labId?:      string;
-  role?:       UserRole;
+  email: string;
+  password: string;
+  labId?: string;
+  role?: UserRole;
 }
 
-export async function createUserViaFunction(
-  data: CreateUserPayload
-): Promise<{ uid: string }> {
+export async function createUserViaFunction(data: CreateUserPayload): Promise<{ uid: string }> {
   const fn = httpsCallable<CreateUserPayload, { uid: string }>(functions, 'createUser');
   const result = await fn(data);
   return result.data;
 }
 
-export async function setUserDisabledViaFunction(
-  uid: string,
-  disabled: boolean
-): Promise<void> {
+export async function setUserDisabledViaFunction(uid: string, disabled: boolean): Promise<void> {
   const fn = httpsCallable(functions, 'setUserDisabled');
   await fn({ uid, disabled });
 }
@@ -135,22 +130,19 @@ export async function fetchAllLabs(): Promise<AdminLabRecord[]> {
   const labs = await Promise.all(
     snap.docs.map(async (d) => {
       const membersSnap = await getDocs(
-        collection(db, COLLECTIONS.LABS, d.id, SUBCOLLECTIONS.MEMBERS)
+        collection(db, COLLECTIONS.LABS, d.id, SUBCOLLECTIONS.MEMBERS),
       );
       return {
         ...normalizeLab({ ...d.data(), id: d.id }),
         memberCount: membersSnap.size,
       } satisfies AdminLabRecord;
-    })
+    }),
   );
 
   return labs.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-export async function createLabAsAdmin(
-  name: string,
-  ownerUid: string
-): Promise<string> {
+export async function createLabAsAdmin(name: string, ownerUid: string): Promise<string> {
   const labRef = doc(collection(db, COLLECTIONS.LABS));
   const labId = labRef.id;
 
@@ -196,13 +188,13 @@ async function runBatched(ops: BatchOp[], chunkSize = 450): Promise<void> {
 export async function deleteLabAsAdmin(labId: string): Promise<void> {
   // STEP 1 — listar members
   const membersSnap = await getDocs(
-    collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.MEMBERS)
+    collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.MEMBERS),
   );
 
   // STEP 2 — ler todos os user docs em paralelo (evita N+1), montar batch ops
   const memberEntries = membersSnap.docs.map((d) => ({ uid: d.id, ref: d.ref }));
   const userSnaps = await Promise.all(
-    memberEntries.map(({ uid }) => getDoc(doc(db, COLLECTIONS.USERS, uid)))
+    memberEntries.map(({ uid }) => getDoc(doc(db, COLLECTIONS.USERS, uid))),
   );
 
   const memberOps: BatchOp[] = [];
@@ -224,17 +216,22 @@ export async function deleteLabAsAdmin(labId: string): Promise<void> {
   await runBatched(memberOps);
 
   // STEP 3 — listar lots e deletar runs em paralelo
-  const lotsSnap = await getDocs(
-    collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.LOTS)
-  );
+  const lotsSnap = await getDocs(collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.LOTS));
 
   // STEP 4 — deletar lots e runs (runs de cada lot em paralelo)
   const runsPerLot = await Promise.all(
     lotsSnap.docs.map((lotDoc) =>
       getDocs(
-        collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.LOTS, lotDoc.id, SUBCOLLECTIONS.RUNS)
-      )
-    )
+        collection(
+          db,
+          COLLECTIONS.LABS,
+          labId,
+          SUBCOLLECTIONS.LOTS,
+          lotDoc.id,
+          SUBCOLLECTIONS.RUNS,
+        ),
+      ),
+    ),
   );
 
   const lotOps: BatchOp[] = [];
@@ -245,9 +242,7 @@ export async function deleteLabAsAdmin(labId: string): Promise<void> {
   await runBatched(lotOps);
 
   // STEP 5 — deletar data/appState
-  const dataSnap = await getDocs(
-    collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.DATA)
-  );
+  const dataSnap = await getDocs(collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.DATA));
   await runBatched(dataSnap.docs.map((d) => (b: WriteBatch) => b.delete(d.ref)));
 
   // STEP 6 — deletar documento principal do lab
@@ -272,15 +267,13 @@ export async function deleteLabAsAdmin(labId: string): Promise<void> {
 // ─── Access Requests ──────────────────────────────────────────────────────────
 
 export async function fetchAllAccessRequests(
-  status?: AccessRequestStatus
+  status?: AccessRequestStatus,
 ): Promise<AccessRequest[]> {
   // Avoid compound where+orderBy to sidestep composite index requirement.
   // Filter by status in Firestore only; sort by createdAt in-memory.
   const constraints = status ? [where('status', '==', status)] : [];
 
-  const snap = await getDocs(
-    query(collection(db, COLLECTIONS.ACCESS_REQUESTS), ...constraints)
-  );
+  const snap = await getDocs(query(collection(db, COLLECTIONS.ACCESS_REQUESTS), ...constraints));
 
   const results = snap.docs.map((d) => {
     const data = d.data();
@@ -303,7 +296,7 @@ export async function approveAccessRequest(
   requestId: string,
   labId: string,
   uid: string,
-  role: UserRole = 'member'
+  role: UserRole = 'member',
 ): Promise<void> {
   const batch = writeBatch(db);
 
@@ -355,12 +348,7 @@ export async function fetchSuperAdminStats(): Promise<SuperAdminStats> {
   const [usersSnap, labsSnap, requestsSnap] = await Promise.all([
     getDocs(collection(db, COLLECTIONS.USERS)),
     getDocs(collection(db, COLLECTIONS.LABS)),
-    getDocs(
-      query(
-        collection(db, COLLECTIONS.ACCESS_REQUESTS),
-        where('status', '==', 'pending')
-      )
-    ),
+    getDocs(query(collection(db, COLLECTIONS.ACCESS_REQUESTS), where('status', '==', 'pending'))),
   ]);
 
   return {

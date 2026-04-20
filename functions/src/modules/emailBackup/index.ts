@@ -15,22 +15,23 @@
 
 import './collectors/index';
 
-import { onSchedule }             from 'firebase-functions/v2/scheduler';
-import { onCall, HttpsError }     from 'firebase-functions/v2/https';
-import * as admin                 from 'firebase-admin';
+import { onSchedule } from 'firebase-functions/v2/scheduler';
+import { onCall, HttpsError } from 'firebase-functions/v2/https';
+import * as admin from 'firebase-admin';
 
 import type { BackupReport, BackupLog, LabBackupConfig } from './types';
-import { moduleRegistry }                                from './registry';
-import { detectStaleness }                               from './services/stalenessService';
-import { generateBackupPdf, computeContentHash }         from './services/pdfService';
-import { sendBackupEmail, RESEND_API_KEY }               from './services/emailService';
+import { resolveBackupRecipients } from './types';
+import { moduleRegistry } from './registry';
+import { detectStaleness } from './services/stalenessService';
+import { generateBackupPdf, computeContentHash } from './services/pdfService';
+import { sendBackupEmail, RESEND_API_KEY } from './services/emailService';
 
 // Region is set globally in functions/src/index.ts via setGlobalOptions.
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function periodDates(): { from: Date; to: Date } {
-  const to   = new Date();
+  const to = new Date();
   const from = new Date(to);
   from.setDate(from.getDate() - 30);
   from.setHours(0, 0, 0, 0);
@@ -43,12 +44,17 @@ async function processLabBackup(
   backupConfig: LabBackupConfig,
   force: boolean = false,
 ): Promise<{ sent: boolean; reason?: string }> {
+  const recipients = resolveBackupRecipients(backupConfig);
+  if (recipients.length === 0) {
+    return { sent: false, reason: 'no_recipients' };
+  }
+
   const { from, to } = periodDates();
 
   // 1. Collect data from all registered modules
   const collectors = moduleRegistry.getAll();
   const sectionResults = await Promise.allSettled(
-    collectors.map(c => c.collect(db, labId, from, to)),
+    collectors.map((c) => c.collect(db, labId, from, to)),
   );
 
   const sections = sectionResults
@@ -65,15 +71,13 @@ async function processLabBackup(
     .filter((s): s is NonNullable<typeof s> => s !== null);
 
   // 2. Detect staleness across all modules
-  const stalenessAlerts = await detectStaleness(
-    db, labId, backupConfig.stalenessThresholdDays,
-  );
+  const stalenessAlerts = await detectStaleness(db, labId, backupConfig.stalenessThresholdDays);
 
   const totalRuns = sections.reduce((sum, s) => sum + s.totalRuns, 0);
 
   // 3. Decide whether to send
-  const hasStaleness   = stalenessAlerts.length > 0;
-  const hasData        = totalRuns > 0;
+  const hasStaleness = stalenessAlerts.length > 0;
+  const hasData = totalRuns > 0;
   const isFirstOfMonth = new Date().getDate() === 1;
 
   if (!force && !hasData && !hasStaleness && !isFirstOfMonth) {
@@ -86,13 +90,13 @@ async function processLabBackup(
 
   const reportWithoutHash: Omit<BackupReport, 'contentHash'> = {
     labId,
-    labName:         labData['name'] ?? labId,
-    labCnpj:         labData['cnpj']  ?? undefined,
-    periodStart:     from,
-    periodEnd:       to,
+    labName: labData['name'] ?? labId,
+    labCnpj: labData['cnpj'] ?? undefined,
+    periodStart: from,
+    periodEnd: to,
     sections,
     stalenessAlerts,
-    generatedAt:     new Date().toISOString(),
+    generatedAt: new Date().toISOString(),
   };
 
   const contentHash = computeContentHash(reportWithoutHash);
@@ -103,35 +107,35 @@ async function processLabBackup(
 
   // 6. Send email
   await sendBackupEmail({
-    to:        backupConfig.email!,
+    to: recipients,
     report,
     pdfBuffer,
   });
 
   // 7. Write backup log (non-blocking)
-  const today     = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
   const logEntry: BackupLog = {
-    sentAt:           admin.firestore.Timestamp.now(),
-    toEmail:          backupConfig.email!,
+    sentAt: admin.firestore.Timestamp.now(),
+    toEmail: recipients.join(', '),
     labId,
-    periodStart:      from.toISOString(),
-    periodEnd:        to.toISOString(),
+    periodStart: from.toISOString(),
+    periodEnd: to.toISOString(),
     totalRuns,
-    sectionsIncluded: sections.map(s => s.moduleId),
-    stalenessAlerts:  stalenessAlerts.length,
-    emailSubject:     buildLogSubject(report),
+    sectionsIncluded: sections.map((s) => s.moduleId),
+    stalenessAlerts: stalenessAlerts.length,
+    emailSubject: buildLogSubject(report),
   };
 
   db.doc(`labs/${labId}/backup-logs/${today}`)
     .set(logEntry)
-    .catch(err => console.error(`[emailBackup] Failed to write backup log for ${labId}:`, err));
+    .catch((err) => console.error(`[emailBackup] Failed to write backup log for ${labId}:`, err));
 
   return { sent: true };
 }
 
 function buildLogSubject(report: BackupReport): string {
   const totalRuns = report.sections.reduce((s, m) => s + m.totalRuns, 0);
-  const alerts    = report.stalenessAlerts.length;
+  const alerts = report.stalenessAlerts.length;
   if (alerts > 0) return `[ALERTA] ${report.labName} — ${alerts} alerta(s)`;
   return `${report.labName} — ${totalRuns} corrida(s)`;
 }
@@ -147,21 +151,18 @@ function buildLogSubject(report: BackupReport): string {
  */
 export const scheduledDailyBackup = onSchedule(
   {
-    schedule:       'every day 23:45',
-    timeZone:       'America/Sao_Paulo',
-    region:         'southamerica-east1',
-    memory:         '512MiB',
+    schedule: 'every day 23:45',
+    timeZone: 'America/Sao_Paulo',
+    region: 'southamerica-east1',
+    memory: '512MiB',
     timeoutSeconds: 540,
-    secrets:        [RESEND_API_KEY],
+    secrets: [RESEND_API_KEY],
   },
   async () => {
     const db = admin.firestore();
 
     // Query all labs that have backup enabled — server-side filter
-    const labsSnap = await db
-      .collection('labs')
-      .where('backup.enabled', '==', true)
-      .get();
+    const labsSnap = await db.collection('labs').where('backup.enabled', '==', true).get();
 
     if (labsSnap.empty) {
       console.log('[emailBackup] No labs with backup enabled. Exiting.');
@@ -170,16 +171,16 @@ export const scheduledDailyBackup = onSchedule(
 
     console.log(`[emailBackup] Processing ${labsSnap.size} lab(s)`);
 
-    let sent    = 0;
+    let sent = 0;
     let skipped = 0;
-    let failed  = 0;
+    let failed = 0;
 
     for (const labDoc of labsSnap.docs) {
-      const labId       = labDoc.id;
-      const labData     = labDoc.data();
+      const labId = labDoc.id;
+      const labData = labDoc.data();
       const backupConfig = labData['backup'] as LabBackupConfig | undefined;
 
-      if (!backupConfig?.email) {
+      if (!backupConfig || resolveBackupRecipients(backupConfig).length === 0) {
         skipped++;
         continue;
       }
@@ -200,9 +201,7 @@ export const scheduledDailyBackup = onSchedule(
       }
     }
 
-    console.log(
-      `[emailBackup] Done. sent=${sent} skipped=${skipped} failed=${failed}`,
-    );
+    console.log(`[emailBackup] Done. sent=${sent} skipped=${skipped} failed=${failed}`);
   },
 );
 
@@ -235,8 +234,8 @@ const TriggerBackupInputSchema = {
  */
 export const triggerLabBackup = onCall(
   {
-    region:  'southamerica-east1',
-    memory:  '512MiB',
+    region: 'southamerica-east1',
+    memory: '512MiB',
     secrets: [RESEND_API_KEY],
   },
   async (request) => {
@@ -249,7 +248,10 @@ export const triggerLabBackup = onCall(
     if (!isSuperAdmin) {
       const userSnap = await admin.firestore().doc(`users/${request.auth.uid}`).get();
       if (!userSnap.exists || userSnap.data()?.['isSuperAdmin'] !== true) {
-        throw new HttpsError('permission-denied', 'Apenas Super Admins podem disparar backups manuais.');
+        throw new HttpsError(
+          'permission-denied',
+          'Apenas Super Admins podem disparar backups manuais.',
+        );
       }
     }
 
@@ -261,7 +263,7 @@ export const triggerLabBackup = onCall(
     }
 
     const backupConfig = labSnap.data()?.['backup'] as LabBackupConfig | undefined;
-    if (!backupConfig?.email) {
+    if (!backupConfig || resolveBackupRecipients(backupConfig).length === 0) {
       throw new HttpsError(
         'failed-precondition',
         'Este laboratório não possui e-mail de backup configurado.',
@@ -279,8 +281,8 @@ export const triggerLabBackup = onCall(
 
     return {
       success: true,
-      sent:    result.sent,
-      reason:  result.reason ?? null,
+      sent: result.sent,
+      reason: result.reason ?? null,
     };
   },
 );

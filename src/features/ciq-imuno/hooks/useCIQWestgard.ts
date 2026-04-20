@@ -15,7 +15,7 @@ export interface CIQWestgardResult {
 const MIN_RUNS_FOR_RATE_RULE = 10;
 
 /** Percentual máximo de NR aceitável no lote. */
-const MAX_FAILURE_RATE = 0.10;
+const MAX_FAILURE_RATE = 0.1;
 
 /** Janela de runs recentes para a regra de 4+ NR. */
 const WINDOW_RECENT_RUNS = 10;
@@ -44,7 +44,7 @@ export function computeWestgardCategorico(runs: CIQImunoRun[]): CIQWestgardResul
   const total = runs.length;
 
   const recentes = [...runs].sort(
-    (a, b) => new Date(b.dataRealizacao).getTime() - new Date(a.dataRealizacao).getTime()
+    (a, b) => new Date(b.dataRealizacao).getTime() - new Date(a.dataRealizacao).getTime(),
   );
 
   const countNR = runs.filter((r) => r.resultadoObtido === 'NR').length;
@@ -65,7 +65,7 @@ export function computeWestgardCategorico(runs: CIQImunoRun[]): CIQWestgardResul
     }
   }
 
-  const ultimos10  = recentes.slice(0, WINDOW_RECENT_RUNS);
+  const ultimos10 = recentes.slice(0, WINDOW_RECENT_RUNS);
   const nrNaJanela = ultimos10.filter((r) => r.resultadoObtido === 'NR').length;
   if (nrNaJanela >= THRESHOLD_WINDOW_NR) {
     alerts.push('consecutivos_4nr');
@@ -87,14 +87,10 @@ export function computeWestgardCategorico(runs: CIQImunoRun[]): CIQWestgardResul
     }
   }
 
-  const isReprovado = alerts.some(
-    (a) => a === 'taxa_falha_10pct' || a === 'lote_expirado'
-  );
+  const isReprovado = alerts.some((a) => a === 'taxa_falha_10pct' || a === 'lote_expirado');
 
   const lotStatus: CIQLotStatus =
-    alerts.length === 0 ? 'valido' :
-    isReprovado         ? 'reprovado' :
-                          'atencao';
+    alerts.length === 0 ? 'valido' : isReprovado ? 'reprovado' : 'atencao';
 
   return { alerts, lotStatus };
 }

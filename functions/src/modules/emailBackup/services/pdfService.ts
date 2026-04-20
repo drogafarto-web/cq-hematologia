@@ -5,26 +5,26 @@ import type { BackupReport, ModuleBackupSection } from '../types';
 // ─── Design tokens ────────────────────────────────────────────────────────────
 
 const FONT_REGULAR = 'Helvetica';
-const FONT_BOLD    = 'Helvetica-Bold';
+const FONT_BOLD = 'Helvetica-Bold';
 
 const COLOR = {
-  bg:           '#0d0d0d',
-  surface:      '#161616',
-  border:       '#2a2a2a',
-  accent:       '#3b82f6',   // blue-500
-  accentWarm:   '#f59e0b',   // amber-500 (warning)
-  danger:       '#ef4444',   // red-500 (critical)
-  success:      '#22c55e',   // green-500
-  textPrimary:  '#f4f4f5',
-  textMuted:    '#71717a',
-  white:        '#ffffff',
-  rowAlt:       '#1c1c1c',
+  bg: '#0d0d0d',
+  surface: '#161616',
+  border: '#2a2a2a',
+  accent: '#3b82f6', // blue-500
+  accentWarm: '#f59e0b', // amber-500 (warning)
+  danger: '#ef4444', // red-500 (critical)
+  success: '#22c55e', // green-500
+  textPrimary: '#f4f4f5',
+  textMuted: '#71717a',
+  white: '#ffffff',
+  rowAlt: '#1c1c1c',
 } as const;
 
 const PAGE = {
   margin: 40,
-  width:  595.28,  // A4
-  height: 841.89,  // A4
+  width: 595.28, // A4
+  height: 841.89, // A4
 } as const;
 
 // ─── PDF Generator ────────────────────────────────────────────────────────────
@@ -41,24 +41,24 @@ const PAGE = {
 export function generateBackupPdf(report: BackupReport): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({
-      size:    'A4',
+      size: 'A4',
       margins: {
-        top:    PAGE.margin,
+        top: PAGE.margin,
         bottom: PAGE.margin,
-        left:   PAGE.margin,
-        right:  PAGE.margin,
+        left: PAGE.margin,
+        right: PAGE.margin,
       },
       info: {
-        Title:    `Backup HC Quality — ${report.labName}`,
-        Author:   'HC Quality',
-        Subject:  `Período: ${formatDate(report.periodStart)} – ${formatDate(report.periodEnd)}`,
-        Creator:  'HC Quality Backup Module',
+        Title: `Backup HC Quality — ${report.labName}`,
+        Author: 'HC Quality',
+        Subject: `Período: ${formatDate(report.periodStart)} – ${formatDate(report.periodEnd)}`,
+        Creator: 'HC Quality Backup Module',
       },
     });
 
     const chunks: Buffer[] = [];
     doc.on('data', (chunk: Buffer) => chunks.push(chunk));
-    doc.on('end',  () => resolve(Buffer.concat(chunks)));
+    doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
 
     // ── Cover page ───────────────────────────────────────────────────────────
@@ -87,16 +87,10 @@ function renderCoverPage(doc: PDFKit.PDFDocument, report: BackupReport): void {
   const contentWidth = PAGE.width - margin * 2;
 
   // Header bar
-  doc
-    .rect(0, 0, PAGE.width, 8)
-    .fill(COLOR.accent);
+  doc.rect(0, 0, PAGE.width, 8).fill(COLOR.accent);
 
   // HC Quality wordmark
-  doc
-    .font(FONT_BOLD)
-    .fontSize(11)
-    .fillColor(COLOR.accent)
-    .text('HC QUALITY', margin, 28);
+  doc.font(FONT_BOLD).fontSize(11).fillColor(COLOR.accent).text('HC QUALITY', margin, 28);
 
   doc
     .font(FONT_REGULAR)
@@ -113,11 +107,7 @@ function renderCoverPage(doc: PDFKit.PDFDocument, report: BackupReport): void {
     .stroke();
 
   // Title block
-  doc
-    .font(FONT_BOLD)
-    .fontSize(22)
-    .fillColor(COLOR.textPrimary)
-    .text('Backup de Dados', margin, 90);
+  doc.font(FONT_BOLD).fontSize(22).fillColor(COLOR.textPrimary).text('Backup de Dados', margin, 90);
 
   doc
     .font(FONT_REGULAR)
@@ -173,7 +163,9 @@ function renderCoverPage(doc: PDFKit.PDFDocument, report: BackupReport): void {
     .fillColor(COLOR.textPrimary)
     .text(
       `${formatDate(report.periodStart)}  →  ${formatDate(report.periodEnd)}`,
-      margin, periodY + 16, { width: contentWidth, align: 'center' },
+      margin,
+      periodY + 16,
+      { width: contentWidth, align: 'center' },
     );
 
   // Stats summary
@@ -193,21 +185,20 @@ function renderCoverPage(doc: PDFKit.PDFDocument, report: BackupReport): void {
 
     doc
       .rect(margin, alertY, contentWidth, 20)
-      .fill(report.stalenessAlerts.some(a => a.level === 'critical')
-        ? '#3b0f0f'
-        : '#3b2c0a',
-      );
+      .fill(report.stalenessAlerts.some((a) => a.level === 'critical') ? '#3b0f0f' : '#3b2c0a');
 
     doc
       .font(FONT_BOLD)
       .fontSize(9)
-      .fillColor(report.stalenessAlerts.some(a => a.level === 'critical')
-        ? COLOR.danger
-        : COLOR.accentWarm,
+      .fillColor(
+        report.stalenessAlerts.some((a) => a.level === 'critical')
+          ? COLOR.danger
+          : COLOR.accentWarm,
       )
       .text(
         `⚠  ${report.stalenessAlerts.length} alerta(s) de inatividade detectado(s) — ver página de integridade`,
-        margin + 12, alertY + 6,
+        margin + 12,
+        alertY + 6,
         { width: contentWidth - 24 },
       );
 
@@ -233,14 +224,13 @@ function renderCoverPage(doc: PDFKit.PDFDocument, report: BackupReport): void {
     .fillColor(COLOR.textMuted)
     .text(
       `Gerado em: ${new Date(report.generatedAt).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}  ·  HC Quality Backup Module`,
-      margin, PAGE.height - 55,
+      margin,
+      PAGE.height - 55,
       { width: contentWidth, align: 'center' },
     );
 
   // Bottom accent bar
-  doc
-    .rect(0, PAGE.height - 8, PAGE.width, 8)
-    .fill(COLOR.accent);
+  doc.rect(0, PAGE.height - 8, PAGE.width, 8).fill(COLOR.accent);
 }
 
 // ─── Module Section ───────────────────────────────────────────────────────────
@@ -254,16 +244,10 @@ function renderModuleSection(
   const contentWidth = PAGE.width - margin * 2;
 
   // Top accent bar for module
-  doc
-    .rect(0, 0, PAGE.width, 4)
-    .fill(COLOR.accent);
+  doc.rect(0, 0, PAGE.width, 4).fill(COLOR.accent);
 
   // Module header
-  doc
-    .font(FONT_BOLD)
-    .fontSize(8)
-    .fillColor(COLOR.accent)
-    .text('MÓDULO', margin, 18);
+  doc.font(FONT_BOLD).fontSize(8).fillColor(COLOR.accent).text('MÓDULO', margin, 18);
 
   doc
     .font(FONT_BOLD)
@@ -278,7 +262,8 @@ function renderModuleSection(
     .fillColor(COLOR.textMuted)
     .text(
       `${report.labName}  ·  ${formatDate(report.periodStart)} – ${formatDate(report.periodEnd)}`,
-      margin, 50,
+      margin,
+      50,
     );
 
   // Summary stats
@@ -347,26 +332,22 @@ function renderDataTable(
   contentWidth: number,
 ): void {
   const { margin } = PAGE;
-  const colWidth   = contentWidth / columns.length;
-  const rowHeight  = 16;
-  const headerH    = 20;
+  const colWidth = contentWidth / columns.length;
+  const rowHeight = 16;
+  const headerH = 20;
 
   // Header row
-  doc
-    .rect(margin, startY, contentWidth, headerH)
-    .fill('#1a1a2e');
+  doc.rect(margin, startY, contentWidth, headerH).fill('#1a1a2e');
 
   for (let i = 0; i < columns.length; i++) {
     doc
       .font(FONT_BOLD)
       .fontSize(6.5)
       .fillColor(COLOR.textMuted)
-      .text(
-        columns[i].toUpperCase(),
-        margin + i * colWidth + 4,
-        startY + 7,
-        { width: colWidth - 8, ellipsis: true },
-      );
+      .text(columns[i].toUpperCase(), margin + i * colWidth + 4, startY + 7, {
+        width: colWidth - 8,
+        ellipsis: true,
+      });
   }
 
   let currentY = startY + headerH;
@@ -380,9 +361,7 @@ function renderDataTable(
       doc.addPage();
 
       // Reset accent bar
-      doc
-        .rect(0, 0, PAGE.width, 4)
-        .fill(COLOR.accent);
+      doc.rect(0, 0, PAGE.width, 4).fill(COLOR.accent);
 
       currentY = PAGE.margin + 10;
 
@@ -396,21 +375,17 @@ function renderDataTable(
       currentY += 14;
 
       // Re-render column headers
-      doc
-        .rect(margin, currentY, contentWidth, headerH)
-        .fill('#1a1a2e');
+      doc.rect(margin, currentY, contentWidth, headerH).fill('#1a1a2e');
 
       for (let i = 0; i < columns.length; i++) {
         doc
           .font(FONT_BOLD)
           .fontSize(6.5)
           .fillColor(COLOR.textMuted)
-          .text(
-            columns[i].toUpperCase(),
-            margin + i * colWidth + 4,
-            currentY + 7,
-            { width: colWidth - 8, ellipsis: true },
-          );
+          .text(columns[i].toUpperCase(), margin + i * colWidth + 4, currentY + 7, {
+            width: colWidth - 8,
+            ellipsis: true,
+          });
       }
 
       currentY += headerH;
@@ -420,17 +395,13 @@ function renderDataTable(
     const isAlt = rowIdx % 2 === 1;
 
     if (isAlt) {
-      doc
-        .rect(margin, currentY, contentWidth, rowHeight)
-        .fill(COLOR.rowAlt);
+      doc.rect(margin, currentY, contentWidth, rowHeight).fill(COLOR.rowAlt);
     }
 
     // Highlight non-conforming rows
     const conformidade = row['Conformidade'] ?? row['Status'] ?? '';
     if (conformidade === 'NÃO CONFORME' || conformidade === 'Rejeitada') {
-      doc
-        .rect(margin, currentY, 3, rowHeight)
-        .fill(COLOR.danger);
+      doc.rect(margin, currentY, 3, rowHeight).fill(COLOR.danger);
     }
 
     for (let i = 0; i < columns.length; i++) {
@@ -439,20 +410,18 @@ function renderDataTable(
 
       // Color-code specific values
       let cellColor: string = COLOR.textPrimary;
-      if (val === 'Conforme' || val === 'Aprovada')    cellColor = COLOR.success;
+      if (val === 'Conforme' || val === 'Aprovada') cellColor = COLOR.success;
       if (val === 'NÃO CONFORME' || val === 'Rejeitada') cellColor = COLOR.danger;
-      if (val === 'Pendente')                           cellColor = COLOR.accentWarm;
+      if (val === 'Pendente') cellColor = COLOR.accentWarm;
 
       doc
         .font(FONT_REGULAR)
         .fontSize(6.5)
         .fillColor(cellColor)
-        .text(
-          val,
-          margin + i * colWidth + 5,
-          currentY + 5,
-          { width: colWidth - 10, ellipsis: true },
-        );
+        .text(val, margin + i * colWidth + 5, currentY + 5, {
+          width: colWidth - 10,
+          ellipsis: true,
+        });
     }
 
     currentY += rowHeight;
@@ -473,9 +442,7 @@ function renderIntegrityPage(doc: PDFKit.PDFDocument, report: BackupReport): voi
   const { margin } = PAGE;
   const contentWidth = PAGE.width - margin * 2;
 
-  doc
-    .rect(0, 0, PAGE.width, 4)
-    .fill(COLOR.accent);
+  doc.rect(0, 0, PAGE.width, 4).fill(COLOR.accent);
 
   doc
     .font(FONT_BOLD)
@@ -489,9 +456,11 @@ function renderIntegrityPage(doc: PDFKit.PDFDocument, report: BackupReport): voi
     .fillColor(COLOR.textMuted)
     .text(
       'Este documento foi gerado automaticamente pelo módulo de backup do HC Quality. ' +
-      'O hash abaixo é derivado do conteúdo de todos os registros incluídos neste relatório ' +
-      'e pode ser usado para verificar a integridade do arquivo em auditorias futuras.',
-      margin, 46, { width: contentWidth },
+        'O hash abaixo é derivado do conteúdo de todos os registros incluídos neste relatório ' +
+        'e pode ser usado para verificar a integridade do arquivo em auditorias futuras.',
+      margin,
+      46,
+      { width: contentWidth },
     );
 
   // Hash display
@@ -520,13 +489,22 @@ function renderIntegrityPage(doc: PDFKit.PDFDocument, report: BackupReport): voi
   // Metadata table
   const metaY = 178;
   const metaRows: Array<[string, string]> = [
-    ['Laboratório',      report.labName],
-    ['Lab ID',           report.labId],
-    ['CNPJ',             report.labCnpj ?? '—'],
-    ['Período início',   report.periodStart.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })],
-    ['Período fim',      report.periodEnd.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })],
-    ['Gerado em',        new Date(report.generatedAt).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })],
-    ['Módulos incluídos', report.sections.map(s => s.moduleName).join('; ') || '—'],
+    ['Laboratório', report.labName],
+    ['Lab ID', report.labId],
+    ['CNPJ', report.labCnpj ?? '—'],
+    [
+      'Período início',
+      report.periodStart.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+    ],
+    [
+      'Período fim',
+      report.periodEnd.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+    ],
+    [
+      'Gerado em',
+      new Date(report.generatedAt).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+    ],
+    ['Módulos incluídos', report.sections.map((s) => s.moduleName).join('; ') || '—'],
     ['Total de corridas', String(report.sections.reduce((s, m) => s + m.totalRuns, 0))],
   ];
 
@@ -565,7 +543,7 @@ function renderIntegrityPage(doc: PDFKit.PDFDocument, report: BackupReport): voi
     for (const alert of report.stalenessAlerts) {
       const isCritical = alert.level === 'critical';
       const alertColor = isCritical ? COLOR.danger : COLOR.accentWarm;
-      const bgColor    = isCritical ? '#3b0f0f' : '#3b2c0a';
+      const bgColor = isCritical ? '#3b0f0f' : '#3b2c0a';
       const daysStr = isFinite(alert.daysSinceLastRun)
         ? `${alert.daysSinceLastRun} dia(s) sem registros`
         : 'nenhum registro encontrado';
@@ -596,14 +574,13 @@ function renderIntegrityPage(doc: PDFKit.PDFDocument, report: BackupReport): voi
     .fillColor(COLOR.textMuted)
     .text(
       'HC Quality — Backup Automático  ·  Este documento não substitui os registros primários armazenados no sistema. ' +
-      'Conservar em local seguro de acordo com a política de retenção de dados da instituição (RDC 978/2025, LGPD).',
-      margin, PAGE.height - 55,
+        'Conservar em local seguro de acordo com a política de retenção de dados da instituição (RDC 978/2025, LGPD).',
+      margin,
+      PAGE.height - 55,
       { width: contentWidth, align: 'center' },
     );
 
-  doc
-    .rect(0, PAGE.height - 8, PAGE.width, 8)
-    .fill(COLOR.accent);
+  doc.rect(0, PAGE.height - 8, PAGE.width, 8).fill(COLOR.accent);
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -650,13 +627,12 @@ function renderPageFooter(doc: PDFKit.PDFDocument, report: BackupReport): void {
     .fillColor(COLOR.textMuted)
     .text(
       `HC Quality  ·  ${report.labName}  ·  Gerado em ${new Date(report.generatedAt).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`,
-      PAGE.margin, PAGE.height - 28,
+      PAGE.margin,
+      PAGE.height - 28,
       { width: PAGE.width - PAGE.margin * 2, align: 'center' },
     );
 
-  doc
-    .rect(0, PAGE.height - 8, PAGE.width, 8)
-    .fill(COLOR.accent);
+  doc.rect(0, PAGE.height - 8, PAGE.width, 8).fill(COLOR.accent);
 }
 
 function formatDate(d: Date): string {
@@ -672,13 +648,13 @@ function formatDate(d: Date): string {
  */
 export function computeContentHash(report: Omit<BackupReport, 'contentHash'>): string {
   const payload = JSON.stringify({
-    labId:       report.labId,
+    labId: report.labId,
     periodStart: report.periodStart.toISOString(),
-    periodEnd:   report.periodEnd.toISOString(),
-    sections:    report.sections.map(s => ({
-      moduleId:   s.moduleId,
-      totalRuns:  s.totalRuns,
-      rows:       s.rows,
+    periodEnd: report.periodEnd.toISOString(),
+    sections: report.sections.map((s) => ({
+      moduleId: s.moduleId,
+      totalRuns: s.totalRuns,
+      rows: s.rows,
     })),
   });
   return createHash('sha256').update(payload).digest('hex');

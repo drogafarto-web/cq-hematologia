@@ -34,11 +34,11 @@ export interface ChartPoint {
 export interface ChartStats {
   mean: number;
   sd: number;
-  plus1sd:  number;
+  plus1sd: number;
   minus1sd: number;
-  plus2sd:  number;
+  plus2sd: number;
   minus2sd: number;
-  plus3sd:  number;
+  plus3sd: number;
   minus3sd: number;
 }
 
@@ -99,11 +99,11 @@ function toChartStats({ mean, sd }: AnalyteStats): ChartStats {
   return {
     mean,
     sd,
-    plus1sd:  mean + sd,
+    plus1sd: mean + sd,
     minus1sd: mean - sd,
-    plus2sd:  mean + 2 * sd,
+    plus2sd: mean + 2 * sd,
     minus2sd: mean - 2 * sd,
-    plus3sd:  mean + 3 * sd,
+    plus3sd: mean + 3 * sd,
     minus3sd: mean - 3 * sd,
   };
 }
@@ -119,9 +119,9 @@ function toChartStats({ mean, sd }: AnalyteStats): ChartStats {
 function buildViolationMap(
   sortedRuns: Run[],
   analyteId: string,
-  stats: AnalyteStats
+  stats: AnalyteStats,
 ): Map<string, WestgardViolation[]> {
-  const map     = new Map<string, WestgardViolation[]>();
+  const map = new Map<string, WestgardViolation[]>();
   const history: number[] = []; // newest-first window (max 10 used by 10x rule)
 
   for (const run of sortedRuns) {
@@ -152,7 +152,7 @@ function buildViolationMap(
 function computeSampleStats(values: number[]): AnalyteStats | null {
   const n = values.length;
   if (n < 2) return null;
-  const mean     = values.reduce((a, b) => a + b, 0) / n;
+  const mean = values.reduce((a, b) => a + b, 0) / n;
   const variance = values.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1);
   return { mean, sd: Math.sqrt(variance) };
 }
@@ -177,21 +177,21 @@ function computeSampleStats(values: number[]): AnalyteStats | null {
 export function useChartData(
   lot: ControlLot | null,
   analyteId: string | null,
-  statsSource: StatsSource
+  statsSource: StatsSource,
 ): UseChartDataReturn {
   return useMemo<UseChartDataReturn>(() => {
     // ── Empty state ──────────────────────────────────────────────────────────
     const empty: UseChartDataReturn = {
-      chartData:            [],
-      currentStats:         null,
-      manufacturerStats:    null,
-      hasEnoughData:        false,
+      chartData: [],
+      currentStats: null,
+      manufacturerStats: null,
+      hasEnoughData: false,
       isUsingInternalStats: false,
       isBaselineEstablished: false,
-      westgardAlerts:       [],
-      totalRuns:            0,
-      approvedRuns:         0,
-      runsUntilBaseline:    MIN_RUNS_FOR_INTERNAL_STATS,
+      westgardAlerts: [],
+      totalRuns: 0,
+      approvedRuns: 0,
+      runsUntilBaseline: MIN_RUNS_FOR_INTERNAL_STATS,
     };
 
     if (!lot || !analyteId) return empty;
@@ -210,8 +210,8 @@ export function useChartData(
     const intRaw = computeSampleStats(approvedValues); // null when n < 2
 
     const isBaselineEstablished = mfrRaw !== null;
-    const hasEnoughData         = intRaw !== null;     // enabled at n ≥ 2
-    const isUsingInternalStats  = statsSource === 'internal' && hasEnoughData;
+    const hasEnoughData = intRaw !== null; // enabled at n ≥ 2
+    const isUsingInternalStats = statsSource === 'internal' && hasEnoughData;
 
     // Active stats: prefer internal when selected and available, else manufacturer
     const activeRaw: AnalyteStats | null = isUsingInternalStats ? intRaw : mfrRaw;
@@ -219,33 +219,29 @@ export function useChartData(
     // Cannot draw a chart without at least one set of stats
     if (!activeRaw) return { ...empty, isBaselineEstablished };
 
-    const currentStats      = toChartStats(activeRaw);
+    const currentStats = toChartStats(activeRaw);
     const manufacturerStats = mfrRaw ? toChartStats(mfrRaw) : null;
 
     // ── Sort runs chronologically ────────────────────────────────────────────
-    const sortedRuns = [...lot.runs].sort(
-      (a, b) => a.timestamp.getTime() - b.timestamp.getTime()
-    );
+    const sortedRuns = [...lot.runs].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
     // ── Violation map (recalculated against active stats source) ─────────────
     const violationMap = buildViolationMap(sortedRuns, analyteId, activeRaw);
 
     // ── Build chart data + alert list ────────────────────────────────────────
-    const chartData: ChartPoint[]     = [];
+    const chartData: ChartPoint[] = [];
     const westgardAlerts: WestgardAlert[] = [];
 
-    let totalRuns    = 0;
+    let totalRuns = 0;
     let approvedRuns = 0;
 
     sortedRuns.forEach((run, idx) => {
-      const result     = run.results.find((r) => r.analyteId === analyteId);
-      const value      = result?.value ?? null;
+      const result = run.results.find((r) => r.analyteId === analyteId);
+      const value = result?.value ?? null;
       const violations = violationMap.get(run.id) ?? [];
-      const rejected   = isRejection(violations);
-      const warning    = isWarningOnly(violations);
-      const zScore     = value !== null
-        ? (value - activeRaw.mean) / activeRaw.sd
-        : null;
+      const rejected = isRejection(violations);
+      const warning = isWarningOnly(violations);
+      const zScore = value !== null ? (value - activeRaw.mean) / activeRaw.sd : null;
 
       if (value !== null) {
         totalRuns++;
@@ -253,14 +249,14 @@ export function useChartData(
       }
 
       chartData.push({
-        index:        idx + 1,
-        runId:        run.id,
-        sampleId:     run.sampleId,
-        timestamp:    run.timestamp,
+        index: idx + 1,
+        runId: run.id,
+        sampleId: run.sampleId,
+        timestamp: run.timestamp,
         value,
-        status:       run.status,
+        status: run.status,
         violations,
-        isRejection:  rejected,
+        isRejection: rejected,
         isWarningOnly: warning,
         zScore,
       });
@@ -269,12 +265,12 @@ export function useChartData(
       for (const violation of violations) {
         if (value !== null) {
           westgardAlerts.push({
-            runId:       run.id,
-            runIndex:    idx + 1,
+            runId: run.id,
+            runIndex: idx + 1,
             violation,
             isRejection: isRejection([violation]),
             value,
-            timestamp:   run.timestamp,
+            timestamp: run.timestamp,
           });
         }
       }
@@ -295,7 +291,7 @@ export function useChartData(
       runsUntilBaseline,
     };
 
-  // Intentionally depend on `lot` reference (Zustand immutable updates guarantee
-  // a new reference whenever any nested field changes).
+    // Intentionally depend on `lot` reference (Zustand immutable updates guarantee
+    // a new reference whenever any nested field changes).
   }, [lot, analyteId, statsSource]);
 }

@@ -7,7 +7,9 @@ function CameraIcon() {
     <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden>
       <path
         d="M2 8a2 2 0 012-2h1.5l1.5-2h6l1.5 2H18a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V8z"
-        stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
       />
       <circle cx="11" cy="12" r="3" stroke="currentColor" strokeWidth="1.4" />
     </svg>
@@ -17,8 +19,19 @@ function CameraIcon() {
 function UploadIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-      <path d="M10 13V4M10 4L7 7M10 4l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M3 14v1a2 2 0 002 2h10a2 2 0 002-2v-1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path
+        d="M10 13V4M10 4L7 7M10 4l3 3"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M3 14v1a2 2 0 002 2h10a2 2 0 002-2v-1"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -27,7 +40,12 @@ function Spinner() {
   return (
     <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden>
       <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.2" />
-      <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+      <path
+        d="M22 12a10 10 0 00-10-10"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -35,10 +53,10 @@ function Spinner() {
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface NewRunFormProps {
-  onFile:      (file: File) => Promise<void>;
+  onFile: (file: File) => Promise<void>;
   isExtracting: boolean;
-  error:        string | null;
-  disabled?:    boolean;
+  error: string | null;
+  disabled?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -51,7 +69,7 @@ interface NewRunFormProps {
  */
 export function NewRunForm({ onFile, isExtracting, error, disabled }: NewRunFormProps) {
   const cameraRef = useRef<HTMLInputElement>(null);
-  const fileRef   = useRef<HTMLInputElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   function handleFiles(files: FileList | null) {
@@ -71,29 +89,42 @@ export function NewRunForm({ onFile, isExtracting, error, disabled }: NewRunForm
     <div className="space-y-2">
       {/* Drop zone */}
       <div
-        onDragOver={(e) => { e.preventDefault(); if (!isDisabled) setIsDragging(true); }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (!isDisabled) setIsDragging(true);
+        }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
         className={`
           relative flex flex-col items-center justify-center gap-3 rounded-2xl
           border border-dashed px-6 py-8 transition-all
           ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-          ${isDragging
-            ? 'border-violet-500/70 bg-violet-500/10 dark:bg-violet-500/[0.08]'
-            : 'border-slate-200 dark:border-white/[0.1] bg-white dark:bg-white/[0.02] hover:border-slate-300 dark:hover:border-white/[0.2] hover:bg-slate-50 dark:hover:bg-white/[0.04]'}
+          ${
+            isDragging
+              ? 'border-violet-500/70 bg-violet-500/10 dark:bg-violet-500/[0.08]'
+              : 'border-slate-200 dark:border-white/[0.1] bg-white dark:bg-white/[0.02] hover:border-slate-300 dark:hover:border-white/[0.2] hover:bg-slate-50 dark:hover:bg-white/[0.04]'
+          }
         `}
       >
         {isExtracting ? (
           <>
-            <div className="text-violet-400"><Spinner /></div>
+            <div className="text-violet-400">
+              <Spinner />
+            </div>
             <div className="text-center">
-              <p className="text-sm font-medium text-slate-700 dark:text-white/80">Analisando imagem…</p>
-              <p className="text-xs text-slate-400 dark:text-white/35 mt-0.5">IA extraindo valores do equipamento</p>
+              <p className="text-sm font-medium text-slate-700 dark:text-white/80">
+                Analisando imagem…
+              </p>
+              <p className="text-xs text-slate-400 dark:text-white/35 mt-0.5">
+                IA extraindo valores do equipamento
+              </p>
             </div>
           </>
         ) : (
           <>
-            <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center transition-all ${isDragging ? 'border-violet-500/40 text-violet-500 dark:text-violet-400 bg-violet-500/10' : 'border-slate-200 dark:border-white/[0.1] text-slate-400 dark:text-white/35 bg-slate-50 dark:bg-white/[0.04]'}`}>
+            <div
+              className={`w-12 h-12 rounded-2xl border flex items-center justify-center transition-all ${isDragging ? 'border-violet-500/40 text-violet-500 dark:text-violet-400 bg-violet-500/10' : 'border-slate-200 dark:border-white/[0.1] text-slate-400 dark:text-white/35 bg-slate-50 dark:bg-white/[0.04]'}`}
+            >
               <CameraIcon />
             </div>
             <div className="text-center">
@@ -139,7 +170,10 @@ export function NewRunForm({ onFile, isExtracting, error, disabled }: NewRunForm
           aria-label="Selecionar arquivo de imagem"
           title="Selecionar arquivo de imagem"
           className="sr-only"
-          onChange={(e) => { handleFiles(e.target.files); e.target.value = ''; }}
+          onChange={(e) => {
+            handleFiles(e.target.files);
+            e.target.value = '';
+          }}
         />
         <button
           type="button"

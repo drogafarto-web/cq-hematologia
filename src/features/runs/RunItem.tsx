@@ -8,10 +8,20 @@ import { resolveImageState } from './hooks/useRunImageState';
 function ChevronIcon({ open }: { open: boolean }) {
   return (
     <svg
-      width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      fill="none"
+      aria-hidden
       className={`transition-transform ${open ? 'rotate-180' : ''}`}
     >
-      <path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M3 5l4 4 4-4"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -19,7 +29,13 @@ function ChevronIcon({ open }: { open: boolean }) {
 function TrashIcon() {
   return (
     <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <path d="M2 3.5h10M5.5 3.5V2.5a.5.5 0 01.5-.5h2a.5.5 0 01.5.5v1M12 3.5l-.8 8a1 1 0 01-1 .9H3.8a1 1 0 01-1-.9L2 3.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M2 3.5h10M5.5 3.5V2.5a.5.5 0 01.5-.5h2a.5.5 0 01.5.5v1M12 3.5l-.8 8a1 1 0 01-1 .9H3.8a1 1 0 01-1-.9L2 3.5"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -27,17 +43,34 @@ function TrashIcon() {
 function CameraIcon({ uploading }: { uploading?: boolean }) {
   if (uploading) {
     return (
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 14 14"
+        fill="none"
+        aria-hidden
         className="animate-spin text-white/30"
       >
-        <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.4" strokeDasharray="8 6" strokeLinecap="round" />
+        <circle
+          cx="7"
+          cy="7"
+          r="5.5"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeDasharray="8 6"
+          strokeLinecap="round"
+        />
       </svg>
     );
   }
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <path d="M1.5 5a1 1 0 011-1h1l1-1.5h5L10.5 4h1a1 1 0 011 1v5.5a1 1 0 01-1 1h-9a1 1 0 01-1-1V5z"
-        stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+      <path
+        d="M1.5 5a1 1 0 011-1h1l1-1.5h5L10.5 4h1a1 1 0 011 1v5.5a1 1 0 01-1 1h-9a1 1 0 01-1-1V5z"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
       <circle cx="7" cy="7" r="1.8" stroke="currentColor" strokeWidth="1.3" />
     </svg>
   );
@@ -46,7 +79,12 @@ function CameraIcon({ uploading }: { uploading?: boolean }) {
 function XIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-      <path d="M4.5 4.5l9 9M13.5 4.5l-9 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <path
+        d="M4.5 4.5l9 9M13.5 4.5l-9 9"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -62,15 +100,15 @@ interface ImageModalProps {
 function ImageAuditModal({ imageUrl, run, onClose }: ImageModalProps) {
   const ts = new Date(run.timestamp);
   const label = ts.toLocaleString('pt-BR', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
 
@@ -86,8 +124,13 @@ function ImageAuditModal({ imageUrl, run, onClose }: ImageModalProps) {
               <CameraIcon />
             </div>
             <div>
-              <p className="text-sm font-semibold text-slate-800 dark:text-white/90">Evidência Fotográfica</p>
-              <p className="text-xs text-slate-400 dark:text-white/40 mt-0.5">{label}{run.sampleId ? ` · ${run.sampleId}` : ''}</p>
+              <p className="text-sm font-semibold text-slate-800 dark:text-white/90">
+                Evidência Fotográfica
+              </p>
+              <p className="text-xs text-slate-400 dark:text-white/40 mt-0.5">
+                {label}
+                {run.sampleId ? ` · ${run.sampleId}` : ''}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -122,15 +165,21 @@ function ImageAuditModal({ imageUrl, run, onClose }: ImageModalProps) {
 
         {/* Footer: status + violations */}
         <div className="flex items-center gap-3 px-5 py-3 border-t border-white/[0.07] shrink-0">
-          <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md border ${
-            run.status === 'Aprovada'  ? 'bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
-            run.status === 'Rejeitada' ? 'bg-red-500/10 dark:bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/20' :
-                                         'bg-amber-500/10 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/20'
-          }`}>
+          <span
+            className={`text-[11px] font-bold px-2 py-0.5 rounded-md border ${
+              run.status === 'Aprovada'
+                ? 'bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                : run.status === 'Rejeitada'
+                  ? 'bg-red-500/10 dark:bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/20'
+                  : 'bg-amber-500/10 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/20'
+            }`}
+          >
             {run.status}
           </span>
           {run.manualOverride && (
-            <span className="text-[10px] text-violet-400/70 bg-violet-500/10 px-1.5 py-0.5 rounded">Manual</span>
+            <span className="text-[10px] text-violet-400/70 bg-violet-500/10 px-1.5 py-0.5 rounded">
+              Manual
+            </span>
           )}
           <span className="text-xs text-slate-400 dark:text-white/25 ml-auto">
             {run.results.length} analitos extraídos
@@ -144,14 +193,19 @@ function ImageAuditModal({ imageUrl, run, onClose }: ImageModalProps) {
 // ─── Status badge ─────────────────────────────────────────────────────────────
 
 const STATUS_STYLES = {
-  Aprovada:  'bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
-  Rejeitada: 'bg-red-500/10 dark:bg-red-500/15     text-red-600 dark:text-red-400     border-red-500/20',
-  Pendente:  'bg-amber-500/10 dark:bg-amber-500/15   text-amber-600 dark:text-amber-400   border-amber-500/20',
+  Aprovada:
+    'bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
+  Rejeitada:
+    'bg-red-500/10 dark:bg-red-500/15     text-red-600 dark:text-red-400     border-red-500/20',
+  Pendente:
+    'bg-amber-500/10 dark:bg-amber-500/15   text-amber-600 dark:text-amber-400   border-amber-500/20',
 };
 
 function StatusBadge({ status }: { status: Run['status'] }) {
   return (
-    <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-md border ${STATUS_STYLES[status]}`}>
+    <span
+      className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-md border ${STATUS_STYLES[status]}`}
+    >
       {status}
     </span>
   );
@@ -160,19 +214,27 @@ function StatusBadge({ status }: { status: Run['status'] }) {
 // ─── Westgard violation chip ──────────────────────────────────────────────────
 
 const VIOLATION_STYLES: Record<WestgardViolation, string> = {
-  '1-2s': 'bg-amber-500/10 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400/80 border border-amber-200 dark:border-amber-500/15',
-  '1-3s': 'bg-red-500/10 dark:bg-red-500/15   text-red-600 dark:text-red-400/80 border border-red-200 dark:border-red-500/15',
-  '2-2s': 'bg-red-500/10 dark:bg-red-500/15   text-red-600 dark:text-red-400/80 border border-red-200 dark:border-red-500/15',
-  'R-4s': 'bg-red-500/10 dark:bg-red-500/15   text-red-600 dark:text-red-400/80 border border-red-200 dark:border-red-500/15',
-  '4-1s': 'bg-red-500/10 dark:bg-red-500/15   text-red-600 dark:text-red-400/80 border border-red-200 dark:border-red-500/15',
-  '10x':  'bg-red-500/10 dark:bg-red-500/15   text-red-600 dark:text-red-400/80 border border-red-200 dark:border-red-500/15',
-  '6T':   'bg-red-500/10 dark:bg-red-500/15   text-red-600 dark:text-red-400/80 border border-red-200 dark:border-red-500/15',
-  '6X':   'bg-red-500/10 dark:bg-red-500/15   text-red-600 dark:text-red-400/80 border border-red-200 dark:border-red-500/15',
+  '1-2s':
+    'bg-amber-500/10 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400/80 border border-amber-200 dark:border-amber-500/15',
+  '1-3s':
+    'bg-red-500/10 dark:bg-red-500/15   text-red-600 dark:text-red-400/80 border border-red-200 dark:border-red-500/15',
+  '2-2s':
+    'bg-red-500/10 dark:bg-red-500/15   text-red-600 dark:text-red-400/80 border border-red-200 dark:border-red-500/15',
+  'R-4s':
+    'bg-red-500/10 dark:bg-red-500/15   text-red-600 dark:text-red-400/80 border border-red-200 dark:border-red-500/15',
+  '4-1s':
+    'bg-red-500/10 dark:bg-red-500/15   text-red-600 dark:text-red-400/80 border border-red-200 dark:border-red-500/15',
+  '10x':
+    'bg-red-500/10 dark:bg-red-500/15   text-red-600 dark:text-red-400/80 border border-red-200 dark:border-red-500/15',
+  '6T': 'bg-red-500/10 dark:bg-red-500/15   text-red-600 dark:text-red-400/80 border border-red-200 dark:border-red-500/15',
+  '6X': 'bg-red-500/10 dark:bg-red-500/15   text-red-600 dark:text-red-400/80 border border-red-200 dark:border-red-500/15',
 };
 
 function ViolationChip({ v }: { v: WestgardViolation }) {
   return (
-    <span className={`text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded ${VIOLATION_STYLES[v]}`}>
+    <span
+      className={`text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded ${VIOLATION_STYLES[v]}`}
+    >
       {v}
     </span>
   );
@@ -181,24 +243,27 @@ function ViolationChip({ v }: { v: WestgardViolation }) {
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface RunItemProps {
-  run:      Run;
-  index:    number;
+  run: Run;
+  index: number;
   onDelete: (runId: string) => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function RunItem({ run, index, onDelete }: RunItemProps) {
-  const [expanded,      setExpanded]      = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [showImage,     setShowImage]     = useState(false);
+  const [showImage, setShowImage] = useState(false);
 
   const ts = new Date(run.timestamp);
   const formattedDate = ts.toLocaleDateString('pt-BR', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
   });
   const formattedTime = ts.toLocaleTimeString('pt-BR', {
-    hour: '2-digit', minute: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 
   const allViolations = [
@@ -209,7 +274,10 @@ export function RunItem({ run, index, onDelete }: RunItemProps) {
 
   function handleDelete(e: React.MouseEvent) {
     e.stopPropagation();
-    if (!confirmDelete) { setConfirmDelete(true); return; }
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
     onDelete(run.id);
   }
 
@@ -220,19 +288,23 @@ export function RunItem({ run, index, onDelete }: RunItemProps) {
 
   return (
     <>
-      <div className={`rounded-xl border transition-all ${
-        run.status === 'Rejeitada'
-          ? 'border-red-500/20 dark:border-red-500/20 bg-red-500/[0.05] dark:bg-red-500/[0.03]'
-          : run.status === 'Aprovada'
-          ? 'border-slate-100 dark:border-white/[0.06] bg-white dark:bg-transparent'
-          : 'border-amber-500/20 dark:border-amber-500/20 bg-amber-500/[0.03] dark:bg-amber-500/[0.03]'
-      }`}>
+      <div
+        className={`rounded-xl border transition-all ${
+          run.status === 'Rejeitada'
+            ? 'border-red-500/20 dark:border-red-500/20 bg-red-500/[0.05] dark:bg-red-500/[0.03]'
+            : run.status === 'Aprovada'
+              ? 'border-slate-100 dark:border-white/[0.06] bg-white dark:bg-transparent'
+              : 'border-amber-500/20 dark:border-amber-500/20 bg-amber-500/[0.03] dark:bg-amber-500/[0.03]'
+        }`}
+      >
         {/* Header row */}
         <div
           className="flex items-center gap-3 px-4 py-3 cursor-pointer"
           onClick={() => setExpanded((v) => !v)}
         >
-          <span className="text-xs font-mono text-slate-400 dark:text-white/25 w-6 shrink-0">#{index}</span>
+          <span className="text-xs font-mono text-slate-400 dark:text-white/25 w-6 shrink-0">
+            #{index}
+          </span>
 
           <StatusBadge status={run.status} />
 
@@ -241,7 +313,9 @@ export function RunItem({ run, index, onDelete }: RunItemProps) {
               <span className="text-xs text-slate-500 dark:text-white/50">{formattedDate}</span>
               <span className="text-xs text-slate-400 dark:text-white/25">{formattedTime}</span>
               {run.sampleId && (
-                <span className="text-xs text-slate-400 dark:text-white/35 font-mono">{run.sampleId}</span>
+                <span className="text-xs text-slate-400 dark:text-white/35 font-mono">
+                  {run.sampleId}
+                </span>
               )}
               {run.manualOverride && (
                 <span className="text-[10px] text-violet-400/70 bg-violet-500/10 px-1.5 py-0.5 rounded">
@@ -251,7 +325,9 @@ export function RunItem({ run, index, onDelete }: RunItemProps) {
             </div>
             {allViolations.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-1">
-                {allViolations.map((v) => <ViolationChip key={v} v={v} />)}
+                {allViolations.map((v) => (
+                  <ViolationChip key={v} v={v} />
+                ))}
               </div>
             )}
           </div>
@@ -263,15 +339,19 @@ export function RunItem({ run, index, onDelete }: RunItemProps) {
               onClick={handleCameraClick}
               disabled={imageState !== 'ready'}
               aria-label={
-                imageState === 'ready'     ? 'Ver imagem original' :
-                imageState === 'uploading' ? 'Enviando imagem…' :
-                                             'Entrada manual (sem imagem)'
+                imageState === 'ready'
+                  ? 'Ver imagem original'
+                  : imageState === 'uploading'
+                    ? 'Enviando imagem…'
+                    : 'Entrada manual (sem imagem)'
               }
               className={`
                 flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl transition-all
-                ${imageState === 'ready'
-                  ? 'text-violet-400/60 hover:text-violet-400 hover:bg-violet-500/10 cursor-pointer'
-                  : 'text-white/15 cursor-default'}
+                ${
+                  imageState === 'ready'
+                    ? 'text-violet-400/60 hover:text-violet-400 hover:bg-violet-500/10 cursor-pointer'
+                    : 'text-white/15 cursor-default'
+                }
               `}
             >
               <CameraIcon uploading={imageState === 'uploading'} />
@@ -285,9 +365,11 @@ export function RunItem({ run, index, onDelete }: RunItemProps) {
               aria-label={confirmDelete ? 'Confirmar exclusão' : 'Excluir corrida'}
               className={`
                 flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl transition-all
-                ${confirmDelete
-                  ? 'bg-red-500/20 text-red-500'
-                  : 'text-slate-400 dark:text-white/20 hover:text-slate-600 dark:hover:text-white/50 hover:bg-slate-100 dark:hover:bg-white/[0.06]'}
+                ${
+                  confirmDelete
+                    ? 'bg-red-500/20 text-red-500'
+                    : 'text-slate-400 dark:text-white/20 hover:text-slate-600 dark:hover:text-white/50 hover:bg-slate-100 dark:hover:bg-white/[0.06]'
+                }
               `}
             >
               <TrashIcon />
@@ -318,20 +400,28 @@ export function RunItem({ run, index, onDelete }: RunItemProps) {
                     if (!analyte) return null;
                     return (
                       <tr key={r.id}>
-                        <td className="py-1.5 text-slate-600 dark:text-white/60 font-medium">{analyte.name}</td>
-                        <td className={`py-1.5 text-right font-mono ${
-                          r.violations.some((v) => v !== '1-2s')
-                            ? 'text-red-600 dark:text-red-400'
-                            : r.violations.includes('1-2s')
-                            ? 'text-amber-600 dark:text-amber-500/80'
-                            : 'text-slate-800 dark:text-white/80'
-                        }`}>
+                        <td className="py-1.5 text-slate-600 dark:text-white/60 font-medium">
+                          {analyte.name}
+                        </td>
+                        <td
+                          className={`py-1.5 text-right font-mono ${
+                            r.violations.some((v) => v !== '1-2s')
+                              ? 'text-red-600 dark:text-red-400'
+                              : r.violations.includes('1-2s')
+                                ? 'text-amber-600 dark:text-amber-500/80'
+                                : 'text-slate-800 dark:text-white/80'
+                          }`}
+                        >
                           {r.value.toFixed(analyte.decimals)}
                         </td>
-                        <td className="py-1.5 pl-2 text-slate-400 dark:text-white/25">{analyte.unit}</td>
+                        <td className="py-1.5 pl-2 text-slate-400 dark:text-white/25">
+                          {analyte.unit}
+                        </td>
                         <td className="py-1.5 text-right">
                           <div className="flex justify-end gap-1 flex-wrap">
-                            {r.violations.map((v) => <ViolationChip key={v} v={v} />)}
+                            {r.violations.map((v) => (
+                              <ViolationChip key={v} v={v} />
+                            ))}
                           </div>
                         </td>
                       </tr>
@@ -346,7 +436,10 @@ export function RunItem({ run, index, onDelete }: RunItemProps) {
               {imageState === 'ready' && (
                 <button
                   type="button"
-                  onClick={(e) => { e.stopPropagation(); setShowImage(true); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowImage(true);
+                  }}
                   className="flex items-center gap-1.5 text-xs text-violet-400/70 hover:text-violet-400 transition-colors"
                 >
                   <CameraIcon />
@@ -371,11 +464,7 @@ export function RunItem({ run, index, onDelete }: RunItemProps) {
 
       {/* Image audit modal — portal-like, rendered outside the list item */}
       {showImage && imageState === 'ready' && (
-        <ImageAuditModal
-          imageUrl={run.imageUrl}
-          run={run}
-          onClose={() => setShowImage(false)}
-        />
+        <ImageAuditModal imageUrl={run.imageUrl} run={run} onClose={() => setShowImage(false)} />
       )}
     </>
   );

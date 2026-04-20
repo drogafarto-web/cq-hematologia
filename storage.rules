@@ -82,5 +82,44 @@ service firebase.storage {
       allow create, update: if isSuperAdmin() || isActiveMember();
       allow delete:        if isSuperAdmin() || (isActiveMember() && isAdminOrOwner());
     }
+
+    // ── CIQ-Imuno strip images: any active member uploads, admin/owner deletes
+    // Mirrors the hematology /runs override so operators can attach strip
+    // photos without admin role. See storagePath.imunoStripImage().
+
+    match /labs/{labId}/ciq-imuno/{lotId}/strips/{runId} {
+
+      function isAuth() {
+        return request.auth != null;
+      }
+
+      function isSuperAdmin() {
+        return isAuth() &&
+          firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
+          firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isSuperAdmin == true;
+      }
+
+      function isActiveMember() {
+        let memberPath = /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid);
+        return isAuth() &&
+          firestore.exists(memberPath) &&
+          firestore.get(memberPath).data.active == true;
+      }
+
+      function getMemberRole() {
+        return firestore.get(
+          /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid)
+        ).data.role;
+      }
+
+      function isAdminOrOwner() {
+        let role = getMemberRole();
+        return role == 'admin' || role == 'owner';
+      }
+
+      allow read:          if isSuperAdmin() || isActiveMember();
+      allow create, update: if isSuperAdmin() || isActiveMember();
+      allow delete:        if isSuperAdmin() || (isActiveMember() && isAdminOrOwner());
+    }
   }
 }

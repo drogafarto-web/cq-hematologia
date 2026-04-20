@@ -23,18 +23,16 @@ export function PendingLabAccessScreen() {
           <ClockIcon />
         </div>
 
-        <h2 className="text-lg font-semibold text-white/90 mb-2">
-          Acesso pendente de aprovação
-        </h2>
+        <h2 className="text-lg font-semibold text-white/90 mb-2">Acesso pendente de aprovação</h2>
         <p className="text-sm text-white/40 leading-relaxed mb-8">
-          Sua solicitação de acesso ao laboratório foi enviada e está aguardando
-          aprovação do administrador.
+          Sua solicitação de acesso ao laboratório foi enviada e está aguardando aprovação do
+          administrador.
         </p>
 
         <div className="p-4 rounded-xl bg-amber-500/[0.06] border border-amber-500/[0.12] text-left mb-6">
           <p className="text-xs text-amber-400/70 leading-relaxed">
-            Você receberá acesso assim que um administrador aprovar sua solicitação.
-            Faça login novamente após a aprovação.
+            Você receberá acesso assim que um administrador aprovar sua solicitação. Faça login
+            novamente após a aprovação.
           </p>
         </div>
 

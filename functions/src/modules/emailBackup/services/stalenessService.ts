@@ -25,7 +25,7 @@ export async function detectStaleness(
   if (collectors.length === 0) return [];
 
   const results = await Promise.allSettled(
-    collectors.map(c => c.checkStaleness(db, labId, thresholdDays)),
+    collectors.map((c) => c.checkStaleness(db, labId, thresholdDays)),
   );
 
   const alerts: StalenessAlert[] = [];
@@ -38,7 +38,7 @@ export async function detectStaleness(
       // Staleness check failure should not block the backup — log and continue
       console.error(
         `[emailBackup] Staleness check failed for module ` +
-        `"${collectors[i].moduleId}" lab="${labId}":`,
+          `"${collectors[i].moduleId}" lab="${labId}":`,
         result.reason,
       );
     }

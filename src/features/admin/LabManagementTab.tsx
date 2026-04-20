@@ -1,9 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { AdminLabRecord } from './services/userService';
-import {
-  fetchAllLabs,
-  deleteLabAsAdmin,
-} from './services/userService';
+import { fetchAllLabs, deleteLabAsAdmin } from './services/userService';
 import { firestoreErrorMessage } from '../../shared/utils/firebaseErrors';
 import { createLab, updateLab } from './services/labAdminService';
 import { LabAdminModal, type LabFormPayload } from './LabAdminModal';
@@ -21,11 +18,16 @@ function PlusIcon() {
   );
 }
 
-
 function BeakerIcon() {
   return (
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden>
-      <path d="M10 4v10L4 24a2 2 0 001.8 2.9h20.4A2 2 0 0028 24L22 14V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M10 4v10L4 24a2 2 0 001.8 2.9h20.4A2 2 0 0028 24L22 14V4"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
       <path d="M8 4h16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
@@ -34,16 +36,16 @@ function BeakerIcon() {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function LabManagementTab() {
-  const user                            = useUser();
-  const [labs, setLabs]                 = useState<AdminLabRecord[]>([]);
-  const [loading, setLoading]           = useState(true);
-  const [error, setError]               = useState<string | null>(null);
+  const user = useUser();
+  const [labs, setLabs] = useState<AdminLabRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [confirmDeleteLab, setConfirmDeleteLab] = useState<AdminLabRecord | null>(null);
-  const [deletingId, setDeletingId]     = useState<string | null>(null);
-  const [showCreate, setShowCreate]     = useState(false);
-  const [editingLab, setEditingLab]     = useState<AdminLabRecord | null>(null);
-  const [managingLab, setManagingLab]   = useState<AdminLabRecord | null>(null);
-  const [search, setSearch]             = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [editingLab, setEditingLab] = useState<AdminLabRecord | null>(null);
+  const [managingLab, setManagingLab] = useState<AdminLabRecord | null>(null);
+  const [search, setSearch] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -57,7 +59,11 @@ export function LabManagementTab() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  // Load-on-mount pattern canônico — ver AccessRequestsTab.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load();
+  }, [load]);
 
   async function handleCreate(payload: LabFormPayload, logoFile?: File) {
     if (!user) return;
@@ -84,9 +90,7 @@ export function LabManagementTab() {
     }
   }
 
-  const filtered = labs.filter((l) =>
-    l.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = labs.filter((l) => l.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="space-y-5">
@@ -188,10 +192,7 @@ export function LabManagementTab() {
 
       {/* Modals */}
       {showCreate && (
-        <LabAdminModal
-          onConfirm={handleCreate}
-          onClose={() => setShowCreate(false)}
-        />
+        <LabAdminModal onConfirm={handleCreate} onClose={() => setShowCreate(false)} />
       )}
 
       {editingLab && (

@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/jpeg" href="/favicon.jpg" />
+    <title>Espaço Viva | Clínica de Saúde e Bem-Estar em Rio Pomba</title>
+    <meta name="description" content="Espaço Viva em Rio Pomba/MG oferece Pilates, Ballet, Funcional Kids e Maquiagem Profissional. Cuidamos do seu corpo, mente e autoestima em um só lugar." />
+    <meta name="author" content="Espaço Viva" />
+    <meta name="keywords" content="pilates Rio Pomba, ballet Rio Pomba, funcional kids, maquiagem noiva Rio Pomba, clínica saúde Rio Pomba, bem-estar Rio Pomba, fisioterapia Rio Pomba, psicologia Rio Pomba, nutrição Rio Pomba" />
+    
+    <!-- SEO Meta Tags -->
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#FF6B35" />
+    <link rel="canonical" href="https://meuespacoviva.com.br/" />
+    
+    <!-- DNS Prefetch para domínios externos (reduz latência) -->
+    <link rel="dns-prefetch" href="//maps.googleapis.com" />
+    <link rel="dns-prefetch" href="//www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+    
+    <!-- Fonts com preconnect e crossorigin corretos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=optional" rel="stylesheet" />
+    
+    <!-- Preload Critical Assets with WebP support -->
+    <link rel="preload" as="image" href="/images/hero-pilates-real.webp" type="image/webp" fetchpriority="high" />
+    <link rel="preload" as="image" href="/images/hero-pilates-real.jpg" fetchpriority="low" />
+    <link rel="preload" as="image" href="/images/logo-espaco-viva.jpg" />
+
+    <meta property="og:title" content="Espaço Viva | Clínica de Saúde e Bem-Estar em Rio Pomba" />
+    <meta property="og:description" content="Pilates, Ballet, Funcional Kids e Maquiagem Profissional em Rio Pomba/MG. Agende sua aula experimental grátis!" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:url" content="https://meuespacoviva.com.br/" />
+    <meta property="og:image" content="https://meuespacoviva.com.br/favicon.jpg" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Espaço Viva | Saúde e Bem-Estar" />
+    <meta name="twitter:description" content="Transforme seu bem-estar com Pilates, Ballet, Funcional Kids e Maquiagem em Rio Pomba." />
+    <meta name="twitter:image" content="https://meuespacoviva.com.br/favicon.jpg" />
+    
+    <!-- Schema Markup for Local Business -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": ["HealthAndBeautyBusiness", "LocalBusiness", "MedicalBusiness"],
+      "name": "Espaço Viva",
+      "description": "Clínica de Saúde e Bem-Estar oferecendo Pilates, Ballet, Fisioterapia, Psicologia, Nutrição, Terapia Ocupacional, Fonoaudiologia, Estética, Musculação e Maquiagem Profissional em Rio Pomba/MG",
+      "url": "https://meuspacoviva.com.br",
+      "telephone": "+55-31-99274-4969",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Rio Pomba",
+        "addressLocality": "Rio Pomba",
+        "addressRegion": "MG",
+        "postalCode": "36180-000",
+        "addressCountry": "BR"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "-21.2692",
+        "longitude": "-43.1778"
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+          "opens": "06:00",
+          "closes": "20:00"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Saturday",
+          "opens": "08:00",
+          "closes": "14:00"
+        }
+      ],
+      "priceRange": "$$",
+      "image": "https://meuspacoviva.com.br/favicon.jpg",
+      "logo": "https://meuspacoviva.com.br/favicon.jpg",
+      "sameAs": [
+        "https://www.instagram.com/espacoviva",
+        "https://www.facebook.com/espacoviva"
+      ],
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5.0",
+        "reviewCount": "50",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Serviços de Saúde e Bem-Estar",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Pilates",
+              "description": "Aulas de Pilates personalizadas para fortalecer, melhorar postura e aliviar dores"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Fisioterapia",
+              "description": "Tratamentos de fisioterapia para reabilitação e recuperação motora"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Psicologia",
+              "description": "Atendimento psicológico individual, familiar e de casal"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Nutrição",
+              "description": "Acompanhamento nutricional personalizado e planos alimentares"
+            }
+          }
+        ]
+      }
+    }
+    </script>
+
+    <!-- FAQ Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Quais serviços o Espaço Viva oferece?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "O Espaço Viva oferece Pilates, Fisioterapia, Psicologia, Nutrição, Terapia Ocupacional, Fonoaudiologia, Psicopedagogia, Estética, Musculação, Ballet, Funcional Kids e Maquiagem Profissional em Rio Pomba/MG."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Onde fica o Espaço Viva?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "O Espaço Viva fica localizado em Rio Pomba, Minas Gerais. Entre em contato pelo telefone (31) 99274-4969 para mais informações sobre endereço."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Como agendar uma aula experimental de Pilates?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Para agendar sua aula experimental gratuita de Pilates, entre em contato pelo WhatsApp (31) 99274-4969 ou através do formulário em nosso site."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Qual o horário de funcionamento do Espaço Viva?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Funcionamos de segunda a sexta das 06:00 às 20:00 e aos sábados das 08:00 às 14:00."
+          }
+        }
+      ]
+    }
+    </script>
+    
+    <!-- BreadcrumbList Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Início",
+          "item": "https://meuspacoviva.com.br/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Serviços",
+          "item": "https://meuspacoviva.com.br/#servicos"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Sobre",
+          "item": "https://meuspacoviva.com.br/#sobre"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Contato",
+          "item": "https://meuspacoviva.com.br/#contato"
+        }
+      ]
+    }
+    </script>
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-606524936"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-606524936');
+    </script>
+    <script type="module" crossorigin src="/assets/index-fcOlyuy1.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DW22DGIq.css">
+  </head>
+
+  <body>
+    <div id="root"></div>
+  
+<script async id="netlify-rum-container" src="/.netlify/scripts/rum" data-netlify-rum-site-id="b05a666d-0165-46d9-bcd0-b75ef27614e9" data-netlify-deploy-branch="main" data-netlify-deploy-context="production" data-netlify-cwv-token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzaXRlX2lkIjoiYjA1YTY2NmQtMDE2NS00NmQ5LWJjZDAtYjc1ZWYyNzYxNGU5IiwiYWNjb3VudF9pZCI6IjY4Y2Q5OTgyNmI5OTYyMTRiMTkyZmRhMSIsImRlcGxveV9pZCI6IjY5YmVmODE1NjA5MGU1MDAwODk0ZjBmYyIsImlzc3VlciI6Im5mc2VydmVyIn0._QFWQ0oGRdbcY1LYGKhNUKt5PNECoT0az0TzSSImgzI"></script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"0f52ee26138845dbb6a7dff142597dc4","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>

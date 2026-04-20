@@ -42,17 +42,17 @@ export interface CIQSignatureResult {
  */
 export async function generateSignature(payload: CIQSignaturePayload): Promise<string> {
   const canonical = JSON.stringify({
-    doc:  payload.operatorDocument,
-    lot:  payload.lotId,
+    doc: payload.operatorDocument,
+    lot: payload.lotId,
     test: payload.testType,
     ctrl: payload.loteControle,
-    res:  payload.resultadoObtido,
+    res: payload.resultadoObtido,
     date: payload.dataRealizacao,
   });
 
-  const encoded    = new TextEncoder().encode(canonical);
+  const encoded = new TextEncoder().encode(canonical);
   const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
-  const hashArray  = Array.from(new Uint8Array(hashBuffer));
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
@@ -82,8 +82,8 @@ export function useCIQSignature() {
 
       return {
         logicalSignature,
-        signedBy:  user.uid,
-        signedAt:  new Date().toISOString(),
+        signedBy: user.uid,
+        signedAt: new Date().toISOString(),
       };
     },
     [user],

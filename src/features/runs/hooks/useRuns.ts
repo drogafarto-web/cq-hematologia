@@ -4,7 +4,12 @@ import { useActiveLabId, useUser } from '../../../store/useAuthStore';
 import { getDatabaseService } from '../../../shared/services/databaseService';
 import { extractDataFromImage } from '../services/geminiService';
 import { checkWestgardRules, isRejection } from '../../chart/utils/westgardRules';
-import { storagePath, MIN_RUNS_FOR_INTERNAL_STATS, SUPPORTED_IMAGE_TYPES, IMAGE_UPLOAD_MAX_SIZE_BYTES } from '../../../constants';
+import {
+  storagePath,
+  MIN_RUNS_FOR_INTERNAL_STATS,
+  SUPPORTED_IMAGE_TYPES,
+  IMAGE_UPLOAD_MAX_SIZE_BYTES,
+} from '../../../constants';
 import { ANALYTE_MAP } from '../../../constants';
 import { toast } from '../../../shared/store/useToastStore';
 import { haptic } from '../../../shared/hooks/useHaptic';
@@ -12,11 +17,11 @@ import type {
   Run,
   ControlLot,
   AnalyteResult,
-  StoredState,
   RunStatus,
   InternalStats,
   AnalyteStats,
   WestgardViolation,
+  DatabaseService,
 } from '../../../types';
 
 // ─── Pure helpers ─────────────────────────────────────────────────────────────
@@ -59,8 +64,8 @@ function calculateInternalStats(lot: ControlLot): InternalStats | null {
 
     if (values.length < 2) continue;
 
-    const n        = values.length;
-    const mean     = values.reduce((a, b) => a + b, 0) / n;
+    const n = values.length;
+    const mean = values.reduce((a, b) => a + b, 0) / n;
     // Sample variance (N-1): unbiased estimator of population variance
     const variance = values.reduce((sum, v) => sum + (v - mean) ** 2, 0) / (n - 1);
     stats[analyteId] = { mean, sd: Math.sqrt(variance) };
@@ -82,12 +87,10 @@ function buildAnalyteResults(
   rawResults: Record<string, { value: number; confidence: number; reasoning: string }>,
   runId: string,
   lot: ControlLot,
-  now: Date
+  now: Date,
 ): AnalyteResult[] {
   // Existing runs sorted newest → oldest for Westgard lookback
-  const sortedRuns = [...lot.runs].sort(
-    (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
-  );
+  const sortedRuns = [...lot.runs].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
   return Object.entries(rawResults).map(([analyteId, raw]) => {
     const stats = resolveStats(lot, analyteId);
@@ -102,25 +105,24 @@ function buildAnalyteResults(
     }
 
     return {
-      id:         crypto.randomUUID(),
+      id: crypto.randomUUID(),
       runId,
       analyteId,
-      value:      raw.value,
+      value: raw.value,
       confidence: raw.confidence,
-      reasoning:  raw.reasoning,
-      timestamp:  now,
+      reasoning: raw.reasoning,
+      timestamp: now,
       violations,
     } satisfies AnalyteResult;
   });
 }
-
 
 /** Immutably updates a single run inside the lots array. */
 function updateRunInLots(
   lots: ControlLot[],
   lotId: string,
   runId: string,
-  updater: (run: Run) => Run
+  updater: (run: Run) => Run,
 ): ControlLot[] {
   return lots.map((lot) => {
     if (lot.id !== lotId) return lot;
@@ -145,47 +147,43 @@ function updateRunInLots(
  */
 export function useRuns() {
   const labId = useActiveLabId();
-  const user  = useUser();
+  const user = useUser();
 
   // ── Zustand atoms ──────────────────────────────────────────────────────────
-  const lots            = useAppStore((s) => s.lots);
-  const activeLotId     = useAppStore((s) => s.activeLotId);
-  const selectedAnalyteId = useAppStore((s) => s.selectedAnalyteId);
-  const pendingRun      = useAppStore((s) => s.pendingRun);
+  const lots = useAppStore((s) => s.lots);
+  const activeLotId = useAppStore((s) => s.activeLotId);
+  const pendingRun = useAppStore((s) => s.pendingRun);
 
-  const setLots       = useAppStore((s) => s.setLots);
+  const setLots = useAppStore((s) => s.setLots);
   const setPendingRun = useAppStore((s) => s.setPendingRun);
   const setSyncStatus = useAppStore((s) => s.setSyncStatus);
-  const setError      = useAppStore((s) => s.setError);
+  const setError = useAppStore((s) => s.setError);
 
   // ── Local loading states (not global — scoped to run actions) ──────────────
   const [isExtracting, setIsExtracting] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
-  const [runError, setRunError]         = useState<string | null>(null);
+  const [runError, setRunError] = useState<string | null>(null);
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
   const activeLot = lots.find((l) => l.id === activeLotId) ?? null;
 
-  const getState = (): StoredState => {
-    // Read current store state without subscribing — safe for async closures
-    const s = useAppStore.getState();
-    return { lots: s.lots, activeLotId: s.activeLotId, selectedAnalyteId: s.selectedAnalyteId };
-  };
-
-  const persist = useCallback(
-    async (state: StoredState): Promise<void> => {
+  // Granular-write wrapper: surfaces sync status without forcing callers to
+  // rebuild a whole StoredState envelope (which would tempt us back into the
+  // full-sync pattern that caused the original permission-denied regressions).
+  const withSync = useCallback(
+    async (op: (db: DatabaseService) => Promise<void>): Promise<void> => {
       if (!labId) return;
       setSyncStatus('saving');
       try {
-        await getDatabaseService(labId).saveState(state);
+        await op(getDatabaseService(labId));
         setSyncStatus('saved');
       } catch (err) {
         setSyncStatus('error');
         throw err;
       }
     },
-    [labId, setSyncStatus]
+    [labId, setSyncStatus],
   );
 
   // ── Actions ────────────────────────────────────────────────────────────────
@@ -202,7 +200,7 @@ export function useRuns() {
       }
 
       // File validation
-      if (!SUPPORTED_IMAGE_TYPES.includes(file.type as typeof SUPPORTED_IMAGE_TYPES[number])) {
+      if (!SUPPORTED_IMAGE_TYPES.includes(file.type as (typeof SUPPORTED_IMAGE_TYPES)[number])) {
         setRunError(`Tipo de arquivo não suportado. Use: ${SUPPORTED_IMAGE_TYPES.join(', ')}`);
         return;
       }
@@ -215,19 +213,17 @@ export function useRuns() {
       setIsExtracting(true);
 
       try {
-        const base64   = await fileToBase64(file);
-        const analytes = activeLot.requiredAnalytes
-          .map((id) => ANALYTE_MAP[id])
-          .filter(Boolean);
+        const base64 = await fileToBase64(file);
+        const analytes = activeLot.requiredAnalytes.map((id) => ANALYTE_MAP[id]).filter(Boolean);
 
         const extraction = await extractDataFromImage(base64, analytes, file.type);
 
         setPendingRun({
           file,
           base64,
-          mimeType:  file.type,
-          sampleId:  extraction.sampleId,
-          results:   extraction.results,
+          mimeType: file.type,
+          sampleId: extraction.sampleId,
+          results: extraction.results,
         });
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Erro desconhecido na extração.';
@@ -236,7 +232,7 @@ export function useRuns() {
         setIsExtracting(false);
       }
     },
-    [activeLot, setPendingRun]
+    [activeLot, setPendingRun],
   );
 
   /**
@@ -248,15 +244,24 @@ export function useRuns() {
    */
   const confirmRun = useCallback(
     async (editedValues: Record<string, number>, approve: boolean): Promise<void> => {
-      if (!pendingRun)  { setRunError('Nenhuma corrida pendente.');      return; }
-      if (!activeLot)   { setRunError('Nenhum lote ativo.');             return; }
-      if (!labId)       { setRunError('Nenhum laboratório ativo.');      return; }
+      if (!pendingRun) {
+        setRunError('Nenhuma corrida pendente.');
+        return;
+      }
+      if (!activeLot) {
+        setRunError('Nenhum lote ativo.');
+        return;
+      }
+      if (!labId) {
+        setRunError('Nenhum laboratório ativo.');
+        return;
+      }
 
       setRunError(null);
       setIsConfirming(true);
 
       const runId = crypto.randomUUID();
-      const now   = new Date();
+      const now = new Date();
 
       try {
         // Merge operator edits into the AI results before building
@@ -270,29 +275,29 @@ export function useRuns() {
         );
 
         // Build results with Westgard violations (informational — operator decides status)
-        const results  = buildAnalyteResults(mergedResults, runId, activeLot, now);
+        const results = buildAnalyteResults(mergedResults, runId, activeLot, now);
         const status: RunStatus = approve ? 'Aprovada' : 'Rejeitada';
         // manualOverride = true when operator explicitly approved despite rejection-level violations
         const hasRejectionViolation = results.some((r) => isRejection(r.violations));
 
         const newRun: Run = {
-          id:             runId,
-          lotId:          activeLot.id,
+          id: runId,
+          lotId: activeLot.id,
           labId,
           ...(pendingRun.sampleId && { sampleId: pendingRun.sampleId }),
-          timestamp:      now,
-          imageUrl:       '', // Filled in by background upload below
+          timestamp: now,
+          imageUrl: '', // Filled in by background upload below
           status,
           results,
           ...(approve && hasRejectionViolation && { manualOverride: true }),
-          createdBy:      user?.uid ?? '',
+          createdBy: user?.uid ?? '',
         };
 
         // Update lot: add run, increment runCount, recalculate stats
         const lotWithNewRun: ControlLot = {
           ...activeLot,
-          runs:       [...activeLot.runs, newRun],
-          runCount:   activeLot.runCount + 1,
+          runs: [...activeLot.runs, newRun],
+          runCount: activeLot.runCount + 1,
           statistics: null, // recalculated below
         };
         lotWithNewRun.statistics = calculateInternalStats(lotWithNewRun);
@@ -304,7 +309,12 @@ export function useRuns() {
         const prevLots = lots;
         setLots(newLots);
         try {
-          await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+          await withSync(async (db) => {
+            await db.saveRun(activeLot.id, newRun);
+            // Persist the lot's updated stats + runCount (metadata only — runs
+            // aren't duplicated here because saveLot drops the runs array).
+            await db.saveLot(lotWithNewRun);
+          });
         } catch (err) {
           // Rollback — prevent ghost runs from accumulating in the store
           setLots(prevLots);
@@ -327,17 +337,17 @@ export function useRuns() {
         void (async () => {
           try {
             const path = storagePath.runImage(labId, activeLot.id, runId);
-            const url  = await getDatabaseService(labId).uploadFile(pendingRun.file, path);
+            const url = await getDatabaseService(labId).uploadFile(pendingRun.file, path);
 
-            // Read fresh store state to avoid stale closure
-            const current = getState();
+            const current = useAppStore.getState();
             const updated = updateRunInLots(current.lots, activeLot.id, runId, (r) => ({
               ...r,
               imageUrl: url,
             }));
 
             setLots(updated);
-            await persist({ ...current, lots: updated });
+            const runWithImage: Run = { ...newRun, imageUrl: url };
+            await withSync((db) => db.saveRun(activeLot.id, runWithImage));
           } catch (err) {
             console.error('[useRuns] Background image upload failed:', err);
             // Non-fatal: run data is already saved; image URL will be empty
@@ -353,7 +363,7 @@ export function useRuns() {
         setIsConfirming(false);
       }
     },
-    [pendingRun, activeLot, labId, user, lots, activeLotId, selectedAnalyteId, setLots, setPendingRun, setError, persist]
+    [pendingRun, activeLot, labId, user, lots, setLots, setPendingRun, setError, withSync],
   );
 
   /** Discards the current pending run without saving. */
@@ -370,32 +380,39 @@ export function useRuns() {
     async (
       lotId: string,
       runId: string,
-      changes: Partial<Pick<Run, 'status' | 'manualOverride' | 'sampleId'>>
+      changes: Partial<Pick<Run, 'status' | 'manualOverride' | 'sampleId'>>,
     ): Promise<void> => {
       const lot = lots.find((l) => l.id === lotId);
       if (!lot) return;
 
-      let newLots = updateRunInLots(lots, lotId, runId, (r) => ({ ...r, ...changes }));
+      const targetRun = lot.runs.find((r) => r.id === runId);
+      if (!targetRun) return;
+      const updatedRun: Run = { ...targetRun, ...changes };
 
-      // Recalculate stats if status changed (approved run count may differ)
-      if ('status' in changes) {
-        const updatedLot = newLots.find((l) => l.id === lotId)!;
-        const newStats   = calculateInternalStats(updatedLot);
-        newLots = newLots.map((l) =>
-          l.id === lotId ? { ...l, statistics: newStats } : l
-        );
+      let newLots = updateRunInLots(lots, lotId, runId, () => updatedRun);
+
+      // Recalculate stats only when status changed — approved run count may differ
+      const statusChanged = 'status' in changes;
+      let updatedLot = newLots.find((l) => l.id === lotId)!;
+      if (statusChanged) {
+        const newStats = calculateInternalStats(updatedLot);
+        updatedLot = { ...updatedLot, statistics: newStats };
+        newLots = newLots.map((l) => (l.id === lotId ? updatedLot : l));
       }
 
       const prevLots = lots;
       setLots(newLots);
       try {
-        await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+        await withSync(async (db) => {
+          await db.saveRun(lotId, updatedRun);
+          if (statusChanged) await db.saveLot(updatedLot);
+        });
       } catch (err) {
         setLots(prevLots);
         throw err;
       }
     },
-    [lots, activeLotId, selectedAnalyteId, setLots, persist]
+    [lots, setLots, withSync],
   );
 
   /**
@@ -409,8 +426,8 @@ export function useRuns() {
       const filteredRuns = lot.runs.filter((r) => r.id !== runId);
       const updatedLot: ControlLot = {
         ...lot,
-        runs:       filteredRuns,
-        runCount:   filteredRuns.length,
+        runs: filteredRuns,
+        runCount: filteredRuns.length,
         statistics: calculateInternalStats({ ...lot, runs: filteredRuns }),
       };
 
@@ -418,7 +435,10 @@ export function useRuns() {
       const prevLots = lots;
       setLots(newLots);
       try {
-        await persist({ lots: newLots, activeLotId, selectedAnalyteId });
+        await withSync(async (db) => {
+          await db.deleteRun(lotId, runId);
+          await db.saveLot(updatedLot);
+        });
       } catch (err) {
         setLots(prevLots);
         throw err;
@@ -426,7 +446,7 @@ export function useRuns() {
       haptic.heavy();
       toast.success('Corrida excluída.');
     },
-    [lots, activeLotId, selectedAnalyteId, setLots, persist]
+    [lots, setLots, withSync],
   );
 
   return {

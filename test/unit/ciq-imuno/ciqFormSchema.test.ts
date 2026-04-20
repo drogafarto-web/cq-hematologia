@@ -1,23 +1,26 @@
 import { describe, it, expect } from 'vitest';
-import { CIQImunoFormSchema, daysToExpiry } from '../../../src/features/ciq-imuno/components/CIQImunoForm.schema';
+import {
+  CIQImunoFormSchema,
+  daysToExpiry,
+} from '../../../src/features/ciq-imuno/components/CIQImunoForm.schema';
 
 // ─── Payload base válido ──────────────────────────────────────────────────────
 
 const VALID: Record<string, unknown> = {
-  testType:           'HIV',
-  loteControle:       'L2024-001',
+  testType: 'HIV',
+  loteControle: 'L2024-001',
   fabricanteControle: 'BioSystems',
-  aberturaControle:   '2024-01-01',
-  validadeControle:   '2099-12-31',
-  loteReagente:       'R2024-001',
+  aberturaControle: '2024-01-01',
+  validadeControle: '2099-12-31',
+  loteReagente: 'R2024-001',
   fabricanteReagente: 'Abbott',
-  reagenteStatus:     'R',
-  aberturaReagente:   '2024-01-01',
-  validadeReagente:   '2099-12-31',
-  cargo:              'biomedico',
-  resultadoEsperado:  'R',
-  resultadoObtido:    'R',
-  dataRealizacao:     '2024-06-01',
+  reagenteStatus: 'R',
+  aberturaReagente: '2024-01-01',
+  validadeReagente: '2099-12-31',
+  cargo: 'biomedico',
+  resultadoEsperado: 'R',
+  resultadoObtido: 'R',
+  dataRealizacao: '2024-06-01',
 };
 
 // ─── daysToExpiry ─────────────────────────────────────────────────────────────
@@ -33,9 +36,9 @@ describe('daysToExpiry', () => {
 
   it('retorna 0 para hoje (data local)', () => {
     const now = new Date();
-    const y   = now.getFullYear();
-    const m   = String(now.getMonth() + 1).padStart(2, '0');
-    const d   = String(now.getDate()).padStart(2, '0');
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
     expect(daysToExpiry(`${y}-${m}-${d}`)).toBe(0);
   });
 
@@ -123,8 +126,10 @@ describe('CIQImunoFormSchema — campos obrigatórios', () => {
 
 describe('CIQImunoFormSchema — formato de data (YYYY-MM-DD)', () => {
   const dateFields = [
-    'aberturaControle', 'validadeControle',
-    'aberturaReagente', 'validadeReagente',
+    'aberturaControle',
+    'validadeControle',
+    'aberturaReagente',
+    'validadeReagente',
     'dataRealizacao',
   ] as const;
 
@@ -144,12 +149,11 @@ describe('CIQImunoFormSchema — formato de data (YYYY-MM-DD)', () => {
 // ─── Refinements RDC 978 ──────────────────────────────────────────────────────
 
 describe('CIQImunoFormSchema — refinements RDC 978/2025', () => {
-
   it('rejeita dataRealizacao posterior à validadeControle', () => {
     const r = CIQImunoFormSchema.safeParse({
       ...VALID,
       validadeControle: '2024-01-31',
-      dataRealizacao:   '2024-02-15',
+      dataRealizacao: '2024-02-15',
     });
     expect(r.success).toBe(false);
     if (!r.success) {
@@ -161,7 +165,7 @@ describe('CIQImunoFormSchema — refinements RDC 978/2025', () => {
     const r = CIQImunoFormSchema.safeParse({
       ...VALID,
       validadeControle: '2024-06-01',
-      dataRealizacao:   '2024-06-01',
+      dataRealizacao: '2024-06-01',
     });
     expect(r.success).toBe(true);
   });
@@ -170,7 +174,7 @@ describe('CIQImunoFormSchema — refinements RDC 978/2025', () => {
     const r = CIQImunoFormSchema.safeParse({
       ...VALID,
       validadeReagente: '2024-01-31',
-      dataRealizacao:   '2024-02-01',
+      dataRealizacao: '2024-02-01',
     });
     expect(r.success).toBe(false);
     if (!r.success) {
@@ -182,7 +186,7 @@ describe('CIQImunoFormSchema — refinements RDC 978/2025', () => {
     const r = CIQImunoFormSchema.safeParse({
       ...VALID,
       validadeReagente: '2024-06-01',
-      dataRealizacao:   '2024-06-01',
+      dataRealizacao: '2024-06-01',
     });
     expect(r.success).toBe(true);
   });
@@ -191,7 +195,7 @@ describe('CIQImunoFormSchema — refinements RDC 978/2025', () => {
     const r = CIQImunoFormSchema.safeParse({
       ...VALID,
       aberturaControle: '2024-07-01',
-      dataRealizacao:   '2024-06-01',
+      dataRealizacao: '2024-06-01',
     });
     expect(r.success).toBe(false);
     if (!r.success) {
@@ -203,13 +207,24 @@ describe('CIQImunoFormSchema — refinements RDC 978/2025', () => {
     const r = CIQImunoFormSchema.safeParse({
       ...VALID,
       aberturaControle: '2024-06-01',
-      dataRealizacao:   '2024-06-01',
+      dataRealizacao: '2024-06-01',
     });
     expect(r.success).toBe(true);
   });
 
   it('aceita todos os TestTypes válidos', () => {
-    const testTypes = ['HCG', 'BhCG', 'HIV', 'HBsAg', 'Anti-HCV', 'Sifilis', 'Dengue', 'COVID', 'PCR', 'Troponina'];
+    const testTypes = [
+      'HCG',
+      'BhCG',
+      'HIV',
+      'HBsAg',
+      'Anti-HCV',
+      'Sifilis',
+      'Dengue',
+      'COVID',
+      'PCR',
+      'Troponina',
+    ];
     for (const testType of testTypes) {
       const r = CIQImunoFormSchema.safeParse({ ...VALID, testType });
       expect(r.success, `testType "${testType}" deveria ser válido`).toBe(true);
@@ -222,7 +237,7 @@ describe('CIQImunoFormSchema — refinements RDC 978/2025', () => {
       aberturaControle: '2024-08-01', // > dataRealizacao
       validadeControle: '2024-05-01', // < dataRealizacao
       validadeReagente: '2024-05-01', // < dataRealizacao
-      dataRealizacao:   '2024-06-01',
+      dataRealizacao: '2024-06-01',
     });
     expect(r.success).toBe(false);
     if (!r.success) {
@@ -235,12 +250,11 @@ describe('CIQImunoFormSchema — refinements RDC 978/2025', () => {
 // ─── Ação Corretiva (RDC 978/2025 Art.128) ────────────────────────────────────
 
 describe('CIQImunoFormSchema — acaoCorretiva', () => {
-
   it('aceita payload conforme sem acaoCorretiva', () => {
     const r = CIQImunoFormSchema.safeParse({
       ...VALID,
       resultadoEsperado: 'R',
-      resultadoObtido:   'R',
+      resultadoObtido: 'R',
     });
     expect(r.success).toBe(true);
   });
@@ -249,7 +263,7 @@ describe('CIQImunoFormSchema — acaoCorretiva', () => {
     const r = CIQImunoFormSchema.safeParse({
       ...VALID,
       resultadoEsperado: 'R',
-      resultadoObtido:   'NR',
+      resultadoObtido: 'NR',
       // sem acaoCorretiva
     });
     expect(r.success).toBe(false);
@@ -262,8 +276,8 @@ describe('CIQImunoFormSchema — acaoCorretiva', () => {
     const r = CIQImunoFormSchema.safeParse({
       ...VALID,
       resultadoEsperado: 'R',
-      resultadoObtido:   'NR',
-      acaoCorretiva:     '   ',
+      resultadoObtido: 'NR',
+      acaoCorretiva: '   ',
     });
     expect(r.success).toBe(false);
     if (!r.success) {
@@ -275,8 +289,8 @@ describe('CIQImunoFormSchema — acaoCorretiva', () => {
     const r = CIQImunoFormSchema.safeParse({
       ...VALID,
       resultadoEsperado: 'R',
-      resultadoObtido:   'NR',
-      acaoCorretiva:     'Reagente descartado e teste repetido com novo kit.',
+      resultadoObtido: 'NR',
+      acaoCorretiva: 'Reagente descartado e teste repetido com novo kit.',
     });
     expect(r.success).toBe(true);
   });
@@ -285,7 +299,7 @@ describe('CIQImunoFormSchema — acaoCorretiva', () => {
     const r = CIQImunoFormSchema.safeParse({
       ...VALID,
       resultadoEsperado: 'NR',
-      resultadoObtido:   'NR',
+      resultadoObtido: 'NR',
     });
     expect(r.success).toBe(true);
   });
@@ -294,13 +308,12 @@ describe('CIQImunoFormSchema — acaoCorretiva', () => {
 // ─── Campos opcionais ─────────────────────────────────────────────────────────
 
 describe('CIQImunoFormSchema — campos opcionais', () => {
-
   it('aceita payload com todos os campos opcionais preenchidos', () => {
     const r = CIQImunoFormSchema.safeParse({
       ...VALID,
-      codigoKit:           'KIT-0042',
-      registroANVISA:      '10269230117',
-      equipamento:         'Mini VIDAS',
+      codigoKit: 'KIT-0042',
+      registroANVISA: '10269230117',
+      equipamento: 'Mini VIDAS',
       temperaturaAmbiente: 22.5,
     });
     expect(r.success).toBe(true);

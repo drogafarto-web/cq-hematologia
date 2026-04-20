@@ -8,7 +8,13 @@ function SuccessIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
       <circle cx="8" cy="8" r="7" fill="currentColor" fillOpacity="0.15" />
-      <path d="M5 8l2.5 2.5L11 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M5 8l2.5 2.5L11 5.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -17,7 +23,12 @@ function ErrorIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
       <circle cx="8" cy="8" r="7" fill="currentColor" fillOpacity="0.15" />
-      <path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path
+        d="M5.5 5.5l5 5M10.5 5.5l-5 5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -25,7 +36,14 @@ function ErrorIcon() {
 function WarningIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <path d="M8 2L1.5 13.5h13L8 2z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" fill="currentColor" fillOpacity="0.12" />
+      <path
+        d="M8 2L1.5 13.5h13L8 2z"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+        fill="currentColor"
+        fillOpacity="0.12"
+      />
       <path d="M8 7v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       <circle cx="8" cy="11.5" r="0.7" fill="currentColor" />
     </svg>
@@ -55,27 +73,27 @@ function CloseIcon() {
 const TOAST_CONFIG = {
   success: {
     icon: <SuccessIcon />,
-    bg:   'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-500/25',
+    bg: 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-500/25',
     text: 'text-emerald-800 dark:text-emerald-300',
-    bar:  'bg-emerald-500',
+    bar: 'bg-emerald-500',
   },
   error: {
     icon: <ErrorIcon />,
-    bg:   'bg-red-50 dark:bg-red-950/60 border-red-200 dark:border-red-500/25',
+    bg: 'bg-red-50 dark:bg-red-950/60 border-red-200 dark:border-red-500/25',
     text: 'text-red-800 dark:text-red-300',
-    bar:  'bg-red-500',
+    bar: 'bg-red-500',
   },
   warning: {
     icon: <WarningIcon />,
-    bg:   'bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-500/25',
+    bg: 'bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-500/25',
     text: 'text-amber-800 dark:text-amber-300',
-    bar:  'bg-amber-500',
+    bar: 'bg-amber-500',
   },
   info: {
     icon: <InfoIcon />,
-    bg:   'bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-500/25',
+    bg: 'bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-500/25',
     text: 'text-blue-800 dark:text-blue-300',
-    bar:  'bg-blue-500',
+    bar: 'bg-blue-500',
   },
 } as const;
 
@@ -113,7 +131,11 @@ function ToastCard({ toast, onDismiss }: ToastCardProps) {
         <div
           ref={barRef}
           className={`h-full ${cfg.bar} opacity-50 transition-all`}
-          style={{ width: '100%', transitionDuration: '3500ms', transitionTimingFunction: 'linear' }}
+          style={{
+            width: '100%',
+            transitionDuration: '3500ms',
+            transitionTimingFunction: 'linear',
+          }}
         />
       </div>
 

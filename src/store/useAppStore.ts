@@ -39,15 +39,15 @@ const initialState = {
 export const useAppStore = create<AppState>((set) => ({
   ...initialState,
 
-  setLots:              (lots)              => set({ lots }),
-  setActiveLotId:       (activeLotId)       => set({ activeLotId }),
+  setLots: (lots) => set({ lots }),
+  setActiveLotId: (activeLotId) => set({ activeLotId }),
   setSelectedAnalyteId: (selectedAnalyteId) => set({ selectedAnalyteId }),
-  setPendingRun:        (pendingRun)        => set({ pendingRun }),
-  setPendingBulaData:   (pendingBulaData)   => set({ pendingBulaData }),
-  setLoading:           (isLoading)         => set({ isLoading }),
-  setError:             (error)             => set({ error }),
-  setSyncStatus:        (syncStatus)        => set({ syncStatus }),
-  setCurrentView:       (currentView)       => set({ currentView }),
+  setPendingRun: (pendingRun) => set({ pendingRun }),
+  setPendingBulaData: (pendingBulaData) => set({ pendingBulaData }),
+  setLoading: (isLoading) => set({ isLoading }),
+  setError: (error) => set({ error }),
+  setSyncStatus: (syncStatus) => set({ syncStatus }),
+  setCurrentView: (currentView) => set({ currentView }),
   reset: () => set(initialState),
 }));
 
@@ -56,11 +56,11 @@ export const useAppStore = create<AppState>((set) => ({
 export const useActiveLot = () =>
   useAppStore((s) => s.lots.find((l) => l.id === s.activeLotId) ?? null);
 
-export const useSyncStatus      = () => useAppStore((s) => s.syncStatus);
-export const useCurrentView     = () => useAppStore((s) => s.currentView);
-export const usePendingRun      = () => useAppStore((s) => s.pendingRun);
-export const useAppIsLoading    = () => useAppStore((s) => s.isLoading);
-export const useAppError        = () => useAppStore((s) => s.error);
-export const useLots            = () => useAppStore((s) => s.lots);
-export const useActiveLotId     = () => useAppStore((s) => s.activeLotId);
+export const useSyncStatus = () => useAppStore((s) => s.syncStatus);
+export const useCurrentView = () => useAppStore((s) => s.currentView);
+export const usePendingRun = () => useAppStore((s) => s.pendingRun);
+export const useAppIsLoading = () => useAppStore((s) => s.isLoading);
+export const useAppError = () => useAppStore((s) => s.error);
+export const useLots = () => useAppStore((s) => s.lots);
+export const useActiveLotId = () => useAppStore((s) => s.activeLotId);
 export const useSelectedAnalyteId = () => useAppStore((s) => s.selectedAnalyteId);

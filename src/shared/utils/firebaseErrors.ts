@@ -11,15 +11,15 @@
  */
 
 const ERROR_MESSAGES: Record<string, string> = {
-  'permission-denied':  'Sem permissão para realizar esta operação.',
-  'not-found':          'Documento não encontrado.',
-  'already-exists':     'Registro já existe.',
+  'permission-denied': 'Sem permissão para realizar esta operação.',
+  'not-found': 'Documento não encontrado.',
+  'already-exists': 'Registro já existe.',
   'resource-exhausted': 'Limite de requisições atingido. Aguarde alguns instantes.',
-  'unavailable':        'Serviço temporariamente indisponível. Verifique sua conexão.',
-  'deadline-exceeded':  'A operação demorou demais. Tente novamente.',
-  'unauthenticated':    'Sessão expirada. Faça login novamente.',
-  'cancelled':          'Operação cancelada.',
-  'invalid-argument':   'Dados inválidos. Verifique os valores e tente novamente.',
+  unavailable: 'Serviço temporariamente indisponível. Verifique sua conexão.',
+  'deadline-exceeded': 'A operação demorou demais. Tente novamente.',
+  unauthenticated: 'Sessão expirada. Faça login novamente.',
+  cancelled: 'Operação cancelada.',
+  'invalid-argument': 'Dados inválidos. Verifique os valores e tente novamente.',
 };
 
 export function firestoreErrorMessage(error: unknown): string {

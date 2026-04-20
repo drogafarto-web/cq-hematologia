@@ -8,71 +8,76 @@ export const MAX_BULA_PDF_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 export interface BulaExportFormData {
   equipmentName: string;
-  serialNumber:  string;
-  startDate:     string; // YYYY-MM-DD (HTML date input format)
+  serialNumber: string;
+  startDate: string; // YYYY-MM-DD (HTML date input format)
 }
 
 export const DEFAULT_EXPORT_FORM: BulaExportFormData = {
   equipmentName: 'Yumizen H550',
-  serialNumber:  '',
-  startDate:     '',
+  serialNumber: '',
+  startDate: '',
 };
 
 // ─── Synonym safety-net ───────────────────────────────────────────────────────
 // Maps alternate analyteId forms → canonical IDs used by this app (constants.ts).
 // Sorted longest-first so longer patterns can't be shadowed by shorter substrings.
 
-const SYNONYM_MAP: [string, string][] = ([
-  // Full Portuguese names
-  ['hemoglobina', 'HGB'],
-  ['hematocrito', 'HCT'],
-  ['hemacias',    'RBC'],
-  ['leucocitos',  'WBC'],
-  ['plaquetas',   'PLT'],
-  ['neutrofilos', 'NEU#'],
-  ['linfocitos',  'LYM#'],
-  ['monocitos',   'MON#'],
-  ['eosinofilos', 'EOS#'],
-  ['basofilos',   'BAS#'],
-  // 4-char combos — must come before 3-char substrings
-  ['mchc',        'MCHC'],
-  // Compound RDW/PDW variants — map both to single tracked analyte
-  ['rdw-cv',      'RDW'],
-  ['rdw-sd',      'RDW'],
-  ['pdw-cv',      'PDW'],
-  ['pdw-sd',      'PDW'],
-  ['rdwcv',       'RDW'],
-  ['rdwsd',       'RDW'],
-  ['pdwcv',       'PDW'],
-  ['pdwsd',       'PDW'],
-  // Differentials with hash — explicit to avoid stripping '#'
-  ['neu#',        'NEU#'],
-  ['lym#',        'LYM#'],
-  ['mon#',        'MON#'],
-  ['eos#',        'EOS#'],
-  ['bas#',        'BAS#'],
-  // 3-char codes
-  ['mch',         'MCH'],
-  ['mcv',         'MCV'],
-  ['mpv',         'MPV'],
-  ['pct',         'PCT'],
-  ['pdw',         'PDW'],
-  ['rdw',         'RDW'],
-  ['wbc',         'WBC'],
-  ['rbc',         'RBC'],
-  ['hgb',         'HGB'],
-  ['hct',         'HCT'],
-  ['plt',         'PLT'],
-  // 2-char codes
-  ['hb',          'HGB'],
-  ['ht',          'HCT'],
-] as [string, string][]).sort((a, b) => b[0].length - a[0].length);
+const SYNONYM_MAP: [string, string][] = (
+  [
+    // Full Portuguese names
+    ['hemoglobina', 'HGB'],
+    ['hematocrito', 'HCT'],
+    ['hemacias', 'RBC'],
+    ['leucocitos', 'WBC'],
+    ['plaquetas', 'PLT'],
+    ['neutrofilos', 'NEU#'],
+    ['linfocitos', 'LYM#'],
+    ['monocitos', 'MON#'],
+    ['eosinofilos', 'EOS#'],
+    ['basofilos', 'BAS#'],
+    // 4-char combos — must come before 3-char substrings
+    ['mchc', 'MCHC'],
+    // Compound RDW/PDW variants — map both to single tracked analyte
+    ['rdw-cv', 'RDW'],
+    ['rdw-sd', 'RDW'],
+    ['pdw-cv', 'PDW'],
+    ['pdw-sd', 'PDW'],
+    ['rdwcv', 'RDW'],
+    ['rdwsd', 'RDW'],
+    ['pdwcv', 'PDW'],
+    ['pdwsd', 'PDW'],
+    // Differentials with hash — explicit to avoid stripping '#'
+    ['neu#', 'NEU#'],
+    ['lym#', 'LYM#'],
+    ['mon#', 'MON#'],
+    ['eos#', 'EOS#'],
+    ['bas#', 'BAS#'],
+    // 3-char codes
+    ['mch', 'MCH'],
+    ['mcv', 'MCV'],
+    ['mpv', 'MPV'],
+    ['pct', 'PCT'],
+    ['pdw', 'PDW'],
+    ['rdw', 'RDW'],
+    ['wbc', 'WBC'],
+    ['rbc', 'RBC'],
+    ['hgb', 'HGB'],
+    ['hct', 'HCT'],
+    ['plt', 'PLT'],
+    // 2-char codes
+    ['hb', 'HGB'],
+    ['ht', 'HCT'],
+  ] as [string, string][]
+).sort((a, b) => b[0].length - a[0].length);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /** Normalises a raw string for synonym lookup. Keeps '#' for differentials. */
 function normalizeKey(raw: string): string {
-  return raw.trim().toLowerCase().replace(/[^a-z0-9#]/g, '');
+  return raw
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9#]/g, '');
 }
 
 /**
@@ -119,15 +124,10 @@ export function cleanValue(v: string | number | undefined | null): string {
  *
  * This format is consumed by `parseMultiLevelLotCsv()` in csvParserService.
  */
-export function convertBulaPDFtoCSV(
-  data:   PendingBulaData,
-  form:   BulaExportFormData,
-): string {
+export function convertBulaPDFtoCSV(data: PendingBulaData, form: BulaExportFormData): string {
   const { levels, controlName, expiryDate } = data;
 
-  const expiryStr = expiryDate
-    ? expiryDate.toISOString().split('T')[0]
-    : '';
+  const expiryStr = expiryDate ? expiryDate.toISOString().split('T')[0] : '';
 
   // ── // Info block ──────────────────────────────────────────────────────────
 
@@ -137,7 +137,7 @@ export function convertBulaPDFtoCSV(
     [
       lvl.level,
       lvl.lotNumber ?? '',
-      controlName   ?? '',
+      controlName ?? '',
       form.equipmentName,
       form.serialNumber,
       expiryStr,
@@ -173,23 +173,12 @@ export function convertBulaPDFtoCSV(
       const entry = Object.entries(lvl.manufacturerStats).find(
         ([k]) => resolveAnalyteIdSafe(k) === aid,
       );
-      return [
-        cleanValue(entry?.[1].mean),
-        cleanValue(entry?.[1].sd),
-      ];
+      return [cleanValue(entry?.[1].mean), cleanValue(entry?.[1].sd)];
     });
     return [aid, ...cols].join(',');
   });
 
-  return [
-    '// Info',
-    infoHeader,
-    ...infoRows,
-    '',
-    '// Stats',
-    statsHeader,
-    ...statsRows,
-  ].join('\n');
+  return ['// Info', infoHeader, ...infoRows, '', '// Stats', statsHeader, ...statsRows].join('\n');
 }
 
 // ─── Download trigger ─────────────────────────────────────────────────────────
@@ -197,9 +186,9 @@ export function convertBulaPDFtoCSV(
 /** Triggers a browser file download for the given CSV string. */
 export function downloadCsvFile(csvString: string, filename: string): void {
   const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-  const url  = URL.createObjectURL(blob);
+  const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
-  link.href     = url;
+  link.href = url;
   link.download = filename;
   document.body.appendChild(link);
   link.click();
@@ -211,7 +200,7 @@ export function downloadCsvFile(csvString: string, filename: string): void {
 export function buildCsvFilename(controlName: string | null, startDate: string): string {
   const name = (controlName ?? 'controle')
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')  // strip accents
+    .replace(/[\u0300-\u036f]/g, '') // strip accents
     .replace(/\s+/g, '_')
     .replace(/[^a-zA-Z0-9_-]/g, '');
   const date = startDate || new Date().toISOString().split('T')[0];

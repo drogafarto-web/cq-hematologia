@@ -5,9 +5,9 @@ import type { ControlLot, WestgardViolation } from '../../types';
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface AnalyteSelectorProps {
-  lot:                ControlLot;
-  selectedAnalyteId:  string | null;
-  onSelect:           (id: string) => void;
+  lot: ControlLot;
+  selectedAnalyteId: string | null;
+  onSelect: (id: string) => void;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -57,18 +57,21 @@ export function AnalyteSelector({ lot, selectedAnalyteId, onSelect }: AnalyteSel
       </p>
       <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-7 gap-1.5">
         {lot.requiredAnalytes.map((id) => {
-          const analyte    = ANALYTE_MAP[id];
+          const analyte = ANALYTE_MAP[id];
           if (!analyte) return null;
 
-          const lastValue  = getLastValue(lot, id);
-          const violation  = getViolationLevel(lot, id);
+          const lastValue = getLastValue(lot, id);
+          const violation = getViolationLevel(lot, id);
           const isSelected = id === selectedAnalyteId;
 
           const statusDot =
-            violation === 'rejection' ? 'bg-red-500 dark:bg-red-400' :
-            violation === 'warning'   ? 'bg-amber-500 dark:bg-amber-400' :
-            lot.runs.length > 0       ? 'bg-emerald-500 dark:bg-emerald-400' :
-                                        'bg-slate-200 dark:bg-white/20';
+            violation === 'rejection'
+              ? 'bg-red-500 dark:bg-red-400'
+              : violation === 'warning'
+                ? 'bg-amber-500 dark:bg-amber-400'
+                : lot.runs.length > 0
+                  ? 'bg-emerald-500 dark:bg-emerald-400'
+                  : 'bg-slate-200 dark:bg-white/20';
 
           return (
             <button
@@ -78,13 +81,17 @@ export function AnalyteSelector({ lot, selectedAnalyteId, onSelect }: AnalyteSel
               className={`
                 relative flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl
                 text-center transition-all border
-                ${isSelected
-                  ? 'bg-violet-500/10 dark:bg-violet-500/15 border-violet-500/40 dark:border-violet-500/35 text-violet-600 dark:text-violet-300 shadow-sm dark:shadow-none'
-                  : 'border-slate-200 dark:border-transparent bg-white dark:bg-white/[0.03] hover:bg-slate-50 dark:hover:bg-white/[0.07] hover:border-slate-300 dark:hover:border-white/[0.1] text-slate-600 dark:text-white/55 hover:text-slate-900 dark:hover:text-white/80'}
+                ${
+                  isSelected
+                    ? 'bg-violet-500/10 dark:bg-violet-500/15 border-violet-500/40 dark:border-violet-500/35 text-violet-600 dark:text-violet-300 shadow-sm dark:shadow-none'
+                    : 'border-slate-200 dark:border-transparent bg-white dark:bg-white/[0.03] hover:bg-slate-50 dark:hover:bg-white/[0.07] hover:border-slate-300 dark:hover:border-white/[0.1] text-slate-600 dark:text-white/55 hover:text-slate-900 dark:hover:text-white/80'
+                }
               `}
             >
               {/* Status indicator */}
-              <span className={`absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full ${statusDot}`} />
+              <span
+                className={`absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full ${statusDot}`}
+              />
 
               <span className="text-xs font-semibold leading-none">{analyte.id}</span>
 
