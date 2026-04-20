@@ -86,6 +86,30 @@ export interface CIQImunoRun extends Omit<CQRun,
   /** Alertas Westgard categóricos calculados pelo useCIQWestgard no momento do save */
   westgardCategorico?: WestgardCatAlert[];
 
+  // ── Notificação sanitária (RDC 67/2009 + RDC 551/2021) ────────────────────
+  /**
+   * Aplicável apenas quando resultadoObtido ≠ resultadoEsperado.
+   *
+   * - queixa_tecnica: desvio de qualidade do produto (kit, controle) sem dano
+   * - evento_adverso: resultado afetou conduta clínica ou causou dano
+   */
+  notivisaTipo?: 'queixa_tecnica' | 'evento_adverso';
+  /**
+   * Status formal da notificação ao NOTIVISA.
+   *
+   * - pendente:   não conformidade aberta, ainda não decidida
+   * - notificado: submetido com protocolo retornado
+   * - dispensado: causa raiz foi operacional (não defeito de produto) —
+   *               exige justificativa
+   */
+  notivisaStatus?: 'pendente' | 'notificado' | 'dispensado';
+  /** Protocolo retornado pelo NOTIVISA 2.0 após submissão */
+  notivisaProtocolo?: string;
+  /** Data de envio ao NOTIVISA (YYYY-MM-DD) */
+  notivisaDataEnvio?: string;
+  /** Justificativa obrigatória quando notivisaStatus = 'dispensado' */
+  notivisaJustificativa?: string;
+
   // ── OCR / IA ──────────────────────────────────────────────────────────────
   /** Confiança da leitura por IA do strip ('high' | 'medium' | 'low') */
   aiStripConfidence?: 'high' | 'medium' | 'low';

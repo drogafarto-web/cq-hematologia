@@ -19,6 +19,16 @@ function fmtDate(d?: string): string {
   return `${day}/${m}/${y}`;
 }
 
+function formatNotivisaCell(run: CIQImunoRun): string {
+  if (run.notivisaStatus === 'notificado') {
+    return `✓ Protocolo ${run.notivisaProtocolo ?? '—'} (${fmtDate(run.notivisaDataEnvio)})`;
+  }
+  if (run.notivisaStatus === 'dispensado') {
+    return `Dispensado — ${run.notivisaJustificativa ?? 'sem justificativa'}`;
+  }
+  return 'PENDENTE — notificação não registrada';
+}
+
 function fmtTs(ts: import('firebase/firestore').Timestamp | null | undefined): string {
   if (!ts) return '—';
   try {
@@ -397,6 +407,7 @@ export function CIQRelatorioPrint({ lot, runs, onClose }: CIQRelatorioPrintProps
                   <th style={{ textAlign: 'center' }}>Obt.</th>
                   <th>Operador</th>
                   <th>Ação Corretiva</th>
+                  <th>NOTIVISA</th>
                   <th>Alertas Westgard</th>
                 </tr>
               </thead>
@@ -417,6 +428,9 @@ export function CIQRelatorioPrint({ lot, runs, onClose }: CIQRelatorioPrintProps
                       fontWeight: run.acaoCorretiva ? 400 : 600,
                     }}>
                       {run.acaoCorretiva ?? 'SEM AÇÃO CORRETIVA REGISTRADA'}
+                    </td>
+                    <td style={{ fontSize: 7.5 }}>
+                      {formatNotivisaCell(run)}
                     </td>
                     <td style={{ fontSize: 7.5, color: '#d97706' }}>
                       {(run.westgardCategorico ?? []).map((a) => ALERT_LABELS[a] ?? a).join('; ') || '—'}

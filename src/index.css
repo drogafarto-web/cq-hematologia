@@ -163,6 +163,12 @@ button:not(:active):not(:disabled) {
     break-inside: avoid;
   }
 
+  /* Force new page before each NV level section */
+  .print-level-break {
+    break-before: page;
+    page-break-before: always;
+  }
+
   /* Keep section headings with their content */
   h2 {
     break-after: avoid;

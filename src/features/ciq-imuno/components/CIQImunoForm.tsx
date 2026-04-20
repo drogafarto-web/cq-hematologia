@@ -612,6 +612,94 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
         </div>
       </div>
 
+      {/* ── Notificação sanitária — só aparece em não conformidade ─────────── */}
+      {naoConforme && (
+        <div>
+          <SectionTitle>Notificação Sanitária</SectionTitle>
+          <p className="text-[11px] text-slate-500 dark:text-white/40 -mt-2 mb-4 leading-relaxed">
+            Queixas técnicas e eventos adversos de produtos para saúde devem ser notificados
+            ao NOTIVISA (RDC 67/2009 + RDC 551/2021). Prazo: até 72h para eventos graves.
+          </p>
+          <div className="space-y-4">
+
+            <div>
+              <Label htmlFor="notivisaTipo">Tipo de notificação</Label>
+              <select
+                id="notivisaTipo"
+                value={form.notivisaTipo ?? ''}
+                onChange={(e) => set('notivisaTipo', (e.target.value || undefined) as 'queixa_tecnica' | 'evento_adverso' | undefined)}
+                className={INPUT}
+              >
+                <option value="">— selecione —</option>
+                <option value="queixa_tecnica">Queixa Técnica (desvio de qualidade do produto)</option>
+                <option value="evento_adverso">Evento Adverso (impacto clínico)</option>
+              </select>
+            </div>
+
+            <div>
+              <Label htmlFor="notivisaStatus">Status da notificação</Label>
+              <select
+                id="notivisaStatus"
+                value={form.notivisaStatus ?? ''}
+                onChange={(e) => set('notivisaStatus', (e.target.value || undefined) as 'pendente' | 'notificado' | 'dispensado' | undefined)}
+                className={INPUT}
+              >
+                <option value="">— selecione —</option>
+                <option value="pendente">Pendente — investigação em andamento</option>
+                <option value="notificado">Notificado — protocolo emitido</option>
+                <option value="dispensado">Dispensado — causa operacional, não defeito de produto</option>
+              </select>
+            </div>
+
+            {form.notivisaStatus === 'notificado' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="notivisaProtocolo" required>Protocolo NOTIVISA</Label>
+                  <input
+                    id="notivisaProtocolo"
+                    type="text"
+                    placeholder="ex: 2026.01.0001234"
+                    value={form.notivisaProtocolo ?? ''}
+                    onChange={(e) => set('notivisaProtocolo', e.target.value || undefined)}
+                    className={errors.notivisaProtocolo ? INPUT_ERR : INPUT}
+                  />
+                  <FieldError msg={errors.notivisaProtocolo} />
+                </div>
+                <div>
+                  <Label htmlFor="notivisaDataEnvio" required>Data de envio</Label>
+                  <input
+                    id="notivisaDataEnvio"
+                    type="date"
+                    value={form.notivisaDataEnvio ?? ''}
+                    onChange={(e) => set('notivisaDataEnvio', e.target.value || undefined)}
+                    className={errors.notivisaDataEnvio ? INPUT_ERR : INPUT}
+                  />
+                  <FieldError msg={errors.notivisaDataEnvio} />
+                </div>
+              </div>
+            )}
+
+            {form.notivisaStatus === 'dispensado' && (
+              <div>
+                <Label htmlFor="notivisaJustificativa" required>Justificativa da dispensa</Label>
+                <textarea
+                  id="notivisaJustificativa"
+                  rows={3}
+                  placeholder="ex: Causa raiz identificada como erro de armazenamento (quebra de cadeia fria local); lote do kit reprocessado sem falhas."
+                  value={form.notivisaJustificativa ?? ''}
+                  onChange={(e) => set('notivisaJustificativa', e.target.value || undefined)}
+                  className={[
+                    errors.notivisaJustificativa ? INPUT_ERR : INPUT,
+                    'resize-none leading-relaxed',
+                  ].join(' ')}
+                />
+                <FieldError msg={errors.notivisaJustificativa} />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ── Equipamento (opcional) ─────────────────────────────────────────── */}
       <div>
         <SectionTitle>Equipamento</SectionTitle>

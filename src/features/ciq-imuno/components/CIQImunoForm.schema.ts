@@ -62,6 +62,13 @@ export const CIQImunoFormSchema = z
     // Equipamento (opcionais)
     equipamento:        z.string().optional(),
     temperaturaAmbiente: z.coerce.number().optional(),
+
+    // Notificação sanitária — aplicável a não conformidades (RDC 67/2009 + 551/2021)
+    notivisaTipo:          z.enum(['queixa_tecnica', 'evento_adverso']).optional(),
+    notivisaStatus:        z.enum(['pendente', 'notificado', 'dispensado']).optional(),
+    notivisaProtocolo:     z.string().optional(),
+    notivisaDataEnvio:     z.string().regex(DATE_REGEX, 'Data de envio inválida (YYYY-MM-DD).').optional().or(z.literal('')),
+    notivisaJustificativa: z.string().optional(),
   })
   // Regra RDC 978: realização não pode ser após a validade do controle
   .refine((d) => d.dataRealizacao <= d.validadeControle, {
@@ -84,6 +91,29 @@ export const CIQImunoFormSchema = z
     {
       message: 'Ação corretiva é obrigatória quando o resultado não está conforme.',
       path:    ['acaoCorretiva'],
+    },
+  )
+  // Se status = 'notificado' → protocolo e data de envio obrigatórios
+  .refine(
+    (d) => d.notivisaStatus !== 'notificado' || Boolean(d.notivisaProtocolo?.trim()),
+    {
+      message: 'Protocolo do NOTIVISA é obrigatório quando status = notificado.',
+      path:    ['notivisaProtocolo'],
+    },
+  )
+  .refine(
+    (d) => d.notivisaStatus !== 'notificado' || Boolean(d.notivisaDataEnvio?.trim()),
+    {
+      message: 'Data de envio é obrigatória quando status = notificado.',
+      path:    ['notivisaDataEnvio'],
+    },
+  )
+  // Se status = 'dispensado' → justificativa obrigatória (auditoria)
+  .refine(
+    (d) => d.notivisaStatus !== 'dispensado' || Boolean(d.notivisaJustificativa?.trim()),
+    {
+      message: 'Justificativa é obrigatória quando a notificação é dispensada.',
+      path:    ['notivisaJustificativa'],
     },
   );
 
