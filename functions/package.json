@@ -3,7 +3,10 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "deploy": "firebase deploy --only functions"
+    "deploy": "firebase deploy --only functions",
+    "pretest": "tsc",
+    "test": "node --test \"test/**/*.test.mjs\"",
+    "preview:backup-pdf": "node scripts/preview-backup-pdf.mjs"
   },
   "engines": {
     "node": "20"

@@ -85,6 +85,9 @@ service-account.json
 # Arquivos de planos e scripts locais
 plans/
 scripts/
+# Exceção: functions/scripts/ hospeda utilitários de dev versionados
+!functions/scripts/
+!functions/scripts/**
 
 # Arquivos markdown temporários (exceto README e CLAUDE)
 THEME_UPDATE.md
@@ -92,3 +95,7 @@ THEME_UPDATE.md
 
 # TypeScript build output — regenerated from functions/src/
 functions/lib/
+
+# Outputs de smoke tests dos geradores de PDF (dev-only)
+functions/smoke-*.pdf
+functions/tmp/

@@ -1,31 +1,23 @@
 import PDFDocument = require('pdfkit');
 import { createHash } from 'crypto';
-import type { BackupReport, ModuleBackupSection } from '../types';
-
-// ─── Design tokens ────────────────────────────────────────────────────────────
-
-const FONT_REGULAR = 'Helvetica';
-const FONT_BOLD = 'Helvetica-Bold';
-
-const COLOR = {
-  bg: '#0d0d0d',
-  surface: '#161616',
-  border: '#2a2a2a',
-  accent: '#3b82f6', // blue-500
-  accentWarm: '#f59e0b', // amber-500 (warning)
-  danger: '#ef4444', // red-500 (critical)
-  success: '#22c55e', // green-500
-  textPrimary: '#f4f4f5',
-  textMuted: '#71717a',
-  white: '#ffffff',
-  rowAlt: '#1c1c1c',
-} as const;
-
-const PAGE = {
-  margin: 40,
-  width: 595.28, // A4
-  height: 841.89, // A4
-} as const;
+import type { BackupReport, ColumnSpec, ModuleBackupSection, StalenessAlert } from '../types';
+import {
+  COLOR,
+  CONTENT_WIDTH,
+  Fonts,
+  FONT_SIZES,
+  PAGE,
+  detectEnvironment,
+  drawAlertBadge,
+  drawWarningTriangle,
+  environmentHashPrefix,
+  initPdfFonts,
+  isNonProduction,
+  renderEnvironmentBanner,
+  renderEnvironmentWatermark,
+  safeBottomY,
+  type PdfEnvironment,
+} from './pdf/layout';
 
 // ─── PDF Generator ────────────────────────────────────────────────────────────
 
@@ -61,8 +53,19 @@ export function generateBackupPdf(report: BackupReport): Promise<Buffer> {
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
 
+    // ── Registrar fontes custom (drop-in Inter se presente; senão Helvetica) ─
+    initPdfFonts(doc);
+
+    // ── Environment watermark (auto em cada página) ──────────────────────────
+    const env = detectEnvironment();
+    if (isNonProduction(env)) {
+      // Primeira página já foi criada pelo construtor — marca agora.
+      renderEnvironmentWatermark(doc, env);
+      doc.on('pageAdded', () => renderEnvironmentWatermark(doc, env));
+    }
+
     // ── Cover page ───────────────────────────────────────────────────────────
-    renderCoverPage(doc, report);
+    renderCoverPage(doc, report, env);
 
     // ── Module sections ──────────────────────────────────────────────────────
     for (const section of report.sections) {
@@ -73,7 +76,7 @@ export function generateBackupPdf(report: BackupReport): Promise<Buffer> {
     // ── Integrity footer page ────────────────────────────────────────────────
     if (report.sections.length > 0 || report.stalenessAlerts.length > 0) {
       doc.addPage();
-      renderIntegrityPage(doc, report);
+      renderIntegrityPage(doc, report, env);
     }
 
     doc.end();
@@ -82,87 +85,158 @@ export function generateBackupPdf(report: BackupReport): Promise<Buffer> {
 
 // ─── Cover Page ───────────────────────────────────────────────────────────────
 
-function renderCoverPage(doc: PDFKit.PDFDocument, report: BackupReport): void {
+function renderCoverPage(
+  doc: PDFKit.PDFDocument,
+  report: BackupReport,
+  env: PdfEnvironment,
+): void {
   const { margin } = PAGE;
-  const contentWidth = PAGE.width - margin * 2;
+  const contentWidth = CONTENT_WIDTH;
 
   // Header bar
   doc.rect(0, 0, PAGE.width, 8).fill(COLOR.accent);
 
+  // Environment banner (apenas em não-produção; empurra o conteúdo para baixo)
+  const bannerHeight = renderEnvironmentBanner(doc, margin, 14, contentWidth, env);
+  const headerOffset = bannerHeight;
+
   // HC Quality wordmark
-  doc.font(FONT_BOLD).fontSize(11).fillColor(COLOR.accent).text('HC QUALITY', margin, 28);
+  doc
+    .font(Fonts.bold)
+    .fontSize(11)
+    .fillColor(COLOR.accent)
+    .text('HC QUALITY', margin, 28 + headerOffset);
 
   doc
-    .font(FONT_REGULAR)
+    .font(Fonts.regular)
     .fontSize(9)
     .fillColor(COLOR.textMuted)
-    .text('Sistema de Controle de Qualidade', margin, 42);
+    .text('Sistema de Controle de Qualidade', margin, 42 + headerOffset);
 
   // Divider
   doc
-    .moveTo(margin, 62)
-    .lineTo(PAGE.width - margin, 62)
+    .moveTo(margin, 62 + headerOffset)
+    .lineTo(PAGE.width - margin, 62 + headerOffset)
     .lineWidth(0.5)
     .strokeColor(COLOR.border)
     .stroke();
 
-  // Title block
-  doc.font(FONT_BOLD).fontSize(22).fillColor(COLOR.textPrimary).text('Backup de Dados', margin, 90);
+  // Title block — h1 com characterSpacing negativo para tracking mais apertado
+  doc
+    .font(Fonts.bold)
+    .fontSize(FONT_SIZES.h1)
+    .fillColor(COLOR.textPrimary)
+    .text('Backup de Dados', margin, 90 + headerOffset, {
+      characterSpacing: -0.4,
+    });
 
   doc
-    .font(FONT_REGULAR)
+    .font(Fonts.regular)
     .fontSize(13)
     .fillColor(COLOR.textMuted)
-    .text('Relatório de Redundância — Exportação Automatizada', margin, 118);
+    .text('Relatório de Redundância — Exportação Automatizada', margin, 118 + headerOffset, {
+      characterSpacing: -0.1,
+    });
 
-  // Lab info card
-  const cardY = 165;
+  // Lab info card — altura dinâmica: header + N linhas de dados
+  // Linhas opcionais sempre aparecem (com "— não cadastrado" quando ausentes)
+  // para evidenciar em auditoria os campos obrigatórios que faltam.
+  const cardY = 165 + headerOffset;
+  const cardPaddingX = 16;
+  const cardHeaderH = 42; // label "LABORATÓRIO" + nome
+  const cardLineH = 14;
+  const cardBottomPad = 12;
+
+  type CardLine = { label: string; value: string; missing: boolean };
+  const cardLines: CardLine[] = [
+    {
+      label: 'CNPJ',
+      value: report.labCnpj ?? '— não cadastrado',
+      missing: !report.labCnpj,
+    },
+    {
+      label: 'Endereço',
+      value: report.labAddress ?? '— não cadastrado',
+      missing: !report.labAddress,
+    },
+    {
+      label: 'RT',
+      value: report.responsibleTech
+        ? `${report.responsibleTech.name} — ${report.responsibleTech.registration}`
+        : '— não cadastrado',
+      missing: !report.responsibleTech,
+    },
+    {
+      label: 'Licença Sanitária',
+      value: report.sanitaryLicense
+        ? `${report.sanitaryLicense.number} — vigente até ${report.sanitaryLicense.validUntil}`
+        : '— não cadastrada',
+      missing: !report.sanitaryLicense,
+    },
+    { label: 'ID', value: report.labId, missing: false },
+  ];
+
+  const cardHeight = cardHeaderH + cardLines.length * cardLineH + cardBottomPad;
+
   doc
-    .roundedRect(margin, cardY, contentWidth, 110, 6)
+    .roundedRect(margin, cardY, contentWidth, cardHeight, 6)
     .lineWidth(0.5)
     .strokeColor(COLOR.border)
     .stroke();
 
   doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(8)
     .fillColor(COLOR.textMuted)
-    .text('LABORATÓRIO', margin + 16, cardY + 14);
+    .text('LABORATÓRIO', margin + cardPaddingX, cardY + 14);
 
   doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(16)
     .fillColor(COLOR.textPrimary)
-    .text(report.labName, margin + 16, cardY + 28);
+    .text(report.labName, margin + cardPaddingX, cardY + 24);
 
-  if (report.labCnpj) {
+  let lineY = cardY + cardHeaderH + 6;
+  for (const line of cardLines) {
+    // Label em caixa alta muted (90pt de largura)
     doc
-      .font(FONT_REGULAR)
-      .fontSize(10)
+      .font(Fonts.bold)
+      .fontSize(7.5)
       .fillColor(COLOR.textMuted)
-      .text(`CNPJ: ${report.labCnpj}`, margin + 16, cardY + 52);
+      .text(line.label.toUpperCase(), margin + cardPaddingX, lineY, {
+        width: 90,
+        lineBreak: false,
+      });
+
+    // Valor à direita, vermelho se ausente (destaque de gap)
+    doc
+      .font(Fonts.regular)
+      .fontSize(9.5)
+      .fillColor(line.missing ? COLOR.danger : COLOR.textPrimary)
+      .text(line.value, margin + cardPaddingX + 95, lineY - 1, {
+        width: contentWidth - cardPaddingX * 2 - 95,
+        lineBreak: false,
+        ellipsis: true,
+      });
+
+    lineY += cardLineH;
   }
 
+  // Period badge — posição relativa ao fim do card
+  const periodY = cardY + cardHeight + 20;
   doc
-    .font(FONT_REGULAR)
-    .fontSize(10)
-    .fillColor(COLOR.textMuted)
-    .text(`ID: ${report.labId}`, margin + 16, cardY + (report.labCnpj ? 68 : 52));
-
-  // Period badge
-  const periodY = 305;
-  doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(8)
     .fillColor(COLOR.textMuted)
     .text('PERÍODO', margin, periodY, { width: contentWidth / 3, align: 'center' });
 
+  // en-dash (U+2013) é WinAnsi-safe; evita o arrow U+2192 que quebra em Helvetica padrão
   doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(14)
     .fillColor(COLOR.textPrimary)
     .text(
-      `${formatDate(report.periodStart)}  →  ${formatDate(report.periodEnd)}`,
+      `${formatDate(report.periodStart)}  \u2013  ${formatDate(report.periodEnd)}`,
       margin,
       periodY + 16,
       { width: contentWidth, align: 'center' },
@@ -172,54 +246,182 @@ function renderCoverPage(doc: PDFKit.PDFDocument, report: BackupReport): void {
   const totalRuns = report.sections.reduce((sum, s) => sum + s.totalRuns, 0);
   const totalNonConforming = report.sections.reduce((sum, s) => sum + s.nonConformingRuns, 0);
 
-  renderStatGrid(doc, margin, 370, contentWidth, [
-    { label: 'Módulos com dados', value: String(report.sections.length) },
-    { label: 'Total de corridas', value: String(totalRuns) },
-    { label: 'Não conformidades', value: String(totalNonConforming) },
-    { label: 'Alertas de inatividade', value: String(report.stalenessAlerts.length) },
+  const statsY = periodY + 60;
+  renderStatGrid(doc, margin, statsY, contentWidth, [
+    {
+      label: 'Módulos com dados',
+      value: String(report.sections.length),
+      severity: 'good-if-nonzero',
+    },
+    { label: 'Total de corridas', value: String(totalRuns), severity: 'neutral' },
+    {
+      label: 'Não conformidades',
+      value: String(totalNonConforming),
+      severity: 'good-if-zero',
+    },
+    {
+      label: 'Alertas operacionais',
+      value: String(report.stalenessAlerts.length),
+      severity: 'good-if-zero',
+    },
   ]);
+
+  let nextBlockY = statsY + 78;
+
+  // Sumário — listagem dos módulos incluídos. Aparece a partir de 2+ módulos;
+  // com 1 só, já está evidente na tabela principal e não ajuda navegação.
+  if (report.sections.length >= 2) {
+    const sumY = nextBlockY;
+    const sumHeaderH = 14;
+    const sumRowH = 13;
+    const sumTotalH = sumHeaderH + report.sections.length * sumRowH + 8;
+
+    doc
+      .roundedRect(margin, sumY, contentWidth, sumTotalH, 4)
+      .lineWidth(0.5)
+      .strokeColor(COLOR.border)
+      .stroke();
+
+    doc
+      .font(Fonts.bold)
+      .fontSize(7.5)
+      .fillColor(COLOR.textMuted)
+      .text('NESTE RELATÓRIO', margin + 14, sumY + 6, { characterSpacing: 0.3 });
+
+    let rowY = sumY + sumHeaderH + 6;
+    for (let i = 0; i < report.sections.length; i++) {
+      const s = report.sections[i];
+      const hasAlert = report.stalenessAlerts.some((a) => a.moduleId === s.moduleId);
+      const marker = `${i + 1}.`;
+
+      doc
+        .font(Fonts.regular)
+        .fontSize(8.5)
+        .fillColor(COLOR.textMuted)
+        .text(marker, margin + 14, rowY, { width: 16, lineBreak: false });
+
+      doc
+        .font(Fonts.bold)
+        .fontSize(8.5)
+        .fillColor(COLOR.textPrimary)
+        .text(s.moduleName, margin + 30, rowY, {
+          width: contentWidth - 220,
+          lineBreak: false,
+          ellipsis: true,
+        });
+
+      const statusDot = hasAlert ? COLOR.accentWarm : COLOR.success;
+      doc.save();
+      doc.circle(margin + contentWidth - 140, rowY + 4, 2.5).fill(statusDot);
+      doc.restore();
+
+      const statusText = `${s.totalRuns} corrida(s) \u00b7 ${s.nonConformingRuns} não conf.`;
+      doc
+        .font(Fonts.regular)
+        .fontSize(8)
+        .fillColor(COLOR.textMuted)
+        .text(statusText, margin + contentWidth - 130, rowY + 0.5, {
+          width: 120,
+          align: 'right',
+          lineBreak: false,
+        });
+
+      rowY += sumRowH;
+    }
+
+    nextBlockY = sumY + sumTotalH + 14;
+  }
+
+  // Data-quality gap banner — evidencia cadastro incompleto em cima da página
+  const missingLabFields = cardLines.filter((l) => l.missing).map((l) => l.label);
+  const missingAnvisaCount = report.sections.reduce((acc, section) => {
+    return (
+      acc + section.rows.filter((r) => (r['Reg. ANVISA'] ?? '—').trim() === '—').length
+    );
+  }, 0);
+  const hasAnyGap = missingLabFields.length > 0 || missingAnvisaCount > 0;
+
+  if (hasAnyGap) {
+    const gapY = nextBlockY;
+    doc.rect(margin, gapY, contentWidth, 22).fill(COLOR.warningBg);
+    drawWarningTriangle(doc, margin + 10, gapY + 6, 11);
+
+    const parts: string[] = [];
+    if (missingLabFields.length > 0) {
+      parts.push(`${missingLabFields.length} campo(s) obrigatório(s) ausente(s) no cadastro`);
+    }
+    if (missingAnvisaCount > 0) {
+      parts.push(`${missingAnvisaCount} corrida(s) sem Reg. ANVISA do reagente`);
+    }
+
+    doc
+      .font(Fonts.bold)
+      .fontSize(9)
+      .fillColor(COLOR.accentWarm)
+      .text(
+        `Gaps de cadastro: ${parts.join('  \u00b7  ')}`,
+        margin + 28,
+        gapY + 7,
+        { width: contentWidth - 40, lineBreak: false, ellipsis: true },
+      );
+
+    nextBlockY = gapY + 30;
+  }
 
   // Staleness alerts on cover if any
   if (report.stalenessAlerts.length > 0) {
-    const alertY = 480;
+    const alertY = nextBlockY;
+    const hasCritical = report.stalenessAlerts.some((a) => a.level === 'critical');
+    const bannerColor = hasCritical ? COLOR.dangerBg : COLOR.warningBg;
+    const textColor = hasCritical ? COLOR.danger : COLOR.accentWarm;
+
+    doc.rect(margin, alertY, contentWidth, 22).fill(bannerColor);
+
+    // Triângulo vetorial de aviso (substitui emoji ⚠ que quebra em Helvetica/WinAnsi)
+    drawWarningTriangle(doc, margin + 10, alertY + 6, 11);
 
     doc
-      .rect(margin, alertY, contentWidth, 20)
-      .fill(report.stalenessAlerts.some((a) => a.level === 'critical') ? '#3b0f0f' : '#3b2c0a');
-
-    doc
-      .font(FONT_BOLD)
+      .font(Fonts.bold)
       .fontSize(9)
-      .fillColor(
-        report.stalenessAlerts.some((a) => a.level === 'critical')
-          ? COLOR.danger
-          : COLOR.accentWarm,
-      )
+      .fillColor(textColor)
       .text(
-        `⚠  ${report.stalenessAlerts.length} alerta(s) de inatividade detectado(s) — ver página de integridade`,
-        margin + 12,
-        alertY + 6,
-        { width: contentWidth - 24 },
+        `${report.stalenessAlerts.length} alerta(s) operacional(is) detectado(s) — ver página de integridade`,
+        margin + 28,
+        alertY + 7,
+        { width: contentWidth - 40, lineBreak: false, ellipsis: true },
       );
 
-    let alertOffset = alertY + 26;
+    let alertOffset = alertY + 30;
     for (const alert of report.stalenessAlerts) {
       const alertColor = alert.level === 'critical' ? COLOR.danger : COLOR.accentWarm;
+
+      // Copy contextual — evita parecer contradição com o resumo do módulo.
+      // "sem novas corridas" destaca que é sobre recência, não ausência total.
+      const lastStr = alert.lastRunAt
+        ? ` (última em ${new Date(alert.lastRunAt).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })})`
+        : '';
       const daysStr = isFinite(alert.daysSinceLastRun)
-        ? `${alert.daysSinceLastRun} dias sem registros`
-        : 'nenhum registro encontrado';
+        ? `sem novas corridas há ${alert.daysSinceLastRun} dia(s)${lastStr}`
+        : 'nenhuma corrida registrada no período';
+
+      drawAlertBadge(doc, margin + 14, alertOffset + 2, alert.level, 3);
+
       doc
-        .font(FONT_REGULAR)
+        .font(Fonts.regular)
         .fontSize(9)
         .fillColor(alertColor)
-        .text(`• ${alert.moduleName}: ${daysStr}`, margin + 12, alertOffset);
+        .text(`${alert.moduleName} — ${daysStr}`, margin + 26, alertOffset, {
+          width: contentWidth - 40,
+          lineBreak: false,
+          ellipsis: true,
+        });
       alertOffset += 14;
     }
   }
 
   // Generation metadata
   doc
-    .font(FONT_REGULAR)
+    .font(Fonts.regular)
     .fontSize(8)
     .fillColor(COLOR.textMuted)
     .text(
@@ -247,21 +449,31 @@ function renderModuleSection(
   doc.rect(0, 0, PAGE.width, 4).fill(COLOR.accent);
 
   // Module header
-  doc.font(FONT_BOLD).fontSize(8).fillColor(COLOR.accent).text('MÓDULO', margin, 18);
+  doc.font(Fonts.bold).fontSize(8).fillColor(COLOR.accent).text('MÓDULO', margin, 18);
+
+  // Badge de atividade à direita — responde visualmente "este módulo está
+  // sendo usado?" para o auditor antes mesmo da tabela
+  const matchedAlert = report.stalenessAlerts.find((a) => a.moduleId === section.moduleId);
+  const badge = computeActivityBadge(section, matchedAlert);
+  drawActivityBadge(doc, margin + contentWidth, 20, badge, 'right');
 
   doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(16)
     .fillColor(COLOR.textPrimary)
-    .text(section.moduleName, margin, 30);
+    .text(section.moduleName, margin, 30, {
+      width: contentWidth - 130, // reserva espaço para o badge à direita
+      lineBreak: false,
+      ellipsis: true,
+    });
 
   // Period + lab
   doc
-    .font(FONT_REGULAR)
+    .font(Fonts.regular)
     .fontSize(9)
     .fillColor(COLOR.textMuted)
     .text(
-      `${report.labName}  ·  ${formatDate(report.periodStart)} – ${formatDate(report.periodEnd)}`,
+      `${report.labName}  \u00b7  ${formatDate(report.periodStart)} \u2013 ${formatDate(report.periodEnd)}`,
       margin,
       50,
     );
@@ -285,7 +497,7 @@ function renderModuleSection(
       .stroke();
 
     doc
-      .font(FONT_BOLD)
+      .font(Fonts.bold)
       .fontSize(16)
       .fillColor(COLOR.textPrimary)
       .text(value, summaryX + 8, summaryY + Math.floor(i / 4) * 55 + 8, {
@@ -294,7 +506,7 @@ function renderModuleSection(
       });
 
     doc
-      .font(FONT_REGULAR)
+      .font(Fonts.regular)
       .fontSize(7)
       .fillColor(COLOR.textMuted)
       .text(label.toUpperCase(), summaryX + 8, summaryY + Math.floor(i / 4) * 55 + 30, {
@@ -315,11 +527,48 @@ function renderModuleSection(
     .strokeColor(COLOR.border)
     .stroke();
 
-  // Data table
-  renderDataTable(doc, section.columns, section.rows, tableStartY + 10, contentWidth);
+  // Data table — dispatcher: dual-row se tableLayout presente, senão legacy
+  renderModuleTable(doc, section, tableStartY + 10, contentWidth);
 
   // Page footer
   renderPageFooter(doc, report);
+}
+
+/**
+ * Dispatcher: escolhe entre render dual-row (layout refinado) ou
+ * render legado (equal-width single-row) baseado em `tableLayout`.
+ */
+function renderModuleTable(
+  doc: PDFKit.PDFDocument,
+  section: ModuleBackupSection,
+  startY: number,
+  contentWidth: number,
+): void {
+  if (section.tableLayout) {
+    renderDualRowTable(doc, section, startY, contentWidth);
+  } else {
+    renderDataTable(doc, section.columns, section.rows, startY, contentWidth);
+  }
+}
+
+/**
+ * Computa posições (x, largura) para um conjunto de colunas com pesos
+ * relativos, dentro de uma largura total disponível.
+ */
+function computeColumnLayout(
+  columns: ColumnSpec[],
+  originX: number,
+  totalWidth: number,
+): Array<{ col: ColumnSpec; x: number; width: number }> {
+  const totalWeight = columns.reduce((sum, c) => sum + (c.weight ?? 1), 0) || 1;
+  const out: Array<{ col: ColumnSpec; x: number; width: number }> = [];
+  let cursorX = originX;
+  for (const col of columns) {
+    const width = ((col.weight ?? 1) / totalWeight) * totalWidth;
+    out.push({ col, x: cursorX, width });
+    cursorX += width;
+  }
+  return out;
 }
 
 // ─── Data Table ───────────────────────────────────────────────────────────────
@@ -341,7 +590,7 @@ function renderDataTable(
 
   for (let i = 0; i < columns.length; i++) {
     doc
-      .font(FONT_BOLD)
+      .font(Fonts.bold)
       .fontSize(6.5)
       .fillColor(COLOR.textMuted)
       .text(columns[i].toUpperCase(), margin + i * colWidth + 4, startY + 7, {
@@ -367,7 +616,7 @@ function renderDataTable(
 
       // Continuation header
       doc
-        .font(FONT_BOLD)
+        .font(Fonts.bold)
         .fontSize(7)
         .fillColor(COLOR.textMuted)
         .text('(continuação)', margin, currentY);
@@ -379,7 +628,7 @@ function renderDataTable(
 
       for (let i = 0; i < columns.length; i++) {
         doc
-          .font(FONT_BOLD)
+          .font(Fonts.bold)
           .fontSize(6.5)
           .fillColor(COLOR.textMuted)
           .text(columns[i].toUpperCase(), margin + i * colWidth + 4, currentY + 7, {
@@ -415,7 +664,7 @@ function renderDataTable(
       if (val === 'Pendente') cellColor = COLOR.accentWarm;
 
       doc
-        .font(FONT_REGULAR)
+        .font(Fonts.regular)
         .fontSize(6.5)
         .fillColor(cellColor)
         .text(val, margin + i * colWidth + 5, currentY + 5, {
@@ -429,172 +678,473 @@ function renderDataTable(
 
   if (rows.length === 0) {
     doc
-      .font(FONT_REGULAR)
+      .font(Fonts.regular)
       .fontSize(9)
       .fillColor(COLOR.textMuted)
       .text('Nenhuma corrida registrada no período.', margin, currentY + 8);
   }
 }
 
+// ─── Dual-row Data Table ──────────────────────────────────────────────────────
+//
+// Layout de corrida em duas linhas lógicas:
+//   Linha 1 (primary):   colunas técnicas destacadas, com pesos
+//   Linha 2 (secondary): rastreabilidade inline, fonte menor e cor muted
+//
+// Permite que tabelas com 12+ colunas caibam em A4 retrato sem truncar.
+
+function renderDualRowTable(
+  doc: PDFKit.PDFDocument,
+  section: ModuleBackupSection,
+  startY: number,
+  contentWidth: number,
+): void {
+  const { margin } = PAGE;
+  const layout = section.tableLayout!;
+  const primarySpecs = layout.primary;
+  const secondarySpecs = layout.secondary ?? [];
+  const hasSecondary = secondarySpecs.length > 0;
+
+  const primaryCols = computeColumnLayout(primarySpecs, margin, contentWidth);
+
+  const headerH = 22;
+  const primaryRowH = 16;
+  const secondaryRowH = hasSecondary ? 14 : 0;
+  const totalRowH = primaryRowH + secondaryRowH;
+  const rowSeparatorY = 0.5;
+
+  // Estado de paginação: redesenha cabeçalho ao trocar página.
+  const drawHeader = (y: number): number => {
+    doc.rect(margin, y, contentWidth, headerH).fill('#1a1a2e');
+    for (const { col, x, width } of primaryCols) {
+      const label = (col.shortLabel ?? col.key).toUpperCase();
+      doc
+        .font(Fonts.bold)
+        .fontSize(FONT_SIZES.tableHead)
+        .fillColor(COLOR.textMuted)
+        .text(label, x + 4, y + 8, {
+          width: width - 8,
+          align: col.align ?? 'left',
+          lineBreak: false,
+          ellipsis: true,
+        });
+    }
+    return y + headerH;
+  };
+
+  const rewindForPage = (): number => {
+    doc.addPage();
+    doc.rect(0, 0, PAGE.width, 4).fill(COLOR.accent);
+
+    let y = PAGE.margin + 10;
+    doc
+      .font(Fonts.bold)
+      .fontSize(FONT_SIZES.micro)
+      .fillColor(COLOR.textMuted)
+      .text(`${section.moduleName} (continuação)`, margin, y, {
+        width: contentWidth,
+        lineBreak: false,
+        ellipsis: true,
+      });
+    y += 16;
+    return drawHeader(y);
+  };
+
+  let cursorY = drawHeader(startY);
+
+  if (section.rows.length === 0) {
+    doc
+      .font(Fonts.regular)
+      .fontSize(FONT_SIZES.small)
+      .fillColor(COLOR.textMuted)
+      .text('Nenhuma corrida registrada no período.', margin, cursorY + 10);
+    return;
+  }
+
+  for (let rowIdx = 0; rowIdx < section.rows.length; rowIdx++) {
+    if (cursorY + totalRowH > safeBottomY()) {
+      cursorY = rewindForPage();
+    }
+
+    const row = section.rows[rowIdx];
+    const isAlt = rowIdx % 2 === 1;
+
+    // Fundo zebrado da linha dupla
+    if (isAlt) {
+      doc.rect(margin, cursorY, contentWidth, totalRowH).fill(COLOR.rowAlt);
+    }
+
+    // Barra vermelha à esquerda para não-conformidades
+    const statusVal = row['Conformidade'] ?? row['Status'] ?? '';
+    if (statusVal === 'NÃO CONFORME' || statusVal === 'Rejeitada') {
+      doc.rect(margin, cursorY, 3, totalRowH).fill(COLOR.danger);
+    }
+
+    // ── Linha 1 — primary ──────────────────────────────────────────────
+    for (const { col, x, width } of primaryCols) {
+      const val = row[col.key] ?? '—';
+      let cellColor: string = COLOR.textPrimary;
+      if (val === 'Conforme' || val === 'Aprovada') cellColor = COLOR.success;
+      else if (val === 'NÃO CONFORME' || val === 'Rejeitada') cellColor = COLOR.danger;
+      else if (val === 'Pendente') cellColor = COLOR.accentWarm;
+
+      doc
+        .font(Fonts.bold)
+        .fontSize(FONT_SIZES.table)
+        .fillColor(cellColor)
+        .text(val, x + 5, cursorY + 4, {
+          width: width - 10,
+          align: col.align ?? 'left',
+          lineBreak: false,
+          ellipsis: true,
+        });
+    }
+
+    // ── Linha 2 — secondary (metadados inline, muted, fonte menor) ──────
+    if (hasSecondary) {
+      const secondaryY = cursorY + primaryRowH;
+
+      // Separador fino entre as duas linhas lógicas
+      doc
+        .moveTo(margin + 4, secondaryY)
+        .lineTo(margin + contentWidth - 4, secondaryY)
+        .lineWidth(rowSeparatorY)
+        .strokeColor(COLOR.border)
+        .stroke();
+
+      // Monta labels inline: "Eq.: — · Op.: Dra. Maria · Sig: abc123…"
+      const parts: Array<{ label: string; value: string; monospace: boolean }> = secondarySpecs.map(
+        (c) => ({
+          label: (c.shortLabel ?? c.key).replace(/:$/u, ''),
+          value: row[c.key] ?? '—',
+          monospace: c.monospace ?? false,
+        }),
+      );
+
+      const baseFontSize = FONT_SIZES.micro;
+      let inlineX = margin + 6;
+      const inlineMaxX = margin + contentWidth - 6;
+      const inlineY = secondaryY + 3;
+      const separator = '  \u00b7  '; // middle-dot espaçado
+
+      // Helper que mede respeitando a fonte vigente
+      const measure = (text: string, font: string, size: number): number => {
+        doc.font(font).fontSize(size);
+        return doc.widthOfString(text);
+      };
+
+      for (let i = 0; i < parts.length; i++) {
+        const { label, value, monospace } = parts[i];
+        const fragmentLabel = `${label}: `;
+        const valueFont = monospace ? Fonts.mono : Fonts.regular;
+        const valueFontSize = monospace ? baseFontSize - 0.5 : baseFontSize;
+
+        const labelW = measure(fragmentLabel, Fonts.regular, baseFontSize);
+        const valueW = measure(value, valueFont, valueFontSize);
+        const sepW =
+          i < parts.length - 1 ? measure(separator, Fonts.regular, baseFontSize) : 0;
+        const fragmentTotalW = labelW + valueW + sepW;
+
+        if (inlineX + fragmentTotalW > inlineMaxX) {
+          // Estouro horizontal — escreve "…" no espaço restante e interrompe
+          doc.font(Fonts.regular).fontSize(baseFontSize).fillColor(COLOR.textMuted);
+          doc.text('\u2026', inlineX, inlineY, {
+            width: Math.max(inlineMaxX - inlineX, 6),
+            lineBreak: false,
+          });
+          break;
+        }
+
+        // Label em tom ainda mais muted
+        doc
+          .font(Fonts.regular)
+          .fontSize(baseFontSize)
+          .fillColor('#52525b')
+          .text(fragmentLabel, inlineX, inlineY, { lineBreak: false });
+        inlineX += labelW;
+
+        // Valor — monospace se for hash/assinatura
+        doc
+          .font(valueFont)
+          .fontSize(valueFontSize)
+          .fillColor(COLOR.textMuted)
+          .text(value, inlineX, inlineY + (monospace ? 0.5 : 0), { lineBreak: false });
+        inlineX += valueW;
+
+        if (i < parts.length - 1) {
+          doc
+            .font(Fonts.regular)
+            .fontSize(baseFontSize)
+            .fillColor(COLOR.border)
+            .text(separator, inlineX, inlineY, { lineBreak: false });
+          inlineX += sepW;
+        }
+      }
+    }
+
+    cursorY += totalRowH;
+  }
+}
+
 // ─── Integrity Page ───────────────────────────────────────────────────────────
 
-function renderIntegrityPage(doc: PDFKit.PDFDocument, report: BackupReport): void {
+function renderIntegrityPage(
+  doc: PDFKit.PDFDocument,
+  report: BackupReport,
+  env: PdfEnvironment,
+): void {
   const { margin } = PAGE;
-  const contentWidth = PAGE.width - margin * 2;
+  const contentWidth = CONTENT_WIDTH;
 
-  doc.rect(0, 0, PAGE.width, 4).fill(COLOR.accent);
+  const disclaimerText =
+    'HC Quality \u2014 Backup Automático  \u00b7  Este documento não substitui os registros primários armazenados no sistema. ' +
+    'Conservar em local seguro de acordo com a política de retenção de dados da instituição (RDC 978/2025, LGPD).';
 
-  doc
-    .font(FONT_BOLD)
-    .fontSize(14)
-    .fillColor(COLOR.textPrimary)
-    .text('Integridade e Autenticidade', margin, 24);
+  const renderTopChrome = (): number => {
+    doc.rect(0, 0, PAGE.width, 4).fill(COLOR.accent);
 
-  doc
-    .font(FONT_REGULAR)
-    .fontSize(9)
-    .fillColor(COLOR.textMuted)
-    .text(
-      'Este documento foi gerado automaticamente pelo módulo de backup do HC Quality. ' +
-        'O hash abaixo é derivado do conteúdo de todos os registros incluídos neste relatório ' +
-        'e pode ser usado para verificar a integridade do arquivo em auditorias futuras.',
-      margin,
-      46,
-      { width: contentWidth },
-    );
+    doc
+      .font(Fonts.bold)
+      .fontSize(14)
+      .fillColor(COLOR.textPrimary)
+      .text('Integridade e Autenticidade', margin, 24, {
+        characterSpacing: -0.2,
+      });
+
+    doc
+      .font(Fonts.regular)
+      .fontSize(9)
+      .fillColor(COLOR.textMuted)
+      .text(
+        'Este documento foi gerado automaticamente pelo módulo de backup do HC Quality. ' +
+          'O hash abaixo é derivado do conteúdo de todos os registros incluídos neste relatório ' +
+          'e pode ser usado para verificar a integridade do arquivo em auditorias futuras.',
+        margin,
+        46,
+        { width: contentWidth, lineGap: 2 },
+      );
+
+    return 100; // próxima Y livre (abaixo do parágrafo introdutório)
+  };
+
+  let cursorY = renderTopChrome();
 
   // Hash display
-  const hashY = 100;
+  const hashBoxHeight = 56;
   doc
-    .roundedRect(margin, hashY, contentWidth, 56, 6)
+    .roundedRect(margin, cursorY, contentWidth, hashBoxHeight, 6)
     .lineWidth(0.5)
     .strokeColor(COLOR.border)
     .stroke();
 
   doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(7)
     .fillColor(COLOR.textMuted)
-    .text('SHA-256 DO CONTEÚDO', margin + 12, hashY + 10);
+    .text('SHA-256 DO CONTEÚDO', margin + 12, cursorY + 10);
 
+  const hashDisplay = `${environmentHashPrefix(env)}${report.contentHash}`;
   doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(9)
     .fillColor(COLOR.accent)
-    .text(report.contentHash, margin + 12, hashY + 25, {
+    .text(hashDisplay, margin + 12, cursorY + 25, {
       width: contentWidth - 24,
       lineBreak: true,
     });
 
+  cursorY += hashBoxHeight + 22;
+
   // Metadata table
-  const metaY = 178;
-  const metaRows: Array<[string, string]> = [
-    ['Laboratório', report.labName],
-    ['Lab ID', report.labId],
-    ['CNPJ', report.labCnpj ?? '—'],
+  const metaRows: Array<[string, string, boolean]> = [
+    ['Laboratório', report.labName, false],
+    ['Lab ID', report.labId, false],
+    ['CNPJ', report.labCnpj ?? '— não cadastrado', !report.labCnpj],
+    ['Endereço', report.labAddress ?? '— não cadastrado', !report.labAddress],
+    [
+      'Responsável Técnico',
+      report.responsibleTech
+        ? `${report.responsibleTech.name} — ${report.responsibleTech.registration}`
+        : '— não cadastrado',
+      !report.responsibleTech,
+    ],
+    [
+      'Licença Sanitária',
+      report.sanitaryLicense
+        ? `${report.sanitaryLicense.number} — vigente até ${report.sanitaryLicense.validUntil}`
+        : '— não cadastrada',
+      !report.sanitaryLicense,
+    ],
     [
       'Período início',
       report.periodStart.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+      false,
     ],
     [
       'Período fim',
       report.periodEnd.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+      false,
     ],
     [
       'Gerado em',
       new Date(report.generatedAt).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+      false,
     ],
-    ['Módulos incluídos', report.sections.map((s) => s.moduleName).join('; ') || '—'],
-    ['Total de corridas', String(report.sections.reduce((s, m) => s + m.totalRuns, 0))],
+    ['Módulos incluídos', report.sections.map((s) => s.moduleName).join('; ') || '—', false],
+    ['Total de corridas', String(report.sections.reduce((s, m) => s + m.totalRuns, 0)), false],
   ];
 
+  const metaRowH = 20;
+
   for (let i = 0; i < metaRows.length; i++) {
-    const [label, value] = metaRows[i];
-    const rowY = metaY + i * 20;
+    if (cursorY + metaRowH > safeBottomY()) {
+      doc.addPage();
+      cursorY = renderTopChrome();
+    }
+    const [label, value, missing] = metaRows[i];
     if (i % 2 === 0) {
-      doc.rect(margin, rowY, contentWidth, 20).fill(COLOR.rowAlt);
+      doc.rect(margin, cursorY, contentWidth, metaRowH).fill(COLOR.rowAlt);
     }
     doc
-      .font(FONT_BOLD)
+      .font(Fonts.bold)
       .fontSize(8)
       .fillColor(COLOR.textMuted)
-      .text(label, margin + 10, rowY + 6, { width: contentWidth * 0.3 });
+      .text(label, margin + 10, cursorY + 6, { width: contentWidth * 0.3 });
     doc
-      .font(FONT_REGULAR)
+      .font(Fonts.regular)
       .fontSize(8)
-      .fillColor(COLOR.textPrimary)
-      .text(value, margin + contentWidth * 0.32, rowY + 6, {
+      .fillColor(missing ? COLOR.danger : COLOR.textPrimary)
+      .text(value, margin + contentWidth * 0.32, cursorY + 6, {
         width: contentWidth * 0.68 - 10,
         ellipsis: true,
       });
+    cursorY += metaRowH;
   }
 
   // Staleness alerts section
   if (report.stalenessAlerts.length > 0) {
-    const alertSectionY = metaY + metaRows.length * 20 + 24;
+    const headerBlockH = 24;
+    const alertBlockH = 34;
+    const totalAlertsBlockH = headerBlockH + report.stalenessAlerts.length * alertBlockH;
 
+    // Se não couber junto, empurra para a próxima página
+    if (cursorY + totalAlertsBlockH > safeBottomY()) {
+      doc.addPage();
+      cursorY = renderTopChrome();
+    }
+
+    cursorY += 8;
     doc
-      .font(FONT_BOLD)
+      .font(Fonts.bold)
       .fontSize(10)
       .fillColor(COLOR.textPrimary)
-      .text('Alertas de Inatividade', margin, alertSectionY);
+      .text('Alertas Operacionais', margin, cursorY);
+    cursorY += 18;
 
-    let alertY = alertSectionY + 18;
     for (const alert of report.stalenessAlerts) {
+      if (cursorY + alertBlockH > safeBottomY()) {
+        doc.addPage();
+        cursorY = renderTopChrome();
+      }
       const isCritical = alert.level === 'critical';
       const alertColor = isCritical ? COLOR.danger : COLOR.accentWarm;
-      const bgColor = isCritical ? '#3b0f0f' : '#3b2c0a';
-      const daysStr = isFinite(alert.daysSinceLastRun)
-        ? `${alert.daysSinceLastRun} dia(s) sem registros`
-        : 'nenhum registro encontrado';
+      const bgColor = isCritical ? COLOR.dangerBg : COLOR.warningBg;
       const lastStr = alert.lastRunAt
-        ? ` — último em ${new Date(alert.lastRunAt).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`
+        ? ` (última em ${new Date(alert.lastRunAt).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })})`
         : '';
+      const daysStr = isFinite(alert.daysSinceLastRun)
+        ? `sem novas corridas há ${alert.daysSinceLastRun} dia(s)${lastStr}`
+        : 'nenhuma corrida registrada no período';
 
-      doc.rect(margin, alertY, contentWidth, 28).fill(bgColor);
+      doc.rect(margin, cursorY, contentWidth, 28).fill(bgColor);
+
+      // Badge vetorial (substitui emojis 🔴/🟡 que quebram em Helvetica)
+      drawAlertBadge(doc, margin + 10, cursorY + 9, alert.level, 4);
+
       doc
-        .font(FONT_BOLD)
+        .font(Fonts.bold)
         .fontSize(9)
         .fillColor(alertColor)
-        .text(`${isCritical ? '🔴' : '🟡'} ${alert.moduleName}`, margin + 10, alertY + 6);
+        .text(alert.moduleName, margin + 26, cursorY + 6, {
+          width: contentWidth - 40,
+          lineBreak: false,
+          ellipsis: true,
+        });
       doc
-        .font(FONT_REGULAR)
+        .font(Fonts.regular)
         .fontSize(8)
         .fillColor(alertColor)
-        .text(`${daysStr}${lastStr}`, margin + 10, alertY + 18);
+        .text(daysStr, margin + 26, cursorY + 18, {
+          width: contentWidth - 40,
+          lineBreak: false,
+          ellipsis: true,
+        });
 
-      alertY += 34;
+      cursorY += alertBlockH;
     }
   }
 
-  // Disclaimer
+  // Disclaimer — mede antes de posicionar para não vazar para próxima página
+  doc.font(Fonts.regular).fontSize(7.5);
+  const disclaimerOpts = { width: contentWidth, align: 'center' as const, lineGap: 2 };
+  const disclaimerHeight = doc.heightOfString(disclaimerText, disclaimerOpts);
+  const disclaimerY = PAGE.height - 20 - disclaimerHeight;
+
+  // Se o conteúdo acima colidir com o disclaimer, empurra para nova página
+  if (cursorY + 10 > disclaimerY) {
+    doc.addPage();
+    renderTopChrome();
+  }
+
   doc
-    .font(FONT_REGULAR)
+    .font(Fonts.regular)
     .fontSize(7.5)
     .fillColor(COLOR.textMuted)
-    .text(
-      'HC Quality — Backup Automático  ·  Este documento não substitui os registros primários armazenados no sistema. ' +
-        'Conservar em local seguro de acordo com a política de retenção de dados da instituição (RDC 978/2025, LGPD).',
-      margin,
-      PAGE.height - 55,
-      { width: contentWidth, align: 'center' },
-    );
+    .text(disclaimerText, margin, disclaimerY, disclaimerOpts);
 
   doc.rect(0, PAGE.height - 8, PAGE.width, 8).fill(COLOR.accent);
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+/**
+ * Severidade semântica de uma métrica no stat grid.
+ * - `neutral`: valor numérico sem conotação (ex: "Total de corridas")
+ * - `good-if-zero`: valor "bom" quando zero (success) e "ruim" quando > 0 (danger).
+ *   Usado para "Não conformidades", "Alertas operacionais", etc.
+ * - `good-if-nonzero`: valor "bom" quando > 0 (success) e "neutro" quando zero.
+ *   Usado para "Módulos com dados".
+ */
+type StatSeverity = 'neutral' | 'good-if-zero' | 'good-if-nonzero';
+
+interface StatCell {
+  label: string;
+  value: string;
+  severity?: StatSeverity;
+}
+
+function resolveStatColor(value: string, severity: StatSeverity = 'neutral'): string {
+  if (severity === 'neutral') return COLOR.textPrimary;
+  const numeric = Number(value);
+  const isZero = Number.isFinite(numeric) && numeric === 0;
+  if (severity === 'good-if-zero') return isZero ? COLOR.success : COLOR.danger;
+  if (severity === 'good-if-nonzero') return isZero ? COLOR.textMuted : COLOR.success;
+  return COLOR.textPrimary;
+}
+
 function renderStatGrid(
   doc: PDFKit.PDFDocument,
   x: number,
   y: number,
   width: number,
-  stats: Array<{ label: string; value: string }>,
+  stats: StatCell[],
 ): void {
   const colW = width / stats.length;
 
   for (let i = 0; i < stats.length; i++) {
+    const stat = stats[i];
+    const valueColor = resolveStatColor(stat.value, stat.severity);
+
     doc
       .roundedRect(x + i * colW, y, colW - 8, 60, 4)
       .lineWidth(0.5)
@@ -602,27 +1152,113 @@ function renderStatGrid(
       .stroke();
 
     doc
-      .font(FONT_BOLD)
+      .font(Fonts.bold)
       .fontSize(20)
-      .fillColor(COLOR.textPrimary)
-      .text(stats[i].value, x + i * colW + 10, y + 10, {
+      .fillColor(valueColor)
+      .text(stat.value, x + i * colW + 10, y + 10, {
         width: colW - 20,
         align: 'left',
       });
 
     doc
-      .font(FONT_REGULAR)
+      .font(Fonts.regular)
       .fontSize(7.5)
       .fillColor(COLOR.textMuted)
-      .text(stats[i].label.toUpperCase(), x + i * colW + 10, y + 38, {
+      .text(stat.label.toUpperCase(), x + i * colW + 10, y + 38, {
         width: colW - 20,
       });
   }
 }
 
+/**
+ * Badge de status operacional do módulo (ATIVO / SILENCIADO / INATIVO).
+ *
+ * Derivação:
+ *   - Sem alerta de staleness → ATIVO (módulo registrou dentro do threshold).
+ *   - Alerta `warning` → SILENCIADO (tem dados, mas últimos N dias sem novas).
+ *   - Alerta `critical` → INATIVO (sem corridas ou silêncio prolongado).
+ */
+interface ActivityBadge {
+  label: string;
+  fg: string;
+  bg: string;
+  border: string;
+}
+
+function computeActivityBadge(
+  section: ModuleBackupSection,
+  alert: StalenessAlert | undefined,
+): ActivityBadge {
+  if (!alert) {
+    return {
+      label: `ATIVO \u00b7 ${section.totalRuns} CORRIDAS`,
+      fg: COLOR.success,
+      bg: '#0f2a1a',
+      border: '#1b4d32',
+    };
+  }
+
+  const hasDays = isFinite(alert.daysSinceLastRun);
+
+  if (alert.level === 'critical') {
+    return {
+      label: hasDays ? `INATIVO HÁ ${alert.daysSinceLastRun}D` : 'SEM CORRIDAS NO PERÍODO',
+      fg: COLOR.danger,
+      bg: COLOR.dangerBg,
+      border: '#5a1818',
+    };
+  }
+
+  return {
+    label: hasDays ? `SILENCIADO HÁ ${alert.daysSinceLastRun}D` : 'SILENCIADO',
+    fg: COLOR.accentWarm,
+    bg: COLOR.warningBg,
+    border: '#5a4418',
+  };
+}
+
+/**
+ * Renderiza o badge arredondado. Se `anchor='right'`, `x` é tratado como borda
+ * direita do badge (útil para ancorar no final da linha sem precisar medir antes).
+ */
+function drawActivityBadge(
+  doc: PDFKit.PDFDocument,
+  x: number,
+  y: number,
+  badge: ActivityBadge,
+  anchor: 'left' | 'right' = 'left',
+): void {
+  const padX = 8;
+  const padY = 4;
+  const fontSize = 8;
+
+  doc.font(Fonts.bold).fontSize(fontSize);
+  const textWidth = doc.widthOfString(badge.label);
+  const height = fontSize + padY * 2;
+  const width = textWidth + padX * 2;
+  const originX = anchor === 'right' ? x - width : x;
+
+  doc.save();
+  doc.roundedRect(originX, y, width, height, 4).fillColor(badge.bg).fill();
+  doc
+    .roundedRect(originX, y, width, height, 4)
+    .lineWidth(0.6)
+    .strokeColor(badge.border)
+    .stroke();
+  doc
+    .font(Fonts.bold)
+    .fontSize(fontSize)
+    .fillColor(badge.fg)
+    .text(badge.label, originX + padX, y + padY, {
+      width: textWidth,
+      lineBreak: false,
+    });
+  doc.restore();
+}
+
 function renderPageFooter(doc: PDFKit.PDFDocument, report: BackupReport): void {
   doc
-    .font(FONT_REGULAR)
+    .font(Fonts.regular)
     .fontSize(7)
     .fillColor(COLOR.textMuted)
     .text(
