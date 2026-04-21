@@ -1,31 +1,23 @@
 import PDFDocument = require('pdfkit');
 import { createHash } from 'crypto';
 import type { BackupReport, ModuleBackupSection } from '../types';
-
-// ─── Design tokens ────────────────────────────────────────────────────────────
-
-const FONT_REGULAR = 'Helvetica';
-const FONT_BOLD = 'Helvetica-Bold';
-
-const COLOR = {
-  bg: '#0d0d0d',
-  surface: '#161616',
-  border: '#2a2a2a',
-  accent: '#3b82f6', // blue-500
-  accentWarm: '#f59e0b', // amber-500 (warning)
-  danger: '#ef4444', // red-500 (critical)
-  success: '#22c55e', // green-500
-  textPrimary: '#f4f4f5',
-  textMuted: '#71717a',
-  white: '#ffffff',
-  rowAlt: '#1c1c1c',
-} as const;
-
-const PAGE = {
-  margin: 40,
-  width: 595.28, // A4
-  height: 841.89, // A4
-} as const;
+import {
+  COLOR,
+  CONTENT_WIDTH,
+  FONT_BOLD,
+  FONT_REGULAR,
+  FONT_SIZES,
+  PAGE,
+  detectEnvironment,
+  drawAlertBadge,
+  drawWarningTriangle,
+  environmentHashPrefix,
+  isNonProduction,
+  renderEnvironmentBanner,
+  renderEnvironmentWatermark,
+  safeBottomY,
+  type PdfEnvironment,
+} from './pdf/layout';
 
 // ─── PDF Generator ────────────────────────────────────────────────────────────
 
@@ -61,8 +53,16 @@ export function generateBackupPdf(report: BackupReport): Promise<Buffer> {
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
 
+    // ── Environment watermark (auto em cada página) ──────────────────────────
+    const env = detectEnvironment();
+    if (isNonProduction(env)) {
+      // Primeira página já foi criada pelo construtor — marca agora.
+      renderEnvironmentWatermark(doc, env);
+      doc.on('pageAdded', () => renderEnvironmentWatermark(doc, env));
+    }
+
     // ── Cover page ───────────────────────────────────────────────────────────
-    renderCoverPage(doc, report);
+    renderCoverPage(doc, report, env);
 
     // ── Module sections ──────────────────────────────────────────────────────
     for (const section of report.sections) {
@@ -73,7 +73,7 @@ export function generateBackupPdf(report: BackupReport): Promise<Buffer> {
     // ── Integrity footer page ────────────────────────────────────────────────
     if (report.sections.length > 0 || report.stalenessAlerts.length > 0) {
       doc.addPage();
-      renderIntegrityPage(doc, report);
+      renderIntegrityPage(doc, report, env);
     }
 
     doc.end();
@@ -82,41 +82,57 @@ export function generateBackupPdf(report: BackupReport): Promise<Buffer> {
 
 // ─── Cover Page ───────────────────────────────────────────────────────────────
 
-function renderCoverPage(doc: PDFKit.PDFDocument, report: BackupReport): void {
+function renderCoverPage(
+  doc: PDFKit.PDFDocument,
+  report: BackupReport,
+  env: PdfEnvironment,
+): void {
   const { margin } = PAGE;
-  const contentWidth = PAGE.width - margin * 2;
+  const contentWidth = CONTENT_WIDTH;
 
   // Header bar
   doc.rect(0, 0, PAGE.width, 8).fill(COLOR.accent);
 
+  // Environment banner (apenas em não-produção; empurra o conteúdo para baixo)
+  const bannerHeight = renderEnvironmentBanner(doc, margin, 14, contentWidth, env);
+  const headerOffset = bannerHeight;
+
   // HC Quality wordmark
-  doc.font(FONT_BOLD).fontSize(11).fillColor(COLOR.accent).text('HC QUALITY', margin, 28);
+  doc
+    .font(FONT_BOLD)
+    .fontSize(11)
+    .fillColor(COLOR.accent)
+    .text('HC QUALITY', margin, 28 + headerOffset);
 
   doc
     .font(FONT_REGULAR)
     .fontSize(9)
     .fillColor(COLOR.textMuted)
-    .text('Sistema de Controle de Qualidade', margin, 42);
+    .text('Sistema de Controle de Qualidade', margin, 42 + headerOffset);
 
   // Divider
   doc
-    .moveTo(margin, 62)
-    .lineTo(PAGE.width - margin, 62)
+    .moveTo(margin, 62 + headerOffset)
+    .lineTo(PAGE.width - margin, 62 + headerOffset)
     .lineWidth(0.5)
     .strokeColor(COLOR.border)
     .stroke();
 
   // Title block
-  doc.font(FONT_BOLD).fontSize(22).fillColor(COLOR.textPrimary).text('Backup de Dados', margin, 90);
+  doc
+    .font(FONT_BOLD)
+    .fontSize(FONT_SIZES.h1)
+    .fillColor(COLOR.textPrimary)
+    .text('Backup de Dados', margin, 90 + headerOffset);
 
   doc
     .font(FONT_REGULAR)
     .fontSize(13)
     .fillColor(COLOR.textMuted)
-    .text('Relatório de Redundância — Exportação Automatizada', margin, 118);
+    .text('Relatório de Redundância — Exportação Automatizada', margin, 118 + headerOffset);
 
   // Lab info card
-  const cardY = 165;
+  const cardY = 165 + headerOffset;
   doc
     .roundedRect(margin, cardY, contentWidth, 110, 6)
     .lineWidth(0.5)
@@ -150,19 +166,20 @@ function renderCoverPage(doc: PDFKit.PDFDocument, report: BackupReport): void {
     .text(`ID: ${report.labId}`, margin + 16, cardY + (report.labCnpj ? 68 : 52));
 
   // Period badge
-  const periodY = 305;
+  const periodY = 305 + headerOffset;
   doc
     .font(FONT_BOLD)
     .fontSize(8)
     .fillColor(COLOR.textMuted)
     .text('PERÍODO', margin, periodY, { width: contentWidth / 3, align: 'center' });
 
+  // en-dash (U+2013) é WinAnsi-safe; evita o arrow U+2192 que quebra em Helvetica padrão
   doc
     .font(FONT_BOLD)
     .fontSize(14)
     .fillColor(COLOR.textPrimary)
     .text(
-      `${formatDate(report.periodStart)}  →  ${formatDate(report.periodEnd)}`,
+      `${formatDate(report.periodStart)}  \u2013  ${formatDate(report.periodEnd)}`,
       margin,
       periodY + 16,
       { width: contentWidth, align: 'center' },
@@ -172,7 +189,7 @@ function renderCoverPage(doc: PDFKit.PDFDocument, report: BackupReport): void {
   const totalRuns = report.sections.reduce((sum, s) => sum + s.totalRuns, 0);
   const totalNonConforming = report.sections.reduce((sum, s) => sum + s.nonConformingRuns, 0);
 
-  renderStatGrid(doc, margin, 370, contentWidth, [
+  renderStatGrid(doc, margin, 370 + headerOffset, contentWidth, [
     { label: 'Módulos com dados', value: String(report.sections.length) },
     { label: 'Total de corridas', value: String(totalRuns) },
     { label: 'Não conformidades', value: String(totalNonConforming) },
@@ -181,38 +198,45 @@ function renderCoverPage(doc: PDFKit.PDFDocument, report: BackupReport): void {
 
   // Staleness alerts on cover if any
   if (report.stalenessAlerts.length > 0) {
-    const alertY = 480;
+    const alertY = 480 + headerOffset;
+    const hasCritical = report.stalenessAlerts.some((a) => a.level === 'critical');
+    const bannerColor = hasCritical ? COLOR.dangerBg : COLOR.warningBg;
+    const textColor = hasCritical ? COLOR.danger : COLOR.accentWarm;
 
-    doc
-      .rect(margin, alertY, contentWidth, 20)
-      .fill(report.stalenessAlerts.some((a) => a.level === 'critical') ? '#3b0f0f' : '#3b2c0a');
+    doc.rect(margin, alertY, contentWidth, 22).fill(bannerColor);
+
+    // Triângulo vetorial de aviso (substitui emoji ⚠ que quebra em Helvetica/WinAnsi)
+    drawWarningTriangle(doc, margin + 10, alertY + 6, 11);
 
     doc
       .font(FONT_BOLD)
       .fontSize(9)
-      .fillColor(
-        report.stalenessAlerts.some((a) => a.level === 'critical')
-          ? COLOR.danger
-          : COLOR.accentWarm,
-      )
+      .fillColor(textColor)
       .text(
-        `⚠  ${report.stalenessAlerts.length} alerta(s) de inatividade detectado(s) — ver página de integridade`,
-        margin + 12,
-        alertY + 6,
-        { width: contentWidth - 24 },
+        `${report.stalenessAlerts.length} alerta(s) de inatividade detectado(s) — ver página de integridade`,
+        margin + 28,
+        alertY + 7,
+        { width: contentWidth - 40, lineBreak: false, ellipsis: true },
       );
 
-    let alertOffset = alertY + 26;
+    let alertOffset = alertY + 30;
     for (const alert of report.stalenessAlerts) {
       const alertColor = alert.level === 'critical' ? COLOR.danger : COLOR.accentWarm;
       const daysStr = isFinite(alert.daysSinceLastRun)
         ? `${alert.daysSinceLastRun} dias sem registros`
         : 'nenhum registro encontrado';
+
+      drawAlertBadge(doc, margin + 14, alertOffset + 2, alert.level, 3);
+
       doc
         .font(FONT_REGULAR)
         .fontSize(9)
         .fillColor(alertColor)
-        .text(`• ${alert.moduleName}: ${daysStr}`, margin + 12, alertOffset);
+        .text(`${alert.moduleName}: ${daysStr}`, margin + 26, alertOffset, {
+          width: contentWidth - 40,
+          lineBreak: false,
+          ellipsis: true,
+        });
       alertOffset += 14;
     }
   }
@@ -438,35 +462,49 @@ function renderDataTable(
 
 // ─── Integrity Page ───────────────────────────────────────────────────────────
 
-function renderIntegrityPage(doc: PDFKit.PDFDocument, report: BackupReport): void {
+function renderIntegrityPage(
+  doc: PDFKit.PDFDocument,
+  report: BackupReport,
+  env: PdfEnvironment,
+): void {
   const { margin } = PAGE;
-  const contentWidth = PAGE.width - margin * 2;
+  const contentWidth = CONTENT_WIDTH;
 
-  doc.rect(0, 0, PAGE.width, 4).fill(COLOR.accent);
+  const disclaimerText =
+    'HC Quality \u2014 Backup Automático  \u00b7  Este documento não substitui os registros primários armazenados no sistema. ' +
+    'Conservar em local seguro de acordo com a política de retenção de dados da instituição (RDC 978/2025, LGPD).';
 
-  doc
-    .font(FONT_BOLD)
-    .fontSize(14)
-    .fillColor(COLOR.textPrimary)
-    .text('Integridade e Autenticidade', margin, 24);
+  const renderTopChrome = (): number => {
+    doc.rect(0, 0, PAGE.width, 4).fill(COLOR.accent);
 
-  doc
-    .font(FONT_REGULAR)
-    .fontSize(9)
-    .fillColor(COLOR.textMuted)
-    .text(
-      'Este documento foi gerado automaticamente pelo módulo de backup do HC Quality. ' +
-        'O hash abaixo é derivado do conteúdo de todos os registros incluídos neste relatório ' +
-        'e pode ser usado para verificar a integridade do arquivo em auditorias futuras.',
-      margin,
-      46,
-      { width: contentWidth },
-    );
+    doc
+      .font(FONT_BOLD)
+      .fontSize(14)
+      .fillColor(COLOR.textPrimary)
+      .text('Integridade e Autenticidade', margin, 24);
+
+    doc
+      .font(FONT_REGULAR)
+      .fontSize(9)
+      .fillColor(COLOR.textMuted)
+      .text(
+        'Este documento foi gerado automaticamente pelo módulo de backup do HC Quality. ' +
+          'O hash abaixo é derivado do conteúdo de todos os registros incluídos neste relatório ' +
+          'e pode ser usado para verificar a integridade do arquivo em auditorias futuras.',
+        margin,
+        46,
+        { width: contentWidth },
+      );
+
+    return 100; // próxima Y livre (abaixo do parágrafo introdutório)
+  };
+
+  let cursorY = renderTopChrome();
 
   // Hash display
-  const hashY = 100;
+  const hashBoxHeight = 56;
   doc
-    .roundedRect(margin, hashY, contentWidth, 56, 6)
+    .roundedRect(margin, cursorY, contentWidth, hashBoxHeight, 6)
     .lineWidth(0.5)
     .strokeColor(COLOR.border)
     .stroke();
@@ -475,19 +513,21 @@ function renderIntegrityPage(doc: PDFKit.PDFDocument, report: BackupReport): voi
     .font(FONT_BOLD)
     .fontSize(7)
     .fillColor(COLOR.textMuted)
-    .text('SHA-256 DO CONTEÚDO', margin + 12, hashY + 10);
+    .text('SHA-256 DO CONTEÚDO', margin + 12, cursorY + 10);
 
+  const hashDisplay = `${environmentHashPrefix(env)}${report.contentHash}`;
   doc
     .font(FONT_BOLD)
     .fontSize(9)
     .fillColor(COLOR.accent)
-    .text(report.contentHash, margin + 12, hashY + 25, {
+    .text(hashDisplay, margin + 12, cursorY + 25, {
       width: contentWidth - 24,
       lineBreak: true,
     });
 
+  cursorY += hashBoxHeight + 22;
+
   // Metadata table
-  const metaY = 178;
   const metaRows: Array<[string, string]> = [
     ['Laboratório', report.labName],
     ['Lab ID', report.labId],
@@ -508,77 +548,115 @@ function renderIntegrityPage(doc: PDFKit.PDFDocument, report: BackupReport): voi
     ['Total de corridas', String(report.sections.reduce((s, m) => s + m.totalRuns, 0))],
   ];
 
+  const metaRowH = 20;
+
   for (let i = 0; i < metaRows.length; i++) {
+    if (cursorY + metaRowH > safeBottomY()) {
+      doc.addPage();
+      cursorY = renderTopChrome();
+    }
     const [label, value] = metaRows[i];
-    const rowY = metaY + i * 20;
     if (i % 2 === 0) {
-      doc.rect(margin, rowY, contentWidth, 20).fill(COLOR.rowAlt);
+      doc.rect(margin, cursorY, contentWidth, metaRowH).fill(COLOR.rowAlt);
     }
     doc
       .font(FONT_BOLD)
       .fontSize(8)
       .fillColor(COLOR.textMuted)
-      .text(label, margin + 10, rowY + 6, { width: contentWidth * 0.3 });
+      .text(label, margin + 10, cursorY + 6, { width: contentWidth * 0.3 });
     doc
       .font(FONT_REGULAR)
       .fontSize(8)
       .fillColor(COLOR.textPrimary)
-      .text(value, margin + contentWidth * 0.32, rowY + 6, {
+      .text(value, margin + contentWidth * 0.32, cursorY + 6, {
         width: contentWidth * 0.68 - 10,
         ellipsis: true,
       });
+    cursorY += metaRowH;
   }
 
   // Staleness alerts section
   if (report.stalenessAlerts.length > 0) {
-    const alertSectionY = metaY + metaRows.length * 20 + 24;
+    const headerBlockH = 24;
+    const alertBlockH = 34;
+    const totalAlertsBlockH = headerBlockH + report.stalenessAlerts.length * alertBlockH;
 
+    // Se não couber junto, empurra para a próxima página
+    if (cursorY + totalAlertsBlockH > safeBottomY()) {
+      doc.addPage();
+      cursorY = renderTopChrome();
+    }
+
+    cursorY += 8;
     doc
       .font(FONT_BOLD)
       .fontSize(10)
       .fillColor(COLOR.textPrimary)
-      .text('Alertas de Inatividade', margin, alertSectionY);
+      .text('Alertas de Inatividade', margin, cursorY);
+    cursorY += 18;
 
-    let alertY = alertSectionY + 18;
     for (const alert of report.stalenessAlerts) {
+      if (cursorY + alertBlockH > safeBottomY()) {
+        doc.addPage();
+        cursorY = renderTopChrome();
+      }
       const isCritical = alert.level === 'critical';
       const alertColor = isCritical ? COLOR.danger : COLOR.accentWarm;
-      const bgColor = isCritical ? '#3b0f0f' : '#3b2c0a';
+      const bgColor = isCritical ? COLOR.dangerBg : COLOR.warningBg;
       const daysStr = isFinite(alert.daysSinceLastRun)
         ? `${alert.daysSinceLastRun} dia(s) sem registros`
         : 'nenhum registro encontrado';
       const lastStr = alert.lastRunAt
-        ? ` — último em ${new Date(alert.lastRunAt).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`
+        ? ` \u2014 último em ${new Date(alert.lastRunAt).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`
         : '';
 
-      doc.rect(margin, alertY, contentWidth, 28).fill(bgColor);
+      doc.rect(margin, cursorY, contentWidth, 28).fill(bgColor);
+
+      // Badge vetorial (substitui emojis 🔴/🟡 que quebram em Helvetica)
+      drawAlertBadge(doc, margin + 10, cursorY + 9, alert.level, 4);
+
       doc
         .font(FONT_BOLD)
         .fontSize(9)
         .fillColor(alertColor)
-        .text(`${isCritical ? '🔴' : '🟡'} ${alert.moduleName}`, margin + 10, alertY + 6);
+        .text(alert.moduleName, margin + 26, cursorY + 6, {
+          width: contentWidth - 40,
+          lineBreak: false,
+          ellipsis: true,
+        });
       doc
         .font(FONT_REGULAR)
         .fontSize(8)
         .fillColor(alertColor)
-        .text(`${daysStr}${lastStr}`, margin + 10, alertY + 18);
+        .text(`${daysStr}${lastStr}`, margin + 26, cursorY + 18, {
+          width: contentWidth - 40,
+          lineBreak: false,
+          ellipsis: true,
+        });
 
-      alertY += 34;
+      cursorY += alertBlockH;
     }
   }
 
-  // Disclaimer
+  // Disclaimer — mede antes de posicionar para não vazar para próxima página
+  doc.font(FONT_REGULAR).fontSize(7.5);
+  const disclaimerHeight = doc.heightOfString(disclaimerText, {
+    width: contentWidth,
+    align: 'center',
+  });
+  const disclaimerY = PAGE.height - 20 - disclaimerHeight;
+
+  // Se o conteúdo acima colidir com o disclaimer, empurra para nova página
+  if (cursorY + 10 > disclaimerY) {
+    doc.addPage();
+    renderTopChrome();
+  }
+
   doc
     .font(FONT_REGULAR)
     .fontSize(7.5)
     .fillColor(COLOR.textMuted)
-    .text(
-      'HC Quality — Backup Automático  ·  Este documento não substitui os registros primários armazenados no sistema. ' +
-        'Conservar em local seguro de acordo com a política de retenção de dados da instituição (RDC 978/2025, LGPD).',
-      margin,
-      PAGE.height - 55,
-      { width: contentWidth, align: 'center' },
-    );
+    .text(disclaimerText, margin, disclaimerY, { width: contentWidth, align: 'center' });
 
   doc.rect(0, PAGE.height - 8, PAGE.width, 8).fill(COLOR.accent);
 }
