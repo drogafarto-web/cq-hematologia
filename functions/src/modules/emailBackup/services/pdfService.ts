@@ -4,15 +4,14 @@ import type { BackupReport, ColumnSpec, ModuleBackupSection, StalenessAlert } fr
 import {
   COLOR,
   CONTENT_WIDTH,
-  FONT_BOLD,
-  FONT_MONO,
-  FONT_REGULAR,
+  Fonts,
   FONT_SIZES,
   PAGE,
   detectEnvironment,
   drawAlertBadge,
   drawWarningTriangle,
   environmentHashPrefix,
+  initPdfFonts,
   isNonProduction,
   renderEnvironmentBanner,
   renderEnvironmentWatermark,
@@ -53,6 +52,9 @@ export function generateBackupPdf(report: BackupReport): Promise<Buffer> {
     doc.on('data', (chunk: Buffer) => chunks.push(chunk));
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
+
+    // ── Registrar fontes custom (drop-in Inter se presente; senão Helvetica) ─
+    initPdfFonts(doc);
 
     // ── Environment watermark (auto em cada página) ──────────────────────────
     const env = detectEnvironment();
@@ -100,13 +102,13 @@ function renderCoverPage(
 
   // HC Quality wordmark
   doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(11)
     .fillColor(COLOR.accent)
     .text('HC QUALITY', margin, 28 + headerOffset);
 
   doc
-    .font(FONT_REGULAR)
+    .font(Fonts.regular)
     .fontSize(9)
     .fillColor(COLOR.textMuted)
     .text('Sistema de Controle de Qualidade', margin, 42 + headerOffset);
@@ -119,18 +121,22 @@ function renderCoverPage(
     .strokeColor(COLOR.border)
     .stroke();
 
-  // Title block
+  // Title block — h1 com characterSpacing negativo para tracking mais apertado
   doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(FONT_SIZES.h1)
     .fillColor(COLOR.textPrimary)
-    .text('Backup de Dados', margin, 90 + headerOffset);
+    .text('Backup de Dados', margin, 90 + headerOffset, {
+      characterSpacing: -0.4,
+    });
 
   doc
-    .font(FONT_REGULAR)
+    .font(Fonts.regular)
     .fontSize(13)
     .fillColor(COLOR.textMuted)
-    .text('Relatório de Redundância — Exportação Automatizada', margin, 118 + headerOffset);
+    .text('Relatório de Redundância — Exportação Automatizada', margin, 118 + headerOffset, {
+      characterSpacing: -0.1,
+    });
 
   // Lab info card — altura dinâmica: header + N linhas de dados
   // Linhas opcionais sempre aparecem (com "— não cadastrado" quando ausentes)
@@ -179,13 +185,13 @@ function renderCoverPage(
     .stroke();
 
   doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(8)
     .fillColor(COLOR.textMuted)
     .text('LABORATÓRIO', margin + cardPaddingX, cardY + 14);
 
   doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(16)
     .fillColor(COLOR.textPrimary)
     .text(report.labName, margin + cardPaddingX, cardY + 24);
@@ -194,7 +200,7 @@ function renderCoverPage(
   for (const line of cardLines) {
     // Label em caixa alta muted (90pt de largura)
     doc
-      .font(FONT_BOLD)
+      .font(Fonts.bold)
       .fontSize(7.5)
       .fillColor(COLOR.textMuted)
       .text(line.label.toUpperCase(), margin + cardPaddingX, lineY, {
@@ -204,7 +210,7 @@ function renderCoverPage(
 
     // Valor à direita, vermelho se ausente (destaque de gap)
     doc
-      .font(FONT_REGULAR)
+      .font(Fonts.regular)
       .fontSize(9.5)
       .fillColor(line.missing ? COLOR.danger : COLOR.textPrimary)
       .text(line.value, margin + cardPaddingX + 95, lineY - 1, {
@@ -219,14 +225,14 @@ function renderCoverPage(
   // Period badge — posição relativa ao fim do card
   const periodY = cardY + cardHeight + 20;
   doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(8)
     .fillColor(COLOR.textMuted)
     .text('PERÍODO', margin, periodY, { width: contentWidth / 3, align: 'center' });
 
   // en-dash (U+2013) é WinAnsi-safe; evita o arrow U+2192 que quebra em Helvetica padrão
   doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(14)
     .fillColor(COLOR.textPrimary)
     .text(
@@ -262,6 +268,70 @@ function renderCoverPage(
 
   let nextBlockY = statsY + 78;
 
+  // Sumário — listagem dos módulos incluídos. Aparece a partir de 2+ módulos;
+  // com 1 só, já está evidente na tabela principal e não ajuda navegação.
+  if (report.sections.length >= 2) {
+    const sumY = nextBlockY;
+    const sumHeaderH = 14;
+    const sumRowH = 13;
+    const sumTotalH = sumHeaderH + report.sections.length * sumRowH + 8;
+
+    doc
+      .roundedRect(margin, sumY, contentWidth, sumTotalH, 4)
+      .lineWidth(0.5)
+      .strokeColor(COLOR.border)
+      .stroke();
+
+    doc
+      .font(Fonts.bold)
+      .fontSize(7.5)
+      .fillColor(COLOR.textMuted)
+      .text('NESTE RELATÓRIO', margin + 14, sumY + 6, { characterSpacing: 0.3 });
+
+    let rowY = sumY + sumHeaderH + 6;
+    for (let i = 0; i < report.sections.length; i++) {
+      const s = report.sections[i];
+      const hasAlert = report.stalenessAlerts.some((a) => a.moduleId === s.moduleId);
+      const marker = `${i + 1}.`;
+
+      doc
+        .font(Fonts.regular)
+        .fontSize(8.5)
+        .fillColor(COLOR.textMuted)
+        .text(marker, margin + 14, rowY, { width: 16, lineBreak: false });
+
+      doc
+        .font(Fonts.bold)
+        .fontSize(8.5)
+        .fillColor(COLOR.textPrimary)
+        .text(s.moduleName, margin + 30, rowY, {
+          width: contentWidth - 220,
+          lineBreak: false,
+          ellipsis: true,
+        });
+
+      const statusDot = hasAlert ? COLOR.accentWarm : COLOR.success;
+      doc.save();
+      doc.circle(margin + contentWidth - 140, rowY + 4, 2.5).fill(statusDot);
+      doc.restore();
+
+      const statusText = `${s.totalRuns} corrida(s) \u00b7 ${s.nonConformingRuns} não conf.`;
+      doc
+        .font(Fonts.regular)
+        .fontSize(8)
+        .fillColor(COLOR.textMuted)
+        .text(statusText, margin + contentWidth - 130, rowY + 0.5, {
+          width: 120,
+          align: 'right',
+          lineBreak: false,
+        });
+
+      rowY += sumRowH;
+    }
+
+    nextBlockY = sumY + sumTotalH + 14;
+  }
+
   // Data-quality gap banner — evidencia cadastro incompleto em cima da página
   const missingLabFields = cardLines.filter((l) => l.missing).map((l) => l.label);
   const missingAnvisaCount = report.sections.reduce((acc, section) => {
@@ -285,7 +355,7 @@ function renderCoverPage(
     }
 
     doc
-      .font(FONT_BOLD)
+      .font(Fonts.bold)
       .fontSize(9)
       .fillColor(COLOR.accentWarm)
       .text(
@@ -311,7 +381,7 @@ function renderCoverPage(
     drawWarningTriangle(doc, margin + 10, alertY + 6, 11);
 
     doc
-      .font(FONT_BOLD)
+      .font(Fonts.bold)
       .fontSize(9)
       .fillColor(textColor)
       .text(
@@ -337,7 +407,7 @@ function renderCoverPage(
       drawAlertBadge(doc, margin + 14, alertOffset + 2, alert.level, 3);
 
       doc
-        .font(FONT_REGULAR)
+        .font(Fonts.regular)
         .fontSize(9)
         .fillColor(alertColor)
         .text(`${alert.moduleName} — ${daysStr}`, margin + 26, alertOffset, {
@@ -351,7 +421,7 @@ function renderCoverPage(
 
   // Generation metadata
   doc
-    .font(FONT_REGULAR)
+    .font(Fonts.regular)
     .fontSize(8)
     .fillColor(COLOR.textMuted)
     .text(
@@ -379,7 +449,7 @@ function renderModuleSection(
   doc.rect(0, 0, PAGE.width, 4).fill(COLOR.accent);
 
   // Module header
-  doc.font(FONT_BOLD).fontSize(8).fillColor(COLOR.accent).text('MÓDULO', margin, 18);
+  doc.font(Fonts.bold).fontSize(8).fillColor(COLOR.accent).text('MÓDULO', margin, 18);
 
   // Badge de atividade à direita — responde visualmente "este módulo está
   // sendo usado?" para o auditor antes mesmo da tabela
@@ -388,7 +458,7 @@ function renderModuleSection(
   drawActivityBadge(doc, margin + contentWidth, 20, badge, 'right');
 
   doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(16)
     .fillColor(COLOR.textPrimary)
     .text(section.moduleName, margin, 30, {
@@ -399,7 +469,7 @@ function renderModuleSection(
 
   // Period + lab
   doc
-    .font(FONT_REGULAR)
+    .font(Fonts.regular)
     .fontSize(9)
     .fillColor(COLOR.textMuted)
     .text(
@@ -427,7 +497,7 @@ function renderModuleSection(
       .stroke();
 
     doc
-      .font(FONT_BOLD)
+      .font(Fonts.bold)
       .fontSize(16)
       .fillColor(COLOR.textPrimary)
       .text(value, summaryX + 8, summaryY + Math.floor(i / 4) * 55 + 8, {
@@ -436,7 +506,7 @@ function renderModuleSection(
       });
 
     doc
-      .font(FONT_REGULAR)
+      .font(Fonts.regular)
       .fontSize(7)
       .fillColor(COLOR.textMuted)
       .text(label.toUpperCase(), summaryX + 8, summaryY + Math.floor(i / 4) * 55 + 30, {
@@ -520,7 +590,7 @@ function renderDataTable(
 
   for (let i = 0; i < columns.length; i++) {
     doc
-      .font(FONT_BOLD)
+      .font(Fonts.bold)
       .fontSize(6.5)
       .fillColor(COLOR.textMuted)
       .text(columns[i].toUpperCase(), margin + i * colWidth + 4, startY + 7, {
@@ -546,7 +616,7 @@ function renderDataTable(
 
       // Continuation header
       doc
-        .font(FONT_BOLD)
+        .font(Fonts.bold)
         .fontSize(7)
         .fillColor(COLOR.textMuted)
         .text('(continuação)', margin, currentY);
@@ -558,7 +628,7 @@ function renderDataTable(
 
       for (let i = 0; i < columns.length; i++) {
         doc
-          .font(FONT_BOLD)
+          .font(Fonts.bold)
           .fontSize(6.5)
           .fillColor(COLOR.textMuted)
           .text(columns[i].toUpperCase(), margin + i * colWidth + 4, currentY + 7, {
@@ -594,7 +664,7 @@ function renderDataTable(
       if (val === 'Pendente') cellColor = COLOR.accentWarm;
 
       doc
-        .font(FONT_REGULAR)
+        .font(Fonts.regular)
         .fontSize(6.5)
         .fillColor(cellColor)
         .text(val, margin + i * colWidth + 5, currentY + 5, {
@@ -608,7 +678,7 @@ function renderDataTable(
 
   if (rows.length === 0) {
     doc
-      .font(FONT_REGULAR)
+      .font(Fonts.regular)
       .fontSize(9)
       .fillColor(COLOR.textMuted)
       .text('Nenhuma corrida registrada no período.', margin, currentY + 8);
@@ -649,7 +719,7 @@ function renderDualRowTable(
     for (const { col, x, width } of primaryCols) {
       const label = (col.shortLabel ?? col.key).toUpperCase();
       doc
-        .font(FONT_BOLD)
+        .font(Fonts.bold)
         .fontSize(FONT_SIZES.tableHead)
         .fillColor(COLOR.textMuted)
         .text(label, x + 4, y + 8, {
@@ -668,7 +738,7 @@ function renderDualRowTable(
 
     let y = PAGE.margin + 10;
     doc
-      .font(FONT_BOLD)
+      .font(Fonts.bold)
       .fontSize(FONT_SIZES.micro)
       .fillColor(COLOR.textMuted)
       .text(`${section.moduleName} (continuação)`, margin, y, {
@@ -684,7 +754,7 @@ function renderDualRowTable(
 
   if (section.rows.length === 0) {
     doc
-      .font(FONT_REGULAR)
+      .font(Fonts.regular)
       .fontSize(FONT_SIZES.small)
       .fillColor(COLOR.textMuted)
       .text('Nenhuma corrida registrada no período.', margin, cursorY + 10);
@@ -719,7 +789,7 @@ function renderDualRowTable(
       else if (val === 'Pendente') cellColor = COLOR.accentWarm;
 
       doc
-        .font(FONT_BOLD)
+        .font(Fonts.bold)
         .fontSize(FONT_SIZES.table)
         .fillColor(cellColor)
         .text(val, x + 5, cursorY + 4, {
@@ -766,18 +836,18 @@ function renderDualRowTable(
       for (let i = 0; i < parts.length; i++) {
         const { label, value, monospace } = parts[i];
         const fragmentLabel = `${label}: `;
-        const valueFont = monospace ? FONT_MONO : FONT_REGULAR;
+        const valueFont = monospace ? Fonts.mono : Fonts.regular;
         const valueFontSize = monospace ? baseFontSize - 0.5 : baseFontSize;
 
-        const labelW = measure(fragmentLabel, FONT_REGULAR, baseFontSize);
+        const labelW = measure(fragmentLabel, Fonts.regular, baseFontSize);
         const valueW = measure(value, valueFont, valueFontSize);
         const sepW =
-          i < parts.length - 1 ? measure(separator, FONT_REGULAR, baseFontSize) : 0;
+          i < parts.length - 1 ? measure(separator, Fonts.regular, baseFontSize) : 0;
         const fragmentTotalW = labelW + valueW + sepW;
 
         if (inlineX + fragmentTotalW > inlineMaxX) {
           // Estouro horizontal — escreve "…" no espaço restante e interrompe
-          doc.font(FONT_REGULAR).fontSize(baseFontSize).fillColor(COLOR.textMuted);
+          doc.font(Fonts.regular).fontSize(baseFontSize).fillColor(COLOR.textMuted);
           doc.text('\u2026', inlineX, inlineY, {
             width: Math.max(inlineMaxX - inlineX, 6),
             lineBreak: false,
@@ -787,7 +857,7 @@ function renderDualRowTable(
 
         // Label em tom ainda mais muted
         doc
-          .font(FONT_REGULAR)
+          .font(Fonts.regular)
           .fontSize(baseFontSize)
           .fillColor('#52525b')
           .text(fragmentLabel, inlineX, inlineY, { lineBreak: false });
@@ -803,7 +873,7 @@ function renderDualRowTable(
 
         if (i < parts.length - 1) {
           doc
-            .font(FONT_REGULAR)
+            .font(Fonts.regular)
             .fontSize(baseFontSize)
             .fillColor(COLOR.border)
             .text(separator, inlineX, inlineY, { lineBreak: false });
@@ -834,13 +904,15 @@ function renderIntegrityPage(
     doc.rect(0, 0, PAGE.width, 4).fill(COLOR.accent);
 
     doc
-      .font(FONT_BOLD)
+      .font(Fonts.bold)
       .fontSize(14)
       .fillColor(COLOR.textPrimary)
-      .text('Integridade e Autenticidade', margin, 24);
+      .text('Integridade e Autenticidade', margin, 24, {
+        characterSpacing: -0.2,
+      });
 
     doc
-      .font(FONT_REGULAR)
+      .font(Fonts.regular)
       .fontSize(9)
       .fillColor(COLOR.textMuted)
       .text(
@@ -849,7 +921,7 @@ function renderIntegrityPage(
           'e pode ser usado para verificar a integridade do arquivo em auditorias futuras.',
         margin,
         46,
-        { width: contentWidth },
+        { width: contentWidth, lineGap: 2 },
       );
 
     return 100; // próxima Y livre (abaixo do parágrafo introdutório)
@@ -866,14 +938,14 @@ function renderIntegrityPage(
     .stroke();
 
   doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(7)
     .fillColor(COLOR.textMuted)
     .text('SHA-256 DO CONTEÚDO', margin + 12, cursorY + 10);
 
   const hashDisplay = `${environmentHashPrefix(env)}${report.contentHash}`;
   doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(9)
     .fillColor(COLOR.accent)
     .text(hashDisplay, margin + 12, cursorY + 25, {
@@ -934,12 +1006,12 @@ function renderIntegrityPage(
       doc.rect(margin, cursorY, contentWidth, metaRowH).fill(COLOR.rowAlt);
     }
     doc
-      .font(FONT_BOLD)
+      .font(Fonts.bold)
       .fontSize(8)
       .fillColor(COLOR.textMuted)
       .text(label, margin + 10, cursorY + 6, { width: contentWidth * 0.3 });
     doc
-      .font(FONT_REGULAR)
+      .font(Fonts.regular)
       .fontSize(8)
       .fillColor(missing ? COLOR.danger : COLOR.textPrimary)
       .text(value, margin + contentWidth * 0.32, cursorY + 6, {
@@ -963,7 +1035,7 @@ function renderIntegrityPage(
 
     cursorY += 8;
     doc
-      .font(FONT_BOLD)
+      .font(Fonts.bold)
       .fontSize(10)
       .fillColor(COLOR.textPrimary)
       .text('Alertas Operacionais', margin, cursorY);
@@ -990,7 +1062,7 @@ function renderIntegrityPage(
       drawAlertBadge(doc, margin + 10, cursorY + 9, alert.level, 4);
 
       doc
-        .font(FONT_BOLD)
+        .font(Fonts.bold)
         .fontSize(9)
         .fillColor(alertColor)
         .text(alert.moduleName, margin + 26, cursorY + 6, {
@@ -999,7 +1071,7 @@ function renderIntegrityPage(
           ellipsis: true,
         });
       doc
-        .font(FONT_REGULAR)
+        .font(Fonts.regular)
         .fontSize(8)
         .fillColor(alertColor)
         .text(daysStr, margin + 26, cursorY + 18, {
@@ -1013,11 +1085,9 @@ function renderIntegrityPage(
   }
 
   // Disclaimer — mede antes de posicionar para não vazar para próxima página
-  doc.font(FONT_REGULAR).fontSize(7.5);
-  const disclaimerHeight = doc.heightOfString(disclaimerText, {
-    width: contentWidth,
-    align: 'center',
-  });
+  doc.font(Fonts.regular).fontSize(7.5);
+  const disclaimerOpts = { width: contentWidth, align: 'center' as const, lineGap: 2 };
+  const disclaimerHeight = doc.heightOfString(disclaimerText, disclaimerOpts);
   const disclaimerY = PAGE.height - 20 - disclaimerHeight;
 
   // Se o conteúdo acima colidir com o disclaimer, empurra para nova página
@@ -1027,10 +1097,10 @@ function renderIntegrityPage(
   }
 
   doc
-    .font(FONT_REGULAR)
+    .font(Fonts.regular)
     .fontSize(7.5)
     .fillColor(COLOR.textMuted)
-    .text(disclaimerText, margin, disclaimerY, { width: contentWidth, align: 'center' });
+    .text(disclaimerText, margin, disclaimerY, disclaimerOpts);
 
   doc.rect(0, PAGE.height - 8, PAGE.width, 8).fill(COLOR.accent);
 }
@@ -1082,7 +1152,7 @@ function renderStatGrid(
       .stroke();
 
     doc
-      .font(FONT_BOLD)
+      .font(Fonts.bold)
       .fontSize(20)
       .fillColor(valueColor)
       .text(stat.value, x + i * colW + 10, y + 10, {
@@ -1091,7 +1161,7 @@ function renderStatGrid(
       });
 
     doc
-      .font(FONT_REGULAR)
+      .font(Fonts.regular)
       .fontSize(7.5)
       .fillColor(COLOR.textMuted)
       .text(stat.label.toUpperCase(), x + i * colW + 10, y + 38, {
@@ -1128,13 +1198,11 @@ function computeActivityBadge(
     };
   }
 
-  const daysStr = isFinite(alert.daysSinceLastRun)
-    ? `${alert.daysSinceLastRun}D`
-    : '\u221e';
+  const hasDays = isFinite(alert.daysSinceLastRun);
 
   if (alert.level === 'critical') {
     return {
-      label: `INATIVO HÁ ${daysStr}`,
+      label: hasDays ? `INATIVO HÁ ${alert.daysSinceLastRun}D` : 'SEM CORRIDAS NO PERÍODO',
       fg: COLOR.danger,
       bg: COLOR.dangerBg,
       border: '#5a1818',
@@ -1142,7 +1210,7 @@ function computeActivityBadge(
   }
 
   return {
-    label: `SILENCIADO HÁ ${daysStr}`,
+    label: hasDays ? `SILENCIADO HÁ ${alert.daysSinceLastRun}D` : 'SILENCIADO',
     fg: COLOR.accentWarm,
     bg: COLOR.warningBg,
     border: '#5a4418',
@@ -1164,7 +1232,7 @@ function drawActivityBadge(
   const padY = 4;
   const fontSize = 8;
 
-  doc.font(FONT_BOLD).fontSize(fontSize);
+  doc.font(Fonts.bold).fontSize(fontSize);
   const textWidth = doc.widthOfString(badge.label);
   const height = fontSize + padY * 2;
   const width = textWidth + padX * 2;
@@ -1178,7 +1246,7 @@ function drawActivityBadge(
     .strokeColor(badge.border)
     .stroke();
   doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(fontSize)
     .fillColor(badge.fg)
     .text(badge.label, originX + padX, y + padY, {
@@ -1190,7 +1258,7 @@ function drawActivityBadge(
 
 function renderPageFooter(doc: PDFKit.PDFDocument, report: BackupReport): void {
   doc
-    .font(FONT_REGULAR)
+    .font(Fonts.regular)
     .fontSize(7)
     .fillColor(COLOR.textMuted)
     .text(

@@ -4,9 +4,86 @@
  * (badges vetoriais, detecção de overflow, watermark de ambiente).
  */
 
-export const FONT_REGULAR = 'Helvetica';
-export const FONT_BOLD = 'Helvetica-Bold';
-export const FONT_MONO = 'Courier';
+import * as fs from 'fs';
+import * as path from 'path';
+
+/**
+ * Mapeamento de nomes de fontes — mutável por design.
+ * `initPdfFonts(doc)` reatribui `regular`/`bold` para "HCQ-Regular"/"HCQ-Bold"
+ * se os TTFs de Inter (ou equivalente) estiverem em `assets/fonts/`.
+ * Caso contrário, mantém fallback para fontes embutidas do pdfkit (Helvetica).
+ *
+ * Consumidores devem usar `Fonts.regular`/`Fonts.bold`/`Fonts.mono` em vez
+ * de strings literais — a referência do objeto é estável entre chamadas.
+ */
+export const Fonts: {
+  regular: string;
+  bold: string;
+  mono: string;
+  usingCustom: boolean;
+} = {
+  regular: 'Helvetica',
+  bold: 'Helvetica-Bold',
+  mono: 'Courier',
+  usingCustom: false,
+};
+
+
+/**
+ * Resolve o caminho absoluto para um arquivo em `functions/assets/fonts/`.
+ * Funciona tanto em dev (rodando de `src/` via ts-node) quanto em prod
+ * (rodando de `lib/` compilado).
+ */
+function resolveFontPath(fileName: string): string {
+  // __dirname em compilação: .../functions/lib/modules/emailBackup/services/pdf/
+  // destino: .../functions/assets/fonts/<fileName>
+  // Subir 5 níveis (pdf → services → emailBackup → modules → lib) = functions/
+  return path.resolve(__dirname, '..', '..', '..', '..', '..', 'assets', 'fonts', fileName);
+}
+
+/**
+ * Registra fontes custom no PDFDocument. Se os TTFs esperados estiverem
+ * presentes em `functions/assets/fonts/`, usa Inter (ou equivalente);
+ * senão, mantém Helvetica embutida. Idempotente por documento.
+ *
+ * Drop-in para upgrade: coloque Inter-Regular.ttf + Inter-Bold.ttf em
+ * `functions/assets/fonts/` — e este gerador passa a usá-los sem
+ * mudança de código.
+ */
+export function initPdfFonts(doc: PDFKit.PDFDocument): void {
+  const candidates: Array<{ role: 'regular' | 'bold'; file: string; name: string }> = [
+    { role: 'regular', file: 'Inter-Regular.ttf', name: 'HCQ-Regular' },
+    { role: 'bold', file: 'Inter-Bold.ttf', name: 'HCQ-Bold' },
+  ];
+
+  let loadedAll = true;
+
+  for (const c of candidates) {
+    const full = resolveFontPath(c.file);
+    if (!fs.existsSync(full)) {
+      loadedAll = false;
+      break;
+    }
+  }
+
+  if (!loadedAll) {
+    // Sem fontes custom — mantém fallback Helvetica
+    Fonts.regular = 'Helvetica';
+    Fonts.bold = 'Helvetica-Bold';
+    Fonts.mono = 'Courier';
+    Fonts.usingCustom = false;
+    return;
+  }
+
+  for (const c of candidates) {
+    const full = resolveFontPath(c.file);
+    doc.registerFont(c.name, full);
+    if (c.role === 'regular') Fonts.regular = c.name;
+    else Fonts.bold = c.name;
+  }
+  Fonts.mono = 'Courier';
+  Fonts.usingCustom = true;
+}
 
 export const COLOR = {
   bg: '#0d0d0d',
@@ -95,7 +172,7 @@ export function drawWarningTriangle(
 
   // "!" interior em branco para contraste
   doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(size * 0.7)
     .fillColor(COLOR.white)
     .text('!', x, y + size * 0.25, { width: size, align: 'center', lineBreak: false });
@@ -163,7 +240,7 @@ export function renderEnvironmentWatermark(
   doc
     .fillOpacity(0.07)
     .fillColor(COLOR.danger)
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(68)
     .rotate(-30, { origin: [cx, cy] })
     .text(label, 0, cy - 40, {
@@ -193,7 +270,7 @@ export function renderEnvironmentBanner(
   doc.save();
   doc.rect(x, y, width, height).fill(COLOR.danger);
   doc
-    .font(FONT_BOLD)
+    .font(Fonts.bold)
     .fontSize(9)
     .fillColor(COLOR.white)
     .text(

@@ -64,7 +64,72 @@ const expandedRows = LARGE
     })
   : baseRows;
 
+// MULTI=1 adiciona um segundo módulo (Hematologia sintético) para validar
+// o sumário da capa e navegação entre múltiplos módulos.
+const MULTI = process.env.MULTI === '1';
+
+const hematologiaSection = {
+  moduleId: 'hematologia',
+  moduleName: 'Hematologia (CIQ Quantitativo)',
+  lastRunDate: '2026-04-18',
+  totalRuns: 18,
+  nonConformingRuns: 1,
+  columns: [
+    'Data',
+    'Lote',
+    'Nível',
+    'Equipamento',
+    'Status',
+    'Westgard',
+    'IA editado',
+    'Operador',
+    'Registro',
+    'Cargo',
+    'Assinatura',
+  ],
+  rows: Array.from({ length: 18 }, (_, i) => ({
+    Data: `${String(i + 1).padStart(2, '0')}/04/2026 09:${String(10 + i).padStart(2, '0')}`,
+    Lote: 'L9934',
+    Nível: String((i % 3) + 1),
+    Equipamento: FULL ? 'Sysmex XN-1000' : '—',
+    Status: i === 5 ? 'Rejeitada' : 'Aprovada',
+    Westgard: i === 5 ? '1-3s' : '—',
+    'IA editado': 'Não',
+    Operador: FULL ? 'Dra. Maria da Silva' : '—',
+    Registro: FULL ? 'CRBM-MG 1234' : '—',
+    Cargo: 'biomedico',
+    Assinatura: `h${String(i).padStart(2, '0')}3f8a2c1b9d7e`,
+  })),
+  summary: {
+    'Total de corridas': '18',
+    Aprovadas: '17',
+    Rejeitadas: '1',
+    Pendentes: '0',
+    'Taxa de aprovação': '94.4%',
+    'Operadores distintos': '1',
+    'Lotes cobertos': '1',
+  },
+  tableLayout: {
+    primary: [
+      { key: 'Data', shortLabel: 'Data', weight: 1.3 },
+      { key: 'Lote', shortLabel: 'Lote', weight: 1.2 },
+      { key: 'Nível', shortLabel: 'Nível', weight: 0.8, align: 'center' },
+      { key: 'Status', shortLabel: 'Status', weight: 1.1 },
+      { key: 'Westgard', shortLabel: 'Westgard', weight: 1.4 },
+      { key: 'IA editado', shortLabel: 'IA', weight: 0.7, align: 'center' },
+    ],
+    secondary: [
+      { key: 'Equipamento', shortLabel: 'Eq.' },
+      { key: 'Operador', shortLabel: 'Op.' },
+      { key: 'Registro', shortLabel: 'Reg.' },
+      { key: 'Cargo', shortLabel: 'Cargo' },
+      { key: 'Assinatura', shortLabel: 'Sig', monospace: true },
+    ],
+  },
+};
+
 const sections = [
+  ...(MULTI ? [hematologiaSection] : []),
   {
     moduleId: 'imunologia',
     moduleName: 'Imunologia — CIQ-Imuno (RDC 978/2025)',
