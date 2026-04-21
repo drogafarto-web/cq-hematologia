@@ -19,6 +19,7 @@ import {
   openInsumo,
 } from './services/insumosFirebaseService';
 import { InsumoFormModal } from './components/InsumoFormModal';
+import { FR10ExportModal } from './components/FR10ExportModal';
 import { validadeStatus, diasAteVencer } from './utils/validadeReal';
 import type { Insumo, InsumoStatus, InsumoTipo } from './types/Insumo';
 
@@ -198,6 +199,7 @@ export function InsumosView() {
   const [statusFilter, setStatusFilter] = useState<InsumoStatus | 'all'>('ativo');
   const [searchQuery, setSearchQuery] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [showExport, setShowExport] = useState(false);
   const [initialTipo, setInitialTipo] = useState<InsumoTipo>('controle');
   const [actionError, setActionError] = useState<string | null>(null);
 
@@ -282,6 +284,21 @@ export function InsumosView() {
           </div>
         </div>
         <div className="flex-1" />
+        <button
+          type="button"
+          onClick={() => setShowExport(true)}
+          className={BUTTON_GHOST}
+          title="Exportar FR-10 (Rastreabilidade de Insumos)"
+        >
+          <span className="inline-flex items-center gap-1.5">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+              <path d="M14 2v6h6" />
+              <path d="M9 15h6M9 11h6M9 19h3" />
+            </svg>
+            Exportar FR-10
+          </span>
+        </button>
         {canMutate && (
           <button
             type="button"
@@ -424,6 +441,8 @@ export function InsumosView() {
           onClose={() => setShowForm(false)}
         />
       )}
+
+      {showExport && <FR10ExportModal onClose={() => setShowExport(false)} />}
     </div>
   );
 }
