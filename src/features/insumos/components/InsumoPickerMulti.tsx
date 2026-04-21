@@ -13,6 +13,7 @@
 import { useMemo, useState } from 'react';
 import { useInsumos } from '../hooks/useInsumos';
 import { diasAteVencer, validadeStatus } from '../utils/validadeReal';
+import { hasQCValidationPending } from '../types/Insumo';
 import type { Insumo, InsumoModulo, InsumoTipo } from '../types/Insumo';
 
 interface InsumoPickerMultiProps {
@@ -60,6 +61,20 @@ function ValidadeChip({ insumo }: { insumo: Insumo }) {
       className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium border ${cls}`}
     >
       {label}
+    </span>
+  );
+}
+
+function QCPendingChip() {
+  return (
+    <span
+      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium border bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300"
+      title="Reagente/tira aberto — execute uma corrida de CQ antes de rotina"
+    >
+      <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor" aria-hidden>
+        <circle cx="4" cy="4" r="3" />
+      </svg>
+      CQ pendente
     </span>
   );
 }
@@ -219,7 +234,10 @@ export function InsumoPickerMulti({
                           {i.fabricante} · Lote {i.lote}
                         </div>
                       </div>
-                      <ValidadeChip insumo={i} />
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {hasQCValidationPending(i) && <QCPendingChip />}
+                        <ValidadeChip insumo={i} />
+                      </div>
                     </button>
                   );
                 })

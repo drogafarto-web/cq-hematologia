@@ -113,6 +113,20 @@ export interface InsumoControle extends InsumoBase {
  */
 export interface InsumoReagente extends InsumoBase {
   tipo: 'reagente';
+  /**
+   * `true` quando o reagente foi aberto e ainda não foi validado por uma
+   * corrida de CQ aprovada que o declarasse em uso. `false`/ausente caso
+   * contrário.
+   *
+   * Set automático em `openInsumo`. Clear automático no save de CQ run
+   * aprovada que declarar este insumo em `reagentesInsumoIds` (analyzer/
+   * hematologia) ou no campo equivalente de cada módulo (coag/uro/imuno).
+   *
+   * Usado para UI indicativa ("CQ pendente") e como ponto de extensão para
+   * gate duro de runs de paciente quando/se o módulo existir — RDC 978/2025
+   * Art.128 + CLSI EP26-A (User Evaluation of Between-Reagent Lot Variation).
+   */
+  qcValidationRequired?: boolean;
 }
 
 /**
@@ -127,6 +141,12 @@ export interface InsumoTiraUro extends InsumoBase {
   fornecedor?: string;
   /** IDs dos analitos presentes na tira (permite filtrar tiras compatíveis). */
   analitosIncluidos: string[];
+  /**
+   * Mesmo semantics de `InsumoReagente.qcValidationRequired`. Tiras são
+   * consumíveis ativos em runs de uroanálise — novo lote exige CQ antes
+   * de entrar em rotina.
+   */
+  qcValidationRequired?: boolean;
 }
 
 export type Insumo = InsumoControle | InsumoReagente | InsumoTiraUro;
@@ -204,4 +224,16 @@ export function isReagente(i: Insumo): i is InsumoReagente {
 /** Narrowing — true quando insumo é uma Tira de uroanálise. */
 export function isTiraUro(i: Insumo): i is InsumoTiraUro {
   return i.tipo === 'tira-uro';
+}
+
+/**
+ * true quando o insumo está com CQ pendente de validação — reagente/tira
+ * recém-aberto ainda não cobertos por uma corrida de CQ aprovada. Controles
+ * e insumos sem o flag retornam false.
+ */
+export function hasQCValidationPending(i: Insumo): boolean {
+  if (i.tipo === 'reagente' || i.tipo === 'tira-uro') {
+    return i.qcValidationRequired === true;
+  }
+  return false;
 }

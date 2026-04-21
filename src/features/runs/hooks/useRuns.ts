@@ -25,6 +25,7 @@ import type {
   DatabaseService,
 } from '../../../types';
 import type { Insumo } from '../../insumos/types/Insumo';
+import { clearInsumoQCValidation } from '../../insumos/services/insumosFirebaseService';
 
 // ─── Pure helpers ─────────────────────────────────────────────────────────────
 
@@ -350,6 +351,16 @@ export function useRuns() {
         } else {
           haptic.confirm();
           toast.info('Corrida rejeitada e registrada.');
+        }
+
+        // F3: limpar qcValidationRequired dos reagentes declarados quando a
+        // run é aprovada E não há violação rejeição-nível de Westgard. Fire-
+        // and-forget — não bloqueia UX e tem retry implícito no próximo CQ.
+        if (approve && !hasRejectionViolation && reagentes.length > 0) {
+          void clearInsumoQCValidation(
+            labId,
+            reagentes.map((r) => r.id),
+          );
         }
 
         // Background image upload — non-blocking

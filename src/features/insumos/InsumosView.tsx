@@ -21,6 +21,7 @@ import {
 import { InsumoFormModal } from './components/InsumoFormModal';
 import { FR10ExportModal } from './components/FR10ExportModal';
 import { validadeStatus, diasAteVencer } from './utils/validadeReal';
+import { hasQCValidationPending } from './types/Insumo';
 import type { Insumo, InsumoStatus, InsumoTipo } from './types/Insumo';
 
 // ─── UI tokens ───────────────────────────────────────────────────────────────
@@ -122,6 +123,14 @@ function InsumoRow({
             {insumo.nomeComercial}
           </div>
           <span className={`${CHIP} ${s.bg}`}>{s.label}</span>
+          {hasQCValidationPending(insumo) && (
+            <span
+              className={`${CHIP} bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300`}
+              title="Reagente/tira aberto — execute uma corrida de CQ antes de rotina"
+            >
+              CQ pendente
+            </span>
+          )}
         </div>
         <div className="text-xs text-slate-500 dark:text-white/45 mt-0.5 truncate">
           {insumo.fabricante} · Lote {insumo.lote} · {insumo.modulo}
@@ -214,6 +223,15 @@ export function InsumosView() {
 
   const { insumos, isLoading, error } = useInsumos(filters);
 
+  // Contagem de ativos com CQ pendente — subscription independente dos filtros
+  // da aba para que o banner permaneça visível em qualquer tab.
+  const activeFilters = useMemo(() => ({ status: 'ativo' as const }), []);
+  const { insumos: ativosInsumos } = useInsumos(activeFilters);
+  const qcPendingCount = useMemo(
+    () => ativosInsumos.filter(hasQCValidationPending).length,
+    [ativosInsumos],
+  );
+
   const canMutate = role === 'admin' || role === 'owner';
 
   if (!activeLab) {
@@ -233,7 +251,7 @@ export function InsumosView() {
       await openInsumo(
         activeLab!.id,
         i.id,
-        { validade: i.validade, diasEstabilidadeAbertura: i.diasEstabilidadeAbertura },
+        { validade: i.validade, diasEstabilidadeAbertura: i.diasEstabilidadeAbertura, tipo: i.tipo },
         user.uid,
         operadorName,
       );
@@ -379,6 +397,40 @@ export function InsumosView() {
         {actionError && (
           <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm text-red-700 dark:text-red-300">
             {actionError}
+          </div>
+        )}
+
+        {/* Banner CQ pendente — só aparece se houver reagente/tira aberto sem CQ validado. */}
+        {qcPendingCount > 0 && (
+          <div
+            role="status"
+            className="mb-4 p-3.5 rounded-xl bg-amber-500/[0.08] border border-amber-500/25 flex items-start gap-3"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
+              aria-hidden
+            >
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            <div className="flex-1">
+              <p className="text-[13px] font-medium text-amber-700 dark:text-amber-300">
+                {qcPendingCount} insumo{qcPendingCount > 1 ? 's' : ''} com CQ pendente de validação
+              </p>
+              <p className="text-[11px] text-amber-600/80 dark:text-amber-400/70 mt-0.5 leading-snug">
+                Reagentes e tiras recém-abertos precisam ser validados por uma corrida de CQ
+                aprovada antes de entrar em rotina — CLSI EP26-A · RDC 978/2025 Art.128.
+              </p>
+            </div>
           </div>
         )}
 

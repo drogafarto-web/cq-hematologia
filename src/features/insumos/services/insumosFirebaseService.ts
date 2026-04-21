@@ -189,13 +189,18 @@ export async function updateInsumo(
 }
 
 /**
- * Marca abertura: seta `dataAbertura`, recalcula `validadeReal`, atualiza status→'ativo'
- * (mesmo se já era), e registra movimentação.
+ * Marca abertura: seta `dataAbertura`, recalcula `validadeReal`, atualiza
+ * status→'ativo' (mesmo se já era) e registra movimentação.
+ *
+ * Para consumíveis ativos em CQ (`tipo in ['reagente','tira-uro']`) adicional-
+ * mente marca `qcValidationRequired=true` — flag soft que a próxima corrida
+ * de CQ aprovada e que declarar este insumo limpará via
+ * `clearInsumoQCValidation`. Ver skill §F3.
  */
 export async function openInsumo(
   labId: string,
   insumoId: string,
-  current: Pick<Insumo, 'validade' | 'diasEstabilidadeAbertura'>,
+  current: Pick<Insumo, 'validade' | 'diasEstabilidadeAbertura' | 'tipo'>,
   operadorId: string,
   operadorName: string,
 ): Promise<void> {
@@ -205,10 +210,13 @@ export async function openInsumo(
       computeValidadeReal(current.validade.toDate(), now, current.diasEstabilidadeAbertura),
     );
 
+    const requiresQC = current.tipo === 'reagente' || current.tipo === 'tira-uro';
+
     await updateDoc(insumoRef(labId, insumoId), {
       dataAbertura: Timestamp.fromDate(now),
       validadeReal,
       status: 'ativo',
+      ...(requiresQC && { qcValidationRequired: true }),
     });
 
     await logMovimentacao(labId, {
@@ -275,6 +283,37 @@ export async function descartarInsumo(
   } catch (err) {
     throw new Error(firestoreErrorMessage(err), { cause: err });
   }
+}
+
+/**
+ * Limpa o flag `qcValidationRequired` de N insumos em batch — chamado após
+ * save bem-sucedido de uma CQ run aprovada que declare esses insumos.
+ *
+ * Idempotente: se o flag já é `false`/ausente, o update é no-op. Falha silen-
+ * ciosa por-insumo (tolerante a concorrência com openInsumo) — log de erro
+ * no console. Não throws: o save da run não deve reverter por falha aqui.
+ *
+ * Não gera movimentação própria — clear é efeito colateral de uma CQ run
+ * que já tem audit trail próprio no módulo correspondente.
+ */
+export async function clearInsumoQCValidation(
+  labId: string,
+  insumoIds: readonly string[],
+): Promise<void> {
+  if (insumoIds.length === 0) return;
+  await Promise.allSettled(
+    insumoIds.map(async (id) => {
+      try {
+        await updateDoc(insumoRef(labId, id), { qcValidationRequired: false });
+      } catch (err) {
+        console.warn(
+          `[insumos][clearQC] falha ao limpar ${id}: ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+        );
+      }
+    }),
+  );
 }
 
 // ─── Movimentações (audit trail imutável + chain hash) ──────────────────────

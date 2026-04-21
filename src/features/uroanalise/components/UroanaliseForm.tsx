@@ -3,6 +3,7 @@ import { UroanaliseFormSchema, daysToExpiry } from './UroanaliseForm.schema';
 import type { UroanaliseFormData } from './UroanaliseForm.schema';
 import { useUser } from '../../../store/useAuthStore';
 import { InsumoPicker } from '../../insumos/components/InsumoPicker';
+import { clearInsumoQCValidation } from '../../insumos/services/insumosFirebaseService';
 import type { Insumo } from '../../insumos/types/Insumo';
 import {
   URO_ANALITOS,
@@ -356,6 +357,8 @@ export function UroanaliseForm({
   const [tiraInsumoId, setTiraInsumoId] = useState<string | null>(null);
   const [controleInsumoId, setControleInsumoId] = useState<string | null>(null);
 
+  // labId vem como prop; usado tanto pro OCR quanto para clear do CQ flag.
+
   function toIsoDate(ts: { toDate: () => Date } | null): string {
     if (!ts) return '';
     const d = ts.toDate();
@@ -521,6 +524,12 @@ export function UroanaliseForm({
 
     setErrors({});
     await onSave(result.data);
+
+    // F3: limpar qcValidationRequired da tira declarada quando a corrida
+    // é conforme. Controle (tipo=controle) não carrega o flag; só tira-uro.
+    if (!naoConforme && tiraInsumoId && labId) {
+      void clearInsumoQCValidation(labId, [tiraInsumoId]);
+    }
   }
 
   // ── Render helpers ─────────────────────────────────────────────────────────
