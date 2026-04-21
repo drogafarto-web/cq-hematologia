@@ -74,6 +74,7 @@ export const imunoCollector: ModuleCollector = {
         const isoDate = createdAt.toDate().toISOString().slice(0, 10);
         if (!lastRunDate || isoDate > lastRunDate) lastRunDate = isoDate;
 
+        const signature: string = r['logicalSignature'] ?? '—';
         rows.push({
           Código: r['runCode'] ?? '—',
           Data: `${dateStr} ${timeStr}`,
@@ -88,8 +89,9 @@ export const imunoCollector: ModuleCollector = {
           Alertas: alerts.length > 0 ? alerts.join(', ') : '—',
           Equipamento: r['equipamento'] ?? '—',
           Operador: operatorName,
+          Registro: r['operatorRegistration'] ?? '—',
           Cargo: r['operatorRole'] ?? '—',
-          Assinatura: (r['logicalSignature']?.slice(0, 12) ?? '—') + '…',
+          Assinatura: signature === '—' ? '—' : signature.slice(0, 16),
         });
       }
     }
@@ -119,10 +121,36 @@ export const imunoCollector: ModuleCollector = {
         'Alertas',
         'Equipamento',
         'Operador',
+        'Registro',
         'Cargo',
         'Assinatura',
       ],
       rows,
+      // Layout refinado: 9 colunas técnicas na linha 1 (destaque) +
+      // 6 colunas de rastreabilidade na linha 2 (metadata inline, muted).
+      // Permite que os 15 campos caibam em A4 retrato sem truncar.
+      tableLayout: {
+        primary: [
+          { key: 'Código', shortLabel: 'Código', weight: 1.3 },
+          { key: 'Data', shortLabel: 'Data', weight: 1.3 },
+          { key: 'Tipo de Teste', shortLabel: 'Tipo', weight: 1.0 },
+          { key: 'Lote Controle', shortLabel: 'Lote Ctrl', weight: 1.1 },
+          { key: 'Lote Reagente', shortLabel: 'Lote Reag.', weight: 1.1 },
+          { key: 'Reg. ANVISA', shortLabel: 'Reg. ANVISA', weight: 1.0 },
+          { key: 'Esperado', shortLabel: 'Esperado', weight: 1.1 },
+          { key: 'Obtido', shortLabel: 'Obtido', weight: 1.1 },
+          { key: 'Conformidade', shortLabel: 'Conform.', weight: 1.0 },
+        ],
+        secondary: [
+          { key: 'Equipamento', shortLabel: 'Eq.' },
+          { key: 'Operador', shortLabel: 'Op.' },
+          { key: 'Registro', shortLabel: 'Reg.' },
+          { key: 'Cargo', shortLabel: 'Cargo' },
+          { key: 'Ação Corretiva', shortLabel: 'Ação' },
+          { key: 'Alertas', shortLabel: 'Alertas' },
+          { key: 'Assinatura', shortLabel: 'Sig', monospace: true },
+        ],
+      },
       summary: {
         'Total de corridas': String(totalRuns),
         Conformes: String(conformingCount.value),

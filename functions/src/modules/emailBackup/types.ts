@@ -48,6 +48,42 @@ export function resolveBackupRecipients(cfg: LabBackupConfig): string[] {
 /** A single row in a module's backup table. Keys are column labels → values. */
 export type BackupRow = Record<string, string>;
 
+/**
+ * Especificação de uma coluna na tabela do módulo.
+ * Usada por `TableLayoutSpec` para permitir larguras proporcionais
+ * (peso), cabeçalhos curtos e divisão primary/secondary.
+ */
+export interface ColumnSpec {
+  /** Chave — deve bater com a key em `BackupRow`. */
+  key: string;
+  /** Label curto para cabeçalho da tabela. Default: key em MAIÚSCULAS. */
+  shortLabel?: string;
+  /** Peso relativo para cálculo de largura (default 1). */
+  weight?: number;
+  /** Alinhamento do conteúdo. Default 'left'. */
+  align?: 'left' | 'right' | 'center';
+  /**
+   * Renderizar o valor em fonte monospace (Courier).
+   * Útil para hashes e assinaturas — facilita leitura coluna-a-coluna em auditoria
+   * e deixa claro que o valor é um identificador criptográfico, não um nome.
+   */
+  monospace?: boolean;
+}
+
+/**
+ * Layout opcional da tabela de corridas de um módulo.
+ *
+ * Quando presente, o renderer usa duas linhas lógicas por corrida:
+ * - `primary`: linha de destaque (cabeçalho formal, texto em cor primária)
+ * - `secondary`: linha de rastreabilidade (inline, muted, fonte menor)
+ *
+ * Quando ausente, o renderer usa o layout legado (single-row, pesos iguais).
+ */
+export interface TableLayoutSpec {
+  primary: ColumnSpec[];
+  secondary?: ColumnSpec[];
+}
+
 /** All data a module contributes to a single backup run. */
 export interface ModuleBackupSection {
   /** Module identifier — must be unique across all registered collectors */
@@ -66,6 +102,11 @@ export interface ModuleBackupSection {
   rows: BackupRow[];
   /** Additional key→value stats shown below the section header */
   summary: Record<string, string>;
+  /**
+   * Layout refinado para a tabela (opcional). Se omitido, o PDF usa o layout
+   * legado baseado em `columns` (pesos iguais, linha única por corrida).
+   */
+  tableLayout?: TableLayoutSpec;
 }
 
 // ─── Staleness Alert ──────────────────────────────────────────────────────────
@@ -82,6 +123,22 @@ export interface StalenessAlert {
   lastRunAt: string | null;
 }
 
+// ─── Lab Identification (regulatory completeness) ────────────────────────────
+
+export interface ResponsibleTech {
+  /** Nome completo do responsável técnico (ex: "Dra. Maria da Silva"). */
+  name: string;
+  /** Conselho profissional + número (ex: "CRBM-MG 1234", "CRF-SP 5678"). */
+  registration: string;
+}
+
+export interface SanitaryLicense {
+  /** Número da licença sanitária. */
+  number: string;
+  /** Data de validade (ISO date, pt-BR local). */
+  validUntil: string;
+}
+
 // ─── Backup Report ────────────────────────────────────────────────────────────
 
 /** Full report assembled before generating the PDF and sending the email. */
@@ -89,6 +146,12 @@ export interface BackupReport {
   labId: string;
   labName: string;
   labCnpj?: string;
+  /** Endereço completo (logradouro, número, bairro, cidade/UF, CEP). */
+  labAddress?: string;
+  /** Responsável técnico — obrigatório para apresentação a órgãos sanitários. */
+  responsibleTech?: ResponsibleTech;
+  /** Licença sanitária vigente do estabelecimento. */
+  sanitaryLicense?: SanitaryLicense;
   /** Start of the period (UTC midnight 30 days ago) */
   periodStart: Date;
   /** End of the period (now) */
