@@ -301,6 +301,41 @@ service cloud.firestore {
           (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
       }
 
+      // Emissões FR-10 — registro de cada exportação do formulário de
+      // rastreabilidade de insumos, indexado pelo próprio hash SHA-256.
+      // Cloud Function pública `validateFR10` lê este doc para responder
+      // ao QR escaneado por auditor externo. Cliente só pode criar/merge
+      // (reprint atualiza lastPrintedAt), nunca apagar.
+      match /fr10-emissions/{hash} {
+        function isValidEmission(d) {
+          return d.hash is string
+              && d.hash == hash            // hash do payload == doc id
+              && d.hash.size() == 64       // SHA-256 hex
+              && d.labId == labId
+              && d.labName is string
+              && d.modulo is string
+              && d.equipamento is string
+              && d.periodoInicio is timestamp
+              && d.periodoFim is timestamp
+              && d.emittedAt is timestamp
+              && d.emittedByUid is string
+              && d.emittedByName is string
+              && d.rowCount is int
+              && d.rowCount >= 0;
+        }
+
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && isValidEmission(request.resource.data);
+        // update permitido só para atualizar lastPrintedAt em reprint — demais
+        // campos imutáveis. Verificação: hash, labId, emittedAt preservados.
+        allow update: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && request.resource.data.hash == resource.data.hash
+                      && request.resource.data.labId == resource.data.labId
+                      && request.resource.data.emittedAt == resource.data.emittedAt;
+        allow delete: if false;
+      }
+
       // Movimentações — log imutável de entrada/abertura/fechamento/descarte.
       // Cliente escreve com chainStatus='pending' + chainHash=null + payloadSignature.
       // Cloud Function `onInsumoMovimentacaoCreate` (Admin SDK) sela o doc em

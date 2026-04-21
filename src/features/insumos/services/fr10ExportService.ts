@@ -16,11 +16,15 @@
 
 import {
   db,
+  doc,
+  setDoc,
   collection,
   getDocs,
   query,
   where,
   orderBy,
+  serverTimestamp,
+  Timestamp,
   firestoreErrorMessage,
 } from '../../../shared/services/firebase';
 import { COLLECTIONS, SUBCOLLECTIONS } from '../../../constants';
@@ -309,4 +313,95 @@ export async function computeFR10Hash(payload: FR10Payload): Promise<string> {
   return Array.from(new Uint8Array(hashBuffer))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
+}
+
+// ─── Emissão persistida (habilita QR / validateFR10) ─────────────────────────
+
+/**
+ * Registro persistente de uma emissão de FR-10. A Cloud Function pública
+ * `validateFR10` lê este doc para responder ao QR: "sim, este hash foi emitido
+ * pelo lab X em Y por usuário Z, cobre período W, tem N linhas."
+ *
+ * O doc é indexado pelo próprio hash — garante unicidade e permite lookup
+ * sem query. Se o mesmo hash for re-emitido (ex: PDF reimpresso sem mudanças),
+ * `setDoc` com merge:true atualiza `lastPrintedAt` mantendo `emittedAt` do
+ * primeiro registro.
+ */
+export interface FR10EmissionRecord {
+  hash: string;
+  labId: string;
+  labName: string;
+  labCnpj?: string;
+  modulo: string;
+  equipamento: string;
+  periodoInicio: Timestamp;
+  periodoFim: Timestamp;
+  emittedAt: Timestamp;
+  lastPrintedAt: Timestamp;
+  emittedByUid: string;
+  emittedByName: string;
+  rowCount: number;
+}
+
+function emissionsCol(labId: string) {
+  return collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.FR10_EMISSIONS);
+}
+
+function emissionRef(labId: string, hash: string) {
+  return doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.FR10_EMISSIONS, hash);
+}
+
+/**
+ * Persiste o registro da emissão. Idempotente: se o hash já existe, só atualiza
+ * `lastPrintedAt`. Rules obrigam presença dos campos e que `hash` (no path)
+ * bata com `hash` (no doc) — evita colisão forçada por cliente adversarial.
+ */
+export async function saveFR10Emission(
+  payload: FR10Payload,
+  hash: string,
+): Promise<void> {
+  try {
+    const periodoInicio = Timestamp.fromDate(payload.periodoInicio);
+    const periodoFim = Timestamp.fromDate(payload.periodoFim);
+    const emittedAt = Timestamp.fromDate(payload.generatedAt);
+
+    // setDoc com merge — se já existe (re-print), atualiza só lastPrintedAt
+    // sem apagar o emittedAt original.
+    await setDoc(
+      emissionRef(payload.labId, hash),
+      {
+        hash,
+        labId: payload.labId,
+        labName: payload.labName,
+        ...(payload.labCnpj !== undefined && { labCnpj: payload.labCnpj }),
+        modulo: payload.modulo,
+        equipamento: payload.equipamento,
+        periodoInicio,
+        periodoFim,
+        emittedAt,
+        lastPrintedAt: serverTimestamp(),
+        emittedByUid: payload.generatedBy.uid,
+        emittedByName: payload.generatedBy.displayName,
+        rowCount: payload.rows.length,
+      },
+      { merge: true },
+    );
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err), { cause: err });
+  }
+}
+
+/**
+ * Busca emissões de FR-10 de um lab. Usado em audit view / timeline.
+ * Não usado em hot paths — fine para múltiplos reads.
+ */
+export async function listFR10Emissions(labId: string, limit = 50): Promise<FR10EmissionRecord[]> {
+  try {
+    const snap = await getDocs(query(emissionsCol(labId), orderBy('lastPrintedAt', 'desc')));
+    return snap.docs
+      .slice(0, limit)
+      .map((d) => ({ ...(d.data() as Omit<FR10EmissionRecord, 'hash'>), hash: d.id }));
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err), { cause: err });
+  }
 }

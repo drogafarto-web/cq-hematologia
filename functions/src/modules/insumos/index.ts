@@ -5,6 +5,13 @@
 
 export { onInsumoMovimentacaoCreate } from './chainHash';
 
+// ─── Insumos Module — validateFR10 HTTP endpoint ─────────────────────────────
+//
+// Re-export do endpoint HTTP público que responde ao QR de FR-10 impresso.
+// Ver validateFR10.ts.
+
+export { validateFR10 } from './validateFR10';
+
 // ─── Insumos Module — Scheduled Expiration ───────────────────────────────────
 //
 // Diariamente move insumos 'ativo' cuja validadeReal já passou para status

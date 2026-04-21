@@ -12,7 +12,11 @@
 
 import React, { useState } from 'react';
 import { useActiveLab, useUser } from '../../../store/useAuthStore';
-import { buildFR10Payload, computeFR10Hash } from '../services/fr10ExportService';
+import {
+  buildFR10Payload,
+  computeFR10Hash,
+  saveFR10Emission,
+} from '../services/fr10ExportService';
 import { FR10Print } from './FR10Print';
 import type { FR10Payload } from '../services/fr10ExportService';
 import type { InsumoModulo } from '../types/Insumo';
@@ -97,6 +101,11 @@ export function FR10ExportModal({ onClose }: FR10ExportModalProps) {
       });
 
       const hash = await computeFR10Hash(payload);
+
+      // Persiste a emissão ANTES do preview — garante que o QR já é válido
+      // quando o usuário imprimir. Rules validam hash == doc.id + campos.
+      await saveFR10Emission(payload, hash);
+
       setPreview({ payload, hash });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Falha ao gerar FR-10.');

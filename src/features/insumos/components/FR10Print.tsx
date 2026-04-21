@@ -21,7 +21,7 @@
 import React, { useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { QRCodeSVG } from 'qrcode.react';
-import { AUDIT_BASE_URL } from '../../../constants';
+import { FR10_VALIDATE_URL } from '../../../constants';
 import type { FR10Payload, FR10Row } from '../services/fr10ExportService';
 
 interface FR10PrintProps {
@@ -93,7 +93,7 @@ export function FR10Print({ payload, hash, onClose }: FR10PrintProps) {
   });
 
   const groupStarts = rowGroupKeys(payload.rows);
-  const qrUrl = `${AUDIT_BASE_URL}/fr10?lab=${encodeURIComponent(payload.labId)}&hash=${hash}`;
+  const qrUrl = `${FR10_VALIDATE_URL}?lab=${encodeURIComponent(payload.labId)}&hash=${hash}`;
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/70 dark:bg-black/85 backdrop-blur-sm overflow-y-auto print:bg-white print:static print:overflow-visible">
