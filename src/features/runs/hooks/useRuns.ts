@@ -15,6 +15,7 @@ import { toast } from '../../../shared/store/useToastStore';
 import { haptic } from '../../../shared/hooks/useHaptic';
 import type {
   Run,
+  RunReagenteSnapshot,
   ControlLot,
   AnalyteResult,
   RunStatus,
@@ -23,6 +24,7 @@ import type {
   WestgardViolation,
   DatabaseService,
 } from '../../../types';
+import type { Insumo } from '../../insumos/types/Insumo';
 
 // ─── Pure helpers ─────────────────────────────────────────────────────────────
 
@@ -243,7 +245,11 @@ export function useRuns() {
    * 4. Uploads image in background and updates imageUrl
    */
   const confirmRun = useCallback(
-    async (editedValues: Record<string, number>, approve: boolean): Promise<void> => {
+    async (
+      editedValues: Record<string, number>,
+      approve: boolean,
+      reagentes: Insumo[] = [],
+    ): Promise<void> => {
       if (!pendingRun) {
         setRunError('Nenhuma corrida pendente.');
         return;
@@ -280,6 +286,15 @@ export function useRuns() {
         // manualOverride = true when operator explicitly approved despite rejection-level violations
         const hasRejectionViolation = results.some((r) => isRejection(r.violations));
 
+        // Snapshot imutável dos reagentes — preserva rastreabilidade FR-10
+        // mesmo se o Insumo mestre for descartado/editado depois da corrida.
+        const reagentesSnapshot: RunReagenteSnapshot[] = reagentes.map((r) => ({
+          id: r.id,
+          nomeComercial: r.nomeComercial,
+          fabricante: r.fabricante,
+          lote: r.lote,
+        }));
+
         const newRun: Run = {
           id: runId,
           lotId: activeLot.id,
@@ -291,6 +306,10 @@ export function useRuns() {
           results,
           ...(approve && hasRejectionViolation && { manualOverride: true }),
           createdBy: user?.uid ?? '',
+          ...(reagentes.length > 0 && {
+            reagentesInsumoIds: reagentes.map((r) => r.id),
+            reagentesSnapshot,
+          }),
         };
 
         // Update lot: add run, increment runCount, recalculate stats
