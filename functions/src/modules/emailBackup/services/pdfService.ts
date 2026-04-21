@@ -1,6 +1,6 @@
 import PDFDocument = require('pdfkit');
 import { createHash } from 'crypto';
-import type { BackupReport, ColumnSpec, ModuleBackupSection } from '../types';
+import type { BackupReport, ColumnSpec, ModuleBackupSection, StalenessAlert } from '../types';
 import {
   COLOR,
   CONTENT_WIDTH,
@@ -242,10 +242,22 @@ function renderCoverPage(
 
   const statsY = periodY + 60;
   renderStatGrid(doc, margin, statsY, contentWidth, [
-    { label: 'Módulos com dados', value: String(report.sections.length) },
-    { label: 'Total de corridas', value: String(totalRuns) },
-    { label: 'Não conformidades', value: String(totalNonConforming) },
-    { label: 'Alertas de inatividade', value: String(report.stalenessAlerts.length) },
+    {
+      label: 'Módulos com dados',
+      value: String(report.sections.length),
+      severity: 'good-if-nonzero',
+    },
+    { label: 'Total de corridas', value: String(totalRuns), severity: 'neutral' },
+    {
+      label: 'Não conformidades',
+      value: String(totalNonConforming),
+      severity: 'good-if-zero',
+    },
+    {
+      label: 'Alertas operacionais',
+      value: String(report.stalenessAlerts.length),
+      severity: 'good-if-zero',
+    },
   ]);
 
   let nextBlockY = statsY + 78;
@@ -303,7 +315,7 @@ function renderCoverPage(
       .fontSize(9)
       .fillColor(textColor)
       .text(
-        `${report.stalenessAlerts.length} alerta(s) de inatividade detectado(s) — ver página de integridade`,
+        `${report.stalenessAlerts.length} alerta(s) operacional(is) detectado(s) — ver página de integridade`,
         margin + 28,
         alertY + 7,
         { width: contentWidth - 40, lineBreak: false, ellipsis: true },
@@ -312,9 +324,15 @@ function renderCoverPage(
     let alertOffset = alertY + 30;
     for (const alert of report.stalenessAlerts) {
       const alertColor = alert.level === 'critical' ? COLOR.danger : COLOR.accentWarm;
+
+      // Copy contextual — evita parecer contradição com o resumo do módulo.
+      // "sem novas corridas" destaca que é sobre recência, não ausência total.
+      const lastStr = alert.lastRunAt
+        ? ` (última em ${new Date(alert.lastRunAt).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })})`
+        : '';
       const daysStr = isFinite(alert.daysSinceLastRun)
-        ? `${alert.daysSinceLastRun} dias sem registros`
-        : 'nenhum registro encontrado';
+        ? `sem novas corridas há ${alert.daysSinceLastRun} dia(s)${lastStr}`
+        : 'nenhuma corrida registrada no período';
 
       drawAlertBadge(doc, margin + 14, alertOffset + 2, alert.level, 3);
 
@@ -322,7 +340,7 @@ function renderCoverPage(
         .font(FONT_REGULAR)
         .fontSize(9)
         .fillColor(alertColor)
-        .text(`${alert.moduleName}: ${daysStr}`, margin + 26, alertOffset, {
+        .text(`${alert.moduleName} — ${daysStr}`, margin + 26, alertOffset, {
           width: contentWidth - 40,
           lineBreak: false,
           ellipsis: true,
@@ -363,11 +381,21 @@ function renderModuleSection(
   // Module header
   doc.font(FONT_BOLD).fontSize(8).fillColor(COLOR.accent).text('MÓDULO', margin, 18);
 
+  // Badge de atividade à direita — responde visualmente "este módulo está
+  // sendo usado?" para o auditor antes mesmo da tabela
+  const matchedAlert = report.stalenessAlerts.find((a) => a.moduleId === section.moduleId);
+  const badge = computeActivityBadge(section, matchedAlert);
+  drawActivityBadge(doc, margin + contentWidth, 20, badge, 'right');
+
   doc
     .font(FONT_BOLD)
     .fontSize(16)
     .fillColor(COLOR.textPrimary)
-    .text(section.moduleName, margin, 30);
+    .text(section.moduleName, margin, 30, {
+      width: contentWidth - 130, // reserva espaço para o badge à direita
+      lineBreak: false,
+      ellipsis: true,
+    });
 
   // Period + lab
   doc
@@ -375,7 +403,7 @@ function renderModuleSection(
     .fontSize(9)
     .fillColor(COLOR.textMuted)
     .text(
-      `${report.labName}  ·  ${formatDate(report.periodStart)} – ${formatDate(report.periodEnd)}`,
+      `${report.labName}  \u00b7  ${formatDate(report.periodStart)} \u2013 ${formatDate(report.periodEnd)}`,
       margin,
       50,
     );
@@ -938,7 +966,7 @@ function renderIntegrityPage(
       .font(FONT_BOLD)
       .fontSize(10)
       .fillColor(COLOR.textPrimary)
-      .text('Alertas de Inatividade', margin, cursorY);
+      .text('Alertas Operacionais', margin, cursorY);
     cursorY += 18;
 
     for (const alert of report.stalenessAlerts) {
@@ -949,12 +977,12 @@ function renderIntegrityPage(
       const isCritical = alert.level === 'critical';
       const alertColor = isCritical ? COLOR.danger : COLOR.accentWarm;
       const bgColor = isCritical ? COLOR.dangerBg : COLOR.warningBg;
-      const daysStr = isFinite(alert.daysSinceLastRun)
-        ? `${alert.daysSinceLastRun} dia(s) sem registros`
-        : 'nenhum registro encontrado';
       const lastStr = alert.lastRunAt
-        ? ` \u2014 último em ${new Date(alert.lastRunAt).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`
+        ? ` (última em ${new Date(alert.lastRunAt).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })})`
         : '';
+      const daysStr = isFinite(alert.daysSinceLastRun)
+        ? `sem novas corridas há ${alert.daysSinceLastRun} dia(s)${lastStr}`
+        : 'nenhuma corrida registrada no período';
 
       doc.rect(margin, cursorY, contentWidth, 28).fill(bgColor);
 
@@ -974,7 +1002,7 @@ function renderIntegrityPage(
         .font(FONT_REGULAR)
         .fontSize(8)
         .fillColor(alertColor)
-        .text(`${daysStr}${lastStr}`, margin + 26, cursorY + 18, {
+        .text(daysStr, margin + 26, cursorY + 18, {
           width: contentWidth - 40,
           lineBreak: false,
           ellipsis: true,
@@ -1009,16 +1037,44 @@ function renderIntegrityPage(
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+/**
+ * Severidade semântica de uma métrica no stat grid.
+ * - `neutral`: valor numérico sem conotação (ex: "Total de corridas")
+ * - `good-if-zero`: valor "bom" quando zero (success) e "ruim" quando > 0 (danger).
+ *   Usado para "Não conformidades", "Alertas operacionais", etc.
+ * - `good-if-nonzero`: valor "bom" quando > 0 (success) e "neutro" quando zero.
+ *   Usado para "Módulos com dados".
+ */
+type StatSeverity = 'neutral' | 'good-if-zero' | 'good-if-nonzero';
+
+interface StatCell {
+  label: string;
+  value: string;
+  severity?: StatSeverity;
+}
+
+function resolveStatColor(value: string, severity: StatSeverity = 'neutral'): string {
+  if (severity === 'neutral') return COLOR.textPrimary;
+  const numeric = Number(value);
+  const isZero = Number.isFinite(numeric) && numeric === 0;
+  if (severity === 'good-if-zero') return isZero ? COLOR.success : COLOR.danger;
+  if (severity === 'good-if-nonzero') return isZero ? COLOR.textMuted : COLOR.success;
+  return COLOR.textPrimary;
+}
+
 function renderStatGrid(
   doc: PDFKit.PDFDocument,
   x: number,
   y: number,
   width: number,
-  stats: Array<{ label: string; value: string }>,
+  stats: StatCell[],
 ): void {
   const colW = width / stats.length;
 
   for (let i = 0; i < stats.length; i++) {
+    const stat = stats[i];
+    const valueColor = resolveStatColor(stat.value, stat.severity);
+
     doc
       .roundedRect(x + i * colW, y, colW - 8, 60, 4)
       .lineWidth(0.5)
@@ -1028,8 +1084,8 @@ function renderStatGrid(
     doc
       .font(FONT_BOLD)
       .fontSize(20)
-      .fillColor(COLOR.textPrimary)
-      .text(stats[i].value, x + i * colW + 10, y + 10, {
+      .fillColor(valueColor)
+      .text(stat.value, x + i * colW + 10, y + 10, {
         width: colW - 20,
         align: 'left',
       });
@@ -1038,10 +1094,98 @@ function renderStatGrid(
       .font(FONT_REGULAR)
       .fontSize(7.5)
       .fillColor(COLOR.textMuted)
-      .text(stats[i].label.toUpperCase(), x + i * colW + 10, y + 38, {
+      .text(stat.label.toUpperCase(), x + i * colW + 10, y + 38, {
         width: colW - 20,
       });
   }
+}
+
+/**
+ * Badge de status operacional do módulo (ATIVO / SILENCIADO / INATIVO).
+ *
+ * Derivação:
+ *   - Sem alerta de staleness → ATIVO (módulo registrou dentro do threshold).
+ *   - Alerta `warning` → SILENCIADO (tem dados, mas últimos N dias sem novas).
+ *   - Alerta `critical` → INATIVO (sem corridas ou silêncio prolongado).
+ */
+interface ActivityBadge {
+  label: string;
+  fg: string;
+  bg: string;
+  border: string;
+}
+
+function computeActivityBadge(
+  section: ModuleBackupSection,
+  alert: StalenessAlert | undefined,
+): ActivityBadge {
+  if (!alert) {
+    return {
+      label: `ATIVO \u00b7 ${section.totalRuns} CORRIDAS`,
+      fg: COLOR.success,
+      bg: '#0f2a1a',
+      border: '#1b4d32',
+    };
+  }
+
+  const daysStr = isFinite(alert.daysSinceLastRun)
+    ? `${alert.daysSinceLastRun}D`
+    : '\u221e';
+
+  if (alert.level === 'critical') {
+    return {
+      label: `INATIVO HÁ ${daysStr}`,
+      fg: COLOR.danger,
+      bg: COLOR.dangerBg,
+      border: '#5a1818',
+    };
+  }
+
+  return {
+    label: `SILENCIADO HÁ ${daysStr}`,
+    fg: COLOR.accentWarm,
+    bg: COLOR.warningBg,
+    border: '#5a4418',
+  };
+}
+
+/**
+ * Renderiza o badge arredondado. Se `anchor='right'`, `x` é tratado como borda
+ * direita do badge (útil para ancorar no final da linha sem precisar medir antes).
+ */
+function drawActivityBadge(
+  doc: PDFKit.PDFDocument,
+  x: number,
+  y: number,
+  badge: ActivityBadge,
+  anchor: 'left' | 'right' = 'left',
+): void {
+  const padX = 8;
+  const padY = 4;
+  const fontSize = 8;
+
+  doc.font(FONT_BOLD).fontSize(fontSize);
+  const textWidth = doc.widthOfString(badge.label);
+  const height = fontSize + padY * 2;
+  const width = textWidth + padX * 2;
+  const originX = anchor === 'right' ? x - width : x;
+
+  doc.save();
+  doc.roundedRect(originX, y, width, height, 4).fillColor(badge.bg).fill();
+  doc
+    .roundedRect(originX, y, width, height, 4)
+    .lineWidth(0.6)
+    .strokeColor(badge.border)
+    .stroke();
+  doc
+    .font(FONT_BOLD)
+    .fontSize(fontSize)
+    .fillColor(badge.fg)
+    .text(badge.label, originX + padX, y + padY, {
+      width: textWidth,
+      lineBreak: false,
+    });
+  doc.restore();
 }
 
 function renderPageFooter(doc: PDFKit.PDFDocument, report: BackupReport): void {
