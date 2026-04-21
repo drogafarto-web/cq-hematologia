@@ -18,20 +18,23 @@ const periodStart = new Date('2026-03-20T00:00:00Z');
 const periodEnd = new Date('2026-04-19T23:59:59Z');
 const generatedAt = '2026-04-19T23:25:52-03:00';
 
+const FULL = process.env.FULL === '1';
+
 const row = (code, tipo, loteControle, loteReagente, operador, assinatura) => ({
   Código: code,
   Data: '15/04/2026 20:34',
   'Tipo de Teste': tipo,
   'Lote Controle': loteControle,
   'Lote Reagente': loteReagente,
-  'Reg. ANVISA': '—',
+  'Reg. ANVISA': FULL ? '10373480095' : '—',
   Esperado: 'Reagente',
   Obtido: 'Reagente',
   Conformidade: 'Conforme',
   'Ação Corretiva': '—',
   Alertas: '—',
-  Equipamento: '—',
-  Operador: 'Área Técnica LabClin',
+  Equipamento: FULL ? 'Bio-Rad Alinity i' : '—',
+  Operador: FULL ? 'Dra. Maria da Silva' : 'Área Técnica LabClin',
+  Registro: FULL ? 'CRBM-MG 1234' : '—',
   Cargo: 'biomedico',
   Assinatura: assinatura,
 });
@@ -110,10 +113,11 @@ const sections = [
       secondary: [
         { key: 'Equipamento', shortLabel: 'Eq.' },
         { key: 'Operador', shortLabel: 'Op.' },
+        { key: 'Registro', shortLabel: 'Reg.' },
         { key: 'Cargo', shortLabel: 'Cargo' },
         { key: 'Ação Corretiva', shortLabel: 'Ação' },
         { key: 'Alertas', shortLabel: 'Alertas' },
-        { key: 'Assinatura', shortLabel: 'Sig' },
+        { key: 'Assinatura', shortLabel: 'Sig', monospace: true },
       ],
     },
   },
@@ -139,6 +143,18 @@ const stalenessAlerts = [
 const baseReport = {
   labId: 'labclin-riopomba',
   labName: 'LabClin Rio Pomba MG',
+  // FULL=1 povoa todos os campos regulatórios; default deixa vazios para
+  // demonstrar o destaque de gaps (danger em vermelho) no PDF.
+  labCnpj: FULL ? '12.345.678/0001-90' : undefined,
+  labAddress: FULL
+    ? 'Rua São Sebastião, 123 — Centro — Rio Pomba/MG — CEP 36180-000'
+    : undefined,
+  responsibleTech: FULL
+    ? { name: 'Dra. Maria da Silva', registration: 'CRBM-MG 1234' }
+    : undefined,
+  sanitaryLicense: FULL
+    ? { number: '012345/2026', validUntil: '31/12/2026' }
+    : undefined,
   periodStart,
   periodEnd,
   sections,

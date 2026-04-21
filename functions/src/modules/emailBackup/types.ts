@@ -62,6 +62,12 @@ export interface ColumnSpec {
   weight?: number;
   /** Alinhamento do conteúdo. Default 'left'. */
   align?: 'left' | 'right' | 'center';
+  /**
+   * Renderizar o valor em fonte monospace (Courier).
+   * Útil para hashes e assinaturas — facilita leitura coluna-a-coluna em auditoria
+   * e deixa claro que o valor é um identificador criptográfico, não um nome.
+   */
+  monospace?: boolean;
 }
 
 /**
@@ -117,6 +123,22 @@ export interface StalenessAlert {
   lastRunAt: string | null;
 }
 
+// ─── Lab Identification (regulatory completeness) ────────────────────────────
+
+export interface ResponsibleTech {
+  /** Nome completo do responsável técnico (ex: "Dra. Maria da Silva"). */
+  name: string;
+  /** Conselho profissional + número (ex: "CRBM-MG 1234", "CRF-SP 5678"). */
+  registration: string;
+}
+
+export interface SanitaryLicense {
+  /** Número da licença sanitária. */
+  number: string;
+  /** Data de validade (ISO date, pt-BR local). */
+  validUntil: string;
+}
+
 // ─── Backup Report ────────────────────────────────────────────────────────────
 
 /** Full report assembled before generating the PDF and sending the email. */
@@ -124,6 +146,12 @@ export interface BackupReport {
   labId: string;
   labName: string;
   labCnpj?: string;
+  /** Endereço completo (logradouro, número, bairro, cidade/UF, CEP). */
+  labAddress?: string;
+  /** Responsável técnico — obrigatório para apresentação a órgãos sanitários. */
+  responsibleTech?: ResponsibleTech;
+  /** Licença sanitária vigente do estabelecimento. */
+  sanitaryLicense?: SanitaryLicense;
   /** Start of the period (UTC midnight 30 days ago) */
   periodStart: Date;
   /** End of the period (now) */

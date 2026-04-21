@@ -74,6 +74,7 @@ export const imunoCollector: ModuleCollector = {
         const isoDate = createdAt.toDate().toISOString().slice(0, 10);
         if (!lastRunDate || isoDate > lastRunDate) lastRunDate = isoDate;
 
+        const signature: string = r['logicalSignature'] ?? '—';
         rows.push({
           Código: r['runCode'] ?? '—',
           Data: `${dateStr} ${timeStr}`,
@@ -88,8 +89,9 @@ export const imunoCollector: ModuleCollector = {
           Alertas: alerts.length > 0 ? alerts.join(', ') : '—',
           Equipamento: r['equipamento'] ?? '—',
           Operador: operatorName,
+          Registro: r['operatorRegistration'] ?? '—',
           Cargo: r['operatorRole'] ?? '—',
-          Assinatura: (r['logicalSignature']?.slice(0, 12) ?? '—') + '…',
+          Assinatura: signature === '—' ? '—' : signature.slice(0, 16),
         });
       }
     }
@@ -119,6 +121,7 @@ export const imunoCollector: ModuleCollector = {
         'Alertas',
         'Equipamento',
         'Operador',
+        'Registro',
         'Cargo',
         'Assinatura',
       ],
@@ -141,10 +144,11 @@ export const imunoCollector: ModuleCollector = {
         secondary: [
           { key: 'Equipamento', shortLabel: 'Eq.' },
           { key: 'Operador', shortLabel: 'Op.' },
+          { key: 'Registro', shortLabel: 'Reg.' },
           { key: 'Cargo', shortLabel: 'Cargo' },
           { key: 'Ação Corretiva', shortLabel: 'Ação' },
           { key: 'Alertas', shortLabel: 'Alertas' },
-          { key: 'Assinatura', shortLabel: 'Sig' },
+          { key: 'Assinatura', shortLabel: 'Sig', monospace: true },
         ],
       },
       summary: {

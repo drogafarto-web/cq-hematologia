@@ -5,6 +5,7 @@ import {
   COLOR,
   CONTENT_WIDTH,
   FONT_BOLD,
+  FONT_MONO,
   FONT_REGULAR,
   FONT_SIZES,
   PAGE,
@@ -131,10 +132,48 @@ function renderCoverPage(
     .fillColor(COLOR.textMuted)
     .text('Relatório de Redundância — Exportação Automatizada', margin, 118 + headerOffset);
 
-  // Lab info card
+  // Lab info card — altura dinâmica: header + N linhas de dados
+  // Linhas opcionais sempre aparecem (com "— não cadastrado" quando ausentes)
+  // para evidenciar em auditoria os campos obrigatórios que faltam.
   const cardY = 165 + headerOffset;
+  const cardPaddingX = 16;
+  const cardHeaderH = 42; // label "LABORATÓRIO" + nome
+  const cardLineH = 14;
+  const cardBottomPad = 12;
+
+  type CardLine = { label: string; value: string; missing: boolean };
+  const cardLines: CardLine[] = [
+    {
+      label: 'CNPJ',
+      value: report.labCnpj ?? '— não cadastrado',
+      missing: !report.labCnpj,
+    },
+    {
+      label: 'Endereço',
+      value: report.labAddress ?? '— não cadastrado',
+      missing: !report.labAddress,
+    },
+    {
+      label: 'RT',
+      value: report.responsibleTech
+        ? `${report.responsibleTech.name} — ${report.responsibleTech.registration}`
+        : '— não cadastrado',
+      missing: !report.responsibleTech,
+    },
+    {
+      label: 'Licença Sanitária',
+      value: report.sanitaryLicense
+        ? `${report.sanitaryLicense.number} — vigente até ${report.sanitaryLicense.validUntil}`
+        : '— não cadastrada',
+      missing: !report.sanitaryLicense,
+    },
+    { label: 'ID', value: report.labId, missing: false },
+  ];
+
+  const cardHeight = cardHeaderH + cardLines.length * cardLineH + cardBottomPad;
+
   doc
-    .roundedRect(margin, cardY, contentWidth, 110, 6)
+    .roundedRect(margin, cardY, contentWidth, cardHeight, 6)
     .lineWidth(0.5)
     .strokeColor(COLOR.border)
     .stroke();
@@ -143,30 +182,42 @@ function renderCoverPage(
     .font(FONT_BOLD)
     .fontSize(8)
     .fillColor(COLOR.textMuted)
-    .text('LABORATÓRIO', margin + 16, cardY + 14);
+    .text('LABORATÓRIO', margin + cardPaddingX, cardY + 14);
 
   doc
     .font(FONT_BOLD)
     .fontSize(16)
     .fillColor(COLOR.textPrimary)
-    .text(report.labName, margin + 16, cardY + 28);
+    .text(report.labName, margin + cardPaddingX, cardY + 24);
 
-  if (report.labCnpj) {
+  let lineY = cardY + cardHeaderH + 6;
+  for (const line of cardLines) {
+    // Label em caixa alta muted (90pt de largura)
+    doc
+      .font(FONT_BOLD)
+      .fontSize(7.5)
+      .fillColor(COLOR.textMuted)
+      .text(line.label.toUpperCase(), margin + cardPaddingX, lineY, {
+        width: 90,
+        lineBreak: false,
+      });
+
+    // Valor à direita, vermelho se ausente (destaque de gap)
     doc
       .font(FONT_REGULAR)
-      .fontSize(10)
-      .fillColor(COLOR.textMuted)
-      .text(`CNPJ: ${report.labCnpj}`, margin + 16, cardY + 52);
+      .fontSize(9.5)
+      .fillColor(line.missing ? COLOR.danger : COLOR.textPrimary)
+      .text(line.value, margin + cardPaddingX + 95, lineY - 1, {
+        width: contentWidth - cardPaddingX * 2 - 95,
+        lineBreak: false,
+        ellipsis: true,
+      });
+
+    lineY += cardLineH;
   }
 
-  doc
-    .font(FONT_REGULAR)
-    .fontSize(10)
-    .fillColor(COLOR.textMuted)
-    .text(`ID: ${report.labId}`, margin + 16, cardY + (report.labCnpj ? 68 : 52));
-
-  // Period badge
-  const periodY = 305 + headerOffset;
+  // Period badge — posição relativa ao fim do card
+  const periodY = cardY + cardHeight + 20;
   doc
     .font(FONT_BOLD)
     .fontSize(8)
@@ -189,16 +240,55 @@ function renderCoverPage(
   const totalRuns = report.sections.reduce((sum, s) => sum + s.totalRuns, 0);
   const totalNonConforming = report.sections.reduce((sum, s) => sum + s.nonConformingRuns, 0);
 
-  renderStatGrid(doc, margin, 370 + headerOffset, contentWidth, [
+  const statsY = periodY + 60;
+  renderStatGrid(doc, margin, statsY, contentWidth, [
     { label: 'Módulos com dados', value: String(report.sections.length) },
     { label: 'Total de corridas', value: String(totalRuns) },
     { label: 'Não conformidades', value: String(totalNonConforming) },
     { label: 'Alertas de inatividade', value: String(report.stalenessAlerts.length) },
   ]);
 
+  let nextBlockY = statsY + 78;
+
+  // Data-quality gap banner — evidencia cadastro incompleto em cima da página
+  const missingLabFields = cardLines.filter((l) => l.missing).map((l) => l.label);
+  const missingAnvisaCount = report.sections.reduce((acc, section) => {
+    return (
+      acc + section.rows.filter((r) => (r['Reg. ANVISA'] ?? '—').trim() === '—').length
+    );
+  }, 0);
+  const hasAnyGap = missingLabFields.length > 0 || missingAnvisaCount > 0;
+
+  if (hasAnyGap) {
+    const gapY = nextBlockY;
+    doc.rect(margin, gapY, contentWidth, 22).fill(COLOR.warningBg);
+    drawWarningTriangle(doc, margin + 10, gapY + 6, 11);
+
+    const parts: string[] = [];
+    if (missingLabFields.length > 0) {
+      parts.push(`${missingLabFields.length} campo(s) obrigatório(s) ausente(s) no cadastro`);
+    }
+    if (missingAnvisaCount > 0) {
+      parts.push(`${missingAnvisaCount} corrida(s) sem Reg. ANVISA do reagente`);
+    }
+
+    doc
+      .font(FONT_BOLD)
+      .fontSize(9)
+      .fillColor(COLOR.accentWarm)
+      .text(
+        `Gaps de cadastro: ${parts.join('  \u00b7  ')}`,
+        margin + 28,
+        gapY + 7,
+        { width: contentWidth - 40, lineBreak: false, ellipsis: true },
+      );
+
+    nextBlockY = gapY + 30;
+  }
+
   // Staleness alerts on cover if any
   if (report.stalenessAlerts.length > 0) {
-    const alertY = 480 + headerOffset;
+    const alertY = nextBlockY;
     const hasCritical = report.stalenessAlerts.some((a) => a.level === 'critical');
     const bannerColor = hasCritical ? COLOR.dangerBg : COLOR.warningBg;
     const textColor = hasCritical ? COLOR.danger : COLOR.accentWarm;
@@ -625,47 +715,71 @@ function renderDualRowTable(
         .stroke();
 
       // Monta labels inline: "Eq.: — · Op.: Dra. Maria · Sig: abc123…"
-      const parts: Array<{ label: string; value: string }> = secondarySpecs.map((c) => ({
-        label: (c.shortLabel ?? c.key).replace(/:$/u, ''),
-        value: row[c.key] ?? '—',
-      }));
+      const parts: Array<{ label: string; value: string; monospace: boolean }> = secondarySpecs.map(
+        (c) => ({
+          label: (c.shortLabel ?? c.key).replace(/:$/u, ''),
+          value: row[c.key] ?? '—',
+          monospace: c.monospace ?? false,
+        }),
+      );
 
-      doc.font(FONT_REGULAR).fontSize(FONT_SIZES.micro).fillColor(COLOR.textMuted);
-
+      const baseFontSize = FONT_SIZES.micro;
       let inlineX = margin + 6;
       const inlineMaxX = margin + contentWidth - 6;
       const inlineY = secondaryY + 3;
       const separator = '  \u00b7  '; // middle-dot espaçado
 
-      for (let i = 0; i < parts.length; i++) {
-        const { label, value } = parts[i];
-        const fragmentLabel = `${label}: `;
-        const fragmentValue = value;
-        const fullFragment = fragmentLabel + fragmentValue + (i < parts.length - 1 ? separator : '');
+      // Helper que mede respeitando a fonte vigente
+      const measure = (text: string, font: string, size: number): number => {
+        doc.font(font).fontSize(size);
+        return doc.widthOfString(text);
+      };
 
-        const fragmentWidth = doc.widthOfString(fullFragment);
-        if (inlineX + fragmentWidth > inlineMaxX) {
-          // Pulou o orçamento horizontal — escreve o que couber com ellipsis e sai
-          const remaining = inlineMaxX - inlineX;
-          doc.text('…', inlineX, inlineY, {
-            width: Math.max(remaining, 6),
+      for (let i = 0; i < parts.length; i++) {
+        const { label, value, monospace } = parts[i];
+        const fragmentLabel = `${label}: `;
+        const valueFont = monospace ? FONT_MONO : FONT_REGULAR;
+        const valueFontSize = monospace ? baseFontSize - 0.5 : baseFontSize;
+
+        const labelW = measure(fragmentLabel, FONT_REGULAR, baseFontSize);
+        const valueW = measure(value, valueFont, valueFontSize);
+        const sepW =
+          i < parts.length - 1 ? measure(separator, FONT_REGULAR, baseFontSize) : 0;
+        const fragmentTotalW = labelW + valueW + sepW;
+
+        if (inlineX + fragmentTotalW > inlineMaxX) {
+          // Estouro horizontal — escreve "…" no espaço restante e interrompe
+          doc.font(FONT_REGULAR).fontSize(baseFontSize).fillColor(COLOR.textMuted);
+          doc.text('\u2026', inlineX, inlineY, {
+            width: Math.max(inlineMaxX - inlineX, 6),
             lineBreak: false,
-            ellipsis: true,
           });
           break;
         }
 
         // Label em tom ainda mais muted
-        doc.fillColor('#52525b').text(fragmentLabel, inlineX, inlineY, { lineBreak: false });
-        inlineX += doc.widthOfString(fragmentLabel);
+        doc
+          .font(FONT_REGULAR)
+          .fontSize(baseFontSize)
+          .fillColor('#52525b')
+          .text(fragmentLabel, inlineX, inlineY, { lineBreak: false });
+        inlineX += labelW;
 
-        // Valor em textMuted
-        doc.fillColor(COLOR.textMuted).text(fragmentValue, inlineX, inlineY, { lineBreak: false });
-        inlineX += doc.widthOfString(fragmentValue);
+        // Valor — monospace se for hash/assinatura
+        doc
+          .font(valueFont)
+          .fontSize(valueFontSize)
+          .fillColor(COLOR.textMuted)
+          .text(value, inlineX, inlineY + (monospace ? 0.5 : 0), { lineBreak: false });
+        inlineX += valueW;
 
         if (i < parts.length - 1) {
-          doc.fillColor(COLOR.border).text(separator, inlineX, inlineY, { lineBreak: false });
-          inlineX += doc.widthOfString(separator);
+          doc
+            .font(FONT_REGULAR)
+            .fontSize(baseFontSize)
+            .fillColor(COLOR.border)
+            .text(separator, inlineX, inlineY, { lineBreak: false });
+          inlineX += sepW;
         }
       }
     }
@@ -742,24 +856,42 @@ function renderIntegrityPage(
   cursorY += hashBoxHeight + 22;
 
   // Metadata table
-  const metaRows: Array<[string, string]> = [
-    ['Laboratório', report.labName],
-    ['Lab ID', report.labId],
-    ['CNPJ', report.labCnpj ?? '—'],
+  const metaRows: Array<[string, string, boolean]> = [
+    ['Laboratório', report.labName, false],
+    ['Lab ID', report.labId, false],
+    ['CNPJ', report.labCnpj ?? '— não cadastrado', !report.labCnpj],
+    ['Endereço', report.labAddress ?? '— não cadastrado', !report.labAddress],
+    [
+      'Responsável Técnico',
+      report.responsibleTech
+        ? `${report.responsibleTech.name} — ${report.responsibleTech.registration}`
+        : '— não cadastrado',
+      !report.responsibleTech,
+    ],
+    [
+      'Licença Sanitária',
+      report.sanitaryLicense
+        ? `${report.sanitaryLicense.number} — vigente até ${report.sanitaryLicense.validUntil}`
+        : '— não cadastrada',
+      !report.sanitaryLicense,
+    ],
     [
       'Período início',
       report.periodStart.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+      false,
     ],
     [
       'Período fim',
       report.periodEnd.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+      false,
     ],
     [
       'Gerado em',
       new Date(report.generatedAt).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+      false,
     ],
-    ['Módulos incluídos', report.sections.map((s) => s.moduleName).join('; ') || '—'],
-    ['Total de corridas', String(report.sections.reduce((s, m) => s + m.totalRuns, 0))],
+    ['Módulos incluídos', report.sections.map((s) => s.moduleName).join('; ') || '—', false],
+    ['Total de corridas', String(report.sections.reduce((s, m) => s + m.totalRuns, 0)), false],
   ];
 
   const metaRowH = 20;
@@ -769,7 +901,7 @@ function renderIntegrityPage(
       doc.addPage();
       cursorY = renderTopChrome();
     }
-    const [label, value] = metaRows[i];
+    const [label, value, missing] = metaRows[i];
     if (i % 2 === 0) {
       doc.rect(margin, cursorY, contentWidth, metaRowH).fill(COLOR.rowAlt);
     }
@@ -781,7 +913,7 @@ function renderIntegrityPage(
     doc
       .font(FONT_REGULAR)
       .fontSize(8)
-      .fillColor(COLOR.textPrimary)
+      .fillColor(missing ? COLOR.danger : COLOR.textPrimary)
       .text(value, margin + contentWidth * 0.32, cursorY + 6, {
         width: contentWidth * 0.68 - 10,
         ellipsis: true,

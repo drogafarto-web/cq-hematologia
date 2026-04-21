@@ -77,6 +77,7 @@ export const hematologiaCollector: ModuleCollector = {
         const isoDate = confirmedAt.toDate().toISOString().slice(0, 10);
         if (!lastRunDate || isoDate > lastRunDate) lastRunDate = isoDate;
 
+        const signature: string = r['logicalSignature'] ?? '—';
         rows.push({
           Data: `${dateStr} ${timeStr}`,
           Lote: lotData['lotNumber'] ?? lotDoc.id,
@@ -86,8 +87,9 @@ export const hematologiaCollector: ModuleCollector = {
           Westgard: violations.length > 0 ? violations.join(', ') : '—',
           'IA editado': r['isEdited'] ? 'Sim' : 'Não',
           Operador: operatorName,
+          Registro: r['operatorRegistration'] ?? '—',
           Cargo: r['operatorRole'] ?? '—',
-          Assinatura: (r['logicalSignature']?.slice(0, 12) ?? '—') + '…',
+          Assinatura: signature === '—' ? '—' : signature.slice(0, 16),
         });
       }
     }
@@ -112,6 +114,7 @@ export const hematologiaCollector: ModuleCollector = {
         'Westgard',
         'IA editado',
         'Operador',
+        'Registro',
         'Cargo',
         'Assinatura',
       ],
@@ -129,8 +132,9 @@ export const hematologiaCollector: ModuleCollector = {
         secondary: [
           { key: 'Equipamento', shortLabel: 'Eq.' },
           { key: 'Operador', shortLabel: 'Op.' },
+          { key: 'Registro', shortLabel: 'Reg.' },
           { key: 'Cargo', shortLabel: 'Cargo' },
-          { key: 'Assinatura', shortLabel: 'Sig' },
+          { key: 'Assinatura', shortLabel: 'Sig', monospace: true },
         ],
       },
       rows,
