@@ -302,11 +302,26 @@ service cloud.firestore {
       }
 
       // Movimentações — log imutável de entrada/abertura/fechamento/descarte.
-      // Qualquer membro ativo pode registrar (é subproduto de ações legítimas);
-      // ninguém atualiza/deleta — audit trail preservado para inspeções RDC 786.
+      // Cliente escreve com chainStatus='pending' + chainHash=null + payloadSignature.
+      // Cloud Function `onInsumoMovimentacaoCreate` (Admin SDK) sela o doc em
+      // ~1-2s com { chainHash, chainStatus: 'sealed', sealedAt }.
+      // Update/delete bloqueados para clientes — Admin SDK bypassa rules.
+      // Tamper-evidence: RDC 978/2025 (rastreabilidade de etapas) + MP 2.200-2/2001.
       match /insumo-movimentacoes/{movId} {
+        function hasValidInitialChain(d) {
+          return d.payloadSignature is string
+              && d.payloadSignature.size() == 64
+              && d.chainHash == null
+              && d.chainStatus == 'pending'
+              && !('sealedAt' in d)
+              && d.insumoId is string
+              && d.operadorId is string
+              && d.clientTimestamp is string;
+        }
+
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
-        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && hasValidInitialChain(request.resource.data);
         allow update, delete: if false;
       }
 

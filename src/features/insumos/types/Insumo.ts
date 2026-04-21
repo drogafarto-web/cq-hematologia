@@ -131,7 +131,19 @@ export interface InsumoTiraUro extends InsumoBase {
 
 export type Insumo = InsumoControle | InsumoReagente | InsumoTiraUro;
 
-// ─── Movimentação (log imutável) ─────────────────────────────────────────────
+// ─── Movimentação (log imutável + chain hash) ────────────────────────────────
+
+/**
+ * Status da cadeia criptográfica de auditoria do evento.
+ *
+ * `pending` — doc recém-criado pelo cliente; `chainHash` e `sealedAt` ainda
+ * nulos. A Cloud Function `onInsumoMovimentacaoCreate` processa o doc em
+ * ~1-2s e transiciona para `sealed`.
+ *
+ * `sealed` — `chainHash` vinculado ao evento anterior do mesmo insumo.
+ * Selado é final: rules + Admin SDK bloqueiam mutações subsequentes.
+ */
+export type InsumoMovimentacaoChainStatus = 'pending' | 'sealed';
 
 export interface InsumoMovimentacao {
   id: string;
@@ -139,14 +151,32 @@ export interface InsumoMovimentacao {
   tipo: InsumoMovimentacaoTipo;
   operadorId: string;
   operadorName: string;
+  /** Timestamp de servidor — ordenação canônica da cadeia. */
   timestamp: Timestamp;
+  /** Timestamp ISO8601 do cliente no momento do evento — faz parte da canonical. */
+  clientTimestamp: string;
   /** Motivo em descartes; opcional nos demais. */
   motivo?: string;
+
   /**
-   * Assinatura lógica SHA-256 (Web Crypto) — preserva o padrão de imutabilidade
-   * já usado em runs de módulos CIQ (ciq-imuno/coagulacao/uroanalise).
+   * Assinatura SHA-256 do payload canônico do evento (sem dependência de
+   * estado anterior) — cliente calcula e grava no create. Funciona offline.
+   * 64 caracteres hex.
    */
-  logicalSignature?: string;
+  payloadSignature: string;
+
+  /**
+   * Chain hash = SHA-256(payloadSignature + previousChainHash). Cloud Function
+   * preenche após o create. `null` enquanto `chainStatus === 'pending'`.
+   * Garante tamper-evidence da cadeia de eventos do mesmo insumo.
+   */
+  chainHash: string | null;
+
+  /** Estado da selagem — ver `InsumoMovimentacaoChainStatus`. */
+  chainStatus: InsumoMovimentacaoChainStatus;
+
+  /** Timestamp de servidor no momento em que a função selou o doc. */
+  sealedAt?: Timestamp;
 }
 
 // ─── Filtros de consulta ──────────────────────────────────────────────────────

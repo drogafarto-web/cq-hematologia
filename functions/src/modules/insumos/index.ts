@@ -1,3 +1,10 @@
+// ─── Insumos Module — Chain hash trigger ─────────────────────────────────────
+//
+// Re-export do trigger onDocumentCreated que sela a cadeia criptográfica dos
+// eventos de movimentação. Ver chainHash.ts para detalhes do design.
+
+export { onInsumoMovimentacaoCreate } from './chainHash';
+
 // ─── Insumos Module — Scheduled Expiration ───────────────────────────────────
 //
 // Diariamente move insumos 'ativo' cuja validadeReal já passou para status

@@ -39,6 +39,7 @@ import type {
   InsumoFilters,
 } from '../types/Insumo';
 import { computeValidadeReal } from '../utils/validadeReal';
+import { computeMovimentacaoSignature } from '../utils/movimentacaoSignature';
 
 // ─── Path helpers ─────────────────────────────────────────────────────────────
 
@@ -276,22 +277,56 @@ export async function descartarInsumo(
   }
 }
 
-// ─── Movimentações (audit trail imutável) ────────────────────────────────────
+// ─── Movimentações (audit trail imutável + chain hash) ──────────────────────
 
-type MovimentacaoInput = Omit<InsumoMovimentacao, 'id' | 'timestamp' | 'logicalSignature'>;
+/**
+ * Campos que o caller fornece. O serviço adiciona: `id`, `clientTimestamp`,
+ * `payloadSignature`, `chainHash` (null inicial), `chainStatus` ('pending'),
+ * `timestamp` (serverTimestamp). O `chainHash` final + `sealedAt` são
+ * preenchidos pela Cloud Function `onInsumoMovimentacaoCreate`.
+ */
+type MovimentacaoInput = Omit<
+  InsumoMovimentacao,
+  | 'id'
+  | 'timestamp'
+  | 'clientTimestamp'
+  | 'payloadSignature'
+  | 'chainHash'
+  | 'chainStatus'
+  | 'sealedAt'
+>;
 
 /**
  * Grava um registro de movimentação. Imutável por design — rules negam
- * update/delete. `logicalSignature` é populado em v2 quando migrarmos para
- * cadeia hash-linked igual às runs de CIQ.
+ * update/delete. Cliente calcula `payloadSignature` local; a Cloud Function
+ * `onInsumoMovimentacaoCreate` preenche `chainHash` + sela o doc em 1-2s.
+ *
+ * Falha na rede: a promessa rejeita e o caller rethrow — inconsistência
+ * com o estado "principal" do insumo é aceitável em failure-isolated call
+ * (abrir/fechar/descartar). Retry fica a cargo do usuário.
  */
 async function logMovimentacao(
   labId: string,
   input: MovimentacaoInput,
 ): Promise<void> {
   const id = crypto.randomUUID();
+  const clientTimestamp = new Date().toISOString();
+  const payloadSignature = await computeMovimentacaoSignature({
+    movId: id,
+    insumoId: input.insumoId,
+    tipo: input.tipo,
+    operadorId: input.operadorId,
+    operadorName: input.operadorName,
+    clientTimestamp,
+    ...(input.motivo !== undefined && { motivo: input.motivo }),
+  });
+
   await setDoc(movRef(labId, id), {
     ...input,
+    clientTimestamp,
+    payloadSignature,
+    chainHash: null,
+    chainStatus: 'pending',
     timestamp: serverTimestamp(),
   });
 }

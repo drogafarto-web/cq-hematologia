@@ -24,9 +24,12 @@ export {
 // ─── insumos module ──────────────────────────────────────────────────────────
 // Scheduled expiration: move insumos vencidos (validadeReal < now) de 'ativo'
 // para 'vencido'. Manual trigger disponível para admin/owner do lab.
+// Chain hash: trigger onDocumentCreated sela criptograficamente cada
+// movimentação de insumo em ordem canônica (tamper-evidence RDC 978/2025).
 export {
   scheduledExpireInsumos,
   triggerInsumosExpiration,
+  onInsumoMovimentacaoCreate,
 } from './modules/insumos/index';
 
 // All functions deploy to the same region as Firestore

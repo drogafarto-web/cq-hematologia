@@ -324,7 +324,7 @@ Regras:
 - **Tiebreaker determinístico** — se `serverTimestamp` coincidir, ordenar por `eventId` lexicográfico.
 - **Genesis hash fixo** — primeiro evento usa `SHA256('<modulo>-v1')`.
 - **Rules bloqueiam write client-side** em `chainHash`, `chainStatus`, `sealedAt`. Só Admin SDK escreve.
-- **Verificador CLI** em `scripts/verifyChain.ts` — re-calcula toda a cadeia e compara. Deve bater 100%.
+- **Verificador CLI** em `tools/verifyChain.ts` (exemplo: `tools/verifyInsumoChain.ts` para insumos) — re-calcula toda a cadeia e compara. Deve bater 100%. Nota: `scripts/` no repo é gitignored (pasta de ops locais); verificadores versionados vão em `tools/`.
 
 ### 8.3 Quando adicionar chain hash
 
