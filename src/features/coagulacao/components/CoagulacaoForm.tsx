@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { CoagulacaoFormSchema, daysToExpiry } from './CoagulacaoForm.schema';
 import type { CoagulacaoFormData } from './CoagulacaoForm.schema';
-import { useUser } from '../../../store/useAuthStore';
+import { useUser, useActiveLabId } from '../../../store/useAuthStore';
 import { COAG_ANALYTES, COAG_ANALYTE_IDS } from '../CoagAnalyteConfig';
 import type { CoagAnalyteId, CoagNivel } from '../types/_shared_refs';
 import { InsumoPicker } from '../../insumos/components/InsumoPicker';
+import { clearInsumoQCValidation } from '../../insumos/services/insumosFirebaseService';
 import type { Insumo } from '../../insumos/types/Insumo';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -221,6 +222,8 @@ export function CoagulacaoForm({
   const [controleInsumoId, setControleInsumoId] = useState<string | null>(null);
   const [reagenteInsumoId, setReagenteInsumoId] = useState<string | null>(null);
 
+  const labId = useActiveLabId();
+
   function toIsoDate(ts: { toDate: () => Date } | null): string {
     if (!ts) return '';
     const d = ts.toDate();
@@ -326,6 +329,12 @@ export function CoagulacaoForm({
 
     setErrors({});
     await onSave(result.data);
+
+    // F3: limpar qcValidationRequired do reagente declarado quando a corrida
+    // é conforme (A). Fire-and-forget — falha não reverte save.
+    if (!naoConforme && reagenteInsumoId && labId) {
+      void clearInsumoQCValidation(labId, [reagenteInsumoId]);
+    }
   }
 
   return (

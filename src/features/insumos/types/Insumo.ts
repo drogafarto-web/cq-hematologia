@@ -113,6 +113,20 @@ export interface InsumoControle extends InsumoBase {
  */
 export interface InsumoReagente extends InsumoBase {
   tipo: 'reagente';
+  /**
+   * `true` quando o reagente foi aberto e ainda não foi validado por uma
+   * corrida de CQ aprovada que o declarasse em uso. `false`/ausente caso
+   * contrário.
+   *
+   * Set automático em `openInsumo`. Clear automático no save de CQ run
+   * aprovada que declarar este insumo em `reagentesInsumoIds` (analyzer/
+   * hematologia) ou no campo equivalente de cada módulo (coag/uro/imuno).
+   *
+   * Usado para UI indicativa ("CQ pendente") e como ponto de extensão para
+   * gate duro de runs de paciente quando/se o módulo existir — RDC 978/2025
+   * Art.128 + CLSI EP26-A (User Evaluation of Between-Reagent Lot Variation).
+   */
+  qcValidationRequired?: boolean;
 }
 
 /**
@@ -127,11 +141,29 @@ export interface InsumoTiraUro extends InsumoBase {
   fornecedor?: string;
   /** IDs dos analitos presentes na tira (permite filtrar tiras compatíveis). */
   analitosIncluidos: string[];
+  /**
+   * Mesmo semantics de `InsumoReagente.qcValidationRequired`. Tiras são
+   * consumíveis ativos em runs de uroanálise — novo lote exige CQ antes
+   * de entrar em rotina.
+   */
+  qcValidationRequired?: boolean;
 }
 
 export type Insumo = InsumoControle | InsumoReagente | InsumoTiraUro;
 
-// ─── Movimentação (log imutável) ─────────────────────────────────────────────
+// ─── Movimentação (log imutável + chain hash) ────────────────────────────────
+
+/**
+ * Status da cadeia criptográfica de auditoria do evento.
+ *
+ * `pending` — doc recém-criado pelo cliente; `chainHash` e `sealedAt` ainda
+ * nulos. A Cloud Function `onInsumoMovimentacaoCreate` processa o doc em
+ * ~1-2s e transiciona para `sealed`.
+ *
+ * `sealed` — `chainHash` vinculado ao evento anterior do mesmo insumo.
+ * Selado é final: rules + Admin SDK bloqueiam mutações subsequentes.
+ */
+export type InsumoMovimentacaoChainStatus = 'pending' | 'sealed';
 
 export interface InsumoMovimentacao {
   id: string;
@@ -139,14 +171,32 @@ export interface InsumoMovimentacao {
   tipo: InsumoMovimentacaoTipo;
   operadorId: string;
   operadorName: string;
+  /** Timestamp de servidor — ordenação canônica da cadeia. */
   timestamp: Timestamp;
+  /** Timestamp ISO8601 do cliente no momento do evento — faz parte da canonical. */
+  clientTimestamp: string;
   /** Motivo em descartes; opcional nos demais. */
   motivo?: string;
+
   /**
-   * Assinatura lógica SHA-256 (Web Crypto) — preserva o padrão de imutabilidade
-   * já usado em runs de módulos CIQ (ciq-imuno/coagulacao/uroanalise).
+   * Assinatura SHA-256 do payload canônico do evento (sem dependência de
+   * estado anterior) — cliente calcula e grava no create. Funciona offline.
+   * 64 caracteres hex.
    */
-  logicalSignature?: string;
+  payloadSignature: string;
+
+  /**
+   * Chain hash = SHA-256(payloadSignature + previousChainHash). Cloud Function
+   * preenche após o create. `null` enquanto `chainStatus === 'pending'`.
+   * Garante tamper-evidence da cadeia de eventos do mesmo insumo.
+   */
+  chainHash: string | null;
+
+  /** Estado da selagem — ver `InsumoMovimentacaoChainStatus`. */
+  chainStatus: InsumoMovimentacaoChainStatus;
+
+  /** Timestamp de servidor no momento em que a função selou o doc. */
+  sealedAt?: Timestamp;
 }
 
 // ─── Filtros de consulta ──────────────────────────────────────────────────────
@@ -174,4 +224,16 @@ export function isReagente(i: Insumo): i is InsumoReagente {
 /** Narrowing — true quando insumo é uma Tira de uroanálise. */
 export function isTiraUro(i: Insumo): i is InsumoTiraUro {
   return i.tipo === 'tira-uro';
+}
+
+/**
+ * true quando o insumo está com CQ pendente de validação — reagente/tira
+ * recém-aberto ainda não cobertos por uma corrida de CQ aprovada. Controles
+ * e insumos sem o flag retornam false.
+ */
+export function hasQCValidationPending(i: Insumo): boolean {
+  if (i.tipo === 'reagente' || i.tipo === 'tira-uro') {
+    return i.qcValidationRequired === true;
+  }
+  return false;
 }

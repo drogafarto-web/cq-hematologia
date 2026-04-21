@@ -37,6 +37,18 @@ export interface AnalyteResult {
   violations: WestgardViolation[];
 }
 
+/**
+ * Snapshot congelado de um insumo (reagente/controle) no momento da corrida.
+ * Preserva rastreabilidade mesmo se o doc mestre for editado/descartado depois.
+ * Campo aditivo — runs antigas sem o array continuam válidas.
+ */
+export interface RunReagenteSnapshot {
+  id: string;
+  nomeComercial: string;
+  fabricante: string;
+  lote: string;
+}
+
 export interface Run {
   id: string;
   lotId: string;
@@ -48,6 +60,10 @@ export interface Run {
   results: AnalyteResult[];
   manualOverride?: boolean;
   createdBy: string;
+  /** IDs dos insumos de reagente declarados em uso no equipamento durante esta corrida. */
+  reagentesInsumoIds?: string[];
+  /** Snapshot dos reagentes em uso — imutável para FR-10 audit mesmo se o insumo mestre mudar. */
+  reagentesSnapshot?: RunReagenteSnapshot[];
 }
 
 /** Transient in-memory state while operator reviews AI extraction */
