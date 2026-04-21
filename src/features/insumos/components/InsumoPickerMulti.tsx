@@ -152,7 +152,7 @@ export function InsumoPickerMulti({
         onClick={() => setOpen((v) => !v)}
         aria-label={ariaLabel ?? placeholder}
         aria-haspopup="listbox"
-        aria-expanded={open ? 'true' : 'false'}
+        aria-expanded={open}
         className={CLS_TRIGGER}
       >
         <span
@@ -183,11 +183,7 @@ export function InsumoPickerMulti({
             className="fixed inset-0 z-30 cursor-default"
             onClick={() => setOpen(false)}
           />
-          <div
-            role="listbox"
-            aria-multiselectable="true"
-            className="absolute top-11 left-0 right-0 z-40 max-h-80 overflow-hidden rounded-xl bg-white dark:bg-[#151d2a] border border-slate-200 dark:border-white/[0.1] shadow-2xl flex flex-col"
-          >
+          <div className="absolute top-11 left-0 right-0 z-40 max-h-80 overflow-hidden rounded-xl bg-white dark:bg-[#151d2a] border border-slate-200 dark:border-white/[0.1] shadow-2xl flex flex-col">
             <div className="p-2 border-b border-slate-100 dark:border-white/[0.06] shrink-0">
               <input
                 type="search"
@@ -199,7 +195,12 @@ export function InsumoPickerMulti({
               />
             </div>
 
-            <div className="flex-1 overflow-y-auto py-1">
+            <div
+              role="listbox"
+              aria-multiselectable
+              aria-label={ariaLabel ?? placeholder}
+              className="flex-1 overflow-y-auto py-1"
+            >
               {isLoading ? (
                 <div className="px-4 py-4 text-xs text-slate-400 dark:text-white/30 text-center">
                   Carregando…

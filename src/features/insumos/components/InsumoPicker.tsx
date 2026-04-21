@@ -119,7 +119,7 @@ export function InsumoPicker({
         onClick={() => setOpen((v) => !v)}
         aria-label={ariaLabel ?? placeholder}
         aria-haspopup="listbox"
-        aria-expanded={open ? 'true' : 'false'}
+        aria-expanded={open}
         className={CLS_TRIGGER}
       >
         {selected ? (
@@ -154,10 +154,7 @@ export function InsumoPicker({
             className="fixed inset-0 z-30 cursor-default"
             onClick={() => setOpen(false)}
           />
-          <div
-            role="listbox"
-            className="absolute top-11 left-0 right-0 z-40 max-h-72 overflow-y-auto rounded-xl bg-white dark:bg-[#151d2a] border border-slate-200 dark:border-white/[0.1] shadow-2xl"
-          >
+          <div className="absolute top-11 left-0 right-0 z-40 max-h-72 overflow-y-auto rounded-xl bg-white dark:bg-[#151d2a] border border-slate-200 dark:border-white/[0.1] shadow-2xl">
             <div className="p-2 border-b border-slate-100 dark:border-white/[0.06]">
               <input
                 type="search"
@@ -169,20 +166,21 @@ export function InsumoPicker({
               />
             </div>
 
-            <div className="py-1">
-              {value && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onSelect(null);
-                    setOpen(false);
-                  }}
-                  className="w-full px-4 h-9 text-left text-xs text-slate-500 dark:text-white/45 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-all flex items-center gap-2"
-                >
-                  <span className="opacity-60">×</span> Limpar seleção (entrada manual)
-                </button>
-              )}
+            {/* Limpar seleção fica fora do listbox — é ação, não opção. */}
+            {value && (
+              <button
+                type="button"
+                onClick={() => {
+                  onSelect(null);
+                  setOpen(false);
+                }}
+                className="w-full px-4 h-9 text-left text-xs text-slate-500 dark:text-white/45 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-all flex items-center gap-2 border-b border-slate-100 dark:border-white/[0.04]"
+              >
+                <span className="opacity-60">×</span> Limpar seleção (entrada manual)
+              </button>
+            )}
 
+            <div role="listbox" aria-label={ariaLabel ?? placeholder} className="py-1">
               {isLoading ? (
                 <div className="px-4 py-4 text-xs text-slate-400 dark:text-white/30 text-center">
                   Carregando…
