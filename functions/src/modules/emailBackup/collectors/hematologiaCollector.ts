@@ -115,6 +115,24 @@ export const hematologiaCollector: ModuleCollector = {
         'Cargo',
         'Assinatura',
       ],
+      // Layout refinado: dados quantitativos / regras Westgard na linha 1,
+      // rastreabilidade do operador/equipamento na linha 2 (inline, muted).
+      tableLayout: {
+        primary: [
+          { key: 'Data', shortLabel: 'Data', weight: 1.3 },
+          { key: 'Lote', shortLabel: 'Lote', weight: 1.2 },
+          { key: 'Nível', shortLabel: 'Nível', weight: 0.8, align: 'center' },
+          { key: 'Status', shortLabel: 'Status', weight: 1.1 },
+          { key: 'Westgard', shortLabel: 'Westgard', weight: 1.4 },
+          { key: 'IA editado', shortLabel: 'IA', weight: 0.7, align: 'center' },
+        ],
+        secondary: [
+          { key: 'Equipamento', shortLabel: 'Eq.' },
+          { key: 'Operador', shortLabel: 'Op.' },
+          { key: 'Cargo', shortLabel: 'Cargo' },
+          { key: 'Assinatura', shortLabel: 'Sig' },
+        ],
+      },
       rows,
       summary: {
         'Total de corridas': String(totalRuns),

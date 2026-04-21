@@ -48,6 +48,36 @@ export function resolveBackupRecipients(cfg: LabBackupConfig): string[] {
 /** A single row in a module's backup table. Keys are column labels → values. */
 export type BackupRow = Record<string, string>;
 
+/**
+ * Especificação de uma coluna na tabela do módulo.
+ * Usada por `TableLayoutSpec` para permitir larguras proporcionais
+ * (peso), cabeçalhos curtos e divisão primary/secondary.
+ */
+export interface ColumnSpec {
+  /** Chave — deve bater com a key em `BackupRow`. */
+  key: string;
+  /** Label curto para cabeçalho da tabela. Default: key em MAIÚSCULAS. */
+  shortLabel?: string;
+  /** Peso relativo para cálculo de largura (default 1). */
+  weight?: number;
+  /** Alinhamento do conteúdo. Default 'left'. */
+  align?: 'left' | 'right' | 'center';
+}
+
+/**
+ * Layout opcional da tabela de corridas de um módulo.
+ *
+ * Quando presente, o renderer usa duas linhas lógicas por corrida:
+ * - `primary`: linha de destaque (cabeçalho formal, texto em cor primária)
+ * - `secondary`: linha de rastreabilidade (inline, muted, fonte menor)
+ *
+ * Quando ausente, o renderer usa o layout legado (single-row, pesos iguais).
+ */
+export interface TableLayoutSpec {
+  primary: ColumnSpec[];
+  secondary?: ColumnSpec[];
+}
+
 /** All data a module contributes to a single backup run. */
 export interface ModuleBackupSection {
   /** Module identifier — must be unique across all registered collectors */
@@ -66,6 +96,11 @@ export interface ModuleBackupSection {
   rows: BackupRow[];
   /** Additional key→value stats shown below the section header */
   summary: Record<string, string>;
+  /**
+   * Layout refinado para a tabela (opcional). Se omitido, o PDF usa o layout
+   * legado baseado em `columns` (pesos iguais, linha única por corrida).
+   */
+  tableLayout?: TableLayoutSpec;
 }
 
 // ─── Staleness Alert ──────────────────────────────────────────────────────────

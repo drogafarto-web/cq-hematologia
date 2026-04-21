@@ -36,13 +36,38 @@ const row = (code, tipo, loteControle, loteReagente, operador, assinatura) => ({
   Assinatura: assinatura,
 });
 
+const LARGE = process.env.LARGE === '1';
+const baseRows = [
+  row('CI-2026-0005', 'Anti-HCV', '0e911203', '95k001', 'Área Técnica LabClin', 'a8c3b0375187…'),
+  row('CI-2026-0002', 'HIV', '06222025', '24H049C', 'Área Técnica LabClin', '0273695e0fe1…'),
+  row('CI-2026-0003', 'HBsAg', '0e45019', '94H040C', 'Área Técnica LabClin', 'be47bfcbef71…'),
+  row('CI-2026-0006', 'Anti-HCV', '04112034', '95k001', 'Área Técnica LabClin', '36bcd14cdbe2…'),
+  row('CI-2026-0007', 'Anti-HCV', '04112034', '95k001', 'Área Técnica LabClin', 'd14d6e138965…'),
+  row('CI-2026-0001', 'HIV', '06482891', '24H049C', 'Área Técnica LabClin', 'a7d4b6771d44…'),
+  row('CI-2026-0004', 'HBsAg', '0e2b022', '94H040C', 'Área Técnica LabClin', '1984e69d23ea…'),
+  row('CI-2026-0008', 'Sífilis', '06583009', '95L08', 'Área Técnica LabClin', 'b1c4e87cb193…'),
+  row('CI-2026-0009', 'Sífilis', '06583009', '95L08', 'Área Técnica LabClin', '53bbc7857baa…'),
+  row('CI-2026-0010', 'Sífilis', '06583009', '95L08', 'Área Técnica LabClin', '219553613387…'),
+];
+
+const expandedRows = LARGE
+  ? Array.from({ length: 40 }, (_, i) => {
+      const src = baseRows[i % baseRows.length];
+      return {
+        ...src,
+        Código: `CI-2026-${String(i + 1).padStart(4, '0')}`,
+        Conformidade: i % 15 === 0 ? 'NÃO CONFORME' : 'Conforme',
+      };
+    })
+  : baseRows;
+
 const sections = [
   {
     moduleId: 'imunologia',
     moduleName: 'Imunologia — CIQ-Imuno (RDC 978/2025)',
     lastRunDate: '2026-04-15',
-    totalRuns: 10,
-    nonConformingRuns: 0,
+    totalRuns: expandedRows.length,
+    nonConformingRuns: expandedRows.filter((r) => r.Conformidade === 'NÃO CONFORME').length,
     columns: [
       'Código',
       'Data',
@@ -60,18 +85,7 @@ const sections = [
       'Cargo',
       'Assinatura',
     ],
-    rows: [
-      row('CI-2026-0005', 'Anti-HCV', '0e911203', '95k001', 'Área Técnica LabClin', 'a8c3b0375187…'),
-      row('CI-2026-0002', 'HIV', '06222025', '24H049C', 'Área Técnica LabClin', '0273695e0fe1…'),
-      row('CI-2026-0003', 'HBsAg', '0e45019', '94H040C', 'Área Técnica LabClin', 'be47bfcbef71…'),
-      row('CI-2026-0006', 'Anti-HCV', '04112034', '95k001', 'Área Técnica LabClin', '36bcd14cdbe2…'),
-      row('CI-2026-0007', 'Anti-HCV', '04112034', '95k001', 'Área Técnica LabClin', 'd14d6e138965…'),
-      row('CI-2026-0001', 'HIV', '06482891', '24H049C', 'Área Técnica LabClin', 'a7d4b6771d44…'),
-      row('CI-2026-0004', 'HBsAg', '0e2b022', '94H040C', 'Área Técnica LabClin', '1984e69d23ea…'),
-      row('CI-2026-0008', 'Sífilis', '06583009', '95L08', 'Área Técnica LabClin', 'b1c4e87cb193…'),
-      row('CI-2026-0009', 'Sífilis', '06583009', '95L08', 'Área Técnica LabClin', '53bbc7857baa…'),
-      row('CI-2026-0010', 'Sífilis', '06583009', '95L08', 'Área Técnica LabClin', '219553613387…'),
-    ],
+    rows: expandedRows,
     summary: {
       'Total de corridas': '10',
       Conformes: '10',
@@ -80,6 +94,27 @@ const sections = [
       'Tipos de teste': 'Anti-HCV, HIV, HBsAg, Sífilis',
       'Operadores distintos': '1',
       'Lotes cobertos': '7',
+    },
+    tableLayout: {
+      primary: [
+        { key: 'Código', shortLabel: 'Código', weight: 1.3 },
+        { key: 'Data', shortLabel: 'Data', weight: 1.3 },
+        { key: 'Tipo de Teste', shortLabel: 'Tipo', weight: 1.0 },
+        { key: 'Lote Controle', shortLabel: 'Lote Ctrl', weight: 1.1 },
+        { key: 'Lote Reagente', shortLabel: 'Lote Reag.', weight: 1.1 },
+        { key: 'Reg. ANVISA', shortLabel: 'Reg. ANVISA', weight: 1.0 },
+        { key: 'Esperado', shortLabel: 'Esperado', weight: 1.1 },
+        { key: 'Obtido', shortLabel: 'Obtido', weight: 1.1 },
+        { key: 'Conformidade', shortLabel: 'Conform.', weight: 1.0 },
+      ],
+      secondary: [
+        { key: 'Equipamento', shortLabel: 'Eq.' },
+        { key: 'Operador', shortLabel: 'Op.' },
+        { key: 'Cargo', shortLabel: 'Cargo' },
+        { key: 'Ação Corretiva', shortLabel: 'Ação' },
+        { key: 'Alertas', shortLabel: 'Alertas' },
+        { key: 'Assinatura', shortLabel: 'Sig' },
+      ],
     },
   },
 ];

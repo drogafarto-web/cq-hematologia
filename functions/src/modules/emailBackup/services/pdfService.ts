@@ -1,6 +1,6 @@
 import PDFDocument = require('pdfkit');
 import { createHash } from 'crypto';
-import type { BackupReport, ModuleBackupSection } from '../types';
+import type { BackupReport, ColumnSpec, ModuleBackupSection } from '../types';
 import {
   COLOR,
   CONTENT_WIDTH,
@@ -339,11 +339,48 @@ function renderModuleSection(
     .strokeColor(COLOR.border)
     .stroke();
 
-  // Data table
-  renderDataTable(doc, section.columns, section.rows, tableStartY + 10, contentWidth);
+  // Data table — dispatcher: dual-row se tableLayout presente, senão legacy
+  renderModuleTable(doc, section, tableStartY + 10, contentWidth);
 
   // Page footer
   renderPageFooter(doc, report);
+}
+
+/**
+ * Dispatcher: escolhe entre render dual-row (layout refinado) ou
+ * render legado (equal-width single-row) baseado em `tableLayout`.
+ */
+function renderModuleTable(
+  doc: PDFKit.PDFDocument,
+  section: ModuleBackupSection,
+  startY: number,
+  contentWidth: number,
+): void {
+  if (section.tableLayout) {
+    renderDualRowTable(doc, section, startY, contentWidth);
+  } else {
+    renderDataTable(doc, section.columns, section.rows, startY, contentWidth);
+  }
+}
+
+/**
+ * Computa posições (x, largura) para um conjunto de colunas com pesos
+ * relativos, dentro de uma largura total disponível.
+ */
+function computeColumnLayout(
+  columns: ColumnSpec[],
+  originX: number,
+  totalWidth: number,
+): Array<{ col: ColumnSpec; x: number; width: number }> {
+  const totalWeight = columns.reduce((sum, c) => sum + (c.weight ?? 1), 0) || 1;
+  const out: Array<{ col: ColumnSpec; x: number; width: number }> = [];
+  let cursorX = originX;
+  for (const col of columns) {
+    const width = ((col.weight ?? 1) / totalWeight) * totalWidth;
+    out.push({ col, x: cursorX, width });
+    cursorX += width;
+  }
+  return out;
 }
 
 // ─── Data Table ───────────────────────────────────────────────────────────────
@@ -457,6 +494,183 @@ function renderDataTable(
       .fontSize(9)
       .fillColor(COLOR.textMuted)
       .text('Nenhuma corrida registrada no período.', margin, currentY + 8);
+  }
+}
+
+// ─── Dual-row Data Table ──────────────────────────────────────────────────────
+//
+// Layout de corrida em duas linhas lógicas:
+//   Linha 1 (primary):   colunas técnicas destacadas, com pesos
+//   Linha 2 (secondary): rastreabilidade inline, fonte menor e cor muted
+//
+// Permite que tabelas com 12+ colunas caibam em A4 retrato sem truncar.
+
+function renderDualRowTable(
+  doc: PDFKit.PDFDocument,
+  section: ModuleBackupSection,
+  startY: number,
+  contentWidth: number,
+): void {
+  const { margin } = PAGE;
+  const layout = section.tableLayout!;
+  const primarySpecs = layout.primary;
+  const secondarySpecs = layout.secondary ?? [];
+  const hasSecondary = secondarySpecs.length > 0;
+
+  const primaryCols = computeColumnLayout(primarySpecs, margin, contentWidth);
+
+  const headerH = 22;
+  const primaryRowH = 16;
+  const secondaryRowH = hasSecondary ? 14 : 0;
+  const totalRowH = primaryRowH + secondaryRowH;
+  const rowSeparatorY = 0.5;
+
+  // Estado de paginação: redesenha cabeçalho ao trocar página.
+  const drawHeader = (y: number): number => {
+    doc.rect(margin, y, contentWidth, headerH).fill('#1a1a2e');
+    for (const { col, x, width } of primaryCols) {
+      const label = (col.shortLabel ?? col.key).toUpperCase();
+      doc
+        .font(FONT_BOLD)
+        .fontSize(FONT_SIZES.tableHead)
+        .fillColor(COLOR.textMuted)
+        .text(label, x + 4, y + 8, {
+          width: width - 8,
+          align: col.align ?? 'left',
+          lineBreak: false,
+          ellipsis: true,
+        });
+    }
+    return y + headerH;
+  };
+
+  const rewindForPage = (): number => {
+    doc.addPage();
+    doc.rect(0, 0, PAGE.width, 4).fill(COLOR.accent);
+
+    let y = PAGE.margin + 10;
+    doc
+      .font(FONT_BOLD)
+      .fontSize(FONT_SIZES.micro)
+      .fillColor(COLOR.textMuted)
+      .text(`${section.moduleName} (continuação)`, margin, y, {
+        width: contentWidth,
+        lineBreak: false,
+        ellipsis: true,
+      });
+    y += 16;
+    return drawHeader(y);
+  };
+
+  let cursorY = drawHeader(startY);
+
+  if (section.rows.length === 0) {
+    doc
+      .font(FONT_REGULAR)
+      .fontSize(FONT_SIZES.small)
+      .fillColor(COLOR.textMuted)
+      .text('Nenhuma corrida registrada no período.', margin, cursorY + 10);
+    return;
+  }
+
+  for (let rowIdx = 0; rowIdx < section.rows.length; rowIdx++) {
+    if (cursorY + totalRowH > safeBottomY()) {
+      cursorY = rewindForPage();
+    }
+
+    const row = section.rows[rowIdx];
+    const isAlt = rowIdx % 2 === 1;
+
+    // Fundo zebrado da linha dupla
+    if (isAlt) {
+      doc.rect(margin, cursorY, contentWidth, totalRowH).fill(COLOR.rowAlt);
+    }
+
+    // Barra vermelha à esquerda para não-conformidades
+    const statusVal = row['Conformidade'] ?? row['Status'] ?? '';
+    if (statusVal === 'NÃO CONFORME' || statusVal === 'Rejeitada') {
+      doc.rect(margin, cursorY, 3, totalRowH).fill(COLOR.danger);
+    }
+
+    // ── Linha 1 — primary ──────────────────────────────────────────────
+    for (const { col, x, width } of primaryCols) {
+      const val = row[col.key] ?? '—';
+      let cellColor: string = COLOR.textPrimary;
+      if (val === 'Conforme' || val === 'Aprovada') cellColor = COLOR.success;
+      else if (val === 'NÃO CONFORME' || val === 'Rejeitada') cellColor = COLOR.danger;
+      else if (val === 'Pendente') cellColor = COLOR.accentWarm;
+
+      doc
+        .font(FONT_BOLD)
+        .fontSize(FONT_SIZES.table)
+        .fillColor(cellColor)
+        .text(val, x + 5, cursorY + 4, {
+          width: width - 10,
+          align: col.align ?? 'left',
+          lineBreak: false,
+          ellipsis: true,
+        });
+    }
+
+    // ── Linha 2 — secondary (metadados inline, muted, fonte menor) ──────
+    if (hasSecondary) {
+      const secondaryY = cursorY + primaryRowH;
+
+      // Separador fino entre as duas linhas lógicas
+      doc
+        .moveTo(margin + 4, secondaryY)
+        .lineTo(margin + contentWidth - 4, secondaryY)
+        .lineWidth(rowSeparatorY)
+        .strokeColor(COLOR.border)
+        .stroke();
+
+      // Monta labels inline: "Eq.: — · Op.: Dra. Maria · Sig: abc123…"
+      const parts: Array<{ label: string; value: string }> = secondarySpecs.map((c) => ({
+        label: (c.shortLabel ?? c.key).replace(/:$/u, ''),
+        value: row[c.key] ?? '—',
+      }));
+
+      doc.font(FONT_REGULAR).fontSize(FONT_SIZES.micro).fillColor(COLOR.textMuted);
+
+      let inlineX = margin + 6;
+      const inlineMaxX = margin + contentWidth - 6;
+      const inlineY = secondaryY + 3;
+      const separator = '  \u00b7  '; // middle-dot espaçado
+
+      for (let i = 0; i < parts.length; i++) {
+        const { label, value } = parts[i];
+        const fragmentLabel = `${label}: `;
+        const fragmentValue = value;
+        const fullFragment = fragmentLabel + fragmentValue + (i < parts.length - 1 ? separator : '');
+
+        const fragmentWidth = doc.widthOfString(fullFragment);
+        if (inlineX + fragmentWidth > inlineMaxX) {
+          // Pulou o orçamento horizontal — escreve o que couber com ellipsis e sai
+          const remaining = inlineMaxX - inlineX;
+          doc.text('…', inlineX, inlineY, {
+            width: Math.max(remaining, 6),
+            lineBreak: false,
+            ellipsis: true,
+          });
+          break;
+        }
+
+        // Label em tom ainda mais muted
+        doc.fillColor('#52525b').text(fragmentLabel, inlineX, inlineY, { lineBreak: false });
+        inlineX += doc.widthOfString(fragmentLabel);
+
+        // Valor em textMuted
+        doc.fillColor(COLOR.textMuted).text(fragmentValue, inlineX, inlineY, { lineBreak: false });
+        inlineX += doc.widthOfString(fragmentValue);
+
+        if (i < parts.length - 1) {
+          doc.fillColor(COLOR.border).text(separator, inlineX, inlineY, { lineBreak: false });
+          inlineX += doc.widthOfString(separator);
+        }
+      }
+    }
+
+    cursorY += totalRowH;
   }
 }
 
