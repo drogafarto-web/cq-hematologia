@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { ANALYTE_MAP } from '../../constants';
 import { checkWestgardRules, isRejection } from '../chart/utils/westgardRules';
+import { InsumoPickerMulti } from '../insumos/components/InsumoPickerMulti';
+import type { Insumo } from '../insumos/types/Insumo';
 import type { PendingRun, ControlLot, WestgardViolation, AnalyteStats } from '../../types';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -70,7 +72,11 @@ function resolveStats(lot: ControlLot, analyteId: string): AnalyteStats | null {
 interface ReviewRunModalProps {
   pendingRun: PendingRun;
   activeLot: ControlLot;
-  onConfirm: (editedValues: Record<string, number>, approve: boolean) => Promise<void>;
+  onConfirm: (
+    editedValues: Record<string, number>,
+    approve: boolean,
+    reagentes: Insumo[],
+  ) => Promise<void>;
   onCancel: () => void;
   isConfirming: boolean;
 }
@@ -93,6 +99,10 @@ export function ReviewRunModal({
     ),
   );
 
+  // Reagentes em uso no equipamento durante esta corrida — opcional, usado
+  // para FR-10 (rastreabilidade de insumos). Não bloqueia approve/reject.
+  const [reagentes, setReagentes] = useState<Insumo[]>([]);
+
   const imageUrl = URL.createObjectURL(pendingRun.file);
 
   const lowConfidenceCount = Object.values(pendingRun.results).filter(
@@ -107,7 +117,7 @@ export function ReviewRunModal({
     const parsed = Object.fromEntries(
       Object.entries(editedValues).map(([id, raw]) => [id, parseFloat(raw)]),
     );
-    await onConfirm(parsed, approve);
+    await onConfirm(parsed, approve, reagentes);
   }
 
   // Build ordered list of analytes in this lot
@@ -209,8 +219,8 @@ export function ReviewRunModal({
           </button>
         </div>
 
-        {/* Analyte table */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        {/* Analyte table + reagentes */}
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-xs text-slate-400 dark:text-white/30 font-medium">
@@ -268,6 +278,29 @@ export function ReviewRunModal({
               ))}
             </tbody>
           </table>
+
+          {/* Reagentes em uso — FR-10 rastreabilidade. Opcional; não bloqueia submit. */}
+          <section aria-labelledby="reagentes-title" className="space-y-2">
+            <div className="flex items-baseline justify-between">
+              <h3
+                id="reagentes-title"
+                className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+              >
+                Reagentes em uso
+              </h3>
+              <span className="text-[10px] text-slate-400 dark:text-white/30">
+                opcional · rastreabilidade FR-10
+              </span>
+            </div>
+            <InsumoPickerMulti
+              tipo="reagente"
+              modulo="hematologia"
+              value={reagentes.map((r) => r.id)}
+              onSelect={setReagentes}
+              placeholder="Declarar reagentes carregados no equipamento (opcional)"
+              ariaLabel="Selecionar reagentes em uso no equipamento"
+            />
+          </section>
         </div>
 
         {/* Footer */}

@@ -15,6 +15,7 @@
 import React, { useMemo, useState } from 'react';
 import { useInsumos } from '../hooks/useInsumos';
 import { diasAteVencer, validadeStatus } from '../utils/validadeReal';
+import { hasQCValidationPending } from '../types/Insumo';
 import type { Insumo, InsumoModulo, InsumoTipo } from '../types/Insumo';
 
 interface InsumoPickerProps {
@@ -70,6 +71,24 @@ function ValidadeChip({ insumo }: { insumo: Insumo }) {
   );
 }
 
+/**
+ * Chip "CQ pendente" para reagente/tira recém-aberto ainda não validado por
+ * uma corrida de CQ aprovada. Âmbar — não é erro, é aviso acionável.
+ */
+function QCPendingChip() {
+  return (
+    <span
+      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium border bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300"
+      title="Reagente/tira aberto — execute uma corrida de CQ antes de rotina"
+    >
+      <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor" aria-hidden>
+        <circle cx="4" cy="4" r="3" />
+      </svg>
+      CQ pendente
+    </span>
+  );
+}
+
 export function InsumoPicker({
   tipo,
   modulo,
@@ -100,7 +119,7 @@ export function InsumoPicker({
         onClick={() => setOpen((v) => !v)}
         aria-label={ariaLabel ?? placeholder}
         aria-haspopup="listbox"
-        aria-expanded={open ? 'true' : 'false'}
+        aria-expanded={open}
         className={CLS_TRIGGER}
       >
         {selected ? (
@@ -110,6 +129,7 @@ export function InsumoPicker({
             </span>
             <span className="text-xs text-slate-500 dark:text-white/45">· Lote {selected.lote}</span>
             <ValidadeChip insumo={selected} />
+            {hasQCValidationPending(selected) && <QCPendingChip />}
           </div>
         ) : (
           <span className="text-slate-400 dark:text-white/35">{placeholder}</span>
@@ -134,10 +154,7 @@ export function InsumoPicker({
             className="fixed inset-0 z-30 cursor-default"
             onClick={() => setOpen(false)}
           />
-          <div
-            role="listbox"
-            className="absolute top-11 left-0 right-0 z-40 max-h-72 overflow-y-auto rounded-xl bg-white dark:bg-[#151d2a] border border-slate-200 dark:border-white/[0.1] shadow-2xl"
-          >
+          <div className="absolute top-11 left-0 right-0 z-40 max-h-72 overflow-y-auto rounded-xl bg-white dark:bg-[#151d2a] border border-slate-200 dark:border-white/[0.1] shadow-2xl">
             <div className="p-2 border-b border-slate-100 dark:border-white/[0.06]">
               <input
                 type="search"
@@ -149,20 +166,21 @@ export function InsumoPicker({
               />
             </div>
 
-            <div className="py-1">
-              {value && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onSelect(null);
-                    setOpen(false);
-                  }}
-                  className="w-full px-4 h-9 text-left text-xs text-slate-500 dark:text-white/45 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-all flex items-center gap-2"
-                >
-                  <span className="opacity-60">×</span> Limpar seleção (entrada manual)
-                </button>
-              )}
+            {/* Limpar seleção fica fora do listbox — é ação, não opção. */}
+            {value && (
+              <button
+                type="button"
+                onClick={() => {
+                  onSelect(null);
+                  setOpen(false);
+                }}
+                className="w-full px-4 h-9 text-left text-xs text-slate-500 dark:text-white/45 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-all flex items-center gap-2 border-b border-slate-100 dark:border-white/[0.04]"
+              >
+                <span className="opacity-60">×</span> Limpar seleção (entrada manual)
+              </button>
+            )}
 
+            <div role="listbox" aria-label={ariaLabel ?? placeholder} className="py-1">
               {isLoading ? (
                 <div className="px-4 py-4 text-xs text-slate-400 dark:text-white/30 text-center">
                   Carregando…
@@ -197,7 +215,10 @@ export function InsumoPicker({
                         {i.fabricante} · Lote {i.lote}
                       </div>
                     </div>
-                    <ValidadeChip insumo={i} />
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {hasQCValidationPending(i) && <QCPendingChip />}
+                      <ValidadeChip insumo={i} />
+                    </div>
                   </button>
                 ))
               )}

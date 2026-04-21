@@ -81,6 +81,9 @@ export const SUBCOLLECTIONS = {
   // Cadastro mestre de Insumos (controles, reagentes, tiras) — cross-module
   INSUMOS: 'insumos',
   INSUMO_MOVIMENTACOES: 'insumo-movimentacoes',
+  // Registro de emissões FR-10 — doc por hash, habilita validação externa
+  // via Cloud Function pública `validateFR10` (QR scan).
+  FR10_EMISSIONS: 'fr10-emissions',
   // Módulos futuros — descomentar ao implementar:
   // CIQ_BIOQUIMICA: 'ciq-bioquimica',
 } as const;
@@ -131,6 +134,15 @@ export const storagePath = {
 export const AUDIT_BASE_URL: string =
   (import.meta as { env?: { VITE_AUDIT_BASE_URL?: string } }).env?.VITE_AUDIT_BASE_URL ??
   'https://cq.labclin.com.br/audit';
+
+// ─── FR-10 Validate Endpoint ──────────────────────────────────────────────────
+// URL da Cloud Function pública `validateFR10` — QR code impresso no FR-10 PDF
+// aponta para cá. Deploy fixo em southamerica-east1. Override via env caso
+// preview channel / dev precise de URL diferente.
+
+export const FR10_VALIDATE_URL: string =
+  (import.meta as { env?: { VITE_FR10_VALIDATE_URL?: string } }).env?.VITE_FR10_VALIDATE_URL ??
+  'https://southamerica-east1-hmatologia2.cloudfunctions.net/validateFR10';
 
 // ─── Gemini ───────────────────────────────────────────────────────────────────
 

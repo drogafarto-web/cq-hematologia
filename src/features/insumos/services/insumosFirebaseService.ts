@@ -39,6 +39,7 @@ import type {
   InsumoFilters,
 } from '../types/Insumo';
 import { computeValidadeReal } from '../utils/validadeReal';
+import { computeMovimentacaoSignature } from '../utils/movimentacaoSignature';
 
 // ─── Path helpers ─────────────────────────────────────────────────────────────
 
@@ -188,13 +189,18 @@ export async function updateInsumo(
 }
 
 /**
- * Marca abertura: seta `dataAbertura`, recalcula `validadeReal`, atualiza status→'ativo'
- * (mesmo se já era), e registra movimentação.
+ * Marca abertura: seta `dataAbertura`, recalcula `validadeReal`, atualiza
+ * status→'ativo' (mesmo se já era) e registra movimentação.
+ *
+ * Para consumíveis ativos em CQ (`tipo in ['reagente','tira-uro']`) adicional-
+ * mente marca `qcValidationRequired=true` — flag soft que a próxima corrida
+ * de CQ aprovada e que declarar este insumo limpará via
+ * `clearInsumoQCValidation`. Ver skill §F3.
  */
 export async function openInsumo(
   labId: string,
   insumoId: string,
-  current: Pick<Insumo, 'validade' | 'diasEstabilidadeAbertura'>,
+  current: Pick<Insumo, 'validade' | 'diasEstabilidadeAbertura' | 'tipo'>,
   operadorId: string,
   operadorName: string,
 ): Promise<void> {
@@ -204,10 +210,13 @@ export async function openInsumo(
       computeValidadeReal(current.validade.toDate(), now, current.diasEstabilidadeAbertura),
     );
 
+    const requiresQC = current.tipo === 'reagente' || current.tipo === 'tira-uro';
+
     await updateDoc(insumoRef(labId, insumoId), {
       dataAbertura: Timestamp.fromDate(now),
       validadeReal,
       status: 'ativo',
+      ...(requiresQC && { qcValidationRequired: true }),
     });
 
     await logMovimentacao(labId, {
@@ -276,22 +285,87 @@ export async function descartarInsumo(
   }
 }
 
-// ─── Movimentações (audit trail imutável) ────────────────────────────────────
+/**
+ * Limpa o flag `qcValidationRequired` de N insumos em batch — chamado após
+ * save bem-sucedido de uma CQ run aprovada que declare esses insumos.
+ *
+ * Idempotente: se o flag já é `false`/ausente, o update é no-op. Falha silen-
+ * ciosa por-insumo (tolerante a concorrência com openInsumo) — log de erro
+ * no console. Não throws: o save da run não deve reverter por falha aqui.
+ *
+ * Não gera movimentação própria — clear é efeito colateral de uma CQ run
+ * que já tem audit trail próprio no módulo correspondente.
+ */
+export async function clearInsumoQCValidation(
+  labId: string,
+  insumoIds: readonly string[],
+): Promise<void> {
+  if (insumoIds.length === 0) return;
+  await Promise.allSettled(
+    insumoIds.map(async (id) => {
+      try {
+        await updateDoc(insumoRef(labId, id), { qcValidationRequired: false });
+      } catch (err) {
+        console.warn(
+          `[insumos][clearQC] falha ao limpar ${id}: ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+        );
+      }
+    }),
+  );
+}
 
-type MovimentacaoInput = Omit<InsumoMovimentacao, 'id' | 'timestamp' | 'logicalSignature'>;
+// ─── Movimentações (audit trail imutável + chain hash) ──────────────────────
+
+/**
+ * Campos que o caller fornece. O serviço adiciona: `id`, `clientTimestamp`,
+ * `payloadSignature`, `chainHash` (null inicial), `chainStatus` ('pending'),
+ * `timestamp` (serverTimestamp). O `chainHash` final + `sealedAt` são
+ * preenchidos pela Cloud Function `onInsumoMovimentacaoCreate`.
+ */
+type MovimentacaoInput = Omit<
+  InsumoMovimentacao,
+  | 'id'
+  | 'timestamp'
+  | 'clientTimestamp'
+  | 'payloadSignature'
+  | 'chainHash'
+  | 'chainStatus'
+  | 'sealedAt'
+>;
 
 /**
  * Grava um registro de movimentação. Imutável por design — rules negam
- * update/delete. `logicalSignature` é populado em v2 quando migrarmos para
- * cadeia hash-linked igual às runs de CIQ.
+ * update/delete. Cliente calcula `payloadSignature` local; a Cloud Function
+ * `onInsumoMovimentacaoCreate` preenche `chainHash` + sela o doc em 1-2s.
+ *
+ * Falha na rede: a promessa rejeita e o caller rethrow — inconsistência
+ * com o estado "principal" do insumo é aceitável em failure-isolated call
+ * (abrir/fechar/descartar). Retry fica a cargo do usuário.
  */
 async function logMovimentacao(
   labId: string,
   input: MovimentacaoInput,
 ): Promise<void> {
   const id = crypto.randomUUID();
+  const clientTimestamp = new Date().toISOString();
+  const payloadSignature = await computeMovimentacaoSignature({
+    movId: id,
+    insumoId: input.insumoId,
+    tipo: input.tipo,
+    operadorId: input.operadorId,
+    operadorName: input.operadorName,
+    clientTimestamp,
+    ...(input.motivo !== undefined && { motivo: input.motivo }),
+  });
+
   await setDoc(movRef(labId, id), {
     ...input,
+    clientTimestamp,
+    payloadSignature,
+    chainHash: null,
+    chainStatus: 'pending',
     timestamp: serverTimestamp(),
   });
 }
