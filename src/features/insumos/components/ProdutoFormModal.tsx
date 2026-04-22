@@ -16,9 +16,14 @@
  * Acessibilidade: focus trap simples, Escape fecha.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useUser } from '../../../store/useAuthStore';
-import { createProduto, updateProduto } from '../services/produtoInsumoService';
+import {
+  createProduto,
+  updateProduto,
+  countInsumosByProduto,
+} from '../services/produtoInsumoService';
+import { useEquipamentos } from '../../equipamentos/hooks/useEquipamentos';
 import type { ProdutoInsumo } from '../types/ProdutoInsumo';
 import type { InsumoModulo, InsumoTipo, InsumoNivel } from '../types/Insumo';
 
@@ -111,9 +116,10 @@ export function ProdutoFormModal({
   const [codigoFabricante, setCodigoFabricante] = useState(produto?.codigoFabricante ?? '');
   const [funcaoTecnica, setFuncaoTecnica] = useState(produto?.funcaoTecnica ?? '');
   const [registroAnvisa, setRegistroAnvisa] = useState(produto?.registroAnvisa ?? '');
-  const [equipamentos, setEquipamentos] = useState(
-    produto?.equipamentosCompativeis?.join(', ') ?? '',
+  const [equipamentosSelecionados, setEquipamentosSelecionados] = useState<string[]>(
+    produto?.equipamentosCompativeis ?? [],
   );
+  const [equipamentoLivre, setEquipamentoLivre] = useState('');
   const [diasEstabilidadeAberturaDefault, setDias] = useState<number | ''>(
     produto?.diasEstabilidadeAberturaDefault ?? '',
   );
@@ -123,6 +129,77 @@ export function ProdutoFormModal({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Contagem de lotes vinculados ao produto — gate pra liberar edição de tipo
+  // e fabricante em modo edit. Sem lote: libera (nenhuma integridade a
+  // proteger). Com lote: tranca (mudança quebraria schema dos lotes ou
+  // colidiria com chave de dedup de outro produto).
+  const [loteCount, setLoteCount] = useState<number | null>(null);
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (!isEdit || !produto) {
+      setLoteCount(0);
+      return;
+    }
+    let cancelled = false;
+    countInsumosByProduto(labId, produto.id)
+      .then((n) => {
+        if (!cancelled) setLoteCount(n);
+      })
+      .catch(() => {
+        // Em caso de erro, assume "travado" por segurança — user não perde
+        // integridade por um glitch de rede.
+        if (!cancelled) setLoteCount(1);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isEdit, produto, labId]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  const tipoFabricanteLocked = isEdit && (loteCount === null || loteCount > 0);
+
+  // Equipamentos do lab — para o seletor multi. Backend-side filtra ativos;
+  // cliente filtra por módulo(s) selecionado(s) pra não poluir quando produto
+  // é de hematologia com listagem de equipamentos de imunologia.
+  const { equipamentos: labEquipamentos } = useEquipamentos({
+    status: ['ativo', 'manutencao'] as Array<'ativo' | 'manutencao'>,
+  });
+  const equipamentosDisponiveis = useMemo(() => {
+    if (modulos.length === 0) return labEquipamentos;
+    return labEquipamentos.filter((e) => modulos.includes(e.module));
+  }, [labEquipamentos, modulos]);
+
+  // Nomes legados selecionados que não correspondem a nenhum equipamento
+  // atualmente cadastrado — preserva valores criados antes de a feature
+  // de equipamentos existir. Exibidos como chips separados com flag "livre".
+  const nomesDoLab = useMemo(
+    () => new Set(labEquipamentos.map((e) => e.name)),
+    [labEquipamentos],
+  );
+  const equipamentosLivresSelecionados = useMemo(
+    () => equipamentosSelecionados.filter((n) => !nomesDoLab.has(n)),
+    [equipamentosSelecionados, nomesDoLab],
+  );
+
+  function toggleEquipamento(nome: string) {
+    setEquipamentosSelecionados((prev) =>
+      prev.includes(nome) ? prev.filter((n) => n !== nome) : [...prev, nome],
+    );
+  }
+
+  function addEquipamentoLivre() {
+    const v = equipamentoLivre.trim();
+    if (!v) return;
+    if (!equipamentosSelecionados.includes(v)) {
+      setEquipamentosSelecionados((prev) => [...prev, v]);
+    }
+    setEquipamentoLivre('');
+  }
+
+  function removeEquipamentoLivre(nome: string) {
+    setEquipamentosSelecionados((prev) => prev.filter((n) => n !== nome));
+  }
 
   function validate(): boolean {
     const e: Record<string, string> = {};
@@ -147,10 +224,7 @@ export function ProdutoFormModal({
     setSubmitting(true);
     setSubmitError(null);
     try {
-      const equipamentosArr = equipamentos
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean);
+      const equipamentosArr = equipamentosSelecionados.map((s) => s.trim()).filter(Boolean);
 
       if (isEdit && produto) {
         await updateProduto(labId, produto.id, {
@@ -264,16 +338,16 @@ export function ProdutoFormModal({
                 <button
                   key={t}
                   type="button"
-                  disabled={isEdit}
+                  disabled={tipoFabricanteLocked}
                   onClick={() => {
-                    if (isEdit) return;
+                    if (tipoFabricanteLocked) return;
                     setTipo(t);
                     if (t === 'tira-uro') setModulos(['uroanalise']);
                   }}
                   className={`
                     flex-1 text-left p-3 rounded-xl border transition-all text-sm
-                    ${isEdit && tipo !== t ? 'opacity-40 cursor-not-allowed' : ''}
-                    ${isEdit ? 'cursor-default' : ''}
+                    ${tipoFabricanteLocked && tipo !== t ? 'opacity-40 cursor-not-allowed' : ''}
+                    ${tipoFabricanteLocked ? 'cursor-default' : ''}
                     ${
                       tipo === t
                         ? 'bg-violet-500/10 border-violet-500/50 text-violet-700 dark:text-violet-300'
@@ -285,6 +359,13 @@ export function ProdutoFormModal({
                 </button>
               ))}
             </div>
+            {isEdit && (
+              <p className="text-[11px] text-slate-400 dark:text-white/30 mt-2 ml-0.5">
+                {tipoFabricanteLocked
+                  ? `Bloqueado — ${loteCount} lote(s) vinculado(s) a este produto.`
+                  : 'Liberado para edição — nenhum lote vinculado ainda.'}
+              </p>
+            )}
           </div>
 
           {/* Módulos */}
@@ -325,7 +406,13 @@ export function ProdutoFormModal({
               label="Fabricante"
               required
               error={errors.fabricante}
-              hint={isEdit ? 'Imutável — compõe a chave de dedup do catálogo.' : undefined}
+              hint={
+                tipoFabricanteLocked
+                  ? 'Bloqueado enquanto houver lote vinculado.'
+                  : isEdit
+                    ? 'Liberado — nenhum lote vinculado.'
+                    : undefined
+              }
             >
               <input
                 id="fabricante"
@@ -334,8 +421,8 @@ export function ProdutoFormModal({
                 onChange={(e) => setFabricante(e.target.value)}
                 placeholder="Horiba, Bio-Rad, Stago…"
                 autoComplete="off"
-                readOnly={isEdit}
-                disabled={isEdit}
+                readOnly={tipoFabricanteLocked}
+                disabled={tipoFabricanteLocked}
               />
             </Field>
             <Field id="nomeComercial" label="Nome comercial" required error={errors.nomeComercial}>
@@ -386,20 +473,121 @@ export function ProdutoFormModal({
             />
           </Field>
 
-          {/* Equipamentos */}
+          {/* Equipamentos compatíveis — seletor múltiplo dos equipamentos do lab
+              filtrados pelos módulos do produto. Controle multianalítico pode
+              rodar em N equipamentos (ex: Yumizen H550 + Micros 60); reagentes
+              costumam ser 1:1 mas o campo aceita múltiplos pra permitir casos
+              de fabricantes com linha compatível. Entrada livre abaixo permite
+              registrar modelo ainda não cadastrado no lab (ex: equipamento
+              planejado, ou catálogo impressa que o auditor verifica). */}
           <Field
-            id="equipamentos"
             label="Equipamentos compatíveis"
-            hint="Separados por vírgula (opcional)"
+            hint="Selecione os equipamentos do lab onde este produto pode ser usado. Um controle pode cobrir vários equipamentos; reagentes costumam ser exclusivos — mas o campo aceita múltiplos."
           >
-            <input
-              id="equipamentos"
-              className={INPUT_CLS}
-              value={equipamentos}
-              onChange={(e) => setEquipamentos(e.target.value)}
-              placeholder="Yumizen H550, Yumizen H750"
-              autoComplete="off"
-            />
+            <div className="space-y-3">
+              {equipamentosDisponiveis.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {equipamentosDisponiveis.map((eq) => {
+                    const on = equipamentosSelecionados.includes(eq.name);
+                    return (
+                      <button
+                        key={eq.id}
+                        type="button"
+                        onClick={() => toggleEquipamento(eq.name)}
+                        aria-pressed={on ? 'true' : 'false'}
+                        className={`
+                          inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all
+                          ${
+                            on
+                              ? 'bg-violet-500/10 border-violet-500/50 text-violet-700 dark:text-violet-300'
+                              : 'bg-slate-50 dark:bg-white/[0.04] border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-white/55 hover:border-slate-300 dark:hover:border-white/15'
+                          }
+                        `}
+                      >
+                        {on && (
+                          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
+                            <path
+                              d="M2 5l2 2 4-4"
+                              stroke="currentColor"
+                              strokeWidth="1.6"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        )}
+                        <span>{eq.name}</span>
+                        <span className="text-[10px] text-slate-400 dark:text-white/30">
+                          {eq.modelo}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-xs text-slate-500 dark:text-white/40 italic">
+                  {modulos.length === 0
+                    ? 'Selecione ao menos um módulo acima pra listar os equipamentos.'
+                    : 'Nenhum equipamento cadastrado nos módulos selecionados ainda.'}
+                </p>
+              )}
+
+              {/* Equipamentos legados / livres já selecionados */}
+              {equipamentosLivresSelecionados.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {equipamentosLivresSelecionados.map((nome) => (
+                    <span
+                      key={nome}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300"
+                      title="Equipamento não cadastrado no lab (entrada livre)"
+                    >
+                      <span>{nome}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeEquipamentoLivre(nome)}
+                        aria-label={`Remover ${nome}`}
+                        className="-mr-1 opacity-60 hover:opacity-100"
+                      >
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
+                          <path
+                            d="M2 2l6 6M8 2l-6 6"
+                            stroke="currentColor"
+                            strokeWidth="1.4"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Entrada livre (equipamento não cadastrado) */}
+              <div className="flex items-center gap-2">
+                <input
+                  id="equipamentos-livre"
+                  aria-label="Adicionar equipamento não listado"
+                  className={`${INPUT_CLS} flex-1`}
+                  value={equipamentoLivre}
+                  onChange={(e) => setEquipamentoLivre(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addEquipamentoLivre();
+                    }
+                  }}
+                  placeholder="Adicionar manualmente (ex: modelo planejado)…"
+                  autoComplete="off"
+                />
+                <button
+                  type="button"
+                  onClick={addEquipamentoLivre}
+                  disabled={!equipamentoLivre.trim()}
+                  className="px-3 h-10 rounded-xl text-xs font-medium text-violet-600 dark:text-violet-400 hover:bg-violet-500/10 disabled:opacity-40 transition-colors"
+                >
+                  Adicionar
+                </button>
+              </div>
+            </div>
           </Field>
 
           {/* Estabilidade default */}
