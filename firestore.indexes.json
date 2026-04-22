@@ -202,20 +202,6 @@
       ]
     },
     {
-      "collectionGroup": "insumos",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "notaFiscalId", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "insumos",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "produtoId", "order": "ASCENDING" }
-      ]
-    },
-    {
       "collectionGroup": "fornecedores",
       "queryScope": "COLLECTION",
       "fields": [
@@ -224,24 +210,10 @@
       ]
     },
     {
-      "collectionGroup": "fornecedores",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "cnpj", "order": "ASCENDING" }
-      ]
-    },
-    {
       "collectionGroup": "notas-fiscais",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "fornecedorId", "order": "ASCENDING" },
-        { "fieldPath": "dataEmissao", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "notas-fiscais",
-      "queryScope": "COLLECTION",
-      "fields": [
         { "fieldPath": "dataEmissao", "order": "DESCENDING" }
       ]
     }
