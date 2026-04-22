@@ -274,6 +274,33 @@ export interface UroanaliseRun extends Omit<
    * queries Firestore sem join e para o relatório impresso.
    */
   responsavel?: string;
+
+  // ── Rastreabilidade de insumos (Fase B1 — 2026-04-21) ─────────────────────
+
+  /**
+   * Snapshot imutável dos insumos ativos no momento da corrida. Populado pelo
+   * save a partir do `EquipmentSetup` de uroanálise.
+   *
+   * Uroanálise: tira obrigatória, controle condicional
+   * (`loteControle.requerControlePorCorrida`). Se flag false, o slot controle
+   * no snapshot fica ausente legitimamente.
+   */
+  insumosSnapshot?: {
+    tira?: import('../../insumos/types/InsumoSnapshot').InsumoSnapshot;
+    controle?: import('../../insumos/types/InsumoSnapshot').InsumoSnapshot;
+  };
+
+  /** Flags de override — ver CoagulacaoRun para semântica. */
+  insumoVencidoOverride?: boolean;
+  qcNaoValidado?: boolean;
+  overrideMotivo?: string;
+
+  // ── Rastreabilidade de equipamento (Fase D — 2026-04-21) ──────────────────
+
+  /** ID do equipamento em que a corrida foi realizada. Nulo em runs pré-Fase D. */
+  equipamentoId?: string;
+  /** Snapshot imutável do equipamento — sobrevive a aposentadoria + cleanup. */
+  equipamentoSnapshot?: import('../../equipamentos/types/Equipamento').EquipamentoSnapshot;
 }
 
 // ─── Lote ─────────────────────────────────────────────────────────────────────
@@ -346,6 +373,24 @@ export interface UroanaliseLot {
 
   /** UID do usuário que criou o documento de lote. */
   createdBy: string;
+
+  // ── Fase B1 (2026-04-21) ──────────────────────────────────────────────────
+
+  /**
+   * Frequência estruturada que substitui o enum legado `UroFrequencia`.
+   * Ausente em lotes antigos — nesse caso UI assume 'diaria'.
+   */
+  frequencyConfig?: {
+    frequencyType: 'diaria' | 'semanal' | 'quinzenal' | 'mensal' | 'custom';
+    frequencyDays?: number;
+  };
+
+  /**
+   * Quando `true` (default para novos lotes), cada corrida exige controle.
+   * Alguns labs rodam só a tira em certos ciclos — setar `false` desativa
+   * o slot controle obrigatório no submit. Rastreável em relatório.
+   */
+  requerControlePorCorrida?: boolean;
 }
 
 // ─── Re-exports para conveniência dos importers do módulo ─────────────────────

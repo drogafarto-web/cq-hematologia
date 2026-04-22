@@ -121,6 +121,25 @@ export interface ControlLot {
   runCount: number;
   createdAt: Date;
   createdBy: string;
+
+  // ── Fase B1 (2026-04-21) ──────────────────────────────────────────────────
+
+  /**
+   * Frequência estruturada (substitui string livre legada). Opcional durante
+   * migração — lotes antigos sem esse campo assumem 'diaria'. Ver
+   * `FrequencyConfig` em features/insumos/types.
+   */
+  frequencyConfig?: {
+    frequencyType: 'diaria' | 'semanal' | 'quinzenal' | 'mensal' | 'custom';
+    frequencyDays?: number;
+  };
+
+  /**
+   * Quando o lote exige registro de controle em cada corrida (default true).
+   * Relevante em Uroanálise — alguns fluxos aceitam rodar só a tira. Demais
+   * módulos ignoram esse flag (sempre exigem controle por corrida).
+   */
+  requerControlePorCorrida?: boolean;
 }
 
 // ─── Labs & Auth ──────────────────────────────────────────────────────────────

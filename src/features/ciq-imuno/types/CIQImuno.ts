@@ -114,6 +114,39 @@ export interface CIQImunoRun extends Omit<
   // ── OCR / IA ──────────────────────────────────────────────────────────────
   /** Confiança da leitura por IA do strip ('high' | 'medium' | 'low') */
   aiStripConfidence?: 'high' | 'medium' | 'low';
+
+  // ── Rastreabilidade de insumos (Fase B1 — 2026-04-21) ─────────────────────
+
+  /**
+   * Snapshot imutável do insumo ativo. Imuno NÃO usa controle por corrida —
+   * CQ é feito por lote (ver `Insumo.qcStatus`). Slots controle/tira ficam
+   * ausentes legitimamente aqui; se algum dia o lab adotar controle por
+   * corrida, o slot `controle` fica disponível para popular.
+   */
+  insumosSnapshot?: {
+    reagente?: import('../../insumos/types/InsumoSnapshot').InsumoSnapshot;
+  };
+
+  /**
+   * Classificação da corrida em Imuno:
+   *   - 'validacao' — executada enquanto o insumo tinha qcStatus ≠ 'aprovado'.
+   *     Contribui para a aprovação posterior do lote.
+   *   - 'uso-normal' — pós-aprovação, rotina.
+   * Ausente em dados legados — tratamento padrão é 'uso-normal'.
+   */
+  classificacaoImuno?: 'validacao' | 'uso-normal';
+
+  /** Flags de override — ver CoagulacaoRun para semântica. */
+  insumoVencidoOverride?: boolean;
+  qcNaoValidado?: boolean;
+  overrideMotivo?: string;
+
+  // ── Rastreabilidade de equipamento (Fase D — 2026-04-21) ──────────────────
+
+  /** ID do equipamento em que a corrida foi realizada. Nulo em runs pré-Fase D. */
+  equipamentoId?: string;
+  /** Snapshot imutável do equipamento — sobrevive a aposentadoria + cleanup. */
+  equipamentoSnapshot?: import('../../equipamentos/types/Equipamento').EquipamentoSnapshot;
 }
 
 // ─── Lote ─────────────────────────────────────────────────────────────────────

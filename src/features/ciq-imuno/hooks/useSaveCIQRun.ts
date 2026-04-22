@@ -23,6 +23,23 @@ export interface SaveCIQRunOptions {
    * em background após o save do documento).
    */
   stripImage?: File;
+
+  /**
+   * Fase B1-etapa2 — snapshot imutável dos insumos ativos + flags de override.
+   * Imuno usa `classificacaoImuno` pra distinguir validação de lote vs uso
+   * rotineiro.
+   */
+  insumosSnapshot?: import('../../insumos/types/InsumoSnapshot').InsumosSnapshotSet;
+  insumoVencidoOverride?: boolean;
+  qcNaoValidado?: boolean;
+  overrideMotivo?: string;
+  classificacaoImuno?: 'validacao' | 'uso-normal';
+
+  /**
+   * Fase D (2026-04-21 — 2º turno): equipamento da corrida + snapshot imutável.
+   */
+  equipamentoId?: string;
+  equipamentoSnapshot?: import('../../equipamentos/types/Equipamento').EquipamentoSnapshot;
 }
 
 export interface SaveCIQRunResult {
@@ -126,6 +143,7 @@ export function useSaveCIQRun() {
           formData,
           alerts,
           logicalSignature,
+          options,
         );
 
         await saveCIQRun(labId, lotId, run);
@@ -195,6 +213,7 @@ function buildRun(
   form: CIQImunoFormData,
   westgardAlertas: CIQImunoRun['westgardCategorico'],
   logicalSignature: string,
+  options: SaveCIQRunOptions = {},
 ): CIQImunoRun {
   const resultouConforme = form.resultadoObtido === form.resultadoEsperado;
   const status = resultouConforme ? 'Aprovada' : ('Rejeitada' as const);
@@ -244,5 +263,16 @@ function buildRun(
     }),
     // Qualidade
     westgardCategorico: westgardAlertas,
+    // Fase B1-etapa2 — rastreabilidade de insumos
+    ...(options.insumosSnapshot?.reagente && {
+      insumosSnapshot: { reagente: options.insumosSnapshot.reagente },
+    }),
+    ...(options.insumoVencidoOverride && { insumoVencidoOverride: true }),
+    ...(options.qcNaoValidado && { qcNaoValidado: true }),
+    ...(options.overrideMotivo && { overrideMotivo: options.overrideMotivo }),
+    ...(options.classificacaoImuno && { classificacaoImuno: options.classificacaoImuno }),
+    // Fase D — rastreabilidade de equipamento
+    ...(options.equipamentoId && { equipamentoId: options.equipamentoId }),
+    ...(options.equipamentoSnapshot && { equipamentoSnapshot: options.equipamentoSnapshot }),
   };
 }

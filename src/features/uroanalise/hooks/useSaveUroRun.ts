@@ -27,6 +27,21 @@ export interface SaveUroRunOptions {
    * Usado pelo OCR em v2.
    */
   stripImage?: File;
+
+  /**
+   * Fase B1-etapa2 — snapshot imutável dos insumos ativos + flags de override.
+   * Ver `InsumosSnapshotSet` em features/insumos/types/InsumoSnapshot.
+   */
+  insumosSnapshot?: import('../../insumos/types/InsumoSnapshot').InsumosSnapshotSet;
+  insumoVencidoOverride?: boolean;
+  qcNaoValidado?: boolean;
+  overrideMotivo?: string;
+
+  /**
+   * Fase D (2026-04-21 — 2º turno): equipamento da corrida + snapshot imutável.
+   */
+  equipamentoId?: string;
+  equipamentoSnapshot?: import('../../equipamentos/types/Equipamento').EquipamentoSnapshot;
 }
 
 export interface SaveUroRunResult {
@@ -145,6 +160,7 @@ export function useSaveUroRun() {
           alertas,
           conformidade,
           logicalSignature,
+          options,
         );
 
         await saveUroRun(labId, lotId, run);
@@ -224,6 +240,7 @@ function buildRun(
   alertas: UroAlert[],
   conformidade: 'A' | 'R',
   logicalSignature: string,
+  options: SaveUroRunOptions = {},
 ): UroanaliseRun {
   return {
     id: runId,
@@ -277,5 +294,18 @@ function buildRun(
     ...(form.notivisaProtocolo && { notivisaProtocolo: form.notivisaProtocolo }),
     ...(form.notivisaDataEnvio && { notivisaDataEnvio: form.notivisaDataEnvio }),
     ...(form.notivisaJustificativa && { notivisaJustificativa: form.notivisaJustificativa }),
+    // Fase B1-etapa2 — rastreabilidade de insumos
+    ...(options.insumosSnapshot && {
+      insumosSnapshot: {
+        ...(options.insumosSnapshot.tira && { tira: options.insumosSnapshot.tira }),
+        ...(options.insumosSnapshot.controle && { controle: options.insumosSnapshot.controle }),
+      },
+    }),
+    ...(options.insumoVencidoOverride && { insumoVencidoOverride: true }),
+    ...(options.qcNaoValidado && { qcNaoValidado: true }),
+    ...(options.overrideMotivo && { overrideMotivo: options.overrideMotivo }),
+    // Fase D — rastreabilidade de equipamento
+    ...(options.equipamentoId && { equipamentoId: options.equipamentoId }),
+    ...(options.equipamentoSnapshot && { equipamentoSnapshot: options.equipamentoSnapshot }),
   };
 }

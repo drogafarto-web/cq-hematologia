@@ -15,6 +15,8 @@ import { COAG_ANALYTES } from '../CoagAnalyteConfig';
 import type { CoagulacaoRun } from '../types/Coagulacao';
 import type { CoagAnalyteId } from '../types/_shared_refs';
 import type { CoagulacaoFormData } from '../components/CoagulacaoForm.schema';
+import type { InsumosSnapshotSet } from '../../insumos/types/InsumoSnapshot';
+import type { EquipamentoSnapshot } from '../../equipamentos/types/Equipamento';
 
 export type { CoagulacaoFormData };
 
@@ -26,6 +28,29 @@ export interface SaveCoagRunOptions {
    * Disponível para uso futuro — `uploadCoagRunImage` está no service.
    */
   printoutImage?: File;
+
+  /**
+   * Snapshot congelado dos insumos ativos (Fase B1-etapa2). Populado pelo
+   * form via `useInsumoFlowGuard.getSnapshots()`. Grava no doc do run e
+   * sobrevive a edição/descarte do doc mestre (RDC 786/2023 art. 42).
+   */
+  insumosSnapshot?: InsumosSnapshotSet;
+
+  /**
+   * Fase D (2026-04-21 — 2º turno): equipamento escolhido pelo operador
+   * pra esta corrida. ID mestre + snapshot congelado — snapshot sobrevive à
+   * aposentadoria do doc mestre (retenção 5a).
+   */
+  equipamentoId?: string;
+  equipamentoSnapshot?: EquipamentoSnapshot;
+
+  /**
+   * Flags de override auditado. Todas opcionais — default false ausente.
+   * `overrideMotivo` é a justificativa textual do OverrideModal.
+   */
+  insumoVencidoOverride?: boolean;
+  qcNaoValidado?: boolean;
+  overrideMotivo?: string;
 }
 
 export interface SaveCoagRunResult {
@@ -61,7 +86,7 @@ export function useSaveCoagRun() {
   const save = useCallback(
     async (
       formData: CoagulacaoFormData,
-      _options: SaveCoagRunOptions = {},
+      options: SaveCoagRunOptions = {},
     ): Promise<SaveCoagRunResult> => {
       if (!labId) throw new Error('Nenhum laboratório ativo.');
       if (!user) throw new Error('Usuário não autenticado.');
@@ -162,6 +187,7 @@ export function useSaveCoagRun() {
           analitosComViolacao,
           conformidade,
           logicalSignature,
+          options,
         );
 
         await saveCoagRun(labId, lotId, run);
@@ -227,6 +253,7 @@ function buildRun(
   analitosComViolacao: CoagulacaoRun['analitosComViolacao'],
   conformidade: 'A' | 'R',
   logicalSignature: string,
+  options: SaveCoagRunOptions = {},
 ): CoagulacaoRun {
   return {
     id: runId,
@@ -283,5 +310,13 @@ function buildRun(
     ...(form.notivisaProtocolo && { notivisaProtocolo: form.notivisaProtocolo }),
     ...(form.notivisaDataEnvio && { notivisaDataEnvio: form.notivisaDataEnvio }),
     ...(form.notivisaJustificativa && { notivisaJustificativa: form.notivisaJustificativa }),
+    // Fase B1-etapa2 — rastreabilidade de insumos
+    ...(options.insumosSnapshot && { insumosSnapshot: options.insumosSnapshot }),
+    ...(options.insumoVencidoOverride && { insumoVencidoOverride: true }),
+    ...(options.qcNaoValidado && { qcNaoValidado: true }),
+    ...(options.overrideMotivo && { overrideMotivo: options.overrideMotivo }),
+    // Fase D — rastreabilidade de equipamento
+    ...(options.equipamentoId && { equipamentoId: options.equipamentoId }),
+    ...(options.equipamentoSnapshot && { equipamentoSnapshot: options.equipamentoSnapshot }),
   };
 }

@@ -2,9 +2,15 @@ import React, { useState, useMemo, useRef } from 'react';
 import { UroanaliseFormSchema, daysToExpiry } from './UroanaliseForm.schema';
 import type { UroanaliseFormData } from './UroanaliseForm.schema';
 import { useUser } from '../../../store/useAuthStore';
-import { InsumoPicker } from '../../insumos/components/InsumoPicker';
-import { clearInsumoQCValidation } from '../../insumos/services/insumosFirebaseService';
-import type { Insumo } from '../../insumos/types/Insumo';
+import { RegulatoryReferencesBar } from '../../insumos/components/RegulatoryReferencesBar';
+import { ConferenciaInsumoAtivo } from '../../insumos/components/ConferenciaInsumoAtivo';
+import { OverrideModal } from '../../insumos/components/OverrideModal';
+import { useInsumoFlowGuard } from '../../insumos/hooks/useInsumoFlowGuard';
+import { EquipamentoSelector } from '../../equipamentos/components/EquipamentoSelector';
+import { buildEquipamentoSnapshot } from '../../equipamentos/types/Equipamento';
+import type { Equipamento } from '../../equipamentos/types/Equipamento';
+import { useAppStore } from '../../../store/useAppStore';
+import type { SaveUroRunOptions } from '../hooks/useSaveUroRun';
 import {
   URO_ANALITOS,
   URO_ANALITO_LABELS,
@@ -319,7 +325,11 @@ function OcrCameraButton({ labId, onDone, loading, setLoading }: OcrButtonProps)
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface UroanaliseFormProps {
-  onSave: (data: UroanaliseFormData) => Promise<void>;
+  /**
+   * Callback de save. Recebe `data` validado + `options` com snapshot +
+   * flags de override (Fase B1-etapa2).
+   */
+  onSave: (data: UroanaliseFormData, options?: SaveUroRunOptions) => Promise<void>;
   isSaving?: boolean;
   onCancel?: () => void;
   initialNivel?: UroNivel;
@@ -340,6 +350,21 @@ export function UroanaliseForm({
   labId = null,
 }: UroanaliseFormProps) {
   const user = useUser();
+  const setCurrentView = useAppStore((s) => s.setCurrentView);
+
+  // ── Fase D — Equipamento da corrida ───────────────────────────────────────
+  const [equipamentoId, setEquipamentoId] = useState<string | null>(null);
+  const [equipamentoSel, setEquipamentoSel] = useState<Equipamento | null>(null);
+
+  // Fase B1-etapa2 — Uroanálise: tira obrigatória, controle também obrigatório
+  // por default (lote pode setar requerControlePorCorrida=false pra cobrir
+  // fluxo só-tira). A leitura do flag de lote fica pra iteração seguinte —
+  // por enquanto tratamos ambos como obrigatórios.
+  const insumoGuard = useInsumoFlowGuard({
+    module: 'uroanalise',
+    requiredSlots: { tira: true, controle: true },
+    equipamentoId,
+  });
 
   const initialNivelSafe: UroNivel = initialNivel ?? 'N';
 
@@ -353,11 +378,7 @@ export function UroanaliseForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [ocrLoading, setOcrLoading] = useState(false);
 
-  // Seleção opcional de insumos cadastrados (tira + controle).
-  const [tiraInsumoId, setTiraInsumoId] = useState<string | null>(null);
-  const [controleInsumoId, setControleInsumoId] = useState<string | null>(null);
-
-  // labId vem como prop; usado tanto pro OCR quanto para clear do CQ flag.
+  // labId vem como prop; usado pelo OCR.
 
   function toIsoDate(ts: { toDate: () => Date } | null): string {
     if (!ts) return '';
@@ -365,28 +386,33 @@ export function UroanaliseForm({
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
-  function applyTiraInsumo(i: Insumo | null) {
-    setTiraInsumoId(i?.id ?? null);
-    if (!i) return;
+  // Fase B1-etapa2 — pré-preenche campos a partir do EquipmentSetup.
+  // setState-in-effect justificado: mesma razão de useInsumos (subscription
+  // externa do Firestore → espelhar no state local).
+  /* eslint-disable react-hooks/set-state-in-effect */
+  React.useEffect(() => {
+    const tira = insumoGuard.tira;
+    if (!tira) return;
     setForm((prev) => ({
       ...prev,
-      loteTira: i.lote,
-      fabricanteTira: i.fabricante,
-      validadeTira: toIsoDate(i.validade),
+      loteTira: tira.lote,
+      fabricanteTira: tira.fabricante,
+      validadeTira: toIsoDate(tira.validade),
     }));
-  }
+  }, [insumoGuard.tira]);
 
-  function applyControleInsumo(i: Insumo | null) {
-    setControleInsumoId(i?.id ?? null);
-    if (!i) return;
+  React.useEffect(() => {
+    const controle = insumoGuard.controle;
+    if (!controle) return;
     setForm((prev) => ({
       ...prev,
-      loteControle: i.lote,
-      fabricanteControle: i.fabricante,
-      aberturaControle: toIsoDate(i.dataAbertura),
-      validadeControle: toIsoDate(i.validade),
+      loteControle: controle.lote,
+      fabricanteControle: controle.fabricante,
+      aberturaControle: toIsoDate(controle.dataAbertura),
+      validadeControle: toIsoDate(controle.validade),
     }));
-  }
+  }, [insumoGuard.controle]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   function setField<K extends keyof UroanaliseFormData>(key: K, value: UroanaliseFormData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -522,14 +548,37 @@ export function UroanaliseForm({
       return;
     }
 
-    setErrors({});
-    await onSave(result.data);
-
-    // F3: limpar qcValidationRequired da tira declarada quando a corrida
-    // é conforme. Controle (tipo=controle) não carrega o flag; só tira-uro.
-    if (!naoConforme && tiraInsumoId && labId) {
-      void clearInsumoQCValidation(labId, [tiraInsumoId]);
+    // Fase D: exige equipamento selecionado antes da conferência.
+    if (!equipamentoId || !equipamentoSel) {
+      setErrors({ equipamento: 'Selecione o equipamento em que a corrida está sendo feita.' });
+      return;
     }
+
+    // Fase B1-etapa2 — conferência + override auditado.
+    const guardFlags = await insumoGuard.prepareForSave();
+    if (!guardFlags) {
+      setErrors({
+        insumos:
+          'Conferência obrigatória do setup. Configure os insumos e confirme antes de salvar.',
+      });
+      return;
+    }
+
+    setErrors({});
+    const snapshot = insumoGuard.getSnapshots();
+    const saveOptions: SaveUroRunOptions = {
+      insumosSnapshot: snapshot,
+      equipamentoId,
+      equipamentoSnapshot: buildEquipamentoSnapshot(equipamentoSel),
+      ...(guardFlags.insumoVencidoOverride && { insumoVencidoOverride: true }),
+      ...(guardFlags.qcNaoValidado && { qcNaoValidado: true }),
+      ...(guardFlags.overrideMotivo && { overrideMotivo: guardFlags.overrideMotivo }),
+    };
+    await onSave(result.data, saveOptions);
+
+    // afterSave — incrementa runCount + limpa qcValidationRequired da tira
+    // se a corrida foi conforme. Fire-and-forget — não reverte save.
+    void insumoGuard.afterSave({ runId: '', wasConforme: !naoConforme });
   }
 
   // ── Render helpers ─────────────────────────────────────────────────────────
@@ -704,27 +753,55 @@ export function UroanaliseForm({
               }
               className={errors.frequencia ? INPUT_ERR : INPUT}
             >
-              <option value="DIARIA">Diária — RDC 302/2005</option>
+              <option value="DIARIA">Diária</option>
               <option value="LOTE">Por troca de lote de tiras</option>
             </select>
             <FieldError msg={errors.frequencia} />
           </div>
+
+          <RegulatoryReferencesBar module="uroanalise" />
         </div>
+      </section>
+
+      {/* Equipamento da corrida (Fase D) */}
+      <section>
+        <SectionTitle>Equipamento</SectionTitle>
+        <EquipamentoSelector
+          module="uroanalise"
+          value={equipamentoId}
+          onChange={(id, eq) => {
+            setEquipamentoId(id);
+            setEquipamentoSel(eq);
+            if (errors.equipamento) {
+              setErrors((prev) => {
+                const n = { ...prev };
+                delete n.equipamento;
+                return n;
+              });
+            }
+          }}
+          required
+        />
+        {errors.equipamento && <FieldError msg={errors.equipamento} />}
+      </section>
+
+      {/* Conferência de insumos (Fase B1-etapa2) */}
+      <section>
+        <SectionTitle>Insumos em uso</SectionTitle>
+        <ConferenciaInsumoAtivo
+          module="uroanalise"
+          requiredSlots={{ tira: true, controle: true }}
+          equipamentoId={equipamentoId}
+          confirmed={insumoGuard.confirmed}
+          onConfirmedChange={insumoGuard.setConfirmed}
+          onConfigurarSetup={() => setCurrentView('insumos')}
+        />
+        {errors.insumos && <FieldError msg={errors.insumos} />}
       </section>
 
       {/* Tiras */}
       <section>
-        <SectionTitle>Tiras Reagentes</SectionTitle>
-        <div className="mb-3">
-          <InsumoPicker
-            tipo="tira-uro"
-            modulo="uroanalise"
-            value={tiraInsumoId}
-            onSelect={applyTiraInsumo}
-            placeholder="Selecionar tira cadastrada (opcional — auto-preenche abaixo)"
-            ariaLabel="Selecionar tira cadastrada"
-          />
-        </div>
+        <SectionTitle hint="preenchido pelo setup">Tiras Reagentes</SectionTitle>
         <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -783,17 +860,7 @@ export function UroanaliseForm({
 
       {/* Controle */}
       <section>
-        <SectionTitle>Material de Controle</SectionTitle>
-        <div className="mb-3">
-          <InsumoPicker
-            tipo="controle"
-            modulo="uroanalise"
-            value={controleInsumoId}
-            onSelect={applyControleInsumo}
-            placeholder="Selecionar controle cadastrado (opcional — auto-preenche abaixo)"
-            ariaLabel="Selecionar controle cadastrado"
-          />
-        </div>
+        <SectionTitle hint="preenchido pelo setup">Material de Controle</SectionTitle>
         <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -1103,6 +1170,17 @@ export function UroanaliseForm({
           )}
         </button>
       </div>
+
+      {insumoGuard.overrideContext && (
+        <OverrideModal
+          open={insumoGuard.isOverrideOpen}
+          context={insumoGuard.overrideContext}
+          onCancel={insumoGuard.closeOverride}
+          onConfirm={({ justificativa }) => {
+            insumoGuard.confirmOverride(justificativa);
+          }}
+        />
+      )}
     </form>
   );
 }

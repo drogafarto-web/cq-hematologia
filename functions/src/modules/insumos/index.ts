@@ -12,6 +12,13 @@ export { onInsumoMovimentacaoCreate } from './chainHash';
 
 export { validateFR10 } from './validateFR10';
 
+// ─── Insumos Module — Backfill modulos[] (Fase A) ────────────────────────────
+//
+// Re-export do trigger onCall de migração one-time que popula `modulos[]`
+// em docs legados. Idempotente. SuperAdmin-only.
+
+export { triggerBackfillInsumoModulos } from './backfillModulos';
+
 // ─── Insumos Module — Scheduled Expiration ───────────────────────────────────
 //
 // Diariamente move insumos 'ativo' cuja validadeReal já passou para status

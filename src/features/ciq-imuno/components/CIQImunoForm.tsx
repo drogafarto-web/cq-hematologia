@@ -4,7 +4,14 @@ import type { CIQImunoFormData } from './CIQImunoForm.schema';
 import { useUser } from '../../../store/useAuthStore';
 import { useCIQTestTypes } from '../hooks/useCIQTestTypes';
 import { CIQTestTypeManager } from './CIQTestTypeManager';
-import { InsumoPicker } from '../../insumos/components/InsumoPicker';
+import { ConferenciaInsumoAtivo } from '../../insumos/components/ConferenciaInsumoAtivo';
+import { OverrideModal } from '../../insumos/components/OverrideModal';
+import { useInsumoFlowGuard } from '../../insumos/hooks/useInsumoFlowGuard';
+import { EquipamentoSelector } from '../../equipamentos/components/EquipamentoSelector';
+import { buildEquipamentoSnapshot } from '../../equipamentos/types/Equipamento';
+import type { Equipamento } from '../../equipamentos/types/Equipamento';
+import { useAppStore } from '../../../store/useAppStore';
+import type { SaveCIQRunOptions } from '../hooks/useSaveCIQRun';
 import type { Insumo } from '../../insumos/types/Insumo';
 
 // ─── Icon ─────────────────────────────────────────────────────────────────────
@@ -200,7 +207,12 @@ function ApprovalBadge({ conforme }: { conforme: boolean }) {
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface CIQImunoFormProps {
-  onSave: (data: CIQImunoFormData) => Promise<void>;
+  /**
+   * Callback de save. Recebe `data` validado + `options` com snapshot +
+   * flags de override + `classificacaoImuno` (Fase B1-etapa2). Imuno
+   * distingue corrida de validação (qcStatus pendente) vs uso normal.
+   */
+  onSave: (data: CIQImunoFormData, options?: SaveCIQRunOptions) => Promise<void>;
   isSaving?: boolean;
   onCancel?: () => void;
 }
@@ -209,6 +221,7 @@ interface CIQImunoFormProps {
 
 export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFormProps) {
   const user = useUser();
+  const setCurrentView = useAppStore((s) => s.setCurrentView);
   const {
     types: testTypes,
     loading: typesLoading,
@@ -219,14 +232,25 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
   } = useCIQTestTypes();
   const [showManager, setShowManager] = useState(false);
 
+  // ── Fase D — Equipamento da corrida ───────────────────────────────────────
+  const [equipamentoId, setEquipamentoId] = useState<string | null>(null);
+  const [equipamentoSel, setEquipamentoSel] = useState<Equipamento | null>(null);
+
+  // Fase B1-etapa2 — Imuno: apenas reagente (kit) obrigatório por corrida.
+  // CQ é por lote (qcStatus), não por corrida — então `controle: false`.
+  // Quando qcStatus !== 'aprovado', a corrida é classificada como 'validacao'
+  // (o guard atribui automaticamente).
+  const insumoGuard = useInsumoFlowGuard({
+    module: 'imunologia',
+    requiredSlots: { reagente: true },
+    equipamentoId,
+  });
+
   const [form, setForm] = useState<Partial<CIQImunoFormData>>({
     resultadoEsperado: 'R',
     dataRealizacao: today(),
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // Seleção opcional de controle cadastrado.
-  const [controleInsumoId, setControleInsumoId] = useState<string | null>(null);
 
   function toIsoDate(ts: { toDate: () => Date } | null): string {
     if (!ts) return '';
@@ -234,17 +258,21 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
-  function applyControleInsumo(i: Insumo | null) {
-    setControleInsumoId(i?.id ?? null);
-    if (!i) return;
+  // Pré-preenche campos do reagente a partir do setup ativo.
+  // setState-in-effect justificado: espelhar subscription externa.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  React.useEffect(() => {
+    const reagente = insumoGuard.reagente;
+    if (!reagente) return;
     setForm((prev) => ({
       ...prev,
-      loteControle: i.lote,
-      fabricanteControle: i.fabricante,
-      aberturaControle: toIsoDate(i.dataAbertura),
-      validadeControle: toIsoDate(i.validade),
+      loteReagente: reagente.lote,
+      fabricanteReagente: reagente.fabricante,
+      aberturaReagente: toIsoDate(reagente.dataAbertura),
+      validadeReagente: toIsoDate(reagente.validade),
     }));
-  }
+  }, [insumoGuard.reagente]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   function set<K extends keyof CIQImunoFormData>(key: K, value: CIQImunoFormData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -271,8 +299,38 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
       return;
     }
 
+    // Fase D: exige equipamento.
+    if (!equipamentoId || !equipamentoSel) {
+      setErrors({ equipamento: 'Selecione o equipamento em que a corrida está sendo feita.' });
+      return;
+    }
+
+    // Fase B1-etapa2 — conferência + override auditado.
+    const guardFlags = await insumoGuard.prepareForSave();
+    if (!guardFlags) {
+      setErrors({
+        insumos:
+          'Conferência obrigatória do setup. Configure o reagente ativo e confirme antes de salvar.',
+      });
+      return;
+    }
+
     setErrors({});
-    await onSave(result.data);
+    const snapshot = insumoGuard.getSnapshots();
+    const saveOptions: SaveCIQRunOptions = {
+      insumosSnapshot: snapshot,
+      equipamentoId,
+      equipamentoSnapshot: buildEquipamentoSnapshot(equipamentoSel),
+      ...(guardFlags.insumoVencidoOverride && { insumoVencidoOverride: true }),
+      ...(guardFlags.qcNaoValidado && { qcNaoValidado: true }),
+      ...(guardFlags.overrideMotivo && { overrideMotivo: guardFlags.overrideMotivo }),
+      ...(guardFlags.classificacaoImuno && { classificacaoImuno: guardFlags.classificacaoImuno }),
+    };
+    await onSave(result.data, saveOptions);
+
+    // afterSave — incrementa runCount dos insumos.
+    const isConforme = form.resultadoObtido === form.resultadoEsperado;
+    void insumoGuard.afterSave({ runId: '', wasConforme: isConforme });
   }
 
   const ctrlDays = form.validadeControle ? daysToExpiry(form.validadeControle) : null;
@@ -454,19 +512,46 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
         />
       )}
 
-      {/* ── Controle ───────────────────────────────────────────────────────── */}
+      {/* Equipamento da corrida (Fase D) */}
+      <div>
+        <SectionTitle>Equipamento</SectionTitle>
+        <EquipamentoSelector
+          module="imunologia"
+          value={equipamentoId}
+          onChange={(id, eq) => {
+            setEquipamentoId(id);
+            setEquipamentoSel(eq);
+            if (errors.equipamento) {
+              setErrors((prev) => {
+                const n = { ...prev };
+                delete n.equipamento;
+                return n;
+              });
+            }
+          }}
+          required
+        />
+        {errors.equipamento && <FieldError msg={errors.equipamento} />}
+      </div>
+
+      {/* Conferência de insumos (Fase B1-etapa2) — Imuno: reagente obrigatório,
+          controle por LOTE (qcStatus), não por corrida. */}
+      <div>
+        <SectionTitle>Insumos em uso</SectionTitle>
+        <ConferenciaInsumoAtivo
+          module="imunologia"
+          requiredSlots={{ reagente: true }}
+          equipamentoId={equipamentoId}
+          confirmed={insumoGuard.confirmed}
+          onConfirmedChange={insumoGuard.setConfirmed}
+          onConfigurarSetup={() => setCurrentView('insumos')}
+        />
+        {errors.insumos && <FieldError msg={errors.insumos} />}
+      </div>
+
+      {/* ── Controle (kit positivo/negativo — preenchido manualmente em Imuno) ─ */}
       <div>
         <SectionTitle>Controle Interno</SectionTitle>
-        <div className="mb-3">
-          <InsumoPicker
-            tipo="controle"
-            modulo="imunologia"
-            value={controleInsumoId}
-            onSelect={applyControleInsumo}
-            placeholder="Selecionar controle cadastrado (opcional — auto-preenche abaixo)"
-            ariaLabel="Selecionar controle cadastrado"
-          />
-        </div>
         <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -897,6 +982,17 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
           {isSaving ? 'Salvando…' : 'Registrar corrida'}
         </button>
       </div>
+
+      {insumoGuard.overrideContext && (
+        <OverrideModal
+          open={insumoGuard.isOverrideOpen}
+          context={insumoGuard.overrideContext}
+          onCancel={insumoGuard.closeOverride}
+          onConfirm={({ justificativa }) => {
+            insumoGuard.confirmOverride(justificativa);
+          }}
+        />
+      )}
     </form>
   );
 }

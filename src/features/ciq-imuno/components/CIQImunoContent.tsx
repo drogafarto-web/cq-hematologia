@@ -682,10 +682,13 @@ export function CIQImunoContent({
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteErr, setDeleteErr] = useState<string | null>(null);
 
-  async function handleSave(data: CIQImunoFormData) {
+  async function handleSave(
+    data: CIQImunoFormData,
+    options?: import('../hooks/useSaveCIQRun').SaveCIQRunOptions,
+  ) {
     setFormError(null);
     try {
-      const { lotId } = await save(data);
+      const { lotId } = await save(data, options);
       setActiveLotId(lotId);
       setShowForm(false);
     } catch (err) {

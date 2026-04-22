@@ -34,6 +34,8 @@ export {
   serverTimestamp,
   Timestamp,
   FieldValue,
+  increment,
+  deleteField,
 
   // Batch & transaction
   writeBatch,
@@ -47,6 +49,7 @@ export type {
   QuerySnapshot,
   QueryDocumentSnapshot,
   Unsubscribe,
+  WriteBatch,
   FieldValue as FirestoreFieldValue,
 } from 'firebase/firestore';
 

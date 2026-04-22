@@ -39,6 +39,26 @@ import type {
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 /**
+ * Dados do fornecedor resolvidos para a linha do FR-10. Precedência:
+ *   1. Join por `insumo.notaFiscalId → NotaFiscal → Fornecedor` (modelo Fase E).
+ *   2. Fallback pros campos legados `insumo.fornecedor` (string livre) —
+ *      backward-compat com docs pré-Fase E. Nesse caso `cnpj` fica ausente.
+ *   3. Se nenhuma fonte → objeto ausente.
+ */
+export interface FR10Fornecedor {
+  razaoSocial: string;
+  cnpj?: string;
+  inscricaoEstadual?: string;
+}
+
+export interface FR10NotaFiscal {
+  numero: string;
+  serie?: string;
+  chaveAcesso?: string;
+  dataEmissao?: Date;
+}
+
+/**
  * Uma linha do formulário FR-10 — corresponde a um ciclo de vida de lote
  * (abertura → término). Pode ter término vazio se o lote ainda está em uso.
  */
@@ -59,6 +79,10 @@ export interface FR10Row {
   operadorTermino?: string;
   motivoTermino?: Extract<InsumoMovimentacaoTipo, 'fechamento' | 'descarte'>;
   motivoDescarte?: string;
+
+  /** Fase E (2026-04-21) — rastreabilidade fiscal RDC 786/2023 art. 42. */
+  fornecedor?: FR10Fornecedor;
+  notaFiscal?: FR10NotaFiscal;
 }
 
 export interface FR10Payload {
@@ -99,9 +123,20 @@ export async function buildFR10Payload(args: BuildArgs): Promise<FR10Payload> {
     }
 
     const reagenteIds = new Set(reagentes.map((r) => r.id));
-    const movs = await fetchMovimentacoesForInsumos(args.labId, reagenteIds);
+    const [movs, notasById, fornecedoresById] = await Promise.all([
+      fetchMovimentacoesForInsumos(args.labId, reagenteIds),
+      fetchNotasFiscaisByIds(args.labId, collectNotaIds(reagentes)),
+      fetchFornecedoresMap(args.labId),
+    ]);
 
-    const rows = buildRowsFromMovimentacoes(reagentes, movs, args.periodoInicio, args.periodoFim);
+    const rows = buildRowsFromMovimentacoes(
+      reagentes,
+      movs,
+      args.periodoInicio,
+      args.periodoFim,
+      notasById,
+      fornecedoresById,
+    );
     rows.sort(canonicalRowOrder);
 
     return {
@@ -164,6 +199,77 @@ async function fetchMovimentacoesForInsumos(
 }
 
 /**
+ * Coleta os notaFiscalId únicos dos reagentes que serão lidos — evita
+ * carregar coleção inteira de notas fiscais no build (pode ter milhares).
+ * Retorna Set vazio se nenhum reagente aponta pra nota.
+ */
+function collectNotaIds(reagentes: InsumoReagente[]): Set<string> {
+  const ids = new Set<string>();
+  for (const r of reagentes) {
+    if (r.notaFiscalId) ids.add(r.notaFiscalId);
+  }
+  return ids;
+}
+
+/**
+ * Carrega notas fiscais por ID. Faz uma varredura das notas do lab e filtra —
+ * mesmo pattern do fetch de movimentações. Volume esperado de notas num lab:
+ * dezenas a baixas centenas por ano; scan flat é aceitável.
+ */
+async function fetchNotasFiscaisByIds(
+  labId: string,
+  notaIds: Set<string>,
+): Promise<Map<string, { fornecedorId: string; numero: string; serie?: string; chaveAcesso?: string; dataEmissao?: Timestamp }>> {
+  const result = new Map<
+    string,
+    { fornecedorId: string; numero: string; serie?: string; chaveAcesso?: string; dataEmissao?: Timestamp }
+  >();
+  if (notaIds.size === 0) return result;
+
+  const col = collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.NOTAS_FISCAIS);
+  const snap = await getDocs(col);
+  for (const d of snap.docs) {
+    if (!notaIds.has(d.id)) continue;
+    const data = d.data() as {
+      fornecedorId: string;
+      numero: string;
+      serie?: string;
+      chaveAcesso?: string;
+      dataEmissao?: Timestamp;
+    };
+    result.set(d.id, {
+      fornecedorId: data.fornecedorId,
+      numero: data.numero,
+      ...(data.serie && { serie: data.serie }),
+      ...(data.chaveAcesso && { chaveAcesso: data.chaveAcesso }),
+      ...(data.dataEmissao && { dataEmissao: data.dataEmissao }),
+    });
+  }
+  return result;
+}
+
+/**
+ * Carrega todos os fornecedores do lab em mapa por ID. Volume esperado:
+ * dezenas — carregar tudo é aceitável.
+ */
+async function fetchFornecedoresMap(
+  labId: string,
+): Promise<Map<string, { razaoSocial: string; cnpj: string; inscricaoEstadual?: string }>> {
+  const result = new Map<string, { razaoSocial: string; cnpj: string; inscricaoEstadual?: string }>();
+  const col = collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.FORNECEDORES);
+  const snap = await getDocs(col);
+  for (const d of snap.docs) {
+    const data = d.data() as { razaoSocial: string; cnpj: string; inscricaoEstadual?: string };
+    result.set(d.id, {
+      razaoSocial: data.razaoSocial,
+      cnpj: data.cnpj,
+      ...(data.inscricaoEstadual && { inscricaoEstadual: data.inscricaoEstadual }),
+    });
+  }
+  return result;
+}
+
+/**
  * Constrói linhas FR-10 a partir das movimentações.
  *
  * Regras:
@@ -178,6 +284,8 @@ function buildRowsFromMovimentacoes(
   movs: InsumoMovimentacao[],
   from: Date,
   to: Date,
+  notasById: Map<string, { fornecedorId: string; numero: string; serie?: string; chaveAcesso?: string; dataEmissao?: Timestamp }>,
+  fornecedoresById: Map<string, { razaoSocial: string; cnpj: string; inscricaoEstadual?: string }>,
 ): FR10Row[] {
   const byId = new Map(reagentes.map((r) => [r.id, r]));
   const movsByInsumo = new Map<string, InsumoMovimentacao[]>();
@@ -194,6 +302,14 @@ function buildRowsFromMovimentacoes(
   for (const [insumoId, insumoMovs] of movsByInsumo.entries()) {
     const reagente = byId.get(insumoId);
     if (!reagente) continue;
+
+    // Resolve fornecedor/nota uma vez por insumo. Precedência: notaFiscalId (joins)
+    // → fallback string legado (só em tira-uro, mas deixamos genérico).
+    const { fornecedor, notaFiscal } = resolveRastreabilidadeFiscal(
+      reagente,
+      notasById,
+      fornecedoresById,
+    );
 
     // Já ordenado por timestamp asc (query fez orderBy).
     // Reconstroi pares abertura→término cronologicamente. Se aparecer outra
@@ -230,6 +346,8 @@ function buildRowsFromMovimentacoes(
             termino.tipo === 'descarte' ? ('descarte' as const) : ('fechamento' as const),
           ...(termino.motivo && { motivoDescarte: termino.motivo }),
         }),
+        ...(fornecedor && { fornecedor }),
+        ...(notaFiscal && { notaFiscal }),
       });
     };
 
@@ -266,6 +384,54 @@ function canonicalRowOrder(a: FR10Row, b: FR10Row): number {
   return a.insumoId.localeCompare(b.insumoId);
 }
 
+/**
+ * Resolve fornecedor/nota pra uma linha. Ordem de precedência:
+ *   1. `insumo.notaFiscalId` → lookup em notas + fornecedores (modelo Fase E).
+ *   2. Campos legados string (`insumo.fornecedor`, `insumo.notaFiscal`) —
+ *      só em tira-uro historicamente, mas o helper é tipo-agnóstico. Sem CNPJ
+ *      nesse caminho — FR-10 sai com razão social só.
+ *   3. Nenhum dos dois → retorna { undefined, undefined }.
+ */
+function resolveRastreabilidadeFiscal(
+  insumo: InsumoReagente,
+  notasById: Map<string, { fornecedorId: string; numero: string; serie?: string; chaveAcesso?: string; dataEmissao?: Timestamp }>,
+  fornecedoresById: Map<string, { razaoSocial: string; cnpj: string; inscricaoEstadual?: string }>,
+): { fornecedor?: FR10Fornecedor; notaFiscal?: FR10NotaFiscal } {
+  if (insumo.notaFiscalId) {
+    const nota = notasById.get(insumo.notaFiscalId);
+    if (nota) {
+      const forn = fornecedoresById.get(nota.fornecedorId);
+      return {
+        ...(forn && {
+          fornecedor: {
+            razaoSocial: forn.razaoSocial,
+            cnpj: forn.cnpj,
+            ...(forn.inscricaoEstadual && { inscricaoEstadual: forn.inscricaoEstadual }),
+          },
+        }),
+        notaFiscal: {
+          numero: nota.numero,
+          ...(nota.serie && { serie: nota.serie }),
+          ...(nota.chaveAcesso && { chaveAcesso: nota.chaveAcesso }),
+          ...(nota.dataEmissao && { dataEmissao: nota.dataEmissao.toDate() }),
+        },
+      };
+    }
+  }
+
+  // Fallback legado — só tira-uro tem essas strings hoje. Lemos com cast
+  // seguro porque o shape não está no tipo InsumoReagente.
+  const legacy = insumo as unknown as { fornecedor?: string; notaFiscal?: string };
+  const out: { fornecedor?: FR10Fornecedor; notaFiscal?: FR10NotaFiscal } = {};
+  if (legacy.fornecedor && legacy.fornecedor.trim()) {
+    out.fornecedor = { razaoSocial: legacy.fornecedor.trim() };
+  }
+  if (legacy.notaFiscal && legacy.notaFiscal.trim()) {
+    out.notaFiscal = { numero: legacy.notaFiscal.trim() };
+  }
+  return out;
+}
+
 // ─── Canonical + Hash ────────────────────────────────────────────────────────
 
 /**
@@ -297,6 +463,29 @@ export function canonicalFR10(payload: FR10Payload): string {
         operadorTermino: r.operadorTermino ?? '',
         motivoTermino: r.motivoTermino ?? '',
         ...(r.motivoDescarte && { motivoDescarte: r.motivoDescarte }),
+      }),
+      // Fase E — rastreabilidade fiscal embarcada no canonical. Alterar o
+      // shape aqui invalida hashes antigos (aceitável — Fase E começa o
+      // reloop de emissões). Campos opcionais só entram quando presentes
+      // pra que docs sem nota mantenham canonical curto.
+      ...(r.fornecedor && {
+        fornecedor: {
+          razaoSocial: r.fornecedor.razaoSocial,
+          ...(r.fornecedor.cnpj && { cnpj: r.fornecedor.cnpj }),
+          ...(r.fornecedor.inscricaoEstadual && {
+            inscricaoEstadual: r.fornecedor.inscricaoEstadual,
+          }),
+        },
+      }),
+      ...(r.notaFiscal && {
+        notaFiscal: {
+          numero: r.notaFiscal.numero,
+          ...(r.notaFiscal.serie && { serie: r.notaFiscal.serie }),
+          ...(r.notaFiscal.chaveAcesso && { chaveAcesso: r.notaFiscal.chaveAcesso }),
+          ...(r.notaFiscal.dataEmissao && {
+            dataEmissao: r.notaFiscal.dataEmissao.toISOString(),
+          }),
+        },
       }),
     })),
   });

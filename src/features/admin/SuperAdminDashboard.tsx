@@ -3,6 +3,7 @@ import { AccessRequestsTab } from './AccessRequestsTab';
 import { LabManagementTab } from './LabManagementTab';
 import { ManageUserModal } from './ManageUserModal';
 import { CreateUserModal } from './CreateUserModal';
+import { MigrationsTab } from './MigrationsTab';
 import {
   fetchSuperAdminStats,
   fetchAllUsers,
@@ -317,12 +318,13 @@ function UsersTab() {
 
 // ─── Tabs ─────────────────────────────────────────────────────────────────────
 
-type Tab = 'requests' | 'labs' | 'users';
+type Tab = 'requests' | 'labs' | 'users' | 'migrations';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'requests', label: 'Solicitações' },
   { id: 'labs', label: 'Laboratórios' },
   { id: 'users', label: 'Usuários' },
+  { id: 'migrations', label: 'Migrações' },
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -450,6 +452,7 @@ export function SuperAdminDashboard() {
           {tab === 'requests' && <AccessRequestsTab />}
           {tab === 'labs' && <LabManagementTab />}
           {tab === 'users' && <UsersTab />}
+          {tab === 'migrations' && <MigrationsTab />}
         </div>
       </main>
     </div>

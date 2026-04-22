@@ -6,6 +6,7 @@ import { ThemeToggle } from '../../shared/components/ui/ThemeToggle';
 import { useUroLots } from './hooks/useUroLots';
 import { UroanaliseContent } from './components/UroanaliseContent';
 import { UroanaliseSettingsModal } from './components/UroanaliseSettingsModal';
+import { EquipmentSetupBar } from '../insumos/components/EquipmentSetupBar';
 import type { UroanaliseLot } from './types/Uroanalise';
 import type { UroLotStatus } from './types/_shared_refs';
 import type { View } from '../../types';
@@ -392,6 +393,11 @@ export function UroanaliseView() {
           setCurrentView={setCurrentView}
           isSuperAdmin={isSuperAdmin}
           onOpenSettings={() => setShowSettings(true)}
+        />
+
+        <EquipmentSetupBar
+          module="uroanalise"
+          onEditSetup={() => setCurrentView('insumos')}
         />
 
         <main className="flex-1 overflow-y-auto">

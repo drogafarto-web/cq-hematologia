@@ -32,7 +32,20 @@ export {
   triggerInsumosExpiration,
   onInsumoMovimentacaoCreate,
   validateFR10,
+  triggerBackfillInsumoModulos,
 } from './modules/insumos/index';
+
+// ─── equipamentos module (Fase D — 2026-04-21) ───────────────────────────────
+// triggerMigrateSetupsToEquipamentos: migra setups legados (docId=module) pra
+// Equipamento como entidade de primeira classe + setup com docId=equipamentoId.
+// SuperAdmin-only, idempotente, dryRun disponível.
+// scheduledCleanupEquipamentosExpirados: deleta equipamentos aposentados com
+// retencaoAte < now (>5 anos) — RDC 786/2023 art. 42.
+export {
+  triggerMigrateSetupsToEquipamentos,
+  scheduledCleanupEquipamentosExpirados,
+  triggerCleanupEquipamentosExpirados,
+} from './modules/equipamentos/index';
 
 // All functions deploy to the same region as Firestore
 setGlobalOptions({ region: 'southamerica-east1' });

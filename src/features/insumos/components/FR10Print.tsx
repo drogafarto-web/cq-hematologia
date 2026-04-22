@@ -51,6 +51,12 @@ function fmtTime(d: Date | undefined): string {
   });
 }
 
+function fmtCnpj(cnpj: string): string {
+  const n = cnpj.replace(/\D/g, '');
+  if (n.length !== 14) return cnpj;
+  return `${n.slice(0, 2)}.${n.slice(2, 5)}.${n.slice(5, 8)}/${n.slice(8, 12)}-${n.slice(12, 14)}`;
+}
+
 function fmtModulo(m: string): string {
   switch (m) {
     case 'hematologia':
@@ -217,7 +223,7 @@ export function FR10Print({ payload, hash, onClose }: FR10PrintProps) {
                     <th className="text-left py-1.5 pr-1 font-semibold">Data abert.</th>
                     <th className="text-left py-1.5 pr-1 font-semibold">Hora abert.</th>
                     <th className="text-left py-1.5 pr-1 font-semibold">Reagente</th>
-                    <th className="text-left py-1.5 pr-1 font-semibold">Lote</th>
+                    <th className="text-left py-1.5 pr-1 font-semibold">Lote / NF / Fornecedor</th>
                     <th className="text-left py-1.5 pr-1 font-semibold">Validade</th>
                     <th className="text-left py-1.5 pr-1 font-semibold">Colab. abert.</th>
                     <th className="text-left py-1.5 pr-1 font-semibold">Data térm.</th>
@@ -245,7 +251,29 @@ export function FR10Print({ payload, hash, onClose }: FR10PrintProps) {
                           {fmtTime(row.dataAbertura)}
                         </td>
                         <td className="py-1.5 pr-1">{row.nomeComercial}</td>
-                        <td className="py-1.5 pr-1 font-mono">{row.lote}</td>
+                        <td className="py-1.5 pr-1 leading-tight">
+                          <div className="font-mono">{row.lote}</div>
+                          {row.notaFiscal && (
+                            <div className="text-[8px] text-slate-600 font-mono">
+                              NF {row.notaFiscal.numero}
+                              {row.notaFiscal.serie && row.notaFiscal.serie !== '1' && (
+                                <span>/{row.notaFiscal.serie}</span>
+                              )}
+                              {row.notaFiscal.dataEmissao && (
+                                <span className="text-slate-400">
+                                  {' · '}
+                                  {fmtDate(row.notaFiscal.dataEmissao)}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          {row.fornecedor && (
+                            <div className="text-[8px] text-slate-500">
+                              {row.fornecedor.razaoSocial}
+                              {row.fornecedor.cnpj && ` · ${fmtCnpj(row.fornecedor.cnpj)}`}
+                            </div>
+                          )}
+                        </td>
                         <td className="py-1.5 pr-1 whitespace-nowrap font-mono">
                           {fmtDate(row.validade)}
                         </td>
