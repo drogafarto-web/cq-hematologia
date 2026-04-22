@@ -1,12 +1,18 @@
 import React, { useState, useMemo } from 'react';
 import { CoagulacaoFormSchema, daysToExpiry } from './CoagulacaoForm.schema';
 import type { CoagulacaoFormData } from './CoagulacaoForm.schema';
-import { useUser, useActiveLabId } from '../../../store/useAuthStore';
+import { useUser } from '../../../store/useAuthStore';
 import { COAG_ANALYTES, COAG_ANALYTE_IDS } from '../CoagAnalyteConfig';
 import type { CoagAnalyteId, CoagNivel } from '../types/_shared_refs';
-import { InsumoPicker } from '../../insumos/components/InsumoPicker';
-import { clearInsumoQCValidation } from '../../insumos/services/insumosFirebaseService';
-import type { Insumo } from '../../insumos/types/Insumo';
+import { RegulatoryReferencesBar } from '../../insumos/components/RegulatoryReferencesBar';
+import { ConferenciaInsumoAtivo } from '../../insumos/components/ConferenciaInsumoAtivo';
+import { OverrideModal } from '../../insumos/components/OverrideModal';
+import { useInsumoFlowGuard } from '../../insumos/hooks/useInsumoFlowGuard';
+import { EquipamentoSelector } from '../../equipamentos/components/EquipamentoSelector';
+import { buildEquipamentoSnapshot } from '../../equipamentos/types/Equipamento';
+import type { Equipamento } from '../../equipamentos/types/Equipamento';
+import { useAppStore } from '../../../store/useAppStore';
+import type { SaveCoagRunOptions } from '../hooks/useSaveCoagRun';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -191,7 +197,12 @@ function RangeBadge({ outOfRange }: { outOfRange: CoagAnalyteId[] }) {
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface CoagulacaoFormProps {
-  onSave: (data: CoagulacaoFormData) => Promise<void>;
+  /**
+   * Callback de save. Recebe `data` validado + `options` com `insumosSnapshot`
+   * e flags de override (Fase B1-etapa2) derivados pelo `useInsumoFlowGuard`.
+   * Parent pode ignorar `options` se ainda não consome (backward-compat).
+   */
+  onSave: (data: CoagulacaoFormData, options?: SaveCoagRunOptions) => Promise<void>;
   isSaving?: boolean;
   onCancel?: () => void;
   /** Pré-seleciona nível ao abrir (útil quando se clica "Novo run Nível I"). */
@@ -207,6 +218,19 @@ export function CoagulacaoForm({
   initialNivel,
 }: CoagulacaoFormProps) {
   const user = useUser();
+  const setCurrentView = useAppStore((s) => s.setCurrentView);
+
+  // ── Fase D (2026-04-21 — 2º turno) — Equipamento da corrida ────────────
+  const [equipamentoId, setEquipamentoId] = useState<string | null>(null);
+  const [equipamentoSel, setEquipamentoSel] = useState<Equipamento | null>(null);
+
+  // ── Fase B1-etapa2 — Conferência obrigatória do setup ────────────────────
+  // Coagulação: reagente + controle obrigatórios por corrida.
+  const insumoGuard = useInsumoFlowGuard({
+    module: 'coagulacao',
+    requiredSlots: { reagente: true, controle: true },
+    equipamentoId,
+  });
 
   const [form, setForm] = useState<Partial<CoagulacaoFormData>>({
     equipamento: 'Clotimer Duo',
@@ -216,43 +240,43 @@ export function CoagulacaoForm({
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Seleção opcional de insumo cadastrado (controle/reagente). IDs são apenas
-  // para UX — ao selecionar, os campos manuais são pré-preenchidos e o usuário
-  // pode editar. Rastreabilidade forte (insumoId em Run) é backlog futuro.
-  const [controleInsumoId, setControleInsumoId] = useState<string | null>(null);
-  const [reagenteInsumoId, setReagenteInsumoId] = useState<string | null>(null);
-
-  const labId = useActiveLabId();
-
   function toIsoDate(ts: { toDate: () => Date } | null): string {
     if (!ts) return '';
     const d = ts.toDate();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
-  function applyControleInsumo(i: Insumo | null) {
-    setControleInsumoId(i?.id ?? null);
-    if (!i) return;
+  // Sincroniza os campos do form com os insumos ativos do EquipmentSetup
+  // sempre que mudarem — operador não digita mais manualmente. Campos ficam
+  // readonly na UI.
+  // setState-in-effect justificado: espelhar mudança de EquipmentSetup vindo
+  // de subscription externa (Firestore). Mesmo pattern usado por `useInsumos`
+  // pra snapshots em tempo real.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  React.useEffect(() => {
+    const reagente = insumoGuard.reagente;
+    if (!reagente) return;
     setForm((prev) => ({
       ...prev,
-      loteControle: i.lote,
-      fabricanteControle: i.fabricante,
-      aberturaControle: toIsoDate(i.dataAbertura),
-      validadeControle: toIsoDate(i.validade),
+      loteReagente: reagente.lote,
+      fabricanteReagente: reagente.fabricante,
+      aberturaReagente: toIsoDate(reagente.dataAbertura),
+      validadeReagente: toIsoDate(reagente.validade),
     }));
-  }
+  }, [insumoGuard.reagente]);
 
-  function applyReagenteInsumo(i: Insumo | null) {
-    setReagenteInsumoId(i?.id ?? null);
-    if (!i) return;
+  React.useEffect(() => {
+    const controle = insumoGuard.controle;
+    if (!controle) return;
     setForm((prev) => ({
       ...prev,
-      loteReagente: i.lote,
-      fabricanteReagente: i.fabricante,
-      aberturaReagente: toIsoDate(i.dataAbertura),
-      validadeReagente: toIsoDate(i.validade),
+      loteControle: controle.lote,
+      fabricanteControle: controle.fabricante,
+      aberturaControle: toIsoDate(controle.dataAbertura),
+      validadeControle: toIsoDate(controle.validade),
     }));
-  }
+  }, [insumoGuard.controle]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   function set<K extends keyof CoagulacaoFormData>(key: K, value: CoagulacaoFormData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -327,14 +351,43 @@ export function CoagulacaoForm({
       return;
     }
 
-    setErrors({});
-    await onSave(result.data);
-
-    // F3: limpar qcValidationRequired do reagente declarado quando a corrida
-    // é conforme (A). Fire-and-forget — falha não reverte save.
-    if (!naoConforme && reagenteInsumoId && labId) {
-      void clearInsumoQCValidation(labId, [reagenteInsumoId]);
+    // Fase D: exige equipamento selecionado antes da conferência.
+    if (!equipamentoId || !equipamentoSel) {
+      setErrors({
+        equipamento:
+          'Selecione o equipamento em que a corrida está sendo feita.',
+      });
+      return;
     }
+
+    // Fase B1-etapa2 — conferência + override auditado.
+    // prepareForSave bloqueia se: setup incompleto, conferência não feita,
+    // ou se override modal é cancelado pelo usuário. Retorna flags para grafar
+    // no doc do run.
+    const guardFlags = await insumoGuard.prepareForSave();
+    if (!guardFlags) {
+      setErrors({
+        insumos:
+          'Conferência obrigatória do setup. Configure os insumos e confirme antes de salvar.',
+      });
+      return;
+    }
+
+    setErrors({});
+    const snapshot = insumoGuard.getSnapshots();
+    const saveOptions: SaveCoagRunOptions = {
+      insumosSnapshot: snapshot,
+      equipamentoId,
+      equipamentoSnapshot: buildEquipamentoSnapshot(equipamentoSel),
+      ...(guardFlags.insumoVencidoOverride && { insumoVencidoOverride: true }),
+      ...(guardFlags.qcNaoValidado && { qcNaoValidado: true }),
+      ...(guardFlags.overrideMotivo && { overrideMotivo: guardFlags.overrideMotivo }),
+    };
+    await onSave(result.data, saveOptions);
+
+    // afterSave: incrementa runCount dos insumos + limpa qcValidationRequired
+    // se a corrida foi conforme. Fire-and-forget — falha não reverte save.
+    void insumoGuard.afterSave({ runId: '', wasConforme: !naoConforme });
   }
 
   return (
@@ -427,7 +480,7 @@ export function CoagulacaoForm({
                 }
                 className={errors.frequencia ? INPUT_ERR : INPUT}
               >
-                <option value="DIARIA">Diária — RDC 302/2005</option>
+                <option value="DIARIA">Diária</option>
                 <option value="LOTE">Por troca de lote</option>
               </select>
               <FieldError msg={errors.frequencia} />
@@ -444,23 +497,51 @@ export function CoagulacaoForm({
               />
             </div>
           </div>
+
+          <RegulatoryReferencesBar module="coagulacao" />
         </div>
+      </section>
+
+      {/* ── Equipamento da corrida (Fase D) ───────────────────────────────── */}
+      <section>
+        <SectionTitle>Equipamento</SectionTitle>
+        <EquipamentoSelector
+          module="coagulacao"
+          value={equipamentoId}
+          onChange={(id, eq) => {
+            setEquipamentoId(id);
+            setEquipamentoSel(eq);
+            if (errors.equipamento) {
+              setErrors((prev) => {
+                const n = { ...prev };
+                delete n.equipamento;
+                return n;
+              });
+            }
+          }}
+          required
+        />
+        {errors.equipamento && <FieldError msg={errors.equipamento} />}
+      </section>
+
+      {/* ── Conferência de insumos (Fase B1-etapa2) ───────────────────────── */}
+      <section>
+        <SectionTitle>Insumos em uso</SectionTitle>
+        <ConferenciaInsumoAtivo
+          module="coagulacao"
+          requiredSlots={{ reagente: true, controle: true }}
+          equipamentoId={equipamentoId}
+          confirmed={insumoGuard.confirmed}
+          onConfirmedChange={insumoGuard.setConfirmed}
+          onConfigurarSetup={() => setCurrentView('insumos')}
+        />
+        {errors.insumos && <FieldError msg={errors.insumos} />}
       </section>
 
       {/* ── Controle ───────────────────────────────────────────────────────── */}
       <section>
-        <SectionTitle>Material de Controle</SectionTitle>
+        <SectionTitle hint="preenchido pelo setup">Material de Controle</SectionTitle>
         <div className="space-y-3">
-          <div>
-            <InsumoPicker
-              tipo="controle"
-              modulo="coagulacao"
-              value={controleInsumoId}
-              onSelect={applyControleInsumo}
-              placeholder="Selecionar controle cadastrado (opcional — auto-preenche abaixo)"
-              ariaLabel="Selecionar controle cadastrado"
-            />
-          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label htmlFor="loteControle" required>
@@ -528,18 +609,8 @@ export function CoagulacaoForm({
 
       {/* ── Reagente ───────────────────────────────────────────────────────── */}
       <section>
-        <SectionTitle>Reagente (Tromboplastina / Ativador)</SectionTitle>
+        <SectionTitle hint="preenchido pelo setup">Reagente (Tromboplastina / Ativador)</SectionTitle>
         <div className="space-y-3">
-          <div>
-            <InsumoPicker
-              tipo="reagente"
-              modulo="coagulacao"
-              value={reagenteInsumoId}
-              onSelect={applyReagenteInsumo}
-              placeholder="Selecionar reagente cadastrado (opcional — auto-preenche abaixo)"
-              ariaLabel="Selecionar reagente cadastrado"
-            />
-          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label htmlFor="loteReagente" required>
@@ -937,6 +1008,19 @@ export function CoagulacaoForm({
           )}
         </button>
       </div>
+
+      {/* Override modal — abre quando há vencido / qc-pendente e operador
+          escolhe prosseguir. Fecha sem alterar se cancelar. */}
+      {insumoGuard.overrideContext && (
+        <OverrideModal
+          open={insumoGuard.isOverrideOpen}
+          context={insumoGuard.overrideContext}
+          onCancel={insumoGuard.closeOverride}
+          onConfirm={({ justificativa }) => {
+            insumoGuard.confirmOverride(justificativa);
+          }}
+        />
+      )}
     </form>
   );
 }

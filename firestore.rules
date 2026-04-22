@@ -289,16 +289,101 @@ service cloud.firestore {
         allow update, delete: if false;
       }
 
-      // ── Cadastro mestre de Insumos (controles, reagentes, tiras) ─────────
-      // Cross-module: não há gate por module claim. Qualquer membro ativo lê;
-      // só admin/owner cria/edita/deleta. Operadores consomem via dropdown
-      // em runs mas não alteram cadastro.
-      match /insumos/{insumoId} {
+      // ── Produtos de Insumo (catálogo — Fase C) ───────────────────────────
+      // Catálogo estável: "ABX Diluent da Horiba" existe uma vez por lab;
+      // cada caixa nova vira um Lote (doc em /insumos). Qualquer membro ativo
+      // lê e cria/edita. Delete só admin/owner (mudar catálogo sem cuidado
+      // gera dessincronização com lotes existentes).
+      match /produtos-insumos/{produtoId} {
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
-        allow create, update: if isSuperAdmin() ||
-          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow delete: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      // ── Equipamentos (Fase D — 2026-04-21) ───────────────────────────────
+      // N equipamentos por módulo. Ciclo de vida: ativo → manutencao → aposentado.
+      // Aposentadoria é soft-delete com retenção de 5 anos (RDC 786/2023 art. 42).
+      // Delete hard BLOQUEADO em rules: só a Cloud Function
+      // `cleanupEquipamentosExpirados` (Admin SDK, validando `retencaoAte`) remove.
+      match /equipamentos/{equipamentoId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if false;
+      }
+
+      // ── Equipamentos audit trail (Fase D) ────────────────────────────────
+      // Trilha imutável append-only de todo evento do ciclo de vida:
+      // created, updated (com diff), manutencao-iniciada, manutencao-concluida,
+      // aposentado. Registro sobrevive a deletes pós-retenção.
+      match /equipamentos-audit/{auditId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update, delete: if false;
+      }
+
+      // ── Fornecedores (Fase E — 2026-04-21) ───────────────────────────────
+      // Catálogo global do lab. CNPJ único por lab (validado client-side via
+      // dedup query; rule abaixo não re-valida — Firestore não permite queries
+      // em rules). Delete restrito a admin/owner pra proteger integridade
+      // referencial (NotaFiscal.fornecedorId). Soft-delete (ativo=false) fica
+      // disponível a qualquer membro.
+      match /fornecedores/{fornecedorId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      // ── Notas Fiscais (Fase E — 2026-04-21) ──────────────────────────────
+      // Doc fiscal de entrada. Referencia Fornecedor (FK) e é referenciada
+      // por N Insumos (FK). Delete restrito a admin/owner — rastreabilidade
+      // fiscal RDC 786/2023 art. 42.
+      match /notas-fiscais/{notaId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      // ── Cadastro mestre de Insumos (controles, reagentes, tiras) ─────────
+      // Cross-module: não há gate por module claim. Qualquer membro ativo lê
+      // e também cria/edita — o operador na bancada é quem cadastra lote novo
+      // ao abrir caixa de reagente (decisão CTO 2026-04-21).
+      // Delete hard continua admin/owner para preservar trilha: erros de
+      // cadastro devem ser resolvidos via descarte soft (status='descartado'
+      // com motivoDescarte) para manter audit trail.
+      match /insumos/{insumoId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      // ── EquipmentSetup — setup atual do equipamento por módulo ──────────
+      // Fase A (2026-04-21): cada módulo tem um equipamento de referência no
+      // lab (Yumizen H550, Clotimer Duo, etc). O setup guarda os insumos em
+      // uso — corrida consulta implicitamente, operador apenas confirma.
+      // Path: /labs/{labId}/equipment-setups/{module}
+      // docId é o módulo ('hematologia', 'coagulacao', 'uroanalise', 'imunologia').
+      // Trocar insumo é rotina de bancada → qualquer membro escreve.
+      // Toda troca gera um doc em /insumo-transitions (imutável) atomicamente.
+      match /equipment-setups/{module} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if false; // setups nunca são deletados, só substituídos
+      }
+
+      // ── InsumoTransition — linha do tempo do setup do equipamento ────────
+      // Append-only: registra toda mudança em /equipment-setups (from → to)
+      // com justificativa, operador e timestamp. Alimenta a narrativa
+      // auditável do insumo ("entrou → virou ativo → saiu") e o override
+      // auditado (Fase B).
+      // Path: /labs/{labId}/insumo-transitions/{transitionId}
+      match /insumo-transitions/{transitionId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update, delete: if false; // imutável
       }
 
       // Emissões FR-10 — registro de cada exportação do formulário de

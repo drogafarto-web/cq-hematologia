@@ -1,12 +1,14 @@
 /**
- * InsumosView — página principal do cadastro mestre de insumos.
+ * InsumosView — tela principal de Insumos + Equipamentos.
  *
- * Tabs por tipo (Controle / Reagente / Tira-uro) + filtros por status + busca
- * textual. Lista virtualizável pela quantidade esperada (tipicamente < 500
- * insumos ativos por lab em regime normal — lista flat sem virtualização).
+ * Reorganizada na Fase D (2026-04-21 — 2º turno). Fluxo mental do operador:
+ *   1. Cada módulo lista seus equipamentos (N por módulo, aposentadoria soft-delete).
+ *   2. Cada equipamento expande pra mostrar: produtos cadastrados · setup ativo · lotes.
+ *   3. Botões "Novo equipamento" / "Novo produto" / "Novo lote" ficam em contexto,
+ *      não mais em header global que force o operador a adivinhar o fluxo.
  *
- * Acesso via header da app / lab-settings. View `'insumos'` é roteado em
- * AuthWrapper.
+ * A tabela flat de lotes (versão anterior) é preservada em uma aba "Todos os lotes"
+ * para busca/auditoria global. O fluxo de trabalho é o dos painéis por módulo.
  */
 
 import React, { useMemo, useState } from 'react';
@@ -14,15 +16,25 @@ import { useActiveLab, useUser, useUserRole } from '../../store/useAuthStore';
 import { useAppStore } from '../../store/useAppStore';
 import { useInsumos } from './hooks/useInsumos';
 import {
+  aprovarLoteImuno,
   closeInsumo,
   descartarInsumo,
   openInsumo,
 } from './services/insumosFirebaseService';
-import { InsumoFormModal } from './components/InsumoFormModal';
+import { NovoLoteModal } from './components/NovoLoteModal';
 import { FR10ExportModal } from './components/FR10ExportModal';
+import { CatalogoProdutosView } from './components/CatalogoProdutosView';
+import { FornecedoresView } from '../fornecedores/FornecedoresView';
+import { useFornecedores } from '../fornecedores/hooks/useFornecedores';
+import { useNotasFiscais } from '../fornecedores/hooks/useNotasFiscais';
+import { formatCnpj } from '../fornecedores/types/Fornecedor';
+import type { Fornecedor } from '../fornecedores/types/Fornecedor';
+import type { NotaFiscal } from '../fornecedores/types/NotaFiscal';
+import { CATALOGO_TEMPLATES, importarTemplate } from './services/catalogoSeed';
 import { validadeStatus, diasAteVencer } from './utils/validadeReal';
 import { hasQCValidationPending } from './types/Insumo';
-import type { Insumo, InsumoStatus, InsumoTipo } from './types/Insumo';
+import type { Insumo, InsumoStatus, InsumoModulo } from './types/Insumo';
+import { ModuleEquipamentosPanel } from '../equipamentos/components/ModuleEquipamentosPanel';
 
 // ─── UI tokens ───────────────────────────────────────────────────────────────
 
@@ -32,14 +44,11 @@ const BUTTON_GHOST = `
   hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-all
 `.trim();
 
-const BUTTON_PRIMARY = `
-  px-4 h-10 rounded-xl bg-violet-600 hover:bg-violet-700 text-white
-  text-sm font-medium transition-all flex items-center gap-2
-`.trim();
-
 const CHIP = `
   inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium border
 `.trim();
+
+const MODULES: InsumoModulo[] = ['hematologia', 'coagulacao', 'uroanalise', 'imunologia'];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -53,11 +62,14 @@ function statusChip(status: InsumoStatus): { bg: string; label: string } {
     case 'ativo':
       return {
         bg: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300',
-        label: 'Ativo',
+        label: 'Em uso',
       };
     case 'fechado':
+      // Fechado = lote físico ainda lacrado. Não utilizável até abertura.
+      // Âmbar (não vermelho) — estado intermediário passageiro, exige ação
+      // do operador mas não é um erro.
       return {
-        bg: 'bg-slate-500/10 border-slate-500/30 text-slate-600 dark:text-slate-300',
+        bg: 'bg-amber-500/10 border-amber-500/40 text-amber-800 dark:text-amber-300',
         label: 'Fechado',
       };
     case 'vencido':
@@ -96,29 +108,555 @@ function validadeChip(validadeReal: { toDate: () => Date }): {
   };
 }
 
-// ─── Insumo row ──────────────────────────────────────────────────────────────
+// ─── Tabs (nível topo) ───────────────────────────────────────────────────────
+
+type MainTab = 'equipamentos' | 'catalogo' | 'fornecedores' | 'lotes';
+
+// ─── Main view ───────────────────────────────────────────────────────────────
+
+export function InsumosView() {
+  const activeLab = useActiveLab();
+  const user = useUser();
+  const role = useUserRole();
+  const setCurrentView = useAppStore((s) => s.setCurrentView);
+
+  const [mainTab, setMainTab] = useState<MainTab>('equipamentos');
+  const [catalogoModuloFilter, setCatalogoModuloFilter] = useState<InsumoModulo | undefined>(
+    undefined,
+  );
+  const [showExport, setShowExport] = useState(false);
+  const [importingTemplate, setImportingTemplate] = useState<string | null>(null);
+  const [importSummary, setImportSummary] = useState<string | null>(null);
+
+  const openCatalogo = (moduloFilter?: InsumoModulo) => {
+    setCatalogoModuloFilter(moduloFilter);
+    setMainTab('catalogo');
+  };
+
+  const canMutate = !!role;
+
+  if (!activeLab) {
+    return (
+      <div className="flex items-center justify-center h-screen text-slate-500">
+        Nenhum laboratório ativo.
+      </div>
+    );
+  }
+
+  const operadorName = user?.displayName || user?.email?.split('@')[0] || 'Operador';
+
+  async function handleImportTemplate(templateKey: string) {
+    if (!user) return;
+    setImportingTemplate(templateKey);
+    setImportSummary(null);
+    try {
+      const result = await importarTemplate(
+        activeLab!.id,
+        templateKey as keyof typeof CATALOGO_TEMPLATES,
+        user.uid,
+      );
+      setImportSummary(
+        `Catálogo importado — ${result.totalCriados} novo(s), ${result.totalExistentes} já existia(m).`,
+      );
+    } catch (err) {
+      setImportSummary(
+        `Erro ao importar: ${err instanceof Error ? err.message : 'desconhecido'}`,
+      );
+    } finally {
+      setImportingTemplate(null);
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F14] text-slate-900 dark:text-white">
+      {/* Header */}
+      <header className="h-14 bg-white dark:bg-[#0F1318] border-b border-slate-200 dark:border-white/[0.06] flex items-center gap-4 px-6 sticky top-0 z-10">
+        <button
+          type="button"
+          onClick={() => setCurrentView('hub')}
+          className={BUTTON_GHOST}
+          aria-label="Voltar ao hub"
+        >
+          ← Voltar
+        </button>
+        <div className="h-5 w-px bg-slate-200 dark:bg-white/[0.08]" />
+        <div>
+          <div className="text-sm font-medium text-slate-900 dark:text-white/85">
+            Insumos & Equipamentos
+          </div>
+          <div className="text-xs text-slate-500 dark:text-white/40">{activeLab.name}</div>
+        </div>
+        <div className="flex-1" />
+        <button
+          type="button"
+          onClick={() => setShowExport(true)}
+          className={BUTTON_GHOST}
+          title="Exportar FR-10 (Rastreabilidade de Insumos)"
+        >
+          <span className="inline-flex items-center gap-1.5">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+              <path d="M14 2v6h6" />
+              <path d="M9 15h6M9 11h6M9 19h3" />
+            </svg>
+            Exportar FR-10
+          </span>
+        </button>
+        {canMutate && (
+          <ImportCatalogoMenu
+            importing={importingTemplate}
+            onImport={handleImportTemplate}
+          />
+        )}
+      </header>
+
+      <main className="max-w-[1400px] w-full mx-auto px-8 py-6 space-y-6">
+        {/* Tabs principais */}
+        <div className="flex items-center gap-1 border-b border-slate-200 dark:border-white/[0.06]">
+          <TabButton active={mainTab === 'equipamentos'} onClick={() => setMainTab('equipamentos')}>
+            Equipamentos & setups
+          </TabButton>
+          <TabButton
+            active={mainTab === 'catalogo'}
+            onClick={() => {
+              setCatalogoModuloFilter(undefined);
+              setMainTab('catalogo');
+            }}
+          >
+            Catálogo de produtos
+          </TabButton>
+          <TabButton
+            active={mainTab === 'fornecedores'}
+            onClick={() => setMainTab('fornecedores')}
+          >
+            Fornecedores
+          </TabButton>
+          <TabButton active={mainTab === 'lotes'} onClick={() => setMainTab('lotes')}>
+            Todos os lotes
+          </TabButton>
+        </div>
+
+        {mainTab === 'equipamentos' && (
+          <div className="space-y-6">
+            {MODULES.map((m) => (
+              <ModuleEquipamentosPanel
+                key={m}
+                labId={activeLab.id}
+                module={m}
+                canMutate={canMutate}
+                onOpenCatalogo={openCatalogo}
+              />
+            ))}
+          </div>
+        )}
+
+        {mainTab === 'catalogo' && (
+          <CatalogoProdutosView
+            labId={activeLab.id}
+            canMutate={canMutate}
+            initialModuloFilter={catalogoModuloFilter}
+          />
+        )}
+
+        {mainTab === 'fornecedores' && (
+          <FornecedoresView labId={activeLab.id} canMutate={canMutate} />
+        )}
+
+        {mainTab === 'lotes' && (
+          <LotesTable
+            labId={activeLab.id}
+            canMutate={canMutate}
+            operadorName={operadorName}
+          />
+        )}
+      </main>
+
+      {showExport && <FR10ExportModal onClose={() => setShowExport(false)} />}
+
+      {importSummary && (
+        <div className="fixed bottom-4 right-4 z-50 max-w-md p-3.5 rounded-xl bg-slate-900 dark:bg-white/[0.08] text-white text-sm shadow-2xl flex items-start gap-2">
+          <span>{importSummary}</span>
+          <button
+            type="button"
+            onClick={() => setImportSummary(null)}
+            className="text-white/60 hover:text-white/90 shrink-0"
+            aria-label="Fechar aviso"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Tab button ──────────────────────────────────────────────────────────────
+
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`
+        px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-all
+        ${
+          active
+            ? 'border-violet-500 text-slate-900 dark:text-white/90'
+            : 'border-transparent text-slate-500 dark:text-white/45 hover:text-slate-700 dark:hover:text-white/70'
+        }
+      `}
+    >
+      {children}
+    </button>
+  );
+}
+
+// ─── LotesTable (tab "Todos os lotes") ───────────────────────────────────────
+
+function LotesTable({
+  labId,
+  canMutate,
+  operadorName,
+}: {
+  labId: string;
+  canMutate: boolean;
+  operadorName: string;
+}) {
+  const user = useUser();
+  const [tab, setTab] = useState<'all' | 'controle' | 'reagente' | 'tira-uro'>('all');
+  const [statusFilter, setStatusFilter] = useState<InsumoStatus | 'all'>('ativo');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showNovoLote, setShowNovoLote] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const filters = useMemo(
+    () => ({
+      tipo: tab === 'all' ? undefined : tab,
+      status: statusFilter === 'all' ? undefined : statusFilter,
+      query: searchQuery.trim() || undefined,
+    }),
+    [tab, statusFilter, searchQuery],
+  );
+
+  const { insumos, isLoading, error } = useInsumos(filters);
+
+  // Carrega notas + fornecedores pra enriquecer cada linha com rastreabilidade
+  // fiscal (NF, razão social, CNPJ). Subscriptions são compartilhadas com
+  // outros componentes via Firestore cache; custo baixo.
+  const { notas } = useNotasFiscais();
+  const { fornecedores } = useFornecedores();
+  const notaById = useMemo(() => {
+    const m = new Map<string, NotaFiscal>();
+    for (const n of notas) m.set(n.id, n);
+    return m;
+  }, [notas]);
+  const fornecedorById = useMemo(() => {
+    const m = new Map<string, Fornecedor>();
+    for (const f of fornecedores) m.set(f.id, f);
+    return m;
+  }, [fornecedores]);
+
+  const activeFilters = useMemo(() => ({ status: 'ativo' as const }), []);
+  const { insumos: ativosInsumos } = useInsumos(activeFilters);
+  const qcPendingCount = useMemo(
+    () => ativosInsumos.filter(hasQCValidationPending).length,
+    [ativosInsumos],
+  );
+
+  async function handleOpen(i: Insumo) {
+    if (!user) return;
+    setActionError(null);
+    try {
+      await openInsumo(
+        labId,
+        i.id,
+        {
+          validade: i.validade,
+          diasEstabilidadeAbertura: i.diasEstabilidadeAbertura,
+          tipo: i.tipo,
+        },
+        user.uid,
+        operadorName,
+      );
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Erro ao abrir insumo.');
+    }
+  }
+
+  async function handleClose(i: Insumo) {
+    if (!user) return;
+    setActionError(null);
+    try {
+      await closeInsumo(labId, i.id, user.uid, operadorName);
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Erro ao fechar insumo.');
+    }
+  }
+
+  async function handleDescartar(i: Insumo) {
+    if (!user) return;
+    setActionError(null);
+    const motivo = window.prompt('Motivo do descarte (obrigatório para auditoria):');
+    if (!motivo || !motivo.trim()) return;
+    try {
+      await descartarInsumo(labId, i.id, motivo.trim(), user.uid, operadorName);
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Erro ao descartar insumo.');
+    }
+  }
+
+  async function handleAprovarImuno(i: Insumo) {
+    if (!user) return;
+    setActionError(null);
+    const ok = window.confirm(
+      `Aprovar lote ${i.lote} (${i.nomeComercial})?\n\n` +
+        'Confirma que as corridas de validação deste lote foram executadas com sucesso ' +
+        'e o lote está liberado para uso rotineiro. Ação auditável.',
+    );
+    if (!ok) return;
+    try {
+      await aprovarLoteImuno(labId, i.id, user.uid, operadorName);
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Erro ao aprovar lote.');
+    }
+  }
+
+  return (
+    <div>
+      {/* Tabs por tipo */}
+      <div className="flex items-center gap-1 border-b border-slate-200 dark:border-white/[0.06] mb-5">
+        {[
+          { id: 'all' as const, label: 'Todos' },
+          { id: 'controle' as const, label: 'Controles' },
+          { id: 'reagente' as const, label: 'Reagentes' },
+          { id: 'tira-uro' as const, label: 'Tiras uro' },
+        ].map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setTab(t.id)}
+            className={`
+              px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-all
+              ${
+                tab === t.id
+                  ? 'border-violet-500 text-slate-900 dark:text-white/90'
+                  : 'border-transparent text-slate-500 dark:text-white/45 hover:text-slate-700 dark:hover:text-white/70'
+              }
+            `}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <div className="flex items-center gap-1 p-0.5 bg-slate-100 dark:bg-white/[0.04] rounded-lg">
+          {[
+            { id: 'all' as const, label: 'Todos' },
+            { id: 'ativo' as const, label: 'Ativos' },
+            { id: 'fechado' as const, label: 'Fechados' },
+            { id: 'vencido' as const, label: 'Vencidos' },
+            { id: 'descartado' as const, label: 'Descartados' },
+          ].map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => setStatusFilter(s.id)}
+              className={`
+                px-3 h-8 rounded-md text-xs font-medium transition-all
+                ${
+                  statusFilter === s.id
+                    ? 'bg-white dark:bg-white/[0.08] text-slate-900 dark:text-white/90 shadow-sm'
+                    : 'text-slate-500 dark:text-white/50 hover:text-slate-700 dark:hover:text-white/75'
+                }
+              `}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex-1 min-w-[200px]">
+          <input
+            type="search"
+            placeholder="Buscar por lote, fabricante ou nome comercial…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full max-w-md px-3.5 h-9 rounded-lg bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] text-sm placeholder-slate-400 dark:placeholder-white/25 focus:outline-none focus:border-violet-500/50"
+          />
+        </div>
+        {canMutate && (
+          <button
+            type="button"
+            onClick={() => setShowNovoLote(true)}
+            className="px-4 h-9 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-xs font-medium transition-all"
+          >
+            + Novo lote
+          </button>
+        )}
+      </div>
+
+      {error && (
+        <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm text-red-700 dark:text-red-300">
+          {error}
+        </div>
+      )}
+      {actionError && (
+        <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm text-red-700 dark:text-red-300">
+          {actionError}
+        </div>
+      )}
+
+      {qcPendingCount > 0 && (
+        <div
+          role="status"
+          className="mb-4 p-3.5 rounded-xl bg-amber-500/[0.08] border border-amber-500/25 flex items-start gap-3"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
+            aria-hidden
+          >
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          <div className="flex-1">
+            <p className="text-[13px] font-medium text-amber-700 dark:text-amber-300">
+              {qcPendingCount} insumo{qcPendingCount > 1 ? 's' : ''} com CQ pendente de validação
+            </p>
+            <p className="text-[11px] text-amber-600/80 dark:text-amber-400/70 mt-0.5 leading-snug">
+              Reagentes e tiras recém-abertos precisam ser validados por uma corrida de CQ
+              aprovada antes de entrar em rotina — CLSI EP26-A · RDC 978/2025 Art.128.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className="bg-white dark:bg-[#0F1318] border border-slate-200 dark:border-white/[0.06] rounded-2xl overflow-hidden">
+        <div className="grid grid-cols-[1fr,140px,120px,180px,160px] gap-4 px-5 py-2.5 bg-slate-50 dark:bg-white/[0.02] border-b border-slate-200 dark:border-white/[0.06] text-[11px] uppercase tracking-wider text-slate-500 dark:text-white/35 font-medium">
+          <div>Insumo</div>
+          <div>Validade</div>
+          <div>Abertura</div>
+          <div>Situação</div>
+          <div className="text-right">Ações</div>
+        </div>
+
+        {isLoading ? (
+          <div className="py-12 text-center text-sm text-slate-500 dark:text-white/40">
+            Carregando…
+          </div>
+        ) : insumos.length === 0 ? (
+          <div className="py-16 text-center">
+            <div className="text-sm text-slate-500 dark:text-white/45">
+              Nenhum insumo encontrado.
+            </div>
+            <p className="text-xs text-slate-400 dark:text-white/30 mt-1">
+              Cadastre lotes diretamente nos cards de equipamento (aba anterior).
+            </p>
+          </div>
+        ) : (
+          insumos.map((i) => {
+            const nota = i.notaFiscalId ? notaById.get(i.notaFiscalId) ?? null : null;
+            const fornecedor = nota ? fornecedorById.get(nota.fornecedorId) ?? null : null;
+            return (
+              <InsumoRow
+                key={i.id}
+                insumo={i}
+                nota={nota}
+                fornecedor={fornecedor}
+                canMutate={canMutate}
+                onOpen={handleOpen}
+                onClose={handleClose}
+                onDescartar={handleDescartar}
+                onAprovarImuno={handleAprovarImuno}
+              />
+            );
+          })
+        )}
+      </div>
+
+      <div className="mt-4 text-xs text-slate-400 dark:text-white/30">
+        {insumos.length} insumo{insumos.length !== 1 ? 's' : ''} exibido
+        {insumos.length !== 1 ? 's' : ''}.
+      </div>
+
+      {showNovoLote && (
+        <NovoLoteModal
+          labId={labId}
+          {...(tab !== 'all' && { initialTipo: tab })}
+          onClose={() => setShowNovoLote(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+// ─── Linha de lote (preservada da versão anterior) ──────────────────────────
 
 function InsumoRow({
   insumo,
+  nota,
+  fornecedor,
   canMutate,
   onOpen,
   onClose,
   onDescartar,
+  onAprovarImuno,
 }: {
   insumo: Insumo;
+  /** Resolvido pelo caller via `useNotasFiscais()`. `null` quando o lote não
+   * aponta pra nenhuma nota ou a nota foi removida. */
+  nota: NotaFiscal | null;
+  /** Resolvido a partir da nota — `null` quando não há nota ou o fornecedor
+   * foi removido. */
+  fornecedor: Fornecedor | null;
   canMutate: boolean;
   onOpen: (i: Insumo) => void;
   onClose: (i: Insumo) => void;
   onDescartar: (i: Insumo) => void;
+  onAprovarImuno: (i: Insumo) => void;
 }) {
   const s = statusChip(insumo.status);
   const v = validadeChip(insumo.validadeReal);
-  const isFechado = insumo.dataAbertura === null;
+  // Fechado = status explícito (nova semântica, createInsumo agora define
+  // 'fechado' quando dataAbertura é null). Mantemos também o fallback por
+  // dataAbertura pra cobrir docs legados ainda não backfillados.
+  const isFechado = insumo.status === 'fechado' || insumo.dataAbertura === null;
+  const isImuno =
+    insumo.tipo === 'reagente' &&
+    (insumo.modulos?.includes('imunologia') || insumo.modulo === 'imunologia');
+  const qcStatus =
+    insumo.tipo === 'reagente' || insumo.tipo === 'tira-uro' ? insumo.qcStatus : undefined;
 
   return (
     <div className="grid grid-cols-[1fr,140px,120px,180px,160px] gap-4 items-center px-5 py-3 border-b border-slate-100 dark:border-white/[0.04] hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-all">
       <div className="min-w-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <div className="text-sm font-medium text-slate-900 dark:text-white/90 truncate">
             {insumo.nomeComercial}
           </div>
@@ -131,11 +669,48 @@ function InsumoRow({
               CQ pendente
             </span>
           )}
+          {isImuno && qcStatus === 'pendente' && (
+            <span className={`${CHIP} bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300`}>
+              Lote não aprovado
+            </span>
+          )}
+          {isImuno && qcStatus === 'aprovado' && (
+            <span className={`${CHIP} bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300`}>
+              Lote aprovado
+            </span>
+          )}
+          {isImuno && qcStatus === 'reprovado' && (
+            <span className={`${CHIP} bg-red-500/10 border-red-500/30 text-red-700 dark:text-red-300`}>
+              Reprovado
+            </span>
+          )}
         </div>
         <div className="text-xs text-slate-500 dark:text-white/45 mt-0.5 truncate">
           {insumo.fabricante} · Lote {insumo.lote} · {insumo.modulo}
           {insumo.tipo === 'controle' && ` · nível ${insumo.nivel}`}
         </div>
+        {/* Rastreabilidade fiscal do LOTE (não do reagente) — NF + fornecedor
+            vêm do vínculo insumo → notaFiscal → fornecedor. Duas compras do
+            mesmo reagente aparecem em linhas distintas com NFs/fornecedores
+            diferentes. */}
+        {(nota || fornecedor) && (
+          <div className="text-[11px] text-slate-400 dark:text-white/35 mt-0.5 truncate">
+            {nota && (
+              <>
+                NF {nota.numero}
+                {nota.serie && nota.serie !== '1' && `/${nota.serie}`}
+              </>
+            )}
+            {nota && fornecedor && ' · '}
+            {fornecedor && (
+              <>
+                {fornecedor.nomeFantasia ?? fornecedor.razaoSocial}
+                {' · '}
+                <span className="font-mono">{formatCnpj(fornecedor.cnpj)}</span>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="text-xs text-slate-600 dark:text-white/55">
@@ -155,9 +730,24 @@ function InsumoRow({
       <span className={`${CHIP} ${v.bg} justify-self-start`}>{v.label}</span>
 
       <div className="flex items-center justify-end gap-1">
-        {canMutate && insumo.status === 'ativo' && isFechado && (
-          <button type="button" onClick={() => onOpen(insumo)} className={BUTTON_GHOST}>
-            Abrir
+        {canMutate && isImuno && qcStatus !== 'aprovado' && insumo.status === 'ativo' && (
+          <button
+            type="button"
+            onClick={() => onAprovarImuno(insumo)}
+            className={`${BUTTON_GHOST} text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300`}
+            title="Marcar lote como aprovado no CQ (Imuno)"
+          >
+            Aprovar lote
+          </button>
+        )}
+        {canMutate && isFechado && insumo.status !== 'vencido' && insumo.status !== 'descartado' && (
+          <button
+            type="button"
+            onClick={() => onOpen(insumo)}
+            className="px-3 h-8 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold transition-all"
+            title="Registra a abertura do lote — libera pra uso rotineiro"
+          >
+            Abrir lote
           </button>
         )}
         {canMutate && insumo.status === 'ativo' && !isFechado && (
@@ -179,322 +769,86 @@ function InsumoRow({
   );
 }
 
-// ─── Tabs ────────────────────────────────────────────────────────────────────
+// ─── ImportCatalogoMenu (preservado) ─────────────────────────────────────────
 
-const TABS: { id: InsumoTipo | 'all'; label: string }[] = [
-  { id: 'all', label: 'Todos' },
-  { id: 'controle', label: 'Controles' },
-  { id: 'reagente', label: 'Reagentes' },
-  { id: 'tira-uro', label: 'Tiras uro' },
-];
-
-const STATUS_FILTERS: { id: InsumoStatus | 'all'; label: string }[] = [
-  { id: 'all', label: 'Todos' },
-  { id: 'ativo', label: 'Ativos' },
-  { id: 'fechado', label: 'Fechados' },
-  { id: 'vencido', label: 'Vencidos' },
-  { id: 'descartado', label: 'Descartados' },
-];
-
-// ─── Main view ───────────────────────────────────────────────────────────────
-
-export function InsumosView() {
-  const activeLab = useActiveLab();
-  const user = useUser();
-  const role = useUserRole();
-  const setCurrentView = useAppStore((s) => s.setCurrentView);
-
-  const [tab, setTab] = useState<InsumoTipo | 'all'>('all');
-  const [statusFilter, setStatusFilter] = useState<InsumoStatus | 'all'>('ativo');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showForm, setShowForm] = useState(false);
-  const [showExport, setShowExport] = useState(false);
-  const [initialTipo, setInitialTipo] = useState<InsumoTipo>('controle');
-  const [actionError, setActionError] = useState<string | null>(null);
-
-  const filters = useMemo(
-    () => ({
-      tipo: tab === 'all' ? undefined : tab,
-      status: statusFilter === 'all' ? undefined : statusFilter,
-      query: searchQuery.trim() || undefined,
-    }),
-    [tab, statusFilter, searchQuery],
-  );
-
-  const { insumos, isLoading, error } = useInsumos(filters);
-
-  // Contagem de ativos com CQ pendente — subscription independente dos filtros
-  // da aba para que o banner permaneça visível em qualquer tab.
-  const activeFilters = useMemo(() => ({ status: 'ativo' as const }), []);
-  const { insumos: ativosInsumos } = useInsumos(activeFilters);
-  const qcPendingCount = useMemo(
-    () => ativosInsumos.filter(hasQCValidationPending).length,
-    [ativosInsumos],
-  );
-
-  const canMutate = role === 'admin' || role === 'owner';
-
-  if (!activeLab) {
-    return (
-      <div className="flex items-center justify-center h-screen text-slate-500">
-        Nenhum laboratório ativo.
-      </div>
-    );
-  }
-
-  const operadorName = user?.displayName || user?.email?.split('@')[0] || 'Operador';
-
-  async function handleOpen(i: Insumo) {
-    if (!user) return;
-    setActionError(null);
-    try {
-      await openInsumo(
-        activeLab!.id,
-        i.id,
-        { validade: i.validade, diasEstabilidadeAbertura: i.diasEstabilidadeAbertura, tipo: i.tipo },
-        user.uid,
-        operadorName,
-      );
-    } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Erro ao abrir insumo.');
-    }
-  }
-
-  async function handleClose(i: Insumo) {
-    if (!user) return;
-    setActionError(null);
-    try {
-      await closeInsumo(activeLab!.id, i.id, user.uid, operadorName);
-    } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Erro ao fechar insumo.');
-    }
-  }
-
-  async function handleDescartar(i: Insumo) {
-    if (!user) return;
-    setActionError(null);
-    const motivo = window.prompt('Motivo do descarte (obrigatório para auditoria):');
-    if (!motivo || !motivo.trim()) return;
-    try {
-      await descartarInsumo(activeLab!.id, i.id, motivo.trim(), user.uid, operadorName);
-    } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Erro ao descartar insumo.');
-    }
-  }
-
+function ImportCatalogoMenu({
+  importing,
+  onImport,
+}: {
+  importing: string | null;
+  onImport: (key: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F14] text-slate-900 dark:text-white">
-      {/* Header */}
-      <header className="h-14 bg-white dark:bg-[#0F1318] border-b border-slate-200 dark:border-white/[0.06] flex items-center gap-4 px-6 sticky top-0 z-10">
-        <button
-          type="button"
-          onClick={() => setCurrentView('hub')}
-          className={BUTTON_GHOST}
-          aria-label="Voltar ao hub"
-        >
-          ← Voltar
-        </button>
-        <div className="h-5 w-px bg-slate-200 dark:bg-white/[0.08]" />
-        <div>
-          <div className="text-sm font-medium text-slate-900 dark:text-white/85">Insumos</div>
-          <div className="text-xs text-slate-500 dark:text-white/40">
-            Cadastro mestre — {activeLab.name}
-          </div>
-        </div>
-        <div className="flex-1" />
-        <button
-          type="button"
-          onClick={() => setShowExport(true)}
-          className={BUTTON_GHOST}
-          title="Exportar FR-10 (Rastreabilidade de Insumos)"
-        >
-          <span className="inline-flex items-center gap-1.5">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-              <path d="M14 2v6h6" />
-              <path d="M9 15h6M9 11h6M9 19h3" />
-            </svg>
-            Exportar FR-10
-          </span>
-        </button>
-        {canMutate && (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={BUTTON_GHOST}
+        title="Importar catálogo pré-cadastrado do fabricante"
+      >
+        <span className="inline-flex items-center gap-1.5">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
+            <path
+              d="M2 3h8M2 6h8M2 9h8"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+            />
+          </svg>
+          Importar catálogo
+        </span>
+      </button>
+
+      {open && (
+        <>
           <button
             type="button"
-            onClick={() => {
-              setInitialTipo(tab === 'all' ? 'controle' : tab);
-              setShowForm(true);
-            }}
-            className={BUTTON_PRIMARY}
-          >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
-              <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
-            Novo insumo
-          </button>
-        )}
-      </header>
-
-      <main className="max-w-[1400px] w-full mx-auto px-8 py-6">
-        {/* Tabs */}
-        <div className="flex items-center gap-1 border-b border-slate-200 dark:border-white/[0.06] mb-5">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setTab(t.id)}
-              className={`
-                px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-all
-                ${
-                  tab === t.id
-                    ? 'border-violet-500 text-slate-900 dark:text-white/90'
-                    : 'border-transparent text-slate-500 dark:text-white/45 hover:text-slate-700 dark:hover:text-white/70'
-                }
-              `}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Filtros + busca */}
-        <div className="flex flex-wrap items-center gap-2 mb-4">
-          <div className="flex items-center gap-1 p-0.5 bg-slate-100 dark:bg-white/[0.04] rounded-lg">
-            {STATUS_FILTERS.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => setStatusFilter(s.id)}
-                className={`
-                  px-3 h-8 rounded-md text-xs font-medium transition-all
-                  ${
-                    statusFilter === s.id
-                      ? 'bg-white dark:bg-white/[0.08] text-slate-900 dark:text-white/90 shadow-sm'
-                      : 'text-slate-500 dark:text-white/50 hover:text-slate-700 dark:hover:text-white/75'
-                  }
-                `}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-          <div className="flex-1 min-w-[200px]">
-            <input
-              type="search"
-              placeholder="Buscar por lote, fabricante ou nome comercial…"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full max-w-md px-3.5 h-9 rounded-lg bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] text-sm placeholder-slate-400 dark:placeholder-white/25 focus:outline-none focus:border-violet-500/50"
-            />
-          </div>
-        </div>
-
-        {/* Erros */}
-        {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm text-red-700 dark:text-red-300">
-            {error}
-          </div>
-        )}
-        {actionError && (
-          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm text-red-700 dark:text-red-300">
-            {actionError}
-          </div>
-        )}
-
-        {/* Banner CQ pendente — só aparece se houver reagente/tira aberto sem CQ validado. */}
-        {qcPendingCount > 0 && (
-          <div
-            role="status"
-            className="mb-4 p-3.5 rounded-xl bg-amber-500/[0.08] border border-amber-500/25 flex items-start gap-3"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
-              aria-hidden
-            >
-              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-            <div className="flex-1">
-              <p className="text-[13px] font-medium text-amber-700 dark:text-amber-300">
-                {qcPendingCount} insumo{qcPendingCount > 1 ? 's' : ''} com CQ pendente de validação
+            aria-label="Fechar menu"
+            className="fixed inset-0 z-30"
+            onClick={() => setOpen(false)}
+          />
+          <div className="absolute right-0 top-10 z-40 w-80 rounded-xl bg-white dark:bg-[#151d2a] border border-slate-200 dark:border-white/[0.1] shadow-2xl overflow-hidden">
+            <div className="px-4 py-2.5 border-b border-slate-100 dark:border-white/[0.06]">
+              <p className="text-xs font-semibold text-slate-700 dark:text-white/70">
+                Catálogos pré-cadastrados
               </p>
-              <p className="text-[11px] text-amber-600/80 dark:text-amber-400/70 mt-0.5 leading-snug">
-                Reagentes e tiras recém-abertos precisam ser validados por uma corrida de CQ
-                aprovada antes de entrar em rotina — CLSI EP26-A · RDC 978/2025 Art.128.
+              <p className="text-[11px] text-slate-500 dark:text-white/40 mt-0.5">
+                Importa produtos conhecidos. Rerun seguro — pula duplicados.
               </p>
             </div>
+            <ul className="py-1 max-h-80 overflow-y-auto">
+              {Object.entries(CATALOGO_TEMPLATES).map(([key, tpl]) => {
+                const loading = importing === key;
+                return (
+                  <li key={key}>
+                    <button
+                      type="button"
+                      disabled={loading}
+                      onClick={() => {
+                        onImport(key);
+                        setOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-white/[0.04] disabled:opacity-50 transition-all"
+                    >
+                      <p className="text-sm font-medium text-slate-900 dark:text-white/85">
+                        {tpl.equipamento}
+                      </p>
+                      <p className="text-[11px] text-slate-500 dark:text-white/40 mt-0.5 line-clamp-2">
+                        {tpl.descricao}
+                      </p>
+                      <p className="text-[10px] text-slate-400 dark:text-white/30 mt-1">
+                        {tpl.produtos.length} produto(s)
+                        {loading && ' · importando…'}
+                      </p>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
-        )}
-
-        {/* Lista */}
-        <div className="bg-white dark:bg-[#0F1318] border border-slate-200 dark:border-white/[0.06] rounded-2xl overflow-hidden">
-          <div className="grid grid-cols-[1fr,140px,120px,180px,160px] gap-4 px-5 py-2.5 bg-slate-50 dark:bg-white/[0.02] border-b border-slate-200 dark:border-white/[0.06] text-[11px] uppercase tracking-wider text-slate-500 dark:text-white/35 font-medium">
-            <div>Insumo</div>
-            <div>Validade</div>
-            <div>Abertura</div>
-            <div>Situação</div>
-            <div className="text-right">Ações</div>
-          </div>
-
-          {isLoading ? (
-            <div className="py-12 text-center text-sm text-slate-500 dark:text-white/40">
-              Carregando…
-            </div>
-          ) : insumos.length === 0 ? (
-            <div className="py-16 text-center">
-              <div className="text-sm text-slate-500 dark:text-white/45">
-                Nenhum insumo encontrado.
-              </div>
-              {canMutate && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setInitialTipo(tab === 'all' ? 'controle' : tab);
-                    setShowForm(true);
-                  }}
-                  className="mt-3 text-sm font-medium text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300"
-                >
-                  Cadastrar o primeiro insumo →
-                </button>
-              )}
-            </div>
-          ) : (
-            insumos.map((i) => (
-              <InsumoRow
-                key={i.id}
-                insumo={i}
-                canMutate={canMutate}
-                onOpen={handleOpen}
-                onClose={handleClose}
-                onDescartar={handleDescartar}
-              />
-            ))
-          )}
-        </div>
-
-        <div className="mt-4 text-xs text-slate-400 dark:text-white/30">
-          {insumos.length} insumo{insumos.length !== 1 ? 's' : ''} exibido
-          {insumos.length !== 1 ? 's' : ''}.
-        </div>
-      </main>
-
-      {showForm && (
-        <InsumoFormModal
-          labId={activeLab.id}
-          initialTipo={initialTipo}
-          onClose={() => setShowForm(false)}
-        />
+        </>
       )}
-
-      {showExport && <FR10ExportModal onClose={() => setShowExport(false)} />}
     </div>
   );
 }

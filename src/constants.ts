@@ -81,6 +81,20 @@ export const SUBCOLLECTIONS = {
   // Cadastro mestre de Insumos (controles, reagentes, tiras) — cross-module
   INSUMOS: 'insumos',
   INSUMO_MOVIMENTACOES: 'insumo-movimentacoes',
+  // Fase A (2026-04-21) — Setup atual do equipamento + linha do tempo de insumo
+  EQUIPMENT_SETUPS: 'equipment-setups',
+  INSUMO_TRANSITIONS: 'insumo-transitions',
+  // Fase C (2026-04-21) — Catálogo de Produtos (separado dos Lotes)
+  PRODUTOS_INSUMOS: 'produtos-insumos',
+  // Fase D (2026-04-21) — Equipamentos como entidade (N por módulo) + audit append-only
+  EQUIPAMENTOS: 'equipamentos',
+  EQUIPAMENTOS_AUDIT: 'equipamentos-audit',
+  // Fase E (2026-04-21) — Fornecedores + Notas Fiscais (cadastro global do lab)
+  // Rastreabilidade fiscal completa exigida pela RDC 786/2023 art. 42.
+  // Lote (Insumo) → NotaFiscal → Fornecedor (FK); strings soltas legadas
+  // continuam como fallback até o backfill terminar.
+  FORNECEDORES: 'fornecedores',
+  NOTAS_FISCAIS: 'notas-fiscais',
   // Registro de emissões FR-10 — doc por hash, habilita validação externa
   // via Cloud Function pública `validateFR10` (QR scan).
   FR10_EMISSIONS: 'fr10-emissions',
@@ -107,6 +121,20 @@ export const MODULE_CLAIMS = {
 } as const;
 
 export type ModuleClaim = (typeof MODULE_CLAIMS)[keyof typeof MODULE_CLAIMS];
+
+// ─── Catálogo de Equipamentos por módulo (Fase A) ─────────────────────────────
+// Default exibido ao operador como "Setup do [equipamento]" quando o lab ainda
+// não customizou o nome/modelo. Mantém a UX pronta desde o primeiro login sem
+// exigir configuração upfront — lab pode renomear depois via tela de Setup.
+//
+// Adicionar aqui ao provisionar um novo módulo.
+
+export const DEFAULT_EQUIPAMENTO_POR_MODULO: Record<string, { name: string; modelo: string }> = {
+  hematologia: { name: 'Yumizen H550', modelo: 'YUMIZEN_H550' },
+  coagulacao: { name: 'Clotimer Duo', modelo: 'CLOTIMER_DUO' },
+  uroanalise: { name: 'Uri Color', modelo: 'URI_COLOR' },
+  imunologia: { name: 'Strips de Imunoensaio', modelo: 'IMUNO_STRIPS' },
+} as const;
 
 // ─── Storage Paths ────────────────────────────────────────────────────────────
 

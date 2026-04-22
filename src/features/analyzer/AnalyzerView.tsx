@@ -17,6 +17,7 @@ import { useAuthFlow } from '../auth/hooks/useAuthFlow';
 import { ThemeToggle } from '../../shared/components/ui/ThemeToggle';
 import { ANALYTE_MAP } from '../../constants';
 import { LotSwitcher } from './components/LotSwitcher';
+import { EquipmentSetupBar } from '../insumos/components/EquipmentSetupBar';
 import type { ControlLot, SyncStatus, View } from '../../types';
 import type { CIQImunoLot } from '../ciq-imuno/types/CIQImuno';
 import type { CIQLotStatus } from '../ciq-imuno/types/_shared_refs';
@@ -819,6 +820,11 @@ export function AnalyzerView() {
           setCurrentView={setCurrentView}
           isSuperAdmin={isSuperAdmin}
           userEmail={user?.email ?? ''}
+        />
+
+        <EquipmentSetupBar
+          module={module === 'ciq-imuno' ? 'imunologia' : 'hematologia'}
+          onEditSetup={() => setCurrentView('insumos')}
         />
 
         <main className="flex-1 overflow-y-auto">

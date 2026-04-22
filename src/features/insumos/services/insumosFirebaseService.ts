@@ -26,6 +26,8 @@ import {
   onSnapshot,
   serverTimestamp,
   Timestamp,
+  writeBatch,
+  increment,
   firestoreErrorMessage,
 } from '../../../shared/services/firebase';
 import type { Unsubscribe } from '../../../shared/services/firebase';
@@ -63,17 +65,29 @@ function movRef(labId: string, movId: string) {
 
 /**
  * Campos auto-preenchidos pelo service (não podem vir do caller):
- * id, labId, validadeReal, createdAt, status.
+ * id, labId, validadeReal, createdAt, status, activationsCount, runCount,
+ * lastRunAt. `modulos` também é derivado — service sincroniza a partir do
+ * `modulo` singular (backward-compat com call sites existentes que só passam
+ * o campo legado).
  *
  * O payload é um discriminated union explícito — `Omit<Insumo, ...>` quebraria
  * o narrowing do TypeScript e forçaria casts em call sites.
  */
-type DerivedFields = 'id' | 'labId' | 'validadeReal' | 'createdAt' | 'status';
+type DerivedFields =
+  | 'id'
+  | 'labId'
+  | 'validadeReal'
+  | 'createdAt'
+  | 'status'
+  | 'modulos'
+  | 'activationsCount'
+  | 'runCount'
+  | 'lastRunAt';
 
 export type CreateInsumoPayload =
-  | (Omit<InsumoControle, DerivedFields> & { createdBy: string })
-  | (Omit<InsumoReagente, DerivedFields> & { createdBy: string })
-  | (Omit<InsumoTiraUro, DerivedFields> & { createdBy: string });
+  | (Omit<InsumoControle, DerivedFields> & { createdBy: string; modulos?: InsumoControle['modulos'] })
+  | (Omit<InsumoReagente, DerivedFields> & { createdBy: string; modulos?: InsumoReagente['modulos'] })
+  | (Omit<InsumoTiraUro, DerivedFields> & { createdBy: string; modulos?: InsumoTiraUro['modulos'] });
 
 /** Campos editáveis pós-criação. Lote/fabricante/validade são imutáveis por padrão. */
 export type UpdateInsumoPayload = Partial<
@@ -97,7 +111,10 @@ export function subscribeToInsumos(
 ): Unsubscribe {
   const constraints = [];
   if (filters.tipo) constraints.push(where('tipo', '==', filters.tipo));
-  if (filters.modulo) constraints.push(where('modulo', '==', filters.modulo));
+  // Query em `modulos` (array-contains) — source-of-truth desde 2026-04-21.
+  // Docs legados sem `modulos` são invisíveis aqui até o backfill rodar. Lista
+  // não filtrada (sem modulo) cobre o cenário "mostrar tudo" em ambos formatos.
+  if (filters.modulo) constraints.push(where('modulos', 'array-contains', filters.modulo));
   if (filters.status) constraints.push(where('status', '==', filters.status));
   constraints.push(orderBy('createdAt', 'desc'));
 
@@ -147,10 +164,31 @@ export async function createInsumo(
       computeValidadeReal(validadeDate, aberturaDate, payload.diasEstabilidadeAbertura),
     );
 
+    // Fase A — 2026-04-21: sincroniza `modulos[]` (source-of-truth) com o
+    // `modulo` singular legado. Caller pode mandar qualquer um dos dois (ou
+    // ambos) — service normaliza. `modulos[0]` é sempre o `modulo` primário
+    // para queries legadas e relatórios pré-migração.
+    const modulos =
+      Array.isArray(payload.modulos) && payload.modulos.length > 0
+        ? payload.modulos
+        : [payload.modulo];
+    const moduloLegado = payload.modulo ?? modulos[0];
+
+    // Status inicial segue o estado físico real do insumo:
+    //   - sem dataAbertura → lote ainda lacrado → 'fechado' (não utilizável até
+    //     openInsumo registrar a abertura)
+    //   - com dataAbertura → lote já aberto em uso → 'ativo'
+    // Esta é a única invariante que garante que "Ativos" na listagem reflita
+    // insumos realmente em rotina. RDC 786 art. 42 — rastreabilidade exige
+    // timestamp formal de abertura.
+    const statusInicial: Insumo['status'] = payload.dataAbertura ? 'ativo' : 'fechado';
+
     const newDoc: Omit<Insumo, 'id'> = {
       ...payload,
       labId,
-      status: 'ativo',
+      modulo: moduloLegado,
+      modulos,
+      status: statusInicial,
       validadeReal,
       createdAt: Timestamp.now(),
     } as Omit<Insumo, 'id'>;
@@ -390,6 +428,100 @@ export function subscribeToMovimentacoes(
     },
     (err) => onError(new Error(firestoreErrorMessage(err), { cause: err })),
   );
+}
+
+/**
+ * Incrementa `runCount` e atualiza `lastRunAt` em batch para N insumos.
+ * Chamado pelo save de run aprovada após gravar o run — semântica: "estes
+ * insumos foram consumidos nesta corrida".
+ *
+ * Idempotência: não existe por design (cada chamada incrementa). O caller
+ * deve chamar exatamente uma vez por save bem-sucedido. FieldValue.increment
+ * é atômico no servidor, seguro contra concorrência.
+ */
+export async function incrementInsumoRunCount(
+  labId: string,
+  insumoIds: readonly string[],
+): Promise<void> {
+  if (insumoIds.length === 0) return;
+  try {
+    const batch = writeBatch(db);
+    const now = Timestamp.now();
+    for (const id of insumoIds) {
+      batch.update(insumoRef(labId, id), {
+        runCount: increment(1),
+        lastRunAt: now,
+      });
+    }
+    await batch.commit();
+  } catch (err) {
+    // Não relança — falha em incrementar não deve reverter um run já salvo.
+    // Log pra observabilidade; operador segue rotina.
+    console.warn(
+      `[insumos][incrementRunCount] falha: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+    );
+  }
+}
+
+/**
+ * Aprova um lote de insumo em Imuno (CQ por lote). Transiciona
+ * `qcStatus: 'pendente' → 'aprovado'` + registra approver e timestamp.
+ * Idempotente: chamar em lote já aprovado não muda nada (no-op pelo caller).
+ *
+ * Semântica: após validação em N corridas-teste bem-sucedidas, operador
+ * ativa o lote para uso rotineiro. A partir daqui `evaluateInsumoUsability`
+ * retorna OK.
+ */
+export async function aprovarLoteImuno(
+  labId: string,
+  insumoId: string,
+  approverId: string,
+  approverName: string,
+  validationRunIds?: readonly string[],
+): Promise<void> {
+  try {
+    const patch: Record<string, unknown> = {
+      qcStatus: 'aprovado',
+      qcApprovedAt: serverTimestamp(),
+      qcApprovedBy: approverName,
+      qcApprovedByUid: approverId,
+    };
+    if (validationRunIds && validationRunIds.length > 0) {
+      patch.qcValidationRunIds = [...validationRunIds];
+    }
+    await updateDoc(insumoRef(labId, insumoId), patch);
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err), { cause: err });
+  }
+}
+
+/**
+ * Reprova um lote — estado terminal que bloqueia uso normal (override
+ * continuar permitido com justificativa). Motivo obrigatório.
+ */
+export async function reprovarLoteImuno(
+  labId: string,
+  insumoId: string,
+  operadorId: string,
+  operadorName: string,
+  motivo: string,
+): Promise<void> {
+  if (!motivo || !motivo.trim()) {
+    throw new Error('Motivo de reprovação obrigatório.');
+  }
+  try {
+    await updateDoc(insumoRef(labId, insumoId), {
+      qcStatus: 'reprovado',
+      motivoReprovacao: motivo.trim(),
+      qcApprovedAt: serverTimestamp(),
+      qcApprovedBy: operadorName,
+      qcApprovedByUid: operadorId,
+    });
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err), { cause: err });
+  }
 }
 
 /**

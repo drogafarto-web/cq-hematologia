@@ -211,6 +211,43 @@ export interface CoagulacaoRun extends Omit<
    * facilitar queries Firestore sem join e para o relatório impresso.
    */
   responsavel?: string;
+
+  // ── Rastreabilidade de insumos (Fase B1 — 2026-04-21) ─────────────────────
+
+  /**
+   * Snapshot imutável dos insumos ativos no momento da corrida. Populado pelo
+   * save a partir do `EquipmentSetup` do módulo. Sobrevive a edição/descarte
+   * do doc mestre — exigência RDC 786/2023 art. 42.
+   *
+   * Coagulação exige reagente + controle. Slots presentes aqui espelham os
+   * slots do setup no instante do save.
+   */
+  insumosSnapshot?: {
+    reagente?: import('../../insumos/types/InsumoSnapshot').InsumoSnapshot;
+    controle?: import('../../insumos/types/InsumoSnapshot').InsumoSnapshot;
+  };
+
+  /**
+   * Flags de override — aparecem destacados em relatórios (PDF backup Fase B2).
+   * `overrideMotivo` carrega a justificativa textual do operador.
+   */
+  insumoVencidoOverride?: boolean;
+  qcNaoValidado?: boolean;
+  overrideMotivo?: string;
+
+  // ── Rastreabilidade de equipamento (Fase D — 2026-04-21) ──────────────────
+
+  /**
+   * ID do equipamento em que a corrida foi realizada. Cross-reference com
+   * /labs/{labId}/equipamentos/{equipamentoId}. Nulo em runs pré-Fase D
+   * (backward-compat).
+   */
+  equipamentoId?: string;
+  /**
+   * Snapshot congelado do equipamento no momento da corrida. Sobrevive à
+   * aposentadoria (soft-delete, retenção 5a) e ao eventual cleanup pós-retenção.
+   */
+  equipamentoSnapshot?: import('../../equipamentos/types/Equipamento').EquipamentoSnapshot;
 }
 
 // ─── Lote ─────────────────────────────────────────────────────────────────────

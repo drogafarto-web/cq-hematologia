@@ -5,6 +5,7 @@ import { useAuthFlow } from '../auth/hooks/useAuthFlow';
 import { ThemeToggle } from '../../shared/components/ui/ThemeToggle';
 import { useCoagLots } from './hooks/useCoagLots';
 import { CoagulacaoContent } from './components/CoagulacaoContent';
+import { EquipmentSetupBar } from '../insumos/components/EquipmentSetupBar';
 import type { CoagulacaoLot } from './types/Coagulacao';
 import type { CoagLotStatus } from './types/_shared_refs';
 import type { View } from '../../types';
@@ -378,6 +379,11 @@ export function CoagulacaoView() {
           userEmail={user?.email ?? ''}
           setCurrentView={setCurrentView}
           isSuperAdmin={isSuperAdmin}
+        />
+
+        <EquipmentSetupBar
+          module="coagulacao"
+          onEditSetup={() => setCurrentView('insumos')}
         />
 
         <main className="flex-1 overflow-y-auto">

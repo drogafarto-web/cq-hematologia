@@ -659,9 +659,9 @@ export function CoagulacaoContent({
       {showForm && (
         <NovaRunModal
           onClose={() => setShowForm(false)}
-          onSubmit={async (data) => {
+          onSubmit={async (data, options) => {
             clearError();
-            await save(data);
+            await save(data, options);
             setShowForm(false);
           }}
           isSaving={isSaving}
@@ -899,7 +899,10 @@ function NovaRunModal({
   initialNivel,
 }: {
   onClose: () => void;
-  onSubmit: (data: CoagulacaoFormData) => Promise<void>;
+  onSubmit: (
+    data: CoagulacaoFormData,
+    options?: import('../hooks/useSaveCoagRun').SaveCoagRunOptions,
+  ) => Promise<void>;
   isSaving: boolean;
   error: string | null;
   initialNivel?: CoagNivel;

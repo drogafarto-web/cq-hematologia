@@ -303,9 +303,9 @@ export function UroanaliseContent({
         {showForm && (
           <NovaRunModal
             onClose={() => setShowForm(false)}
-            onSubmit={async (data) => {
+            onSubmit={async (data, options) => {
               clearError();
-              await save(data);
+              await save(data, options);
               setShowForm(false);
             }}
             isSaving={isSaving}
@@ -529,9 +529,9 @@ export function UroanaliseContent({
       {showForm && (
         <NovaRunModal
           onClose={() => setShowForm(false)}
-          onSubmit={async (data) => {
+          onSubmit={async (data, options) => {
             clearError();
-            await save(data);
+            await save(data, options);
             setShowForm(false);
           }}
           isSaving={isSaving}
@@ -776,7 +776,10 @@ function NovaRunModal({
   labId,
 }: {
   onClose: () => void;
-  onSubmit: (data: UroanaliseFormData) => Promise<void>;
+  onSubmit: (
+    data: UroanaliseFormData,
+    options?: import('../hooks/useSaveUroRun').SaveUroRunOptions,
+  ) => Promise<void>;
   isSaving: boolean;
   error: string | null;
   initialNivel?: 'N' | 'P';
