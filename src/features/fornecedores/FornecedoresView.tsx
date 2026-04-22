@@ -329,15 +329,15 @@ function FornecedoresSection({ labId, canMutate }: { labId: string; canMutate: b
                       )}
                     </div>
                     {canMutate && (
-                      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-1 border-l border-slate-200 dark:border-white/[0.08] pl-2 ml-1">
                         <button
                           type="button"
                           onClick={() => setEmEdicao(f)}
                           aria-label={`Editar ${f.razaoSocial}`}
                           title="Editar"
-                          className="w-7 h-7 rounded-md flex items-center justify-center text-slate-500 hover:text-violet-600 dark:text-white/45 dark:hover:text-violet-300 hover:bg-violet-500/10"
+                          className="inline-flex items-center gap-1 px-2 h-7 rounded-md text-[11px] font-medium text-slate-600 dark:text-white/60 hover:text-violet-600 dark:hover:text-violet-300 hover:bg-violet-500/10 transition-colors"
                         >
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
+                          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
                             <path
                               d="M8.5 2l1.5 1.5-6 6L2.5 10l.5-1.5 5.5-6.5z"
                               stroke="currentColor"
@@ -346,6 +346,7 @@ function FornecedoresSection({ labId, canMutate }: { labId: string; canMutate: b
                               strokeLinejoin="round"
                             />
                           </svg>
+                          Editar
                         </button>
                         {f.ativo ? (
                           <button
@@ -353,12 +354,13 @@ function FornecedoresSection({ labId, canMutate }: { labId: string; canMutate: b
                             onClick={() => handleDeactivate(f)}
                             aria-label={`Desativar ${f.razaoSocial}`}
                             title="Desativar (preserva histórico)"
-                            className="w-7 h-7 rounded-md flex items-center justify-center text-slate-500 hover:text-amber-600 dark:text-white/45 dark:hover:text-amber-400 hover:bg-amber-500/10"
+                            className="inline-flex items-center gap-1 px-2 h-7 rounded-md text-[11px] font-medium text-slate-600 dark:text-white/60 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-500/10 transition-colors"
                           >
-                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
+                            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
                               <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.2" />
                               <path d="M3 9l6-6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
                             </svg>
+                            Desativar
                           </button>
                         ) : (
                           <>
@@ -367,9 +369,9 @@ function FornecedoresSection({ labId, canMutate }: { labId: string; canMutate: b
                               onClick={() => handleReactivate(f)}
                               aria-label={`Reativar ${f.razaoSocial}`}
                               title="Reativar"
-                              className="w-7 h-7 rounded-md flex items-center justify-center text-slate-500 hover:text-emerald-600 dark:text-white/45 dark:hover:text-emerald-400 hover:bg-emerald-500/10"
+                              className="inline-flex items-center gap-1 px-2 h-7 rounded-md text-[11px] font-medium text-slate-600 dark:text-white/60 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
                             >
-                              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
+                              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
                                 <path
                                   d="M2 6l3 3 5-5"
                                   stroke="currentColor"
@@ -378,15 +380,16 @@ function FornecedoresSection({ labId, canMutate }: { labId: string; canMutate: b
                                   strokeLinejoin="round"
                                 />
                               </svg>
+                              Reativar
                             </button>
                             <button
                               type="button"
                               onClick={() => handleDelete(f)}
                               aria-label={`Excluir ${f.razaoSocial}`}
                               title="Excluir (só se não tiver notas)"
-                              className="w-7 h-7 rounded-md flex items-center justify-center text-slate-500 hover:text-red-600 dark:text-white/45 dark:hover:text-red-400 hover:bg-red-500/10"
+                              className="inline-flex items-center gap-1 px-2 h-7 rounded-md text-[11px] font-medium text-slate-600 dark:text-white/60 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 transition-colors"
                             >
-                              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
+                              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
                                 <path
                                   d="M2.5 3.5h7M5 2h2m-3 1.5v6.5a1 1 0 001 1h2a1 1 0 001-1V3.5m-3 2v4m2-4v4"
                                   stroke="currentColor"
@@ -395,6 +398,7 @@ function FornecedoresSection({ labId, canMutate }: { labId: string; canMutate: b
                                   strokeLinejoin="round"
                                 />
                               </svg>
+                              Excluir
                             </button>
                           </>
                         )}
@@ -579,15 +583,15 @@ function NotasSection({ labId, canMutate }: { labId: string; canMutate: boolean 
                       </span>
                     )}
                     {canMutate && (
-                      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-1 border-l border-slate-200 dark:border-white/[0.08] pl-2 ml-1">
                         <button
                           type="button"
                           onClick={() => handleDelete(n)}
                           aria-label={`Excluir nota ${n.numero}`}
                           title="Excluir (só se não tiver lotes)"
-                          className="w-7 h-7 rounded-md flex items-center justify-center text-slate-500 hover:text-red-600 dark:text-white/45 dark:hover:text-red-400 hover:bg-red-500/10"
+                          className="inline-flex items-center gap-1 px-2 h-7 rounded-md text-[11px] font-medium text-slate-600 dark:text-white/60 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 transition-colors"
                         >
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
+                          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
                             <path
                               d="M2.5 3.5h7M5 2h2m-3 1.5v6.5a1 1 0 001 1h2a1 1 0 001-1V3.5m-3 2v4m2-4v4"
                               stroke="currentColor"
@@ -596,6 +600,7 @@ function NotasSection({ labId, canMutate }: { labId: string; canMutate: boolean 
                               strokeLinejoin="round"
                             />
                           </svg>
+                          Excluir
                         </button>
                       </div>
                     )}

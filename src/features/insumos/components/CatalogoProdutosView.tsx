@@ -361,15 +361,15 @@ function ProdutoRow({
           {TIPO_LABEL[produto.tipo]}
         </span>
         {canMutate && (
-          <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 border-l border-slate-200 dark:border-white/[0.08] pl-2 ml-1">
             <button
               type="button"
               onClick={onEdit}
               aria-label={`Editar ${produto.nomeComercial}`}
               title="Editar"
-              className="w-7 h-7 rounded-md flex items-center justify-center text-slate-500 hover:text-violet-600 dark:text-white/45 dark:hover:text-violet-300 hover:bg-violet-500/10"
+              className="inline-flex items-center gap-1 px-2 h-7 rounded-md text-[11px] font-medium text-slate-600 dark:text-white/60 hover:text-violet-600 dark:hover:text-violet-300 hover:bg-violet-500/10 transition-colors"
             >
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
                 <path
                   d="M8.5 2l1.5 1.5-6 6L2.5 10l.5-1.5 5.5-6.5z"
                   stroke="currentColor"
@@ -378,15 +378,16 @@ function ProdutoRow({
                   strokeLinejoin="round"
                 />
               </svg>
+              Editar
             </button>
             <button
               type="button"
               onClick={onDelete}
               aria-label={`Excluir ${produto.nomeComercial}`}
               title="Excluir"
-              className="w-7 h-7 rounded-md flex items-center justify-center text-slate-500 hover:text-red-600 dark:text-white/45 dark:hover:text-red-400 hover:bg-red-500/10"
+              className="inline-flex items-center gap-1 px-2 h-7 rounded-md text-[11px] font-medium text-slate-600 dark:text-white/60 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 transition-colors"
             >
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
                 <path
                   d="M2.5 3.5h7M5 2h2m-3 1.5v6.5a1 1 0 001 1h2a1 1 0 001-1V3.5m-3 2v4m2-4v4"
                   stroke="currentColor"
@@ -395,6 +396,7 @@ function ProdutoRow({
                   strokeLinejoin="round"
                 />
               </svg>
+              Excluir
             </button>
           </div>
         )}
