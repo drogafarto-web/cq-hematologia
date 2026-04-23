@@ -1,0 +1,405 @@
+// ─── firestore.rules — versão pós-Onda 2 (strict) ────────────────────────────
+//
+// APLICAR APENAS APÓS:
+//   1. `provisionModulesClaims({ dryRun: false })` ter rodado em produção
+//   2. Query de verificação (users ativos 30d sem claim `modules`) = 0
+//   3. Janela de 48h sem regressão após Onda 2
+//
+// Operação:
+//   cp firestore.rules.post-onda2 firestore.rules
+//   git commit -m "onda 3: remove module claim bypass"
+//   firebase deploy --only firestore:rules --project hcquality-staging
+//   # valida 24-48h em staging
+//   firebase deploy --only firestore:rules --project hmatologia2
+//
+// Rollback (se regressão):
+//   git revert <sha> + firebase deploy --only firestore:rules
+//
+// ─────────────────────────────────────────────────────────────────────────────
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isSuperAdmin() {
+      return request.auth.token.isSuperAdmin == true ||
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isSuperAdmin == true);
+    }
+
+    function isActiveMemberOfLab(labId) {
+      let memberPath = /databases/$(database)/documents/labs/$(labId)/members/$(request.auth.uid);
+      return exists(memberPath) && get(memberPath).data.active == true;
+    }
+
+    function getMemberRole(labId) {
+      return get(/databases/$(database)/documents/labs/$(labId)/members/$(request.auth.uid)).data.role;
+    }
+
+    function isAdminOrOwner(labId) {
+      let role = getMemberRole(labId);
+      return role == 'admin' || role == 'owner';
+    }
+
+    // ── Module access (claims obrigatórias — pós-provisioning) ───────────────
+    // Onda 2 concluída: todo user ativo tem `modules` no token. Sem bypass.
+    function hasModuleAccess(module) {
+      return request.auth.token.get('modules', {})[module] == true;
+    }
+
+    // ── /users ────────────────────────────────────────────────────────────────
+
+    match /users/{userId} {
+      allow get: if isAuthenticated() && (request.auth.uid == userId || isSuperAdmin());
+      allow list: if isSuperAdmin();
+      allow create: if isSuperAdmin() || request.auth.uid == userId;
+      allow update: if isSuperAdmin() ||
+        (request.auth.uid == userId &&
+         request.resource.data.diff(resource.data).affectedKeys()
+           .hasOnly(['contact', 'displayName', 'photoURL', 'activeLabId', 'pendingLabId']));
+      allow delete: if isSuperAdmin();
+    }
+
+    // ── /labs ─────────────────────────────────────────────────────────────────
+
+    match /labs/{labId} {
+      allow get: if isSuperAdmin() || isActiveMemberOfLab(labId);
+      allow list: if isAuthenticated();
+      allow create, delete: if isSuperAdmin();
+      allow update: if isSuperAdmin() || isAdminOrOwner(labId);
+
+      match /members/{uid} {
+        allow get: if isSuperAdmin() || request.auth.uid == uid || isAdminOrOwner(labId);
+        allow list: if isSuperAdmin() || isAdminOrOwner(labId);
+        allow write: if isSuperAdmin() || isAdminOrOwner(labId);
+      }
+
+      match /data/{dataPath} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, delete: if isSuperAdmin() || isAdminOrOwner(labId);
+        allow update: if (isSuperAdmin() || isActiveMemberOfLab(labId)) &&
+                       (isAdminOrOwner(labId) || dataPath == 'appState');
+      }
+
+      // ── /lots (Hematologia) — STRICT ─────────────────────────────────────
+      match /lots/{lotId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('hematologia'));
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if isSuperAdmin() || (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+
+        match /runs/{runId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && hasModuleAccess('hematologia'));
+          allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow delete: if isSuperAdmin() || (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        }
+      }
+
+      // ── /ciq-imuno — STRICT ──────────────────────────────────────────────
+      match /ciq-imuno/{lotId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('imunologia'));
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+
+        match /runs/{runId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && hasModuleAccess('imunologia'));
+          allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow delete: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        }
+
+        match /audit/{auditId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && hasModuleAccess('imunologia'));
+          allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow update, delete: if false;
+        }
+      }
+
+      match /ciq-imuno-meta/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('imunologia'));
+        allow write: if isSuperAdmin() || isActiveMemberOfLab(labId);
+      }
+
+      match /ciq-imuno-config/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('imunologia'));
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      // ── /ciq-audit — server-only após Onda 4 ativar writer ───────────────
+      // Hoje o writer é Admin SDK (Cloud Function). Cliente só lê.
+      // Onda 4 introduz triggers que populam esta coleção.
+      match /ciq-audit/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        // CLIENT WRITE BLOCKED — usar writer server-side (Onda 4).
+        allow create, update, delete: if false;
+      }
+
+      match /backup-logs/{logId} {
+        allow read:   if isSuperAdmin() || (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow create: if false;
+        allow update, delete: if false;
+      }
+
+      // ── /ciq-coagulacao — STRICT ─────────────────────────────────────────
+      match /ciq-coagulacao/{lotId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('coagulacao'));
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+
+        match /runs/{runId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && hasModuleAccess('coagulacao'));
+          allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow delete: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        }
+
+        match /audit/{auditId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && hasModuleAccess('coagulacao'));
+          allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow update, delete: if false;
+        }
+      }
+
+      match /ciq-coagulacao-meta/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('coagulacao'));
+        allow write: if isSuperAdmin() || isActiveMemberOfLab(labId);
+      }
+
+      match /ciq-coagulacao-config/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('coagulacao'));
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      match /ciq-coagulacao-audit/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update, delete: if false;
+      }
+
+      // ── /ciq-uroanalise — STRICT ─────────────────────────────────────────
+      match /ciq-uroanalise/{lotId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('uroanalise'));
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+
+        match /runs/{runId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && hasModuleAccess('uroanalise'));
+          allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow delete: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        }
+
+        match /audit/{auditId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && hasModuleAccess('uroanalise'));
+          allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow update, delete: if false;
+        }
+      }
+
+      match /ciq-uroanalise-meta/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('uroanalise'));
+        allow write: if isSuperAdmin() || isActiveMemberOfLab(labId);
+      }
+
+      match /ciq-uroanalise-config/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('uroanalise'));
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      match /ciq-uroanalise-audit/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update, delete: if false;
+      }
+
+      // ── Produtos de Insumo, Equipamentos, etc — inalterados (sem gate de módulo) ──
+      match /produtos-insumos/{produtoId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      match /equipamentos/{equipamentoId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if false;
+      }
+
+      match /equipamentos-audit/{auditId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update, delete: if false;
+      }
+
+      match /fornecedores/{fornecedorId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      match /notas-fiscais/{notaId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      match /insumos/{insumoId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      match /equipment-setups/{module} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if false;
+      }
+
+      match /insumo-transitions/{transitionId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update, delete: if false;
+      }
+
+      match /fr10-emissions/{hash} {
+        function isValidEmission(d) {
+          return d.hash is string
+              && d.hash == hash
+              && d.hash.size() == 64
+              && d.labId == labId
+              && d.labName is string
+              && d.modulo is string
+              && d.equipamento is string
+              && d.periodoInicio is timestamp
+              && d.periodoFim is timestamp
+              && d.emittedAt is timestamp
+              && d.emittedByUid is string
+              && d.emittedByName is string
+              && d.rowCount is int
+              && d.rowCount >= 0;
+        }
+
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && isValidEmission(request.resource.data);
+        allow update: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && request.resource.data.hash == resource.data.hash
+                      && request.resource.data.labId == resource.data.labId
+                      && request.resource.data.emittedAt == resource.data.emittedAt;
+        allow delete: if false;
+      }
+
+      // Emissões de Relatório CQI — RDC 978/2025 (ver firestore.rules para doc).
+      match /report-emissions/{emissionId} {
+        function isValidReportEmission(d) {
+          return d.labId == labId
+              && d.emissionId == emissionId
+              && d.auditCode is string
+              && d.auditCode.size() >= 16
+              && d.payloadHash is string
+              && d.payloadHash.size() == 64
+              && d.scope is string
+              && d.generatedAt is timestamp
+              && d.generatedBy is string
+              && d.generatedBy == request.auth.uid
+              && d.lotIds is list
+              && d.runIds is list
+              && d.runCount is int
+              && d.runCount >= 0;
+        }
+
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && isValidReportEmission(request.resource.data);
+        allow update, delete: if false;
+      }
+
+      match /insumo-movimentacoes/{movId} {
+        function hasValidInitialChain(d) {
+          return d.payloadSignature is string
+              && d.payloadSignature.size() == 64
+              && d.chainHash == null
+              && d.chainStatus == 'pending'
+              && !('sealedAt' in d)
+              && d.insumoId is string
+              && d.operadorId is string
+              && d.clientTimestamp is string;
+        }
+
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && hasValidInitialChain(request.resource.data);
+        allow update, delete: if false;
+      }
+    }
+
+    // ── Raiz — inalterados ──────────────────────────────────────────────────
+
+    match /firestore-backup-logs/{logId} {
+      allow read:   if isSuperAdmin();
+      allow create, update, delete: if false;
+    }
+
+    match /user-data/{uid} {
+      allow read, write: if request.auth.uid == uid || isSuperAdmin();
+      match /{allSubcollections=**} {
+        allow read, write: if request.auth.uid == uid || isSuperAdmin();
+      }
+    }
+
+    match /auditLogs/{logId} {
+      allow create: if isAuthenticated();
+      allow read: if isSuperAdmin();
+      allow update, delete: if false;
+    }
+
+    match /accessRequests/{reqId} {
+      allow list, get, update, delete: if isSuperAdmin();
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+    }
+
+    match /status/{docId} {
+      allow get: if isAuthenticated();
+      allow create: if isAuthenticated() && docId == 'init' &&
+        !exists(/databases/$(database)/documents/status/init);
+      allow update, delete: if isSuperAdmin();
+    }
+
+    match /pending_users/{labId}/users/{uid} {
+      allow create: if isAuthenticated() && request.auth.uid == uid;
+      allow get, list, delete: if isSuperAdmin() || isAdminOrOwner(labId);
+      allow update: if false;
+    }
+  }
+}

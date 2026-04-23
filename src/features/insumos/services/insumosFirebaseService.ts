@@ -525,6 +525,95 @@ export async function reprovarLoteImuno(
 }
 
 /**
+ * Rotação assistida — fluxo atômico "fecha lote anterior + abre/confirma novo lote"
+ * quando o operador cadastra lote novo do mesmo produto já em uso.
+ *
+ * Casos cobertos:
+ *   1. Novo lote criado FECHADO e há ativo do mesmo produto → fecha o anterior
+ *      e abre o novo (status 'fechado' → 'ativo') na mesma operação.
+ *   2. Novo lote criado ATIVO (alreadyOpen=true) e há outro ativo do mesmo
+ *      produto → apenas fecha o anterior. O novo já está ativo.
+ *
+ * Chain-hash de movimentações é respeitado — cada lado da rotação gera o seu
+ * próprio registro em `insumo-movimentacoes` (abertura+fechamento), preservando
+ * audit trail independente por insumo.
+ *
+ * Não é uma transaction Firestore — as escritas envolvem múltiplos docs em
+ * subcoleções distintas (insumos + insumo-movimentacoes). Em caso de falha
+ * parcial, o estado é recuperável via reading-time reconciliation (scheduled
+ * function já trata status→'vencido' quando validadeReal expira).
+ */
+export async function rotateInsumoLote(
+  labId: string,
+  params: {
+    /** Insumo anterior (vai fechar). Pode ser null → apenas abre o novo. */
+    oldInsumoId: string | null;
+    /** Insumo novo (vai abrir se `newAlreadyActive=false`). */
+    newInsumoId: string;
+    /**
+     * Se o novo já foi criado ativo (alreadyOpen no form = true), apenas
+     * fecha o anterior — não chama openInsumo.
+     */
+    newAlreadyActive: boolean;
+    /** Metadata da abertura do novo lote (se aplicável). */
+    newInsumo?: Pick<Insumo, 'validade' | 'diasEstabilidadeAbertura' | 'tipo'>;
+    operadorId: string;
+    operadorName: string;
+  },
+): Promise<void> {
+  const { oldInsumoId, newInsumoId, newAlreadyActive, newInsumo, operadorId, operadorName } =
+    params;
+
+  // Ordem importa: fecha o anterior PRIMEIRO pra evitar ter dois ativos mesmo
+  // que brevemente (cenário de concorrência com outro operador abrindo o
+  // mesmo lote em outro dispositivo). Se falhar aqui, o novo continua fechado
+  // e o operador pode tentar de novo; se cair entre passos, o anterior está
+  // fechado e o novo ainda fechado — estado consistente pra fix manual.
+  if (oldInsumoId) {
+    await closeInsumo(labId, oldInsumoId, operadorId, operadorName);
+  }
+  if (!newAlreadyActive && newInsumo) {
+    await openInsumo(labId, newInsumoId, newInsumo, operadorId, operadorName);
+  }
+}
+
+/**
+ * Retorna o insumo ativo do mesmo produto (produtoId), se existir, excluindo
+ * o próprio insumo recém-criado. Usado para sugerir rotação depois do cadastro.
+ *
+ * Retorna `null` quando não há ativo anterior ou quando `produtoId` é ausente
+ * (docs legados sem vinculação a produto não podem participar da sugestão
+ * automática — o operador continua podendo rotacionar manualmente via UI).
+ */
+export async function findAtivoDoMesmoProduto(
+  labId: string,
+  produtoId: string | null | undefined,
+  excludeInsumoId: string,
+): Promise<Insumo | null> {
+  if (!produtoId) return null;
+  try {
+    const q = query(
+      insumosCol(labId),
+      where('produtoId', '==', produtoId),
+      where('status', '==', 'ativo'),
+    );
+    const snap = await getDocs(q);
+    for (const d of snap.docs) {
+      if (d.id === excludeInsumoId) continue;
+      return { id: d.id, ...(d.data() as Omit<Insumo, 'id'>) } as Insumo;
+    }
+    return null;
+  } catch (err) {
+    // Erro aqui não deve reverter a criação do novo lote — retorna null e
+    // segue. UI apenas pula a sugestão de rotação.
+    console.warn(
+      `[insumos][findAtivo] falha: ${err instanceof Error ? err.message : String(err)}`,
+    );
+    return null;
+  }
+}
+
+/**
  * Single-insumo fetch — usado em tela de detalhe/auditoria.
  * Retorna `null` se o insumo não existe (não lança).
  */

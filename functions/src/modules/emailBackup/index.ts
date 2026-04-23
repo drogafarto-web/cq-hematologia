@@ -24,7 +24,15 @@ import { resolveBackupRecipients } from './types';
 import { moduleRegistry } from './registry';
 import { detectStaleness } from './services/stalenessService';
 import { generateBackupPdf, computeContentHash } from './services/pdfService';
-import { sendBackupEmail, RESEND_API_KEY } from './services/emailService';
+import {
+  buildBackupFilename,
+  buildOperacionalFilename,
+  sendBackupEmail,
+  RESEND_API_KEY,
+} from './services/emailService';
+import { assembleOperacionalReport, hasOperacionalContent } from './operacional/assembler';
+import { generateOperacionalPdf } from './operacional/pdf/operacionalPdfService';
+import type { OperacionalStatus } from './operacional/types';
 
 // Region is set globally in functions/src/index.ts via setGlobalOptions.
 
@@ -84,7 +92,7 @@ async function processLabBackup(
     return { sent: false, reason: 'no_data_no_alerts' };
   }
 
-  // 4. Build report
+  // 4. Build report (backup)
   const labSnap = await db.doc(`labs/${labId}`).get();
   const labData = labSnap.data() ?? {};
 
@@ -92,6 +100,9 @@ async function processLabBackup(
     labId,
     labName: labData['name'] ?? labId,
     labCnpj: labData['cnpj'] ?? undefined,
+    labAddress: labData['address'] ?? undefined,
+    responsibleTech: labData['responsibleTech'] ?? undefined,
+    sanitaryLicense: labData['sanitaryLicense'] ?? undefined,
     periodStart: from,
     periodEnd: to,
     sections,
@@ -102,14 +113,66 @@ async function processLabBackup(
   const contentHash = computeContentHash(reportWithoutHash);
   const report: BackupReport = { ...reportWithoutHash, contentHash };
 
-  // 5. Generate PDF
-  const pdfBuffer = await generateBackupPdf(report);
+  // 5. Build operational report + generate both PDFs in parallel
+  const operacional = await assembleOperacionalReport(
+    db,
+    {
+      labId,
+      labName: report.labName,
+      labCnpj: report.labCnpj,
+      labAddress: report.labAddress,
+      responsibleTech: report.responsibleTech,
+      sanitaryLicense: report.sanitaryLicense,
+    },
+    from,
+    to,
+  );
+
+  const shouldAttachOperacional = hasOperacionalContent(operacional);
+
+  const [backupPdf, operacionalPdf] = await Promise.all([
+    generateBackupPdf(report),
+    shouldAttachOperacional ? generateOperacionalPdf(operacional) : Promise.resolve(null),
+  ]);
+
+  const attachments = [
+    {
+      filename: buildBackupFilename(labId, report.generatedAt),
+      content: backupPdf,
+    },
+    ...(operacionalPdf
+      ? [
+          {
+            filename: buildOperacionalFilename(labId, report.generatedAt),
+            content: operacionalPdf,
+          },
+        ]
+      : []),
+  ];
+
+  const elevatedSubject = shouldAttachOperacional
+    ? mapOperacionalToSubject(operacional.globalStatus)
+    : null;
 
   // 6. Send email
   await sendBackupEmail({
     to: recipients,
     report,
-    pdfBuffer,
+    attachments,
+    elevatedSubject,
+    operacionalSummary: shouldAttachOperacional
+      ? {
+          status: operacional.globalStatus,
+          globalApprovalRate: operacional.qcDecisions.globalApprovalRate,
+          totalRuns: operacional.qcDecisions.totalRuns,
+          criticalAlerts:
+            operacional.rastreabilidade.alertsCount.critical +
+            operacional.auditLog.bySeverity.critical,
+          warningAlerts:
+            operacional.rastreabilidade.alertsCount.warning +
+            operacional.auditLog.bySeverity.warning,
+        }
+      : undefined,
   });
 
   // 7. Write backup log (non-blocking)
@@ -131,6 +194,14 @@ async function processLabBackup(
     .catch((err) => console.error(`[emailBackup] Failed to write backup log for ${labId}:`, err));
 
   return { sent: true };
+}
+
+function mapOperacionalToSubject(
+  status: OperacionalStatus,
+): 'critico' | 'atencao' | null {
+  if (status === 'critico') return 'critico';
+  if (status === 'atencao') return 'atencao';
+  return null;
 }
 
 function buildLogSubject(report: BackupReport): string {

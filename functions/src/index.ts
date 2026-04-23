@@ -47,6 +47,43 @@ export {
   triggerCleanupEquipamentosExpirados,
 } from './modules/equipamentos/index';
 
+// ─── admin module (Onda 2 + onda superadmin temporário) ──────────────────────
+// provisionModulesClaims: varre users e provisiona claim `modules` com dry-run.
+// grantTemporarySuperAdminToAll / revokeTemporarySuperAdmin: ferramenta
+// AUTORIZADA explicitamente para período de testes 2026-04-22. Snapshot
+// reversível em `temp/superadmin-grant/snapshots`.
+export { provisionModulesClaims } from './modules/admin/provisionModulesClaims';
+export {
+  grantTemporarySuperAdminToAll,
+  revokeTemporarySuperAdmin,
+} from './modules/admin/temporarySuperAdmin';
+
+// ─── ciqAudit module (Onda 4) ────────────────────────────────────────────────
+// Triggers onDocumentWritten em runs (hemato + imuno) e insumos — derivam
+// CIQAuditEvent e gravam em `labs/{labId}/ciq-audit` com hash chain tamper-evident.
+// Alimenta a Seção 3 do relatório operacional (anexo operacional do email diário).
+export {
+  onHematologiaRunAudit,
+  onImunoRunAudit,
+  onInsumoLifecycleAudit,
+} from './modules/ciqAudit/index';
+
+// ─── signatures module (Onda 5) ──────────────────────────────────────────────
+// Dual-write de HMAC server-side em runs + movimentações. Divergências viram
+// auditLogs. Rules endurecem após janela de observação (7-14 dias).
+export {
+  onHematologiaRunSignature,
+  onImunoRunSignature,
+  onMovimentacaoSignature,
+} from './modules/signatures/index';
+
+// ─── compliance module ───────────────────────────────────────────────────────
+// Trigger onCreate em runs hematológicas revalida insumos declarados. Runs sem
+// `complianceOverride` e com reagente vencido/reprovado/inativo recebem flag
+// `complianceViolation` + audit log. Defesa em profundidade — UI valida mas o
+// server é a fonte de verdade regulatória (RDC 978/2025 Art.128).
+export { onHematologiaRunComplianceCheck } from './modules/compliance/index';
+
 // All functions deploy to the same region as Firestore
 setGlobalOptions({ region: 'southamerica-east1' });
 

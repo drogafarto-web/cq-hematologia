@@ -32,6 +32,7 @@ import type { Fornecedor } from '../fornecedores/types/Fornecedor';
 import type { NotaFiscal } from '../fornecedores/types/NotaFiscal';
 import { CATALOGO_TEMPLATES, importarTemplate } from './services/catalogoSeed';
 import { validadeStatus, diasAteVencer } from './utils/validadeReal';
+import { resolveInsumoState, isEmRotina } from './utils/insumoState';
 import { hasQCValidationPending } from './types/Insumo';
 import type { Insumo, InsumoStatus, InsumoModulo } from './types/Insumo';
 import { ModuleEquipamentosPanel } from '../equipamentos/components/ModuleEquipamentosPanel';
@@ -57,33 +58,9 @@ function formatDate(ts: { toDate: () => Date } | null | undefined): string {
   return ts.toDate().toLocaleDateString('pt-BR');
 }
 
-function statusChip(status: InsumoStatus): { bg: string; label: string } {
-  switch (status) {
-    case 'ativo':
-      return {
-        bg: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300',
-        label: 'Em uso',
-      };
-    case 'fechado':
-      // Fechado = lote físico ainda lacrado. Não utilizável até abertura.
-      // Âmbar (não vermelho) — estado intermediário passageiro, exige ação
-      // do operador mas não é um erro.
-      return {
-        bg: 'bg-amber-500/10 border-amber-500/40 text-amber-800 dark:text-amber-300',
-        label: 'Fechado',
-      };
-    case 'vencido':
-      return {
-        bg: 'bg-red-500/10 border-red-500/30 text-red-700 dark:text-red-300',
-        label: 'Vencido',
-      };
-    case 'descartado':
-      return {
-        bg: 'bg-zinc-500/10 border-zinc-500/30 text-zinc-600 dark:text-zinc-400',
-        label: 'Descartado',
-      };
-  }
-}
+// statusChip legado removido — agora usamos `resolveInsumoState(insumo)` que
+// distingue lacrado (nunca aberto) de encerrado (aberto e fechado) usando
+// `dataAbertura`. Rever em call sites se algum ainda chamar statusChip.
 
 function validadeChip(validadeReal: { toDate: () => Date }): {
   bg: string;
@@ -342,21 +319,59 @@ function LotesTable({
 }) {
   const user = useUser();
   const [tab, setTab] = useState<'all' | 'controle' | 'reagente' | 'tira-uro'>('all');
-  const [statusFilter, setStatusFilter] = useState<InsumoStatus | 'all'>('ativo');
+  /**
+   * Hierarquia operacional dos estados — `fechado` desambiguado pra `lacrado`
+   * (nunca aberto) ou `encerrado` (aberto e depois fechado). Default "em-rotina"
+   * = em uso + lacrados, que é o que o operador precisa ver no dia-a-dia.
+   */
+  type StatusTab =
+    | 'em-rotina'
+    | 'ativo'
+    | 'lacrados'
+    | 'encerrados'
+    | 'vencido'
+    | 'descartado'
+    | 'all';
+  const [statusFilter, setStatusFilter] = useState<StatusTab>('em-rotina');
   const [searchQuery, setSearchQuery] = useState('');
   const [showNovoLote, setShowNovoLote] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
-  const filters = useMemo(
-    () => ({
+  const filters = useMemo(() => {
+    // Server-side filter por status quando a tab mapeia 1:1 no schema.
+    // 'lacrados'/'encerrados' ambos são `status='fechado'` com distinção via
+    // dataAbertura — server não sabe distinguir, filtramos client-side.
+    const serverStatus: InsumoStatus | undefined =
+      statusFilter === 'ativo'
+        ? 'ativo'
+        : statusFilter === 'vencido'
+          ? 'vencido'
+          : statusFilter === 'descartado'
+            ? 'descartado'
+            : statusFilter === 'lacrados' || statusFilter === 'encerrados'
+              ? 'fechado'
+              : undefined;
+    return {
       tipo: tab === 'all' ? undefined : tab,
-      status: statusFilter === 'all' ? undefined : statusFilter,
+      ...(serverStatus && { status: serverStatus }),
       query: searchQuery.trim() || undefined,
-    }),
-    [tab, statusFilter, searchQuery],
-  );
+    };
+  }, [tab, statusFilter, searchQuery]);
 
-  const { insumos, isLoading, error } = useInsumos(filters);
+  const { insumos: insumosRaw, isLoading, error } = useInsumos(filters);
+  const insumos = useMemo(() => {
+    switch (statusFilter) {
+      case 'em-rotina':
+        // Em uso + lacrado (nunca aberto). Encerrados são histórico.
+        return insumosRaw.filter(isEmRotina);
+      case 'lacrados':
+        return insumosRaw.filter((i) => resolveInsumoState(i).kind === 'lacrado');
+      case 'encerrados':
+        return insumosRaw.filter((i) => resolveInsumoState(i).kind === 'encerrado');
+      default:
+        return insumosRaw;
+    }
+  }, [insumosRaw, statusFilter]);
 
   // Carrega notas + fornecedores pra enriquecer cada linha com rastreabilidade
   // fiscal (NF, razão social, CNPJ). Subscriptions são compartilhadas com
@@ -468,13 +483,15 @@ function LotesTable({
       </div>
 
       <div className="flex flex-wrap items-center gap-2 mb-4">
-        <div className="flex items-center gap-1 p-0.5 bg-slate-100 dark:bg-white/[0.04] rounded-lg">
+        <div className="flex items-center gap-1 p-0.5 bg-slate-100 dark:bg-white/[0.04] rounded-lg flex-wrap">
           {[
-            { id: 'all' as const, label: 'Todos' },
-            { id: 'ativo' as const, label: 'Ativos' },
-            { id: 'fechado' as const, label: 'Fechados' },
+            { id: 'em-rotina' as const, label: 'Em rotina' },
+            { id: 'ativo' as const, label: 'Em uso' },
+            { id: 'lacrados' as const, label: 'Lacrados' },
+            { id: 'encerrados' as const, label: 'Encerrados' },
             { id: 'vencido' as const, label: 'Vencidos' },
             { id: 'descartado' as const, label: 'Descartados' },
+            { id: 'all' as const, label: 'Todos' },
           ].map((s) => (
             <button
               key={s.id}
@@ -641,12 +658,13 @@ function InsumoRow({
   onDescartar: (i: Insumo) => void;
   onAprovarImuno: (i: Insumo) => void;
 }) {
-  const s = statusChip(insumo.status);
+  const state = resolveInsumoState(insumo);
   const v = validadeChip(insumo.validadeReal);
-  // Fechado = status explícito (nova semântica, createInsumo agora define
-  // 'fechado' quando dataAbertura é null). Mantemos também o fallback por
-  // dataAbertura pra cobrir docs legados ainda não backfillados.
-  const isFechado = insumo.status === 'fechado' || insumo.dataAbertura === null;
+  // Lacrado = lote nunca aberto (kind='lacrado'). Só lacrados ganham botão
+  // "Abrir lote" — encerrados ficam no histórico. `isFechado` legado é
+  // mantido apenas para docs pre-backfill (status indefinido + dataAbertura
+  // ausente). Ver `resolveInsumoState` para semântica canônica.
+  const isLacrado = state.kind === 'lacrado';
   const isImuno =
     insumo.tipo === 'reagente' &&
     (insumo.modulos?.includes('imunologia') || insumo.modulo === 'imunologia');
@@ -660,7 +678,9 @@ function InsumoRow({
           <div className="text-sm font-medium text-slate-900 dark:text-white/90 truncate">
             {insumo.nomeComercial}
           </div>
-          <span className={`${CHIP} ${s.bg}`}>{s.label}</span>
+          <span className={`${CHIP} ${state.chipCls}`} title={state.tooltip}>
+            {state.label}
+          </span>
           {hasQCValidationPending(insumo) && (
             <span
               className={`${CHIP} bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300`}
@@ -723,7 +743,7 @@ function InsumoRow({
       <div className="text-xs text-slate-600 dark:text-white/55">
         <div>Abertura</div>
         <div className="text-slate-900 dark:text-white/80 font-medium">
-          {isFechado ? '—' : formatDate(insumo.dataAbertura)}
+          {insumo.dataAbertura == null ? '—' : formatDate(insumo.dataAbertura)}
         </div>
       </div>
 
@@ -740,7 +760,7 @@ function InsumoRow({
             Aprovar lote
           </button>
         )}
-        {canMutate && isFechado && insumo.status !== 'vencido' && insumo.status !== 'descartado' && (
+        {canMutate && isLacrado && (
           <button
             type="button"
             onClick={() => onOpen(insumo)}
@@ -750,9 +770,14 @@ function InsumoRow({
             Abrir lote
           </button>
         )}
-        {canMutate && insumo.status === 'ativo' && !isFechado && (
-          <button type="button" onClick={() => onClose(insumo)} className={BUTTON_GHOST}>
-            Fechar
+        {canMutate && insumo.status === 'ativo' && (
+          <button
+            type="button"
+            onClick={() => onClose(insumo)}
+            className={BUTTON_GHOST}
+            title="Encerrar lote — fim de vida útil, mantém no histórico"
+          >
+            Encerrar
           </button>
         )}
         {canMutate && insumo.status !== 'descartado' && (

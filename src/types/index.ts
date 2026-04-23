@@ -49,6 +49,28 @@ export interface RunReagenteSnapshot {
   lote: string;
 }
 
+/**
+ * Metadata de override de compliance — gravada na run quando o operador
+ * conscientemente burla um bloqueio (reagente vencido, lote reprovado, mínimo
+ * de reagentes não atingido). Justificativa obrigatória (≥15 chars) e a lista
+ * de blockers fica congelada aqui pra audit trail offline-tolerante. Ação
+ * também espelhada em `/auditLogs` (global) pelo hook e pelo trigger server-side.
+ */
+export interface RunComplianceOverride {
+  justificativa: string;
+  overriddenAt: Date;
+  overriddenBy: string;
+  blockers: ReadonlyArray<{
+    kind: string;
+    insumoId: string;
+    insumoNome: string;
+    insumoLote: string;
+    message: string;
+  }>;
+  /** Quando null, mínimo foi respeitado; gravado só quando era o bloqueio. */
+  minimoFaltando?: { expected: number; got: number; modulo: string };
+}
+
 export interface Run {
   id: string;
   lotId: string;
@@ -64,6 +86,25 @@ export interface Run {
   reagentesInsumoIds?: string[];
   /** Snapshot dos reagentes em uso — imutável para FR-10 audit mesmo se o insumo mestre mudar. */
   reagentesSnapshot?: RunReagenteSnapshot[];
+
+  /**
+   * Marcador de que a corrida foi registrada apesar de bloqueios de compliance
+   * (reagente vencido, lote reprovado, etc). Null quando a rotina estava OK.
+   * RDC 978/2025 Art.128 — rastreabilidade de insumos usados em CQ.
+   */
+  complianceOverride?: RunComplianceOverride;
+
+  /**
+   * Gravado pelo trigger server-side `onRunCreatedComplianceCheck` quando a
+   * revalidação server diverge do client (ex: reagente vencido no server mas
+   * UI não bloqueou). Quando presente SEM `complianceOverride`, é anomalia —
+   * client bypassou validação. Caller deve reagir com alerta ao operador.
+   */
+  complianceViolation?: {
+    detectedAt: Date;
+    kinds: string[];
+    message: string;
+  };
 }
 
 /** Transient in-memory state while operator reviews AI extraction */

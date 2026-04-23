@@ -227,7 +227,15 @@ export function ProdutoFormModal({
       const equipamentosArr = equipamentosSelecionados.map((s) => s.trim()).filter(Boolean);
 
       if (isEdit && produto) {
+        // Tipo/fabricante só vão no patch se estiverem liberados pra edição
+        // (nenhum lote vinculado). O service revalida e rejeita se mudou
+        // entre o check inicial e o submit — defense-in-depth.
         await updateProduto(labId, produto.id, {
+          ...(!tipoFabricanteLocked && tipo !== produto.tipo && { tipo }),
+          ...(!tipoFabricanteLocked &&
+            fabricante.trim() !== produto.fabricante && {
+              fabricante: fabricante.trim(),
+            }),
           nomeComercial: nomeComercial.trim(),
           modulos: tipo === 'tira-uro' ? ['uroanalise'] : modulos,
           codigoFabricante: codigoFabricante.trim() || null,

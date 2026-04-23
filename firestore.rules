@@ -52,7 +52,10 @@ service cloud.firestore {
     // ── /users ────────────────────────────────────────────────────────────────
 
     match /users/{userId} {
-      allow get: if isAuthenticated();
+      // LGPD / RDC 978/2025: usuário só lê o próprio doc — SuperAdmin lê qualquer.
+      // Vazar displayName/contact/activeLabId/claims de terceiros é violação de
+      // minimização. Deploy desta rule em 2026-04-22.
+      allow get: if isAuthenticated() && (request.auth.uid == userId || isSuperAdmin());
       allow list: if isSuperAdmin();
       allow create: if isSuperAdmin() || request.auth.uid == userId;
       // Self-updates restricted to safe fields; SuperAdmin can update anything
@@ -419,6 +422,37 @@ service cloud.firestore {
                       && request.resource.data.labId == resource.data.labId
                       && request.resource.data.emittedAt == resource.data.emittedAt;
         allow delete: if false;
+      }
+
+      // Emissões de Relatório CQI — RDC 978/2025.
+      // Cada vez que um operador gera um relatório consolidado (PDF/print),
+      // o cliente grava uma entrada append-only com hash SHA-256 criptográfico
+      // do payload canônico. O código legível `CQ-XXXX-XXXX-XXXX-XXXX` impresso
+      // no PDF é derivado de `payloadHash` e verificável contra este registro.
+      // Imutável: nem o próprio autor pode editar/apagar. Auditor externo
+      // recalcula o SHA-256 sobre os campos gravados para validar integridade.
+      match /report-emissions/{emissionId} {
+        function isValidReportEmission(d) {
+          return d.labId == labId
+              && d.emissionId == emissionId
+              && d.auditCode is string
+              && d.auditCode.size() >= 16
+              && d.payloadHash is string
+              && d.payloadHash.size() == 64    // SHA-256 hex
+              && d.scope is string
+              && d.generatedAt is timestamp
+              && d.generatedBy is string
+              && d.generatedBy == request.auth.uid
+              && d.lotIds is list
+              && d.runIds is list
+              && d.runCount is int
+              && d.runCount >= 0;
+        }
+
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && isValidReportEmission(request.resource.data);
+        allow update, delete: if false; // imutável — rastreabilidade regulatória
       }
 
       // Movimentações — log imutável de entrada/abertura/fechamento/descarte.

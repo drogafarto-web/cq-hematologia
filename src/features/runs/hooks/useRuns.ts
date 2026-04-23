@@ -16,6 +16,7 @@ import { haptic } from '../../../shared/hooks/useHaptic';
 import type {
   Run,
   RunReagenteSnapshot,
+  RunComplianceOverride,
   ControlLot,
   AnalyteResult,
   RunStatus,
@@ -24,8 +25,21 @@ import type {
   WestgardViolation,
   DatabaseService,
 } from '../../../types';
-import type { Insumo } from '../../insumos/types/Insumo';
+import type { Insumo, InsumoModulo } from '../../insumos/types/Insumo';
 import { clearInsumoQCValidation } from '../../insumos/services/insumosFirebaseService';
+import { validateReagentesForRun } from '../../insumos/utils/insumoValidation';
+import { logComplianceAudit } from '../services/complianceAudit';
+
+/**
+ * Input de override que o caller (ReviewRunModal) monta quando o operador
+ * burla um bloqueio. `overriddenAt` e `overriddenBy` são preenchidos pelo hook
+ * no momento do save — caller passa só a justificativa + lista de blockers.
+ */
+export interface ConfirmRunOverrideInput {
+  justificativa: string;
+  blockers: RunComplianceOverride['blockers'];
+  minimoFaltando?: RunComplianceOverride['minimoFaltando'];
+}
 
 // ─── Pure helpers ─────────────────────────────────────────────────────────────
 
@@ -250,6 +264,8 @@ export function useRuns() {
       editedValues: Record<string, number>,
       approve: boolean,
       reagentes: Insumo[] = [],
+      overrideInput?: ConfirmRunOverrideInput,
+      modulo: InsumoModulo = 'hematologia',
     ): Promise<void> => {
       if (!pendingRun) {
         setRunError('Nenhuma corrida pendente.');
@@ -271,6 +287,24 @@ export function useRuns() {
       const now = new Date();
 
       try {
+        // Defense-in-depth: revalida compliance aqui — UI já validou mas a lista
+        // de reagentes pode ter mudado de estado entre modal aberto e save
+        // (ex: scheduled function marcou vencido entre decisão e confirmação).
+        // Sem override, revalidação que falha aborta o save com mensagem clara.
+        const complianceCheck = validateReagentesForRun({ reagentes, modulo });
+        if (!complianceCheck.canProceed && !overrideInput) {
+          throw new Error(
+            complianceCheck.minimoFaltando
+              ? `Compliance: declare pelo menos ${complianceCheck.minimoFaltando.expected} reagente(s) para ${complianceCheck.minimoFaltando.modulo}.`
+              : `Compliance: ${complianceCheck.blockers[0]?.message ?? 'reagentes inválidos'}`,
+          );
+        }
+        // Se tem override mas a justificativa for frágil, também aborta — já
+        // validado no modal, mas defesa extra.
+        if (overrideInput && overrideInput.justificativa.trim().length < 15) {
+          throw new Error('Justificativa do override muito curta (mínimo 15 caracteres).');
+        }
+
         // Merge operator edits into the AI results before building
         const mergedResults = Object.fromEntries(
           Object.entries(pendingRun.results).map(([id, r]) => [
@@ -296,6 +330,18 @@ export function useRuns() {
           lote: r.lote,
         }));
 
+        const complianceOverride: RunComplianceOverride | null = overrideInput
+          ? {
+              justificativa: overrideInput.justificativa.trim(),
+              overriddenAt: now,
+              overriddenBy: user?.uid ?? '',
+              blockers: overrideInput.blockers,
+              ...(overrideInput.minimoFaltando && {
+                minimoFaltando: overrideInput.minimoFaltando,
+              }),
+            }
+          : null;
+
         const newRun: Run = {
           id: runId,
           lotId: activeLot.id,
@@ -311,6 +357,7 @@ export function useRuns() {
             reagentesInsumoIds: reagentes.map((r) => r.id),
             reagentesSnapshot,
           }),
+          ...(complianceOverride && { complianceOverride }),
         };
 
         // Update lot: add run, increment runCount, recalculate stats
@@ -363,6 +410,31 @@ export function useRuns() {
           );
         }
 
+        // Audit de compliance — gravado em /auditLogs global. Fire-and-forget;
+        // trigger server-side também grava como defesa adicional. Grava tanto
+        // override explícito quanto run "limpa" (como 'COMPLIANT') para
+        // rastreabilidade completa da decisão operacional.
+        if (complianceOverride) {
+          void logComplianceAudit({
+            action: 'RUN_COMPLIANCE_OVERRIDE',
+            labId,
+            runId,
+            lotId: activeLot.id,
+            module: modulo,
+            callerUid: user?.uid ?? null,
+            callerEmail: user?.email ?? null,
+            payload: {
+              status,
+              justificativa: complianceOverride.justificativa,
+              blockers: complianceOverride.blockers,
+              ...(complianceOverride.minimoFaltando && {
+                minimoFaltando: complianceOverride.minimoFaltando,
+              }),
+              reagentesInsumoIds: reagentes.map((r) => r.id),
+            },
+          });
+        }
+
         // Background image upload — non-blocking
         void (async () => {
           try {
@@ -405,24 +477,53 @@ export function useRuns() {
   /**
    * Updates mutable fields of an existing run.
    * If status changes, recalculates internal statistics for the lot.
+   *
+   * RDC 978/2025 Art.128 — reclassificação (mudança de `status`) é ação
+   * crítica e exige justificativa mínima de 15 caracteres. O hook valida
+   * e aborta sem gravação quando a condição não é atendida. Grava um log
+   * `RUN_RECLASSIFICATION` em `/auditLogs` com a justificativa, o operador
+   * e o delta de status. Trigger server-side da Onda 4 duplica em `ciq-audit`
+   * quando deployado. O documento da própria run mantém o contrato legado.
    */
   const updateRun = useCallback(
     async (
       lotId: string,
       runId: string,
       changes: Partial<Pick<Run, 'status' | 'manualOverride' | 'sampleId'>>,
+      reclassificationReason?: string,
     ): Promise<void> => {
+      if (!labId) throw new Error('Nenhum laboratório ativo.');
+      if (!user?.uid) {
+        throw new Error(
+          'Sessão expirou — faça login novamente antes de alterar registros.',
+        );
+      }
+
       const lot = lots.find((l) => l.id === lotId);
       if (!lot) return;
 
       const targetRun = lot.runs.find((r) => r.id === runId);
       if (!targetRun) return;
+
+      const statusChanged =
+        'status' in changes && changes.status !== undefined && changes.status !== targetRun.status;
+
+      // Guard regulatório: mudança de status exige justificativa. Nunca aceitar
+      // null/undefined/whitespace-only — mesma barra do complianceOverride (15 chars).
+      // Rastreabilidade fica em /auditLogs (RUN_RECLASSIFICATION) + Onda 4 ciq-audit
+      // trigger server-side. Documento da run preserva contratos existentes.
+      const trimmedReason = reclassificationReason?.trim() ?? '';
+      if (statusChanged && trimmedReason.length < 15) {
+        throw new Error(
+          'Reclassificação de corrida exige justificativa com no mínimo 15 caracteres (RDC 978/2025 Art.128).',
+        );
+      }
+
       const updatedRun: Run = { ...targetRun, ...changes };
 
       let newLots = updateRunInLots(lots, lotId, runId, () => updatedRun);
 
       // Recalculate stats only when status changed — approved run count may differ
-      const statusChanged = 'status' in changes;
       let updatedLot = newLots.find((l) => l.id === lotId)!;
       if (statusChanged) {
         const newStats = calculateInternalStats(updatedLot);
@@ -441,8 +542,30 @@ export function useRuns() {
         setLots(prevLots);
         throw err;
       }
+
+      // Audit log de reclassificação — fire-and-forget, trigger server-side da
+      // Onda 4 também grava em `ciq-audit` como defense-in-depth (quando deployado).
+      if (statusChanged) {
+        void logComplianceAudit({
+          action: 'RUN_RECLASSIFICATION',
+          labId,
+          runId,
+          lotId,
+          module: 'hematologia',
+          callerUid: user.uid,
+          callerEmail: user.email ?? null,
+          payload: {
+            fromStatus: targetRun.status,
+            toStatus: changes.status,
+            justificativa: trimmedReason,
+            ...(changes.manualOverride !== undefined && {
+              manualOverride: changes.manualOverride,
+            }),
+          },
+        });
+      }
     },
-    [lots, setLots, withSync],
+    [labId, user, lots, setLots, withSync],
   );
 
   /**

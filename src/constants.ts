@@ -98,6 +98,11 @@ export const SUBCOLLECTIONS = {
   // Registro de emissões FR-10 — doc por hash, habilita validação externa
   // via Cloud Function pública `validateFR10` (QR scan).
   FR10_EMISSIONS: 'fr10-emissions',
+  // Emissões de Relatório CQI — uma entrada append-only por geração de relatório.
+  // Guarda hash SHA-256 do payload, authoring operator e runIds incluídos.
+  // Código de auditoria (CQ-XXXX-XXXX-XXXX-XXXX) derivado do hash e impresso
+  // no PDF é verificável contra este registro. RDC 978/2025 — rastreabilidade.
+  REPORT_EMISSIONS: 'report-emissions',
   // Módulos futuros — descomentar ao implementar:
   // CIQ_BIOQUIMICA: 'ciq-bioquimica',
 } as const;

@@ -216,6 +216,22 @@
         { "fieldPath": "fornecedorId", "order": "ASCENDING" },
         { "fieldPath": "dataEmissao", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "ciq-audit",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "severity", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "ciq-audit",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "moduleId", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

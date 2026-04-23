@@ -1,9 +1,24 @@
 import React, { useMemo, useState } from 'react';
+import { useActiveLabId } from '../../store/useAuthStore';
 import { ANALYTE_MAP } from '../../constants';
 import { checkWestgardRules, isRejection } from '../chart/utils/westgardRules';
 import { InsumoPickerMulti } from '../insumos/components/InsumoPickerMulti';
-import type { Insumo } from '../insumos/types/Insumo';
+import { NovoLoteModal } from '../insumos/components/NovoLoteModal';
+import { validateReagentesForRun } from '../insumos/utils/insumoValidation';
+import type { Insumo, InsumoModulo } from '../insumos/types/Insumo';
 import type { PendingRun, ControlLot, WestgardViolation, AnalyteStats } from '../../types';
+
+export interface ComplianceOverride {
+  justificativa: string;
+  blockers: ReadonlyArray<{
+    kind: string;
+    insumoId: string;
+    insumoNome: string;
+    insumoLote: string;
+    message: string;
+  }>;
+  minimoFaltando?: { expected: number; got: number; modulo: string };
+}
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -76,9 +91,16 @@ interface ReviewRunModalProps {
     editedValues: Record<string, number>,
     approve: boolean,
     reagentes: Insumo[],
+    override?: ComplianceOverride,
   ) => Promise<void>;
   onCancel: () => void;
   isConfirming: boolean;
+  /**
+   * Módulo da corrida — usado para validar reagentes contra requisitos do módulo.
+   * Default `hematologia` para preservar comportamento legado quando o caller
+   * (tela de nova corrida) não passa explicitamente.
+   */
+  modulo?: InsumoModulo;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -89,7 +111,9 @@ export function ReviewRunModal({
   onConfirm,
   onCancel,
   isConfirming,
+  modulo = 'hematologia',
 }: ReviewRunModalProps) {
+  const labId = useActiveLabId();
   const [editedValues, setEditedValues] = useState<Record<string, string>>(() =>
     Object.fromEntries(
       Object.entries(pendingRun.results).map(([id, r]) => {
@@ -99,15 +123,28 @@ export function ReviewRunModal({
     ),
   );
 
-  // Reagentes em uso no equipamento durante esta corrida — opcional, usado
-  // para FR-10 (rastreabilidade de insumos). Não bloqueia approve/reject.
+  // Reagentes em uso no equipamento durante esta corrida — rastreabilidade FR-10
+  // + bloqueio de compliance (RDC 978/2025 Art.128): a rotina exige declarar
+  // insumos usados com lote ativo e dentro da validade.
   const [reagentes, setReagentes] = useState<Insumo[]>([]);
+  const [showNovoLote, setShowNovoLote] = useState(false);
+
+  // Override auditado — operador força a corrida mesmo com blockers e fornece
+  // justificativa obrigatória. A justificativa vai pro auditLog e a run
+  // carrega `complianceOverride: true` na persistência.
+  const [overrideMode, setOverrideMode] = useState(false);
+  const [overrideJustificativa, setOverrideJustificativa] = useState('');
 
   const imageUrl = URL.createObjectURL(pendingRun.file);
 
   const lowConfidenceCount = Object.values(pendingRun.results).filter(
     (r) => r.confidence < 0.85,
   ).length;
+
+  const complianceResult = useMemo(
+    () => validateReagentesForRun({ reagentes, modulo }),
+    [reagentes, modulo],
+  );
 
   function handleValueChange(analyteId: string, raw: string) {
     setEditedValues((prev) => ({ ...prev, [analyteId]: raw }));
@@ -117,6 +154,32 @@ export function ReviewRunModal({
     const parsed = Object.fromEntries(
       Object.entries(editedValues).map(([id, raw]) => [id, parseFloat(raw)]),
     );
+
+    // Se há blockers de compliance, exige override explícito com justificativa.
+    if (!complianceResult.canProceed) {
+      if (!overrideMode) {
+        setOverrideMode(true);
+        return;
+      }
+      const just = overrideJustificativa.trim();
+      if (just.length < 15) {
+        return; // botão já está desabilitado; guarda contra race
+      }
+      const override: ComplianceOverride = {
+        justificativa: just,
+        blockers: complianceResult.blockers.map((b) => ({
+          kind: b.kind,
+          insumoId: b.insumo.id,
+          insumoNome: b.insumo.nomeComercial,
+          insumoLote: b.insumo.lote,
+          message: b.message,
+        })),
+        ...(complianceResult.minimoFaltando && { minimoFaltando: complianceResult.minimoFaltando }),
+      };
+      await onConfirm(parsed, approve, reagentes, override);
+      return;
+    }
+
     await onConfirm(parsed, approve, reagentes);
   }
 
@@ -279,7 +342,7 @@ export function ReviewRunModal({
             </tbody>
           </table>
 
-          {/* Reagentes em uso — FR-10 rastreabilidade. Opcional; não bloqueia submit. */}
+          {/* Reagentes em uso — obrigatório (bloqueio de compliance + FR-10). */}
           <section aria-labelledby="reagentes-title" className="space-y-2">
             <div className="flex items-baseline justify-between">
               <h3
@@ -287,19 +350,111 @@ export function ReviewRunModal({
                 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400"
               >
                 Reagentes em uso
+                <span className="text-red-500 dark:text-red-400/80 ml-1">*</span>
               </h3>
               <span className="text-[10px] text-slate-400 dark:text-white/30">
-                opcional · rastreabilidade FR-10
+                obrigatório · RDC 978/2025 · FR-10
               </span>
             </div>
             <InsumoPickerMulti
               tipo="reagente"
-              modulo="hematologia"
+              modulo={modulo}
               value={reagentes.map((r) => r.id)}
               onSelect={setReagentes}
-              placeholder="Declarar reagentes carregados no equipamento (opcional)"
+              placeholder="Declarar reagentes carregados no equipamento"
               ariaLabel="Selecionar reagentes em uso no equipamento"
+              onNovoLote={() => setShowNovoLote(true)}
             />
+
+            {/* Lista de problemas de compliance — blockers + warnings */}
+            {(complianceResult.issues.length > 0 || complianceResult.minimoFaltando) && (
+              <div
+                className={`rounded-xl border p-3 space-y-1.5 transition-colors ${
+                  complianceResult.canProceed
+                    ? 'border-amber-200 dark:border-amber-500/20 bg-amber-50/50 dark:bg-amber-500/[0.04]'
+                    : 'border-red-200 dark:border-red-500/20 bg-red-50/50 dark:bg-red-500/[0.04]'
+                }`}
+              >
+                <p
+                  className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${
+                    complianceResult.canProceed
+                      ? 'text-amber-600 dark:text-amber-400/80'
+                      : 'text-red-600 dark:text-red-400/80'
+                  }`}
+                >
+                  {complianceResult.canProceed ? 'Atenção — revisar' : 'Bloqueios de compliance'}
+                </p>
+                {complianceResult.minimoFaltando && (
+                  <div className="text-xs text-red-700 dark:text-red-300/90 leading-snug">
+                    <strong>{complianceResult.minimoFaltando.modulo}</strong> exige pelo menos{' '}
+                    {complianceResult.minimoFaltando.expected} reagente
+                    {complianceResult.minimoFaltando.expected > 1 ? 's' : ''} declarado
+                    {complianceResult.minimoFaltando.expected > 1 ? 's' : ''} —{' '}
+                    {complianceResult.minimoFaltando.got === 0
+                      ? 'nenhum foi selecionado.'
+                      : `${complianceResult.minimoFaltando.got} selecionado${
+                          complianceResult.minimoFaltando.got === 1 ? '' : 's'
+                        }.`}
+                  </div>
+                )}
+                {complianceResult.issues.map((issue, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <span
+                      className={`shrink-0 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded mt-0.5 ${
+                        issue.severity === 'block'
+                          ? 'bg-red-500/10 dark:bg-red-500/15 text-red-600 dark:text-red-400'
+                          : 'bg-amber-500/10 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                      }`}
+                    >
+                      {issue.severity === 'block' ? 'BLOQ' : 'AVISO'}
+                    </span>
+                    <span className="text-xs text-slate-700 dark:text-white/70 leading-snug">
+                      {issue.message}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Override auditado — aparece só quando operador clicou "Confirmar"
+                e há blockers, pedindo justificativa por escrito antes de seguir. */}
+            {overrideMode && !complianceResult.canProceed && (
+              <div className="rounded-xl border-2 border-red-300 dark:border-red-500/40 bg-red-50/50 dark:bg-red-500/[0.05] p-3 space-y-2">
+                <div>
+                  <p className="text-xs font-semibold text-red-700 dark:text-red-300">
+                    Override auditado — justificativa obrigatória
+                  </p>
+                  <p className="text-[11px] text-red-600/80 dark:text-red-400/70 mt-0.5 leading-snug">
+                    Você está prestes a registrar esta corrida apesar dos bloqueios acima.
+                    A justificativa fica registrada permanentemente no log de auditoria (RDC
+                    978/2025). Mínimo 15 caracteres.
+                  </p>
+                </div>
+                <textarea
+                  value={overrideJustificativa}
+                  onChange={(e) => setOverrideJustificativa(e.target.value)}
+                  rows={2}
+                  placeholder="Ex: Lote novo chegou hoje e lote anterior acabou — corrida para qualificar o novo material."
+                  aria-label="Justificativa do override"
+                  className="w-full px-3 py-2 rounded-lg bg-white dark:bg-white/[0.08] border border-red-200 dark:border-red-500/30 text-sm text-slate-900 dark:text-white/85 placeholder-slate-400 dark:placeholder-white/25 focus:outline-none focus:border-red-500/60 resize-none"
+                />
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-slate-500 dark:text-white/40">
+                    {overrideJustificativa.trim().length}/15 mínimo
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOverrideMode(false);
+                      setOverrideJustificativa('');
+                    }}
+                    className="text-[11px] font-medium text-slate-600 dark:text-white/55 hover:text-slate-900 dark:hover:text-white/85"
+                  >
+                    Cancelar override — voltar e corrigir
+                  </button>
+                </div>
+              </div>
+            )}
           </section>
         </div>
 
@@ -347,48 +502,86 @@ export function ReviewRunModal({
           )}
 
           {/* Action buttons — operator always decides */}
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={onCancel}
-              disabled={isConfirming}
-              className="py-2.5 px-4 rounded-xl border border-slate-200 dark:border-white/[0.1] text-sm text-slate-500 dark:text-white/50 hover:text-slate-800 dark:hover:text-white/80 hover:border-slate-300 dark:hover:border-white/[0.2] disabled:opacity-50 transition-all"
-            >
-              Cancelar
-            </button>
+          {(() => {
+            const hasBlockers = !complianceResult.canProceed;
+            // Com blockers: antes do overrideMode, botão abre o painel de justificativa.
+            // Durante overrideMode: botão só libera quando justificativa ≥ 15 chars.
+            const overrideReady = overrideMode && overrideJustificativa.trim().length >= 15;
+            const approveDisabled =
+              isConfirming || (hasBlockers && overrideMode && !overrideReady);
+            const rejectDisabled =
+              isConfirming || (hasBlockers && overrideMode && !overrideReady);
 
-            <button
-              type="button"
-              onClick={() => handleSubmit(false)}
-              disabled={isConfirming}
-              className="flex-1 py-2.5 rounded-xl border border-red-200 dark:border-red-500/20 text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/[0.07] hover:border-red-300 dark:hover:border-red-500/30 disabled:opacity-50 transition-all"
-            >
-              Rejeitar
-            </button>
+            const approveLabel = isConfirming
+              ? null
+              : hasBlockers
+                ? overrideMode
+                  ? '⚠ Confirmar com override'
+                  : '⚠ Aprovar com justificativa'
+                : hasRejectionViolation
+                  ? '⚠ Aprovar mesmo assim'
+                  : 'Aprovar Corrida';
 
-            <button
-              type="button"
-              onClick={() => handleSubmit(true)}
-              disabled={isConfirming}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium text-white disabled:opacity-50 transition-all shadow-lg ${
-                hasRejectionViolation
-                  ? 'bg-amber-500 hover:bg-amber-400 shadow-amber-500/20'
-                  : 'bg-violet-600 hover:bg-violet-500 shadow-violet-500/20'
-              }`}
-            >
-              {isConfirming ? (
-                <>
-                  <Spinner /> Registrando…
-                </>
-              ) : hasRejectionViolation ? (
-                '⚠ Aprovar mesmo assim'
-              ) : (
-                'Aprovar Corrida'
-              )}
-            </button>
-          </div>
+            return (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  disabled={isConfirming}
+                  className="py-2.5 px-4 rounded-xl border border-slate-200 dark:border-white/[0.1] text-sm text-slate-500 dark:text-white/50 hover:text-slate-800 dark:hover:text-white/80 hover:border-slate-300 dark:hover:border-white/[0.2] disabled:opacity-50 transition-all"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSubmit(false)}
+                  disabled={rejectDisabled}
+                  className="flex-1 py-2.5 rounded-xl border border-red-200 dark:border-red-500/20 text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/[0.07] hover:border-red-300 dark:hover:border-red-500/30 disabled:opacity-50 transition-all"
+                >
+                  Rejeitar
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSubmit(true)}
+                  disabled={approveDisabled}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium text-white disabled:opacity-50 transition-all shadow-lg ${
+                    hasBlockers
+                      ? 'bg-red-600 hover:bg-red-500 shadow-red-500/20'
+                      : hasRejectionViolation
+                        ? 'bg-amber-500 hover:bg-amber-400 shadow-amber-500/20'
+                        : 'bg-violet-600 hover:bg-violet-500 shadow-violet-500/20'
+                  }`}
+                >
+                  {isConfirming ? (
+                    <>
+                      <Spinner /> Registrando…
+                    </>
+                  ) : (
+                    approveLabel
+                  )}
+                </button>
+              </div>
+            );
+          })()}
         </div>
       </div>
+
+      {showNovoLote && labId && (
+        <NovoLoteModal
+          labId={labId}
+          initialTipo="reagente"
+          onClose={() => setShowNovoLote(false)}
+          onCreated={() => {
+            // Lote criado — InsumoPickerMulti vai recarregar via snapshot real-time
+            // e o operador seleciona manualmente o novo item na lista. Fechamos
+            // o overlay; estado da corrida preservado (pendingRun, editedValues,
+            // reagentes já marcados permanecem intactos).
+            setShowNovoLote(false);
+          }}
+        />
+      )}
     </div>
   );
 }
