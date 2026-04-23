@@ -275,6 +275,22 @@ function ProvisionClaimsSection() {
         ProvisionReport
       >(functions, 'provisionModulesClaims');
       const res = await fn({ dryRun });
+
+      // Debug: log raw response para diagnosticar bug em que apply aparentava
+      // não renderizar resultado (2026-04-23). Não remover sem substituir.
+      // eslint-disable-next-line no-console
+      console.log('[provisionModulesClaims]', { dryRun, data: res.data });
+
+      // Guard defensivo: se a callable resolveu mas sem payload, mostra erro
+      // explícito em vez de state vazio (bug histórico em que o usuário via
+      // botão voltar a "Aplicar" sem feedback visível).
+      if (!res.data) {
+        setError(
+          'Resposta vazia do servidor. A operação pode ter completado — rode dry-run para verificar o estado atual antes de repetir.',
+        );
+        return;
+      }
+
       setResult(res.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao provisionar claims.');
