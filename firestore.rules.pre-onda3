@@ -1,0 +1,548 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isSuperAdmin() {
+      // Fast path: custom claim set by Cloud Function (no Firestore read)
+      return request.auth.token.isSuperAdmin == true ||
+        // Fallback: Firestore check for users created before claim migration
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isSuperAdmin == true);
+    }
+
+    function isActiveMemberOfLab(labId) {
+      let memberPath = /databases/$(database)/documents/labs/$(labId)/members/$(request.auth.uid);
+      return exists(memberPath) && get(memberPath).data.active == true;
+    }
+
+    function getMemberRole(labId) {
+      return get(/databases/$(database)/documents/labs/$(labId)/members/$(request.auth.uid)).data.role;
+    }
+
+    function isAdminOrOwner(labId) {
+      let role = getMemberRole(labId);
+      return role == 'admin' || role == 'owner';
+    }
+
+    // ── Module access (custom claims) ─────────────────────────────────────────
+    //
+    // Custom claims are set server-side by the setModulesClaims Cloud Function.
+    // Using claims here avoids an extra Firestore read per rule evaluation and
+    // works offline (the claim is embedded in the signed JWT).
+    //
+    // Safe migration pattern:
+    //   - If a user has NO modules claim yet (legacy / pre-migration), the
+    //     `request.auth.token.get('modules', {})` returns {} and the check
+    //     returns false — access is DENIED for that module path.
+    //   - Run setModulesClaims for all existing users before enabling the gate
+    //     on a collection, or use `|| !('modules' in request.auth.token)` as a
+    //     temporary bypass during the rollout window.
+    //
+    // Usage:  hasModuleAccess('hematologia')
+    //         hasModuleAccess('bioquimica')
+    function hasModuleAccess(module) {
+      return request.auth.token.get('modules', {})[module] == true;
+    }
+
+    // ── /users ────────────────────────────────────────────────────────────────
+
+    match /users/{userId} {
+      // LGPD / RDC 978/2025: usuário só lê o próprio doc — SuperAdmin lê qualquer.
+      // Vazar displayName/contact/activeLabId/claims de terceiros é violação de
+      // minimização. Deploy desta rule em 2026-04-22.
+      allow get: if isAuthenticated() && (request.auth.uid == userId || isSuperAdmin());
+      allow list: if isSuperAdmin();
+      allow create: if isSuperAdmin() || request.auth.uid == userId;
+      // Self-updates restricted to safe fields; SuperAdmin can update anything
+      allow update: if isSuperAdmin() ||
+        (request.auth.uid == userId &&
+         request.resource.data.diff(resource.data).affectedKeys()
+           .hasOnly(['contact', 'displayName', 'photoURL', 'activeLabId', 'pendingLabId']));
+      allow delete: if isSuperAdmin();
+    }
+
+    // ── /labs ─────────────────────────────────────────────────────────────────
+
+    match /labs/{labId} {
+      allow get: if isSuperAdmin() || isActiveMemberOfLab(labId);
+      allow list: if isAuthenticated(); // Allow users to list labs to request access
+      allow create, delete: if isSuperAdmin();
+      // Admin/owner can update their own lab profile (name, contact, address, etc.)
+      // but only superAdmin can create or delete labs.
+      allow update: if isSuperAdmin() || isAdminOrOwner(labId);
+
+      // /labs/{labId}/members
+      match /members/{uid} {
+        allow get: if isSuperAdmin() || request.auth.uid == uid || isAdminOrOwner(labId);
+        allow list: if isSuperAdmin() || isAdminOrOwner(labId);
+        allow write: if isSuperAdmin() || isAdminOrOwner(labId);
+      }
+
+      // /labs/{labId}/data
+      match /data/{dataPath} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, delete: if isSuperAdmin() || isAdminOrOwner(labId);
+        allow update: if (isSuperAdmin() || isActiveMemberOfLab(labId)) &&
+                       (isAdminOrOwner(labId) || dataPath == 'appState');
+      }
+
+      // /labs/{labId}/lots
+      //
+      // Module gate: members can only read lots if they hold the matching module
+      // claim in their JWT. Write (create/update/delete) is kept admin-only and
+      // does not require the module claim — admins manage all lab data.
+      //
+      // ROLLOUT NOTE: replace `|| !('modules' in request.auth.token)` with
+      // `|| false` once setModulesClaims has been run for every existing user.
+      match /lots/{lotId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('hematologia') || !('modules' in request.auth.token)));
+
+        // Members (operators) register lots and update operational fields
+        // (statistics, runCount, lot metadata edits via OCR). Symmetric with
+        // /ciq-imuno and with /lots/{lotId}/runs — the write surface matches
+        // the real operator workflow, not a stale admin-only assumption.
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if isSuperAdmin() || (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+
+        // /labs/{labId}/lots/{lotId}/runs
+        match /runs/{runId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) &&
+              (hasModuleAccess('hematologia') || !('modules' in request.auth.token)));
+          allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow delete: if isSuperAdmin() || (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        }
+      }
+
+      // /labs/{labId}/ciq-imuno — Módulo Imunologia (CIQ categórico R/NR)
+      // Claim JWT: 'imunologia' (setModulesClaims com { imunologia: true })
+      // ROLLOUT: bypass ativo enquanto setModulesClaims não for rodado para todos os usuários.
+      // Remover `|| !('modules' in request.auth.token)` após provisionar as claims.
+      match /ciq-imuno/{lotId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('imunologia') || !('modules' in request.auth.token)));
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+
+        // /labs/{labId}/ciq-imuno/{lotId}/runs
+        match /runs/{runId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) &&
+              (hasModuleAccess('imunologia') || !('modules' in request.auth.token)));
+          allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow delete: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        }
+
+        // /labs/{labId}/ciq-imuno/{lotId}/audit — trilha de auditoria imutável
+        match /audit/{auditId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) &&
+              (hasModuleAccess('imunologia') || !('modules' in request.auth.token)));
+          allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow update, delete: if false; // registros de auditoria são imutáveis
+        }
+      }
+
+      // /labs/{labId}/ciq-imuno-meta — contadores e metadados do módulo CIQ-Imuno
+      // Counter document: ciq-imuno-meta/counters.runCount (transação para CI-YYYY-NNNN)
+      match /ciq-imuno-meta/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('imunologia') || !('modules' in request.auth.token)));
+        // Qualquer membro autenticado pode incrementar o contador (via transação)
+        allow write: if isSuperAdmin() || isActiveMemberOfLab(labId);
+      }
+
+      // /labs/{labId}/ciq-imuno-config — configurações do módulo Imunologia
+      // Inclui a lista de tipos de teste (imunoensaios) gerenciável pela UI.
+      match /ciq-imuno-config/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('imunologia') || !('modules' in request.auth.token)));
+        // Apenas admin/owner podem alterar configurações do módulo
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      // /labs/{labId}/ciq-audit — trilha de auditoria nível-lab (CIQ-Imuno)
+      // Gravada ANTES da exclusão de um lote para que o registro sobreviva ao batch delete.
+      // Imutável: create only — nunca update nem delete.
+      match /ciq-audit/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update, delete: if false;
+      }
+
+      // /labs/{labId}/backup-logs — imutable server-side backup audit trail
+      // Written exclusively by Cloud Functions (scheduledDailyBackup / triggerLabBackup).
+      // Admins and owners can read; no client writes allowed.
+      match /backup-logs/{logId} {
+        allow read:   if isSuperAdmin() || (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow create: if false; // server-side only via Cloud Functions
+        allow update, delete: if false; // immutable
+      }
+
+      // /labs/{labId}/ciq-coagulacao — Módulo Coagulação (CIQ quantitativo)
+      // Claim JWT: 'coagulacao'
+      // ROLLOUT: bypass ativo enquanto setModulesClaims não for rodado para todos.
+      match /ciq-coagulacao/{lotId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('coagulacao') || !('modules' in request.auth.token)));
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+
+        match /runs/{runId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) &&
+              (hasModuleAccess('coagulacao') || !('modules' in request.auth.token)));
+          allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow delete: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        }
+
+        match /audit/{auditId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) &&
+              (hasModuleAccess('coagulacao') || !('modules' in request.auth.token)));
+          allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow update, delete: if false;
+        }
+      }
+
+      match /ciq-coagulacao-meta/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('coagulacao') || !('modules' in request.auth.token)));
+        allow write: if isSuperAdmin() || isActiveMemberOfLab(labId);
+      }
+
+      match /ciq-coagulacao-config/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('coagulacao') || !('modules' in request.auth.token)));
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      match /ciq-coagulacao-audit/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update, delete: if false;
+      }
+
+      // /labs/{labId}/ciq-uroanalise — Módulo Uroanálise (CIQ híbrido — categórico + quantitativo)
+      // Claim JWT: 'uroanalise'
+      // ROLLOUT: bypass ativo enquanto setModulesClaims não for rodado para todos.
+      match /ciq-uroanalise/{lotId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('uroanalise') || !('modules' in request.auth.token)));
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+
+        match /runs/{runId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) &&
+              (hasModuleAccess('uroanalise') || !('modules' in request.auth.token)));
+          allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow delete: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        }
+
+        match /audit/{auditId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) &&
+              (hasModuleAccess('uroanalise') || !('modules' in request.auth.token)));
+          allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow update, delete: if false;
+        }
+      }
+
+      match /ciq-uroanalise-meta/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('uroanalise') || !('modules' in request.auth.token)));
+        allow write: if isSuperAdmin() || isActiveMemberOfLab(labId);
+      }
+
+      match /ciq-uroanalise-config/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) &&
+            (hasModuleAccess('uroanalise') || !('modules' in request.auth.token)));
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      match /ciq-uroanalise-audit/{docId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update, delete: if false;
+      }
+
+      // ── Produtos de Insumo (catálogo — Fase C) ───────────────────────────
+      // Catálogo estável: "ABX Diluent da Horiba" existe uma vez por lab;
+      // cada caixa nova vira um Lote (doc em /insumos). Qualquer membro ativo
+      // lê e cria/edita. Delete só admin/owner (mudar catálogo sem cuidado
+      // gera dessincronização com lotes existentes).
+      match /produtos-insumos/{produtoId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      // ── Equipamentos (Fase D — 2026-04-21) ───────────────────────────────
+      // N equipamentos por módulo. Ciclo de vida: ativo → manutencao → aposentado.
+      // Aposentadoria é soft-delete com retenção de 5 anos (RDC 786/2023 art. 42).
+      // Delete hard BLOQUEADO em rules: só a Cloud Function
+      // `cleanupEquipamentosExpirados` (Admin SDK, validando `retencaoAte`) remove.
+      match /equipamentos/{equipamentoId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if false;
+      }
+
+      // ── Equipamentos audit trail (Fase D) ────────────────────────────────
+      // Trilha imutável append-only de todo evento do ciclo de vida:
+      // created, updated (com diff), manutencao-iniciada, manutencao-concluida,
+      // aposentado. Registro sobrevive a deletes pós-retenção.
+      match /equipamentos-audit/{auditId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update, delete: if false;
+      }
+
+      // ── Fornecedores (Fase E — 2026-04-21) ───────────────────────────────
+      // Catálogo global do lab. CNPJ único por lab (validado client-side via
+      // dedup query; rule abaixo não re-valida — Firestore não permite queries
+      // em rules). Delete restrito a admin/owner pra proteger integridade
+      // referencial (NotaFiscal.fornecedorId). Soft-delete (ativo=false) fica
+      // disponível a qualquer membro.
+      match /fornecedores/{fornecedorId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      // ── Notas Fiscais (Fase E — 2026-04-21) ──────────────────────────────
+      // Doc fiscal de entrada. Referencia Fornecedor (FK) e é referenciada
+      // por N Insumos (FK). Delete restrito a admin/owner — rastreabilidade
+      // fiscal RDC 786/2023 art. 42.
+      match /notas-fiscais/{notaId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      // ── Cadastro mestre de Insumos (controles, reagentes, tiras) ─────────
+      // Cross-module: não há gate por module claim. Qualquer membro ativo lê
+      // e também cria/edita — o operador na bancada é quem cadastra lote novo
+      // ao abrir caixa de reagente (decisão CTO 2026-04-21).
+      // Delete hard continua admin/owner para preservar trilha: erros de
+      // cadastro devem ser resolvidos via descarte soft (status='descartado'
+      // com motivoDescarte) para manter audit trail.
+      match /insumos/{insumoId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      // ── EquipmentSetup — setup atual do equipamento por módulo ──────────
+      // Fase A (2026-04-21): cada módulo tem um equipamento de referência no
+      // lab (Yumizen H550, Clotimer Duo, etc). O setup guarda os insumos em
+      // uso — corrida consulta implicitamente, operador apenas confirma.
+      // Path: /labs/{labId}/equipment-setups/{module}
+      // docId é o módulo ('hematologia', 'coagulacao', 'uroanalise', 'imunologia').
+      // Trocar insumo é rotina de bancada → qualquer membro escreve.
+      // Toda troca gera um doc em /insumo-transitions (imutável) atomicamente.
+      match /equipment-setups/{module} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if false; // setups nunca são deletados, só substituídos
+      }
+
+      // ── InsumoTransition — linha do tempo do setup do equipamento ────────
+      // Append-only: registra toda mudança em /equipment-setups (from → to)
+      // com justificativa, operador e timestamp. Alimenta a narrativa
+      // auditável do insumo ("entrou → virou ativo → saiu") e o override
+      // auditado (Fase B).
+      // Path: /labs/{labId}/insumo-transitions/{transitionId}
+      match /insumo-transitions/{transitionId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update, delete: if false; // imutável
+      }
+
+      // Emissões FR-10 — registro de cada exportação do formulário de
+      // rastreabilidade de insumos, indexado pelo próprio hash SHA-256.
+      // Cloud Function pública `validateFR10` lê este doc para responder
+      // ao QR escaneado por auditor externo. Cliente só pode criar/merge
+      // (reprint atualiza lastPrintedAt), nunca apagar.
+      match /fr10-emissions/{hash} {
+        function isValidEmission(d) {
+          return d.hash is string
+              && d.hash == hash            // hash do payload == doc id
+              && d.hash.size() == 64       // SHA-256 hex
+              && d.labId == labId
+              && d.labName is string
+              && d.modulo is string
+              && d.equipamento is string
+              && d.periodoInicio is timestamp
+              && d.periodoFim is timestamp
+              && d.emittedAt is timestamp
+              && d.emittedByUid is string
+              && d.emittedByName is string
+              && d.rowCount is int
+              && d.rowCount >= 0;
+        }
+
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && isValidEmission(request.resource.data);
+        // update permitido só para atualizar lastPrintedAt em reprint — demais
+        // campos imutáveis. Verificação: hash, labId, emittedAt preservados.
+        allow update: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && request.resource.data.hash == resource.data.hash
+                      && request.resource.data.labId == resource.data.labId
+                      && request.resource.data.emittedAt == resource.data.emittedAt;
+        allow delete: if false;
+      }
+
+      // Emissões de Relatório CQI — RDC 978/2025.
+      // Cada vez que um operador gera um relatório consolidado (PDF/print),
+      // o cliente grava uma entrada append-only com hash SHA-256 criptográfico
+      // do payload canônico. O código legível `CQ-XXXX-XXXX-XXXX-XXXX` impresso
+      // no PDF é derivado de `payloadHash` e verificável contra este registro.
+      // Imutável: nem o próprio autor pode editar/apagar. Auditor externo
+      // recalcula o SHA-256 sobre os campos gravados para validar integridade.
+      match /report-emissions/{emissionId} {
+        function isValidReportEmission(d) {
+          return d.labId == labId
+              && d.emissionId == emissionId
+              && d.auditCode is string
+              && d.auditCode.size() >= 16
+              && d.payloadHash is string
+              && d.payloadHash.size() == 64    // SHA-256 hex
+              && d.scope is string
+              && d.generatedAt is timestamp
+              && d.generatedBy is string
+              && d.generatedBy == request.auth.uid
+              && d.lotIds is list
+              && d.runIds is list
+              && d.runCount is int
+              && d.runCount >= 0;
+        }
+
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && isValidReportEmission(request.resource.data);
+        allow update, delete: if false; // imutável — rastreabilidade regulatória
+      }
+
+      // Movimentações — log imutável de entrada/abertura/fechamento/descarte.
+      // Cliente escreve com chainStatus='pending' + chainHash=null + payloadSignature.
+      // Cloud Function `onInsumoMovimentacaoCreate` (Admin SDK) sela o doc em
+      // ~1-2s com { chainHash, chainStatus: 'sealed', sealedAt }.
+      // Update/delete bloqueados para clientes — Admin SDK bypassa rules.
+      // Tamper-evidence: RDC 978/2025 (rastreabilidade de etapas) + MP 2.200-2/2001.
+      match /insumo-movimentacoes/{movId} {
+        function hasValidInitialChain(d) {
+          return d.payloadSignature is string
+              && d.payloadSignature.size() == 64
+              && d.chainHash == null
+              && d.chainStatus == 'pending'
+              && !('sealedAt' in d)
+              && d.insumoId is string
+              && d.operadorId is string
+              && d.clientTimestamp is string;
+        }
+
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && hasValidInitialChain(request.resource.data);
+        allow update, delete: if false;
+      }
+
+      // ── Módulos futuros — adicionar blocos aqui seguindo o mesmo padrão:
+      // match /ciq-bioquimica/{lotId} { ... hasModuleAccess('bioquimica') ... }
+    }
+
+    // ── /firestore-backup-logs ────────────────────────────────────────────────
+    // Audit trail of daily Firestore exports (GCS snapshots).
+    // Written exclusively by Cloud Functions (scheduledFirestoreExport /
+    // triggerFirestoreExport). Read restricted to SuperAdmin.
+    match /firestore-backup-logs/{logId} {
+      allow read:   if isSuperAdmin();
+      allow create, update, delete: if false; // server-side via Admin SDK only
+    }
+
+    // ── /user-data (Legacy) ───────────────────────────────────────────────────
+
+    match /user-data/{uid} {
+      allow read, write: if request.auth.uid == uid || isSuperAdmin();
+      match /{allSubcollections=**} {
+        allow read, write: if request.auth.uid == uid || isSuperAdmin();
+      }
+    }
+
+    // ── /auditLogs ──────────────────────────────────────────────────────────
+
+    match /auditLogs/{logId} {
+      allow create: if isAuthenticated();
+      allow read: if isSuperAdmin();
+      allow update, delete: if false; // Audit logs are immutable
+    }
+
+    // ── /accessRequests ───────────────────────────────────────────────────────
+
+    match /accessRequests/{reqId} {
+      allow list, get, update, delete: if isSuperAdmin();
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+    }
+
+    // ── /status ───────────────────────────────────────────────────────────────
+
+    match /status/{docId} {
+      allow get: if isAuthenticated();
+      allow create: if isAuthenticated() && docId == 'init' &&
+        !exists(/databases/$(database)/documents/status/init);
+      allow update, delete: if isSuperAdmin();
+    }
+
+    // ── /pending_users ────────────────────────────────────────────────────────
+    // Stores Google OAuth users who attempted sign-in without a user document.
+    // Structure: /pending_users/{labId}/users/{uid}
+    //
+    // Write: authenticated user can create their own entry (before being signed out).
+    // Read/Delete: lab admins/owners and SuperAdmin only.
+
+    match /pending_users/{labId}/users/{uid} {
+      // Authenticated user can create their own pending entry while they still
+      // hold a valid token (before the client calls signOut).
+      allow create: if isAuthenticated() && request.auth.uid == uid;
+
+      // Only lab admins/owners and SuperAdmin can list, read, or delete.
+      allow get, list, delete: if isSuperAdmin() || isAdminOrOwner(labId);
+
+      // Updates are performed server-side only (via Cloud Function).
+      allow update: if false;
+    }
+  }
+}
+
