@@ -6,6 +6,19 @@ import { z } from 'zod';
 import * as admin from 'firebase-admin';
 import { syncClaims, syncModuleClaims } from './helpers/claims';
 
+// CRÍTICO: setGlobalOptions DEVE ser chamado ANTES de qualquer import/export
+// de módulo com Cloud Functions. Os re-exports abaixo executam os
+// `onCall`/`onDocumentWritten` dos arquivos importados — sem a região global
+// setada antes, as functions herdam o default `us-central1` (bug histórico
+// do Onda 2/4/5: provisionModulesClaims, onHematologiaRunAudit, etc.
+// acabaram em us-central1 enquanto o client chama southamerica-east1).
+setGlobalOptions({ region: 'southamerica-east1' });
+
+// Initialize Admin SDK once — runtime may reuse warm instances
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
+
 // ─── emailBackup module ───────────────────────────────────────────────────────
 // Re-export so Firebase CLI discovers scheduledDailyBackup and triggerLabBackup.
 export { scheduledDailyBackup, triggerLabBackup } from './modules/emailBackup/index';
@@ -83,14 +96,6 @@ export {
 // `complianceViolation` + audit log. Defesa em profundidade — UI valida mas o
 // server é a fonte de verdade regulatória (RDC 978/2025 Art.128).
 export { onHematologiaRunComplianceCheck } from './modules/compliance/index';
-
-// All functions deploy to the same region as Firestore
-setGlobalOptions({ region: 'southamerica-east1' });
-
-// Initialize Admin SDK once — runtime may reuse warm instances
-if (!admin.apps.length) {
-  admin.initializeApp();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
