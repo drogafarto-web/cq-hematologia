@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { AddLotModal } from './AddLotModal';
 import type { ControlLot } from '../../types';
 import type { AddLotInput } from './hooks/useLots';
-import { groupByMonth } from '../../shared/utils/lotUtils';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -82,21 +81,26 @@ function LotRow({ lot, active, onSelect, onDelete }: LotRowProps) {
       onClick={onSelect}
       className={`group relative flex items-start gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all ${
         active
-          ? 'bg-violet-500/[0.12] border border-violet-500/30'
+          ? 'bg-emerald-500/[0.10] border border-emerald-500/40 shadow-sm shadow-emerald-500/10'
           : 'border border-transparent hover:bg-slate-100 dark:hover:bg-white/[0.04] hover:border-slate-200 dark:hover:border-white/[0.07]'
-      } ${expired ? 'opacity-50' : ''}`}
+      } ${expired && !active ? 'opacity-50' : ''}`}
     >
       {active && (
-        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-violet-500" />
+        <span className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl bg-emerald-500" />
       )}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-0.5">
+        <div className="flex items-center gap-2 mb-0.5 flex-wrap">
           <LotBadge level={lot.level} />
           <span
-            className={`text-sm font-medium truncate ${active ? 'text-slate-900 dark:text-white/90' : 'text-slate-600 dark:text-white/70'}`}
+            className={`text-sm font-medium truncate ${active ? 'text-slate-900 dark:text-white/95' : 'text-slate-600 dark:text-white/70'}`}
           >
             {lot.controlName}
           </span>
+          {active && (
+            <span className="text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500 text-white shadow-sm shadow-emerald-500/30">
+              EM USO
+            </span>
+          )}
         </div>
         <p className="text-xs text-slate-400 dark:text-white/35 truncate">Lote {lot.lotNumber}</p>
         <div className="flex items-center gap-3 mt-1">
@@ -119,6 +123,56 @@ function LotRow({ lot, active, onSelect, onDelete }: LotRowProps) {
       </button>
     </div>
   );
+}
+
+// ─── Lot grouping by status ──────────────────────────────────────────────────
+
+/**
+ * Agrupa lotes em 3 seções operacionais:
+ *   - EM USO: lote ativo (activeLotId) + não vencido
+ *   - DISPONÍVEIS: não-ativos, não vencidos (estoque pronto pra rotação)
+ *   - HISTÓRICO: vencidos (arquivo)
+ *
+ * Dentro de cada seção, ordenação por nível (1→2→3) pra leitura consistente.
+ * Este agrupamento é mais operacional que o legado "por mês" — a pergunta
+ * mental do operador é "o que estou usando agora? o que tem pronto? o que
+ * já está fora?", e chunking cronológico fazia operador ter que ler data
+ * pra descobrir isso.
+ */
+interface LotSection {
+  key: 'em-uso' | 'disponiveis' | 'historico';
+  label: string;
+  lots: ControlLot[];
+}
+
+function groupByStatus(lots: ControlLot[], activeLotId: string | null): LotSection[] {
+  const now = Date.now();
+  const sections: Record<LotSection['key'], ControlLot[]> = {
+    'em-uso': [],
+    disponiveis: [],
+    historico: [],
+  };
+
+  for (const lot of lots) {
+    const isActive = lot.id === activeLotId;
+    const isExpired = lot.expiryDate.getTime() < now;
+    if (isActive && !isExpired) {
+      sections['em-uso'].push(lot);
+    } else if (isExpired) {
+      sections.historico.push(lot);
+    } else {
+      sections.disponiveis.push(lot);
+    }
+  }
+
+  // Edge case: lote ativo vencido — aparece em Histórico (opacity) mas sinalizado
+  // separadamente no header da seção Em Uso quando vazio, via activeLotId.
+  const sortByLevel = (a: ControlLot, b: ControlLot) => (a.level ?? 0) - (b.level ?? 0);
+  return [
+    { key: 'em-uso', label: 'Em uso agora', lots: sections['em-uso'].sort(sortByLevel) },
+    { key: 'disponiveis', label: 'Disponíveis', lots: sections.disponiveis.sort(sortByLevel) },
+    { key: 'historico', label: 'Histórico (vencidos)', lots: sections.historico.sort(sortByLevel) },
+  ];
 }
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -144,8 +198,32 @@ export function LotManager({
   onDelete,
   onSelect,
 }: LotManagerProps) {
-  const groups = groupByMonth(lots);
-  const today = new Date();
+  const [showHistorico, setShowHistorico] = useState(false);
+  const sections = useMemo(() => groupByStatus(lots, activeLotId), [lots, activeLotId]);
+
+  /**
+   * Banner proativo de rotação — aparece quando o lote ativo está vencendo
+   * nos próximos 15 dias OU já usou > 80% da janela típica de corridas (60).
+   * Ajuda a prevenir "acabou o lote e não tinha o próximo cadastrado" —
+   * que é quando operador é forçado a rotacionar sob pressão.
+   */
+  const rotacaoHint = useMemo(() => {
+    const ativo = lots.find((l) => l.id === activeLotId);
+    if (!ativo) return null;
+    const now = Date.now();
+    const diasAteVencer = Math.ceil((ativo.expiryDate.getTime() - now) / 86_400_000);
+    const venceLogo = diasAteVencer >= 0 && diasAteVencer <= 15;
+    const usoAlto = ativo.runCount >= 48; // ~80% de 60 runs/lote típico
+    if (!venceLogo && !usoAlto) return null;
+    const temProximoDisponivel = lots.some(
+      (l) =>
+        l.id !== ativo.id &&
+        l.level === ativo.level &&
+        l.controlName === ativo.controlName &&
+        l.expiryDate.getTime() > now,
+    );
+    return { ativo, diasAteVencer, venceLogo, usoAlto, temProximoDisponivel };
+  }, [lots, activeLotId]);
 
   if (lots.length === 0) {
     return (
@@ -182,34 +260,164 @@ export function LotManager({
     );
   }
 
+  const emUso = sections.find((s) => s.key === 'em-uso')!;
+  const disponiveis = sections.find((s) => s.key === 'disponiveis')!;
+  const historico = sections.find((s) => s.key === 'historico')!;
+
+  function renderSection(section: LotSection, tone: 'primary' | 'default' | 'muted') {
+    const isEmUso = section.key === 'em-uso';
+    const isEmpty = section.lots.length === 0;
+
+    const toneBorder =
+      tone === 'primary'
+        ? 'border-emerald-300 dark:border-emerald-500/30'
+        : tone === 'muted'
+          ? 'border-slate-200 dark:border-white/[0.05] opacity-80'
+          : 'border-slate-200 dark:border-white/[0.06]';
+    const toneHeader =
+      tone === 'primary'
+        ? 'bg-emerald-50 dark:bg-emerald-500/[0.06] border-emerald-200 dark:border-emerald-500/20'
+        : 'bg-slate-50 dark:bg-white/[0.02] border-slate-100 dark:border-white/[0.06]';
+    const toneTitle =
+      tone === 'primary'
+        ? 'text-emerald-700 dark:text-emerald-300'
+        : 'text-slate-600 dark:text-slate-300';
+
+    return (
+      <div
+        key={section.key}
+        className={`bg-white dark:bg-white/[0.03] border rounded-xl overflow-hidden shadow-sm dark:shadow-none ${toneBorder}`}
+      >
+        <div className={`flex items-center gap-2.5 px-4 py-3 border-b ${toneHeader}`}>
+          <span className={`text-xs font-semibold uppercase tracking-wider ${toneTitle}`}>
+            {section.label}
+          </span>
+          <span className="ml-auto text-[11px] text-slate-400 dark:text-slate-500">
+            {section.lots.length} lote{section.lots.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+        <div className="p-2 space-y-0.5">
+          {isEmpty && isEmUso ? (
+            <div className="px-4 py-3 text-xs text-slate-500 dark:text-white/40 italic">
+              Nenhum lote ativo no momento. Selecione um lote em <strong>Disponíveis</strong> para
+              começar a registrar corridas.
+            </div>
+          ) : isEmpty ? (
+            <div className="px-4 py-3 text-xs text-slate-400 dark:text-white/30 italic">
+              Nenhum lote.
+            </div>
+          ) : (
+            section.lots.map((lot) => (
+              <LotRow
+                key={lot.id}
+                lot={lot}
+                active={lot.id === activeLotId}
+                onSelect={() => onSelect(lot.id)}
+                onDelete={() => onDelete(lot.id)}
+              />
+            ))
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
-      <div className="space-y-6">
-        {groups.map(({ key, label, lots: groupLots }) => {
-          const hasAtual = groupLots.some((l) => l.expiryDate >= today);
-          const sorted = [...groupLots].sort((a, b) => (a.level ?? 0) - (b.level ?? 0));
-          return (
-            <div
-              key={key}
-              className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-xl overflow-hidden shadow-sm dark:shadow-none"
+      <div className="space-y-4">
+        {rotacaoHint && (
+          <div
+            role="status"
+            className={`rounded-xl border p-3.5 flex items-start gap-3 ${
+              rotacaoHint.temProximoDisponivel
+                ? 'border-amber-200 dark:border-amber-500/25 bg-amber-50/70 dark:bg-amber-500/[0.06]'
+                : 'border-orange-300 dark:border-orange-500/30 bg-orange-50/70 dark:bg-orange-500/[0.08]'
+            }`}
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`shrink-0 mt-0.5 ${
+                rotacaoHint.temProximoDisponivel
+                  ? 'text-amber-600 dark:text-amber-400'
+                  : 'text-orange-600 dark:text-orange-400'
+              }`}
+              aria-hidden
             >
-              {/* Month header */}
-              <div className="flex items-center gap-2.5 px-4 py-3 border-b border-slate-100 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.02]">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 capitalize">
-                  {label}
-                </span>
-                {hasAtual && (
-                  <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20">
-                    ATUAL
-                  </span>
-                )}
-                <span className="ml-auto text-[11px] text-slate-400 dark:text-slate-500">
-                  {sorted.length} nível{sorted.length !== 1 ? 'eis' : ''}
-                </span>
-              </div>
-              {/* Lot rows */}
-              <div className="p-2 space-y-0.5">
-                {sorted.map((lot) => (
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+            </svg>
+            <div className="flex-1 min-w-0">
+              <p
+                className={`text-sm font-medium ${
+                  rotacaoHint.temProximoDisponivel
+                    ? 'text-amber-800 dark:text-amber-200'
+                    : 'text-orange-800 dark:text-orange-200'
+                }`}
+              >
+                {rotacaoHint.venceLogo
+                  ? rotacaoHint.diasAteVencer <= 0
+                    ? `Lote ${rotacaoHint.ativo.lotNumber} vence hoje`
+                    : `Lote ${rotacaoHint.ativo.lotNumber} vence em ${rotacaoHint.diasAteVencer} dia${rotacaoHint.diasAteVencer === 1 ? '' : 's'}`
+                  : `Lote ${rotacaoHint.ativo.lotNumber} já tem ${rotacaoHint.ativo.runCount} corridas`}
+              </p>
+              <p
+                className={`text-[12px] mt-0.5 leading-snug ${
+                  rotacaoHint.temProximoDisponivel
+                    ? 'text-amber-700/80 dark:text-amber-300/70'
+                    : 'text-orange-700/80 dark:text-orange-300/70'
+                }`}
+              >
+                {rotacaoHint.temProximoDisponivel
+                  ? 'Você já tem o próximo lote cadastrado em Disponíveis — mantenha o fluxo tranquilo.'
+                  : 'Ainda não há lote sucessor cadastrado. Cadastre o próximo antes que esgote para evitar pausa na rotina.'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {renderSection(emUso, 'primary')}
+        {renderSection(disponiveis, 'default')}
+
+        {/* Histórico: sempre colapsado por padrão pra não poluir a vista do
+            operador. Expande quando o usuário quer auditar runs antigas. */}
+        <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.05] rounded-xl overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setShowHistorico((v) => !v)}
+            className="w-full flex items-center gap-2.5 px-4 py-3 border-b border-slate-100 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.02] hover:bg-slate-100 dark:hover:bg-white/[0.04] transition-colors"
+          >
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              {historico.label}
+            </span>
+            <span className="ml-auto text-[11px] text-slate-400 dark:text-slate-500">
+              {historico.lots.length} lote{historico.lots.length !== 1 ? 's' : ''}
+            </span>
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 10 10"
+              fill="none"
+              className={`text-slate-400 transition-transform ${showHistorico ? 'rotate-180' : ''}`}
+              aria-hidden
+            >
+              <path d="M2 4l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+            </svg>
+          </button>
+          {showHistorico && (
+            <div className="p-2 space-y-0.5">
+              {historico.lots.length === 0 ? (
+                <div className="px-4 py-3 text-xs text-slate-400 dark:text-white/30 italic">
+                  Sem lotes vencidos.
+                </div>
+              ) : (
+                historico.lots.map((lot) => (
                   <LotRow
                     key={lot.id}
                     lot={lot}
@@ -217,11 +425,11 @@ export function LotManager({
                     onSelect={() => onSelect(lot.id)}
                     onDelete={() => onDelete(lot.id)}
                   />
-                ))}
-              </div>
+                ))
+              )}
             </div>
-          );
-        })}
+          )}
+        </div>
       </div>
 
       {showAdd && <AddLotModal onAdd={onAdd} onClose={onCloseAdd} />}

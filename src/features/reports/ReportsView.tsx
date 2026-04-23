@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ResponsiveContainer,
   LineChart,
@@ -12,6 +12,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { useActiveLab, useUser } from '../../store/useAuthStore';
 import { ANALYTE_MAP } from '../../constants';
 import type { ControlLot, Run, WestgardViolation } from '../../types';
+import { createReportEmission } from './services/reportEmissionService';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -36,14 +37,9 @@ function computeStats(values: number[]) {
   const cv = mean === 0 ? 0 : (sd / mean) * 100;
   return { mean, sd, cv, n };
 }
-function auditId(lot: ControlLot, labId: string): string {
-  const seed = `${labId}-${lot.id}-${lot.lotNumber}`;
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) {
-    hash = ((hash << 5) - hash + seed.charCodeAt(i)) | 0;
-  }
-  return `CQ-${Math.abs(hash).toString(16).toUpperCase().padStart(8, '0')}`;
-}
+// Código de auditoria é gerado server-side via createReportEmission (SHA-256
+// criptográfico + registro append-only em /labs/{labId}/report-emissions).
+// A função djb2 determinística anterior foi removida — RDC 978/2025.
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -412,16 +408,15 @@ function AuditBlock({ code, generatedAt }: { code: string; generatedAt: Date }) 
 
 interface LevelSectionProps {
   lot: ControlLot;
-  labId: string;
+  auditCode: string;
   isFirst: boolean;
   generatedAt: Date;
 }
 
-function LevelSection({ lot, labId, isFirst, generatedAt }: LevelSectionProps) {
+function LevelSection({ lot, auditCode, isFirst, generatedAt }: LevelSectionProps) {
   const lv = lot.level ?? 1;
   const colors = LEVEL_COLORS[lv] ?? LEVEL_COLORS[1];
   const levelTextCls = LEVEL_TEXT_CLASS[lv] ?? 'text-gray-800';
-  const auditCode = auditId(lot, labId);
   const analyteIds = lot.requiredAnalytes.filter((id) => ANALYTE_MAP[id]);
   const lotPeriod = `${fmt(lot.startDate)} — ${fmt(lot.expiryDate)}`;
 
@@ -591,6 +586,18 @@ export function ReportsView() {
 
   const generatedAt = useMemo(() => new Date(), []);
 
+  // Estado da emissão: {loading, auditCode, error}. A emissão grava uma entrada
+  // append-only em /labs/{labId}/report-emissions assim que o componente monta
+  // com dados válidos. `printReady` bloqueia a impressão até o código existir.
+  const [emissionState, setEmissionState] = useState<{
+    status: 'idle' | 'loading' | 'ready' | 'error';
+    auditCode: string | null;
+    error: string | null;
+  }>({ status: 'idle', auditCode: null, error: null });
+  // Garante exatamente uma emissão por montagem do relatório — evita duplicar
+  // em StrictMode (double-invoke do useEffect em dev) e em re-renders.
+  const emissionStartedRef = useRef(false);
+
   // All lots from the same month/year as the active lot, sorted by level
   const referenceLots = useMemo(() => {
     const activeLot = lots.find((l) => l.id === activeLotId) ?? lots[0] ?? null;
@@ -626,6 +633,34 @@ export function ReportsView() {
     };
   }, [referenceLots]);
 
+  // ── Emissão do código de auditoria (SHA-256 + registro Firestore) ───────
+  // Dispara uma única vez quando os dados mínimos estão disponíveis. Append-
+  // only por regra — o ref impede gerar emissões duplicadas em re-renders.
+  useEffect(() => {
+    if (emissionStartedRef.current) return;
+    if (!activeLab?.id || !user?.uid || referenceLots.length === 0) return;
+    emissionStartedRef.current = true;
+    setEmissionState({ status: 'loading', auditCode: null, error: null });
+    void (async () => {
+      try {
+        const emission = await createReportEmission(
+          activeLab.id,
+          { uid: user.uid, email: user.email ?? null, displayName: user.displayName ?? null },
+          referenceLots,
+          generatedAt,
+        );
+        setEmissionState({ status: 'ready', auditCode: emission.auditCode, error: null });
+      } catch (err) {
+        emissionStartedRef.current = false; // permite retry manual
+        setEmissionState({
+          status: 'error',
+          auditCode: null,
+          error: err instanceof Error ? err.message : 'Falha ao registrar emissão.',
+        });
+      }
+    })();
+  }, [activeLab?.id, user?.uid, user?.email, user?.displayName, referenceLots, generatedAt]);
+
   if (referenceLots.length === 0) {
     return (
       <div className="min-h-screen bg-[#0c0c0c] flex flex-col items-center justify-center gap-4">
@@ -641,18 +676,31 @@ export function ReportsView() {
     );
   }
 
+  const isEmissionReady = emissionState.status === 'ready' && emissionState.auditCode !== null;
+  const printDisabled = !isEmissionReady;
+
   return (
     <>
-      {/* Print button */}
+      {/* Print button — bloqueado até que o código de auditoria esteja registrado */}
       <button
         type="button"
         onClick={() => window.print()}
+        disabled={printDisabled}
         className="no-print fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl
           bg-violet-600 hover:bg-violet-500 active:bg-violet-700 text-white text-sm font-semibold
-          shadow-lg shadow-violet-900/40 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+          shadow-lg shadow-violet-900/40 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400
+          disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-violet-600"
         aria-label="Imprimir relatório"
+        title={
+          emissionState.status === 'loading'
+            ? 'Gerando código de auditoria…'
+            : emissionState.status === 'error'
+              ? 'Código de auditoria não registrado — recarregue a página'
+              : 'Imprimir relatório'
+        }
       >
-        <PrinterIcon /> Imprimir Relatório
+        <PrinterIcon />
+        {emissionState.status === 'loading' ? 'Gerando código…' : 'Imprimir Relatório'}
       </button>
 
       {/* Back button */}
@@ -734,12 +782,29 @@ export function ReportsView() {
           </div>
         </section>
 
+        {/* ── Banner de status da emissão (erro bloqueia impressão) ───────── */}
+        {emissionState.status === 'error' && (
+          <div className="no-print mb-6 rounded-lg border border-red-300 bg-red-50 px-4 py-3">
+            <p className="text-xs font-semibold text-red-700">
+              Falha ao registrar emissão deste relatório.
+            </p>
+            <p className="text-[11px] text-red-600 mt-1 leading-snug">
+              {emissionState.error ??
+                'Sem código de auditoria válido, o relatório não pode ser impresso.'}{' '}
+              Recarregue a página para tentar novamente.
+            </p>
+          </div>
+        )}
+
         {/* ── One section per level ────────────────────────────────────────── */}
         {referenceLots.map((lot, idx) => (
           <LevelSection
             key={lot.id}
             lot={lot}
-            labId={activeLab?.id ?? ''}
+            auditCode={
+              emissionState.auditCode ??
+              (emissionState.status === 'loading' ? 'CQ-—————————————' : 'CQ-INDISPONIVEL')
+            }
             isFirst={idx === 0}
             generatedAt={generatedAt}
           />

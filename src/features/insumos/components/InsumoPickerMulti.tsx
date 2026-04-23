@@ -25,6 +25,12 @@ interface InsumoPickerMultiProps {
   onSelect: (insumos: Insumo[]) => void;
   placeholder?: string;
   ariaLabel?: string;
+  /**
+   * Quando presente, picker exibe botão "+ Novo lote" que dispara este callback.
+   * Caller abre um `NovoLoteModal` em overlay (preservando o estado da corrida).
+   * Ausência do callback = botão oculto — comportamento legado.
+   */
+  onNovoLote?: () => void;
 }
 
 const CLS_TRIGGER = `
@@ -111,6 +117,7 @@ export function InsumoPickerMulti({
   onSelect,
   placeholder = 'Selecionar insumos em uso (opcional)',
   ariaLabel,
+  onNovoLote,
 }: InsumoPickerMultiProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -127,7 +134,25 @@ export function InsumoPickerMulti({
     [insumos, value],
   );
 
+  /**
+   * Bloqueio de seleção — retorna motivo não-null quando o insumo NÃO pode ser
+   * usado numa corrida. Vencido e reprovado no CQ (Imuno) são hard-blocks na
+   * própria UI para forçar o operador a trocar; override continua disponível
+   * no ReviewRunModal com justificativa auditada.
+   */
+  function blockReason(i: Insumo): string | null {
+    const date = i.validadeReal.toDate();
+    if (validadeStatus(date) === 'expired') {
+      return `Vencido há ${Math.abs(diasAteVencer(date))}d — uso bloqueado`;
+    }
+    if ((i.tipo === 'reagente' || i.tipo === 'tira-uro') && i.qcStatus === 'reprovado') {
+      return 'Lote reprovado no CQ — uso bloqueado';
+    }
+    return null;
+  }
+
   function toggle(insumo: Insumo) {
+    if (blockReason(insumo) && !value.includes(insumo.id)) return; // bloqueia novas seleções; desmarcar sempre permitido
     const next = value.includes(insumo.id)
       ? selectedInsumos.filter((i) => i.id !== insumo.id)
       : [...selectedInsumos, insumo];
@@ -212,19 +237,25 @@ export function InsumoPickerMulti({
               ) : (
                 insumos.map((i) => {
                   const checked = value.includes(i.id);
+                  const blocked = blockReason(i);
+                  const isBlocked = blocked !== null && !checked; // item já marcado pode ser desmarcado
                   return (
                     <button
                       key={i.id}
                       type="button"
                       onClick={() => toggle(i)}
+                      disabled={isBlocked}
                       role="option"
                       aria-selected={checked}
+                      title={blocked ?? undefined}
                       className={`
                         w-full px-3 py-2 text-left text-sm transition-all flex items-center gap-3
                         ${
-                          checked
-                            ? 'bg-violet-500/10 text-violet-700 dark:text-violet-300'
-                            : 'text-slate-700 dark:text-white/80 hover:bg-slate-50 dark:hover:bg-white/[0.04]'
+                          isBlocked
+                            ? 'opacity-50 cursor-not-allowed text-slate-500 dark:text-white/40'
+                            : checked
+                              ? 'bg-violet-500/10 text-violet-700 dark:text-violet-300'
+                              : 'text-slate-700 dark:text-white/80 hover:bg-slate-50 dark:hover:bg-white/[0.04]'
                         }
                       `}
                     >
@@ -233,6 +264,11 @@ export function InsumoPickerMulti({
                         <div className="font-medium truncate">{i.nomeComercial}</div>
                         <div className="text-xs text-slate-500 dark:text-white/40 truncate">
                           {i.fabricante} · Lote {i.lote}
+                          {blocked && (
+                            <span className="ml-2 text-red-600 dark:text-red-400/80 font-medium">
+                              · {blocked}
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
@@ -245,15 +281,32 @@ export function InsumoPickerMulti({
               )}
             </div>
 
-            <div className="px-3 py-2 border-t border-slate-100 dark:border-white/[0.06] shrink-0 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={clear}
-                disabled={value.length === 0}
-                className="text-xs text-slate-500 dark:text-white/50 hover:text-slate-800 dark:hover:text-white/80 disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                Limpar
-              </button>
+            <div className="px-3 py-2 border-t border-slate-100 dark:border-white/[0.06] shrink-0 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={clear}
+                  disabled={value.length === 0}
+                  className="text-xs text-slate-500 dark:text-white/50 hover:text-slate-800 dark:hover:text-white/80 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  Limpar
+                </button>
+                {onNovoLote && (
+                  <>
+                    <span className="text-slate-300 dark:text-white/10">·</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOpen(false);
+                        onNovoLote();
+                      }}
+                      className="text-xs font-medium text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300"
+                    >
+                      + Novo lote
+                    </button>
+                  </>
+                )}
+              </div>
               <div className="flex items-center gap-3">
                 <span className="text-xs text-slate-400 dark:text-white/35">
                   {value.length} selecionado{value.length === 1 ? '' : 's'}

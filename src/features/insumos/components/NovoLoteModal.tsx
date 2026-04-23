@@ -19,13 +19,18 @@ import React, { useMemo, useState } from 'react';
 import { Timestamp } from 'firebase/firestore';
 import { useUser } from '../../../store/useAuthStore';
 import { useProdutos } from '../hooks/useProdutos';
-import { createInsumo } from '../services/insumosFirebaseService';
+import {
+  createInsumo,
+  findAtivoDoMesmoProduto,
+  getInsumoOnce,
+} from '../services/insumosFirebaseService';
 import { ProdutoFormModal } from './ProdutoFormModal';
+import { RotacaoLoteSuggestion } from './RotacaoLoteSuggestion';
 import { useFornecedores } from '../../fornecedores/hooks/useFornecedores';
 import { useNotasFiscais } from '../../fornecedores/hooks/useNotasFiscais';
 import { NotaFiscalFormModal } from '../../fornecedores/components/NotaFiscalFormModal';
 import { formatCnpj } from '../../fornecedores/types/Fornecedor';
-import type { InsumoTipo, InsumoModulo } from '../types/Insumo';
+import type { Insumo, InsumoTipo, InsumoModulo } from '../types/Insumo';
 import type { ProdutoInsumo } from '../types/ProdutoInsumo';
 
 // ─── UI tokens ───────────────────────────────────────────────────────────────
@@ -80,6 +85,32 @@ export function NovoLoteModal({
   const [produtoSelecionado, setProdutoSelecionado] = useState<ProdutoInsumo | null>(null);
   const [showProdutoForm, setShowProdutoForm] = useState(false);
 
+  // Sugestão de rotação: quando cadastra lote novo de um produto que já tem
+  // ativo, oferece transição atômica antes de fechar. `null` = sem sugestão
+  // (nada encontrado, cadastro avulso ou erro silencioso na query).
+  const [rotacaoSugestao, setRotacaoSugestao] = useState<{
+    novo: Insumo;
+    anterior: Insumo;
+  } | null>(null);
+
+  async function handleLoteCreated(insumoId: string, produtoId: string) {
+    onCreated?.(insumoId);
+    // Busca ativo do mesmo produto (ignorando o recém-criado). Se retornar,
+    // popula sugestão de rotação que mantém o NovoLoteModal montado até o
+    // operador decidir. Se não houver, fecha direto.
+    const anterior = await findAtivoDoMesmoProduto(labId, produtoId, insumoId);
+    if (!anterior) {
+      onClose();
+      return;
+    }
+    const novo = await getInsumoOnce(labId, insumoId);
+    if (!novo) {
+      onClose();
+      return;
+    }
+    setRotacaoSugestao({ novo, anterior });
+  }
+
   const filters = useMemo(
     () => ({
       tipo: tipoFiltro === 'all' ? undefined : tipoFiltro,
@@ -114,8 +145,7 @@ export function NovoLoteModal({
             {...(equipamentoModelo && { equipamentoModelo })}
             onBack={() => setProdutoSelecionado(null)}
             onCreated={(id) => {
-              onCreated?.(id);
-              onClose();
+              void handleLoteCreated(id, produtoSelecionado.id);
             }}
           />
         ) : (
@@ -145,6 +175,18 @@ export function NovoLoteModal({
             // `produtos` já vai incluir o novo produto. Operador continua
             // na etapa 1 e seleciona o recém-criado.
             setShowProdutoForm(false);
+          }}
+        />
+      )}
+
+      {rotacaoSugestao && (
+        <RotacaoLoteSuggestion
+          labId={labId}
+          novoInsumo={rotacaoSugestao.novo}
+          loteAnterior={rotacaoSugestao.anterior}
+          onFinish={() => {
+            setRotacaoSugestao(null);
+            onClose();
           }}
         />
       )}

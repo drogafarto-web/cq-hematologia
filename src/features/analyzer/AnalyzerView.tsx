@@ -18,6 +18,7 @@ import { ThemeToggle } from '../../shared/components/ui/ThemeToggle';
 import { ANALYTE_MAP } from '../../constants';
 import { LotSwitcher } from './components/LotSwitcher';
 import { EquipmentSetupBar } from '../insumos/components/EquipmentSetupBar';
+import { NovoLoteModal } from '../insumos/components/NovoLoteModal';
 import type { ControlLot, SyncStatus, View } from '../../types';
 import type { CIQImunoLot } from '../ciq-imuno/types/CIQImuno';
 import type { CIQLotStatus } from '../ciq-imuno/types/_shared_refs';
@@ -562,6 +563,7 @@ interface TopbarProps {
   setCurrentView: (v: View) => void;
   isSuperAdmin: boolean;
   userEmail: string;
+  onQuickNovoLote: () => void;
 }
 
 function Topbar({
@@ -575,6 +577,7 @@ function Topbar({
   setCurrentView,
   isSuperAdmin,
   userEmail,
+  onQuickNovoLote,
 }: TopbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -615,6 +618,30 @@ function Topbar({
       <div className="ml-auto flex items-center gap-2">
         {module === 'analyzer' && (
           <>
+            {/* Atalho rápido "Novo lote de reagente" — ação mais frequente da
+                rotina. Produto/equipamento são fixos, lote rotaciona: este
+                botão leva direto ao fluxo em 2 cliques (topbar → seleção de
+                produto). */}
+            <button
+              type="button"
+              onClick={onQuickNovoLote}
+              className="h-8 px-3 rounded-lg text-xs font-medium bg-violet-600 hover:bg-violet-500 text-white shadow-sm shadow-violet-500/20 transition-all flex items-center gap-1.5"
+              title="Cadastrar lote novo de reagente (N+L)"
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                aria-hidden
+              >
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              Novo lote
+            </button>
             <div className="relative w-60">
               <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">
                 <SearchIcon />
@@ -741,6 +768,7 @@ export function AnalyzerView() {
   } = useRuns();
 
   const [showAddLot, setShowAddLot] = useState(false);
+  const [showNovoLoteInsumo, setShowNovoLoteInsumo] = useState(false);
 
   const [page, setPage] = useState<Page>(() => {
     const saved = localStorage.getItem('hcq_page') as Page | null;
@@ -820,6 +848,7 @@ export function AnalyzerView() {
           setCurrentView={setCurrentView}
           isSuperAdmin={isSuperAdmin}
           userEmail={user?.email ?? ''}
+          onQuickNovoLote={() => setShowNovoLoteInsumo(true)}
         />
 
         <EquipmentSetupBar
@@ -933,6 +962,18 @@ export function AnalyzerView() {
           onConfirm={confirmRun}
           onCancel={cancelRun}
           isConfirming={isConfirming}
+        />
+      )}
+
+      {/* Atalho global: novo lote de reagente/insumo.
+          Aberto pelo botão "+ Novo lote" da topbar. Preserva o fluxo corrente —
+          fecha no onCreated e a lista de insumos atualiza via snapshot real-time. */}
+      {showNovoLoteInsumo && activeLab && (
+        <NovoLoteModal
+          labId={activeLab.id}
+          initialTipo="reagente"
+          onClose={() => setShowNovoLoteInsumo(false)}
+          onCreated={() => setShowNovoLoteInsumo(false)}
         />
       )}
     </div>

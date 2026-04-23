@@ -8,7 +8,7 @@
  *   - Empty state guiado quando sem equipamentos cadastrados
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useEquipamentos } from '../hooks/useEquipamentos';
 import { EquipamentoCard } from './EquipamentoCard';
 import { EquipamentoFormModal } from './EquipamentoFormModal';
@@ -46,6 +46,23 @@ export function ModuleEquipamentosPanel({
 }: ModuleEquipamentosPanelProps) {
   const [showForm, setShowForm] = useState(false);
   const [showAposentados, setShowAposentados] = useState(false);
+  const [showConfigMenu, setShowConfigMenu] = useState(false);
+  const configMenuRef = useRef<HTMLDivElement>(null);
+
+  // Hierarquia visual (operador pediu): "+ Novo equipamento" e "Gerenciar
+  // catálogo" são ações raras (anos/meses); "+ Novo lote" é diário. Aqui no
+  // header agrupamos as duas raras num menu "⚙ Configurar" pra não competirem
+  // com o botão primário que vive dentro de cada EquipamentoCard.
+  useEffect(() => {
+    if (!showConfigMenu) return;
+    const handler = (e: MouseEvent) => {
+      if (configMenuRef.current && !configMenuRef.current.contains(e.target as Node)) {
+        setShowConfigMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showConfigMenu]);
 
   const filtroAtivos = useMemo(
     () => ({ module, status: ['ativo', 'manutencao'] as Array<'ativo' | 'manutencao'> }),
@@ -87,21 +104,111 @@ export function ModuleEquipamentosPanel({
         </div>
 
         {canMutate && (
-          <button
-            type="button"
-            onClick={() => setShowForm(true)}
-            className="px-4 h-10 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium transition-all inline-flex items-center gap-2 shrink-0"
-          >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
-              <path
-                d="M6 2v8M2 6h8"
+          <div ref={configMenuRef} className="relative shrink-0">
+            <button
+              type="button"
+              onClick={() => setShowConfigMenu((v) => !v)}
+              aria-haspopup="menu"
+              aria-expanded={showConfigMenu}
+              title="Ações de configuração (equipamento, catálogo) — usadas raramente"
+              className="h-8 px-3 rounded-lg text-xs font-medium text-slate-500 dark:text-white/50 hover:text-slate-800 dark:hover:text-white/80 hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-all inline-flex items-center gap-1.5"
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
                 stroke="currentColor"
                 strokeWidth="1.8"
                 strokeLinecap="round"
-              />
-            </svg>
-            Novo equipamento
-          </button>
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <circle cx="12" cy="12" r="3" />
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
+              Configurar
+              <svg
+                width="9"
+                height="9"
+                viewBox="0 0 12 12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                aria-hidden
+              >
+                <path d="M3 5l3 3 3-3" />
+              </svg>
+            </button>
+
+            {showConfigMenu && (
+              <div
+                role="menu"
+                className="absolute right-0 top-10 z-30 w-64 rounded-xl bg-white dark:bg-[#151d2a] border border-slate-200 dark:border-white/[0.1] shadow-2xl overflow-hidden"
+              >
+                <div className="px-3 py-2 border-b border-slate-100 dark:border-white/[0.06]">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-white/35">
+                    Configuração do módulo
+                  </p>
+                  <p className="text-[10px] text-slate-400 dark:text-white/30 mt-0.5">
+                    Usado raramente — equipamento e catálogo não mudam na rotina
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setShowConfigMenu(false);
+                    setShowForm(true);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-sm text-slate-700 dark:text-white/80 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    className="text-slate-400 dark:text-white/40 shrink-0"
+                    aria-hidden
+                  >
+                    <path d="M8 3v10M3 8h10" />
+                  </svg>
+                  <span className="flex-1">Novo equipamento</span>
+                </button>
+                {onOpenCatalogo && (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setShowConfigMenu(false);
+                      onOpenCatalogo(module);
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-sm text-slate-700 dark:text-white/80 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors border-t border-slate-100 dark:border-white/[0.05]"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-slate-400 dark:text-white/40 shrink-0"
+                      aria-hidden
+                    >
+                      <path d="M2 3h12M2 8h12M2 13h8" />
+                    </svg>
+                    <span className="flex-1">Catálogo de produtos deste módulo</span>
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         )}
       </header>
 

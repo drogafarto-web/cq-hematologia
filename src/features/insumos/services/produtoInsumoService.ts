@@ -57,10 +57,15 @@ export type CreateProdutoPayload = Omit<ProdutoInsumo, 'id' | 'labId' | 'created
  * "remover do documento" (traduzido em `deleteField()`). `undefined` é
  * ignorado silenciosamente pelo Firestore (ignoreUndefinedProperties=true).
  *
- * Tipo e fabricante são imutáveis — fabricante compõe a chave de dedup,
- * tipo afeta o schema dos lotes que referenciam o produto.
+ * `tipo` e `fabricante` são *condicionalmente* mutáveis: só podem mudar
+ * enquanto NENHUM lote (Insumo) aponta pro produto — caso contrário quebram
+ * o schema dos lotes referenciados e a chave de dedup (`fabricante|nome|tipo`).
+ * O service valida no momento do update e rejeita com mensagem clara se
+ * houver lote vinculado.
  */
 export type UpdateProdutoPayload = {
+  tipo?: ProdutoInsumo['tipo'];
+  fabricante?: string;
   nomeComercial?: string;
   modulos?: ProdutoInsumo['modulos'];
   codigoFabricante?: string | null;
@@ -159,9 +164,15 @@ export async function createProduto(
 }
 
 /**
- * Atualização parcial de campos mutáveis. Tipo e fabricante são imutáveis.
- * Valores `null` viram `deleteField()` — usado pra limpar um campo opcional
- * que foi apagado pelo operador em modo edição.
+ * Atualização parcial de campos mutáveis. Valores `null` viram `deleteField()`
+ * — usado pra limpar um campo opcional que foi apagado pelo operador em modo
+ * edição.
+ *
+ * `tipo` e `fabricante` são condicionalmente mutáveis: só passam se NENHUM
+ * lote aponta pro produto (guarda contra corrupção de schema dos lotes e
+ * colisão de chave de dedup). Operador que tenta mudar com lote vinculado
+ * recebe erro explícito — deve descartar os lotes antes, ou cadastrar um
+ * novo produto se quiser preservar histórico.
  */
 export async function updateProduto(
   labId: string,
@@ -170,6 +181,16 @@ export async function updateProduto(
 ): Promise<void> {
   try {
     const { updatedBy, ...fields } = patch;
+    const isMudandoTipoOuFabricante =
+      fields.tipo !== undefined || fields.fabricante !== undefined;
+    if (isMudandoTipoOuFabricante) {
+      const count = await countInsumosByProduto(labId, produtoId);
+      if (count > 0) {
+        throw new Error(
+          `Não é possível alterar tipo ou fabricante: este produto já tem ${count} lote(s) vinculado(s). Descarte ou desvincule os lotes primeiro, ou cadastre um novo produto.`,
+        );
+      }
+    }
     const update: Record<string, unknown> = {
       updatedBy,
       updatedAt: serverTimestamp(),

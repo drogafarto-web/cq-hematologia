@@ -9,11 +9,36 @@ export const RESEND_API_KEY = defineSecret('RESEND_API_KEY');
 
 // ─── Email Service ────────────────────────────────────────────────────────────
 
+export interface BackupEmailAttachment {
+  filename: string;
+  content: Buffer;
+}
+
 export interface SendBackupEmailOptions {
   /** Um ou mais destinatários. Array vazio é erro do chamador (filtre antes). */
   to: string | string[];
   report: BackupReport;
-  pdfBuffer: Buffer;
+  /**
+   * Attachments to include, in order. The first is assumed to be the canonical
+   * backup PDF; additional attachments (ex: relatório operacional) são anexos
+   * suplementares. Caller é responsável por garantir tamanho total < 10MB
+   * (limite Resend).
+   */
+  attachments: BackupEmailAttachment[];
+  /**
+   * Marcador de status agregado — quando o relatório operacional detecta algo
+   * crítico que não está refletido nos staleness alerts do backup, o caller
+   * pode elevar o subject aqui.
+   */
+  elevatedSubject?: 'critico' | 'atencao' | null;
+  /** Resumo curto do relatório operacional para mostrar no corpo HTML. */
+  operacionalSummary?: {
+    status: 'ok' | 'atencao' | 'critico';
+    globalApprovalRate: number | null;
+    totalRuns: number;
+    criticalAlerts: number;
+    warningAlerts: number;
+  };
 }
 
 /**
@@ -25,20 +50,29 @@ export interface SendBackupEmailOptions {
  * anonimato entre destinatários (um não vê o outro) usar bcc no futuro.
  */
 export async function sendBackupEmail(opts: SendBackupEmailOptions): Promise<void> {
-  const { to, report, pdfBuffer } = opts;
+  const { to, report, attachments, elevatedSubject, operacionalSummary } = opts;
 
   const recipients = Array.isArray(to) ? to : [to];
   if (recipients.length === 0) {
     throw new Error('[sendBackupEmail] recipients list is empty');
   }
+  if (!attachments || attachments.length === 0) {
+    throw new Error('[sendBackupEmail] attachments must contain at least one PDF');
+  }
+
+  const totalBytes = attachments.reduce((s, a) => s + a.content.byteLength, 0);
+  // Resend cap: ~10MB por email. Falhar cedo e claro.
+  if (totalBytes > 10 * 1024 * 1024) {
+    throw new Error(
+      `[sendBackupEmail] total attachments size ${totalBytes}B exceeds Resend 10MB limit`,
+    );
+  }
 
   const resend = new Resend(RESEND_API_KEY.value());
 
-  const subject = buildSubject(report);
-  const html = buildHtmlBody(report);
-  const text = buildTextBody(report);
-
-  const filename = buildFilename(report);
+  const subject = buildSubject(report, elevatedSubject ?? null);
+  const html = buildHtmlBody(report, attachments.length, operacionalSummary);
+  const text = buildTextBody(report, attachments.length, operacionalSummary);
 
   const { error } = await resend.emails.send({
     from: 'HC Quality Backup <backup@app.labclinmg.com.br>',
@@ -46,12 +80,10 @@ export async function sendBackupEmail(opts: SendBackupEmailOptions): Promise<voi
     subject,
     html,
     text,
-    attachments: [
-      {
-        filename,
-        content: pdfBuffer,
-      },
-    ],
+    attachments: attachments.map((a) => ({
+      filename: a.filename,
+      content: a.content,
+    })),
   });
 
   if (error) {
@@ -61,9 +93,17 @@ export async function sendBackupEmail(opts: SendBackupEmailOptions): Promise<voi
 
 // ─── Subject Builder ──────────────────────────────────────────────────────────
 
-function buildSubject(report: BackupReport): string {
-  const hasCritical = report.stalenessAlerts.some((a) => a.level === 'critical');
-  const hasWarning = report.stalenessAlerts.some((a) => a.level === 'warning');
+function buildSubject(
+  report: BackupReport,
+  elevatedSubject: 'critico' | 'atencao' | null,
+): string {
+  const stalenessCritical = report.stalenessAlerts.some((a) => a.level === 'critical');
+  const stalenessWarning = report.stalenessAlerts.some((a) => a.level === 'warning');
+
+  const hasCritical = stalenessCritical || elevatedSubject === 'critico';
+  const hasWarning =
+    !hasCritical && (stalenessWarning || elevatedSubject === 'atencao');
+
   const dateStr = new Date(report.generatedAt).toLocaleDateString('pt-BR', {
     timeZone: 'America/Sao_Paulo',
     day: '2-digit',
@@ -72,10 +112,16 @@ function buildSubject(report: BackupReport): string {
   });
 
   if (hasCritical) {
-    return `[CRÍTICO] HC Quality — Inatividade grave detectada — ${report.labName} — ${dateStr}`;
+    const subjectCause = stalenessCritical
+      ? 'Inatividade grave detectada'
+      : 'Sinais críticos no CIQ';
+    return `[CRÍTICO] HC Quality — ${subjectCause} — ${report.labName} — ${dateStr}`;
   }
   if (hasWarning) {
-    return `[ATENÇÃO] HC Quality — Inatividade detectada — ${report.labName} — ${dateStr}`;
+    const subjectCause = stalenessWarning
+      ? 'Inatividade detectada'
+      : 'Atenção no CIQ';
+    return `[ATENÇÃO] HC Quality — ${subjectCause} — ${report.labName} — ${dateStr}`;
   }
 
   const totalRuns = report.sections.reduce((s, m) => s + m.totalRuns, 0);
@@ -87,7 +133,11 @@ function buildSubject(report: BackupReport): string {
 
 // ─── HTML Body ────────────────────────────────────────────────────────────────
 
-function buildHtmlBody(report: BackupReport): string {
+function buildHtmlBody(
+  report: BackupReport,
+  attachmentCount: number,
+  operacional: SendBackupEmailOptions['operacionalSummary'],
+): string {
   const periodStr = `${formatDateBR(report.periodStart)} – ${formatDateBR(report.periodEnd)}`;
   const totalRuns = report.sections.reduce((s, m) => s + m.totalRuns, 0);
   const totalNC = report.sections.reduce((s, m) => s + m.nonConformingRuns, 0);
@@ -180,14 +230,20 @@ function buildHtmlBody(report: BackupReport): string {
 
     ${alertsBlock}
 
+    <!-- Operacional summary -->
+    ${buildOperacionalBlock(operacional)}
+
     <!-- Module summaries -->
     ${moduleSummaries}
 
     <!-- Attachment note -->
     <div style="background:#161616;border:1px solid #2a2a2a;border-radius:6px;padding:14px;margin-bottom:24px">
       <p style="color:#71717a;font-size:12px;margin:0">
-        O relatório completo com todos os registros está anexo neste email em formato PDF.
-        Guarde-o em local seguro conforme sua política de retenção de dados (RDC 978/2025 / LGPD).
+        ${
+          attachmentCount > 1
+            ? 'Este e-mail contém <strong>dois PDFs anexos</strong>: o <em>backup diário</em> (arquivo de redundância regulatório — guarde em local seguro conforme RDC 978/2025 e LGPD) e o <em>relatório operacional</em> (instrumento de decisão do RT — leitura diária, descarte mensal).'
+            : 'O relatório completo com todos os registros está anexo neste email em formato PDF. Guarde-o em local seguro conforme sua política de retenção de dados (RDC 978/2025 / LGPD).'
+        }
       </p>
     </div>
 
@@ -212,9 +268,63 @@ function buildHtmlBody(report: BackupReport): string {
 </html>`;
 }
 
+// ─── Operacional block (HTML) ────────────────────────────────────────────────
+
+function buildOperacionalBlock(
+  operacional: SendBackupEmailOptions['operacionalSummary'],
+): string {
+  if (!operacional) return '';
+  const statusColor =
+    operacional.status === 'critico'
+      ? '#ef4444'
+      : operacional.status === 'atencao'
+        ? '#f59e0b'
+        : '#22c55e';
+  const statusLabel =
+    operacional.status === 'critico'
+      ? 'CRÍTICO'
+      : operacional.status === 'atencao'
+        ? 'ATENÇÃO'
+        : 'OK';
+  const approvalStr =
+    operacional.globalApprovalRate !== null
+      ? `${operacional.globalApprovalRate.toFixed(1)}%`
+      : '—';
+  return `
+    <div style="border:1px solid #2a2a2a;border-radius:8px;padding:16px;margin-bottom:20px;background:#101010">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <span style="color:#3b82f6;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase">RELATÓRIO OPERACIONAL</span>
+        <span style="color:${statusColor};font-size:11px;font-weight:700;letter-spacing:.1em">${statusLabel}</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        <tr>
+          <td style="color:#71717a;font-size:12px">Taxa de aprovação</td>
+          <td style="color:${statusColor};font-size:12px;text-align:right"><strong>${approvalStr}</strong></td>
+        </tr>
+        <tr>
+          <td style="color:#71717a;font-size:12px;padding-top:6px">Corridas no período</td>
+          <td style="color:#f4f4f5;font-size:12px;text-align:right;padding-top:6px"><strong>${operacional.totalRuns}</strong></td>
+        </tr>
+        <tr>
+          <td style="color:#71717a;font-size:12px;padding-top:6px">Alertas críticos</td>
+          <td style="color:${operacional.criticalAlerts > 0 ? '#ef4444' : '#22c55e'};font-size:12px;text-align:right;padding-top:6px"><strong>${operacional.criticalAlerts}</strong></td>
+        </tr>
+        <tr>
+          <td style="color:#71717a;font-size:12px;padding-top:6px">Avisos</td>
+          <td style="color:${operacional.warningAlerts > 0 ? '#f59e0b' : '#22c55e'};font-size:12px;text-align:right;padding-top:6px"><strong>${operacional.warningAlerts}</strong></td>
+        </tr>
+      </table>
+      <p style="color:#71717a;font-size:11px;margin:12px 0 0">Detalhamento completo no PDF <em>hcquality_operacional</em> em anexo.</p>
+    </div>`;
+}
+
 // ─── Plain-text fallback ──────────────────────────────────────────────────────
 
-function buildTextBody(report: BackupReport): string {
+function buildTextBody(
+  report: BackupReport,
+  attachmentCount: number,
+  operacional: SendBackupEmailOptions['operacionalSummary'],
+): string {
   const lines: string[] = [
     'HC QUALITY — BACKUP DE DADOS',
     '='.repeat(40),
@@ -233,6 +343,24 @@ function buildTextBody(report: BackupReport): string {
     lines.push('');
   }
 
+  if (operacional) {
+    const statusLabel =
+      operacional.status === 'critico'
+        ? 'CRÍTICO'
+        : operacional.status === 'atencao'
+          ? 'ATENÇÃO'
+          : 'OK';
+    lines.push(
+      `RELATÓRIO OPERACIONAL — ${statusLabel}`,
+      '-'.repeat(30),
+      `  Taxa de aprovação: ${operacional.globalApprovalRate !== null ? operacional.globalApprovalRate.toFixed(1) + '%' : '—'}`,
+      `  Corridas no período: ${operacional.totalRuns}`,
+      `  Alertas críticos: ${operacional.criticalAlerts}`,
+      `  Avisos: ${operacional.warningAlerts}`,
+      '',
+    );
+  }
+
   for (const section of report.sections) {
     lines.push(`MÓDULO: ${section.moduleName}`, '-'.repeat(30));
     for (const [k, v] of Object.entries(section.summary)) {
@@ -244,7 +372,9 @@ function buildTextBody(report: BackupReport): string {
   lines.push(
     `SHA-256: ${report.contentHash}`,
     '',
-    'O relatório completo está anexo em PDF.',
+    attachmentCount > 1
+      ? 'Este email traz dois PDFs: backup diário + relatório operacional.'
+      : 'O relatório completo está anexo em PDF.',
     'HC Quality — Backup automático',
   );
 
@@ -253,12 +383,18 @@ function buildTextBody(report: BackupReport): string {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function buildFilename(report: BackupReport): string {
-  const date = new Date(report.generatedAt)
+export function buildBackupFilename(labId: string, generatedAtISO: string): string {
+  const date = new Date(generatedAtISO)
     .toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })
     .replace(/\//g, '-');
-  const labId = report.labId.slice(0, 8);
-  return `hcquality_backup_${labId}_${date}.pdf`;
+  return `hcquality_backup_${labId.slice(0, 8)}_${date}.pdf`;
+}
+
+export function buildOperacionalFilename(labId: string, generatedAtISO: string): string {
+  const date = new Date(generatedAtISO)
+    .toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })
+    .replace(/\//g, '-');
+  return `hcquality_operacional_${labId.slice(0, 8)}_${date}.pdf`;
 }
 
 function formatDateBR(d: Date): string {

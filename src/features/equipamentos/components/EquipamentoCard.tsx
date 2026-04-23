@@ -27,6 +27,7 @@ import type { Equipamento } from '../types/Equipamento';
 import type { Insumo, InsumoModulo, InsumoTipo } from '../../insumos/types/Insumo';
 import { insumoCobreEquipamento } from '../../insumos/types/Insumo';
 import { validadeStatus, diasAteVencer } from '../../insumos/utils/validadeReal';
+import { resolveInsumoState } from '../../insumos/utils/insumoState';
 
 // ─── Tokens ──────────────────────────────────────────────────────────────────
 
@@ -224,18 +225,9 @@ export function EquipamentoCard({
                   <button
                     type="button"
                     onClick={() => onOpenCatalogo(equipamento.module)}
-                    className="px-3 h-8 rounded-lg text-xs font-medium text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/[0.08] transition-all inline-flex items-center gap-1"
+                    className="text-[11px] font-medium text-slate-400 dark:text-white/35 hover:text-slate-700 dark:hover:text-white/70 hover:underline transition-colors"
                   >
-                    Gerenciar catálogo
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
-                      <path
-                        d="M3 2l3 3-3 3"
-                        stroke="currentColor"
-                        strokeWidth="1.4"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                    Gerenciar catálogo →
                   </button>
                 )}
               </div>
@@ -288,7 +280,8 @@ export function EquipamentoCard({
                   <button
                     type="button"
                     onClick={() => setShowNovoLote(true)}
-                    className="px-3 h-8 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-xs font-medium transition-all"
+                    className="px-3.5 h-9 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold shadow-sm shadow-violet-500/20 transition-all inline-flex items-center gap-1.5"
+                    title="Ação diária — cadastrar lote novo recebido"
                   >
                     + Novo lote
                   </button>
@@ -425,11 +418,12 @@ function LoteRow({ insumo }: { insumo: Insumo }) {
   const v = insumo.validadeReal.toDate();
   const status = validadeStatus(v);
   const dias = diasAteVencer(v);
-  const badge =
+  const state = resolveInsumoState(insumo);
+  const validadeBadge =
     status === 'expired'
       ? {
           cls: 'bg-red-500/10 border-red-500/30 text-red-700 dark:text-red-300',
-          label: `Vencido ${Math.abs(dias)}d`,
+          label: `Venc. ${Math.abs(dias)}d`,
         }
       : status === 'warning'
         ? {
@@ -446,21 +440,24 @@ function LoteRow({ insumo }: { insumo: Insumo }) {
     'tira-uro': 'Tira',
   };
   return (
-    <li className="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.05]">
+    <li className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.05]">
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-200/60 dark:bg-white/[0.05] text-slate-600 dark:text-white/50 font-medium">
             {tipoLabel[insumo.tipo]}
           </span>
           <p className="text-xs font-medium text-slate-800 dark:text-white/80 truncate">
             {insumo.nomeComercial}
           </p>
+          <span className={`${CHIP} ${state.chipCls}`} title={state.tooltip}>
+            {state.label}
+          </span>
         </div>
         <p className="text-[11px] text-slate-500 dark:text-white/40 truncate">
           Lote {insumo.lote}
         </p>
       </div>
-      <span className={`${CHIP} ${badge.cls}`}>{badge.label}</span>
+      <span className={`${CHIP} ${validadeBadge.cls} shrink-0`}>{validadeBadge.label}</span>
     </li>
   );
 }
