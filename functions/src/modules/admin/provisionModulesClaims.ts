@@ -22,9 +22,10 @@ import { syncModuleClaims } from '../../helpers/claims';
 
 // ─── Mapa role/lab → modules ─────────────────────────────────────────────────
 //
-// Todo membro ativo de um lab tem acesso aos 4 módulos do HC Quality hoje
-// (hematologia, imunologia, coagulacao, uroanalise). A gate real acontece no
-// front via `hasModuleAccess()` — o claim só evita leitura cross-tenant.
+// Todo membro ativo de um lab tem acesso aos módulos do HC Quality hoje:
+// hematologia, imunologia, coagulacao, uroanalise, educacao-continuada,
+// controle-temperatura. A gate real acontece no front via `hasModuleAccess()`
+// — o claim só evita leitura cross-tenant.
 //
 // Para endurecer por role no futuro (ex: `operator` só vê hematologia),
 // ajustar `deriveModules()` conforme a política — hoje é permissivo por design.
@@ -35,6 +36,7 @@ const ALL_MODULES = [
   'coagulacao',
   'uroanalise',
   'educacao-continuada',
+  'controle-temperatura',
 ] as const;
 
 type ModuleKey = (typeof ALL_MODULES)[number];
@@ -47,6 +49,7 @@ function fullAccess(): ModulesClaim {
     coagulacao: true,
     uroanalise: true,
     'educacao-continuada': true,
+    'controle-temperatura': true,
   };
 }
 
@@ -57,6 +60,7 @@ function noAccess(): ModulesClaim {
     coagulacao: false,
     uroanalise: false,
     'educacao-continuada': false,
+    'controle-temperatura': false,
   };
 }
 
