@@ -407,11 +407,10 @@ service cloud.firestore {
     // ── /controleTemperatura — FR-11 / PQ-06 (RDC 978/2025 + ISO 15189:2022 cl. 5.3) ──
     //
     // Path de topo com {labId} como doc raiz — mesmo padrão do módulo EC.
-    // Gate por `isActiveMemberOfLab` apenas (sem `hasModuleAccess`) porque
-    // 'controle-temperatura' ainda não está em `MODULE_CLAIMS` no constants.ts.
-    // Upgrade pra module-gated = débito CT-07; quando chegar, seguir a mesma
-    // sequência de Ondas do EC: 1) estender provisionModulesClaims, 2) rodar
-    // em prod, 3) verificar 0 usuários ativos sem claim, 4) deploy destas rules.
+    // STRICT desde 2026-04-24: `hasModuleAccess('controle-temperatura')` é
+    // obrigatório. Provisionamento feito via `provisionModulesClaims` antes
+    // do endurecimento — todos os users ativos já têm o claim. Users sem o
+    // claim no token recebem permission-denied até fazer fresh sign-in.
     //
     // Schema strict + assinatura validada em leituras/ncs previne forja
     // cliente-side. Deleção sempre lógica (RN-07, guarda 5 anos).
@@ -419,21 +418,26 @@ service cloud.firestore {
     // de token comprometido é um equipamento inteiro.
     match /controleTemperatura/{labId} {
       // Doc raiz — âncora sem dados próprios.
-      allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
-      allow create, update: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+      allow read: if isSuperAdmin() ||
+        (isActiveMemberOfLab(labId) && hasModuleAccess('controle-temperatura'));
+      allow create, update: if (isSuperAdmin() ||
+                              (isActiveMemberOfLab(labId) && hasModuleAccess('controle-temperatura')))
                             && request.resource.data.keys().hasOnly(['labId'])
                             && request.resource.data.labId == labId;
       allow delete: if false;
 
       // ── Helpers locais ────────────────────────────────────────────────
       function canReadCt() {
-        return isSuperAdmin() || isActiveMemberOfLab(labId);
+        return isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('controle-temperatura'));
       }
       function canWriteCt() {
-        return isSuperAdmin() || isActiveMemberOfLab(labId);
+        return isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('controle-temperatura'));
       }
       function canAdminCt() {
-        return isSuperAdmin() || isAdminOrOwner(labId);
+        return isSuperAdmin() ||
+          (isAdminOrOwner(labId) && hasModuleAccess('controle-temperatura'));
       }
       function ctLabIdMatches(d) {
         return d.labId == labId;
