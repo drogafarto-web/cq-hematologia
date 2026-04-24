@@ -1,6 +1,7 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
 
 import { Timestamp } from '../../shared/services/firebase';
+import { useAppStore } from '../../store/useAppStore';
 import { useActiveLab, useActiveLabId, useUser } from '../../store/useAuthStore';
 import { CTDashboard } from './components/CTDashboard';
 import { CTImportXlsx } from './components/CTImportXlsx';
@@ -76,6 +77,7 @@ export function ControlTemperaturaView() {
   const labId = useActiveLabId();
   const lab = useActiveLab();
   const user = useUser();
+  const setCurrentView = useAppStore((s) => s.setCurrentView);
   const [tab, setTab] = useState<TabId>('dashboard');
 
   if (!labId) {
@@ -93,13 +95,20 @@ export function ControlTemperaturaView() {
   return (
     <div className="flex min-h-full flex-col bg-slate-50 font-sans text-slate-900 md:flex-row">
       <aside className="z-10 flex w-full flex-col bg-slate-900 text-slate-300 shadow-xl md:min-h-screen md:w-64">
-        <div className="border-b border-slate-800 p-6">
+        <button
+          type="button"
+          onClick={() => setCurrentView('hub')}
+          aria-label="Voltar ao hub de módulos"
+          className="border-b border-slate-800 p-6 text-left transition-colors hover:bg-slate-800/60"
+        >
           <div className="mb-1 flex items-center gap-3">
             <SunIcon size={28} className="text-indigo-400" />
             <h1 className="text-xl font-bold tracking-tight text-white">HC Quality</h1>
           </div>
-          <p className="ml-10 text-xs text-slate-500">Controle de Temperatura</p>
-        </div>
+          <p className="ml-10 text-xs text-slate-500">
+            Controle de Temperatura <span className="text-slate-600">· clique para voltar</span>
+          </p>
+        </button>
 
         <nav className="flex flex-1 flex-row overflow-x-auto py-2 md:flex-col md:overflow-visible md:py-4">
           {TABS.map((t) => {
@@ -130,11 +139,31 @@ export function ControlTemperaturaView() {
 
       <main className="flex-1 overflow-auto">
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white/90 px-6 py-4 backdrop-blur sm:px-8">
-          <div>
-            <h2 className="text-xl font-semibold capitalize text-slate-800">{activeLabel}</h2>
-            <p className="text-xs text-slate-500">
-              FR-11 • PQ-06 • ISO 15189:2022 cl. 5.3 • RDC 978/2025
-            </p>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setCurrentView('hub')}
+              aria-label="Voltar ao hub"
+              className="flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+                <path
+                  d="M8.5 3.5 5 7l3.5 3.5"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Hub
+            </button>
+            <div className="h-8 w-px bg-slate-200" aria-hidden />
+            <div>
+              <h2 className="text-xl font-semibold capitalize text-slate-800">{activeLabel}</h2>
+              <p className="text-xs text-slate-500">
+                FR-11 • PQ-06 • ISO 15189:2022 cl. 5.3 • RDC 978/2025
+              </p>
+            </div>
           </div>
           <div
             className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700"
