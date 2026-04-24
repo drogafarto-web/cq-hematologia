@@ -22,8 +22,11 @@
  * muda. Ver débito técnico CT-02.
  */
 
+// URL oficial Gen2 (Cloud Run) — deploy 2026-04-24.
+// Firebase também publica proxy legacy em `cloudfunctions.net` mas o canônico
+// Gen2 é `*-rj.a.run.app`. Override por ambiente via `VITE_CT_IOT_URL`.
 const DEFAULT_IOT_URL =
-  'https://southamerica-east1-hmatologia2.cloudfunctions.net/registrarLeituraIoT';
+  'https://registrarleituraiot-qqkrnjryaq-rj.a.run.app';
 
 export function iotEndpointUrl(): string {
   const env = (import.meta as { env?: { VITE_CT_IOT_URL?: string } }).env;
