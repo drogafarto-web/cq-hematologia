@@ -18,6 +18,7 @@ import { CoagulacaoView } from '../coagulacao/CoagulacaoView';
 import { UroanaliseView } from '../uroanalise/UroanaliseView';
 import { InsumosView } from '../insumos/InsumosView';
 import { EducacaoContinuadaView } from '../educacao-continuada/EducacaoContinuadaView';
+import { ControlTemperaturaView } from '../controle-temperatura/ControlTemperaturaView';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
 
@@ -71,6 +72,8 @@ function AppRouter() {
     view = <InsumosView />;
   } else if (currentView === 'educacao-continuada') {
     view = <EducacaoContinuadaView />;
+  } else if (currentView === 'controle-temperatura') {
+    view = <ControlTemperaturaView />;
   } else {
     view = <AnalyzerView />;
   }

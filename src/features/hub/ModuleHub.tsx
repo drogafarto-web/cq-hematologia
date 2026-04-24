@@ -153,6 +153,20 @@ function EducacaoIcon() {
   );
 }
 
+function ControlTempIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
+      <path
+        d="M12 3a2 2 0 1 0-4 0v9.2a3.5 3.5 0 1 0 4 0V3Z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+      <circle cx="10" cy="14.5" r="1.5" fill="currentColor" />
+    </svg>
+  );
+}
+
 // ─── Module definitions ───────────────────────────────────────────────────────
 
 interface ModuleDef {
@@ -225,6 +239,16 @@ const MODULES: ModuleDef[] = [
     iconColor: 'text-indigo-400',
     status: 'active',
     view: 'educacao-continuada',
+  },
+  {
+    id: 'controle-temperatura',
+    name: 'Controle de Temperatura',
+    tagline: 'Monitoramento térmico · IoT · FR-11 · PQ-06 · ISO 15189 cl. 5.3',
+    icon: <ControlTempIcon />,
+    iconBg: 'bg-cyan-500/15',
+    iconColor: 'text-cyan-400',
+    status: 'active',
+    view: 'controle-temperatura',
   },
 ];
 
