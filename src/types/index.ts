@@ -356,7 +356,8 @@ export type View =
   | 'uroanalise'
   | 'insumos'
   | 'lab-settings'
-  | 'educacao-continuada';
+  | 'educacao-continuada'
+  | 'controle-temperatura';
 export type StatsSource = 'manufacturer' | 'internal';
 export type ImageState = 'ready' | 'uploading' | 'none';
 
