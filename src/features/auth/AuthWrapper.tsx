@@ -17,6 +17,7 @@ import { LabCQISettings } from '../labSettings/LabCQISettings';
 import { CoagulacaoView } from '../coagulacao/CoagulacaoView';
 import { UroanaliseView } from '../uroanalise/UroanaliseView';
 import { InsumosView } from '../insumos/InsumosView';
+import { EducacaoContinuadaView } from '../educacao-continuada/EducacaoContinuadaView';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
 
@@ -68,6 +69,8 @@ function AppRouter() {
     view = <UroanaliseView />;
   } else if (currentView === 'insumos') {
     view = <InsumosView />;
+  } else if (currentView === 'educacao-continuada') {
+    view = <EducacaoContinuadaView />;
   } else {
     view = <AnalyzerView />;
   }

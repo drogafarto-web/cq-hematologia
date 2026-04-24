@@ -1,0 +1,78 @@
+# Módulo: {NOME_DO_MODULO}
+
+## Escopo exclusivo desta pasta
+
+Trabalhe SOMENTE em `src/features/{NOME_DO_MODULO}/`.
+Não leia nem acesse outros módulos de `src/features/` sem autorização.
+
+## Dependências externas permitidas (só importar)
+
+- `src/utils/*` — utilidades puras
+- `src/shared/services/firebase.ts` — APIs Firebase
+- `src/store/useAuthStore.ts` — `useActiveLabId()` e `useUser()`
+- *(adicionar outras aqui conforme necessário)*
+
+## Referências regulatórias / de domínio
+
+{LISTAR CÓDIGOS: FR-XXX | PQ-YYY | RDC / ISO / NORMAS APLICÁVEIS}
+
+## Multi-tenant
+
+Coleção raiz: `{nomeColeção}/{labId}/[subcoleção]`.
+Documentos carregam `labId` redundante no payload.
+Toda função do service recebe `labId` como parâmetro posicional obrigatório.
+
+## Regras invioláveis (RN-*)
+
+- **RN-01:** ...
+- **RN-02:** ...
+- *(listar todas as regras de negócio específicas)*
+
+## Padrões locais
+
+- Assinatura: `LogicalSignature = { hash, operatorId, ts }` (ver `firestore-security.md`)
+- Soft-delete only (RN-06 global)
+- Thin service, fat hooks: validações de negócio ficam nos hooks
+- Escrita regulatória via callable Cloud Function (se Fase 0b+ do módulo)
+
+---
+
+## Status atual
+
+**Fase:** {FASE_ATUAL} — {data}.
+**URL em prod:** (quando aplicável)
+**Próximo passo prioritário:** {pendência #1}
+
+### Pendências restantes (ordem de prioridade)
+
+1. ...
+2. ...
+
+### Deploy histórico
+
+**{data} — {milestone}:**
+- passos executados
+- comandos rodados
+
+### Entregue em cada FASE
+
+(manter timeline estruturada — uma seção por fase concluída)
+
+### Convenções fixadas (aplicar em fases seguintes)
+
+- ...
+
+### Pendências conhecidas / débitos técnicos
+
+- ...
+
+---
+
+## Dever de atualização do contexto raiz
+
+Sempre que este módulo concluir uma fase significativa (milestone, deploy, refactor estrutural, nova feature que muda o fluxo principal), adicionar uma linha na seção **"Módulos em produção"** do `CLAUDE.md` raiz do projeto resumindo o estado, para que outras sessões/abas vejam o panorama sem precisar abrir o `CLAUDE.md` deste módulo.
+
+Formato sugerido no raiz:
+```
+- {módulo} — {status 1 frase} (última entrega: {data})
+```

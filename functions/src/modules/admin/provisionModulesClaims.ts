@@ -34,6 +34,7 @@ const ALL_MODULES = [
   'imunologia',
   'coagulacao',
   'uroanalise',
+  'educacao-continuada',
 ] as const;
 
 type ModuleKey = (typeof ALL_MODULES)[number];
@@ -45,6 +46,7 @@ function fullAccess(): ModulesClaim {
     imunologia: true,
     coagulacao: true,
     uroanalise: true,
+    'educacao-continuada': true,
   };
 }
 
@@ -54,6 +56,7 @@ function noAccess(): ModulesClaim {
     imunologia: false,
     coagulacao: false,
     uroanalise: false,
+    'educacao-continuada': false,
   };
 }
 

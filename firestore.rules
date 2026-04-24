@@ -403,5 +403,509 @@ service cloud.firestore {
       allow get, list, delete: if isSuperAdmin() || isAdminOrOwner(labId);
       allow update: if false;
     }
+
+    // ── /controleTemperatura — FR-11 / PQ-06 (RDC 978/2025 + ISO 15189:2022 cl. 5.3) ──
+    //
+    // Path de topo com {labId} como doc raiz — mesmo padrão do módulo EC.
+    // Gate por `isActiveMemberOfLab` apenas (sem `hasModuleAccess`) porque
+    // 'controle-temperatura' ainda não está em `MODULE_CLAIMS` no constants.ts.
+    // Upgrade pra module-gated = débito CT-07; quando chegar, seguir a mesma
+    // sequência de Ondas do EC: 1) estender provisionModulesClaims, 2) rodar
+    // em prod, 3) verificar 0 usuários ativos sem claim, 4) deploy destas rules.
+    //
+    // Schema strict + assinatura validada em leituras/ncs previne forja
+    // cliente-side. Deleção sempre lógica (RN-07, guarda 5 anos).
+    // Dispositivos IoT (tokens) restritos a admin/owner — raio do blast
+    // de token comprometido é um equipamento inteiro.
+    match /controleTemperatura/{labId} {
+      // Doc raiz — âncora sem dados próprios.
+      allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+      allow create, update: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                            && request.resource.data.keys().hasOnly(['labId'])
+                            && request.resource.data.labId == labId;
+      allow delete: if false;
+
+      // ── Helpers locais ────────────────────────────────────────────────
+      function canReadCt() {
+        return isSuperAdmin() || isActiveMemberOfLab(labId);
+      }
+      function canWriteCt() {
+        return isSuperAdmin() || isActiveMemberOfLab(labId);
+      }
+      function canAdminCt() {
+        return isSuperAdmin() || isAdminOrOwner(labId);
+      }
+      function ctLabIdMatches(d) {
+        return d.labId == labId;
+      }
+      function ctValidSignature(d) {
+        return d.assinatura is map
+            && d.assinatura.hash is string
+            && d.assinatura.hash.size() == 64
+            && d.assinatura.operatorId == request.auth.uid
+            && d.assinatura.ts is timestamp;
+      }
+      // Update: assinatura idêntica OU substituída por outra válida do user.
+      function ctAssinaturaOkUpdate() {
+        return request.resource.data.assinatura == resource.data.assinatura
+            || ctValidSignature(request.resource.data);
+      }
+      function ctKeepsLabId() {
+        return request.resource.data.labId == resource.data.labId;
+      }
+
+      // ── Equipamentos ──────────────────────────────────────────────────
+      match /equipamentos/{id} {
+        allow read: if canReadCt();
+        allow create: if canWriteCt()
+                      && ctLabIdMatches(request.resource.data)
+                      && request.resource.data.deletadoEm == null
+                      && request.resource.data.nome is string
+                      && request.resource.data.tipo in ['geladeira', 'freezer', 'freezer_ultrabaixo', 'sala', 'banho_maria', 'estufa', 'incubadora', 'outro']
+                      && request.resource.data.status in ['ativo', 'manutencao', 'inativo']
+                      && request.resource.data.limites is map
+                      && request.resource.data.limites.temperaturaMin is number
+                      && request.resource.data.limites.temperaturaMax is number
+                      && request.resource.data.limites.temperaturaMin < request.resource.data.limites.temperaturaMax;
+        allow update: if canWriteCt()
+                      && ctKeepsLabId()
+                      && request.resource.data.criadoEm == resource.data.criadoEm;
+        allow delete: if false;
+      }
+
+      // ── Leituras ──────────────────────────────────────────────────────
+      // Manual: origem='manual' + assinatura obrigatória (RN-02).
+      // IoT: origem='automatica_iot' — gravação pela Cloud Function com
+      // Admin SDK bypassa rules. Client-side não consegue criar leitura IoT
+      // sem assinatura — safe by construction.
+      match /leituras/{id} {
+        allow read: if canReadCt();
+        allow create: if canWriteCt()
+                      && ctLabIdMatches(request.resource.data)
+                      && request.resource.data.deletadoEm == null
+                      && request.resource.data.equipamentoId is string
+                      && request.resource.data.dataHora is timestamp
+                      && request.resource.data.temperaturaAtual is number
+                      && request.resource.data.origem == 'manual'
+                      && request.resource.data.status in ['realizada', 'perdida', 'justificada']
+                      && ctValidSignature(request.resource.data);
+        allow update: if canWriteCt()
+                      && ctKeepsLabId()
+                      && resource.data.equipamentoId == request.resource.data.equipamentoId
+                      && ctAssinaturaOkUpdate();
+        allow delete: if false;
+      }
+
+      // ── Leituras Previstas ────────────────────────────────────────────
+      // Criação primária via scheduled function (Admin SDK bypassa rules).
+      // Client-side pode marcar como justificada/perdida manualmente.
+      match /leituras-previstas/{id} {
+        allow read: if canReadCt();
+        allow create: if canWriteCt()
+                      && ctLabIdMatches(request.resource.data)
+                      && request.resource.data.equipamentoId is string
+                      && request.resource.data.dataHoraPrevista is timestamp
+                      && request.resource.data.status in ['pendente', 'realizada', 'perdida', 'justificada'];
+        allow update: if canWriteCt()
+                      && ctKeepsLabId()
+                      && resource.data.equipamentoId == request.resource.data.equipamentoId
+                      && resource.data.dataHoraPrevista == request.resource.data.dataHoraPrevista;
+        allow delete: if false;
+      }
+
+      // ── Não Conformidades ─────────────────────────────────────────────
+      // Criação primária: batch da leitura fora dos limites (RN-01).
+      // Cliente também pode criar NC manual — caso de desvio observado
+      // sem leitura registrada ainda. Assinatura sempre obrigatória.
+      match /ncs/{id} {
+        allow read: if canReadCt();
+        allow create: if canWriteCt()
+                      && ctLabIdMatches(request.resource.data)
+                      && request.resource.data.deletadoEm == null
+                      && request.resource.data.equipamentoId is string
+                      && request.resource.data.temperaturaRegistrada is number
+                      && request.resource.data.limiteViolado in ['max', 'min', 'umidade']
+                      && request.resource.data.status in ['aberta', 'em_andamento', 'resolvida']
+                      && ctValidSignature(request.resource.data);
+        allow update: if canWriteCt()
+                      && ctKeepsLabId()
+                      && resource.data.equipamentoId == request.resource.data.equipamentoId
+                      && resource.data.leituraId == request.resource.data.leituraId
+                      && ctAssinaturaOkUpdate()
+                      && request.resource.data.status in ['aberta', 'em_andamento', 'resolvida'];
+        allow delete: if false;
+      }
+
+      // ── Termômetros ───────────────────────────────────────────────────
+      match /termometros/{id} {
+        allow read: if canReadCt();
+        allow create: if canWriteCt()
+                      && ctLabIdMatches(request.resource.data)
+                      && request.resource.data.deletadoEm == null
+                      && request.resource.data.numeroSerie is string
+                      && request.resource.data.incertezaMedicao is number
+                      && request.resource.data.dataUltimaCalibracao is timestamp
+                      && request.resource.data.proximaCalibracao is timestamp
+                      && request.resource.data.ativo is bool;
+        allow update: if canWriteCt()
+                      && ctKeepsLabId()
+                      && request.resource.data.criadoEm == resource.data.criadoEm;
+        allow delete: if false;
+      }
+
+      // ── Dispositivos IoT ──────────────────────────────────────────────
+      // Escrita restrita a admin/owner — blast radius de token comprometido
+      // é 1 equipamento (leituras falsas + NCs falsas). Leitura por qualquer
+      // membro ativo (dashboard mostra status online/offline).
+      //
+      // `ultimaTransmissao`/`online` são atualizados pela Cloud Function
+      // registrarLeituraIoT via Admin SDK — bypassa estas rules.
+      match /dispositivos-iot/{id} {
+        allow read: if canReadCt();
+        allow create: if canAdminCt()
+                      && ctLabIdMatches(request.resource.data)
+                      && request.resource.data.deletadoEm == null
+                      && request.resource.data.equipamentoId is string
+                      && request.resource.data.macAddress is string
+                      && request.resource.data.tokenAcesso is string
+                      && request.resource.data.tokenAcesso.size() == 64
+                      && request.resource.data.intervaloEnvioMinutos is number
+                      && request.resource.data.ativo is bool;
+        allow update: if canAdminCt()
+                      && ctKeepsLabId()
+                      && resource.data.tokenAcesso == request.resource.data.tokenAcesso
+                      && resource.data.equipamentoId == request.resource.data.equipamentoId;
+        allow delete: if false;
+      }
+    }
+
+    // ── /educacaoContinuada — FR-001 / FR-013 / FR-027 (RDC 978/2025 + ISO 15189:2022) ──
+    //
+    // Módulo único deste feature. Path de topo com {labId} como doc raiz —
+    // decisão explícita do CTO, diverge do padrão /labs/{labId}/<coleção>/
+    // dos demais módulos. Doc raiz é mera âncora, sem dados próprios.
+    //
+    // Ordem obrigatória de deploy:
+    //   1. Estender `provisionModulesClaims` para incluir 'educacao-continuada'
+    //   2. Rodar com dryRun=false em prod (grant claim a todos os users ativos)
+    //   3. Verificar com query: usuários ativos 30d sem o claim 'educacao-continuada' = 0
+    //   4. Deploy destas rules
+    //
+    // Sem o passo 1-2, `hasModuleAccess('educacao-continuada')` retorna false
+    // para 100% dos users e o módulo fica inacessível — fail-safe intencional.
+    match /educacaoContinuada/{labId} {
+      // Doc raiz — âncora sem dados próprios. Payload apenas { labId } para
+      // permitir que rules de subcoleção resolvam o labId do path.
+      allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+      allow create, update: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                            && request.resource.data.keys().hasOnly(['labId'])
+                            && request.resource.data.labId == labId;
+      allow delete: if false;
+
+      // ── Helpers locais ────────────────────────────────────────────────
+      function canReadEc() {
+        return isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('educacao-continuada'));
+      }
+      function canWriteEc() {
+        return isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('educacao-continuada'));
+      }
+      function labIdMatches(d) {
+        return d.labId == labId;
+      }
+      // Assinatura válida: hash SHA-256 hex de 64 chars, operatorId obrigatoriamente
+      // == request.auth.uid (impede forjar assinatura em nome de outro usuário).
+      function validSignature(d) {
+        return d.assinatura is map
+            && d.assinatura.hash is string
+            && d.assinatura.hash.size() == 64
+            && d.assinatura.operatorId == request.auth.uid
+            && d.assinatura.ts is timestamp;
+      }
+      // Em update: a assinatura é substituída por uma nova (válida pelo user
+      // logado) OU preservada idêntica. Impede forjar e impede "dessassinar".
+      function assinaturaOkUpdate() {
+        return request.resource.data.assinatura == resource.data.assinatura
+            || validSignature(request.resource.data);
+      }
+      function keepsCreatedAt() {
+        return request.resource.data.criadoEm == resource.data.criadoEm;
+      }
+      function keepsLabId() {
+        return request.resource.data.labId == resource.data.labId;
+      }
+
+      // ── Colaboradores ─────────────────────────────────────────────────
+      match /colaboradores/{id} {
+        allow read: if canReadEc();
+        allow create: if canWriteEc()
+                      && labIdMatches(request.resource.data)
+                      && request.resource.data.deletadoEm == null
+                      && request.resource.data.nome is string
+                      && request.resource.data.cargo is string
+                      && request.resource.data.setor is string
+                      && request.resource.data.ativo is bool;
+        allow update: if canWriteEc()
+                      && keepsLabId()
+                      && keepsCreatedAt();
+        allow delete: if false;  // Soft delete only (RN-06)
+      }
+
+      // ── Treinamentos (FR-027) ─────────────────────────────────────────
+      match /treinamentos/{id} {
+        allow read: if canReadEc();
+        allow create: if canWriteEc()
+                      && labIdMatches(request.resource.data)
+                      && request.resource.data.deletadoEm == null
+                      && request.resource.data.titulo is string
+                      && request.resource.data.cargaHoraria is number
+                      && request.resource.data.cargaHoraria > 0
+                      && request.resource.data.modalidade in ['presencial', 'online', 'em_servico']
+                      && request.resource.data.unidade in ['fixa', 'itinerante', 'ambas']
+                      && request.resource.data.periodicidade in ['mensal', 'bimestral', 'trimestral', 'semestral', 'anual']
+                      && request.resource.data.ativo is bool;
+        allow update: if canWriteEc()
+                      && keepsLabId()
+                      && keepsCreatedAt();
+        allow delete: if false;
+      }
+
+      // ── Execuções (FR-001) ────────────────────────────────────────────
+      // Fase 0c (2026-04-24): escritas regulatórias (realizado/adiado) movidas
+      // para callables `ec_commitExecucaoRealizada`/`ec_commitExecucaoAdiada`
+      // (Admin SDK bypassa rules). Client-side fica restrito a:
+      //   - create status='planejado' (via ExecucaoForm / Import XLSX)
+      //   - update metadata em planejado (edição simples)
+      //   - transição planejado→cancelado (cancelamento trivial, sem cascade)
+      //   - soft-delete (diff apenas em deletadoEm)
+      match /execucoes/{id} {
+        allow read: if canReadEc();
+        allow create: if canWriteEc()
+                      && labIdMatches(request.resource.data)
+                      && request.resource.data.deletadoEm == null
+                      && request.resource.data.treinamentoId is string
+                      && request.resource.data.status == 'planejado'
+                      && request.resource.data.dataPlanejada is timestamp
+                      && validSignature(request.resource.data);
+        allow update: if canWriteEc()
+                      && keepsLabId()
+                      && keepsCreatedAt()
+                      && resource.data.treinamentoId == request.resource.data.treinamentoId
+                      && assinaturaOkUpdate()
+                      && (
+                        // (a) soft-delete/restore: só deletadoEm muda
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletadoEm'])
+                        ||
+                        // (b) edição em planejado, com transição opcional para cancelado
+                        (
+                          resource.data.status == 'planejado'
+                          && request.resource.data.status in ['planejado', 'cancelado']
+                        )
+                      );
+        allow delete: if false;
+      }
+
+      // ── Participantes ─────────────────────────────────────────────────
+      // Fase 0c: escrita exclusiva do callable `ec_commitExecucaoRealizada`
+      // (Admin SDK bypassa rules). Client não tem caminho legítimo para criar
+      // participante direto — tentar fazê-lo é tentativa de adulterar RN-03.
+      // Update do cliente restrito a soft-delete/restore (diff em deletadoEm).
+      match /participantes/{id} {
+        allow read: if canReadEc();
+        allow create: if false;
+        allow update: if canWriteEc()
+                      && keepsLabId()
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletadoEm']);
+        allow delete: if false;
+      }
+
+      // ── Avaliação de Eficácia (FR-001 bloco inferior + FR-013) ────────
+      // Fase 0c: escrita exclusiva dos callables `ec_registrarAvaliacaoEficacia`
+      // + `ec_fecharAvaliacaoEficacia` (servidor aplica RN-02 autoritativamente).
+      // Client mantém apenas soft-delete/restore via hook.
+      match /avaliacoesEficacia/{id} {
+        allow read: if canReadEc();
+        allow create: if false;
+        allow update: if canWriteEc()
+                      && keepsLabId()
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletadoEm']);
+        allow delete: if false;
+      }
+
+      // ── Avaliação de Competência (ISO 15189:2022 cl. 6.2.4) ───────────
+      // Fase 0c: escrita exclusiva do callable `ec_registrarAvaliacaoCompetencia`
+      // (servidor valida FK Participante→Execucao `presente=true` + injeta
+      // avaliadorId=auth.uid). Client mantém apenas soft-delete/restore.
+      match /avaliacoesCompetencia/{id} {
+        allow read: if canReadEc();
+        allow create: if false;
+        allow update: if canWriteEc()
+                      && keepsLabId()
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletadoEm']);
+        allow delete: if false;
+      }
+
+      // ── Alertas de Vencimento (RN-05) ────────────────────────────────
+      // Fase 0c: criação exclusiva do callable `ec_commitExecucaoRealizada`
+      // (atomic com execução realizada + participantes). Client mantém apenas
+      // transição de status (marcar notificado/resolvido/reabrir) via
+      // `useAlertasVencimento`, sem conseguir backdating de dataVencimento.
+      match /alertasVencimento/{id} {
+        allow read: if canReadEc();
+        allow create: if false;
+        allow update: if canWriteEc()
+                      && keepsLabId()
+                      && resource.data.treinamentoId == request.resource.data.treinamentoId
+                      && resource.data.dataVencimento == request.resource.data.dataVencimento
+                      && resource.data.diasAntecedencia == request.resource.data.diasAntecedencia
+                      && request.resource.data.status in ['pendente', 'notificado', 'resolvido'];
+        allow delete: if false;
+      }
+
+      // ── FASE 6 — Templates de treinamento (biblioteca reutilizável) ──
+      // Não-regulatório: cadastro administrativo. Writes client-side mantidos.
+      // `versao` = contador incremental (service faz +1 em cada update);
+      // `materialDidatico` é array de MaterialDidatico inline no doc.
+      match /templates/{id} {
+        allow read: if canReadEc();
+        allow create: if canWriteEc()
+                      && labIdMatches(request.resource.data)
+                      && request.resource.data.deletadoEm == null
+                      && request.resource.data.titulo is string
+                      && request.resource.data.tema is string
+                      && request.resource.data.objetivo is string
+                      && request.resource.data.cargaHoraria is number
+                      && request.resource.data.cargaHoraria > 0
+                      && request.resource.data.modalidade in ['presencial', 'online', 'em_servico']
+                      && request.resource.data.periodicidade in ['mensal', 'bimestral', 'trimestral', 'semestral', 'anual']
+                      && request.resource.data.pauta is string
+                      && request.resource.data.tags is list
+                      && request.resource.data.versao is int
+                      && request.resource.data.versao == 1
+                      && request.resource.data.materialDidatico is list
+                      && request.resource.data.ativo is bool;
+        allow update: if canWriteEc()
+                      && keepsLabId()
+                      && keepsCreatedAt();
+        allow delete: if false;
+      }
+
+      // ── FASE 6 — Kits de Integração ──────────────────────────────────
+      // Sequência ordenada de templates por cargo (ex: "Kit Biomédico Júnior").
+      // Não-regulatório.
+      match /kitsIntegracao/{id} {
+        allow read: if canReadEc();
+        allow create: if canWriteEc()
+                      && labIdMatches(request.resource.data)
+                      && request.resource.data.deletadoEm == null
+                      && request.resource.data.nome is string
+                      && request.resource.data.cargo is string
+                      && request.resource.data.templateIds is list
+                      && request.resource.data.ativo is bool;
+        allow update: if canWriteEc()
+                      && keepsLabId()
+                      && keepsCreatedAt();
+        allow delete: if false;
+      }
+
+      // ── FASE 7 — Trilhas de Aprendizado (RN-08) ──────────────────────
+      match /trilhas/{id} {
+        allow read: if canReadEc();
+        allow create: if canWriteEc()
+                      && labIdMatches(request.resource.data)
+                      && request.resource.data.deletadoEm == null
+                      && request.resource.data.nome is string
+                      && request.resource.data.cargo is string
+                      && request.resource.data.etapas is list
+                      && request.resource.data.ativo is bool;
+        allow update: if canWriteEc()
+                      && keepsLabId()
+                      && keepsCreatedAt();
+        allow delete: if false;
+      }
+
+      // ── FASE 7 — ProgressoTrilha (1 por colaborador×trilha) ──────────
+      // Criado por hook RN-08 ou manualmente pelo responsável. Não-regulatório
+      // per se (o registro regulatório fica em AvaliacaoCompetencia); este
+      // rastreia apenas andamento do onboarding.
+      match /progressosTrilha/{id} {
+        allow read: if canReadEc();
+        allow create: if canWriteEc()
+                      && labIdMatches(request.resource.data)
+                      && request.resource.data.deletadoEm == null
+                      && request.resource.data.colaboradorId is string
+                      && request.resource.data.trilhaId is string
+                      && request.resource.data.dataInicio is timestamp
+                      && request.resource.data.status in ['em_andamento', 'concluida', 'pausada']
+                      && request.resource.data.etapas is list
+                      && request.resource.data.percentualConcluido is int;
+        allow update: if canWriteEc()
+                      && keepsLabId()
+                      && resource.data.colaboradorId == request.resource.data.colaboradorId
+                      && resource.data.trilhaId == request.resource.data.trilhaId;
+        allow delete: if false;
+      }
+
+      // ── FASE 8 — Questões (public, sem gabarito) ─────────────────────
+      // Escrita via callable `ec_criarQuestao` (Admin SDK bypassa rules).
+      // Client só lê + archive (toggle ativo=false).
+      match /questoes/{id} {
+        allow read: if canReadEc();
+        allow create: if false;
+        allow update: if canWriteEc()
+                      && keepsLabId()
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ativo']);
+        allow delete: if false;
+      }
+
+      // ── FASE 8 — Gabarito (SERVER-ONLY — client nunca lê) ────────────
+      // Contém respostas corretas. RN-10: Firestore rules bloqueiam leitura
+      // client totalmente. Callables (Admin SDK) lêem para correção.
+      match /questoesGabarito/{id} {
+        allow read: if false;
+        allow write: if false;
+      }
+
+      // ── FASE 8 — AvaliacaoTeste (escrita via callable) ───────────────
+      match /avaliacoesTeste/{id} {
+        allow read: if canReadEc();
+        allow write: if false;
+      }
+
+      // ── FASE 8 — RespostaAvaliacao (escrita via callable) ────────────
+      match /respostasAvaliacao/{id} {
+        allow read: if canReadEc();
+        allow write: if false;
+      }
+
+      // ── FASE 9 — Certificado (escrita via callable) ──────────────────
+      match /certificados/{id} {
+        allow read: if canReadEc();
+        allow write: if false;
+      }
+
+      // ── FASE 9 — CertificadoConfig (singleton por lab) ───────────────
+      match /certificadoConfig/{id} {
+        allow read: if canReadEc();
+        allow write: if canWriteEc()
+                     && request.resource.data.labId == labId
+                     && request.resource.data.nomeDoLab is string
+                     && request.resource.data.textoRodape is string;
+      }
+
+      // ── FASE 9 — ConfiguracaoAlerta (singleton por lab) ──────────────
+      match /configAlertas/{id} {
+        allow read: if canReadEc();
+        allow write: if canWriteEc()
+                     && request.resource.data.labId == labId
+                     && request.resource.data.diasAntecedenciaVencimento is int
+                     && request.resource.data.diasAntecedenciaVencimento >= 0
+                     && request.resource.data.diasAntecedenciaVencimento <= 365
+                     && request.resource.data.emailResponsavel is bool
+                     && request.resource.data.emailColaborador is bool
+                     && request.resource.data.horaEnvio is string;
+      }
+    }
   }
 }

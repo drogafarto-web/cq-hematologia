@@ -1,0 +1,10 @@
+{
+  "orchestrator": {
+    "provider": "openrouter",
+    "model": "xiaomi/mimo-v2-pro"
+  },
+  "subagents": {
+    "provider": "openrouter",
+    "model": "xiaomi/mimo-v2-flash"
+  }
+}
