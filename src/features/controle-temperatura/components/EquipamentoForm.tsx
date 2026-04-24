@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { useTermometros } from '../hooks/useTermometros';
 import type {
   ConfiguracaoCalendario,
   ConfiguracaoCalendarioDia,
@@ -54,12 +55,11 @@ export interface EquipamentoFormProps {
 }
 
 export function EquipamentoForm({ open, onClose, equipamento, onSubmit }: EquipamentoFormProps) {
+  const { termometros } = useTermometros({ somenteAtivos: true });
   const [nome, setNome] = useState(equipamento?.nome ?? '');
   const [tipo, setTipo] = useState<TipoEquipamento>(equipamento?.tipo ?? 'geladeira');
   const [localizacao, setLocalizacao] = useState(equipamento?.localizacao ?? '');
-  const [termometroNumeroSerie, setTermometro] = useState(
-    equipamento?.termometroNumeroSerie ?? '',
-  );
+  const [termometroId, setTermometroId] = useState(equipamento?.termometroId ?? '');
   const [status, setStatus] = useState<StatusEquipamento>(equipamento?.status ?? 'ativo');
   const [observacoes, setObservacoes] = useState(equipamento?.observacoes ?? '');
   const [dispositivoIoTId, setDispositivoIoTId] = useState(equipamento?.dispositivoIoTId ?? '');
@@ -111,6 +111,7 @@ export function EquipamentoForm({ open, onClose, equipamento, onSubmit }: Equipa
   async function handleSubmit() {
     setErro(null);
     if (nome.trim().length === 0) return setErro('Nome obrigatório.');
+    if (!termometroId) return setErro('Selecione o termômetro vinculado.');
     if (limites.temperaturaMin >= limites.temperaturaMax) {
       return setErro('T. mínima deve ser menor que T. máxima.');
     }
@@ -118,7 +119,7 @@ export function EquipamentoForm({ open, onClose, equipamento, onSubmit }: Equipa
       nome: nome.trim(),
       tipo,
       localizacao: localizacao.trim(),
-      termometroNumeroSerie: termometroNumeroSerie.trim(),
+      termometroId,
       limites,
       calendario,
       status,
@@ -179,12 +180,24 @@ export function EquipamentoForm({ open, onClose, equipamento, onSubmit }: Equipa
               placeholder="Ex: Setor Bioquímica"
             />
           </Field>
-          <Field label="Nº de série do termômetro">
-            <TextInput
-              value={termometroNumeroSerie}
-              onChange={(e) => setTermometro(e.target.value)}
-              placeholder="TM-0001"
-            />
+          <Field
+            label="Termômetro vinculado"
+            hint={termometros.length === 0 ? 'Cadastre um termômetro em Configurações primeiro.' : undefined}
+          >
+            <Select
+              value={termometroId}
+              onChange={(e) => setTermometroId(e.target.value)}
+              disabled={termometros.length === 0}
+            >
+              <option value="">— selecione —</option>
+              {termometros.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.numeroSerie} — {t.modelo}
+                  {t.statusCalibracao === 'vencido' ? ' (CAL VENCIDA)' : ''}
+                  {t.statusCalibracao === 'vencendo' ? ' (cal. vencendo)' : ''}
+                </option>
+              ))}
+            </Select>
           </Field>
           <Field label="Status">
             <Select

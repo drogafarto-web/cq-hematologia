@@ -20,6 +20,7 @@
  */
 
 import { Timestamp } from '../../../shared/services/firebase';
+import { computarStatusCalibracao } from './ctFirebaseService';
 import type {
   EquipamentoMonitorado,
   LeituraTemperatura,
@@ -148,10 +149,31 @@ export interface MontarRelatorioFR11Params {
  * dia e classificadas em manhã (< 12h) ou tarde (≥ 12h). Quando há mais de
  * uma leitura no mesmo turno, a mais recente prevalece.
  */
+/**
+ * Levanta um `Error` claro se a calibração do termômetro vinculado está
+ * vencida (RN-05). Caller (preview/tab) deve capturar e exibir a mensagem.
+ */
+export function assertCalibracaoValidaParaFR11(termometro: Termometro | null): void {
+  if (!termometro) {
+    throw new Error(
+      'Termômetro do equipamento não encontrado. Vincule um termômetro ativo antes de emitir o FR-11.',
+    );
+  }
+  const status = computarStatusCalibracao(termometro.calibracaoAtual);
+  if (status === 'vencido') {
+    throw new Error(
+      `Certificado de calibração do termômetro ${termometro.numeroSerie} está vencido ` +
+        `(validade ${termometro.calibracaoAtual.dataValidade.toDate().toLocaleDateString('pt-BR')}). ` +
+        'Renove antes de emitir o FR-11.',
+    );
+  }
+}
+
 export async function montarRelatorioFR11(
   params: MontarRelatorioFR11Params,
 ): Promise<RelatorioFR11> {
   const { equipamento, termometro, mes, ano, leituras, ncs, resolveResponsavel } = params;
+  assertCalibracaoValidaParaFR11(termometro);
 
   const linhas: LinhaDiaFR11[] = Array.from({ length: 31 }, (_, i) => ({
     dia: i + 1,

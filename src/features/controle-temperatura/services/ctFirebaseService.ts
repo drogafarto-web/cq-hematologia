@@ -27,6 +27,7 @@ import {
   onSnapshot,
   orderBy,
   query,
+  runTransaction,
   serverTimestamp,
   setDoc,
   updateDoc,
@@ -39,6 +40,8 @@ import {
 } from '../../../shared/services/firebase';
 import { firestoreErrorMessage } from '../../../shared/services/firebase';
 import type {
+  CertificadoCalibracao,
+  CertificadoCalibracaoInput,
   DispositivoInput,
   DispositivoIoT,
   EquipamentoInput,
@@ -51,6 +54,7 @@ import type {
   LimitesAceitabilidade,
   NCInput,
   NaoConformidadeTemp,
+  StatusCalibracao,
   StatusLeituraPrevista,
   StatusNC,
   Termometro,
@@ -140,6 +144,26 @@ export function computarOnline(
   return agora.getTime() - ultimaTransmissao.toMillis() <= msTolerancia;
 }
 
+/**
+ * Regra RN-05: status derivado da calibração vigente do termômetro.
+ *  vencido   → validade < hoje (bloqueia emissão FR-11)
+ *  vencendo  → validade ≤ hoje + 30 dias (alerta âmbar)
+ *  valido    → resto
+ */
+export const DIAS_ALERTA_CALIBRACAO = 30;
+
+export function computarStatusCalibracao(
+  calibracaoAtual: CertificadoCalibracao,
+  agora: Date = new Date(),
+): StatusCalibracao {
+  const agoraMs = agora.getTime();
+  const validadeMs = calibracaoAtual.dataValidade.toMillis();
+  if (validadeMs < agoraMs) return 'vencido';
+  const limite = agoraMs + DIAS_ALERTA_CALIBRACAO * 24 * 60 * 60 * 1000;
+  if (validadeMs <= limite) return 'vencendo';
+  return 'valido';
+}
+
 // ─── Mappers snap → entidade ─────────────────────────────────────────────────
 
 function mapEquipamento(snap: QueryDocumentSnapshot): EquipamentoMonitorado {
@@ -150,7 +174,7 @@ function mapEquipamento(snap: QueryDocumentSnapshot): EquipamentoMonitorado {
     nome: d.nome as string,
     tipo: d.tipo as EquipamentoMonitorado['tipo'],
     localizacao: d.localizacao as string,
-    termometroNumeroSerie: d.termometroNumeroSerie as string,
+    termometroId: d.termometroId as string,
     limites: d.limites as LimitesAceitabilidade,
     calendario: d.calendario as EquipamentoMonitorado['calendario'],
     status: d.status as EquipamentoMonitorado['status'],
@@ -219,8 +243,24 @@ function mapNC(snap: QueryDocumentSnapshot): NaoConformidadeTemp {
   };
 }
 
+function mapCertificado(raw: unknown): CertificadoCalibracao {
+  const d = (raw ?? {}) as Record<string, unknown>;
+  return {
+    versao: d.versao as number,
+    dataEmissao: d.dataEmissao as Timestamp,
+    dataValidade: d.dataValidade as Timestamp,
+    certificadoUrl: (d.certificadoUrl ?? undefined) as string | undefined,
+    laboratorioCalibrador: d.laboratorioCalibrador as string,
+    numeroCertificado: d.numeroCertificado as string,
+    arquivadoEm: (d.arquivadoEm ?? undefined) as Timestamp | undefined,
+  };
+}
+
 function mapTermometro(snap: QueryDocumentSnapshot): Termometro {
   const d = snap.data();
+  const historico = Array.isArray(d.historicoCalibracoes)
+    ? (d.historicoCalibracoes as unknown[]).map(mapCertificado)
+    : [];
   return {
     id: snap.id,
     labId: d.labId as LabId,
@@ -228,9 +268,8 @@ function mapTermometro(snap: QueryDocumentSnapshot): Termometro {
     modelo: d.modelo as string,
     fabricante: d.fabricante as string,
     incertezaMedicao: d.incertezaMedicao as number,
-    dataUltimaCalibracao: d.dataUltimaCalibracao as Timestamp,
-    proximaCalibracao: d.proximaCalibracao as Timestamp,
-    certificadoUrl: (d.certificadoUrl ?? undefined) as string | undefined,
+    calibracaoAtual: mapCertificado(d.calibracaoAtual),
+    historicoCalibracoes: historico,
     ativo: d.ativo as boolean,
     criadoEm: d.criadoEm as Timestamp,
     deletadoEm: (d.deletadoEm ?? null) as Timestamp | null,
@@ -605,6 +644,29 @@ export function subscribeNCs(
 
 // ─── API: Termômetros ────────────────────────────────────────────────────────
 
+function toCertificadoV1(input: CertificadoCalibracaoInput): CertificadoCalibracao {
+  return {
+    versao: 1,
+    dataEmissao: input.dataEmissao,
+    dataValidade: input.dataValidade,
+    certificadoUrl: input.certificadoUrl,
+    laboratorioCalibrador: input.laboratorioCalibrador,
+    numeroCertificado: input.numeroCertificado,
+  };
+}
+
+function certificadoDoc(c: CertificadoCalibracao): Record<string, unknown> {
+  return {
+    versao: c.versao,
+    dataEmissao: c.dataEmissao,
+    dataValidade: c.dataValidade,
+    certificadoUrl: c.certificadoUrl ?? null,
+    laboratorioCalibrador: c.laboratorioCalibrador,
+    numeroCertificado: c.numeroCertificado,
+    arquivadoEm: c.arquivadoEm ?? null,
+  };
+}
+
 export async function createTermometro(
   labId: LabId,
   input: TermometroInput,
@@ -612,10 +674,16 @@ export async function createTermometro(
   try {
     await ensureLabRoot(labId);
     const ref = doc(termometrosCol(labId));
+    const primeira = toCertificadoV1(input.calibracaoAtual);
     await setDoc(ref, {
       labId,
-      ...input,
-      certificadoUrl: input.certificadoUrl ?? null,
+      numeroSerie: input.numeroSerie,
+      modelo: input.modelo,
+      fabricante: input.fabricante,
+      incertezaMedicao: input.incertezaMedicao,
+      calibracaoAtual: certificadoDoc(primeira),
+      historicoCalibracoes: [certificadoDoc(primeira)],
+      ativo: input.ativo,
       criadoEm: serverTimestamp(),
       deletadoEm: null,
     });
@@ -625,12 +693,99 @@ export async function createTermometro(
   }
 }
 
+/**
+ * Update parcial de campos estáticos (numeroSerie, modelo, fabricante,
+ * incertezaMedicao, ativo). Calibração segue fluxo exclusivo de
+ * `registrarNovaCalibracao` — RN-09 impede "editar" calibração existente.
+ */
 export async function updateTermometro(
   labId: LabId,
   id: string,
-  patch: Partial<TermometroInput>,
+  patch: Partial<Omit<TermometroInput, 'calibracaoAtual'>>,
 ): Promise<void> {
   await updateDoc(termometroDoc(labId, id), { ...patch });
+}
+
+/**
+ * RN-09: registrar nova calibração do termômetro.
+ *  1. Lê o termômetro em transaction.
+ *  2. Arquiva a calibração vigente (`arquivadoEm = now()`).
+ *  3. Cria nova com `versao = anterior.versao + 1`.
+ *  4. Atualiza `calibracaoAtual` + anexa ao `historicoCalibracoes`.
+ *
+ * Nunca remove histórico — requisito de rastreabilidade metrológica
+ * (ISO 15189:2022 cl. 5.3.1).
+ */
+export async function registrarNovaCalibracao(
+  labId: LabId,
+  termometroId: string,
+  input: CertificadoCalibracaoInput,
+): Promise<number> {
+  try {
+    const ref = termometroDoc(labId, termometroId);
+    return await runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists()) {
+        throw new Error('Termômetro não encontrado.');
+      }
+      const data = snap.data();
+      const atual = mapCertificado(data.calibracaoAtual);
+      const historico: CertificadoCalibracao[] = Array.isArray(data.historicoCalibracoes)
+        ? (data.historicoCalibracoes as unknown[]).map(mapCertificado)
+        : [];
+
+      const nowTs = Timestamp.now();
+      const atualArquivada: CertificadoCalibracao = { ...atual, arquivadoEm: nowTs };
+      const novaVersao = atual.versao + 1;
+      const nova: CertificadoCalibracao = {
+        versao: novaVersao,
+        dataEmissao: input.dataEmissao,
+        dataValidade: input.dataValidade,
+        certificadoUrl: input.certificadoUrl,
+        laboratorioCalibrador: input.laboratorioCalibrador,
+        numeroCertificado: input.numeroCertificado,
+      };
+
+      // historico[0..n] = versões anteriores (já arquivadas) + atual (ainda sem arquivadoEm).
+      // Substitui a última (anterior atual) pela versão arquivada e anexa a nova.
+      const historicoAtualizado = historico
+        .map((h) => (h.versao === atual.versao ? atualArquivada : h))
+        .concat([nova]);
+
+      tx.update(ref, {
+        calibracaoAtual: certificadoDoc(nova),
+        historicoCalibracoes: historicoAtualizado.map(certificadoDoc),
+      });
+      return novaVersao;
+    });
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err), { cause: err });
+  }
+}
+
+/** Atualiza apenas o URL do PDF no certificado vigente (pós-upload). */
+export async function atualizarUrlCertificadoAtual(
+  labId: LabId,
+  termometroId: string,
+  certificadoUrl: string,
+): Promise<void> {
+  await runTransaction(db, async (tx) => {
+    const ref = termometroDoc(labId, termometroId);
+    const snap = await tx.get(ref);
+    if (!snap.exists()) return;
+    const data = snap.data();
+    const atual = mapCertificado(data.calibracaoAtual);
+    const historico: CertificadoCalibracao[] = Array.isArray(data.historicoCalibracoes)
+      ? (data.historicoCalibracoes as unknown[]).map(mapCertificado)
+      : [];
+    const atualNovo = { ...atual, certificadoUrl };
+    tx.update(ref, {
+      calibracaoAtual: certificadoDoc(atualNovo),
+      historicoCalibracoes: historico
+        .map((h) => (h.versao === atual.versao ? atualNovo : h))
+        .map(certificadoDoc),
+    });
+  });
 }
 
 export async function softDeleteTermometro(labId: LabId, id: string): Promise<void> {
@@ -730,4 +885,117 @@ export function subscribeDispositivos(
     },
     (err) => onError?.(new Error(firestoreErrorMessage(err), { cause: err })),
   );
+}
+
+// ─── API: Import em lote (RN-10) ─────────────────────────────────────────────
+
+export interface ImportItemEquipamento {
+  input: EquipamentoInput;
+  /** `termometroId` será resolvido via `termometroChaveDeImport`. */
+  termometroChaveDeImport: string;
+}
+
+export interface ImportItemTermometro {
+  chaveDeImport: string; // numeroSerie, usado pra linkar com equipamentos
+  input: TermometroInput;
+}
+
+export interface ImportResultado {
+  termometrosCriados: number;
+  equipamentosCriados: number;
+  previstasGeradas: number;
+}
+
+/**
+ * RN-10: import em lote atômico — equipamentos + termômetros + leituras
+ * previstas dos próximos 7 dias. Caller já validou linha-a-linha em
+ * `ctXlsxService#parseImportXlsx`. Tudo roda em writeBatch único — ou tudo
+ * vira, ou nada. `chaveDeImport` (numeroSerie do termômetro) é o que permite
+ * o relacionamento equipamento→termômetro antes do Firestore atribuir IDs.
+ */
+export async function importarXlsxBatch(
+  labId: LabId,
+  termometros: ImportItemTermometro[],
+  equipamentos: ImportItemEquipamento[],
+): Promise<ImportResultado> {
+  await ensureLabRoot(labId);
+  const batch = writeBatch(db);
+
+  const termometroIdPorChave = new Map<string, string>();
+  for (const t of termometros) {
+    const ref = doc(termometrosCol(labId));
+    termometroIdPorChave.set(t.chaveDeImport, ref.id);
+    const primeira = toCertificadoV1(t.input.calibracaoAtual);
+    batch.set(ref, {
+      labId,
+      numeroSerie: t.input.numeroSerie,
+      modelo: t.input.modelo,
+      fabricante: t.input.fabricante,
+      incertezaMedicao: t.input.incertezaMedicao,
+      calibracaoAtual: certificadoDoc(primeira),
+      historicoCalibracoes: [certificadoDoc(primeira)],
+      ativo: t.input.ativo,
+      criadoEm: serverTimestamp(),
+      deletadoEm: null,
+    });
+  }
+
+  const equipamentoIds: { id: string; input: EquipamentoInput }[] = [];
+  for (const e of equipamentos) {
+    const termometroId = termometroIdPorChave.get(e.termometroChaveDeImport);
+    if (!termometroId) {
+      throw new Error(
+        `Termômetro com série "${e.termometroChaveDeImport}" não encontrado na Aba 2.`,
+      );
+    }
+    const ref = doc(equipamentosCol(labId));
+    equipamentoIds.push({ id: ref.id, input: e.input });
+    batch.set(ref, {
+      labId,
+      ...e.input,
+      termometroId,
+      criadoEm: serverTimestamp(),
+      atualizadoEm: serverTimestamp(),
+      deletadoEm: null,
+    });
+  }
+
+  // Gera previsões para os próximos 7 dias com base no calendário do equipamento.
+  let previstasGeradas = 0;
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  for (let offset = 0; offset < 7; offset++) {
+    const dia = new Date(hoje.getTime() + offset * 24 * 60 * 60 * 1000);
+    const w = dia.getDay();
+    for (const { id, input } of equipamentoIds) {
+      const cal = input.calendario;
+      const bucket =
+        w === 0 ? cal.domingo : w === 6 ? cal.sabado : cal.diasUteis;
+      if (!bucket.obrigatorio) continue;
+      for (const hora of bucket.horarios) {
+        const [h, m] = hora.split(':').map(Number);
+        if (!Number.isFinite(h) || !Number.isFinite(m)) continue;
+        const dt = new Date(dia);
+        dt.setHours(h, m, 0, 0);
+        if (dt.getTime() < Date.now()) continue; // pula horários que já passaram hoje
+        const pRef = doc(leiturasPrevistasCol(labId));
+        batch.set(pRef, {
+          labId,
+          equipamentoId: id,
+          dataHoraPrevista: Timestamp.fromDate(dt),
+          turno: h < 12 ? 'manha' : h < 18 ? 'tarde' : 'noite',
+          status: 'pendente' as StatusLeituraPrevista,
+          leituraId: null,
+        });
+        previstasGeradas += 1;
+      }
+    }
+  }
+
+  await batch.commit();
+  return {
+    termometrosCriados: termometros.length,
+    equipamentosCriados: equipamentoIds.length,
+    previstasGeradas,
+  };
 }
