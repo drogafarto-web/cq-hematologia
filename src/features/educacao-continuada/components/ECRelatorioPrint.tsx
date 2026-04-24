@@ -187,7 +187,10 @@ function FR001Body({ payload }: { payload: RelatorioFR001 }) {
         <Row label="Carga horária" value={`${treinamento.cargaHoraria} h`} />
         <Row label="Modalidade" value={MODALIDADE_LABEL[treinamento.modalidade]} />
         <Row label="Unidade" value={UNIDADE_LABEL[treinamento.unidade]} />
-        <Row label="Periodicidade" value={PERIODICIDADE_LABEL[treinamento.periodicidade]} />
+        <Row
+          label="Periodicidade"
+          value={treinamento.periodicidade ? PERIODICIDADE_LABEL[treinamento.periodicidade] : '—'}
+        />
       </Section>
 
       <Section titulo="Execução">
@@ -346,7 +349,9 @@ function FR027Body({ payload }: { payload: RelatorioFR027 }) {
                 <td className="py-1.5 pr-2">{t.tema}</td>
                 <td className="py-1.5 pr-2">{t.cargaHoraria} h</td>
                 <td className="py-1.5 pr-2">{MODALIDADE_LABEL[t.modalidade]}</td>
-                <td className="py-1.5 pr-2">{PERIODICIDADE_LABEL[t.periodicidade]}</td>
+                <td className="py-1.5 pr-2">
+                  {t.periodicidade ? PERIODICIDADE_LABEL[t.periodicidade] : '—'}
+                </td>
                 <td className="py-1.5">{t.responsavel}</td>
               </tr>
             ))}

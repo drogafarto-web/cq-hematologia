@@ -69,6 +69,18 @@ export const ec_gerarCertificado = onCall<unknown, Promise<GerarCertificadoResul
       .get();
     const treinamento = treinamentoSnap.data()!;
 
+    // Fase 10: para tipo='capacitacao_externa' o colaborador já traz
+    // certificado externo anexado ao treinamento — gerar certificado interno
+    // não se aplica (semântica diferente, evita duplicidade documental).
+    // Fallback 'periodico' preserva comportamento de docs antigos.
+    const tipoTreinamento = (treinamento['tipo'] ?? 'periodico') as string;
+    if (tipoTreinamento === 'capacitacao_externa') {
+      throw new HttpsError(
+        'failed-precondition',
+        'Treinamento de capacitação externa já tem certificado anexado pelo colaborador — geração interna não se aplica.',
+      );
+    }
+
     // Config certificado (opcional)
     const configSnap = await db.doc(`educacaoContinuada/${labId}/certificadoConfig/config`).get();
     const config = configSnap.exists ? configSnap.data()! : null;

@@ -469,6 +469,11 @@ export async function parseTreinamentosXlsx(
         responsavel,
         periodicidade,
         ativo,
+        // Fase 10: XLSX atual não tem coluna Tipo — default 'periodico' preserva
+        // semântica anterior (toda linha importada era periódica por convenção).
+        // Débito documentado: adicionar coluna Tipo ao template XLSX para permitir
+        // import de outros tipos regulatórios.
+        tipo: 'periodico',
       },
       datasPlanejadas,
     });

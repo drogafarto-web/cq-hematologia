@@ -55,8 +55,10 @@ import type {
   ExecucaoInput,
   KitIntegracao,
   KitIntegracaoInput,
+  NcOrigemColecao,
   Participante,
   ParticipanteInput,
+  Periodicidade,
   ProgressoTrilha,
   ProgressoTrilhaInput,
   Questao,
@@ -64,6 +66,7 @@ import type {
   StatusAlertaVencimento,
   TemplateTreinamento,
   TemplateTreinamentoInput,
+  TipoTreinamento,
   Treinamento,
   TreinamentoInput,
   TrilhaAprendizado,
@@ -235,8 +238,19 @@ function mapTreinamento(snap: QueryDocumentSnapshot): Treinamento {
     modalidade: d.modalidade as Treinamento['modalidade'],
     unidade: d.unidade as Treinamento['unidade'],
     responsavel: d.responsavel as string,
-    periodicidade: d.periodicidade as Treinamento['periodicidade'],
+    // Periodicidade agora é opcional (Fase 10): obrigatória apenas quando tipo='periodico'.
+    periodicidade: d.periodicidade as Periodicidade | undefined,
     ativo: d.ativo as boolean,
+    // Fase 10 — tipo regulatório. Fallback 'periodico' para docs antigos sem o campo.
+    tipo: (d.tipo ?? 'periodico') as TipoTreinamento,
+    colaboradorAlvoId: d.colaboradorAlvoId as string | undefined,
+    popVersao: d.popVersao as string | undefined,
+    equipamentoNome: d.equipamentoNome as string | undefined,
+    ncOrigemId: d.ncOrigemId as string | undefined,
+    ncOrigemColecao: d.ncOrigemColecao as NcOrigemColecao | undefined,
+    certificadoExternoUrl: d.certificadoExternoUrl as string | undefined,
+    // Bug R4 fix: templateId (Fase 6) nunca era lido do Firestore. Corrigido junto com Fase 10.
+    templateId: d.templateId as string | undefined,
     criadoEm: d.criadoEm as Timestamp,
     deletadoEm: (d.deletadoEm ?? null) as Timestamp | null,
   };
@@ -248,6 +262,10 @@ export async function createTreinamento(
 ): Promise<string> {
   await ensureLabRoot(labId);
   const ref = doc(treinamentosCol(labId));
+  // `ignoreUndefinedProperties: true` está setado em firebase.config.ts — campos
+  // undefined são descartados automaticamente pelo SDK. Mantém o write enxuto
+  // para os tipos que não usam certos campos (ex: capacitacao_externa sem
+  // periodicidade).
   await setDoc(ref, {
     labId,
     titulo: input.titulo,
@@ -258,6 +276,16 @@ export async function createTreinamento(
     responsavel: input.responsavel,
     periodicidade: input.periodicidade,
     ativo: input.ativo,
+    // Fase 10 — tipo regulatório + campos condicionais por tipo
+    tipo: input.tipo,
+    colaboradorAlvoId: input.colaboradorAlvoId,
+    popVersao: input.popVersao,
+    equipamentoNome: input.equipamentoNome,
+    ncOrigemId: input.ncOrigemId,
+    ncOrigemColecao: input.ncOrigemColecao,
+    certificadoExternoUrl: input.certificadoExternoUrl,
+    // Bug R4 fix: persistir templateId (Fase 6) — antes era recebido mas não gravado
+    templateId: input.templateId,
     criadoEm: serverTimestamp(),
     deletadoEm: null,
   });
@@ -293,6 +321,8 @@ export interface SubscribeTreinamentosOptions {
   includeDeleted?: boolean;
   /** Quando true filtra por `ativo === true`. Default: sem filtro. */
   somenteAtivos?: boolean;
+  /** Filtro por tipo regulatório (Fase 10). Default: sem filtro. */
+  tipo?: TipoTreinamento;
 }
 
 /**
@@ -315,9 +345,10 @@ export function subscribeTreinamentos(
     q,
     (snap) => {
       const all = snap.docs.map(mapTreinamento);
-      const filtered = options.includeDeleted
+      let filtered = options.includeDeleted
         ? all
         : all.filter((t) => t.deletadoEm === null);
+      if (options.tipo) filtered = filtered.filter((t) => t.tipo === options.tipo);
       callback(filtered);
     },
     (err) => onError?.(err),

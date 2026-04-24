@@ -1,11 +1,16 @@
-import { useState, type FormEvent } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 
+import { useAvaliacaoCompetencia } from '../hooks/useAvaliacaoCompetencia';
+import { useAvaliacaoEficacia } from '../hooks/useAvaliacaoEficacia';
+import { useColaboradores } from '../hooks/useColaboradores';
 import { useTemplates } from '../hooks/useTemplates';
 import { useTreinamentos } from '../hooks/useTreinamentos';
 import type {
   Modalidade,
+  NcOrigemColecao,
   Periodicidade,
   TemplateTreinamento,
+  TipoTreinamento,
   Treinamento,
   TreinamentoInput,
   Unidade,
@@ -27,8 +32,17 @@ interface FormState {
   modalidade: Modalidade;
   unidade: Unidade;
   responsavel: string;
-  periodicidade: Periodicidade;
+  /** Obrigatória apenas quando `tipo === 'periodico'`. */
+  periodicidade?: Periodicidade;
   ativo: boolean;
+  /** Tipo regulatório (Fase 10). Default 'periodico' em novos cadastros. */
+  tipo: TipoTreinamento;
+  colaboradorAlvoId?: string;
+  popVersao?: string;
+  equipamentoNome?: string;
+  ncOrigemId?: string;
+  ncOrigemColecao?: NcOrigemColecao;
+  certificadoExternoUrl?: string;
   /** ID do template de origem (Fase 6). Só populado via "Criar a partir de template". */
   templateId?: string;
 }
@@ -38,6 +52,10 @@ interface FormErrors {
   tema?: string;
   cargaHoraria?: string;
   responsavel?: string;
+  tipo?: string;
+  periodicidade?: string;
+  ncOrigemId?: string;
+  certificadoExternoUrl?: string;
   submit?: string;
 }
 
@@ -61,6 +79,54 @@ const PERIODICIDADE_OPTIONS: ReadonlyArray<{ value: Periodicidade; label: string
   { value: 'anual', label: 'Anual' },
 ];
 
+interface TipoOption {
+  value: TipoTreinamento;
+  label: string;
+  descricao: string;
+}
+
+const TIPO_OPTIONS: ReadonlyArray<TipoOption> = [
+  {
+    value: 'periodico',
+    label: 'Periódico',
+    descricao: 'Recorrente com frequência definida (RDC 978/2025 Art. 126).',
+  },
+  {
+    value: 'integracao',
+    label: 'Integração',
+    descricao: 'Onboarding de colaborador novo ou transferido (ISO 15189 cl. 6.2.2).',
+  },
+  {
+    value: 'novo_procedimento',
+    label: 'Novo procedimento',
+    descricao: 'Após criação/revisão de POP/MRT (ISO 15189 cl. 5.5).',
+  },
+  {
+    value: 'equipamento',
+    label: 'Equipamento',
+    descricao: 'Implantação ou atualização de equipamento (ISO 15189 cl. 5.3.2).',
+  },
+  {
+    value: 'acao_corretiva',
+    label: 'Ação corretiva',
+    descricao: 'Pós-NC ou reprovação — fecha FR-013 (ISO 15189 cl. 8.7).',
+  },
+  {
+    value: 'pontual',
+    label: 'Pontual',
+    descricao: 'Esporádico sem gatilho fixo (workshop, auditoria).',
+  },
+  {
+    value: 'capacitacao_externa',
+    label: 'Capacitação externa',
+    descricao: 'Curso/congresso fora do lab — certificado externo anexado.',
+  },
+];
+
+const TIPO_DESCRICAO: Record<TipoTreinamento, string> = Object.fromEntries(
+  TIPO_OPTIONS.map((opt) => [opt.value, opt.descricao]),
+) as Record<TipoTreinamento, string>;
+
 function buildInitialState(treinamento?: Treinamento): FormState {
   if (!treinamento) {
     return {
@@ -72,6 +138,7 @@ function buildInitialState(treinamento?: Treinamento): FormState {
       responsavel: '',
       periodicidade: 'anual',
       ativo: true,
+      tipo: 'periodico',
     };
   }
   return {
@@ -83,14 +150,21 @@ function buildInitialState(treinamento?: Treinamento): FormState {
     responsavel: treinamento.responsavel,
     periodicidade: treinamento.periodicidade,
     ativo: treinamento.ativo,
+    tipo: treinamento.tipo,
+    colaboradorAlvoId: treinamento.colaboradorAlvoId,
+    popVersao: treinamento.popVersao,
+    equipamentoNome: treinamento.equipamentoNome,
+    ncOrigemId: treinamento.ncOrigemId,
+    ncOrigemColecao: treinamento.ncOrigemColecao,
+    certificadoExternoUrl: treinamento.certificadoExternoUrl,
     templateId: treinamento.templateId,
   };
 }
 
 /**
  * Aplica um template ao state do form. Herança **não lock** — todos os campos
- * copiados ficam editáveis. Mantém `ativo` e `unidade` do state atual (template
- * não tem esses campos).
+ * copiados ficam editáveis. Mantém `ativo`, `unidade` e `tipo` do state atual
+ * (template não tem esses campos).
  */
 function applyTemplate(template: TemplateTreinamento, current: FormState): FormState {
   return {
@@ -100,7 +174,7 @@ function applyTemplate(template: TemplateTreinamento, current: FormState): FormS
     cargaHoraria: String(template.cargaHoraria),
     modalidade: template.modalidade,
     periodicidade: template.periodicidade,
-    responsavel: current.responsavel, // responsável é do treinamento, não do template
+    responsavel: current.responsavel,
     templateId: template.id,
   };
 }
@@ -121,6 +195,21 @@ function validate(state: FormState): FormErrors {
   if (parseCargaHoraria(state.cargaHoraria) === null) {
     errors.cargaHoraria = 'Informe um número entre 0,1 e 999 horas.';
   }
+  // Validações condicionais por tipo regulatório (Fase 10)
+  if (state.tipo === 'periodico' && !state.periodicidade) {
+    errors.periodicidade = 'Treinamentos periódicos exigem periodicidade.';
+  }
+  if (state.tipo === 'acao_corretiva') {
+    if (!state.ncOrigemId || state.ncOrigemId.trim().length === 0) {
+      errors.ncOrigemId = 'Selecione a avaliação de origem da NC (FR-013).';
+    }
+  }
+  if (state.tipo === 'capacitacao_externa') {
+    const url = state.certificadoExternoUrl?.trim() ?? '';
+    if (url.length === 0) {
+      errors.certificadoExternoUrl = 'URL do certificado externo é obrigatória.';
+    }
+  }
   return errors;
 }
 
@@ -131,6 +220,9 @@ export function TreinamentoForm({
 }: TreinamentoFormProps) {
   const { create, update } = useTreinamentos();
   const { templates } = useTemplates({ somenteAtivos: true });
+  const { colaboradores } = useColaboradores({ somenteAtivos: true });
+  const { avaliacoes: eficacias } = useAvaliacaoEficacia();
+  const { avaliacoes: competencias } = useAvaliacaoCompetencia();
   const isEditing = Boolean(treinamento);
 
   const [state, setState] = useState<FormState>(() => buildInitialState(treinamento));
@@ -144,6 +236,39 @@ export function TreinamentoForm({
     }
   };
 
+  /** Quando tipo muda, limpa campos condicionais incompatíveis do state. */
+  const handleTipoChange = (novoTipo: TipoTreinamento): void => {
+    setState((prev) => ({
+      ...prev,
+      tipo: novoTipo,
+      // Periodicidade só é relevante para 'periodico'. Preserva para 'integracao'
+      // (onboarding pode ter revalidação periódica) — caller decide.
+      periodicidade:
+        novoTipo === 'periodico' || novoTipo === 'integracao' ? prev.periodicidade : undefined,
+      colaboradorAlvoId: novoTipo === 'integracao' ? prev.colaboradorAlvoId : undefined,
+      popVersao: novoTipo === 'novo_procedimento' ? prev.popVersao : undefined,
+      equipamentoNome: novoTipo === 'equipamento' ? prev.equipamentoNome : undefined,
+      ncOrigemId: novoTipo === 'acao_corretiva' ? prev.ncOrigemId : undefined,
+      ncOrigemColecao: novoTipo === 'acao_corretiva' ? prev.ncOrigemColecao : undefined,
+      certificadoExternoUrl:
+        novoTipo === 'capacitacao_externa' ? prev.certificadoExternoUrl : undefined,
+    }));
+    setErrors({});
+  };
+
+  // Opções para select de NC (apenas avaliações "negativas" que geram ação corretiva)
+  const ncEficaciasOptions = useMemo(
+    () => eficacias.filter((a) => a.resultado === 'ineficaz'),
+    [eficacias],
+  );
+  const ncCompetenciasOptions = useMemo(
+    () =>
+      competencias.filter(
+        (a) => a.resultado === 'reprovado' || a.resultado === 'requer_retreinamento',
+      ),
+    [competencias],
+  );
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
 
@@ -154,7 +279,6 @@ export function TreinamentoForm({
     }
 
     const cargaHoraria = parseCargaHoraria(state.cargaHoraria);
-    // validate() já garante não-nulo, mas narrow TS aqui
     if (cargaHoraria === null) return;
 
     const input: TreinamentoInput = {
@@ -166,7 +290,14 @@ export function TreinamentoForm({
       responsavel: state.responsavel.trim(),
       periodicidade: state.periodicidade,
       ativo: state.ativo,
-      ...(state.templateId ? { templateId: state.templateId } : {}),
+      tipo: state.tipo,
+      colaboradorAlvoId: state.colaboradorAlvoId,
+      popVersao: state.popVersao?.trim() || undefined,
+      equipamentoNome: state.equipamentoNome?.trim() || undefined,
+      ncOrigemId: state.ncOrigemId,
+      ncOrigemColecao: state.ncOrigemColecao,
+      certificadoExternoUrl: state.certificadoExternoUrl?.trim() || undefined,
+      templateId: state.templateId,
     };
 
     setIsSaving(true);
@@ -185,6 +316,13 @@ export function TreinamentoForm({
       setIsSaving(false);
     }
   };
+
+  const mostraPeriodicidade = state.tipo === 'periodico' || state.tipo === 'integracao';
+  const mostraColaboradorAlvo = state.tipo === 'integracao';
+  const mostraPopVersao = state.tipo === 'novo_procedimento';
+  const mostraEquipamento = state.tipo === 'equipamento';
+  const mostraAcaoCorretiva = state.tipo === 'acao_corretiva';
+  const mostraCertificadoExterno = state.tipo === 'capacitacao_externa';
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
@@ -256,6 +394,24 @@ export function TreinamentoForm({
         />
       </Field>
 
+      <Field id="treinamento-tipo" label="Tipo regulatório" required error={errors.tipo}>
+        <select
+          id="treinamento-tipo"
+          value={state.tipo}
+          onChange={(e) => handleTipoChange(e.target.value as TipoTreinamento)}
+          disabled={isSaving}
+          aria-label="Tipo regulatório do treinamento"
+          className={selectClass()}
+        >
+          {TIPO_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <p className="mt-1 text-xs text-slate-500">{TIPO_DESCRICAO[state.tipo]}</p>
+      </Field>
+
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field
           id="treinamento-carga"
@@ -292,7 +448,7 @@ export function TreinamentoForm({
         </Field>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field id="treinamento-modalidade" label="Modalidade">
           <select
             id="treinamento-modalidade"
@@ -326,16 +482,29 @@ export function TreinamentoForm({
             ))}
           </select>
         </Field>
+      </div>
 
-        <Field id="treinamento-periodicidade" label="Periodicidade">
+      {mostraPeriodicidade && (
+        <Field
+          id="treinamento-periodicidade"
+          label={state.tipo === 'periodico' ? 'Periodicidade' : 'Periodicidade (revalidação)'}
+          required={state.tipo === 'periodico'}
+          error={errors.periodicidade}
+        >
           <select
             id="treinamento-periodicidade"
-            value={state.periodicidade}
-            onChange={(e) => handleChange('periodicidade', e.target.value as Periodicidade)}
+            value={state.periodicidade ?? ''}
+            onChange={(e) =>
+              handleChange(
+                'periodicidade',
+                (e.target.value || undefined) as Periodicidade | undefined,
+              )
+            }
             disabled={isSaving}
             aria-label="Periodicidade do treinamento"
             className={selectClass()}
           >
+            {state.tipo !== 'periodico' && <option value="">— Sem periodicidade —</option>}
             {PERIODICIDADE_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
@@ -343,7 +512,167 @@ export function TreinamentoForm({
             ))}
           </select>
         </Field>
-      </div>
+      )}
+
+      {mostraColaboradorAlvo && (
+        <Field
+          id="treinamento-colab-alvo"
+          label="Colaborador alvo (opcional)"
+        >
+          <select
+            id="treinamento-colab-alvo"
+            value={state.colaboradorAlvoId ?? ''}
+            onChange={(e) => handleChange('colaboradorAlvoId', e.target.value || undefined)}
+            disabled={isSaving}
+            aria-label="Colaborador alvo da integração"
+            className={selectClass()}
+          >
+            <option value="">— Genérico (por cargo) —</option>
+            {colaboradores.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.nome} · {c.cargo}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs text-slate-500">
+            Se deixar em branco, trilha de integração por cargo (Fase 7) pega automaticamente.
+          </p>
+        </Field>
+      )}
+
+      {mostraPopVersao && (
+        <Field
+          id="treinamento-pop"
+          label="POP / MRT (versão)"
+        >
+          <input
+            id="treinamento-pop"
+            type="text"
+            value={state.popVersao ?? ''}
+            onChange={(e) => handleChange('popVersao', e.target.value || undefined)}
+            disabled={isSaving}
+            placeholder="Ex: POP-012 Rev.03"
+            aria-label="Referência do POP ou MRT"
+            className={inputClass(false)}
+          />
+        </Field>
+      )}
+
+      {mostraEquipamento && (
+        <Field
+          id="treinamento-equip"
+          label="Equipamento (nome/identificação)"
+        >
+          <input
+            id="treinamento-equip"
+            type="text"
+            value={state.equipamentoNome ?? ''}
+            onChange={(e) => handleChange('equipamentoNome', e.target.value || undefined)}
+            disabled={isSaving}
+            placeholder="Ex: Sysmex XN-550 #SN12345"
+            aria-label="Nome do equipamento"
+            className={inputClass(false)}
+          />
+          <p className="mt-1 text-xs text-slate-500">
+            Texto livre — sem acoplamento ao módulo de equipamentos.
+          </p>
+        </Field>
+      )}
+
+      {mostraAcaoCorretiva && (
+        <div className="flex flex-col gap-4 rounded-lg border border-red-500/30 bg-red-500/5 p-4">
+          <p className="text-xs uppercase tracking-wider text-red-300">
+            Origem da NC (obrigatório — FR-013)
+          </p>
+          <Field id="treinamento-nc-col" label="Coleção de origem" required>
+            <select
+              id="treinamento-nc-col"
+              value={state.ncOrigemColecao ?? ''}
+              onChange={(e) => {
+                const col = (e.target.value || undefined) as NcOrigemColecao | undefined;
+                setState((prev) => ({
+                  ...prev,
+                  ncOrigemColecao: col,
+                  ncOrigemId: undefined,
+                }));
+              }}
+              disabled={isSaving}
+              aria-label="Tipo de avaliação que gerou a NC"
+              className={selectClass()}
+            >
+              <option value="">— Selecione —</option>
+              <option value="avaliacoesEficacia">Avaliação de eficácia (ineficaz)</option>
+              <option value="avaliacoesCompetencia">
+                Avaliação de competência (reprovado/requer retreinamento)
+              </option>
+            </select>
+          </Field>
+          {state.ncOrigemColecao && (
+            <Field
+              id="treinamento-nc-id"
+              label="Avaliação específica"
+              required
+              error={errors.ncOrigemId}
+            >
+              <select
+                id="treinamento-nc-id"
+                value={state.ncOrigemId ?? ''}
+                onChange={(e) => handleChange('ncOrigemId', e.target.value || undefined)}
+                disabled={isSaving}
+                aria-label="Avaliação específica da NC"
+                className={selectClass()}
+              >
+                <option value="">— Selecione a avaliação —</option>
+                {state.ncOrigemColecao === 'avaliacoesEficacia'
+                  ? ncEficaciasOptions.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.dataAvaliacao.toDate().toLocaleDateString('pt-BR')} ·{' '}
+                        {a.evidencia.slice(0, 60)}
+                        {a.evidencia.length > 60 ? '…' : ''}
+                      </option>
+                    ))
+                  : ncCompetenciasOptions.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.dataAvaliacao.toDate().toLocaleDateString('pt-BR')} · {a.resultado}
+                      </option>
+                    ))}
+              </select>
+              {(state.ncOrigemColecao === 'avaliacoesEficacia'
+                ? ncEficaciasOptions
+                : ncCompetenciasOptions
+              ).length === 0 && (
+                <p className="mt-1 text-xs text-amber-300">
+                  Nenhuma avaliação negativa encontrada nesta coleção.
+                </p>
+              )}
+            </Field>
+          )}
+        </div>
+      )}
+
+      {mostraCertificadoExterno && (
+        <Field
+          id="treinamento-cert-ext"
+          label="URL do certificado externo"
+          required
+          error={errors.certificadoExternoUrl}
+        >
+          <input
+            id="treinamento-cert-ext"
+            type="url"
+            value={state.certificadoExternoUrl ?? ''}
+            onChange={(e) => handleChange('certificadoExternoUrl', e.target.value || undefined)}
+            disabled={isSaving}
+            placeholder="https://..."
+            aria-label="URL do certificado externo"
+            className={inputClass(Boolean(errors.certificadoExternoUrl))}
+          />
+          <p className="mt-1 text-xs text-slate-500">
+            Upload para Firebase Storage é suportado pela infraestrutura (Fase 6) — por ora,
+            informe URL pública. Upload inline fica como melhoria futura.
+          </p>
+        </Field>
+      )}
 
       <label className="flex items-center gap-3 text-sm text-slate-200 select-none">
         <input
@@ -385,4 +714,3 @@ export function TreinamentoForm({
     </form>
   );
 }
-

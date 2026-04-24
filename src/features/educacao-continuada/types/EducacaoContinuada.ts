@@ -11,6 +11,30 @@ export type Periodicidade =
   | 'semestral'
   | 'anual';
 
+/**
+ * Tipo regulatório do treinamento (ISO 15189:2022 cl. 6.2 + RDC 978/2025).
+ *
+ * Cada tipo tem gatilho e obrigação regulatória distinta:
+ *   - `periodico`             — recorrente com periodicidade obrigatória (Art. 126)
+ *   - `integracao`            — onboarding de colaborador novo (cl. 6.2.2)
+ *   - `novo_procedimento`    — após criação/revisão de POP/MRT (cl. 5.5)
+ *   - `equipamento`           — implantação ou atualização de equipamento (cl. 5.3.2)
+ *   - `acao_corretiva`        — pós-NC (cl. 8.7 + FR-013); exige ncOrigemId + ncOrigemColecao
+ *   - `pontual`               — esporádico sem gatilho fixo
+ *   - `capacitacao_externa`   — curso/congresso externo; exige certificadoExternoUrl
+ */
+export type TipoTreinamento =
+  | 'periodico'
+  | 'integracao'
+  | 'novo_procedimento'
+  | 'equipamento'
+  | 'acao_corretiva'
+  | 'pontual'
+  | 'capacitacao_externa';
+
+/** Coleção alvo da FK `ncOrigemId` — par obrigatório quando tipo='acao_corretiva'. */
+export type NcOrigemColecao = 'avaliacoesEficacia' | 'avaliacoesCompetencia';
+
 export type ExecucaoStatus = 'planejado' | 'realizado' | 'adiado' | 'cancelado';
 
 export type ResultadoEficacia = 'eficaz' | 'ineficaz';
@@ -51,8 +75,25 @@ export interface Treinamento {
   modalidade: Modalidade;
   unidade: Unidade;
   responsavel: string;
-  periodicidade: Periodicidade;
+  /** Obrigatória apenas quando `tipo === 'periodico'`. Omitida nos demais tipos. */
+  periodicidade?: Periodicidade;
   ativo: boolean;
+  /**
+   * Tipo regulatório (Fase 10). Documentos antigos sem este campo são mapeados
+   * como `'periodico'` para preservar comportamento pré-Fase 10.
+   */
+  tipo: TipoTreinamento;
+  /** Usado por tipo='integracao' — colaborador específico alvo do onboarding. */
+  colaboradorAlvoId?: string;
+  /** Usado por tipo='novo_procedimento' — ex: "POP-012 Rev.03". */
+  popVersao?: string;
+  /** Usado por tipo='equipamento' — string livre, ex: "Sysmex XN-550 #SN12345" (sem FK cross-module). */
+  equipamentoNome?: string;
+  /** Par obrigatório com ncOrigemColecao quando tipo='acao_corretiva' (FR-013). */
+  ncOrigemId?: string;
+  ncOrigemColecao?: NcOrigemColecao;
+  /** Obrigatório quando tipo='capacitacao_externa' — URL externa ou Firebase Storage. */
+  certificadoExternoUrl?: string;
   /** ID do template de origem (Fase 6). Marker — herança não-locked, campos editáveis. */
   templateId?: string;
   readonly criadoEm: Timestamp;

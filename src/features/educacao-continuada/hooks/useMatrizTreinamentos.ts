@@ -98,11 +98,15 @@ export function useMatrizTreinamentos(
     [colaboradoresHook.colaboradores],
   );
 
+  // Fase 10: Matriz só faz sentido para treinamentos com ciclo recorrente.
+  // Tipos pontual/novo_procedimento/equipamento/acao_corretiva/capacitacao_externa
+  // são event-triggered — não entram no dashboard semáforo.
+
   const treinamentos = useMemo(
     () =>
-      [...treinamentosHook.treinamentos].sort((a, b) =>
-        a.titulo.localeCompare(b.titulo, 'pt-BR'),
-      ),
+      treinamentosHook.treinamentos
+        .filter((t) => t.tipo === 'periodico' || t.tipo === 'integracao')
+        .sort((a, b) => a.titulo.localeCompare(b.titulo, 'pt-BR')),
     [treinamentosHook.treinamentos],
   );
 
@@ -153,7 +157,11 @@ export function useMatrizTreinamentos(
           };
         }
 
-        const meses = MESES_POR_PERIODICIDADE[t.periodicidade];
+        // Fase 10: após o filter acima, só entram tipos `periodico`|`integracao`.
+        // Ambos exigem periodicidade por contrato da UI — mas para tipo `integracao`
+        // a periodicidade pode estar ausente (revalidação opcional). Nesse caso
+        // cai para `'anual'` como fallback seguro — onboarding sem renovação explícita.
+        const meses = MESES_POR_PERIODICIDADE[t.periodicidade ?? 'anual'];
         const proximo = addMonths(ultima, meses);
         const dias = Math.ceil((proximo.toMillis() - hojeMillis) / MS_POR_DIA);
 
