@@ -5,6 +5,7 @@ import { useTreinamentos } from '../hooks/useTreinamentos';
 import type {
   Execucao,
   ExecucaoStatus,
+  TipoTreinamento,
   Treinamento,
 } from '../types/EducacaoContinuada';
 
@@ -22,6 +23,45 @@ const STATUS_LABEL: Record<ExecucaoStatus, string> = {
   realizado: 'Realizada',
   adiado: 'Adiada',
   cancelado: 'Cancelada',
+};
+
+// Fase 10 — badge de tipo regulatório na coluna de título (Opção A, sem tocar STATUS_DOT).
+const TIPO_BADGE: Record<TipoTreinamento, { cls: string; label: string; titulo: string }> = {
+  periodico: {
+    cls: 'border-blue-500/40 bg-blue-500/10 text-blue-300',
+    label: 'Per.',
+    titulo: 'Periódico — RDC 978/2025 Art. 126',
+  },
+  integracao: {
+    cls: 'border-purple-500/40 bg-purple-500/10 text-purple-300',
+    label: 'Int.',
+    titulo: 'Integração — ISO 15189 cl. 6.2.2',
+  },
+  novo_procedimento: {
+    cls: 'border-amber-500/40 bg-amber-500/10 text-amber-300',
+    label: 'POP',
+    titulo: 'Novo procedimento — ISO 15189 cl. 5.5',
+  },
+  equipamento: {
+    cls: 'border-orange-500/40 bg-orange-500/10 text-orange-300',
+    label: 'Eq.',
+    titulo: 'Equipamento — ISO 15189 cl. 5.3.2',
+  },
+  acao_corretiva: {
+    cls: 'border-red-500/40 bg-red-500/10 text-red-300',
+    label: 'A.C.',
+    titulo: 'Ação corretiva — ISO 15189 cl. 8.7 (FR-013)',
+  },
+  pontual: {
+    cls: 'border-slate-600 bg-slate-800/60 text-slate-300',
+    label: 'Pon.',
+    titulo: 'Pontual — esporádico sem gatilho fixo',
+  },
+  capacitacao_externa: {
+    cls: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300',
+    label: 'Ext.',
+    titulo: 'Capacitação externa — ISO 15189 cl. 6.2.4',
+  },
 };
 
 export interface ECCronogramaProps {
@@ -141,9 +181,17 @@ export function ECCronograma({
                   <td className="sticky left-0 z-10 bg-slate-900/60 px-4 py-2.5 group-hover:bg-slate-900/80">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex min-w-0 flex-1 flex-col">
-                        <span className="truncate text-sm font-medium text-slate-100">{t.titulo}</span>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`shrink-0 rounded-full border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${TIPO_BADGE[t.tipo].cls}`}
+                            title={TIPO_BADGE[t.tipo].titulo}
+                          >
+                            {TIPO_BADGE[t.tipo].label}
+                          </span>
+                          <span className="truncate text-sm font-medium text-slate-100">{t.titulo}</span>
+                        </div>
                         <span className="text-[11px] text-slate-500">
-                          {t.periodicidade} · {t.cargaHoraria}h
+                          {t.periodicidade ? `${t.periodicidade} · ` : ''}{t.cargaHoraria}h
                         </span>
                       </div>
                       <div className="flex shrink-0 items-center gap-1">

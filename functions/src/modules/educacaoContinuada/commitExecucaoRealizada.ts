@@ -22,7 +22,8 @@ interface CommitRealizadaResult {
   ok: true;
   execucaoId: string;
   participanteIds: string[];
-  alertaId: string;
+  /** `null` quando treinamento não é `periodico`/`integracao` (Fase 10) — sem ciclo recorrente. */
+  alertaId: string | null;
 }
 
 export const ec_commitExecucaoRealizada = onCall<
@@ -54,7 +55,10 @@ export const ec_commitExecucaoRealizada = onCall<
   if (!treinSnap.exists || treinSnap.data()?.['deletadoEm'] !== null) {
     throw new HttpsError('not-found', 'Treinamento não encontrado ou arquivado.');
   }
-  const periodicidade = treinSnap.data()?.['periodicidade'] as string;
+  const periodicidade = treinSnap.data()?.['periodicidade'] as string | undefined;
+  // Fase 10: fallback 'periodico' preserva comportamento pré-Fase 10 para docs
+  // antigos sem o campo `tipo` (continuam gerando alerta).
+  const tipoTreinamento = (treinSnap.data()?.['tipo'] ?? 'periodico') as string;
 
   // Validar colaboradores existem e ativos (1 read por colaborador, paralelo)
   const colaboradoresCol = ecCollection(db, input.labId, 'colaboradores');
@@ -123,8 +127,20 @@ export const ec_commitExecucaoRealizada = onCall<
     return { ref, colaboradorId: p.colaboradorId, presente: p.presente, assinatura };
   });
 
-  const dataVencimento = calcularDataVencimento(dataAplicacaoTs, periodicidade);
-  const alertaRef = ecCollection(db, input.labId, 'alertasVencimento').doc();
+  // Fase 10 (RN-05): alerta de vencimento só faz sentido para treinamentos com
+  // ciclo recorrente. Outros tipos (pontual, capacitacao_externa,
+  // novo_procedimento, equipamento, acao_corretiva) são event-triggered e não
+  // geram próxima aplicação automaticamente.
+  const tipoGeraAlerta = tipoTreinamento === 'periodico' || tipoTreinamento === 'integracao';
+  const temPeriodicidade = typeof periodicidade === 'string' && periodicidade.length > 0;
+  const deveCriarAlerta = tipoGeraAlerta && temPeriodicidade;
+
+  const dataVencimento = deveCriarAlerta
+    ? calcularDataVencimento(dataAplicacaoTs, periodicidade as string)
+    : null;
+  const alertaRef = deveCriarAlerta
+    ? ecCollection(db, input.labId, 'alertasVencimento').doc()
+    : null;
 
   // Batch atomic
   const batch = db.batch();
@@ -161,13 +177,15 @@ export const ec_commitExecucaoRealizada = onCall<
     });
   }
 
-  batch.set(alertaRef, {
-    labId: input.labId,
-    treinamentoId: input.treinamentoId,
-    dataVencimento,
-    status: 'pendente',
-    diasAntecedencia: input.diasAntecedenciaAlerta,
-  });
+  if (alertaRef && dataVencimento) {
+    batch.set(alertaRef, {
+      labId: input.labId,
+      treinamentoId: input.treinamentoId,
+      dataVencimento,
+      status: 'pendente',
+      diasAntecedencia: input.diasAntecedenciaAlerta,
+    });
+  }
 
   await batch.commit();
 
@@ -181,7 +199,9 @@ export const ec_commitExecucaoRealizada = onCall<
         execucaoId: execRef.id,
         treinamentoId: input.treinamentoId,
         participanteCount: participantesPlan.length,
-        alertaId: alertaRef.id,
+        alertaId: alertaRef?.id ?? null,
+        tipoTreinamento,
+        alertaSkipped: !deveCriarAlerta,
       },
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
     })
@@ -191,6 +211,6 @@ export const ec_commitExecucaoRealizada = onCall<
     ok: true,
     execucaoId: execRef.id,
     participanteIds: participantesPlan.map((p) => p.ref.id),
-    alertaId: alertaRef.id,
+    alertaId: alertaRef?.id ?? null,
   };
 });

@@ -33,7 +33,8 @@ export interface AdiarExecucaoParams {
 export interface CommitExecucaoRealizadaResult {
   execucaoId: string;
   participanteIds: string[];
-  alertaId: string;
+  /** `null` quando treinamento não é `periodico`/`integracao` (Fase 10). */
+  alertaId: string | null;
 }
 
 export interface CommitExecucaoAdiadaResult {
@@ -74,7 +75,7 @@ interface CommitRealizadaResp {
   ok: true;
   execucaoId: string;
   participanteIds: string[];
-  alertaId: string;
+  alertaId: string | null;
 }
 
 interface CommitAdiadaWire {

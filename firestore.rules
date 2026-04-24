@@ -668,6 +668,11 @@ service cloud.firestore {
       }
 
       // ── Treinamentos (FR-027) ─────────────────────────────────────────
+      // Fase 10 (2026-04-24): `tipo` regulatório obrigatório (ISO 15189 cl. 6.2);
+      // `periodicidade` condicional (obrigatória apenas quando tipo='periodico');
+      // par `ncOrigemId` + `ncOrigemColecao` obrigatório para tipo='acao_corretiva'
+      // (FR-013, cl. 8.7); `certificadoExternoUrl` obrigatório para
+      // tipo='capacitacao_externa'.
       match /treinamentos/{id} {
         allow read: if canReadEc();
         allow create: if canWriteEc()
@@ -678,8 +683,11 @@ service cloud.firestore {
                       && request.resource.data.cargaHoraria > 0
                       && request.resource.data.modalidade in ['presencial', 'online', 'em_servico']
                       && request.resource.data.unidade in ['fixa', 'itinerante', 'ambas']
-                      && request.resource.data.periodicidade in ['mensal', 'bimestral', 'trimestral', 'semestral', 'anual']
-                      && request.resource.data.ativo is bool;
+                      && request.resource.data.ativo is bool
+                      && request.resource.data.tipo in ['periodico', 'integracao', 'novo_procedimento', 'equipamento', 'acao_corretiva', 'pontual', 'capacitacao_externa']
+                      && (request.resource.data.tipo != 'periodico' || request.resource.data.periodicidade in ['mensal', 'bimestral', 'trimestral', 'semestral', 'anual'])
+                      && (request.resource.data.tipo != 'acao_corretiva' || (request.resource.data.ncOrigemId is string && request.resource.data.ncOrigemColecao in ['avaliacoesEficacia', 'avaliacoesCompetencia']))
+                      && (request.resource.data.tipo != 'capacitacao_externa' || request.resource.data.certificadoExternoUrl is string);
         allow update: if canWriteEc()
                       && keepsLabId()
                       && keepsCreatedAt();

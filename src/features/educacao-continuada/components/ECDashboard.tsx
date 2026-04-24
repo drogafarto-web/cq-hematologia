@@ -447,6 +447,10 @@ function groupByPeriodicidade(
   const buckets = new Map<Periodicidade, Treinamento[]>();
   for (const p of ORDER) buckets.set(p, []);
   for (const t of list) {
+    // Fase 10: periodicidade opcional. Treinamentos sem periodicidade
+    // (tipo != periodico) ficam fora do agrupamento — view "Cards" é por
+    // periodicidade e não faz sentido para tipos event-triggered.
+    if (!t.periodicidade) continue;
     const bucket = buckets.get(t.periodicidade);
     if (bucket) bucket.push(t);
   }
