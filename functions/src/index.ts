@@ -97,6 +97,50 @@ export {
 // server é a fonte de verdade regulatória (RDC 978/2025 Art.128).
 export { onHematologiaRunComplianceCheck } from './modules/compliance/index';
 
+// ─── controleTemperatura module (FR-11 / PQ-06) ──────────────────────────────
+// registrarLeituraIoT            — HTTP público consumido por ESP32/sensores.
+//                                  Autentica via hash SHA-256 do X-Device-Token,
+//                                  grava leitura + NC automática em batch,
+//                                  marca LeituraPrevista próxima como realizada.
+// scheduledGenerateLeiturasPrevistas — 01:00 SP diário, gera previsões do
+//                                      próximo dia por equipamento ativo (RN-03).
+// scheduledMarcarLeiturasPerdidas    — a cada 30min, marca previsões pendentes
+//                                      com >1h de atraso como 'perdida' (RN-04).
+export {
+  registrarLeituraIoT,
+  scheduledGenerateLeiturasPrevistas,
+  scheduledMarcarLeiturasPerdidas,
+} from './modules/ctIoT/index';
+
+// ─── educacaoContinuada module (Fase 0b — 2026-04-24) ────────────────────────
+// 6 callables que migram a geração de assinatura de client-side (compliance
+// theater — RDC 978 reprovaria) para server-side. Hooks do módulo passam a
+// chamar estas callables; service layer fica intocada para rollback.
+//   ec_mintSignature              — assinatura em lote (ExecucaoForm + Import XLSX)
+//   ec_commitExecucaoRealizada    — RN-03 + RN-05, batch atomic (exec + N participantes + alerta)
+//   ec_commitExecucaoAdiada       — RN-01, batch atomic
+//   ec_registrarAvaliacaoEficacia — RN-02 (ineficaz+fechar exige acaoCorretiva)
+//   ec_fecharAvaliacaoEficacia    — re-aplica RN-02 na transição
+//   ec_registrarAvaliacaoCompetencia — ISO 15189 + auto-injeta avaliadorId
+export {
+  ec_mintSignature,
+  ec_commitExecucaoRealizada,
+  ec_commitExecucaoAdiada,
+  ec_registrarAvaliacaoEficacia,
+  ec_fecharAvaliacaoEficacia,
+  ec_registrarAvaliacaoCompetencia,
+  // Fase 8 — Banco de Questões + correção server-side (RN-10)
+  ec_criarQuestao,
+  ec_arquivarQuestao,
+  ec_submeterTeste,
+  // Fase 9 — Certificados + alertas email
+  ec_gerarCertificado,
+  validarCertificadoEc,
+  ec_scheduledAlertasVencimento,
+  // Fase 7 trigger — RN-08 server-side (substitui observer client em 2026-04-24)
+  ec_onColaboradorCreated,
+} from './modules/educacaoContinuada/index';
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**

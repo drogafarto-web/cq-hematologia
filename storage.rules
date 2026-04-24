@@ -83,6 +83,45 @@ service firebase.storage {
       allow delete:        if isSuperAdmin() || (isActiveMember() && isAdminOrOwner());
     }
 
+    // ── Controle de Temperatura: certificados de calibração de termômetros ──
+    // Qualquer membro ativo pode ler + anexar certificados. Apenas admin/owner
+    // pode deletar — mesmo modelo defensivo das imagens de runs. Path
+    // segue o padrão `labs/{labId}/controle-temperatura/calibracoes/{file}`.
+    match /labs/{labId}/controle-temperatura/{allPaths=**} {
+
+      function isAuth() {
+        return request.auth != null;
+      }
+
+      function isSuperAdmin() {
+        return isAuth() &&
+          firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
+          firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isSuperAdmin == true;
+      }
+
+      function isActiveMember() {
+        let memberPath = /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid);
+        return isAuth() &&
+          firestore.exists(memberPath) &&
+          firestore.get(memberPath).data.active == true;
+      }
+
+      function getMemberRole() {
+        return firestore.get(
+          /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid)
+        ).data.role;
+      }
+
+      function isAdminOrOwner() {
+        let role = getMemberRole();
+        return role == 'admin' || role == 'owner';
+      }
+
+      allow read:          if isSuperAdmin() || isActiveMember();
+      allow create, update: if isSuperAdmin() || isActiveMember();
+      allow delete:        if isSuperAdmin() || (isActiveMember() && isAdminOrOwner());
+    }
+
     // ── CIQ-Imuno strip images: any active member uploads, admin/owner deletes
     // Mirrors the hematology /runs override so operators can attach strip
     // photos without admin role. See storagePath.imunoStripImage().
@@ -120,6 +159,59 @@ service firebase.storage {
       allow read:          if isSuperAdmin() || isActiveMember();
       allow create, update: if isSuperAdmin() || isActiveMember();
       allow delete:        if isSuperAdmin() || (isActiveMember() && isAdminOrOwner());
+    }
+
+    // ── Educação Continuada: materiais didáticos (Fase 6 — 2026-04-24) ────────
+    // Path: educacaoContinuada/{labId}/materiais/{templateId}/{filename}
+    // Escritas exigem:
+    //   - auth + claim modules['educacao-continuada']
+    //   - member ativo do lab
+    //   - tamanho ≤ 50MB (cap server-side duplica o check client-side)
+    //   - MIME em {application/pdf, video/*, image/jpeg, image/png}
+
+    match /educacaoContinuada/{labId}/materiais/{templateId}/{filename} {
+
+      function isAuth() {
+        return request.auth != null;
+      }
+
+      function hasEcModuleClaim() {
+        return isAuth() &&
+          request.auth.token.modules != null &&
+          request.auth.token.modules['educacao-continuada'] == true;
+      }
+
+      function isActiveMember() {
+        let memberPath = /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid);
+        return isAuth() &&
+          firestore.exists(memberPath) &&
+          firestore.get(memberPath).data.active == true;
+      }
+
+      function isSuperAdmin() {
+        return isAuth() &&
+          firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
+          firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isSuperAdmin == true;
+      }
+
+      function isAllowedContentType() {
+        return request.resource.contentType.matches('application/pdf')
+            || request.resource.contentType.matches('video/.*')
+            || request.resource.contentType.matches('image/jpeg')
+            || request.resource.contentType.matches('image/png');
+      }
+
+      function isAllowedSize() {
+        return request.resource.size <= 50 * 1024 * 1024;
+      }
+
+      allow read: if isSuperAdmin() || (hasEcModuleClaim() && isActiveMember());
+
+      allow create, update: if (isSuperAdmin() || (hasEcModuleClaim() && isActiveMember()))
+                            && isAllowedContentType()
+                            && isAllowedSize();
+
+      allow delete: if isSuperAdmin() || (hasEcModuleClaim() && isActiveMember());
     }
   }
 }

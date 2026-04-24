@@ -1,0 +1,53 @@
+{
+  "description": "Dados mockados para o smoke test — usar onde a UI exigir input mas os valores não importam para a asserção.",
+  "produto_hematologia": {
+    "modulo": "hematologia",
+    "tipo": "controle",
+    "fabricante": "SMOKE_Bio-Rad",
+    "nomeComercial": "SMOKE_Multiqual Test",
+    "nivelDefault": 2,
+    "estabilidadeDias": 30,
+    "registroAnvisa": "SMOKE-10345678901"
+  },
+  "produto_reagente": {
+    "modulo": "imunologia",
+    "tipo": "reagente",
+    "fabricante": "SMOKE_Siemens",
+    "nomeComercial": "SMOKE_HIV Combi Test",
+    "estabilidadeDias": 14,
+    "registroAnvisa": "SMOKE-10345678902"
+  },
+  "fornecedor": {
+    "razaoSocial": "SMOKE_Distribuidora Lab LTDA",
+    "cnpj": "12.345.678/0001-90",
+    "email": "smoke@test.local",
+    "telefone": "(32) 99999-0000",
+    "endereco": "Rua Mock, 123 — Centro — Rio Pomba/MG"
+  },
+  "nota_fiscal": {
+    "numero": "SMOKE-NF-000001",
+    "dataEmissao": "2026-04-01",
+    "valorTotal": 1000.00
+  },
+  "equipamento": {
+    "modulo": "hematologia",
+    "nome": "SMOKE_Yumizen H550 Teste",
+    "modelo": "Yumizen H550",
+    "fabricante": "SMOKE_HORIBA",
+    "numeroSerie": "SMOKE-SN-2026",
+    "anoFabricacao": 2024,
+    "anoAquisicao": 2026
+  },
+  "strip_imuno": {
+    "testType": "HIV",
+    "observacoes": "Smoke test — resultado esperado low confidence"
+  },
+  "westgard_rules_default": {
+    "1-2s": true,
+    "1-3s": true,
+    "2-2s": true,
+    "R-4s": true,
+    "4-1s": false,
+    "10x": false
+  }
+}

@@ -355,7 +355,8 @@ export type View =
   | 'coagulacao'
   | 'uroanalise'
   | 'insumos'
-  | 'lab-settings';
+  | 'lab-settings'
+  | 'educacao-continuada';
 export type StatsSource = 'manufacturer' | 'internal';
 export type ImageState = 'ready' | 'uploading' | 'none';
 

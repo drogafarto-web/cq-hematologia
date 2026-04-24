@@ -127,6 +127,32 @@ function ImunoIcon() {
   );
 }
 
+function EducacaoIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
+      <path
+        d="M2 7l8-3 8 3-8 3-8-3z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M5 8.5v3.5c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V8.5"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M18 7v4"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 // ─── Module definitions ───────────────────────────────────────────────────────
 
 interface ModuleDef {
@@ -189,6 +215,16 @@ const MODULES: ModuleDef[] = [
     iconColor: 'text-emerald-400',
     status: 'active',
     view: 'ciq-imuno',
+  },
+  {
+    id: 'educacao-continuada',
+    name: 'Educação Continuada',
+    tagline: 'Treinamentos · Competência · FR-001/013/027 · ISO 15189',
+    icon: <EducacaoIcon />,
+    iconBg: 'bg-indigo-500/15',
+    iconColor: 'text-indigo-400',
+    status: 'active',
+    view: 'educacao-continuada',
   },
 ];
 
