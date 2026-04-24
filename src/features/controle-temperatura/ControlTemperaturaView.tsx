@@ -3,6 +3,7 @@ import { lazy, Suspense, useMemo, useState } from 'react';
 import { Timestamp } from '../../shared/services/firebase';
 import { useActiveLab, useActiveLabId, useUser } from '../../store/useAuthStore';
 import { CTDashboard } from './components/CTDashboard';
+import { CTImportXlsx } from './components/CTImportXlsx';
 import { CTIndicadores } from './components/CTIndicadores';
 import { DispositivosIoTList } from './components/DispositivoIoTForm';
 import { EquipamentoForm } from './components/EquipamentoForm';
@@ -34,6 +35,7 @@ import { useEquipamentos } from './hooks/useEquipamentos';
 import { useLeituras } from './hooks/useLeituras';
 import { useLeiturasPrevistas } from './hooks/useLeiturasPrevistas';
 import { useNCs } from './hooks/useNCs';
+import { useTermometros } from './hooks/useTermometros';
 import {
   montarRelatorioFR11,
   type RelatorioFR11,
@@ -228,6 +230,7 @@ function TabEquipamentos() {
   });
 
   const [form, setForm] = useState<EquipamentoMonitorado | 'novo' | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   const cardPor = useMemo(() => {
     const m: Record<string, (typeof cards)[number] | undefined> = {};
@@ -248,7 +251,14 @@ function TabEquipamentos() {
     <div className="space-y-6">
       <SectionHeader
         title="Equipamentos monitorados"
-        actions={<Button onClick={() => setForm('novo')}>+ Novo equipamento</Button>}
+        actions={
+          <>
+            <Button tone="secondary" onClick={() => setImportOpen(true)}>
+              Importar XLSX
+            </Button>
+            <Button onClick={() => setForm('novo')}>+ Novo equipamento</Button>
+          </>
+        }
       />
       {equipamentos.length === 0 ? (
         <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
@@ -314,6 +324,7 @@ function TabEquipamentos() {
           onSubmit={onSubmit}
         />
       ) : null}
+      {importOpen ? <CTImportXlsx open onClose={() => setImportOpen(false)} /> : null}
     </div>
   );
 }
@@ -322,6 +333,7 @@ function TabEquipamentos() {
 
 function TabRelatorios() {
   const { equipamentos } = useEquipamentos();
+  const { termometros } = useTermometros({ includeDeleted: true });
   const { ncs } = useNCs();
 
   const hoje = new Date();
@@ -330,6 +342,9 @@ function TabRelatorios() {
   const [ano, setAno] = useState<number>(hoje.getFullYear());
 
   const eqSelecionado = equipamentos.find((e) => e.id === equipamentoId) ?? equipamentos[0];
+  const termometroVinculado = eqSelecionado
+    ? termometros.find((t) => t.id === eqSelecionado.termometroId) ?? null
+    : null;
 
   const inicio = useMemo(() => {
     const d = new Date(ano, mes - 1, 1, 0, 0, 0);
@@ -348,14 +363,16 @@ function TabRelatorios() {
 
   const [payload, setPayload] = useState<RelatorioFR11 | null>(null);
   const [gerando, setGerando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
 
   async function gerar() {
     if (!eqSelecionado) return;
+    setErro(null);
     setGerando(true);
     try {
       const p = await montarRelatorioFR11({
         equipamento: eqSelecionado,
-        termometro: null,
+        termometro: termometroVinculado,
         mes,
         ano,
         leituras,
@@ -363,6 +380,8 @@ function TabRelatorios() {
         resolveResponsavel: (uid) => uid.slice(0, 6),
       });
       setPayload(p);
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : String(e));
     } finally {
       setGerando(false);
     }
@@ -413,6 +432,13 @@ function TabRelatorios() {
           </Button>
         </div>
       </div>
+
+      {erro ? (
+        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+          <strong>Não foi possível emitir o FR-11:</strong>
+          <p className="mt-1">{erro}</p>
+        </div>
+      ) : null}
 
       {!payload ? (
         <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">

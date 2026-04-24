@@ -72,7 +72,7 @@ export function CTRelatorioPrint({ payload, onClose }: CTRelatorioPrintProps) {
                 labNome={lab?.name ?? '—'}
                 equipamento={payload.equipamento.nome}
                 localizacao={payload.equipamento.localizacao}
-                termometro={payload.termometro?.numeroSerie ?? payload.equipamento.termometroNumeroSerie}
+                termometro={payload.termometro?.numeroSerie ?? '—'}
                 mes={payload.mes}
                 ano={payload.ano}
                 limites={payload.equipamento.limites}
@@ -159,6 +159,27 @@ export function CTRelatorioPrint({ payload, onClose }: CTRelatorioPrintProps) {
                   </div>
                 </div>
               </div>
+              {payload.termometro ? (
+                <div className="avoid-break mt-3 rounded border border-slate-300 bg-slate-50 p-2 text-[10px] leading-snug text-slate-700">
+                  <p className="font-bold">Rastreabilidade metrológica — ISO 15189:2022 cl. 5.3.1</p>
+                  <p>
+                    Termômetro: <span className="font-mono">{payload.termometro.numeroSerie}</span>
+                    {' '}| {payload.termometro.modelo} | Incerteza: ±{payload.termometro.incertezaMedicao}°C
+                  </p>
+                  <p>
+                    Certificado:{' '}
+                    <span className="font-mono">
+                      {payload.termometro.calibracaoAtual.numeroCertificado}
+                    </span>
+                    {' '}(v{payload.termometro.calibracaoAtual.versao}) | Válido até:{' '}
+                    {payload.termometro.calibracaoAtual.dataValidade
+                      .toDate()
+                      .toLocaleDateString('pt-BR')}
+                    {' '}| Emitido por {payload.termometro.calibracaoAtual.laboratorioCalibrador}
+                  </p>
+                </div>
+              ) : null}
+
               <div className="mt-1 flex justify-between text-[10px] text-slate-500">
                 <span>PQ-06 — Gestão de Materiais</span>
                 <span>

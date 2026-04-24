@@ -1,14 +1,17 @@
 /**
- * ControlTemperatura — modelo de dados do módulo FR-11 / PQ-06.
+ * ControlTemperatura — modelo de dados v2 do módulo FR-11 / PQ-06.
+ *
+ * Versão v2 (2026-04-24):
+ *   - `Termometro` agora tem `calibracaoAtual` + `historicoCalibracoes[]`
+ *     (RN-09: renovação encadeada, nunca deleta histórico).
+ *   - `EquipamentoMonitorado.termometroId` é FK real (antes era `termometroNumeroSerie`).
+ *   - `statusCalibracao` derivado: 'valido' | 'vencendo' | 'vencido' (RN-05).
+ *   - Import XLSX em batch (RN-10) — ver ctXlsxService.
  *
  * Conforme:
  *   - RDC 978/2025 (rastreabilidade e guarda de 5 anos)
- *   - ISO 15189:2022 cl. 5.3 (controle ambiental de infraestrutura)
+ *   - ISO 15189:2022 cl. 5.3 (controle ambiental) + cl. 5.3.1 (metrologia)
  *   - ANVISA — Gestão de Materiais e Infraestrutura
- *
- * Todas as entidades carregam `labId` redundantemente para defense-in-depth
- * nas rules e para permitir auditoria cross-tenant via collectionGroup.
- * Deleção é sempre lógica (RN-07) — campo `deletadoEm` nunca omitido.
  */
 
 import type { LabId, LogicalSignature, Timestamp } from './_shared_refs';
@@ -39,11 +42,13 @@ export type LimiteViolado = 'max' | 'min' | 'umidade';
 
 export type StatusNC = 'aberta' | 'em_andamento' | 'resolvida';
 
+/** Estado derivado da calibração vigente do termômetro (RN-05). */
+export type StatusCalibracao = 'valido' | 'vencendo' | 'vencido';
+
 // ─── Configuração ─────────────────────────────────────────────────────────────
 
 export interface ConfiguracaoCalendarioDia {
   obrigatorio: boolean;
-  /** Lista de horários no formato "HH:mm" (24h). Ex: ["08:00", "14:00", "18:00"]. */
   horarios: string[];
 }
 
@@ -66,17 +71,14 @@ export interface LimitesAceitabilidade {
 export interface EquipamentoMonitorado {
   id: string;
   labId: LabId;
-  /** Ex: "Geladeira Reagentes Sala 2". */
   nome: string;
   tipo: TipoEquipamento;
-  /** Ex: "Setor Bioquímica". */
   localizacao: string;
-  /** Número de série do termômetro instalado — vínculo com Termometro.numeroSerie. */
-  termometroNumeroSerie: string;
+  /** FK para `Termometro.id`. Troca rastreável — v1 usava numeroSerie. */
+  termometroId: string;
   limites: LimitesAceitabilidade;
   calendario: ConfiguracaoCalendario;
   status: StatusEquipamento;
-  /** Vincula a um DispositivoIoT se o equipamento tiver coleta automática. */
   dispositivoIoTId?: string;
   observacoes?: string;
   criadoEm: Timestamp;
@@ -96,19 +98,12 @@ export interface DispositivoIoT {
   labId: LabId;
   equipamentoId: string;
   macAddress: string;
-  /** Ex: "ESP32+DHT22". */
   modelo: string;
-  /** Periodicidade nominal. Offline = silêncio > 2× este valor (RN-06). */
   intervaloEnvioMinutos: number;
   ultimaTransmissao: Timestamp | null;
-  /** Derivado por regra (RN-06). Persistido para consulta rápida no dashboard. */
   online: boolean;
   firmwareVersao: string;
-  /**
-   * Hash SHA-256 do token entregue ao ESP32. O token plain-text NUNCA é
-   * armazenado — é exibido uma única vez ao operador na criação e precisa ser
-   * flasheado no firmware. Endpoint IoT autentica comparando hashes.
-   */
+  /** SHA-256 hex (64 chars) do token plain. Plain nunca persistido. */
   tokenAcesso: string;
   ativo: boolean;
   criadoEm: Timestamp;
@@ -130,18 +125,13 @@ export interface LeituraTemperatura {
   turno: TurnoLeitura;
   temperaturaAtual: number;
   umidade?: number;
-  /** Termômetro de máxima — só zerado manualmente após registro. */
   temperaturaMax: number;
-  /** Termômetro de mínima — só zerado manualmente após registro. */
   temperaturaMin: number;
-  /** Derivado automaticamente no service comparando com limites do equipamento. */
   foraDosLimites: boolean;
   origem: OrigemLeitura;
   dispositivoIoTId?: string;
   status: StatusLeitura;
-  /** Preenchido quando status === 'justificada'. */
   justificativaPerdida?: string;
-  /** Obrigatório quando origem === 'manual' (RN-02). */
   assinatura?: LogicalSignature;
   observacao?: string;
   deletadoEm: Timestamp | null;
@@ -161,7 +151,6 @@ export interface LeituraPrevista {
   dataHoraPrevista: Timestamp;
   turno: TurnoLeitura;
   status: StatusLeituraPrevista;
-  /** Preenchido quando status === 'realizada'. */
   leituraId?: string;
 }
 
@@ -192,7 +181,27 @@ export type NCInput = Omit<
   'id' | 'labId' | 'dataAbertura' | 'deletadoEm'
 >;
 
-// ─── Termometro ───────────────────────────────────────────────────────────────
+// ─── Calibração & Termômetro ──────────────────────────────────────────────────
+
+/**
+ * Certificado de calibração emitido por laboratório de metrologia credenciado
+ * (ISO 15189:2022 cl. 5.3.1). Cada renovação cria nova versão, a anterior é
+ * arquivada (RN-09) mas nunca deletada — rastreabilidade metrológica integral.
+ */
+export interface CertificadoCalibracao {
+  versao: number;
+  dataEmissao: Timestamp;
+  dataValidade: Timestamp;
+  /** Download URL do Firebase Storage (PDF). Opcional na criação — upload depois. */
+  certificadoUrl?: string;
+  laboratorioCalibrador: string;
+  /** Identificador emitido pelo laboratório (ex: CERT-2026-TM0012). */
+  numeroCertificado: string;
+  /** Preenchido quando esta versão é substituída por outra. */
+  arquivadoEm?: Timestamp;
+}
+
+export type CertificadoCalibracaoInput = Omit<CertificadoCalibracao, 'versao' | 'arquivadoEm'>;
 
 export interface Termometro {
   id: string;
@@ -202,27 +211,35 @@ export interface Termometro {
   fabricante: string;
   /** Incerteza expandida em °C (ex: 0.5 → ±0.5°C). */
   incertezaMedicao: number;
-  dataUltimaCalibracao: Timestamp;
-  proximaCalibracao: Timestamp;
-  /** Download URL do Firebase Storage — certificado PDF. */
-  certificadoUrl?: string;
+  /** Versão vigente da calibração — usada pra checks e rodapé metrológico. */
+  calibracaoAtual: CertificadoCalibracao;
+  /**
+   * Todas as calibrações, incluindo a vigente (v == calibracaoAtual.versao).
+   * Array ordenado por versao asc. Append-only — RN-09 garante.
+   */
+  historicoCalibracoes: CertificadoCalibracao[];
   ativo: boolean;
   criadoEm: Timestamp;
   deletadoEm: Timestamp | null;
 }
 
-export type TermometroInput = Omit<
-  Termometro,
-  'id' | 'labId' | 'criadoEm' | 'deletadoEm'
->;
+/**
+ * Input de criação — caller passa o primeiro certificado sem versao/arquivadoEm
+ * (service atribui versao=1). `numeroSerie/modelo/fabricante/incertezaMedicao` +
+ * `ativo` completam a entidade.
+ */
+export interface TermometroInput {
+  numeroSerie: string;
+  modelo: string;
+  fabricante: string;
+  incertezaMedicao: number;
+  calibracaoAtual: CertificadoCalibracaoInput;
+  ativo: boolean;
+}
 
 // ─── Derivações usadas pelo dashboard ─────────────────────────────────────────
 
-export type StatusCardEquipamento =
-  | 'verde' /* dentro dos limites, última leitura recente */
-  | 'amarelo' /* pendente — última leitura antiga */
-  | 'vermelho' /* fora dos limites OU dispositivo offline */
-  | 'cinza' /* inativo ou em manutenção */;
+export type StatusCardEquipamento = 'verde' | 'amarelo' | 'vermelho' | 'cinza';
 
 export interface CardStatusEquipamento {
   equipamento: EquipamentoMonitorado;

@@ -463,6 +463,7 @@ service cloud.firestore {
                       && request.resource.data.nome is string
                       && request.resource.data.tipo in ['geladeira', 'freezer', 'freezer_ultrabaixo', 'sala', 'banho_maria', 'estufa', 'incubadora', 'outro']
                       && request.resource.data.status in ['ativo', 'manutencao', 'inativo']
+                      && request.resource.data.termometroId is string
                       && request.resource.data.limites is map
                       && request.resource.data.limites.temperaturaMin is number
                       && request.resource.data.limites.temperaturaMax is number
@@ -537,6 +538,12 @@ service cloud.firestore {
       }
 
       // ── Termômetros ───────────────────────────────────────────────────
+      // Schema v2 (2026-04-24): calibração encadeada com histórico imutável.
+      // `calibracaoAtual` sempre presente (versão vigente); `historicoCalibracoes`
+      // append-only — renovação arquiva versão anterior mas jamais remove.
+      // RN-09 é implementada client-side via transaction (não é possível validar
+      // monotonia do histórico em rules). Proteções aqui: soft-delete only,
+      // labId imutável, criadoEm imutável.
       match /termometros/{id} {
         allow read: if canReadCt();
         allow create: if canWriteCt()
@@ -544,12 +551,20 @@ service cloud.firestore {
                       && request.resource.data.deletadoEm == null
                       && request.resource.data.numeroSerie is string
                       && request.resource.data.incertezaMedicao is number
-                      && request.resource.data.dataUltimaCalibracao is timestamp
-                      && request.resource.data.proximaCalibracao is timestamp
+                      && request.resource.data.calibracaoAtual is map
+                      && request.resource.data.calibracaoAtual.versao is number
+                      && request.resource.data.calibracaoAtual.dataEmissao is timestamp
+                      && request.resource.data.calibracaoAtual.dataValidade is timestamp
+                      && request.resource.data.calibracaoAtual.numeroCertificado is string
+                      && request.resource.data.calibracaoAtual.laboratorioCalibrador is string
+                      && request.resource.data.historicoCalibracoes is list
                       && request.resource.data.ativo is bool;
         allow update: if canWriteCt()
                       && ctKeepsLabId()
-                      && request.resource.data.criadoEm == resource.data.criadoEm;
+                      && request.resource.data.criadoEm == resource.data.criadoEm
+                      && request.resource.data.calibracaoAtual is map
+                      && request.resource.data.historicoCalibracoes is list
+                      && request.resource.data.historicoCalibracoes.size() >= resource.data.historicoCalibracoes.size();
         allow delete: if false;
       }
 

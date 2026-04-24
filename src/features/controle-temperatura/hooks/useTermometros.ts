@@ -2,26 +2,35 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useActiveLabId } from '../../../store/useAuthStore';
 import {
+  computarStatusCalibracao,
   createTermometro,
   softDeleteTermometro,
   subscribeTermometros,
   updateTermometro,
   type SubscribeTermometrosOptions,
 } from '../services/ctFirebaseService';
-import type { Termometro, TermometroInput } from '../types/ControlTemperatura';
+import type {
+  StatusCalibracao,
+  Termometro,
+  TermometroInput,
+} from '../types/ControlTemperatura';
+
+export interface TermometroComStatus extends Termometro {
+  statusCalibracao: StatusCalibracao;
+}
 
 export interface UseTermometrosResult {
-  termometros: Termometro[];
-  /** Termômetros com proximaCalibracao ≤ 30 dias (RN-05). */
-  proximosAVencer: Termometro[];
+  termometros: TermometroComStatus[];
+  /** statusCalibracao === 'vencendo' (RN-05 alerta âmbar). */
+  proximosAVencer: TermometroComStatus[];
+  /** statusCalibracao === 'vencido' (RN-05 bloqueia emissão FR-11). */
+  vencidos: TermometroComStatus[];
   isLoading: boolean;
   error: Error | null;
   create: (input: TermometroInput) => Promise<string>;
-  update: (id: string, patch: Partial<TermometroInput>) => Promise<void>;
+  update: (id: string, patch: Partial<Omit<TermometroInput, 'calibracaoAtual'>>) => Promise<void>;
   softDelete: (id: string) => Promise<void>;
 }
-
-const DIAS_ALERTA_CALIBRACAO = 30;
 
 export function useTermometros(
   options: SubscribeTermometrosOptions = {},
@@ -29,13 +38,13 @@ export function useTermometros(
   const labId = useActiveLabId();
   const { includeDeleted = false, somenteAtivos = false } = options;
 
-  const [termometros, setTermometros] = useState<Termometro[]>([]);
+  const [termometrosRaw, setTermometrosRaw] = useState<Termometro[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(Boolean(labId));
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     if (!labId) {
-      setTermometros([]);
+      setTermometrosRaw([]);
       setIsLoading(false);
       return;
     }
@@ -45,7 +54,7 @@ export function useTermometros(
       labId,
       { includeDeleted, somenteAtivos },
       (list) => {
-        setTermometros(list);
+        setTermometrosRaw(list);
         setIsLoading(false);
       },
       (err) => {
@@ -56,10 +65,24 @@ export function useTermometros(
     return () => unsubscribe();
   }, [labId, includeDeleted, somenteAtivos]);
 
-  const proximosAVencer = useMemo(() => {
-    const limite = Date.now() + DIAS_ALERTA_CALIBRACAO * 24 * 60 * 60 * 1000;
-    return termometros.filter((t) => t.ativo && t.proximaCalibracao.toMillis() <= limite);
-  }, [termometros]);
+  const termometros: TermometroComStatus[] = useMemo(
+    () =>
+      termometrosRaw.map((t) => ({
+        ...t,
+        statusCalibracao: computarStatusCalibracao(t.calibracaoAtual),
+      })),
+    [termometrosRaw],
+  );
+
+  const proximosAVencer = useMemo(
+    () => termometros.filter((t) => t.ativo && t.statusCalibracao === 'vencendo'),
+    [termometros],
+  );
+
+  const vencidos = useMemo(
+    () => termometros.filter((t) => t.ativo && t.statusCalibracao === 'vencido'),
+    [termometros],
+  );
 
   const create = useCallback(
     async (input: TermometroInput): Promise<string> => {
@@ -70,7 +93,7 @@ export function useTermometros(
   );
 
   const update = useCallback(
-    async (id: string, patch: Partial<TermometroInput>): Promise<void> => {
+    async (id: string, patch: Partial<Omit<TermometroInput, 'calibracaoAtual'>>): Promise<void> => {
       if (!labId) throw new Error('Sem lab ativo.');
       return updateTermometro(labId, id, patch);
     },
@@ -88,6 +111,7 @@ export function useTermometros(
   return {
     termometros,
     proximosAVencer,
+    vencidos,
     isLoading,
     error,
     create,
