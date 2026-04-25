@@ -31,7 +31,7 @@ import { useNotasFiscais } from '../../fornecedores/hooks/useNotasFiscais';
 import { NotaFiscalFormModal } from '../../fornecedores/components/NotaFiscalFormModal';
 import { formatCnpj } from '../../fornecedores/types/Fornecedor';
 import type { Insumo, InsumoTipo, InsumoModulo, InsumoNivel } from '../types/Insumo';
-import { niveisDoModulo } from '../types/Insumo';
+import { niveisDoModulo, NIVEIS_QUANTITATIVOS } from '../types/Insumo';
 import type { ProdutoInsumo } from '../types/ProdutoInsumo';
 
 // ─── UI tokens ───────────────────────────────────────────────────────────────
@@ -49,6 +49,69 @@ const TIPO_LABEL: Record<InsumoTipo, string> = {
   controle: 'Controle',
   'tira-uro': 'Tira Uroanálise',
 };
+
+// ─── Componentes Auxiliares ───────────────────────────────────────────────────
+
+function NivelControleField({
+  produto,
+  nivel,
+  setNivel,
+  error,
+}: {
+  produto: ProdutoInsumo;
+  nivel: InsumoNivel | '';
+  setNivel: (n: InsumoNivel | '') => void;
+  error?: string;
+}) {
+  if (produto.tipo !== 'controle') return null;
+
+  const moduloPrimario = produto.modulos?.[0];
+  const isImuno = moduloPrimario === 'imunologia';
+  const opcoes = moduloPrimario ? niveisDoModulo(moduloPrimario) : NIVEIS_QUANTITATIVOS;
+  const labelTexto = isImuno ? 'Polaridade do controle' : 'Nível do controle';
+  const ajuda = isImuno
+    ? 'Positivo deve reagir (R); Negativo não deve reagir (NR). Define o veredito do lote.'
+    : null;
+
+  const labelOpcao: Record<InsumoNivel, string> = {
+    normal: 'Normal',
+    patologico: 'Patológico',
+    baixo: 'Baixo',
+    alto: 'Alto',
+    positivo: 'Positivo (controle reativo)',
+    negativo: 'Negativo (controle não-reativo)',
+  };
+
+  // Evita React warning: se o nível salvo for incompatível com as opções, reseta para vazio
+  const selectValue = nivel && !opcoes.includes(nivel as InsumoNivel) ? '' : nivel;
+
+  return (
+    <div>
+      <label
+        htmlFor="nivel"
+        className="block text-xs font-medium text-slate-500 dark:text-white/45 mb-1.5"
+      >
+        {labelTexto} <span className="text-red-500">*</span>
+      </label>
+      <select
+        id="nivel"
+        aria-label={labelTexto}
+        className={INPUT_CLS}
+        value={selectValue}
+        onChange={(e) => setNivel(e.target.value as InsumoNivel | '')}
+      >
+        <option value="">Selecione…</option>
+        {opcoes.map((opt) => (
+          <option key={opt} value={opt}>
+            {labelOpcao[opt]}
+          </option>
+        ))}
+      </select>
+      {ajuda && <p className="text-[11px] text-slate-500 dark:text-white/35 mt-1">{ajuda}</p>}
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+    </div>
+  );
+}
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
@@ -726,54 +789,12 @@ function LoteForm({
         </div>
       </div>
 
-      {/* Nível/polaridade do controle — opções condicionadas ao módulo:
-          imunologia (qualitativo binário) → Positivo/Negativo;
-          demais (quantitativo) → Normal/Patológico/Baixo/Alto. */}
-      {produto.tipo === 'controle' && (() => {
-        const moduloPrimario = produto.modulos[0];
-        const isImuno = moduloPrimario === 'imunologia';
-        const opcoes = niveisDoModulo(moduloPrimario);
-        const labelTexto = isImuno ? 'Polaridade do controle' : 'Nível do controle';
-        const ajuda = isImuno
-          ? 'Positivo deve reagir (R); Negativo não deve reagir (NR). Define o veredito do lote.'
-          : null;
-        const labelOpcao: Record<InsumoNivel, string> = {
-          normal: 'Normal',
-          patologico: 'Patológico',
-          baixo: 'Baixo',
-          alto: 'Alto',
-          positivo: 'Positivo (controle reativo)',
-          negativo: 'Negativo (controle não-reativo)',
-        };
-        return (
-          <div>
-            <label
-              htmlFor="nivel"
-              className="block text-xs font-medium text-slate-500 dark:text-white/45 mb-1.5"
-            >
-              {labelTexto} <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="nivel"
-              aria-label={labelTexto}
-              className={INPUT_CLS}
-              value={nivel}
-              onChange={(e) => setNivel(e.target.value as InsumoNivel | '')}
-            >
-              <option value="">Selecione…</option>
-              {opcoes.map((opt) => (
-                <option key={opt} value={opt}>
-                  {labelOpcao[opt]}
-                </option>
-              ))}
-            </select>
-            {ajuda && (
-              <p className="text-[11px] text-slate-500 dark:text-white/35 mt-1">{ajuda}</p>
-            )}
-            {errors.nivel && <p className="text-xs text-red-500 mt-1">{errors.nivel}</p>}
-          </div>
-        );
-      })()}
+      <NivelControleField
+        produto={produto}
+        nivel={nivel}
+        setNivel={setNivel}
+        error={errors.nivel}
+      />
 
       {submitError && (
         <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm text-red-700 dark:text-red-300">

@@ -31,8 +31,11 @@ const baseShape = {
 
 const controleSchema = z.object({
   tipo: z.literal('controle'),
-  nivel: z.enum(['normal', 'patologico', 'baixo', 'alto'], {
-    required_error: 'Selecione o nível do controle.',
+  // Aceita níveis quantitativos (hemato/coag/uro) e polaridade qualitativa
+  // binária (imuno: 'positivo' | 'negativo'). UI condiciona as opções
+  // visíveis ao módulo do produto.
+  nivel: z.enum(['normal', 'patologico', 'baixo', 'alto', 'positivo', 'negativo'], {
+    required_error: 'Selecione o nível/polaridade do controle.',
   }),
   ...baseShape,
 });
