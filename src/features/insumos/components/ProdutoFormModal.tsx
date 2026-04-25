@@ -26,6 +26,7 @@ import {
 import { useEquipamentos } from '../../equipamentos/hooks/useEquipamentos';
 import type { ProdutoInsumo } from '../types/ProdutoInsumo';
 import type { InsumoModulo, InsumoTipo, InsumoNivel } from '../types/Insumo';
+import { niveisDoModulo, NIVEIS_QUANTITATIVOS } from '../types/Insumo';
 
 // ─── UI helpers ──────────────────────────────────────────────────────────────
 
@@ -620,27 +621,53 @@ export function ProdutoFormModal({
               />
             </Field>
 
-            {tipo === 'controle' && (
-              <Field
-                id="nivelDefault"
-                label="Nível default (controle)"
-                hint="Lote herda — ajustável"
-              >
-                <select
+            {tipo === 'controle' && (() => {
+              // Opções condicionadas pelo módulo primário do produto.
+              // Imunologia → polaridade qualitativa (Positivo/Negativo);
+              // demais → níveis quantitativos (Normal/Patológico/Baixo/Alto).
+              const moduloPrimario = modulos[0];
+              const isImuno = moduloPrimario === 'imunologia';
+              const opcoes = moduloPrimario
+                ? niveisDoModulo(moduloPrimario)
+                : (NIVEIS_QUANTITATIVOS as ReadonlyArray<InsumoNivel>);
+              const labelTexto = isImuno
+                ? 'Polaridade default (controle)'
+                : 'Nível default (controle)';
+              const labelOpcao: Record<InsumoNivel, string> = {
+                normal: 'Normal',
+                patologico: 'Patológico',
+                baixo: 'Baixo',
+                alto: 'Alto',
+                positivo: 'Positivo (controle reativo)',
+                negativo: 'Negativo (controle não-reativo)',
+              };
+              return (
+                <Field
                   id="nivelDefault"
-                  aria-label="Nível default do controle"
-                  className={INPUT_CLS}
-                  value={nivelDefault}
-                  onChange={(e) => setNivelDefault(e.target.value as InsumoNivel | '')}
+                  label={labelTexto}
+                  hint={
+                    isImuno
+                      ? 'Define o veredito esperado: Positivo deve dar R, Negativo deve dar NR.'
+                      : 'Lote herda — ajustável'
+                  }
                 >
-                  <option value="">Selecione…</option>
-                  <option value="normal">Normal</option>
-                  <option value="patologico">Patológico</option>
-                  <option value="baixo">Baixo</option>
-                  <option value="alto">Alto</option>
-                </select>
-              </Field>
-            )}
+                  <select
+                    id="nivelDefault"
+                    aria-label={labelTexto}
+                    className={INPUT_CLS}
+                    value={nivelDefault}
+                    onChange={(e) => setNivelDefault(e.target.value as InsumoNivel | '')}
+                  >
+                    <option value="">Selecione…</option>
+                    {opcoes.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {labelOpcao[opt]}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              );
+            })()}
           </div>
 
           {submitError && (

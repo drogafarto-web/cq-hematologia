@@ -30,7 +30,8 @@ import { useFornecedores } from '../../fornecedores/hooks/useFornecedores';
 import { useNotasFiscais } from '../../fornecedores/hooks/useNotasFiscais';
 import { NotaFiscalFormModal } from '../../fornecedores/components/NotaFiscalFormModal';
 import { formatCnpj } from '../../fornecedores/types/Fornecedor';
-import type { Insumo, InsumoTipo, InsumoModulo } from '../types/Insumo';
+import type { Insumo, InsumoTipo, InsumoModulo, InsumoNivel } from '../types/Insumo';
+import { niveisDoModulo } from '../types/Insumo';
 import type { ProdutoInsumo } from '../types/ProdutoInsumo';
 
 // ─── UI tokens ───────────────────────────────────────────────────────────────
@@ -443,9 +444,7 @@ function LoteForm({
   const [diasEstab, setDiasEstab] = useState<number>(
     produto.diasEstabilidadeAberturaDefault ?? 0,
   );
-  const [nivel, setNivel] = useState<'normal' | 'patologico' | 'baixo' | 'alto' | ''>(
-    produto.nivelDefault ?? '',
-  );
+  const [nivel, setNivel] = useState<InsumoNivel | ''>(produto.nivelDefault ?? '');
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -511,7 +510,7 @@ function LoteForm({
           return createInsumo(labId, {
             tipo: 'controle',
             produtoId: produto.id,
-            nivel: (nivel || 'normal') as 'normal' | 'patologico' | 'baixo' | 'alto',
+            nivel: (nivel || (moduloPrimario === 'imunologia' ? 'positivo' : 'normal')) as InsumoNivel,
             modulo: moduloPrimario,
             modulos: produto.modulos,
             fabricante: produto.fabricante,
@@ -727,33 +726,54 @@ function LoteForm({
         </div>
       </div>
 
-      {/* Nível (só pra controle) */}
-      {produto.tipo === 'controle' && (
-        <div>
-          <label
-            htmlFor="nivel"
-            className="block text-xs font-medium text-slate-500 dark:text-white/45 mb-1.5"
-          >
-            Nível do controle <span className="text-red-500">*</span>
-          </label>
-          <select
-            id="nivel"
-            aria-label="Nível do controle"
-            className={INPUT_CLS}
-            value={nivel}
-            onChange={(e) =>
-              setNivel(e.target.value as 'normal' | 'patologico' | 'baixo' | 'alto' | '')
-            }
-          >
-            <option value="">Selecione…</option>
-            <option value="normal">Normal</option>
-            <option value="patologico">Patológico</option>
-            <option value="baixo">Baixo</option>
-            <option value="alto">Alto</option>
-          </select>
-          {errors.nivel && <p className="text-xs text-red-500 mt-1">{errors.nivel}</p>}
-        </div>
-      )}
+      {/* Nível/polaridade do controle — opções condicionadas ao módulo:
+          imunologia (qualitativo binário) → Positivo/Negativo;
+          demais (quantitativo) → Normal/Patológico/Baixo/Alto. */}
+      {produto.tipo === 'controle' && (() => {
+        const moduloPrimario = produto.modulos[0];
+        const isImuno = moduloPrimario === 'imunologia';
+        const opcoes = niveisDoModulo(moduloPrimario);
+        const labelTexto = isImuno ? 'Polaridade do controle' : 'Nível do controle';
+        const ajuda = isImuno
+          ? 'Positivo deve reagir (R); Negativo não deve reagir (NR). Define o veredito do lote.'
+          : null;
+        const labelOpcao: Record<InsumoNivel, string> = {
+          normal: 'Normal',
+          patologico: 'Patológico',
+          baixo: 'Baixo',
+          alto: 'Alto',
+          positivo: 'Positivo (controle reativo)',
+          negativo: 'Negativo (controle não-reativo)',
+        };
+        return (
+          <div>
+            <label
+              htmlFor="nivel"
+              className="block text-xs font-medium text-slate-500 dark:text-white/45 mb-1.5"
+            >
+              {labelTexto} <span className="text-red-500">*</span>
+            </label>
+            <select
+              id="nivel"
+              aria-label={labelTexto}
+              className={INPUT_CLS}
+              value={nivel}
+              onChange={(e) => setNivel(e.target.value as InsumoNivel | '')}
+            >
+              <option value="">Selecione…</option>
+              {opcoes.map((opt) => (
+                <option key={opt} value={opt}>
+                  {labelOpcao[opt]}
+                </option>
+              ))}
+            </select>
+            {ajuda && (
+              <p className="text-[11px] text-slate-500 dark:text-white/35 mt-1">{ajuda}</p>
+            )}
+            {errors.nivel && <p className="text-xs text-red-500 mt-1">{errors.nivel}</p>}
+          </div>
+        );
+      })()}
 
       {submitError && (
         <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm text-red-700 dark:text-red-300">
