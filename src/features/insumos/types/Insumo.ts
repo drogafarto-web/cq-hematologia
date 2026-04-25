@@ -20,11 +20,51 @@ export type InsumoTipo = 'controle' | 'reagente' | 'tira-uro';
 export type InsumoModulo = 'hematologia' | 'coagulacao' | 'uroanalise' | 'imunologia';
 
 /**
- * Nível do controle quantitativo. Alguns fabricantes usam "normal/patológico"
- * (2 níveis, comum em coagulação), outros "baixo/alto" (hematologia). O tipo
- * é frouxo de propósito — UX apresenta só o que o módulo aceita.
+ * Nível/polaridade do controle.
+ *
+ * **Quantitativo** (hematologia, coagulação, uroanálise quantitativa) — usa
+ * "normal/patologico" (2 níveis, comum em coag) ou "baixo/alto" (hemato).
+ *
+ * **Qualitativo binário** (imunologia) — usa "positivo/negativo" indicando
+ * a polaridade esperada do controle. Esse sinal alimenta a regra de veredito
+ * automático do lote: positivo deve dar R, negativo deve dar NR (RDC 978/2025
+ * Art.128). Não confundir com nível quantitativo — semanticamente diferente,
+ * mas mesmo campo no schema pra evitar coluna nullable em todos os controles.
+ *
+ * UX apresenta só o subset compatível com o módulo (ver NovoLoteModal e
+ * ProdutoFormModal).
  */
-export type InsumoNivel = 'normal' | 'patologico' | 'baixo' | 'alto';
+export type InsumoNivel =
+  | 'normal'
+  | 'patologico'
+  | 'baixo'
+  | 'alto'
+  | 'positivo'
+  | 'negativo';
+
+/** Subset quantitativo de InsumoNivel — uso em hematologia/coagulação. */
+export const NIVEIS_QUANTITATIVOS: ReadonlyArray<InsumoNivel> = [
+  'normal',
+  'patologico',
+  'baixo',
+  'alto',
+] as const;
+
+/** Subset qualitativo binário de InsumoNivel — uso em imunologia. */
+export const NIVEIS_QUALITATIVOS: ReadonlyArray<InsumoNivel> = [
+  'positivo',
+  'negativo',
+] as const;
+
+/**
+ * Resolve quais opções de "nível" são válidas para um módulo. Imuno é
+ * estritamente qualitativo binário; demais módulos usam o vocabulário
+ * quantitativo. Se um lab cadastrar um controle qualitativo em outro módulo
+ * no futuro, este mapa é o ponto único de mudança.
+ */
+export function niveisDoModulo(modulo: InsumoModulo): ReadonlyArray<InsumoNivel> {
+  return modulo === 'imunologia' ? NIVEIS_QUALITATIVOS : NIVEIS_QUANTITATIVOS;
+}
 
 /** Categoria de movimentação registrada no log imutável. */
 export type InsumoMovimentacaoTipo = 'entrada' | 'abertura' | 'fechamento' | 'descarte';
@@ -214,6 +254,16 @@ export interface InsumoControle extends InsumoBase {
    * legado até o backfill).
    */
   equipamentosPermitidos?: string[];
+
+  /**
+   * Fase F (2026-04-24) — controles de kits manuais (Controle Positivo e
+   * Negativo de PCR látex, VDRL em lâmina etc.) pertencem ao próprio kit e
+   * são específicos de um testType. Mesma semântica de
+   * `InsumoReagente.testTypesCompativeis`: ausente/vazio => genérico do
+   * módulo; presente => picker prioriza. Em controles de analisador
+   * quantitativo (multianalíticos Bio-Rad etc.) o campo fica vazio.
+   */
+  testTypesCompativeis?: string[];
 }
 
 /**
@@ -264,6 +314,19 @@ export interface InsumoReagente extends InsumoBase {
   /** IDs das corridas que validaram o lote (usado pra "N validações" rules). */
   qcValidationRunIds?: string[];
   motivoReprovacao?: string;
+
+  /**
+   * Fase F (2026-04-24) — testes de Imuno manuais (PCR látex, VDRL em lâmina,
+   * cartela imunocromatográfica) não têm equipamento, então `equipamentoId`
+   * fica vazio e a amarração é por testType. Lista dos nomes de `CIQTestType`
+   * aos quais este lote se aplica.
+   *
+   * Ausente/vazio => lote genérico do módulo (aparece para qualquer testType
+   * manual). Presente => picker filtra para o testType selecionado primeiro,
+   * com fallback para os genéricos. Campo irrelevante em reagentes de
+   * analisador (fluxo de setup de equipamento cobre a amarração).
+   */
+  testTypesCompativeis?: string[];
 }
 
 /**
