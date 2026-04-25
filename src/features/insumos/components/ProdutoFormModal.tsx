@@ -96,6 +96,74 @@ const MODULO_LABEL: Record<InsumoModulo, string> = {
 
 const MODULOS: InsumoModulo[] = ['hematologia', 'coagulacao', 'uroanalise', 'imunologia'];
 
+// ─── Componentes Auxiliares ───────────────────────────────────────────────────
+
+function NivelControleField({
+  tipo,
+  modulos,
+  nivelDefault,
+  setNivelDefault,
+}: {
+  tipo: InsumoTipo;
+  modulos: InsumoModulo[];
+  nivelDefault: InsumoNivel | '';
+  setNivelDefault: (n: InsumoNivel | '') => void;
+}) {
+  if (tipo !== 'controle') return null;
+
+  // Opções condicionadas pelo módulo primário do produto.
+  // Imunologia → polaridade qualitativa (Positivo/Negativo);
+  // demais → níveis quantitativos (Normal/Patológico/Baixo/Alto).
+  const moduloPrimario = modulos[0];
+  const isImuno = moduloPrimario === 'imunologia';
+  const opcoes = moduloPrimario
+    ? niveisDoModulo(moduloPrimario)
+    : (NIVEIS_QUANTITATIVOS as ReadonlyArray<InsumoNivel>);
+  
+  const labelTexto = isImuno
+    ? 'Polaridade default (controle)'
+    : 'Nível default (controle)';
+  
+  const labelOpcao: Record<InsumoNivel, string> = {
+    normal: 'Normal',
+    patologico: 'Patológico',
+    baixo: 'Baixo',
+    alto: 'Alto',
+    positivo: 'Positivo (controle reativo)',
+    negativo: 'Negativo (controle não-reativo)',
+  };
+
+  // Evita React warning: se o nível salvo for incompatível com as opções, reseta para vazio
+  const selectValue = nivelDefault && !opcoes.includes(nivelDefault as InsumoNivel) ? '' : nivelDefault;
+
+  return (
+    <Field
+      id="nivelDefault"
+      label={labelTexto}
+      hint={
+        isImuno
+          ? 'Define o veredito esperado: Positivo deve dar R, Negativo deve dar NR.'
+          : 'Lote herda — ajustável'
+      }
+    >
+      <select
+        id="nivelDefault"
+        aria-label={labelTexto}
+        className={INPUT_CLS}
+        value={selectValue}
+        onChange={(e) => setNivelDefault(e.target.value as InsumoNivel | '')}
+      >
+        <option value="">Selecione…</option>
+        {opcoes.map((opt) => (
+          <option key={opt} value={opt}>
+            {labelOpcao[opt]}
+          </option>
+        ))}
+      </select>
+    </Field>
+  );
+}
+
 export function ProdutoFormModal({
   labId,
   initialTipo = 'reagente',
@@ -621,53 +689,12 @@ export function ProdutoFormModal({
               />
             </Field>
 
-            {tipo === 'controle' && (() => {
-              // Opções condicionadas pelo módulo primário do produto.
-              // Imunologia → polaridade qualitativa (Positivo/Negativo);
-              // demais → níveis quantitativos (Normal/Patológico/Baixo/Alto).
-              const moduloPrimario = modulos[0];
-              const isImuno = moduloPrimario === 'imunologia';
-              const opcoes = moduloPrimario
-                ? niveisDoModulo(moduloPrimario)
-                : (NIVEIS_QUANTITATIVOS as ReadonlyArray<InsumoNivel>);
-              const labelTexto = isImuno
-                ? 'Polaridade default (controle)'
-                : 'Nível default (controle)';
-              const labelOpcao: Record<InsumoNivel, string> = {
-                normal: 'Normal',
-                patologico: 'Patológico',
-                baixo: 'Baixo',
-                alto: 'Alto',
-                positivo: 'Positivo (controle reativo)',
-                negativo: 'Negativo (controle não-reativo)',
-              };
-              return (
-                <Field
-                  id="nivelDefault"
-                  label={labelTexto}
-                  hint={
-                    isImuno
-                      ? 'Define o veredito esperado: Positivo deve dar R, Negativo deve dar NR.'
-                      : 'Lote herda — ajustável'
-                  }
-                >
-                  <select
-                    id="nivelDefault"
-                    aria-label={labelTexto}
-                    className={INPUT_CLS}
-                    value={nivelDefault}
-                    onChange={(e) => setNivelDefault(e.target.value as InsumoNivel | '')}
-                  >
-                    <option value="">Selecione…</option>
-                    {opcoes.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {labelOpcao[opt]}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-              );
-            })()}
+            <NivelControleField
+              tipo={tipo}
+              modulos={modulos}
+              nivelDefault={nivelDefault}
+              setNivelDefault={setNivelDefault}
+            />
           </div>
 
           {submitError && (
