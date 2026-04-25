@@ -5,8 +5,10 @@ import { useUser } from '../../../store/useAuthStore';
 import { useCIQTestTypes } from '../hooks/useCIQTestTypes';
 import { CIQTestTypeManager } from './CIQTestTypeManager';
 import { ConferenciaInsumoAtivo } from '../../insumos/components/ConferenciaInsumoAtivo';
+import { ManualKitPicker } from '../../insumos/components/ManualKitPicker';
 import { OverrideModal } from '../../insumos/components/OverrideModal';
 import { useInsumoFlowGuard } from '../../insumos/hooks/useInsumoFlowGuard';
+import { useManualKitGuard } from '../../insumos/hooks/useManualKitGuard';
 import { EquipamentoSelector } from '../../equipamentos/components/EquipamentoSelector';
 import { buildEquipamentoSnapshot } from '../../equipamentos/types/Equipamento';
 import type { Equipamento } from '../../equipamentos/types/Equipamento';
@@ -229,6 +231,7 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
     addType,
     renameType,
     removeType,
+    setManual: setTestTypeManual,
   } = useCIQTestTypes();
   const [showManager, setShowManager] = useState(false);
 
@@ -236,8 +239,30 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
   const [equipamentoId, setEquipamentoId] = useState<string | null>(null);
   const [equipamentoSel, setEquipamentoSel] = useState<Equipamento | null>(null);
 
-  // Fase B1-etapa2 — Imuno: apenas reagente (kit) obrigatório por corrida.
-  // CQ é por lote (qcStatus), não por corrida — então `controle: false`.
+  const [form, setForm] = useState<Partial<CIQImunoFormData>>({
+    resultadoEsperado: 'R',
+    dataRealizacao: today(),
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Fase F (2026-04-24) — resolve o tipo de teste para decidir modo manual vs
+  // analisador. Quando `manual: true` o form esconde o EquipamentoSelector,
+  // pula o EquipmentSetup e delega pro `useManualKitGuard` / `ManualKitPicker`.
+  // 2026-04-25: equipamento com `modelo === 'MANUAL'` (kit de teste rápido,
+  // sem analisador) também força o fluxo manual independente do tipo de teste —
+  // se o equipamento já é declaradamente manual, exigir que o tipo também seja
+  // marcado é redundante e bloqueia o operador. Diferença: quando o sinal vem
+  // do equipamento, o `EquipamentoSelector` continua visível (ele é a evidência
+  // de qual kit-equipamento está em uso); quando vem do testType, o seletor
+  // some (testType manual é por kit, sem amarração com equip).
+  const currentTestType = testTypes.find((t) => t.name === form.testType) ?? null;
+  const isManualByTestType = !!currentTestType?.manual;
+  const isManualByEquipamento = equipamentoSel?.modelo === 'MANUAL';
+  const isManual = isManualByTestType || isManualByEquipamento;
+  const showEquipamentoSelector = !isManualByTestType;
+
+  // Fase B1-etapa2 — Imuno analisador: apenas reagente (kit) obrigatório por
+  // corrida. CQ é por lote (qcStatus), não por corrida — então `controle: false`.
   // Quando qcStatus !== 'aprovado', a corrida é classificada como 'validacao'
   // (o guard atribui automaticamente).
   const insumoGuard = useInsumoFlowGuard({
@@ -246,11 +271,17 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
     equipamentoId,
   });
 
-  const [form, setForm] = useState<Partial<CIQImunoFormData>>({
-    resultadoEsperado: 'R',
-    dataRealizacao: today(),
+  // Fase F — Imuno manual: reagente + controle positivo + controle negativo,
+  // todos do kit manual. O picker filtra por testType via testTypesCompativeis.
+  const manualGuard = useManualKitGuard({
+    module: 'imunologia',
+    testType: form.testType ?? null,
+    requiredSlots: {
+      reagente: true,
+      controlePositivo: true,
+      controleNegativo: true,
+    },
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
   function toIsoDate(ts: { toDate: () => Date } | null): string {
     if (!ts) return '';
@@ -258,11 +289,15 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
-  // Pré-preenche campos do reagente a partir do setup ativo.
+  // Pré-preenche campos do reagente a partir do slot ativo. Em modo analisador
+  // vem do EquipmentSetup (`insumoGuard.reagente`); em modo manual vem do
+  // picker (`manualGuard.resolved.reagente`). O useEffect observa ambos e
+  // espelha o que for relevante conforme o modo atual.
+  //
   // setState-in-effect justificado: espelhar subscription externa.
   /* eslint-disable react-hooks/set-state-in-effect */
   React.useEffect(() => {
-    const reagente = insumoGuard.reagente;
+    const reagente = isManual ? manualGuard.resolved.reagente : insumoGuard.reagente;
     if (!reagente) return;
     setForm((prev) => ({
       ...prev,
@@ -271,7 +306,23 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
       aberturaReagente: toIsoDate(reagente.dataAbertura),
       validadeReagente: toIsoDate(reagente.validade),
     }));
-  }, [insumoGuard.reagente]);
+  }, [isManual, insumoGuard.reagente, manualGuard.resolved.reagente]);
+
+  // Em modo manual, pré-preenche também campos do controle a partir do
+  // controle positivo escolhido no picker (é o "controle da corrida" registrado
+  // no lote CIQ).
+  React.useEffect(() => {
+    if (!isManual) return;
+    const ctrlP = manualGuard.resolved.controlePositivo;
+    if (!ctrlP) return;
+    setForm((prev) => ({
+      ...prev,
+      loteControle: ctrlP.lote,
+      fabricanteControle: ctrlP.fabricante,
+      aberturaControle: toIsoDate(ctrlP.dataAbertura),
+      validadeControle: toIsoDate(ctrlP.validade),
+    }));
+  }, [isManual, manualGuard.resolved.controlePositivo]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   function set<K extends keyof CIQImunoFormData>(key: K, value: CIQImunoFormData[K]) {
@@ -299,38 +350,46 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
       return;
     }
 
-    // Fase D: exige equipamento.
-    if (!equipamentoId || !equipamentoSel) {
-      setErrors({ equipamento: 'Selecione o equipamento em que a corrida está sendo feita.' });
-      return;
+    // Fase F: em modo manual não exige equipamento; em modo analisador exige.
+    if (!isManual) {
+      if (!equipamentoId || !equipamentoSel) {
+        setErrors({ equipamento: 'Selecione o equipamento em que a corrida está sendo feita.' });
+        return;
+      }
     }
 
-    // Fase B1-etapa2 — conferência + override auditado.
-    const guardFlags = await insumoGuard.prepareForSave();
+    // Conferência + override auditado — rota depende do modo.
+    const activeGuard = isManual ? manualGuard : insumoGuard;
+    const guardFlags = await activeGuard.prepareForSave();
     if (!guardFlags) {
       setErrors({
-        insumos:
-          'Conferência obrigatória do setup. Configure o reagente ativo e confirme antes de salvar.',
+        insumos: isManual
+          ? 'Selecione o reagente e os controles positivo/negativo do kit e confirme antes de salvar.'
+          : 'Conferência obrigatória do setup. Configure o reagente ativo e confirme antes de salvar.',
       });
       return;
     }
 
     setErrors({});
-    const snapshot = insumoGuard.getSnapshots();
+    const snapshot = activeGuard.getSnapshots();
     const saveOptions: SaveCIQRunOptions = {
       insumosSnapshot: snapshot,
-      equipamentoId,
-      equipamentoSnapshot: buildEquipamentoSnapshot(equipamentoSel),
       ...(guardFlags.insumoVencidoOverride && { insumoVencidoOverride: true }),
       ...(guardFlags.qcNaoValidado && { qcNaoValidado: true }),
       ...(guardFlags.overrideMotivo && { overrideMotivo: guardFlags.overrideMotivo }),
       ...(guardFlags.classificacaoImuno && { classificacaoImuno: guardFlags.classificacaoImuno }),
+      ...(isManual
+        ? { manual: true }
+        : {
+            equipamentoId: equipamentoId!,
+            equipamentoSnapshot: buildEquipamentoSnapshot(equipamentoSel!),
+          }),
     };
     await onSave(result.data, saveOptions);
 
     // afterSave — incrementa runCount dos insumos.
     const isConforme = form.resultadoObtido === form.resultadoEsperado;
-    void insumoGuard.afterSave({ runId: '', wasConforme: isConforme });
+    void activeGuard.afterSave({ runId: '', wasConforme: isConforme });
   }
 
   const ctrlDays = form.validadeControle ? daysToExpiry(form.validadeControle) : null;
@@ -491,8 +550,9 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
                 Selecione o tipo de teste…
               </option>
               {testTypes.map((t) => (
-                <option key={t} value={t}>
-                  {t}
+                <option key={t.name} value={t.name}>
+                  {t.name}
+                  {t.manual ? ' · manual' : ''}
                 </option>
               ))}
             </select>
@@ -508,46 +568,99 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
           addType={addType}
           renameType={renameType}
           removeType={removeType}
+          setManual={setTestTypeManual}
           onClose={() => setShowManager(false)}
         />
       )}
 
-      {/* Equipamento da corrida (Fase D) */}
-      <div>
-        <SectionTitle>Equipamento</SectionTitle>
-        <EquipamentoSelector
-          module="imunologia"
-          value={equipamentoId}
-          onChange={(id, eq) => {
-            setEquipamentoId(id);
-            setEquipamentoSel(eq);
-            if (errors.equipamento) {
-              setErrors((prev) => {
-                const n = { ...prev };
-                delete n.equipamento;
-                return n;
-              });
-            }
-          }}
-          required
-        />
-        {errors.equipamento && <FieldError msg={errors.equipamento} />}
-      </div>
+      {/* Equipamento + Insumos — layout muda conforme o teste seja de
+          analisador ou manual (Fase F 2026-04-24, ajuste 2026-04-25).
+          Quando o motivo do fluxo manual é o EQUIPAMENTO ser do tipo MANUAL,
+          o seletor permanece visível (operador precisa ver/trocar o kit-equip);
+          quando o motivo é o testType.manual=true, o seletor some (kit manual
+          puro, sem amarração com equipamento). */}
+      {showEquipamentoSelector && (
+        <div>
+          <SectionTitle>Equipamento</SectionTitle>
+          <EquipamentoSelector
+            module="imunologia"
+            value={equipamentoId}
+            onChange={(id, eq) => {
+              setEquipamentoId(id);
+              setEquipamentoSel(eq);
+              if (errors.equipamento) {
+                setErrors((prev) => {
+                  const n = { ...prev };
+                  delete n.equipamento;
+                  return n;
+                });
+              }
+            }}
+            required
+          />
+          {errors.equipamento && <FieldError msg={errors.equipamento} />}
+        </div>
+      )}
 
-      {/* Conferência de insumos (Fase B1-etapa2) — Imuno: reagente obrigatório,
-          controle por LOTE (qcStatus), não por corrida. */}
-      <div>
-        <SectionTitle>Insumos em uso</SectionTitle>
-        <ConferenciaInsumoAtivo
-          module="imunologia"
-          requiredSlots={{ reagente: true }}
-          equipamentoId={equipamentoId}
-          confirmed={insumoGuard.confirmed}
-          onConfirmedChange={insumoGuard.setConfirmed}
-          onConfigurarSetup={() => setCurrentView('insumos')}
-        />
-        {errors.insumos && <FieldError msg={errors.insumos} />}
-      </div>
+      {!isManual ? (
+        /* Conferência de insumos (Fase B1-etapa2) — Imuno analisador:
+           reagente obrigatório, controle por LOTE (qcStatus), não por corrida. */
+        <div>
+          <SectionTitle>Insumos em uso</SectionTitle>
+          <ConferenciaInsumoAtivo
+            module="imunologia"
+            requiredSlots={{ reagente: true }}
+            equipamentoId={equipamentoId}
+            confirmed={insumoGuard.confirmed}
+            onConfirmedChange={insumoGuard.setConfirmed}
+            onConfigurarSetup={() => setCurrentView('insumos')}
+          />
+          {errors.insumos && <FieldError msg={errors.insumos} />}
+        </div>
+      ) : (
+        /* Fase F — kit manual: operador escolhe o kit na hora
+           (reagente + controles positivo/negativo). */
+        <div>
+          <SectionTitle>Kit do teste manual</SectionTitle>
+          <ManualKitPicker
+            title={`Kit manual · ${form.testType ?? 'teste'}`}
+            subtitle={
+              isManualByEquipamento
+                ? `Equipamento ${equipamentoSel?.name ?? ''} é manual — escolha o lote do reagente e dos controles do kit em uso.`
+                : 'Escolha o lote do reagente e dos controles do próprio kit. A corrida será registrada sem equipamento.'
+            }
+            slots={[
+              {
+                slot: 'reagente',
+                label: 'Reagente',
+                required: true,
+                emptyMessage:
+                  'Nenhum reagente ativo cadastrado para imunologia. Cadastre em Insumos antes de salvar.',
+              },
+              {
+                slot: 'controlePositivo',
+                label: 'Controle Positivo',
+                required: true,
+                emptyMessage: 'Nenhum controle ativo cadastrado para imunologia.',
+              },
+              {
+                slot: 'controleNegativo',
+                label: 'Controle Negativo',
+                required: true,
+                emptyMessage: 'Nenhum controle ativo cadastrado para imunologia.',
+              },
+            ]}
+            selection={manualGuard.selection}
+            resolved={manualGuard.resolved}
+            candidates={manualGuard.candidates}
+            onSlotChange={manualGuard.setSlot}
+            confirmed={manualGuard.confirmed}
+            onConfirmedChange={manualGuard.setConfirmed}
+            onCadastrarInsumo={() => setCurrentView('insumos')}
+          />
+          {errors.insumos && <FieldError msg={errors.insumos} />}
+        </div>
+      )}
 
       {/* ── Controle (kit positivo/negativo — preenchido manualmente em Imuno) ─ */}
       <div>
@@ -983,13 +1096,13 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
         </button>
       </div>
 
-      {insumoGuard.overrideContext && (
+      {(isManual ? manualGuard : insumoGuard).overrideContext && (
         <OverrideModal
-          open={insumoGuard.isOverrideOpen}
-          context={insumoGuard.overrideContext}
-          onCancel={insumoGuard.closeOverride}
+          open={(isManual ? manualGuard : insumoGuard).isOverrideOpen}
+          context={(isManual ? manualGuard : insumoGuard).overrideContext!}
+          onCancel={(isManual ? manualGuard : insumoGuard).closeOverride}
           onConfirm={({ justificativa }) => {
-            insumoGuard.confirmOverride(justificativa);
+            (isManual ? manualGuard : insumoGuard).confirmOverride(justificativa);
           }}
         />
       )}
