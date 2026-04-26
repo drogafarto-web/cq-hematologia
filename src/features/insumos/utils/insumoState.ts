@@ -21,7 +21,9 @@ export type InsumoStateKind =
   | 'lacrado'
   | 'encerrado'
   | 'vencido'
-  | 'descartado';
+  | 'descartado'
+  /** PR1 (2026-04-26) — lote bloqueado por reprovação formal de qualificação. */
+  | 'segregado';
 
 export interface InsumoStateChip {
   kind: InsumoStateKind;
@@ -77,6 +79,15 @@ export function resolveInsumoState(
         chipCls:
           'bg-zinc-500/10 border-zinc-500/30 text-zinc-600 dark:text-zinc-400',
         tooltip: 'Descarte formal com motivo registrado (RDC 786).',
+      };
+    case 'segregado':
+      return {
+        kind: 'segregado',
+        label: 'Segregado',
+        chipCls:
+          'bg-red-500/10 border-red-500/40 text-red-700 dark:text-red-300',
+        tooltip:
+          'Lote reprovado em qualificação formal — bloqueado para uso (RDC 786 art. 42).',
       };
   }
 }

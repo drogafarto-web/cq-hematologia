@@ -122,6 +122,46 @@ service firebase.storage {
       allow delete:        if isSuperAdmin() || (isActiveMember() && isAdminOrOwner());
     }
 
+    // ── PR1 (2026-04-26) — anexos de qualificação de insumos ─────────────────
+    // Anexos opcionais (foto de embalagem, PDF de NF, certificado de análise).
+    // Read: qualquer membro ativo. Write: apenas admin/owner (proxy RT/biomedico
+    // — modelo de roles atual não distingue cargo). Delete bloqueado: anexos de
+    // qualificação são prova regulatória (RDC 786 art. 42) e devem permanecer.
+    match /labs/{labId}/qualificacoes/{allPaths=**} {
+
+      function isAuth() {
+        return request.auth != null;
+      }
+
+      function isSuperAdmin() {
+        return isAuth() &&
+          firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
+          firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isSuperAdmin == true;
+      }
+
+      function isActiveMember() {
+        let memberPath = /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid);
+        return isAuth() &&
+          firestore.exists(memberPath) &&
+          firestore.get(memberPath).data.active == true;
+      }
+
+      function getMemberRole() {
+        return firestore.get(
+          /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid)
+        ).data.role;
+      }
+
+      function isAdminOrOwner() {
+        let role = getMemberRole();
+        return role == 'admin' || role == 'owner';
+      }
+
+      allow read:           if isSuperAdmin() || isActiveMember();
+      allow create, update: if isSuperAdmin() || (isActiveMember() && isAdminOrOwner());
+      allow delete:         if false;
+    }
+
     // ── CIQ-Imuno strip images: any active member uploads, admin/owner deletes
     // Mirrors the hematology /runs override so operators can attach strip
     // photos without admin role. See storagePath.imunoStripImage().

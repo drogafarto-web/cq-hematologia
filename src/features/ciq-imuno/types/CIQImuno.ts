@@ -186,6 +186,29 @@ export interface CIQImunoRun extends Omit<
   equipamentoId?: string;
   /** Snapshot imutável do equipamento — sobrevive a aposentadoria + cleanup. */
   equipamentoSnapshot?: import('../../equipamentos/types/Equipamento').EquipamentoSnapshot;
+
+  // ── PR1 (2026-04-26) — Qualificação formal de insumos ─────────────────────
+  // Campos populados EXCLUSIVAMENTE pela callable `approveQualificacao`
+  // (Admin SDK). NÃO entram no payload canônico de `useCIQSignature` —
+  // adicioná-los à canônica invalidaria assinaturas históricas. Vide
+  // `useCIQSignature.generateSignature` — o objeto canônico inclui apenas
+  // {doc, lot, test, ctrl, res, date}; `qualificacaoId` e `usadaComoEvidencia`
+  // ficam fora deliberadamente.
+
+  /**
+   * ID da `InsumoQualificacao` que usou esta corrida como evidência. Quando
+   * preenchido, indica que a corrida fez parte do conjunto que aprovou
+   * formalmente um lote (RDC 978/2025 Art.128).
+   */
+  qualificacaoId?: string;
+
+  /**
+   * `true` quando esta corrida foi marcada como evidência analítica em uma
+   * qualificação aprovada. Mutação SOMENTE pelo Admin SDK na callable
+   * `approveQualificacao`. Não muda `classificacaoImuno` (esse campo é
+   * imutável após criação do run).
+   */
+  usadaComoEvidencia?: boolean;
 }
 
 // ─── Lote ─────────────────────────────────────────────────────────────────────

@@ -24,8 +24,6 @@ import { evaluateInsumoUsability } from '../utils/insumoUsability';
 import {
   incrementInsumoRunCount,
   clearInsumoQCValidation,
-  aprovarLoteImuno,
-  reprovarLoteImuno,
 } from '../services/insumosFirebaseService';
 import type { OverrideContext } from '../components/OverrideModal';
 import { type Insumo, type InsumoModulo, type InsumoTipo } from '../types/Insumo';
@@ -416,47 +414,26 @@ export function useManualKitGuard({
         await clearInsumoQCValidation(activeLab.id, qcIds);
       }
 
-      // Fase G (2026-04-25) — Imuno: corrida de validação transiciona o lote
-      // do REAGENTE (reagente do kit, alvo da CQ por lote em Imuno).
-      //   - validação + ambos os controles conformes → aprovado
-      //   - validação + qualquer divergência → reprovado com motivo automático
-      // Em Hemato/Coag/Uro o flow é diferente (qcValidationRequired) e este
-      // bloco não dispara — module check no caller já garante isso.
-      if (module === 'imunologia' && classificacaoImuno === 'validacao') {
-        const reagente = resolved.reagente;
-        if (reagente && reagente.tipo === 'reagente' && userId && userName) {
-          try {
-            if (wasConforme) {
-              await aprovarLoteImuno(
-                activeLab.id,
-                reagente.id,
-                userId,
-                userName,
-                [runId],
-              );
-            } else {
-              await reprovarLoteImuno(
-                activeLab.id,
-                reagente.id,
-                userId,
-                userName,
-                motivoReprovacao?.trim() ||
-                  'Validação reprovada — controle(s) divergente(s) do esperado.',
-              );
-            }
-          } catch (err) {
-            // Não relança — corrida já foi salva. Operador retoma manualmente
-            // se a transição falhar (UI continua mostrando 'pendente'/'reprovado').
-            console.warn(
-              `[manualKitGuard][validacao] falha ao transicionar qcStatus do lote ${reagente.id}: ${
-                err instanceof Error ? err.message : String(err)
-              }`,
-            );
-          }
-        }
-      }
+      // PR1 (2026-04-26) — fluxo de aprovação/reprovação do lote saiu daqui.
+      // Decisão formal agora é responsabilidade da callable Cloud Function
+      // `approveQualificacao` / `reproveQualificacao`, disparada explicitamente
+      // pelo operador via `InsumoQualificacaoModal`. Esta hook só incrementa
+      // contadores — o run pode ser USADO COMO EVIDÊNCIA depois, mas isso é
+      // uma decisão separada do RT/biomedico.
+      //
+      // Side effects suprimidos vs. Fase G (2026-04-25):
+      //   classificacaoImuno === 'validacao' & wasConforme  → aprovarLoteImuno
+      //   classificacaoImuno === 'validacao' & !wasConforme → reprovarLoteImuno
+      //
+      // Esses caminhos foram intencionalmente removidos. Mantemos os parâmetros
+      // `classificacaoImuno`, `userId`, `userName`, `motivoReprovacao` no shape
+      // do callback para não quebrar callers existentes — ignorados aqui.
+      void classificacaoImuno;
+      void userId;
+      void userName;
+      void motivoReprovacao;
     },
-    [activeLab, resolved, module],
+    [activeLab, resolved],
   );
 
   return {

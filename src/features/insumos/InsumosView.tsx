@@ -15,8 +15,8 @@ import React, { useMemo, useState } from 'react';
 import { useActiveLab, useUser, useUserRole } from '../../store/useAuthStore';
 import { useAppStore } from '../../store/useAppStore';
 import { useInsumos } from './hooks/useInsumos';
+import { useProdutos } from './hooks/useProdutos';
 import {
-  aprovarLoteImuno,
   closeInsumo,
   descartarInsumo,
   openInsumo,
@@ -24,6 +24,8 @@ import {
 import { NovoLoteModal } from './components/NovoLoteModal';
 import { FR10ExportModal } from './components/FR10ExportModal';
 import { CatalogoProdutosView } from './components/CatalogoProdutosView';
+import { InsumoQualificacaoModal } from './components/InsumoQualificacaoModal';
+import type { CIQImunoRun } from '../ciq-imuno/types/CIQImuno';
 import { FornecedoresView } from '../fornecedores/FornecedoresView';
 import { useFornecedores } from '../fornecedores/hooks/useFornecedores';
 import { useNotasFiscais } from '../fornecedores/hooks/useNotasFiscais';
@@ -359,6 +361,10 @@ function LotesTable({
   }, [tab, statusFilter, searchQuery]);
 
   const { insumos: insumosRaw, isLoading, error } = useInsumos(filters);
+  const { produtos } = useProdutos();
+  // Modal de qualificação PR1 — substitui o aprovarLoteImuno legado
+  const [qualifyInsumo, setQualifyInsumo] = useState<Insumo | null>(null);
+  const setCurrentViewForQualify = useAppStore((s) => s.setCurrentView);
   const insumos = useMemo(() => {
     switch (statusFilter) {
       case 'em-rotina':
@@ -438,20 +444,12 @@ function LotesTable({
     }
   }
 
-  async function handleAprovarImuno(i: Insumo) {
-    if (!user) return;
+  // PR1 (2026-04-26): substitui aprovarLoteImuno legado por modal formal
+  // de qualificação com checklist + evidência analítica + assinatura digital.
+  // Backend é a callable approveQualificacao (sign-and-write Admin SDK).
+  function handleAprovarImuno(i: Insumo) {
     setActionError(null);
-    const ok = window.confirm(
-      `Aprovar lote ${i.lote} (${i.nomeComercial})?\n\n` +
-        'Confirma que as corridas de validação deste lote foram executadas com sucesso ' +
-        'e o lote está liberado para uso rotineiro. Ação auditável.',
-    );
-    if (!ok) return;
-    try {
-      await aprovarLoteImuno(labId, i.id, user.uid, operadorName);
-    } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Erro ao aprovar lote.');
-    }
+    setQualifyInsumo(i);
   }
 
   return (
@@ -629,6 +627,25 @@ function LotesTable({
           onClose={() => setShowNovoLote(false)}
         />
       )}
+
+      {/* PR1 — Modal formal de qualificação (substitui aprovarLoteImuno legado).
+          candidateRuns vazio: o modal mostra estado vazio + botão "Rodar corrida
+          de validação" que navega pra Bancada. Em iteração futura, popula com
+          query collectionGroup pra runs filtradas por insumosSnapshot.{slot}.id. */}
+      {qualifyInsumo && (
+        <InsumoQualificacaoModal
+          open={!!qualifyInsumo}
+          onClose={() => setQualifyInsumo(null)}
+          insumo={qualifyInsumo}
+          produto={produtos.find((p) => p.id === qualifyInsumo.produtoId) ?? null}
+          candidateRuns={[] as CIQImunoRun[]}
+          onRodarCorrida={() => {
+            setQualifyInsumo(null);
+            setCurrentViewForQualify('ciq-imuno');
+          }}
+          onDecided={() => setQualifyInsumo(null)}
+        />
+      )}
     </div>
   );
 }
@@ -665,11 +682,14 @@ function InsumoRow({
   // mantido apenas para docs pre-backfill (status indefinido + dataAbertura
   // ausente). Ver `resolveInsumoState` para semântica canônica.
   const isLacrado = state.kind === 'lacrado';
-  const isImuno =
-    insumo.tipo === 'reagente' &&
+  // PR1 (2026-04-26): qualificação cobre reagente E controle imuno (não só
+  // reagente). Controles positivo/negativo do kit também precisam ser
+  // qualificados pelo RT antes de entrar em rotina (RDC 786 + RDC 978).
+  const isImunoQualifiable =
+    (insumo.tipo === 'reagente' || insumo.tipo === 'controle') &&
     (insumo.modulos?.includes('imunologia') || insumo.modulo === 'imunologia');
-  const qcStatus =
-    insumo.tipo === 'reagente' || insumo.tipo === 'tira-uro' ? insumo.qcStatus : undefined;
+  const isTiraUro = insumo.tipo === 'tira-uro';
+  const qcStatus = insumo.qcStatus;
 
   return (
     <div className="grid grid-cols-[1fr,140px,120px,180px,160px] gap-4 items-center px-5 py-3 border-b border-slate-100 dark:border-white/[0.04] hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-all">
@@ -689,19 +709,33 @@ function InsumoRow({
               CQ pendente
             </span>
           )}
-          {isImuno && qcStatus === 'pendente' && (
-            <span className={`${CHIP} bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300`}>
-              Lote não aprovado
+          {isImunoQualifiable && (qcStatus === 'pendente' || qcStatus === undefined) && (
+            <span
+              className={`${CHIP} bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300`}
+              title="Aguardando qualificação formal pelo RT (corrida-validação ou caracterização). A corrida que registrar pode ser usada como evidência."
+            >
+              Aguarda qualificação
             </span>
           )}
-          {isImuno && qcStatus === 'aprovado' && (
+          {isImunoQualifiable && qcStatus === 'aprovado' && (
             <span className={`${CHIP} bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300`}>
-              Lote aprovado
+              Qualificado
             </span>
           )}
-          {isImuno && qcStatus === 'reprovado' && (
-            <span className={`${CHIP} bg-red-500/10 border-red-500/30 text-red-700 dark:text-red-300`}>
-              Reprovado
+          {isImunoQualifiable && qcStatus === 'reprovado' && (
+            <span
+              className={`${CHIP} bg-red-500/10 border-red-500/30 text-red-700 dark:text-red-300`}
+              title="Reprovado na qualificação. Insumo segregado — fora dos pickers de corrida."
+            >
+              Reprovado · Segregado
+            </span>
+          )}
+          {isTiraUro && (
+            <span
+              className={`${CHIP} bg-slate-500/10 border-slate-400/30 text-slate-600 dark:text-slate-400`}
+              title="Qualificação formal de tiras de uroanálise será implementada no PR2. Lote permanece operacional via fluxo legado."
+            >
+              Operacional (legado · PR2)
             </span>
           )}
         </div>
@@ -750,14 +784,14 @@ function InsumoRow({
       <span className={`${CHIP} ${v.bg} justify-self-start`}>{v.label}</span>
 
       <div className="flex items-center justify-end gap-1">
-        {canMutate && isImuno && qcStatus !== 'aprovado' && insumo.status === 'ativo' && (
+        {canMutate && isImunoQualifiable && qcStatus !== 'aprovado' && qcStatus !== 'reprovado' && insumo.status === 'ativo' && (
           <button
             type="button"
             onClick={() => onAprovarImuno(insumo)}
             className={`${BUTTON_GHOST} text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300`}
-            title="Marcar lote como aprovado no CQ (Imuno)"
+            title="Abre o modal de qualificação formal — checklist + evidência analítica + assinatura digital RT (RDC 978/2025 Art.128)"
           >
-            Aprovar lote
+            Qualificar lote
           </button>
         )}
         {canMutate && isLacrado && (

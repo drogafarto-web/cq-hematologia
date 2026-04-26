@@ -63,6 +63,9 @@ const MOV_LABEL: Record<InsumoMovimentacaoTipo, { title: string; tone: TimelineE
   abertura: { title: 'Abertura / reconstituição', tone: 'ok' },
   fechamento: { title: 'Fechado', tone: 'neutral' },
   descarte: { title: 'Descartado', tone: 'bad' },
+  // PR1 (2026-04-26) — decisão formal de qualificação. Tone genérico aqui
+  // (a UI específica diferencia aprovado/reprovado pelo campo `decision`).
+  qualificacao: { title: 'Qualificação registrada', tone: 'neutral' },
 };
 
 const TRANS_LABEL: Record<

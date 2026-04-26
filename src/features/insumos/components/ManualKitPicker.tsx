@@ -49,11 +49,21 @@ function insumoBadge(insumo: Insumo | null): React.ReactNode {
     if (u.motivo === 'vencido') return <StatusBadge tone="bad">VENCIDO</StatusBadge>;
     return <StatusBadge tone="warn">{u.motivo}</StatusBadge>;
   }
-  const v = validadeStatus(insumo.validadeReal.toDate());
-  if (v === 'warning') {
-    return <StatusBadge tone="warn">vence em {diasAteVencer(insumo.validadeReal.toDate())}d</StatusBadge>;
+  // PR1 (2026-04-26): exibe estado de qualificação formal antes do estado de
+  // validade. Operador vê de relance se o lote está qualificado, aguardando
+  // ou reprovado. Reprovado bloqueia seleção (handled em useManualKitGuard).
+  const qcStatus = insumo.qcStatus;
+  if (qcStatus === 'reprovado') return <StatusBadge tone="bad">REPROVADO</StatusBadge>;
+  if (qcStatus === 'aprovado') {
+    const v = validadeStatus(insumo.validadeReal.toDate());
+    if (v === 'warning') {
+      return <StatusBadge tone="warn">vence em {diasAteVencer(insumo.validadeReal.toDate())}d</StatusBadge>;
+    }
+    return <StatusBadge tone="ok">QUALIFICADO</StatusBadge>;
   }
-  return <StatusBadge tone="ok">OK</StatusBadge>;
+  // qcStatus === 'pendente' ou undefined — corrida pode ser usada como
+  // evidência de qualificação. Não bloqueia seleção.
+  return <StatusBadge tone="warn">aguarda qualificação</StatusBadge>;
 }
 
 // ─── Slot select ─────────────────────────────────────────────────────────────
