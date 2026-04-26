@@ -22,3 +22,7 @@ export { validarCertificadoEc } from './validarCertificado';
 export { ec_scheduledAlertasVencimento } from './scheduledAlertasVencimento';
 // Fase 7 — trigger RN-08 server-side (cleanup 2026-04-24: substitui observer client)
 export { ec_onColaboradorCreated } from './onColaboradorCreated';
+// Defense-in-depth FK check (2026-04-24)
+export { ec_onParticipanteCreated } from './onParticipanteCreated';
+// Soft-delete cascade (2026-04-24) — arquiva execução + dependentes em batch
+export { ec_softDeleteExecucaoCascade } from './softDeleteExecucaoCascade';

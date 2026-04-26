@@ -272,6 +272,86 @@ export async function generateCoagRunCode(labId: string): Promise<string> {
   return `CG-${year}-${String(nextCount).padStart(4, '0')}`;
 }
 
+// ─── Vinculação à Bancada (Fase 4 — 2026-04-25) ───────────────────────────────
+
+/**
+ * Vincula um lote de coagulação à bancada. Atômico via runTransaction —
+ * append-only no pinHistory, captura prevSetupType. Bloqueia 'principal' se
+ * o lote ainda não foi aprovado (apenas 'validacao_paralela' pra pendentes).
+ */
+export async function vincularCoagLot(
+  labId: string,
+  lotId: string,
+  setupType: 'principal' | 'validacao_paralela',
+  actorUid: string,
+): Promise<void> {
+  const ref = lotRef(labId, lotId);
+  try {
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists()) throw new Error('Lote não encontrado.');
+      const data = snap.data() as CoagulacaoLot;
+
+      if (setupType === 'principal' && data.coagDecision !== 'A') {
+        throw new Error('Setup oficial requer lote aprovado pelo RT.');
+      }
+
+      const prevSetupType = data.setupType ?? undefined;
+      const entry = {
+        at: Timestamp.now(),
+        by: actorUid,
+        action: 'vinculado' as const,
+        setupType,
+        ...(prevSetupType && prevSetupType !== null ? { prevSetupType } : {}),
+      };
+
+      tx.update(ref, {
+        setupType,
+        pinnedBy: actorUid,
+        pinnedAt: serverTimestamp(),
+        pinHistory: [...(data.pinHistory ?? []), entry],
+      });
+    });
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err), { cause: err });
+  }
+}
+
+/**
+ * Desvincula um lote de coagulação da bancada. Idempotente, append-only.
+ */
+export async function desvincularCoagLot(
+  labId: string,
+  lotId: string,
+  actorUid: string,
+): Promise<void> {
+  const ref = lotRef(labId, lotId);
+  try {
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists()) throw new Error('Lote não encontrado.');
+      const data = snap.data() as CoagulacaoLot;
+      if (!data.setupType) return;
+
+      const entry = {
+        at: Timestamp.now(),
+        by: actorUid,
+        action: 'desvinculado' as const,
+        prevSetupType: data.setupType,
+      };
+
+      tx.update(ref, {
+        setupType: null,
+        pinnedBy: null,
+        pinnedAt: null,
+        pinHistory: [...(data.pinHistory ?? []), entry],
+      });
+    });
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err), { cause: err });
+  }
+}
+
 // ─── Run operations ───────────────────────────────────────────────────────────
 
 /**

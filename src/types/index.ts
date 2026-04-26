@@ -357,7 +357,8 @@ export type View =
   | 'insumos'
   | 'lab-settings'
   | 'educacao-continuada'
-  | 'controle-temperatura';
+  | 'controle-temperatura'
+  | 'sgq-documentos';
 export type StatsSource = 'manufacturer' | 'internal';
 export type ImageState = 'ready' | 'uploading' | 'none';
 

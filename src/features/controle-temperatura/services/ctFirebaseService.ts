@@ -381,79 +381,11 @@ export function subscribeEquipamentos(
  * `writeBatch` garante que ou tudo vira, ou nada — impossível ter leitura fora
  * do limite sem a NC sombra, cenário que quebraria auditoria RDC 978.
  */
-export async function createLeituraComNC(
-  labId: LabId,
-  input: LeituraInput,
-  limites: LimitesAceitabilidade,
-  ncDefaults: Pick<NCInput, 'assinatura' | 'responsavelAcao'> & {
-    descricao?: string;
-    acaoImediata?: string;
-  },
-  leituraPrevistaId?: string,
-): Promise<{ leituraId: string; ncId: string | null }> {
-  try {
-    await ensureLabRoot(labId);
-    const avaliacao = avaliarForaDosLimites(input.temperaturaAtual, input.umidade, limites);
-
-    const batch = writeBatch(db);
-    const leituraRef = doc(leiturasCol(labId));
-
-    batch.set(leituraRef, {
-      labId,
-      equipamentoId: input.equipamentoId,
-      dataHora: input.dataHora,
-      turno: input.turno,
-      temperaturaAtual: input.temperaturaAtual,
-      umidade: input.umidade ?? null,
-      temperaturaMax: input.temperaturaMax,
-      temperaturaMin: input.temperaturaMin,
-      foraDosLimites: avaliacao.fora,
-      origem: input.origem,
-      dispositivoIoTId: input.dispositivoIoTId ?? null,
-      status: input.status,
-      justificativaPerdida: input.justificativaPerdida ?? null,
-      assinatura: input.assinatura ?? null,
-      observacao: input.observacao ?? null,
-      deletadoEm: null,
-    });
-
-    let ncId: string | null = null;
-    if (avaliacao.fora && avaliacao.violado !== null) {
-      const ncRef = doc(ncsCol(labId));
-      ncId = ncRef.id;
-      batch.set(ncRef, {
-        labId,
-        leituraId: leituraRef.id,
-        equipamentoId: input.equipamentoId,
-        temperaturaRegistrada: input.temperaturaAtual,
-        limiteViolado: avaliacao.violado,
-        descricao:
-          ncDefaults.descricao ??
-          `Leitura fora dos limites (${avaliacao.violado}). Valor: ${input.temperaturaAtual}.`,
-        acaoImediata:
-          ncDefaults.acaoImediata ??
-          'Ação imediata pendente de registro pelo responsável.',
-        responsavelAcao: ncDefaults.responsavelAcao,
-        dataAbertura: serverTimestamp(),
-        status: 'aberta' as StatusNC,
-        assinatura: ncDefaults.assinatura,
-        deletadoEm: null,
-      });
-    }
-
-    if (leituraPrevistaId) {
-      batch.update(leituraPrevistaDoc(labId, leituraPrevistaId), {
-        status: 'realizada' as StatusLeituraPrevista,
-        leituraId: leituraRef.id,
-      });
-    }
-
-    await batch.commit();
-    return { leituraId: leituraRef.id, ncId };
-  } catch (err) {
-    throw new Error(firestoreErrorMessage(err), { cause: err });
-  }
-}
+// ⚠️ `createLeituraComNC` foi removido em 2026-04-24 (CT-01).
+// Criação de leitura + NC automática vive agora no callable
+// `ct_commitLeitura` (functions/src/modules/controleTemperatura/). Client
+// chama via `useSaveLeitura` hook. `avaliarForaDosLimites` acima segue
+// exportado para uso visual no form (feedback imediato antes do submit).
 
 export async function softDeleteLeitura(labId: LabId, id: string): Promise<void> {
   await updateDoc(leituraDoc(labId, id), { deletadoEm: serverTimestamp() });
@@ -570,24 +502,9 @@ export function subscribeLeiturasPrevistas(
 }
 
 // ─── API: NCs ────────────────────────────────────────────────────────────────
-
-export async function createNC(labId: LabId, input: NCInput): Promise<string> {
-  try {
-    await ensureLabRoot(labId);
-    const ref = doc(ncsCol(labId));
-    await setDoc(ref, {
-      labId,
-      ...input,
-      acaoCorretiva: input.acaoCorretiva ?? null,
-      dataResolucao: input.dataResolucao ?? null,
-      dataAbertura: serverTimestamp(),
-      deletadoEm: null,
-    });
-    return ref.id;
-  } catch (err) {
-    throw new Error(firestoreErrorMessage(err), { cause: err });
-  }
-}
+// `createNC` foi removido em 2026-04-24 (CT-01) — rules bloqueiam create
+// client-side. NC automática criada no callable `ct_commitLeitura`.
+// NC manual (sem leitura) é backlog CT-08 (callable dedicada).
 
 export async function updateNC(
   labId: LabId,

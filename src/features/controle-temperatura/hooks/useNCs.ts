@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { useActiveLabId } from '../../../store/useAuthStore';
 import {
-  createNC,
   resolverNC as resolverSvc,
   softDeleteNC,
   subscribeNCs,
@@ -11,11 +10,15 @@ import {
 } from '../services/ctFirebaseService';
 import type { NCInput, NaoConformidadeTemp } from '../types/ControlTemperatura';
 
+// NC manual (sem leitura associada) ficou sem caminho em prod desde CT-01 —
+// rules bloqueiam create client-side. Se o caso de uso aparecer, adicionar
+// callable dedicada `ct_abrirNCManual` (débito CT-08). Por ora NCs nascem
+// exclusivamente do batch atômico de `ct_commitLeitura`.
+
 export interface UseNCsResult {
   ncs: NaoConformidadeTemp[];
   isLoading: boolean;
   error: Error | null;
-  create: (input: NCInput) => Promise<string>;
   update: (id: string, patch: Partial<NCInput>) => Promise<void>;
   resolver: (id: string, acaoCorretiva: string) => Promise<void>;
   softDelete: (id: string) => Promise<void>;
@@ -52,14 +55,6 @@ export function useNCs(options: SubscribeNCsOptions = {}): UseNCsResult {
     return () => unsubscribe();
   }, [labId, includeDeleted, equipamentoId, status]);
 
-  const create = useCallback(
-    async (input: NCInput): Promise<string> => {
-      if (!labId) throw new Error('Sem lab ativo.');
-      return createNC(labId, input);
-    },
-    [labId],
-  );
-
   const update = useCallback(
     async (id: string, patch: Partial<NCInput>): Promise<void> => {
       if (!labId) throw new Error('Sem lab ativo.');
@@ -84,5 +79,5 @@ export function useNCs(options: SubscribeNCsOptions = {}): UseNCsResult {
     [labId],
   );
 
-  return { ncs, isLoading, error, create, update, resolver, softDelete };
+  return { ncs, isLoading, error, update, resolver, softDelete };
 }

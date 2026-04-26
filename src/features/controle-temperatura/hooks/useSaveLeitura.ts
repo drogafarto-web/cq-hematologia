@@ -1,8 +1,7 @@
 import { useCallback, useState } from 'react';
 
+import { functions, httpsCallable } from '../../../shared/services/firebase';
 import { useActiveLabId, useUser } from '../../../store/useAuthStore';
-import { createLeituraComNC } from '../services/ctFirebaseService';
-import { generateCtSignature } from '../services/ctSignatureService';
 import type {
   EquipamentoMonitorado,
   LeituraInput,
@@ -18,16 +17,48 @@ export interface UseSaveLeituraResult {
   error: Error | null;
 }
 
+// Payload wire do callable `ct_commitLeitura` — Timestamps viram millis no transporte.
+interface CommitLeituraWireInput {
+  labId: string;
+  equipamentoId: string;
+  dataHoraMillis: number;
+  turno: LeituraInput['turno'];
+  temperaturaAtual: number;
+  umidade?: number;
+  temperaturaMax: number;
+  temperaturaMin: number;
+  status: LeituraInput['status'];
+  justificativaPerdida?: string;
+  observacao?: string;
+  leituraPrevistaId?: string;
+}
+
+interface CommitLeituraResult {
+  ok: true;
+  leituraId: string;
+  ncId: string | null;
+  foraDosLimites: boolean;
+  violado: 'max' | 'min' | 'umidade' | null;
+}
+
+const callCommitLeitura = httpsCallable<CommitLeituraWireInput, CommitLeituraResult>(
+  functions,
+  'ct_commitLeitura',
+);
+
 /**
- * Orquestra RN-01 + RN-02 no cliente:
+ * Orquestra RN-01 + RN-02 via callable sign-and-write (pós-CT-01).
  *
- *   RN-01 — serviço deriva `foraDosLimites` e cria NC em batch.
- *   RN-02 — se `origem === 'manual'`, exige operador autenticado e
- *           gera `LogicalSignature` sobre (equipamentoId, dataHora,
- *           temperaturaAtual, temperaturaMax, temperaturaMin, umidade?).
+ * Mudança vs client-side original:
+ *   - Assinatura gerada 100% no server (Admin SDK, Timestamp.now() confiável)
+ *   - Limites re-lidos no server; UI não pode falsear `foraDosLimites`
+ *   - NC automática criada no mesmo batch no server
+ *   - Client só prepara payload + exibe resultado
  *
- * Assinatura AUTOMÁTICA (IoT) é escrita pela Cloud Function com o
- * operatorId = "iot:{dispositivoId}" — não passa por este hook.
+ * `equipamento` ainda é recebido para UX (mostrar limites no form antes do
+ * submit) — mas o commit autoritativo re-lê os limites server-side.
+ *
+ * Leituras IoT continuam via HTTP `registrarLeituraIoT` (não passam aqui).
  */
 export function useSaveLeitura(): UseSaveLeituraResult {
   const labId = useActiveLabId();
@@ -38,47 +69,39 @@ export function useSaveLeitura(): UseSaveLeituraResult {
   const save = useCallback(
     async (
       input: Omit<LeituraInput, 'assinatura'>,
-      equipamento: EquipamentoMonitorado,
+      _equipamento: EquipamentoMonitorado,
       options?: { leituraPrevistaId?: string; observacaoNC?: string },
     ): Promise<{ leituraId: string; ncId: string | null }> => {
       if (!labId) throw new Error('Sem lab ativo.');
       if (!user?.uid) throw new Error('Usuário não autenticado.');
+      if (input.origem !== 'manual') {
+        // Safety net: leituras IoT jamais devem cair nesse hook.
+        throw new Error('useSaveLeitura só deve ser usado para leituras manuais.');
+      }
 
       setIsSaving(true);
       setError(null);
       try {
-        let assinatura: LeituraInput['assinatura'];
-        if (input.origem === 'manual') {
-          assinatura = await generateCtSignature(user.uid, {
-            equipamentoId: input.equipamentoId,
-            dataHora: input.dataHora.toMillis(),
-            temperaturaAtual: input.temperaturaAtual,
-            temperaturaMax: input.temperaturaMax,
-            temperaturaMin: input.temperaturaMin,
-            umidade: input.umidade ?? -1,
-          });
-        }
-
-        const ncAssinatura =
-          assinatura ??
-          (await generateCtSignature(user.uid, {
-            equipamentoId: input.equipamentoId,
-            autoNC: 1,
-            ts: Date.now(),
-          }));
-
-        const result = await createLeituraComNC(
+        const payload: CommitLeituraWireInput = {
           labId,
-          { ...input, assinatura },
-          equipamento.limites,
-          {
-            assinatura: ncAssinatura,
-            responsavelAcao: user.displayName ?? user.email ?? user.uid,
-            descricao: options?.observacaoNC,
-          },
-          options?.leituraPrevistaId,
-        );
-        return result;
+          equipamentoId: input.equipamentoId,
+          dataHoraMillis: input.dataHora.toMillis(),
+          turno: input.turno,
+          temperaturaAtual: input.temperaturaAtual,
+          umidade: input.umidade,
+          temperaturaMax: input.temperaturaMax,
+          temperaturaMin: input.temperaturaMin,
+          status: input.status,
+          justificativaPerdida: input.justificativaPerdida,
+          observacao: input.observacao ?? options?.observacaoNC,
+          leituraPrevistaId: options?.leituraPrevistaId,
+        };
+
+        const resp = await callCommitLeitura(payload);
+        return {
+          leituraId: resp.data.leituraId,
+          ncId: resp.data.ncId,
+        };
       } catch (e) {
         const err = e instanceof Error ? e : new Error(String(e));
         setError(err);
@@ -87,7 +110,7 @@ export function useSaveLeitura(): UseSaveLeituraResult {
         setIsSaving(false);
       }
     },
-    [labId, user?.uid, user?.displayName, user?.email],
+    [labId, user?.uid],
   );
 
   return { save, isSaving, error };

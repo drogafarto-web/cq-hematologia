@@ -77,13 +77,21 @@ export function buildInsumoSnapshot(insumo: Insumo): InsumoSnapshot {
 
 /**
  * Conjunto de snapshots usado em cada corrida. Preenchido no save a partir do
- * EquipmentSetup ativo. Slots opcionais refletem heterogeneidade dos módulos:
+ * EquipmentSetup ativo (modo analisador) ou do ManualKitPicker (modo manual).
+ * Slots opcionais refletem heterogeneidade dos módulos:
  *   - Hematologia/Coagulação: reagente + controle obrigatórios
  *   - Uroanálise: tira obrigatória; controle condicional (lote.requerControlePorCorrida)
- *   - Imuno: reagente obrigatório; SEM controle por corrida
+ *   - Imuno analisador: reagente obrigatório; SEM controle por corrida
+ *   - Imuno manual (Fase F 2026-04-24): reagente + controlePositivo +
+ *     controleNegativo — os 3 itens do kit manual (PCR látex, VDRL em lâmina,
+ *     cartela imuno) vão juntos na corrida, sem passar por EquipmentSetup.
  */
 export interface InsumosSnapshotSet {
   reagente?: InsumoSnapshot;
   controle?: InsumoSnapshot;
   tira?: InsumoSnapshot;
+  /** Controle positivo do kit manual — esperado reagente ("R"). */
+  controlePositivo?: InsumoSnapshot;
+  /** Controle negativo do kit manual — esperado não-reagente ("NR"). */
+  controleNegativo?: InsumoSnapshot;
 }

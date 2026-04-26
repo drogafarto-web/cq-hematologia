@@ -13,6 +13,7 @@ import { buildEquipamentoSnapshot } from '../../equipamentos/types/Equipamento';
 import type { Equipamento } from '../../equipamentos/types/Equipamento';
 import { useAppStore } from '../../../store/useAppStore';
 import type { SaveCoagRunOptions } from '../hooks/useSaveCoagRun';
+import type { CoagulacaoLot } from '../types/Coagulacao';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -207,6 +208,12 @@ interface CoagulacaoFormProps {
   onCancel?: () => void;
   /** Pré-seleciona nível ao abrir (útil quando se clica "Novo run Nível I"). */
   initialNivel?: CoagNivel;
+  /**
+   * Fase 6 (2026-04-25) — Pré-fill do form a partir de um lote vinculado à
+   * bancada. Quando passado, os campos identificadores (nível, lote, datas)
+   * são pré-preenchidos e bloqueados.
+   */
+  prefillFromLot?: CoagulacaoLot;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -216,6 +223,7 @@ export function CoagulacaoForm({
   isSaving = false,
   onCancel,
   initialNivel,
+  prefillFromLot,
 }: CoagulacaoFormProps) {
   const user = useUser();
   const setCurrentView = useAppStore((s) => s.setCurrentView);
@@ -232,12 +240,21 @@ export function CoagulacaoForm({
     equipamentoId,
   });
 
-  const [form, setForm] = useState<Partial<CoagulacaoFormData>>({
+  const [form, setForm] = useState<Partial<CoagulacaoFormData>>(() => ({
     equipamento: 'Clotimer Duo',
     frequencia: 'DIARIA',
     dataRealizacao: today(),
     nivel: initialNivel,
-  });
+    ...(prefillFromLot && {
+      nivel: prefillFromLot.nivel,
+      loteControle: prefillFromLot.loteControle,
+      fabricanteControle: prefillFromLot.fabricanteControle,
+      aberturaControle: prefillFromLot.aberturaControle,
+      validadeControle: prefillFromLot.validadeControle,
+    }),
+  }));
+  // Fase 6 — quando o form é aberto a partir de um lote vinculado, identificadores ficam bloqueados.
+  const lockedFromLot = !!prefillFromLot;
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   function toIsoDate(ts: { toDate: () => Date } | null): string {
@@ -392,6 +409,38 @@ export function CoagulacaoForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-7" noValidate>
+      {/* ── Banner: corrida iniciada de lote vinculado (Fase 6) ────────────── */}
+      {prefillFromLot && (
+        <div
+          className={`flex items-start gap-3 px-4 py-3 rounded-xl border ${
+            prefillFromLot.setupType === 'principal'
+              ? 'bg-emerald-50 dark:bg-emerald-500/[0.06] border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400'
+              : 'bg-blue-50 dark:bg-blue-500/[0.06] border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400'
+          }`}
+        >
+          <span className="mt-0.5 shrink-0">
+            <svg width="14" height="14" viewBox="0 0 13 13" fill="none" aria-hidden>
+              <path
+                d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+          <div className="text-xs leading-relaxed">
+            <p className="font-semibold">
+              Corrida vinculada · Nível {prefillFromLot.nivel} · Lote {prefillFromLot.loteControle}
+            </p>
+            <p className="opacity-80 mt-0.5">
+              {prefillFromLot.setupType === 'principal'
+                ? 'Setup oficial em rotina. Nível, lote e datas estão bloqueados.'
+                : 'Lote em validação paralela.'}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* ── Operador ───────────────────────────────────────────────────────── */}
       <section>
         <SectionTitle>Operador</SectionTitle>
@@ -464,7 +513,11 @@ export function CoagulacaoForm({
       <section>
         <SectionTitle hint="Clotimer Duo · CLSI H47-A2">Corrida</SectionTitle>
         <div className="space-y-3">
-          <NivelToggle value={form.nivel} onChange={(v) => set('nivel', v)} error={errors.nivel} />
+          <NivelToggle
+            value={form.nivel}
+            onChange={(v) => !lockedFromLot && set('nivel', v)}
+            error={errors.nivel}
+          />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -553,6 +606,7 @@ export function CoagulacaoForm({
                 placeholder="ex: L2024-038"
                 value={form.loteControle ?? ''}
                 onChange={(e) => set('loteControle', e.target.value)}
+                disabled={lockedFromLot}
                 className={errors.loteControle ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.loteControle} />
@@ -567,6 +621,7 @@ export function CoagulacaoForm({
                 placeholder="ex: Bio-Rad"
                 value={form.fabricanteControle ?? ''}
                 onChange={(e) => set('fabricanteControle', e.target.value)}
+                disabled={lockedFromLot}
                 className={errors.fabricanteControle ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.fabricanteControle} />
@@ -584,6 +639,7 @@ export function CoagulacaoForm({
                 title="Data de abertura do controle"
                 value={form.aberturaControle ?? ''}
                 onChange={(e) => set('aberturaControle', e.target.value)}
+                disabled={lockedFromLot}
                 className={errors.aberturaControle ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.aberturaControle} />
@@ -598,6 +654,7 @@ export function CoagulacaoForm({
                 title="Data de validade do controle"
                 value={form.validadeControle ?? ''}
                 onChange={(e) => set('validadeControle', e.target.value)}
+                disabled={lockedFromLot}
                 className={errors.validadeControle ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.validadeControle} />

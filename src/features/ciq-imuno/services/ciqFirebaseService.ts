@@ -31,6 +31,7 @@ import { COLLECTIONS, SUBCOLLECTIONS, storagePath } from '../../../constants';
 import { firestoreErrorMessage } from '../../../shared/services/firebase';
 import type { Unsubscribe } from '../../../shared/services/firebase';
 import type { CIQImunoRun, CIQImunoLot } from '../types/CIQImuno';
+import type { CIQTestTypeConfig } from '../types/_shared_refs';
 
 // ─── Path helpers ─────────────────────────────────────────────────────────────
 
@@ -251,6 +252,89 @@ export async function generateRunCode(labId: string): Promise<string> {
   return `CI-${year}-${String(nextCount).padStart(4, '0')}`;
 }
 
+// ─── Vinculação à Bancada (Fase 1A — 2026-04-25) ─────────────────────────────
+
+/**
+ * Vincula um lote à bancada. Atômico — garante que pinHistory é append-only
+ * e que o estado prévio seja capturado no audit (prevSetupType).
+ *
+ * Bloqueia vinculação como 'principal' se o lote ainda não foi aprovado
+ * (apenas 'validacao_paralela' é permitido pra lotes pendentes).
+ */
+export async function vincularCIQLot(
+  labId: string,
+  lotId: string,
+  setupType: 'principal' | 'validacao_paralela',
+  actorUid: string,
+): Promise<void> {
+  const ref = lotRef(labId, lotId);
+  try {
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists()) throw new Error('Lote não encontrado.');
+      const data = snap.data() as CIQImunoLot;
+
+      if (setupType === 'principal' && data.ciqDecision !== 'A') {
+        throw new Error('Setup oficial requer lote aprovado pelo RT.');
+      }
+
+      const prevSetupType = data.setupType ?? undefined;
+      const entry = {
+        at: Timestamp.now(),
+        by: actorUid,
+        action: 'vinculado' as const,
+        setupType,
+        ...(prevSetupType && prevSetupType !== null ? { prevSetupType } : {}),
+      };
+
+      tx.update(ref, {
+        setupType,
+        pinnedBy: actorUid,
+        pinnedAt: serverTimestamp(),
+        pinHistory: [...(data.pinHistory ?? []), entry],
+      });
+    });
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err), { cause: err });
+  }
+}
+
+/**
+ * Desvincula um lote da bancada. Atômico — append-only no pinHistory.
+ */
+export async function desvincularCIQLot(
+  labId: string,
+  lotId: string,
+  actorUid: string,
+): Promise<void> {
+  const ref = lotRef(labId, lotId);
+  try {
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists()) throw new Error('Lote não encontrado.');
+      const data = snap.data() as CIQImunoLot;
+
+      if (!data.setupType) return; // já desvinculado, idempotente
+
+      const entry = {
+        at: Timestamp.now(),
+        by: actorUid,
+        action: 'desvinculado' as const,
+        prevSetupType: data.setupType,
+      };
+
+      tx.update(ref, {
+        setupType: null,
+        pinnedBy: null,
+        pinnedAt: null,
+        pinHistory: [...(data.pinHistory ?? []), entry],
+      });
+    });
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err), { cause: err });
+  }
+}
+
 // ─── Run operations ───────────────────────────────────────────────────────────
 
 /**
@@ -394,21 +478,61 @@ export async function writeCIQAuditRecord(
 
 // ─── Test Types config ────────────────────────────────────────────────────────
 
-const DEFAULT_TEST_TYPES = [
-  'HCG',
-  'BhCG',
-  'HIV',
-  'HBsAg',
-  'Anti-HCV',
-  'Sifilis',
-  'Dengue',
-  'COVID',
-  'PCR',
-  'Troponina',
+/**
+ * Seed padrão de imunoensaios — aplicado quando o doc de config não existe.
+ * `manual: true` para testes feitos fora de analisador (aglutinação em lâmina,
+ * cartela, imunocromatografia). Um lab pode override qualquer um via UI.
+ *
+ * Critério: teste que um laboratório pequeno-médio faz por leitura visual,
+ * sem leitor automático, com kit manual (reagente + controles do próprio kit).
+ * Quando o lab tiver analisador (ex: Architect, Cobas), o admin desmarca manual
+ * e a configuração do equipamento volta a valer.
+ */
+const DEFAULT_TEST_TYPES: CIQTestTypeConfig[] = [
+  { name: 'HCG', manual: false },
+  { name: 'BhCG', manual: false },
+  { name: 'HIV', manual: false },
+  { name: 'HBsAg', manual: false },
+  { name: 'Anti-HCV', manual: false },
+  { name: 'Sifilis', manual: false },
+  { name: 'Dengue', manual: false },
+  { name: 'COVID', manual: false },
+  { name: 'PCR', manual: true },
+  { name: 'VDRL', manual: true },
+  { name: 'ASO', manual: true },
+  { name: 'Fator Reumatoide', manual: true },
+  { name: 'Troponina', manual: false },
 ];
 
 function testTypesDocRef(labId: string) {
   return doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.CIQ_IMUNO_CONFIG, 'testTypes');
+}
+
+/**
+ * Normaliza o raw do Firestore para o shape `CIQTestTypeConfig[]`.
+ *
+ * Backward-compat on-read: docs pre-2026-04-24 gravam `types: string[]`.
+ * Convertemos transparentemente para `[{name, manual:false}]` sem escrever —
+ * a próxima mutação (add/remove/rename/setManual) grava o novo shape.
+ *
+ * Docs novos gravam `types: CIQTestTypeConfig[]`. Entries malformadas são
+ * ignoradas (defensivo contra edits manuais).
+ */
+function normalizeRawTypes(raw: unknown): CIQTestTypeConfig[] {
+  if (!Array.isArray(raw)) return [...DEFAULT_TEST_TYPES];
+  const out: CIQTestTypeConfig[] = [];
+  for (const item of raw) {
+    if (typeof item === 'string' && item.trim()) {
+      out.push({ name: item, manual: false });
+    } else if (item && typeof item === 'object') {
+      const name = (item as { name?: unknown }).name;
+      const manual = (item as { manual?: unknown }).manual;
+      if (typeof name === 'string' && name.trim()) {
+        out.push({ name, manual: manual === true });
+      }
+    }
+  }
+  return out.length > 0 ? out : [...DEFAULT_TEST_TYPES];
 }
 
 /**
@@ -419,11 +543,10 @@ function testTypesDocRef(labId: string) {
 async function readTypesInTx(
   tx: Parameters<Parameters<typeof runTransaction>[1]>[0],
   ref: ReturnType<typeof testTypesDocRef>,
-): Promise<string[]> {
+): Promise<CIQTestTypeConfig[]> {
   const snap = await tx.get(ref);
   if (!snap.exists()) return [...DEFAULT_TEST_TYPES];
-  const raw = snap.data().types;
-  return Array.isArray(raw) ? (raw as string[]) : [...DEFAULT_TEST_TYPES];
+  return normalizeRawTypes(snap.data().types);
 }
 
 /**
@@ -434,7 +557,7 @@ async function readTypesInTx(
  */
 export function subscribeToTestTypes(
   labId: string,
-  callback: (types: string[]) => void,
+  callback: (types: CIQTestTypeConfig[]) => void,
   onError?: (err: Error) => void,
 ): Unsubscribe {
   return onSnapshot(
@@ -444,16 +567,7 @@ export function subscribeToTestTypes(
         callback([...DEFAULT_TEST_TYPES]);
         return;
       }
-      const raw = snap.data().types;
-      if (Array.isArray(raw)) {
-        callback(raw as string[]);
-      } else {
-        console.warn(
-          `[ciqFirebaseService] testTypes doc for lab=${labId} has non-array "types" field:`,
-          raw,
-        );
-        callback([...DEFAULT_TEST_TYPES]);
-      }
+      callback(normalizeRawTypes(snap.data().types));
     },
     (err) => {
       console.error('[ciqFirebaseService] testTypes listener error:', err);
@@ -468,15 +582,20 @@ export function subscribeToTestTypes(
  * (b) adições concorrentes nunca perdem dados, (c) duplicatas case-insensitive
  * são ignoradas idempotentemente.
  */
-export async function addTestType(labId: string, name: string): Promise<void> {
+export async function addTestType(
+  labId: string,
+  name: string,
+  manual: boolean = false,
+): Promise<void> {
   const trimmed = name.trim();
   if (!trimmed) return;
   const ref = testTypesDocRef(labId);
   try {
     await runTransaction(db, async (tx) => {
       const curr = await readTypesInTx(tx, ref);
-      if (curr.some((t) => t.toLowerCase() === trimmed.toLowerCase())) return;
-      tx.set(ref, { types: [...curr, trimmed], updatedAt: serverTimestamp() });
+      if (curr.some((t) => t.name.toLowerCase() === trimmed.toLowerCase())) return;
+      const next: CIQTestTypeConfig[] = [...curr, { name: trimmed, manual }];
+      tx.set(ref, { types: next, updatedAt: serverTimestamp() });
     });
   } catch (err) {
     throw new Error(firestoreErrorMessage(err), { cause: err });
@@ -491,7 +610,7 @@ export async function removeTestType(labId: string, name: string): Promise<void>
   try {
     await runTransaction(db, async (tx) => {
       const curr = await readTypesInTx(tx, ref);
-      const next = curr.filter((t) => t !== name);
+      const next = curr.filter((t) => t.name !== name);
       if (next.length === curr.length) return; // nada a remover
       tx.set(ref, { types: next, updatedAt: serverTimestamp() });
     });
@@ -501,7 +620,7 @@ export async function removeTestType(labId: string, name: string): Promise<void>
 }
 
 /**
- * Renomeia um tipo in-place, preservando a posição no array.
+ * Renomeia um tipo in-place, preservando a posição no array e a flag manual.
  * Bloqueia se o novo nome colide (case-insensitive) com outro existente.
  */
 export async function renameTestType(
@@ -515,11 +634,38 @@ export async function renameTestType(
   try {
     await runTransaction(db, async (tx) => {
       const curr = await readTypesInTx(tx, ref);
-      const collides = curr.some((t) => t !== oldName && t.toLowerCase() === trimmed.toLowerCase());
+      const collides = curr.some(
+        (t) => t.name !== oldName && t.name.toLowerCase() === trimmed.toLowerCase(),
+      );
       if (collides) {
         throw new Error(`Já existe um teste com o nome "${trimmed}".`);
       }
-      const next = curr.map((t) => (t === oldName ? trimmed : t));
+      const next = curr.map((t) => (t.name === oldName ? { ...t, name: trimmed } : t));
+      tx.set(ref, { types: next, updatedAt: serverTimestamp() });
+    });
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err), { cause: err });
+  }
+}
+
+/**
+ * Alterna a flag `manual` de um tipo — idempotente. Atômico como as demais
+ * mutações. Runs já gravados não são afetados (a flag é config, não dado).
+ */
+export async function setTestTypeManual(
+  labId: string,
+  name: string,
+  manual: boolean,
+): Promise<void> {
+  const ref = testTypesDocRef(labId);
+  try {
+    await runTransaction(db, async (tx) => {
+      const curr = await readTypesInTx(tx, ref);
+      const idx = curr.findIndex((t) => t.name === name);
+      if (idx === -1) return;
+      if (curr[idx].manual === manual) return;
+      const next = [...curr];
+      next[idx] = { ...next[idx], manual };
       tx.set(ref, { types: next, updatedAt: serverTimestamp() });
     });
   } catch (err) {
@@ -530,7 +676,7 @@ export async function renameTestType(
 /**
  * Reordena a lista de tipos. Valida que o array recebido é uma permutação
  * exata do array persistido — evita que uma reordenação concorrente com
- * uma adição apague o novo item.
+ * uma adição apague o novo item. A flag `manual` de cada tipo é preservada.
  */
 export async function reorderTestTypes(labId: string, ordered: string[]): Promise<void> {
   const ref = testTypesDocRef(labId);
@@ -540,11 +686,12 @@ export async function reorderTestTypes(labId: string, ordered: string[]): Promis
       if (curr.length !== ordered.length) {
         throw new Error('Reordenação inválida: a lista divergiu. Recarregue e tente novamente.');
       }
-      const currSet = new Set(curr);
-      if (ordered.some((t) => !currSet.has(t))) {
+      const byName = new Map(curr.map((t) => [t.name, t]));
+      if (ordered.some((n) => !byName.has(n))) {
         throw new Error('Reordenação inválida: conteúdo divergiu. Recarregue e tente novamente.');
       }
-      tx.set(ref, { types: ordered, updatedAt: serverTimestamp() });
+      const next = ordered.map((n) => byName.get(n)!);
+      tx.set(ref, { types: next, updatedAt: serverTimestamp() });
     });
   } catch (err) {
     throw new Error(firestoreErrorMessage(err), { cause: err });

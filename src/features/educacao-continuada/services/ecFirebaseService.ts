@@ -29,7 +29,6 @@ import {
   updateDoc,
   uploadBytesResumable,
   where,
-  writeBatch,
   type CollectionReference,
   type DocumentReference,
   type QueryDocumentSnapshot,
@@ -38,11 +37,8 @@ import {
 } from '../../../shared/services/firebase';
 import type {
   AlertaVencimento,
-  AlertaVencimentoInput,
   AvaliacaoCompetencia,
-  AvaliacaoCompetenciaInput,
   AvaliacaoEficacia,
-  AvaliacaoEficaciaInput,
   AvaliacaoTeste,
   Certificado,
   CertificadoConfig,
@@ -57,7 +53,6 @@ import type {
   KitIntegracaoInput,
   NcOrigemColecao,
   Participante,
-  ParticipanteInput,
   Periodicidade,
   ProgressoTrilha,
   ProgressoTrilhaInput,
@@ -73,6 +68,8 @@ import type {
   TrilhaAprendizadoInput,
 } from '../types/EducacaoContinuada';
 import type { LabId } from '../types/_shared_refs';
+
+import { logAuditEvent } from './ecAuditService';
 
 // ─── Raiz e caminhos ──────────────────────────────────────────────────────────
 
@@ -141,6 +138,12 @@ export async function createColaborador(
     criadoEm: serverTimestamp(),
     deletadoEm: null,
   });
+  void logAuditEvent({
+    action: 'CREATE_COLABORADOR',
+    labId,
+    targetId: ref.id,
+    payload: { nome: input.nome, cargo: input.cargo, setor: input.setor },
+  });
   return ref.id;
 }
 
@@ -156,6 +159,12 @@ export async function updateColaborador(
   patch: Partial<ColaboradorInput>,
 ): Promise<void> {
   await updateDoc(colaboradorDoc(labId, id), { ...patch });
+  void logAuditEvent({
+    action: 'UPDATE_COLABORADOR',
+    labId,
+    targetId: id,
+    payload: { fields: Object.keys(patch) },
+  });
 }
 
 /**
@@ -169,6 +178,7 @@ export async function softDeleteColaborador(
   await updateDoc(colaboradorDoc(labId, id), {
     deletadoEm: serverTimestamp(),
   });
+  void logAuditEvent({ action: 'SOFT_DELETE_COLABORADOR', labId, targetId: id });
 }
 
 /** Reverte deleção lógica. */
@@ -177,6 +187,7 @@ export async function restoreColaborador(
   id: string,
 ): Promise<void> {
   await updateDoc(colaboradorDoc(labId, id), { deletadoEm: null });
+  void logAuditEvent({ action: 'RESTORE_COLABORADOR', labId, targetId: id });
 }
 
 export interface SubscribeColaboradoresOptions {
@@ -289,6 +300,12 @@ export async function createTreinamento(
     criadoEm: serverTimestamp(),
     deletadoEm: null,
   });
+  void logAuditEvent({
+    action: 'CREATE_TREINAMENTO',
+    labId,
+    targetId: ref.id,
+    payload: { titulo: input.titulo, tipo: input.tipo, periodicidade: input.periodicidade },
+  });
   return ref.id;
 }
 
@@ -298,6 +315,12 @@ export async function updateTreinamento(
   patch: Partial<TreinamentoInput>,
 ): Promise<void> {
   await updateDoc(treinamentoDoc(labId, id), { ...patch });
+  void logAuditEvent({
+    action: 'UPDATE_TREINAMENTO',
+    labId,
+    targetId: id,
+    payload: { fields: Object.keys(patch) },
+  });
 }
 
 export async function softDeleteTreinamento(
@@ -307,6 +330,7 @@ export async function softDeleteTreinamento(
   await updateDoc(treinamentoDoc(labId, id), {
     deletadoEm: serverTimestamp(),
   });
+  void logAuditEvent({ action: 'SOFT_DELETE_TREINAMENTO', labId, targetId: id });
 }
 
 export async function restoreTreinamento(
@@ -314,6 +338,7 @@ export async function restoreTreinamento(
   id: string,
 ): Promise<void> {
   await updateDoc(treinamentoDoc(labId, id), { deletadoEm: null });
+  void logAuditEvent({ action: 'RESTORE_TREINAMENTO', labId, targetId: id });
 }
 
 export interface SubscribeTreinamentosOptions {

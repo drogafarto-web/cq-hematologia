@@ -4,13 +4,16 @@ import type { UroanaliseFormData } from './UroanaliseForm.schema';
 import { useUser } from '../../../store/useAuthStore';
 import { RegulatoryReferencesBar } from '../../insumos/components/RegulatoryReferencesBar';
 import { ConferenciaInsumoAtivo } from '../../insumos/components/ConferenciaInsumoAtivo';
+import { ManualKitPicker } from '../../insumos/components/ManualKitPicker';
 import { OverrideModal } from '../../insumos/components/OverrideModal';
 import { useInsumoFlowGuard } from '../../insumos/hooks/useInsumoFlowGuard';
+import { useManualKitGuard } from '../../insumos/hooks/useManualKitGuard';
 import { EquipamentoSelector } from '../../equipamentos/components/EquipamentoSelector';
 import { buildEquipamentoSnapshot } from '../../equipamentos/types/Equipamento';
 import type { Equipamento } from '../../equipamentos/types/Equipamento';
 import { useAppStore } from '../../../store/useAppStore';
 import type { SaveUroRunOptions } from '../hooks/useSaveUroRun';
+import type { UroanaliseLot } from '../types/Uroanalise';
 import {
   URO_ANALITOS,
   URO_ANALITO_LABELS,
@@ -337,6 +340,11 @@ interface UroanaliseFormProps {
   ocrEnabled?: boolean;
   /** labId ativo — passado ao OCR. */
   labId?: string | null;
+  /**
+   * Fase 6 (2026-04-25) — Pré-fill do form a partir de um lote vinculado à
+   * bancada. Identificadores ficam bloqueados.
+   */
+  prefillFromLot?: UroanaliseLot;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -348,6 +356,7 @@ export function UroanaliseForm({
   initialNivel,
   ocrEnabled = false,
   labId = null,
+  prefillFromLot,
 }: UroanaliseFormProps) {
   const user = useUser();
   const setCurrentView = useAppStore((s) => s.setCurrentView);
@@ -355,6 +364,12 @@ export function UroanaliseForm({
   // ── Fase D — Equipamento da corrida ───────────────────────────────────────
   const [equipamentoId, setEquipamentoId] = useState<string | null>(null);
   const [equipamentoSel, setEquipamentoSel] = useState<Equipamento | null>(null);
+
+  // Fase F (2026-04-24) — toggle "leitura manual": quando ligado a corrida é
+  // feita sem leitor reflexométrico (tira lida a olho). Esconde o
+  // EquipamentoSelector + a Conferência de setup e ativa o ManualKitPicker.
+  // Estado per-run; uma evolução futura pode defaultar via config do lab.
+  const [leituraManual, setLeituraManual] = useState(false);
 
   // Fase B1-etapa2 — Uroanálise: tira obrigatória, controle também obrigatório
   // por default (lote pode setar requerControlePorCorrida=false pra cobrir
@@ -366,15 +381,29 @@ export function UroanaliseForm({
     equipamentoId,
   });
 
-  const initialNivelSafe: UroNivel = initialNivel ?? 'N';
+  // Fase F — guard alternativo quando leitura manual: operador escolhe tira +
+  // controle direto, sem passar por EquipmentSetup.
+  const manualGuard = useManualKitGuard({
+    module: 'uroanalise',
+    requiredSlots: { tira: true, controle: true },
+  });
 
-  const [form, setForm] = useState<Partial<UroanaliseFormData>>({
+  const initialNivelSafe: UroNivel = prefillFromLot?.nivel ?? initialNivel ?? 'N';
+  const lockedFromLot = !!prefillFromLot;
+
+  const [form, setForm] = useState<Partial<UroanaliseFormData>>(() => ({
     frequencia: 'DIARIA',
     dataRealizacao: today(),
     nivel: initialNivelSafe,
     resultados: {},
     resultadosEsperadosRun: getResultadosEsperadosDefault(initialNivelSafe),
-  });
+    ...(prefillFromLot && {
+      loteControle: prefillFromLot.loteControle,
+      fabricanteControle: prefillFromLot.fabricanteControle,
+      aberturaControle: prefillFromLot.aberturaControle,
+      validadeControle: prefillFromLot.validadeControle,
+    }),
+  }));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [ocrLoading, setOcrLoading] = useState(false);
 
@@ -386,12 +415,14 @@ export function UroanaliseForm({
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
-  // Fase B1-etapa2 — pré-preenche campos a partir do EquipmentSetup.
-  // setState-in-effect justificado: mesma razão de useInsumos (subscription
-  // externa do Firestore → espelhar no state local).
+  // Fase B1-etapa2 / Fase F — pré-preenche campos a partir do slot ativo.
+  // Em modo analisador, vem do EquipmentSetup via insumoGuard; em leitura
+  // manual, vem do picker via manualGuard.
+  //
+  // setState-in-effect justificado: espelhar subscription externa.
   /* eslint-disable react-hooks/set-state-in-effect */
   React.useEffect(() => {
-    const tira = insumoGuard.tira;
+    const tira = leituraManual ? manualGuard.resolved.tira : insumoGuard.tira;
     if (!tira) return;
     setForm((prev) => ({
       ...prev,
@@ -399,10 +430,10 @@ export function UroanaliseForm({
       fabricanteTira: tira.fabricante,
       validadeTira: toIsoDate(tira.validade),
     }));
-  }, [insumoGuard.tira]);
+  }, [leituraManual, insumoGuard.tira, manualGuard.resolved.tira]);
 
   React.useEffect(() => {
-    const controle = insumoGuard.controle;
+    const controle = leituraManual ? manualGuard.resolved.controle : insumoGuard.controle;
     if (!controle) return;
     setForm((prev) => ({
       ...prev,
@@ -411,7 +442,7 @@ export function UroanaliseForm({
       aberturaControle: toIsoDate(controle.dataAbertura),
       validadeControle: toIsoDate(controle.validade),
     }));
-  }, [insumoGuard.controle]);
+  }, [leituraManual, insumoGuard.controle, manualGuard.resolved.controle]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   function setField<K extends keyof UroanaliseFormData>(key: K, value: UroanaliseFormData[K]) {
@@ -548,37 +579,45 @@ export function UroanaliseForm({
       return;
     }
 
-    // Fase D: exige equipamento selecionado antes da conferência.
-    if (!equipamentoId || !equipamentoSel) {
-      setErrors({ equipamento: 'Selecione o equipamento em que a corrida está sendo feita.' });
-      return;
+    // Fase F: em leitura manual não há equipamento; em modo analisador exige.
+    if (!leituraManual) {
+      if (!equipamentoId || !equipamentoSel) {
+        setErrors({ equipamento: 'Selecione o equipamento em que a corrida está sendo feita.' });
+        return;
+      }
     }
 
-    // Fase B1-etapa2 — conferência + override auditado.
-    const guardFlags = await insumoGuard.prepareForSave();
+    // Conferência + override auditado — rota depende do modo.
+    const activeGuard = leituraManual ? manualGuard : insumoGuard;
+    const guardFlags = await activeGuard.prepareForSave();
     if (!guardFlags) {
       setErrors({
-        insumos:
-          'Conferência obrigatória do setup. Configure os insumos e confirme antes de salvar.',
+        insumos: leituraManual
+          ? 'Selecione a tira e o controle e confirme antes de salvar.'
+          : 'Conferência obrigatória do setup. Configure os insumos e confirme antes de salvar.',
       });
       return;
     }
 
     setErrors({});
-    const snapshot = insumoGuard.getSnapshots();
+    const snapshot = activeGuard.getSnapshots();
     const saveOptions: SaveUroRunOptions = {
       insumosSnapshot: snapshot,
-      equipamentoId,
-      equipamentoSnapshot: buildEquipamentoSnapshot(equipamentoSel),
       ...(guardFlags.insumoVencidoOverride && { insumoVencidoOverride: true }),
       ...(guardFlags.qcNaoValidado && { qcNaoValidado: true }),
       ...(guardFlags.overrideMotivo && { overrideMotivo: guardFlags.overrideMotivo }),
+      ...(leituraManual
+        ? { manual: true }
+        : {
+            equipamentoId: equipamentoId!,
+            equipamentoSnapshot: buildEquipamentoSnapshot(equipamentoSel!),
+          }),
     };
     await onSave(result.data, saveOptions);
 
     // afterSave — incrementa runCount + limpa qcValidationRequired da tira
     // se a corrida foi conforme. Fire-and-forget — não reverte save.
-    void insumoGuard.afterSave({ runId: '', wasConforme: !naoConforme });
+    void activeGuard.afterSave({ runId: '', wasConforme: !naoConforme });
   }
 
   // ── Render helpers ─────────────────────────────────────────────────────────
@@ -679,6 +718,38 @@ export function UroanaliseForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-7" noValidate>
+      {/* ── Banner: corrida vinculada (Fase 6) ───────────────────────────── */}
+      {prefillFromLot && (
+        <div
+          className={`flex items-start gap-3 px-4 py-3 rounded-xl border ${
+            prefillFromLot.setupType === 'principal'
+              ? 'bg-emerald-50 dark:bg-emerald-500/[0.06] border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400'
+              : 'bg-blue-50 dark:bg-blue-500/[0.06] border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400'
+          }`}
+        >
+          <span className="mt-0.5 shrink-0">
+            <svg width="14" height="14" viewBox="0 0 13 13" fill="none" aria-hidden>
+              <path
+                d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+          <div className="text-xs leading-relaxed">
+            <p className="font-semibold">
+              Corrida vinculada · Nível {prefillFromLot.nivel} · Lote {prefillFromLot.loteControle}
+            </p>
+            <p className="opacity-80 mt-0.5">
+              {prefillFromLot.setupType === 'principal'
+                ? 'Setup oficial em rotina. Nível, lote e datas estão bloqueados.'
+                : 'Lote em validação paralela.'}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Operador */}
       <section>
         <SectionTitle>Operador</SectionTitle>
@@ -763,41 +834,99 @@ export function UroanaliseForm({
         </div>
       </section>
 
-      {/* Equipamento da corrida (Fase D) */}
+      {/* Toggle Leitura manual (Fase F 2026-04-24) */}
       <section>
-        <SectionTitle>Equipamento</SectionTitle>
-        <EquipamentoSelector
-          module="uroanalise"
-          value={equipamentoId}
-          onChange={(id, eq) => {
-            setEquipamentoId(id);
-            setEquipamentoSel(eq);
-            if (errors.equipamento) {
-              setErrors((prev) => {
-                const n = { ...prev };
-                delete n.equipamento;
-                return n;
-              });
-            }
-          }}
-          required
-        />
-        {errors.equipamento && <FieldError msg={errors.equipamento} />}
+        <label className="flex items-start gap-3 cursor-pointer select-none p-3 rounded-xl border border-slate-200 dark:border-white/[0.08] bg-slate-50/60 dark:bg-white/[0.02] hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-all">
+          <input
+            type="checkbox"
+            checked={leituraManual}
+            onChange={(e) => setLeituraManual(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-slate-300 dark:border-white/20 text-violet-600 focus:ring-violet-500"
+          />
+          <div>
+            <p className="text-sm font-medium text-slate-800 dark:text-white/80">
+              Leitura manual (tira lida a olho, sem leitor)
+            </p>
+            <p className="text-[11px] text-slate-500 dark:text-white/40 mt-0.5">
+              Ative quando o laboratório não usa leitor reflexométrico. A corrida será registrada
+              sem equipamento, e você escolhe a tira e o controle diretamente no picker.
+            </p>
+          </div>
+        </label>
       </section>
 
-      {/* Conferência de insumos (Fase B1-etapa2) */}
-      <section>
-        <SectionTitle>Insumos em uso</SectionTitle>
-        <ConferenciaInsumoAtivo
-          module="uroanalise"
-          requiredSlots={{ tira: true, controle: true }}
-          equipamentoId={equipamentoId}
-          confirmed={insumoGuard.confirmed}
-          onConfirmedChange={insumoGuard.setConfirmed}
-          onConfigurarSetup={() => setCurrentView('insumos')}
-        />
-        {errors.insumos && <FieldError msg={errors.insumos} />}
-      </section>
+      {/* Equipamento + Insumos — condicional (Fase D analisador / Fase F manual) */}
+      {!leituraManual ? (
+        <>
+          {/* Equipamento da corrida (Fase D) */}
+          <section>
+            <SectionTitle>Equipamento</SectionTitle>
+            <EquipamentoSelector
+              module="uroanalise"
+              value={equipamentoId}
+              onChange={(id, eq) => {
+                setEquipamentoId(id);
+                setEquipamentoSel(eq);
+                if (errors.equipamento) {
+                  setErrors((prev) => {
+                    const n = { ...prev };
+                    delete n.equipamento;
+                    return n;
+                  });
+                }
+              }}
+              required
+            />
+            {errors.equipamento && <FieldError msg={errors.equipamento} />}
+          </section>
+
+          {/* Conferência de insumos (Fase B1-etapa2) */}
+          <section>
+            <SectionTitle>Insumos em uso</SectionTitle>
+            <ConferenciaInsumoAtivo
+              module="uroanalise"
+              requiredSlots={{ tira: true, controle: true }}
+              equipamentoId={equipamentoId}
+              confirmed={insumoGuard.confirmed}
+              onConfirmedChange={insumoGuard.setConfirmed}
+              onConfigurarSetup={() => setCurrentView('insumos')}
+            />
+            {errors.insumos && <FieldError msg={errors.insumos} />}
+          </section>
+        </>
+      ) : (
+        /* Fase F — leitura manual: picker de tira + controle */
+        <section>
+          <SectionTitle>Tira e controle (leitura manual)</SectionTitle>
+          <ManualKitPicker
+            title="Kit de leitura manual"
+            subtitle="Escolha o lote da tira reagente e do controle. A corrida será registrada sem equipamento."
+            slots={[
+              {
+                slot: 'tira',
+                label: 'Tira reagente',
+                required: true,
+                emptyMessage:
+                  'Nenhuma tira ativa cadastrada para uroanálise. Cadastre em Insumos antes de salvar.',
+              },
+              {
+                slot: 'controle',
+                label: 'Controle',
+                required: true,
+                emptyMessage: 'Nenhum controle ativo cadastrado para uroanálise.',
+              },
+            ]}
+            selection={manualGuard.selection}
+            resolved={manualGuard.resolved}
+            candidates={manualGuard.candidates}
+            onSlotChange={manualGuard.setSlot}
+            confirmed={manualGuard.confirmed}
+            onConfirmedChange={manualGuard.setConfirmed}
+            onCadastrarInsumo={() => setCurrentView('insumos')}
+          />
+          {errors.insumos && <FieldError msg={errors.insumos} />}
+        </section>
+      )}
 
       {/* Tiras */}
       <section>
@@ -873,6 +1002,7 @@ export function UroanaliseForm({
                 placeholder="ex: L2024-021"
                 value={form.loteControle ?? ''}
                 onChange={(e) => setField('loteControle', e.target.value)}
+                disabled={lockedFromLot}
                 className={errors.loteControle ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.loteControle} />
@@ -887,6 +1017,7 @@ export function UroanaliseForm({
                 placeholder="ex: Bio-Rad Liquichek"
                 value={form.fabricanteControle ?? ''}
                 onChange={(e) => setField('fabricanteControle', e.target.value)}
+                disabled={lockedFromLot}
                 className={errors.fabricanteControle ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.fabricanteControle} />
@@ -902,6 +1033,7 @@ export function UroanaliseForm({
                 type="date"
                 value={form.aberturaControle ?? ''}
                 onChange={(e) => setField('aberturaControle', e.target.value)}
+                disabled={lockedFromLot}
                 className={errors.aberturaControle ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.aberturaControle} />
@@ -915,6 +1047,7 @@ export function UroanaliseForm({
                 type="date"
                 value={form.validadeControle ?? ''}
                 onChange={(e) => setField('validadeControle', e.target.value)}
+                disabled={lockedFromLot}
                 className={errors.validadeControle ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.validadeControle} />
@@ -1171,13 +1304,13 @@ export function UroanaliseForm({
         </button>
       </div>
 
-      {insumoGuard.overrideContext && (
+      {(leituraManual ? manualGuard : insumoGuard).overrideContext && (
         <OverrideModal
-          open={insumoGuard.isOverrideOpen}
-          context={insumoGuard.overrideContext}
-          onCancel={insumoGuard.closeOverride}
+          open={(leituraManual ? manualGuard : insumoGuard).isOverrideOpen}
+          context={(leituraManual ? manualGuard : insumoGuard).overrideContext!}
+          onCancel={(leituraManual ? manualGuard : insumoGuard).closeOverride}
           onConfirm={({ justificativa }) => {
-            insumoGuard.confirmOverride(justificativa);
+            (leituraManual ? manualGuard : insumoGuard).confirmOverride(justificativa);
           }}
         />
       )}

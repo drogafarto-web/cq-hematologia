@@ -277,6 +277,85 @@ export async function generateUroRunCode(labId: string): Promise<string> {
   return `UR-${year}-${String(nextCount).padStart(4, '0')}`;
 }
 
+// ─── Vinculação à Bancada (Fase 4 — 2026-04-25) ───────────────────────────────
+
+/**
+ * Vincula um lote de uroanálise à bancada. Atômico via runTransaction —
+ * append-only no pinHistory. Bloqueia 'principal' se uroDecision !== 'A'.
+ */
+export async function vincularUroLot(
+  labId: string,
+  lotId: string,
+  setupType: 'principal' | 'validacao_paralela',
+  actorUid: string,
+): Promise<void> {
+  const ref = lotRef(labId, lotId);
+  try {
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists()) throw new Error('Lote não encontrado.');
+      const data = snap.data() as UroanaliseLot;
+
+      if (setupType === 'principal' && data.uroDecision !== 'A') {
+        throw new Error('Setup oficial requer lote aprovado pelo RT.');
+      }
+
+      const prevSetupType = data.setupType ?? undefined;
+      const entry = {
+        at: Timestamp.now(),
+        by: actorUid,
+        action: 'vinculado' as const,
+        setupType,
+        ...(prevSetupType && prevSetupType !== null ? { prevSetupType } : {}),
+      };
+
+      tx.update(ref, {
+        setupType,
+        pinnedBy: actorUid,
+        pinnedAt: serverTimestamp(),
+        pinHistory: [...(data.pinHistory ?? []), entry],
+      });
+    });
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err), { cause: err });
+  }
+}
+
+/**
+ * Desvincula um lote de uroanálise da bancada. Idempotente, append-only.
+ */
+export async function desvincularUroLot(
+  labId: string,
+  lotId: string,
+  actorUid: string,
+): Promise<void> {
+  const ref = lotRef(labId, lotId);
+  try {
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists()) throw new Error('Lote não encontrado.');
+      const data = snap.data() as UroanaliseLot;
+      if (!data.setupType) return;
+
+      const entry = {
+        at: Timestamp.now(),
+        by: actorUid,
+        action: 'desvinculado' as const,
+        prevSetupType: data.setupType,
+      };
+
+      tx.update(ref, {
+        setupType: null,
+        pinnedBy: null,
+        pinnedAt: null,
+        pinHistory: [...(data.pinHistory ?? []), entry],
+      });
+    });
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err), { cause: err });
+  }
+}
+
 // ─── Run operations ───────────────────────────────────────────────────────────
 
 /**

@@ -85,6 +85,21 @@ service-account*.json
 *.pem
 *.p12
 
+# Ops scripts ad-hoc na raiz de functions/ — usam Admin SDK + service account
+# pra rodar uma vez. Não vão pro repo. Scripts versionados ficam em
+# functions/scripts/ (allowlisted abaixo).
+functions/run*.js
+functions/apply-claims*.js
+run-provision*.mjs
+
+# Anexos WhatsApp do trabalho de campo (referência local, não código)
+modulo educa*/*.jpeg
+modulo educa*/*.jpg
+modulo educa*/*.png
+modulo educa*/*.ogg
+modulo educa*/*.mp3
+modulo educa*/*.mp4
+
 # Arquivos de planos e scripts locais
 plans/
 scripts/

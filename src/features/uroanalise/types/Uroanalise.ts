@@ -301,6 +301,14 @@ export interface UroanaliseRun extends Omit<
   equipamentoId?: string;
   /** Snapshot imutável do equipamento — sobrevive a aposentadoria + cleanup. */
   equipamentoSnapshot?: import('../../equipamentos/types/Equipamento').EquipamentoSnapshot;
+
+  /**
+   * Fase F (2026-04-24) — true quando a corrida foi lida manualmente (tira
+   * reagente lida a olho, sem leitor reflexométrico). Se `true`:
+   * `equipamentoId`/`equipamentoSnapshot` ficam vazios; o operador escolheu
+   * tira + controle no ManualKitPicker. Ausente/false em runs de analisador.
+   */
+  manual?: boolean;
 }
 
 // ─── Lote ─────────────────────────────────────────────────────────────────────
@@ -391,6 +399,31 @@ export interface UroanaliseLot {
    * o slot controle obrigatório no submit. Rastreável em relatório.
    */
   requerControlePorCorrida?: boolean;
+
+  // ── Vinculação à Bancada (Fase 4 — 2026-04-25) ────────────────────────────
+  /**
+   * Setup vinculado à bancada — destrava registro de corridas para esse lote
+   * sem fricção de seleção manual.
+   *  - 'principal': lote em rotina. Requer ciqDecision aprovada.
+   *  - 'validacao_paralela': lote em validação. Corridas pré-aprovação.
+   *  - null/ausente: lote no estoque, não vinculado.
+   */
+  setupType?: 'principal' | 'validacao_paralela' | null;
+  /** UID do operador que vinculou. */
+  pinnedBy?: string | null;
+  /** Timestamp da última vinculação ativa. */
+  pinnedAt?: import('firebase/firestore').Timestamp | null;
+  /**
+   * Histórico imutável de vinculações. Append-only via runTransaction.
+   * Cobre RDC 302/2005 + 978/2025 — toda mudança rastreável.
+   */
+  pinHistory?: Array<{
+    at: import('firebase/firestore').Timestamp;
+    by: string;
+    action: 'vinculado' | 'desvinculado';
+    setupType?: 'principal' | 'validacao_paralela';
+    prevSetupType?: 'principal' | 'validacao_paralela';
+  }>;
 }
 
 // ─── Re-exports para conveniência dos importers do módulo ─────────────────────

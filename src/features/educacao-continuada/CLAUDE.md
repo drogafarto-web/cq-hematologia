@@ -45,27 +45,45 @@ obrigatório — não existe caminho de escrita sem tenant.
 **URL:** https://hmatologia2.web.app (5 users com claim `'educacao-continuada'`)
 **Functions:** 6 callables `ec_*` em `southamerica-east1` runtime Node 22 (upgrade 2026-04-24).
 **Rules:** 5 coleções regulatórias com `allow create: if false` ou restrição planejado-only. Toda escrita regulatória passa por callable.
-**Próximo passo prioritário:** smoke test E2E em prod (nunca foi feito com dado real); validar Matriz e Biblioteca em browser.
+**Próximo passo prioritário:** smoke test E2E em prod + deploy das 2 functions novas deste batch.
+
+### Entregue neste batch (2026-04-24 — cleanup + prep)
+
+- **Code-split SheetJS aplicado** em `services/ecImportService.ts` (dynamic `import('xlsx')` + loader cached). ⚠️ Ganho real bloqueado — `controle-temperatura/services/ctXlsxService.ts` continua com import estático de xlsx. Bundle final ainda ~3.2MB / 890KB gzip. Resolver junto com migração do CT (fora deste escopo).
+- **Helper `services/ecAuditService.ts`** novo — `logAuditEvent()` grava em `/auditLogs/` via addDoc client-side. Aplicado em create/update/softDelete/restore de **Colaborador** e **Treinamento** (8 mutations). Template/Kit/Trilha marcadas como débito (padrão já estabelecido, trivial de expandir).
+- **Trigger defense-in-depth** `functions/src/modules/educacaoContinuada/onParticipanteCreated.ts` — valida FK Participante→Execucao + Colaborador + labId no payload. Soft-delete participantes órfãos + audit severity `FK_VIOLATION`. ⚠️ **Não deployado ainda** — requer ack CTO.
+- **Callable soft-delete cascade** `functions/src/modules/educacaoContinuada/softDeleteExecucaoCascade.ts` — `ec_softDeleteExecucaoCascade({labId, execucaoId, motivo})` arquiva execução + participantes + avaliações (eficácia + competência) em batch atomic. Limite 500 writes por call (raríssimo ultrapassar). Alertas de vencimento NÃO são arquivados (ligados a treinamentoId, independentes). ⚠️ **Não deployado ainda** — requer ack CTO.
+- **Hook client `useExecucoes.softDeleteCascade`** — wraps a callable + erro legível.
+- **UX TesteForm** (Fase 8): save parcial em localStorage (restaura após refresh/crash), timer countdown opcional com badge pulsante quando < 1min, barra de progresso de questões respondidas, confirm antes de submeter parcial, auto-submit ao zerar timer.
+- **Cleanup #8** — 5 unused imports removidos de `ecFirebaseService.ts` (`writeBatch`, `AlertaVencimentoInput`, `AvaliacaoCompetenciaInput`, `AvaliacaoEficaciaInput`, `ParticipanteInput`). ESLint agora mostra 0 erros (24 warnings residuais são pattern aceito do projeto — `react-hooks/set-state-in-effect` nos guards de `!labId`).
+- **Re-avaliação via ExecucoesTab** já estava feita (`CompetenciasExecucaoPanel` wired). Item do handoff anterior já atendido.
 
 ### Pendências restantes (ordem de prioridade)
 
-1. **Smoke test E2E** — cronograma XLSX → import → colaborador → execução realizada → ver alerta RN-05 + Matriz semáforo + Biblioteca templates
-2. **Trigger server-side** validando FK Participante→Execucao (defesa adicional além da rule já escrita no callable)
-3. **Code-split do SheetJS** — dynamic `import()` reduz bundle inicial em ~400KB
-4. Rastreabilidade de autor em mutations não-regulatórias (callables Fase 0b já gravam em `auditLogs/`)
-5. Gerador automático de Execuções planejadas a partir de periodicidade (1 botão → cria cronograma do ano)
-6. Email transacional ao vencer alerta (Cloud Function + Resend)
-7. Limpeza pós-validação Fase 0c — após 1 sprint estável, deletar funções deprecated em `services/ecFirebaseService.ts` e `services/ecSignatureService.ts`
-8. Fase 7 — Trilhas + Onboarding (RN-08, RN-09)
-9. Fase 8 — Banco de Questões + Cloud Function de correção (RN-10 server-side)
-10. Fase 9 restante — Certificados (PDF + QR) + Alertas via email + página pública verificação
+1. **Deploy functions novas** — `firebase deploy --only functions:ec_onParticipanteCreated,functions:ec_softDeleteExecucaoCascade --project hmatologia2`
+2. **Smoke test E2E** — checklist em `SMOKE_E2E_CHECKLIST.md`
+3. **Code-split SheetJS bloqueado por CT** — ver dívida acima. Ou editar CT, ou forçar `manualChunks` no `vite.config.ts`, ou aceitar overhead.
+4. Audit log em Template/Kit/Trilha (12 mutations; padrão já estabelecido)
+5. UI admin de revisão manual de dissertativas (Fase 8) — hoje ficam `null` aguardando humano
+6. Gerador automático de Execuções planejadas a partir de periodicidade
+7. Tab "Auditoria" no módulo EC listando `/auditLogs/` do lab
+8. Migração do audit log client → trigger `onDocumentCreated` server-side (compliance estrito)
+9. Divisão em chunks do cascade (>500 writes) — débito documentado
 
-✅ **Done:**
+✅ **Done (acumulado):**
 - ~~Cloud Function para assinatura~~ Fase 0b (2026-04-24)
 - ~~Matriz de Treinamentos~~ (2026-04-24, recorte da Fase 9)
 - ~~Fase 6 — Templates + Materiais Didáticos~~ (2026-04-24)
 - ~~Node 20 → 22~~ runtime upgrade (2026-04-24)
 - ~~Fase 0c — rules tightening~~ (2026-04-24)
+- ~~Fase 7 — Trilhas + Onboarding~~ (2026-04-24)
+- ~~Fase 8 — Banco de Questões + correção server-side~~ (2026-04-24)
+- ~~Fase 9 — Certificados PDF+QR + Alertas email + página pública~~ (2026-04-24)
+- ~~Re-avaliação via ExecucoesTab~~ (`CompetenciasExecucaoPanel`)
+- ~~Soft-delete cascade (callable pronta)~~ (2026-04-24, este batch)
+- ~~Trigger FK server-side (código pronto)~~ (2026-04-24, este batch)
+- ~~Rastreabilidade de autor em colaborador/treinamento~~ (2026-04-24, este batch)
+- ~~UX Teste — save parcial/timer/progress~~ (2026-04-24, este batch)
 
 ### Deploy histórico
 

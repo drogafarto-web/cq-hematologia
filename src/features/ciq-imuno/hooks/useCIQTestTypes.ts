@@ -6,7 +6,9 @@ import {
   removeTestType,
   renameTestType,
   reorderTestTypes,
+  setTestTypeManual,
 } from '../services/ciqFirebaseService';
+import type { CIQTestTypeConfig } from '../types/_shared_refs';
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
@@ -14,17 +16,19 @@ import {
  * useCIQTestTypes — gerencia a lista configurável de tipos de teste (imunoensaios).
  *
  * Tipos são armazenados em Firestore: labs/{labId}/ciq-imuno-config/testTypes
- * Todas as mutações rodam sob transação Firestore — add/remove/rename são
- * atômicos e não dependem do estado local do hook, o que elimina a perda de
+ * Todas as mutações rodam sob transação Firestore — add/remove/rename/setManual
+ * são atômicos e não dependem do estado local do hook, o que elimina a perda de
  * escritas concorrentes entre abas/operadores.
  *
- * Uso:
- *   const { types, loading, addType, renameType, removeType } = useCIQTestTypes();
+ * Desde 2026-04-24 cada tipo carrega uma flag `manual` — quando `true`, o teste
+ * é feito fora de analisador e o form de corrida segue o fluxo manual (picker
+ * de kit direto, sem EquipamentoSelector). Docs pré-2026-04-24 ainda em
+ * `string[]` são lidos transparentemente como `[{name, manual:false}]`.
  */
 export function useCIQTestTypes() {
   const labId = useActiveLabId();
 
-  const [types, setTypes] = useState<string[]>([]);
+  const [types, setTypes] = useState<CIQTestTypeConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,9 +65,9 @@ export function useCIQTestTypes() {
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const addType = useCallback(
-    async (name: string): Promise<void> => {
+    async (name: string, manual: boolean = false): Promise<void> => {
       if (!labId) return;
-      await addTestType(labId, name);
+      await addTestType(labId, name, manual);
     },
     [labId],
   );
@@ -84,6 +88,14 @@ export function useCIQTestTypes() {
     [labId],
   );
 
+  const setManual = useCallback(
+    async (name: string, manual: boolean): Promise<void> => {
+      if (!labId) return;
+      await setTestTypeManual(labId, name, manual);
+    },
+    [labId],
+  );
+
   const reorder = useCallback(
     async (ordered: string[]): Promise<void> => {
       if (!labId) return;
@@ -92,5 +104,14 @@ export function useCIQTestTypes() {
     [labId],
   );
 
-  return { types, loading, error, addType, renameType, removeType, reorder } as const;
+  return {
+    types,
+    loading,
+    error,
+    addType,
+    renameType,
+    removeType,
+    setManual,
+    reorder,
+  } as const;
 }
