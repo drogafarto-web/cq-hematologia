@@ -11,6 +11,12 @@ interface AppState {
   error: string | null;
   syncStatus: SyncStatus;
   currentView: View;
+  /**
+   * Última view antes da atual — alimenta botão "← Voltar" pra retornar
+   * ao contexto de origem em vez de hard-coded 'hub'. Atualizado por
+   * `setCurrentView` automaticamente. Ver `goBack` abaixo.
+   */
+  previousView: View | null;
   // Actions
   setLots: (lots: ControlLot[]) => void;
   setActiveLotId: (id: string | null) => void;
@@ -21,6 +27,8 @@ interface AppState {
   setError: (e: string | null) => void;
   setSyncStatus: (s: SyncStatus) => void;
   setCurrentView: (v: View) => void;
+  /** Volta pra previousView. Fallback 'hub' se não há histórico. */
+  goBack: () => void;
   reset: () => void;
 }
 
@@ -34,9 +42,10 @@ const initialState = {
   error: null,
   syncStatus: 'saved' as SyncStatus,
   currentView: 'hub' as View,
+  previousView: null as View | null,
 };
 
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = create<AppState>((set, get) => ({
   ...initialState,
 
   setLots: (lots) => set({ lots }),
@@ -47,7 +56,23 @@ export const useAppStore = create<AppState>((set) => ({
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error }),
   setSyncStatus: (syncStatus) => set({ syncStatus }),
-  setCurrentView: (currentView) => set({ currentView }),
+  // Atualiza previousView com a current ANTES de mudar, exceto se for
+  // navegação pra mesma view (no-op) ou pra previousView (back trip).
+  setCurrentView: (currentView) => {
+    const { currentView: prev, previousView } = get();
+    if (currentView === prev) return; // no-op
+    // Se a próxima view é justamente a previousView, é um "back" — limpa o
+    // previousView pra evitar loop A→B→A→B infinito.
+    if (currentView === previousView) {
+      set({ currentView, previousView: null });
+      return;
+    }
+    set({ currentView, previousView: prev });
+  },
+  goBack: () => {
+    const { previousView } = get();
+    set({ currentView: previousView ?? 'hub', previousView: null });
+  },
   reset: () => set(initialState),
 }));
 
