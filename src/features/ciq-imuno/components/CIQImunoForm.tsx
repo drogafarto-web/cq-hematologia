@@ -510,6 +510,11 @@ export function CIQImunoForm({
       fabricanteReagente: reagente.fabricante,
       aberturaReagente: toIsoDate(reagente.dataAbertura),
       validadeReagente: toIsoDate(reagente.validade),
+      // Spine spec (2026-04-26): ANVISA também vem do snapshot do Insumo —
+      // se cadastrado no produto, propaga; senão fica vazio (operador podia
+      // editar antes, agora fica disabled e o branco é admitido — registro
+      // ANVISA não é required no schema).
+      ...(reagente.registroAnvisa && { registroANVISA: reagente.registroAnvisa }),
     }));
   }, [isManual, insumoGuard.reagente, manualGuard.resolved.reagente]);
 
@@ -708,6 +713,20 @@ export function CIQImunoForm({
     reagenteAtivo.tipo === 'reagente' &&
     reagenteAtivo.qcStatus !== 'aprovado' &&
     reagenteAtivo.qcStatus !== 'reprovado';
+
+  // ── Auto-fill: simplificação radical da Bancada (2026-04-26) ─────────────
+  // Quando o operador escolhe um Insumo no picker (ManualKitPicker ou
+  // EquipmentSetup), os useEffects acima populam os campos lote/fabricante/
+  // datas a partir do snapshot. Nesse cenário os inputs ficam bloqueados —
+  // edição passa pelo picker, não por digitação livre. Elimina a duplicação
+  // entre Layer 3 (Insumo) e a corrida, alinhado com mental model 3-camadas.
+  // Em analisador, controle não vem de picker (entra manual) — só reagente
+  // bloqueia. `lockedFromLot` continua atuando independente quando a corrida
+  // veio de um CIQImunoLot vinculado.
+  const controleAutoFilled = !!manualGuard.resolved.controlePositivo;
+  const reagenteAutoFilled = isManual
+    ? !!manualGuard.resolved.reagente
+    : !!insumoGuard.reagente;
 
   // Data de hoje formatada para exibição
   const todayFormatted = new Date().toLocaleDateString('pt-BR', {
@@ -1005,7 +1024,26 @@ export function CIQImunoForm({
 
       {/* ── Controle (kit positivo/negativo — preenchido manualmente em Imuno) ─ */}
       <div>
-        <SectionTitle>Controle Interno</SectionTitle>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-white/30">
+            Controle Interno
+          </p>
+          {(controleAutoFilled || lockedFromLot) && (
+            <span
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border bg-violet-500/[0.08] border-violet-500/25 text-violet-700 dark:text-violet-300"
+              title={
+                lockedFromLot
+                  ? 'Campos vêm do lote vinculado.'
+                  : 'Campos preenchidos a partir do controle escolhido no picker. Pra alterar, troque pelo picker.'
+              }
+            >
+              <svg width="9" height="9" viewBox="0 0 9 9" fill="currentColor" aria-hidden>
+                <path d="M4.5 0.5l1 2.5 2.5 0.5-2 1.5 0.5 2.5-2-1.5-2 1.5 0.5-2.5-2-1.5 2.5-0.5z" />
+              </svg>
+              Auto-preenchido
+            </span>
+          )}
+        </div>
         <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -1018,7 +1056,7 @@ export function CIQImunoForm({
                 placeholder="ex: L2024-001"
                 value={form.loteControle ?? ''}
                 onChange={(e) => set('loteControle', e.target.value)}
-                disabled={lockedFromLot}
+                disabled={lockedFromLot || controleAutoFilled}
                 className={errors.loteControle ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.loteControle} />
@@ -1034,6 +1072,7 @@ export function CIQImunoForm({
                 placeholder="ex: BioSystems"
                 value={form.fabricanteControle ?? ''}
                 onChange={(e) => set('fabricanteControle', e.target.value)}
+                disabled={controleAutoFilled}
                 className={errors.fabricanteControle ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.fabricanteControle} />
@@ -1051,7 +1090,7 @@ export function CIQImunoForm({
                 title="Data de abertura do controle"
                 value={form.aberturaControle ?? ''}
                 onChange={(e) => set('aberturaControle', e.target.value)}
-                disabled={lockedFromLot}
+                disabled={lockedFromLot || controleAutoFilled}
                 className={errors.aberturaControle ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.aberturaControle} />
@@ -1067,7 +1106,7 @@ export function CIQImunoForm({
                 title="Data de validade do controle"
                 value={form.validadeControle ?? ''}
                 onChange={(e) => set('validadeControle', e.target.value)}
-                disabled={lockedFromLot}
+                disabled={lockedFromLot || controleAutoFilled}
                 className={errors.validadeControle ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.validadeControle} />
@@ -1079,7 +1118,26 @@ export function CIQImunoForm({
 
       {/* ── Reagente ───────────────────────────────────────────────────────── */}
       <div>
-        <SectionTitle>Reagente</SectionTitle>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-white/30">
+            Reagente
+          </p>
+          {reagenteAutoFilled && (
+            <span
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border bg-violet-500/[0.08] border-violet-500/25 text-violet-700 dark:text-violet-300"
+              title={
+                isManual
+                  ? 'Campos preenchidos a partir do reagente do kit. Pra alterar, troque pelo picker.'
+                  : 'Campos preenchidos a partir do reagente em uso no equipamento. Pra alterar, troque o setup.'
+              }
+            >
+              <svg width="9" height="9" viewBox="0 0 9 9" fill="currentColor" aria-hidden>
+                <path d="M4.5 0.5l1 2.5 2.5 0.5-2 1.5 0.5 2.5-2-1.5-2 1.5 0.5-2.5-2-1.5 2.5-0.5z" />
+              </svg>
+              Auto-preenchido
+            </span>
+          )}
+        </div>
         <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -1092,6 +1150,7 @@ export function CIQImunoForm({
                 placeholder="ex: R2024-042"
                 value={form.loteReagente ?? ''}
                 onChange={(e) => set('loteReagente', e.target.value)}
+                disabled={reagenteAutoFilled}
                 className={errors.loteReagente ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.loteReagente} />
@@ -1107,6 +1166,7 @@ export function CIQImunoForm({
                 placeholder="ex: Abbott, Roche"
                 value={form.fabricanteReagente ?? ''}
                 onChange={(e) => set('fabricanteReagente', e.target.value)}
+                disabled={reagenteAutoFilled}
                 className={errors.fabricanteReagente ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.fabricanteReagente} />
@@ -1134,6 +1194,7 @@ export function CIQImunoForm({
                 placeholder="ex: 10269230117"
                 value={form.registroANVISA ?? ''}
                 onChange={(e) => set('registroANVISA', e.target.value || undefined)}
+                disabled={reagenteAutoFilled}
                 className={INPUT}
               />
             </div>
@@ -1170,6 +1231,7 @@ export function CIQImunoForm({
                 title="Data de abertura do reagente"
                 value={form.aberturaReagente ?? ''}
                 onChange={(e) => set('aberturaReagente', e.target.value)}
+                disabled={reagenteAutoFilled}
                 className={errors.aberturaReagente ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.aberturaReagente} />
@@ -1185,6 +1247,7 @@ export function CIQImunoForm({
                 title="Data de validade do reagente"
                 value={form.validadeReagente ?? ''}
                 onChange={(e) => set('validadeReagente', e.target.value)}
+                disabled={reagenteAutoFilled}
                 className={errors.validadeReagente ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.validadeReagente} />
