@@ -98,6 +98,7 @@ export function InsumosView() {
   const user = useUser();
   const role = useUserRole();
   const setCurrentView = useAppStore((s) => s.setCurrentView);
+  const goBack = useAppStore((s) => s.goBack);
 
   const [mainTab, setMainTab] = useState<MainTab>('equipamentos');
   const [catalogoModuloFilter, setCatalogoModuloFilter] = useState<InsumoModulo | undefined>(
@@ -152,9 +153,9 @@ export function InsumosView() {
       <header className="h-14 bg-white dark:bg-[#0F1318] border-b border-slate-200 dark:border-white/[0.06] flex items-center gap-4 px-6 sticky top-0 z-10">
         <button
           type="button"
-          onClick={() => setCurrentView('hub')}
+          onClick={goBack}
           className={BUTTON_GHOST}
-          aria-label="Voltar ao hub"
+          aria-label="Voltar ao contexto anterior"
         >
           ← Voltar
         </button>
