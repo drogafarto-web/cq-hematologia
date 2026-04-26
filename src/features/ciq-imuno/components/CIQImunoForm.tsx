@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { CIQImunoFormSchema, daysToExpiry } from './CIQImunoForm.schema';
 import type { CIQImunoFormData } from './CIQImunoForm.schema';
 import { useUser } from '../../../store/useAuthStore';
@@ -14,7 +14,8 @@ import { buildEquipamentoSnapshot } from '../../equipamentos/types/Equipamento';
 import type { Equipamento } from '../../equipamentos/types/Equipamento';
 import { useAppStore } from '../../../store/useAppStore';
 import type { SaveCIQRunOptions } from '../hooks/useSaveCIQRun';
-import type { Insumo } from '../../insumos/types/Insumo';
+import type { Insumo, InsumoControle } from '../../insumos/types/Insumo';
+import type { CIQImunoLot } from '../types/CIQImuno';
 
 // ─── Icon ─────────────────────────────────────────────────────────────────────
 
@@ -134,6 +135,176 @@ function RNRToggle({
   );
 }
 
+/**
+ * Feedback inline por par (Positivo/Negativo) — exibido logo abaixo do
+ * Obtido. Resolve confusão visual onde a cor "vermelha" do NR (polaridade)
+ * pode ser interpretada como erro pelo operador, mesmo quando NR é a
+ * resposta correta para o controle negativo.
+ */
+function InlineConformidadeBadge({
+  esperado,
+  obtido,
+}: {
+  esperado: 'R' | 'NR' | undefined;
+  obtido: 'R' | 'NR' | undefined;
+}) {
+  if (!esperado || !obtido) return null;
+  const conforme = esperado === obtido;
+  return (
+    <div
+      className={[
+        'flex items-center gap-2 mt-2 px-3 py-1.5 rounded-lg text-xs font-medium border',
+        conforme
+          ? 'bg-emerald-500/[0.08] border-emerald-500/25 text-emerald-700 dark:text-emerald-400'
+          : 'bg-red-500/[0.08] border-red-400/25 text-red-700 dark:text-red-400',
+      ].join(' ')}
+    >
+      <span className="text-base leading-none">{conforme ? '✓' : '✗'}</span>
+      <span>
+        {conforme
+          ? `Conforme — obtido ${obtido} bate com o esperado.`
+          : `Diverge — esperado ${esperado}, obtido ${obtido}.`}
+      </span>
+    </div>
+  );
+}
+
+/**
+ * Esperado derivado da polaridade do controle:
+ *   - 'positivo' → R (deve reagir)
+ *   - 'negativo' → NR (não deve reagir)
+ *
+ * Quando o controle não tem polaridade definida (lote legado), retorna
+ * `undefined` — caller exibe aviso pra editar o produto.
+ */
+function esperadoFromControle(controle: InsumoControle | null): 'R' | 'NR' | undefined {
+  if (!controle) return undefined;
+  if (controle.nivel === 'positivo') return 'R';
+  if (controle.nivel === 'negativo') return 'NR';
+  return undefined;
+}
+
+/** Badge read-only mostrando o esperado derivado, com nivel do controle. */
+function EsperadoBadge({
+  esperado,
+  controle,
+}: {
+  esperado: 'R' | 'NR' | undefined;
+  controle: InsumoControle | null;
+}) {
+  if (!esperado) {
+    return (
+      <div className="flex items-start gap-2 px-3.5 py-2.5 rounded-xl border text-xs bg-amber-500/[0.07] border-amber-500/20 text-amber-600 dark:text-amber-400">
+        <span className="mt-px shrink-0">⚠</span>
+        <span>
+          Polaridade não definida no produto deste controle. Edite o produto e selecione
+          Positivo/Negativo para que o esperado seja automático.
+        </span>
+      </div>
+    );
+  }
+  const isR = esperado === 'R';
+  return (
+    <div
+      className={[
+        'flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border',
+        isR
+          ? 'bg-emerald-500/[0.07] border-emerald-500/25'
+          : 'bg-red-500/[0.07] border-red-400/20',
+      ].join(' ')}
+    >
+      <div className="flex items-center gap-2">
+        <span
+          className={[
+            'inline-flex items-center justify-center w-6 h-6 rounded-full text-[11px] font-bold',
+            isR
+              ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+              : 'bg-red-500/15 text-red-600 dark:text-red-400',
+          ].join(' ')}
+        >
+          {esperado}
+        </span>
+        <span className="text-xs text-slate-700 dark:text-white/70">
+          {isR ? 'R — Reagente' : 'NR — Não Reagente'}
+          {controle?.lote && (
+            <span className="text-slate-500 dark:text-white/40"> · Lote {controle.lote}</span>
+          )}
+        </span>
+      </div>
+      <span className="text-[10px] uppercase tracking-widest text-slate-400 dark:text-white/30">
+        Auto · do lote
+      </span>
+    </div>
+  );
+}
+
+/**
+ * Banner "Validação de lote novo" — versão compacta com 3 linhas visíveis
+ * (título · identificação do lote · resumo de uma frase) e detalhe
+ * expansível "Por quê?" com a explicação regulatória completa.
+ *
+ * Decisão de copy: a versão de uma linha-só perde o "POR QUÊ" — operador
+ * júnior pode interpretar como passo burocrático e tentar pular. Manter o
+ * resumo de uma frase preserva a intenção e o expand revela a base regulatória
+ * (RDC 786/2023 + RDC 978/2025) sem ocupar espaço default.
+ */
+function ValidationBanner({
+  reagenteNome,
+  reagenteLote,
+}: {
+  reagenteNome?: string;
+  reagenteLote?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const id = reagenteNome && reagenteLote ? `${reagenteNome} · Lote ${reagenteLote}` : null;
+  return (
+    <div className="rounded-xl border border-amber-500/30 bg-amber-500/[0.08] px-4 py-3 space-y-1.5">
+      <div className="flex items-start gap-3">
+        <div className="w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0 text-amber-600 dark:text-amber-400 font-bold text-xs">
+          ⚑
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+              Esta corrida validará o lote {id ? <span className="font-bold">{id}</span> : 'novo'}
+            </p>
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              aria-expanded={open ? 'true' : 'false'}
+              className="text-[11px] font-medium text-amber-700/80 dark:text-amber-300/70 hover:text-amber-800 dark:hover:text-amber-200 underline decoration-dotted underline-offset-2 transition-colors shrink-0"
+            >
+              {open ? 'Ocultar' : 'Por quê?'}
+            </button>
+          </div>
+          <p className="text-[11px] text-amber-700/85 dark:text-amber-200/75 mt-0.5 leading-relaxed">
+            Bate com o esperado nos dois controles → liberado para pacientes. Diverge
+            → reprovado e bloqueado.
+          </p>
+        </div>
+      </div>
+      {open && (
+        <div className="pl-9 pr-1 pt-1 text-[11px] text-amber-700/85 dark:text-amber-200/75 leading-relaxed border-t border-amber-500/15">
+          <p className="mt-2">
+            <strong>Toda caixa nova de kit imuno precisa ser qualificada antes de uso
+            em amostras de paciente</strong> — RDC 786/2023 (rastreabilidade de
+            insumos de diagnóstico) + RDC 978/2025 Art.128 (validação de lote
+            novo de CQ). A corrida-validação é a forma documentada dessa
+            qualificação: rodar os controles positivo e negativo do próprio kit
+            e verificar que respondem como o fabricante declara.
+          </p>
+          <p className="mt-2">
+            Se ambos baterem com o esperado, o lote é{' '}
+            <strong>liberado automaticamente</strong> e fica disponível pra rotina.
+            Qualquer divergência → <strong>lote reprovado</strong>, motivo gravado
+            em auditoria, e o lote fica bloqueado (override só com justificativa).
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Alerts ───────────────────────────────────────────────────────────────────
 
 function ExpiryWarning({ label, days }: { label: string; days: number }) {
@@ -217,11 +388,24 @@ interface CIQImunoFormProps {
   onSave: (data: CIQImunoFormData, options?: SaveCIQRunOptions) => Promise<void>;
   isSaving?: boolean;
   onCancel?: () => void;
+  /**
+   * Fase 2 (2026-04-25) — Pré-fill do form a partir de um lote vinculado à
+   * bancada. Quando passado, os campos identificadores do lote (testType,
+   * loteControle, datas) são pré-preenchidos e bloqueados — o operador só
+   * preenche resultado, reagente e equipamento. Reduz a fricção de seleção
+   * manual quando o lab tem um lote oficial vinculado.
+   */
+  prefillFromLot?: CIQImunoLot;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFormProps) {
+export function CIQImunoForm({
+  onSave,
+  isSaving = false,
+  onCancel,
+  prefillFromLot,
+}: CIQImunoFormProps) {
   const user = useUser();
   const setCurrentView = useAppStore((s) => s.setCurrentView);
   const {
@@ -239,11 +423,26 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
   const [equipamentoId, setEquipamentoId] = useState<string | null>(null);
   const [equipamentoSel, setEquipamentoSel] = useState<Equipamento | null>(null);
 
-  const [form, setForm] = useState<Partial<CIQImunoFormData>>({
+  const [form, setForm] = useState<Partial<CIQImunoFormData>>(() => ({
     resultadoEsperado: 'R',
     dataRealizacao: today(),
-  });
+    ...(prefillFromLot && {
+      testType: prefillFromLot.testType,
+      loteControle: prefillFromLot.loteControle,
+      aberturaControle: prefillFromLot.aberturaControle,
+      validadeControle: prefillFromLot.validadeControle,
+    }),
+  }));
+  // Fase 2 — quando o form é aberto a partir de um lote vinculado, os campos
+  // identificadores (tipo + lote + datas) ficam bloqueados. O operador só
+  // edita resultado, reagente, controles e equipamento.
+  const lockedFromLot = !!prefillFromLot;
   const [errors, setErrors] = useState<Record<string, string>>({});
+  // Em modo manual o "obtido" é capturado por controle (P/N), separado do
+  // estado do schema que guarda os dois pares já mapeados (positivo no campo
+  // legado `resultadoObtido`, negativo em `resultadoObtidoNegativo`).
+  const [obtidoPositivo, setObtidoPositivo] = useState<'R' | 'NR' | undefined>(undefined);
+  const [obtidoNegativo, setObtidoNegativo] = useState<'R' | 'NR' | undefined>(undefined);
 
   // Fase F (2026-04-24) — resolve o tipo de teste para decidir modo manual vs
   // analisador. Quando `manual: true` o form esconde o EquipamentoSelector,
@@ -259,7 +458,13 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
   const isManualByTestType = !!currentTestType?.manual;
   const isManualByEquipamento = equipamentoSel?.modelo === 'MANUAL';
   const isManual = isManualByTestType || isManualByEquipamento;
-  const showEquipamentoSelector = !isManualByTestType;
+  // 2026-04-25 (UX-pass) — em qualquer fluxo manual o seletor de equipamento
+  // some. O signal canônico do modo manual passa a ser `testType.manual=true`;
+  // o equipamento "MANUAL" como gatilho continua funcionando se vier
+  // pré-selecionado de outro contexto (ex: navegação a partir do cadastro de
+  // equipamento), mas não é mais oferecido como UI de seleção dentro da
+  // corrida — economiza um card que não traz informação útil ao operador.
+  const showEquipamentoSelector = !isManual;
 
   // Fase B1-etapa2 — Imuno analisador: apenas reagente (kit) obrigatório por
   // corrida. CQ é por lote (qcStatus), não por corrida — então `controle: false`.
@@ -338,8 +543,27 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    // Atualiza dataRealizacao para a data atual no momento do submit
-    const submitForm = { ...form, dataRealizacao: today() };
+    // Atualiza dataRealizacao para a data atual no momento do submit.
+    // Em modo manual, espelha o par positivo no campo legado (resultadoEsperado/
+    // Obtido) e o par negativo nos campos novos. Em modo analisador, mantém
+    // o par single conforme o operador preencheu.
+    const submitForm: Partial<CIQImunoFormData> = {
+      ...form,
+      dataRealizacao: today(),
+      ...(isManual
+        ? {
+            // Auto-popula campo legado herdado do fluxo analisador — em kit
+            // manual P+N, "status na abertura" é supérfluo (a checagem é feita
+            // via controles). Default = 'R' pra satisfazer o schema sem
+            // distorcer o significado em corrida manual.
+            reagenteStatus: 'R' as const,
+            resultadoEsperado: esperadoPositivo,
+            resultadoObtido: obtidoPositivo,
+            resultadoEsperadoNegativo: esperadoNegativo,
+            resultadoObtidoNegativo: obtidoNegativo,
+          }
+        : {}),
+    };
     const result = CIQImunoFormSchema.safeParse(submitForm);
 
     if (!result.success) {
@@ -348,6 +572,25 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
       const firstErrEl = document.querySelector('[data-field-error]');
       firstErrEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
+    }
+
+    // Em modo manual exige polaridade definida nos dois controles e obtido
+    // preenchido pra cada — o schema cobre o par negativo via refine; aqui
+    // protege a derivação do esperado.
+    if (isManual) {
+      const blockingErrors: Record<string, string> = {};
+      if (esperadoPositivo === undefined) {
+        blockingErrors.resultadoEsperado =
+          'Defina a polaridade Positiva no produto do controle positivo.';
+      }
+      if (esperadoNegativo === undefined) {
+        blockingErrors.resultadoEsperadoNegativo =
+          'Defina a polaridade Negativa no produto do controle negativo.';
+      }
+      if (Object.keys(blockingErrors).length > 0) {
+        setErrors(blockingErrors);
+        return;
+      }
     }
 
     // Fase F: em modo manual não exige equipamento; em modo analisador exige.
@@ -387,19 +630,84 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
     };
     await onSave(result.data, saveOptions);
 
-    // afterSave — incrementa runCount dos insumos.
-    const isConforme = form.resultadoObtido === form.resultadoEsperado;
-    void activeGuard.afterSave({ runId: '', wasConforme: isConforme });
+    // afterSave — incrementa runCount dos insumos. Em Imuno manual com
+    // classificacao=validacao, transiciona qcStatus do reagente do kit
+    // (aprovado quando ambos os controles bateram, reprovado caso contrário).
+    const isConforme = isManual
+      ? obtidoPositivo === esperadoPositivo && obtidoNegativo === esperadoNegativo
+      : result.data.resultadoObtido === result.data.resultadoEsperado;
+
+    if (isManual) {
+      const motivoReprovacao = !isConforme
+        ? [
+            obtidoPositivo !== esperadoPositivo &&
+              `controle positivo obtido ${obtidoPositivo ?? '?'} (esperado ${esperadoPositivo ?? '?'})`,
+            obtidoNegativo !== esperadoNegativo &&
+              `controle negativo obtido ${obtidoNegativo ?? '?'} (esperado ${esperadoNegativo ?? '?'})`,
+          ]
+            .filter(Boolean)
+            .join('; ')
+        : undefined;
+      void manualGuard.afterSave({
+        runId: '',
+        wasConforme: isConforme,
+        ...(saveOptions.classificacaoImuno && {
+          classificacaoImuno: saveOptions.classificacaoImuno,
+        }),
+        userId: user?.uid ?? '',
+        userName: user?.displayName ?? user?.email ?? 'Operador',
+        ...(motivoReprovacao && { motivoReprovacao }),
+      });
+    } else {
+      // Analisador (não manual): incrementa runCount via insumoGuard.
+      // insumoGuard tem o mesmo afterSave clássico — sem auto-aprovação.
+      void insumoGuard.afterSave({ runId: '', wasConforme: isConforme });
+    }
   }
 
   const ctrlDays = form.validadeControle ? daysToExpiry(form.validadeControle) : null;
   const reagDays = form.validadeReagente ? daysToExpiry(form.validadeReagente) : null;
-  const naoConforme =
-    form.resultadoObtido !== undefined &&
-    form.resultadoEsperado !== undefined &&
-    form.resultadoObtido !== form.resultadoEsperado;
-  const aprovacaoDerived =
-    form.resultadoObtido !== undefined && form.resultadoEsperado !== undefined;
+
+  // ── Esperado/obtido — derivação por modo ────────────────────────────────
+  const ctrlPositivo =
+    isManual && manualGuard.resolved.controlePositivo?.tipo === 'controle'
+      ? (manualGuard.resolved.controlePositivo as InsumoControle)
+      : null;
+  const ctrlNegativo =
+    isManual && manualGuard.resolved.controleNegativo?.tipo === 'controle'
+      ? (manualGuard.resolved.controleNegativo as InsumoControle)
+      : null;
+  const esperadoPositivo = useMemo(() => esperadoFromControle(ctrlPositivo), [ctrlPositivo]);
+  const esperadoNegativo = useMemo(() => esperadoFromControle(ctrlNegativo), [ctrlNegativo]);
+
+  // Veredito unificado:
+  //   - manual: ambos os pares (P+N) precisam bater
+  //   - analisador: o par single (resultadoEsperado === resultadoObtido)
+  const naoConforme = isManual
+    ? (obtidoPositivo !== undefined &&
+        esperadoPositivo !== undefined &&
+        obtidoPositivo !== esperadoPositivo) ||
+      (obtidoNegativo !== undefined &&
+        esperadoNegativo !== undefined &&
+        obtidoNegativo !== esperadoNegativo)
+    : form.resultadoObtido !== undefined &&
+      form.resultadoEsperado !== undefined &&
+      form.resultadoObtido !== form.resultadoEsperado;
+  const aprovacaoDerived = isManual
+    ? obtidoPositivo !== undefined &&
+      obtidoNegativo !== undefined &&
+      esperadoPositivo !== undefined &&
+      esperadoNegativo !== undefined
+    : form.resultadoObtido !== undefined && form.resultadoEsperado !== undefined;
+
+  // Banner "Modo validação": reagente em uso ainda não está aprovado.
+  // Manual → reagente do kit (manualGuard); analisador → reagente do setup.
+  const reagenteAtivo = isManual ? manualGuard.resolved.reagente : insumoGuard.reagente;
+  const isValidacaoMode =
+    !!reagenteAtivo &&
+    reagenteAtivo.tipo === 'reagente' &&
+    reagenteAtivo.qcStatus !== 'aprovado' &&
+    reagenteAtivo.qcStatus !== 'reprovado';
 
   // Data de hoje formatada para exibição
   const todayFormatted = new Date().toLocaleDateString('pt-BR', {
@@ -410,6 +718,38 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
 
   return (
     <form onSubmit={handleSubmit} className="space-y-7" noValidate>
+      {/* ── Banner: corrida iniciada a partir de lote vinculado ──────────────── */}
+      {prefillFromLot && (
+        <div
+          className={`flex items-start gap-3 px-4 py-3 rounded-xl border ${
+            prefillFromLot.setupType === 'principal'
+              ? 'bg-emerald-50 dark:bg-emerald-500/[0.06] border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400'
+              : 'bg-blue-50 dark:bg-blue-500/[0.06] border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400'
+          }`}
+        >
+          <span className="mt-0.5 shrink-0">
+            <svg width="14" height="14" viewBox="0 0 13 13" fill="none" aria-hidden>
+              <path
+                d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+          <div className="text-xs leading-relaxed">
+            <p className="font-semibold">
+              Corrida vinculada · {prefillFromLot.testType} · Lote {prefillFromLot.loteControle}
+            </p>
+            <p className="opacity-80 mt-0.5">
+              {prefillFromLot.setupType === 'principal'
+                ? 'Setup oficial em rotina. Tipo, lote e datas estão bloqueados.'
+                : 'Lote em validação paralela. Corrida será classificada como validação.'}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* ── Operador ───────────────────────────────────────────────────────── */}
       <div>
         <SectionTitle>Operador</SectionTitle>
@@ -544,6 +884,7 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
               title="Tipo de imunoensaio"
               value={form.testType ?? ''}
               onChange={(e) => set('testType', e.target.value)}
+              disabled={lockedFromLot}
               className={errors.testType ? INPUT_ERR : INPUT}
             >
               <option value="" disabled>
@@ -677,6 +1018,7 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
                 placeholder="ex: L2024-001"
                 value={form.loteControle ?? ''}
                 onChange={(e) => set('loteControle', e.target.value)}
+                disabled={lockedFromLot}
                 className={errors.loteControle ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.loteControle} />
@@ -709,6 +1051,7 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
                 title="Data de abertura do controle"
                 value={form.aberturaControle ?? ''}
                 onChange={(e) => set('aberturaControle', e.target.value)}
+                disabled={lockedFromLot}
                 className={errors.aberturaControle ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.aberturaControle} />
@@ -724,6 +1067,7 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
                 title="Data de validade do controle"
                 value={form.validadeControle ?? ''}
                 onChange={(e) => set('validadeControle', e.target.value)}
+                disabled={lockedFromLot}
                 className={errors.validadeControle ? INPUT_ERR : INPUT}
               />
               <FieldError msg={errors.validadeControle} />
@@ -795,18 +1139,25 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="reagenteStatus" required>
-              Status na abertura do kit
-            </Label>
-            <RNRToggle
-              id="reagenteStatus"
-              value={form.reagenteStatus}
-              onChange={(v) => set('reagenteStatus', v)}
-              error={errors.reagenteStatus}
-            />
-            {form.reagenteStatus === 'NR' && <ReagentOpenAlert />}
-          </div>
+          {/* Em kit manual P+N o "status na abertura" é supérfluo — o kit é
+              o próprio reagente do teste e a checagem de funcionamento ocorre
+              via controles positivo/negativo nesta mesma corrida. Campo só
+              faz sentido em fluxo analisador, onde o operador pode rodar o
+              reagente do estoque pra checar reatividade na abertura. */}
+          {!isManual && (
+            <div>
+              <Label htmlFor="reagenteStatus" required>
+                Status na abertura do kit
+              </Label>
+              <RNRToggle
+                id="reagenteStatus"
+                value={form.reagenteStatus}
+                onChange={(v) => set('reagenteStatus', v)}
+                error={errors.reagenteStatus}
+              />
+              {form.reagenteStatus === 'NR' && <ReagentOpenAlert />}
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -843,39 +1194,154 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
         </div>
       </div>
 
-      {/* ── Resultado ──────────────────────────────────────────────────────── */}
+      {/* ── Banner Modo Validação ───────────────────────────────────────────
+          Aparece quando o reagente em uso ainda não tem qcStatus='aprovado'.
+          Avisa que esta corrida é a corrida-validação que vai liberar (ou
+          reprovar) o lote — e não exige override modal pra prosseguir. */}
+      {isValidacaoMode && (
+        <ValidationBanner
+          {...(reagenteAtivo?.nomeComercial && { reagenteNome: reagenteAtivo.nomeComercial })}
+          {...(reagenteAtivo?.lote && { reagenteLote: reagenteAtivo.lote })}
+        />
+      )}
+
+      {/* ── Resultado ────────────────────────────────────────────────────────
+          Manual (kit P+N) → dois pares com esperado read-only derivado da
+          polaridade do controle. Veredito = ambos batem.
+          Analisador → par single com esperado configurável (legacy). */}
       <div>
         <SectionTitle>Resultado</SectionTitle>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="resultadoEsperado" required>
-              Resultado esperado (fabricante)
-            </Label>
-            <RNRToggle
-              id="resultadoEsperado"
-              value={form.resultadoEsperado}
-              onChange={(v) => set('resultadoEsperado', v)}
-              error={errors.resultadoEsperado}
-            />
-          </div>
+        <div className="space-y-5">
+          {isManual ? (
+            <>
+              {/* Controle Positivo */}
+              <div className="rounded-2xl border border-slate-200 dark:border-white/[0.08] p-4 space-y-3 bg-slate-50/40 dark:bg-white/[0.02]">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-slate-700 dark:text-white/75">
+                    Controle Positivo
+                  </p>
+                  {ctrlPositivo?.nomeComercial && (
+                    <p className="text-[11px] text-slate-400 dark:text-white/35 truncate ml-2">
+                      {ctrlPositivo.nomeComercial}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="esperadoPositivo">Esperado (do lote)</Label>
+                  <EsperadoBadge esperado={esperadoPositivo} controle={ctrlPositivo} />
+                  {errors.resultadoEsperado && <FieldError msg={errors.resultadoEsperado} />}
+                </div>
+                <div>
+                  <Label htmlFor="obtidoPositivo" required>
+                    Obtido
+                  </Label>
+                  <RNRToggle
+                    id="obtidoPositivo"
+                    value={obtidoPositivo}
+                    onChange={(v) => {
+                      setObtidoPositivo(v);
+                      if (errors.resultadoObtido)
+                        setErrors((prev) => {
+                          const n = { ...prev };
+                          delete n.resultadoObtido;
+                          return n;
+                        });
+                    }}
+                    error={errors.resultadoObtido}
+                  />
+                  <InlineConformidadeBadge
+                    esperado={esperadoPositivo}
+                    obtido={obtidoPositivo}
+                  />
+                </div>
+              </div>
 
-          <div>
-            <Label htmlFor="resultadoObtido" required>
-              Resultado obtido
-            </Label>
-            <RNRToggle
-              id="resultadoObtido"
-              value={form.resultadoObtido}
-              onChange={(v) => set('resultadoObtido', v)}
-              error={errors.resultadoObtido}
-            />
-          </div>
+              {/* Controle Negativo */}
+              <div className="rounded-2xl border border-slate-200 dark:border-white/[0.08] p-4 space-y-3 bg-slate-50/40 dark:bg-white/[0.02]">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-slate-700 dark:text-white/75">
+                    Controle Negativo
+                  </p>
+                  {ctrlNegativo?.nomeComercial && (
+                    <p className="text-[11px] text-slate-400 dark:text-white/35 truncate ml-2">
+                      {ctrlNegativo.nomeComercial}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="esperadoNegativo">Esperado (do lote)</Label>
+                  <EsperadoBadge esperado={esperadoNegativo} controle={ctrlNegativo} />
+                  {errors.resultadoEsperadoNegativo && (
+                    <FieldError msg={errors.resultadoEsperadoNegativo} />
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="obtidoNegativo" required>
+                    Obtido
+                  </Label>
+                  <RNRToggle
+                    id="obtidoNegativo"
+                    value={obtidoNegativo}
+                    onChange={(v) => {
+                      setObtidoNegativo(v);
+                      if (errors.resultadoObtidoNegativo)
+                        setErrors((prev) => {
+                          const n = { ...prev };
+                          delete n.resultadoObtidoNegativo;
+                          return n;
+                        });
+                    }}
+                    error={errors.resultadoObtidoNegativo}
+                  />
+                  <InlineConformidadeBadge
+                    esperado={esperadoNegativo}
+                    obtido={obtidoNegativo}
+                  />
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <Label htmlFor="resultadoEsperado" required>
+                  Resultado esperado (fabricante)
+                </Label>
+                <RNRToggle
+                  id="resultadoEsperado"
+                  value={form.resultadoEsperado}
+                  onChange={(v) => set('resultadoEsperado', v)}
+                  error={errors.resultadoEsperado}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="resultadoObtido" required>
+                  Resultado obtido
+                </Label>
+                <RNRToggle
+                  id="resultadoObtido"
+                  value={form.resultadoObtido}
+                  onChange={(v) => set('resultadoObtido', v)}
+                  error={errors.resultadoObtido}
+                />
+              </div>
+            </>
+          )}
 
           {/* Aprovação — derivada automaticamente, separada do resultado */}
           {aprovacaoDerived && (
             <div>
-              <Label htmlFor="aprovacao">Aprovação</Label>
+              <Label htmlFor="aprovacao">
+                {isManual ? 'Veredito da corrida' : 'Aprovação'}
+              </Label>
               <ApprovalBadge conforme={!naoConforme} />
+              {isManual && isValidacaoMode && (
+                <p className="text-[11px] text-slate-500 dark:text-white/40 mt-1.5 ml-0.5">
+                  {!naoConforme
+                    ? 'Lote será aprovado automaticamente após salvar.'
+                    : 'Lote será reprovado automaticamente — motivo registrado em auditoria.'}
+                </p>
+              )}
             </div>
           )}
 
@@ -905,7 +1371,7 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
               <textarea
                 id="acaoCorretiva"
                 rows={3}
-                placeholder="Descreva a ação corretiva tomada…"
+                placeholder="Descreva a causa raiz, decisão tomada e responsável…"
                 value={form.acaoCorretiva ?? ''}
                 onChange={(e) => set('acaoCorretiva', e.target.value || undefined)}
                 className={[
@@ -913,7 +1379,19 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
                   'resize-none leading-relaxed',
                 ].join(' ')}
               />
-              <FieldError msg={errors.acaoCorretiva} />
+              {/* Fase 3b — contador de caracteres com mín 20 (RDC: descrição substantiva) */}
+              <div className="flex items-center justify-between mt-1">
+                <FieldError msg={errors.acaoCorretiva} />
+                <span
+                  className={`ml-auto text-[10px] font-mono ${
+                    (form.acaoCorretiva?.trim().length ?? 0) >= 20
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-amber-600 dark:text-amber-400'
+                  }`}
+                >
+                  {form.acaoCorretiva?.trim().length ?? 0}/20 mín
+                </span>
+              </div>
             </div>
           )}
         </div>
@@ -927,6 +1405,28 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
             Queixas técnicas e eventos adversos de produtos para saúde devem ser notificados ao
             NOTIVISA (RDC 67/2009 + RDC 551/2021). Prazo: até 72h para eventos graves.
           </p>
+          {/* Fase 3b — Prazo dinâmico: calcula horas desde dataRealizacao
+              e sinaliza visualmente o tier regulatório (72h evento grave / 30d QT). */}
+          {form.dataRealizacao && (() => {
+            const [y, m, d] = form.dataRealizacao.split('-').map(Number);
+            const realizado = new Date(y, m - 1, d, 0, 0, 0, 0).getTime();
+            const horas = Math.floor((Date.now() - realizado) / (1000 * 60 * 60));
+            if (horas < 0) return null;
+            const tier =
+              horas >= 24 * 30
+                ? { cls: 'bg-red-50 dark:bg-red-500/[0.08] border-red-300 dark:border-red-500/30 text-red-700 dark:text-red-400', label: 'Prazo de 30 dias excedido' }
+                : horas >= 72
+                  ? { cls: 'bg-amber-50 dark:bg-amber-500/[0.08] border-amber-300 dark:border-amber-500/30 text-amber-700 dark:text-amber-400', label: 'Prazo de 72h (evento grave) excedido' }
+                  : horas >= 48
+                    ? { cls: 'bg-amber-50 dark:bg-amber-500/[0.06] border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-400', label: `${72 - horas}h restantes (evento grave)` }
+                    : { cls: 'bg-blue-50 dark:bg-blue-500/[0.06] border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400', label: `${horas}h desde a realização` };
+            return (
+              <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-[11px] font-medium mb-3 ${tier.cls}`}>
+                <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0" />
+                {tier.label}
+              </div>
+            );
+          })()}
           <div className="space-y-4">
             <div>
               <Label htmlFor="notivisaTipo">Tipo de notificação</Label>
@@ -1033,10 +1533,31 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
         </div>
       )}
 
-      {/* ── Equipamento (opcional) ─────────────────────────────────────────── */}
-      <div>
-        <SectionTitle>Equipamento</SectionTitle>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {/* ── Dados adicionais (opcional, colapsado por default) ──────────────
+          Equipamento/analisador e temperatura ambiente são metadados legacy
+          (anteriores ao EquipamentoSelector da Fase D). Em manual são
+          irrelevantes; em analisador costumam ser redundantes com o
+          equipamento estruturado. Esconder por default reduz a altura do
+          formulário e baixa a fricção pra concluir a corrida — o operador
+          que precisa registrar pode expandir. */}
+      <details className="group rounded-xl border border-slate-200 dark:border-white/[0.07] bg-slate-50/50 dark:bg-white/[0.02] open:bg-white dark:open:bg-white/[0.03]">
+        <summary className="cursor-pointer list-none px-4 py-3 flex items-center justify-between gap-3 text-xs font-medium text-slate-500 dark:text-white/50 hover:text-slate-700 dark:hover:text-white/70 transition-colors">
+          <span className="flex items-center gap-2">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 10 10"
+              fill="none"
+              aria-hidden
+              className="transition-transform group-open:rotate-90 text-slate-400 dark:text-white/30"
+            >
+              <path d="M3 1.5l4 3.5-4 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Dados adicionais
+          </span>
+          <span className="text-[10px] text-slate-400 dark:text-white/30">opcional</span>
+        </summary>
+        <div className="px-4 pb-4 pt-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <Label htmlFor="equipamento">Equipamento / analisador</Label>
             <input
@@ -1067,7 +1588,7 @@ export function CIQImunoForm({ onSave, isSaving = false, onCancel }: CIQImunoFor
             />
           </div>
         </div>
-      </div>
+      </details>
 
       {/* ── Ações ──────────────────────────────────────────────────────────── */}
       <div className="flex gap-3 pt-1">

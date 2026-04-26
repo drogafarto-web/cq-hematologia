@@ -11,6 +11,7 @@ import { NovaCorridaScreen } from './screens/NovaCorridaScreen';
 import { AnaliseScreen } from './screens/AnaliseScreen';
 import { HistoricoScreen } from './screens/HistoricoScreen';
 import { CIQImunoContent } from '../ciq-imuno/components/CIQImunoContent';
+import { BancadaImunoView } from '../ciq-imuno/components/BancadaImunoView';
 import { useActiveLab, useIsSuperAdmin, useUser, useUserRole } from '../../store/useAuthStore';
 import { useAppStore } from '../../store/useAppStore';
 import { useAuthFlow } from '../auth/hooks/useAuthFlow';
@@ -27,6 +28,7 @@ import type { CIQLotStatus } from '../ciq-imuno/types/_shared_refs';
 
 type Page = 'dashboard' | 'nova' | 'analise' | 'historico' | 'lotes';
 type Module = 'analyzer' | 'ciq-imuno';
+type CiqPage = 'bancada' | 'lotes' | 'equipamentos' | 'tipos-teste';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -278,10 +280,74 @@ interface SidebarProps {
   signOut: () => void;
   isSuperAdmin: boolean;
   // CIQ-Imuno
+  ciqPage: CiqPage;
+  setCiqPage: (p: CiqPage) => void;
   ciqLots: CIQImunoLot[];
   ciqActiveLotId: string | null;
   setCiqActiveLotId: (id: string | null) => void;
   onCiqNewRun: () => void;
+}
+
+function CiqPlaceholder({
+  title,
+  description,
+  ctaLabel,
+  onCta,
+}: {
+  title: string;
+  description: string;
+  ctaLabel: string;
+  onCta: () => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{title}</h1>
+      <div className="rounded-2xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.02] px-8 py-12 text-center">
+        <p className="text-sm text-slate-600 dark:text-white/60 max-w-xl mx-auto leading-relaxed">
+          {description}
+        </p>
+        <button
+          type="button"
+          onClick={onCta}
+          className="mt-5 inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium bg-slate-100 dark:bg-white/[0.05] hover:bg-slate-200 dark:hover:bg-white/[0.08] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/[0.08] transition-colors"
+        >
+          {ctaLabel}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CiqNavItem({
+  active,
+  onClick,
+  icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  accent: 'emerald';
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-[13.5px] font-medium transition-all mb-0.5 ${
+        active
+          ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+          : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.05] hover:text-slate-800 dark:hover:text-white/80'
+      }`}
+    >
+      <span
+        className={`shrink-0 ${active ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}
+      >
+        {icon}
+      </span>
+      <span className="flex-1 text-left truncate">{label}</span>
+    </button>
+  );
 }
 
 function Sidebar({
@@ -294,10 +360,12 @@ function Sidebar({
   setCurrentView,
   signOut,
   isSuperAdmin,
-  ciqLots,
-  ciqActiveLotId,
-  setCiqActiveLotId,
-  onCiqNewRun,
+  ciqPage,
+  setCiqPage,
+  ciqLots: _ciqLots,
+  ciqActiveLotId: _ciqActiveLotId,
+  setCiqActiveLotId: _setCiqActiveLotId,
+  onCiqNewRun: _onCiqNewRun,
 }: SidebarProps) {
   const initials =
     userName
@@ -454,60 +522,75 @@ function Sidebar({
 
             <div className="h-px bg-slate-100 dark:bg-white/[0.05] mx-2 my-2" />
 
-            {/* Lot list */}
-            {ciqLots.length > 0 && (
-              <>
-                <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-600 px-2 py-2">
-                  Lotes
-                </div>
-                <div className="space-y-1">
-                  {ciqLots.map((lot) => {
-                    const isActive = lot.id === (ciqActiveLotId ?? ciqLots[0]?.id);
-                    return (
-                      <button
-                        key={lot.id}
-                        type="button"
-                        onClick={() => setCiqActiveLotId(lot.id)}
-                        className={`w-full text-left px-2.5 py-2.5 rounded-lg border transition-all ${
-                          isActive
-                            ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/25'
-                            : 'border-transparent hover:bg-slate-50 dark:hover:bg-white/[0.04] hover:border-slate-200 dark:hover:border-white/[0.07]'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span
-                            className={`text-[13px] font-medium truncate ${isActive ? 'text-emerald-800 dark:text-emerald-300' : 'text-slate-700 dark:text-white/75'}`}
-                          >
-                            {lot.testType}
-                          </span>
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full shrink-0 ${CIQ_STATUS_DOT[lot.lotStatus]}`}
-                          />
-                        </div>
-                        <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-slate-400 dark:text-white/30">
-                          <span className="font-mono truncate">{lot.loteControle}</span>
-                          <span>·</span>
-                          <span>
-                            {lot.runCount} run{lot.runCount !== 1 ? 's' : ''}
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
-            )}
+            {/* ROTINA DIÁRIA */}
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-600 px-2 py-2 mt-1">
+              Rotina Diária
+            </div>
+            <CiqNavItem
+              active={ciqPage === 'bancada'}
+              onClick={() => setCiqPage('bancada')}
+              accent="emerald"
+              icon={
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M3 12h4l2-7 4 14 2-7h6" />
+                </svg>
+              }
+              label="Bancada (Corridas)"
+            />
 
-            <div className="h-px bg-slate-100 dark:bg-white/[0.05] mx-2 my-3" />
+            {/* ESTOQUE & GESTÃO */}
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-600 px-2 py-2 mt-3">
+              Estoque & Gestão
+            </div>
+            <CiqNavItem
+              active={ciqPage === 'lotes'}
+              onClick={() => setCiqPage('lotes')}
+              accent="emerald"
+              icon={<FlaskIcon />}
+              label="Gestão de Lotes"
+            />
+            <CiqNavItem
+              active={false}
+              onClick={() => setCurrentView('insumos')}
+              accent="emerald"
+              icon={
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M3 7l9-4 9 4-9 4-9-4z" />
+                  <path d="M3 12l9 4 9-4M3 17l9 4 9-4" />
+                </svg>
+              }
+              label="Insumos e Catálogo"
+            />
 
-            {/* Nova corrida */}
-            <button
-              type="button"
-              onClick={onCiqNewRun}
-              className="w-full flex items-center justify-center gap-2 h-9 px-3 rounded-lg text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-white transition-colors"
-            >
-              <SmallPlusIcon /> Nova corrida
-            </button>
+            {/* CONFIGURAÇÃO — itens raramente alterados (gestor/bioquímico).
+                Visualmente de-emfatizado vs Rotina Diária e Estoque & Gestão
+                pra sinalizar que não é fluxo do operador. */}
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-600 px-2 py-2 mt-3">
+              Configuração
+            </div>
+            <CiqNavItem
+              active={ciqPage === 'equipamentos'}
+              onClick={() => setCiqPage('equipamentos')}
+              accent="emerald"
+              icon={
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+                </svg>
+              }
+              label="Equipamentos"
+            />
+            <CiqNavItem
+              active={ciqPage === 'tipos-teste'}
+              onClick={() => setCiqPage('tipos-teste')}
+              accent="emerald"
+              icon={
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M9 11H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2h-4M9 11V7a3 3 0 016 0v4M9 11h6" />
+                </svg>
+              }
+              label="Tipos de Teste"
+            />
           </>
         )}
       </div>
@@ -808,6 +891,16 @@ export function AnalyzerView() {
   const { lots: ciqLots } = useCIQLots();
   const [userSelectedCiqLotId, setCiqActiveLotId] = useState<string | null>(null);
   const [ciqNewRunTrigger, setCiqNewRunTrigger] = useState(0);
+  const [ciqPage, setCiqPage] = useState<CiqPage>(() => {
+    const saved = localStorage.getItem('hcq_ciq_page') as CiqPage | null;
+    return saved && ['bancada', 'lotes', 'equipamentos', 'tipos-teste'].includes(saved)
+      ? saved
+      : 'bancada';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('hcq_ciq_page', ciqPage);
+  }, [ciqPage]);
 
   // Lote ativo derivado (escolha do usuário OU primeiro disponível).
   // Só "vira" real quando estamos no módulo ciq-imuno — outros módulos ignoram.
@@ -829,6 +922,8 @@ export function AnalyzerView() {
         setCurrentView={setCurrentView}
         signOut={signOut}
         isSuperAdmin={isSuperAdmin}
+        ciqPage={ciqPage}
+        setCiqPage={setCiqPage}
         ciqLots={ciqLots}
         ciqActiveLotId={ciqActiveLotId}
         setCiqActiveLotId={setCiqActiveLotId}
@@ -942,12 +1037,31 @@ export function AnalyzerView() {
             )}
 
             {/* ── CIQ-Imuno content ────────────────────────────────────────── */}
-            {module === 'ciq-imuno' && (
+            {module === 'ciq-imuno' && ciqPage === 'bancada' && (
+              <BancadaImunoView onGoToLotes={() => setCiqPage('lotes')} />
+            )}
+            {module === 'ciq-imuno' && ciqPage === 'lotes' && (
               <CIQImunoContent
                 lots={ciqLots}
                 activeLotId={ciqActiveLotId}
                 setActiveLotId={setCiqActiveLotId}
                 newRunTrigger={ciqNewRunTrigger}
+              />
+            )}
+            {module === 'ciq-imuno' && ciqPage === 'equipamentos' && (
+              <CiqPlaceholder
+                title="Equipamentos"
+                description="Cadastro e manutenção de equipamentos do laboratório (PQ-06, ISO 15189 cl. 5.3). Configuração anual."
+                ctaLabel="Configurar em Insumos"
+                onCta={() => setCurrentView('insumos')}
+              />
+            )}
+            {module === 'ciq-imuno' && ciqPage === 'tipos-teste' && (
+              <CiqPlaceholder
+                title="Tipos de Teste"
+                description="Catálogo de testes do módulo (HCG, HIV, Dengue, etc.) e flags manual/analisador. Gerencie em Configurações."
+                ctaLabel="Abrir Configurações"
+                onCta={() => setCurrentView('lab-settings')}
               />
             )}
           </div>

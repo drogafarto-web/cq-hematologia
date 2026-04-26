@@ -1,14 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { useUser, useUserRole, useIsSuperAdmin } from '../../../store/useAuthStore';
+import { useUser, useUserRole, useIsSuperAdmin, useActiveLabId } from '../../../store/useAuthStore';
 import { useCIQRuns } from '../hooks/useCIQRuns';
 import { useSaveCIQRun } from '../hooks/useSaveCIQRun';
 import { useCIQWestgard } from '../hooks/useCIQWestgard';
 import { CIQImunoForm } from './CIQImunoForm';
+import { NovoLoteModal } from '../../insumos/components/NovoLoteModal';
 import { CIQAuditor } from './CIQAuditor';
 import { CIQIndicadores } from './CIQIndicadores';
 import { CIQRelatorioPrint } from './CIQRelatorioPrint';
 import { exportRunsToCSV } from '../services/ciqExportService';
-import { updateLotDecision, updateLotMeta, deleteCIQLot } from '../services/ciqFirebaseService';
+import {
+  updateLotDecision,
+  updateLotMeta,
+  deleteCIQLot,
+  vincularCIQLot,
+  desvincularCIQLot,
+} from '../services/ciqFirebaseService';
 import type { CIQImunoFormData } from './CIQImunoForm.schema';
 import type { CIQImunoLot, CIQImunoRun } from '../types/CIQImuno';
 import type { CIQLotStatus, CIQStatus } from '../types/_shared_refs';
@@ -177,6 +184,33 @@ function SpinnerIcon() {
     </svg>
   );
 }
+function PinIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+      <path
+        d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function PinOffIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+      <path
+        d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinejoin="round"
+      />
+      <path d="M2 11l9-9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function ImunoIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden>
@@ -630,8 +664,6 @@ function EditLotForm({
   );
 }
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface CIQImunoContentProps {
   lots: CIQImunoLot[];
   activeLotId: string | null;
@@ -650,6 +682,7 @@ export function CIQImunoContent({
   const user = useUser();
   const role = useUserRole();
   const isSuperAdmin = useIsSuperAdmin();
+  const labId = useActiveLabId();
   const canDecide = isSuperAdmin || role === 'owner' || role === 'admin';
 
   const activeLot = lots.find((l) => l.id === activeLotId) ?? lots[0] ?? null;
@@ -659,6 +692,18 @@ export function CIQImunoContent({
 
   const [showForm, setShowForm] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [formPrefill, setFormPrefill] = useState<CIQImunoLot | null>(null);
+  // Spine entry-point: "+ Cadastrar Insumo" abre o NovoLoteModal pré-filtrado
+  // pra módulo imunologia. O lote físico (Insumo) nasce no catálogo canônico
+  // (RDC 978 spine), separado do CIQImunoLot — que continua sendo materializado
+  // lazy na primeira corrida pelo CIQImunoForm.
+  const [showCadastrarInsumo, setShowCadastrarInsumo] = useState(false);
+
+  const [pinningLot, setPinningLot] = useState<CIQImunoLot | null>(null);
+  const [isPinning, setIsPinning] = useState(false);
+  const [pinErr, setPinErr] = useState<string | null>(null);
+  const [unpinningLot, setUnpinningLot] = useState<CIQImunoLot | null>(null);
+  const [isUnpinning, setIsUnpinning] = useState(false);
 
   // Event-via-counter: pai incrementa `newRunTrigger` ao clicar "Nova corrida"
   // no sidebar. Evita prop drilling de showForm/setShowForm por 2 níveis.
@@ -691,8 +736,36 @@ export function CIQImunoContent({
       const { lotId } = await save(data, options);
       setActiveLotId(lotId);
       setShowForm(false);
+      setFormPrefill(null);
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'Erro ao salvar corrida.');
+    }
+  }
+
+  async function handlePinLot(setupType: 'principal' | 'validacao_paralela') {
+    if (!pinningLot || !user) return;
+    setPinErr(null);
+    setIsPinning(true);
+    try {
+      await vincularCIQLot(pinningLot.labId, pinningLot.id, setupType, user.uid);
+      setPinningLot(null);
+    } catch (err) {
+      setPinErr(err instanceof Error ? err.message : 'Erro ao vincular.');
+    } finally {
+      setIsPinning(false);
+    }
+  }
+
+  async function handleUnpinLot() {
+    if (!unpinningLot || !user) return;
+    setIsUnpinning(true);
+    try {
+      await desvincularCIQLot(unpinningLot.labId, unpinningLot.id, user.uid);
+      setUnpinningLot(null);
+    } catch (err) {
+      console.error('[CIQImuno] desvincular falhou', err);
+    } finally {
+      setIsUnpinning(false);
     }
   }
 
@@ -778,16 +851,25 @@ export function CIQImunoContent({
               Registre a primeira corrida para criar um lote de controle.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              setFormError(null);
-              setShowForm(true);
-            }}
-            className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-white transition-colors"
-          >
-            <PlusIcon /> Nova corrida
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowCadastrarInsumo(true)}
+              className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white/75 hover:bg-slate-50 dark:hover:bg-white/[0.08] hover:border-violet-400/40 dark:hover:border-violet-500/40 hover:text-violet-700 dark:hover:text-violet-300 transition-all"
+            >
+              <PlusIcon /> Cadastrar Insumo
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setFormError(null);
+                setShowForm(true);
+              }}
+              className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-white transition-colors"
+            >
+              <PlusIcon /> Nova Corrida
+            </button>
+          </div>
         </div>
         {showForm && (
           <Modal title="Registrar corrida" onClose={() => setShowForm(false)}>
@@ -799,9 +881,20 @@ export function CIQImunoContent({
             <CIQImunoForm
               onSave={handleSave}
               isSaving={isSaving}
-              onCancel={() => setShowForm(false)}
+              onCancel={() => {
+                setShowForm(false);
+                setFormPrefill(null);
+              }}
+              {...(formPrefill && { prefillFromLot: formPrefill })}
             />
           </Modal>
+        )}
+        {showCadastrarInsumo && labId && (
+          <NovoLoteModal
+            labId={labId}
+            initialModulo="imunologia"
+            onClose={() => setShowCadastrarInsumo(false)}
+          />
         )}
       </>
     );
@@ -809,8 +902,94 @@ export function CIQImunoContent({
 
   // ── Main content ──────────────────────────────────────────────────────────
 
+  const currentActiveLotId = activeLot?.id ?? null;
+
   return (
-    <div className="space-y-4">
+    <div className="flex gap-6 items-start">
+      {/* ── Lot list rail ──────────────────────────────────────────────────── */}
+      <aside className="w-[240px] shrink-0 space-y-2 sticky top-20">
+        <div className="px-1 pb-1">
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 dark:text-white/40">
+            Lotes ({lots.length})
+          </span>
+        </div>
+        {/* Duas ações distintas, co-locadas: cadastrar Insumo (lote físico no
+            estoque/spine) vs registrar Corrida (consome insumos pra rodar CIQ).
+            Botão único antes era ambíguo — abria a corrida apesar do label
+            "Cadastrar". */}
+        <div className="space-y-1.5 px-1 pb-2">
+          <button
+            type="button"
+            onClick={() => setShowCadastrarInsumo(true)}
+            title="Cadastra um lote físico (reagente, controle positivo, controle negativo) no catálogo de insumos. Não cria corrida."
+            className="w-full inline-flex items-center justify-center gap-1.5 h-8 px-2 rounded-md text-[11px] font-semibold bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.1] text-slate-700 dark:text-white/75 hover:bg-slate-50 dark:hover:bg-white/[0.08] hover:border-violet-400/40 dark:hover:border-violet-500/40 hover:text-violet-700 dark:hover:text-violet-300 transition-all"
+          >
+            <PlusIcon /> Cadastrar Insumo
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setFormError(null);
+              setFormPrefill(null);
+              setShowForm(true);
+            }}
+            title="Registra uma nova corrida de CIQ. Na primeira corrida de um lote de controle o sistema cria automaticamente o agrupador de lote."
+            className="w-full inline-flex items-center justify-center gap-1.5 h-8 px-2 rounded-md text-[11px] font-semibold bg-emerald-500 hover:bg-emerald-600 text-white transition-colors"
+          >
+            <PlusIcon /> Nova Corrida
+          </button>
+        </div>
+        <div className="space-y-1">
+          {lots.map((lot) => {
+            const isActive = lot.id === currentActiveLotId;
+            const isPinned =
+              lot.setupType === 'principal' || lot.setupType === 'validacao_paralela';
+            const isPrincipal = lot.setupType === 'principal';
+            return (
+              <button
+                key={lot.id}
+                type="button"
+                onClick={() => setActiveLotId(lot.id)}
+                className={`w-full text-left px-3 py-2.5 rounded-lg border transition-all ${
+                  isActive
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30'
+                    : 'border-transparent bg-white dark:bg-white/[0.02] hover:bg-slate-50 dark:hover:bg-white/[0.04] hover:border-slate-200 dark:hover:border-white/[0.07]'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span
+                    className={`text-[13px] font-medium truncate ${
+                      isActive
+                        ? 'text-emerald-800 dark:text-emerald-300'
+                        : 'text-slate-700 dark:text-white/75'
+                    }`}
+                  >
+                    {lot.testType}
+                  </span>
+                  {isPinned && (
+                    <span
+                      className={`shrink-0 ${isPrincipal ? 'text-emerald-500 dark:text-emerald-400' : 'text-blue-500 dark:text-blue-400'}`}
+                      title={isPrincipal ? 'Setup Oficial' : 'Em validação'}
+                    >
+                      <PinIcon />
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-slate-400 dark:text-white/35">
+                  <span className="font-mono truncate">{lot.loteControle}</span>
+                  <span>·</span>
+                  <span>
+                    {lot.runCount} run{lot.runCount !== 1 ? 's' : ''}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </aside>
+
+      {/* ── Active lot detail ──────────────────────────────────────────────── */}
+      <div className="flex-1 min-w-0 space-y-4">
       {/* Page header */}
       {activeLot && (
         <div className="flex items-end gap-4 mb-2">
@@ -821,6 +1000,19 @@ export function CIQImunoContent({
               </h1>
               <LotStatusBadge status={activeLot.lotStatus} />
               <ValidityBadge isoDate={activeLot.validadeControle} label="Controle" />
+              {(activeLot.setupType === 'principal' ||
+                activeLot.setupType === 'validacao_paralela') && (
+                <span
+                  className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                    activeLot.setupType === 'principal'
+                      ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400'
+                      : 'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30 text-blue-700 dark:text-blue-400'
+                  }`}
+                >
+                  <PinIcon />
+                  {activeLot.setupType === 'principal' ? 'Setup Oficial' : 'Em Validação'}
+                </span>
+              )}
             </div>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-mono">
               {activeLot.loteControle} · Val. {activeLot.validadeControle}
@@ -852,6 +1044,27 @@ export function CIQImunoContent({
               )}
             {canDecide && (
               <>
+                {activeLot.setupType === 'principal' ||
+                activeLot.setupType === 'validacao_paralela' ? (
+                  <button
+                    type="button"
+                    onClick={() => setUnpinningLot(activeLot)}
+                    className="inline-flex items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium bg-amber-50 dark:bg-amber-500/[0.07] border border-amber-200 dark:border-amber-400/25 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-500/[0.15] transition-colors"
+                  >
+                    <PinOffIcon /> Desvincular
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPinErr(null);
+                      setPinningLot(activeLot);
+                    }}
+                    className="inline-flex items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium bg-emerald-50 dark:bg-emerald-500/[0.07] border border-emerald-200 dark:border-emerald-400/25 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/[0.15] transition-colors"
+                  >
+                    <PinIcon /> Vincular
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => {
@@ -1006,7 +1219,13 @@ export function CIQImunoContent({
 
       {/* Modal: Nova corrida */}
       {showForm && (
-        <Modal title="Registrar corrida" onClose={() => setShowForm(false)}>
+        <Modal
+          title={formPrefill ? 'Registrar corrida (lote vinculado)' : 'Registrar corrida'}
+          onClose={() => {
+            setShowForm(false);
+            setFormPrefill(null);
+          }}
+        >
           {formError && (
             <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-500/[0.07] border border-red-200 dark:border-red-400/20 text-xs text-red-600 dark:text-red-400">
               {formError}
@@ -1015,9 +1234,22 @@ export function CIQImunoContent({
           <CIQImunoForm
             onSave={handleSave}
             isSaving={isSaving}
-            onCancel={() => setShowForm(false)}
+            onCancel={() => {
+              setShowForm(false);
+              setFormPrefill(null);
+            }}
+            {...(formPrefill && { prefillFromLot: formPrefill })}
           />
         </Modal>
+      )}
+
+      {/* Modal: Cadastrar Insumo (spine) — pré-filtra módulo imunologia */}
+      {showCadastrarInsumo && labId && (
+        <NovoLoteModal
+          labId={labId}
+          initialModulo="imunologia"
+          onClose={() => setShowCadastrarInsumo(false)}
+        />
       )}
 
       {/* Relatório PDF */}
@@ -1089,6 +1321,97 @@ export function CIQImunoContent({
         </Modal>
       )}
 
+      {/* Modal: Vincular lote */}
+      {pinningLot && (
+        <Modal title="Vincular à bancada" onClose={() => !isPinning && setPinningLot(null)}>
+          <div className="space-y-4">
+            <div className="rounded-lg border border-slate-100 dark:border-white/[0.07] bg-slate-50 dark:bg-white/[0.02] px-4 py-3 space-y-1">
+              <RowDetail label="Teste" value={pinningLot.testType} />
+              <RowDetail label="Lote" value={pinningLot.loteControle} />
+              <RowDetail label="Validade" value={pinningLot.validadeControle} />
+            </div>
+            <p className="text-xs text-slate-500 dark:text-white/50 leading-relaxed">
+              Vincular um lote à bancada destrava registro de corridas para esse lote sem
+              precisar selecioná-lo manualmente. Toda mudança fica registrada no histórico do
+              lote (RDC 786).
+            </p>
+            {pinningLot.ciqDecision !== 'A' && (
+              <div className="rounded-xl border border-blue-200 dark:border-blue-400/20 bg-blue-50 dark:bg-blue-500/[0.06] px-4 py-3 text-xs text-blue-700 dark:text-blue-400">
+                Este lote ainda não foi aprovado pelo RT — apenas vinculação{' '}
+                <span className="font-medium">Em validação</span> está disponível. Corridas
+                registradas serão classificadas como validação até o lote ser aprovado.
+              </div>
+            )}
+            {pinErr && <p className="text-xs text-red-500 dark:text-red-400">{pinErr}</p>}
+            <div className="flex justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setPinningLot(null)}
+                disabled={isPinning}
+                className="h-9 px-4 rounded-lg text-sm text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/[0.10] hover:bg-slate-50 dark:hover:bg-white/[0.05] disabled:opacity-40 transition-all"
+              >
+                Cancelar
+              </button>
+              {pinningLot.ciqDecision === 'A' && (
+                <button
+                  type="button"
+                  onClick={() => handlePinLot('principal')}
+                  disabled={isPinning}
+                  className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-white disabled:opacity-40 transition-colors"
+                >
+                  {isPinning ? <SpinnerIcon /> : <PinIcon />} Setup oficial
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => handlePinLot('validacao_paralela')}
+                disabled={isPinning}
+                className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium bg-blue-500 hover:bg-blue-600 text-white disabled:opacity-40 transition-colors"
+              >
+                {isPinning ? <SpinnerIcon /> : <PinIcon />} Em validação
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Modal: Desvincular lote */}
+      {unpinningLot && (
+        <Modal
+          title="Desvincular da bancada"
+          onClose={() => !isUnpinning && setUnpinningLot(null)}
+        >
+          <div className="space-y-4">
+            <div className="rounded-lg border border-slate-100 dark:border-white/[0.07] bg-slate-50 dark:bg-white/[0.02] px-4 py-3 space-y-1">
+              <RowDetail label="Teste" value={unpinningLot.testType} />
+              <RowDetail label="Lote" value={unpinningLot.loteControle} />
+            </div>
+            <p className="text-xs text-slate-500 dark:text-white/50">
+              O lote permanece no estoque com o histórico de corridas intacto. Ação registrada
+              no histórico do lote.
+            </p>
+            <div className="flex justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setUnpinningLot(null)}
+                disabled={isUnpinning}
+                className="h-9 px-4 rounded-lg text-sm text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/[0.10] hover:bg-slate-50 dark:hover:bg-white/[0.05] disabled:opacity-40 transition-all"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleUnpinLot}
+                disabled={isUnpinning}
+                className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium bg-amber-500 hover:bg-amber-600 text-white disabled:opacity-40 transition-colors"
+              >
+                {isUnpinning ? <SpinnerIcon /> : <PinOffIcon />} Desvincular
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
       {/* Modal: QR de auditoria */}
       {qrRun && activeLot && (
         <Modal title="QR Code de auditoria" onClose={() => setQRRun(null)}>
@@ -1111,6 +1434,7 @@ export function CIQImunoContent({
           </div>
         </Modal>
       )}
+      </div>
     </div>
   );
 }

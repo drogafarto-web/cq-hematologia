@@ -78,7 +78,10 @@ node_modules/
 backup_*/
 
 # Credenciais e service accounts — NUNCA commitar
-service-account.json
+# Padrão amplo: pega `service-account.json`, `service-account.json.json`
+# (typo já visto), `service-account-prod.json`, etc.
+service-account*.json
+**/service-account*.json
 *.pem
 *.p12
 

@@ -17,6 +17,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { Timestamp } from 'firebase/firestore';
+import { ErrorBoundary } from '../../../shared/components/ErrorBoundary';
 import { useUser } from '../../../store/useAuthStore';
 import { useProdutos } from '../hooks/useProdutos';
 import {
@@ -120,6 +121,12 @@ interface NovoLoteModalProps {
   /** Pré-filtra a lista por tipo. */
   initialTipo?: InsumoTipo;
   /**
+   * Pré-filtra a lista por módulo. Usado quando o modal é aberto a partir de
+   * um contexto modular (ex: CIQ-Imuno → módulo=imunologia) — evita o operador
+   * ter que reaplicar o filtro toda vez.
+   */
+  initialModulo?: InsumoModulo;
+  /**
    * Fase D (2026-04-21): equipamento destino do lote.
    *   - reagente/tira-uro → grava `equipamentoId` (1:1, exclusivo)
    *   - controle          → grava `equipamentosPermitidos = [equipamentoId]`
@@ -137,6 +144,7 @@ interface NovoLoteModalProps {
 export function NovoLoteModal({
   labId,
   initialTipo,
+  initialModulo,
   equipamentoId,
   equipamentoModelo,
   onClose,
@@ -144,7 +152,7 @@ export function NovoLoteModal({
 }: NovoLoteModalProps) {
   const user = useUser();
   const [tipoFiltro, setTipoFiltro] = useState<InsumoTipo | 'all'>(initialTipo ?? 'all');
-  const [moduloFiltro, setModuloFiltro] = useState<InsumoModulo | 'all'>('all');
+  const [moduloFiltro, setModuloFiltro] = useState<InsumoModulo | 'all'>(initialModulo ?? 'all');
   const [busca, setBusca] = useState('');
   const [produtoSelecionado, setProdutoSelecionado] = useState<ProdutoInsumo | null>(null);
   const [showProdutoForm, setShowProdutoForm] = useState(false);
@@ -201,17 +209,25 @@ export function NovoLoteModal({
         <Header onClose={onClose} step={produtoSelecionado ? 2 : 1} produto={produtoSelecionado} />
 
         {produtoSelecionado ? (
-          <LoteForm
-            labId={labId}
-            produto={produtoSelecionado}
-            user={user}
-            {...(equipamentoId && { equipamentoId })}
-            {...(equipamentoModelo && { equipamentoModelo })}
-            onBack={() => setProdutoSelecionado(null)}
-            onCreated={(id) => {
-              void handleLoteCreated(id, produtoSelecionado.id);
-            }}
-          />
+          // Containment: o crash latente do campo "Estabilidade pós-abertura"
+          // (ver memória hcquality_crash_diasestab — 045ca51 não eliminou) já
+          // levou a UI inteira a desmontar silenciosamente. Boundary aqui
+          // limita a explosão ao subtree do LoteForm; o frame do modal e o
+          // botão de fechar sobrevivem, e o stack vai pro console pra captura
+          // futura. `key` força reset quando troca o produto.
+          <ErrorBoundary key={produtoSelecionado.id}>
+            <LoteForm
+              labId={labId}
+              produto={produtoSelecionado}
+              user={user}
+              {...(equipamentoId && { equipamentoId })}
+              {...(equipamentoModelo && { equipamentoModelo })}
+              onBack={() => setProdutoSelecionado(null)}
+              onCreated={(id) => {
+                void handleLoteCreated(id, produtoSelecionado.id);
+              }}
+            />
+          </ErrorBoundary>
         ) : (
           <ProdutoPicker
             produtos={produtos}
