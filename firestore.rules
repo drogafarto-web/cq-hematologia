@@ -276,10 +276,63 @@ service cloud.firestore {
       }
 
       match /insumos/{insumoId} {
+        // PR1 (2026-04-26): proteções de campos qc + transição a 'segregado'.
+        // - qcStatus / qualificacaoId / qcApprovedBy / qcApprovedAt /
+        //   motivoReprovacao / qcApprovalMethod só são tocados pela callable
+        //   approveQualificacao / reproveQualificacao (Admin SDK).
+        // - status='segregado' só é set pela callable reproveQualificacao.
+        // - tira-uro mantém comportamento legado (PR2 abrange esse fluxo).
+        function affectsProtectedQcFields() {
+          return request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny(['qcStatus', 'qualificacaoId', 'qcApprovedBy', 'qcApprovedAt',
+                     'motivoReprovacao', 'qcApprovalMethod']);
+        }
+        function affectsSegregadoTransition() {
+          return request.resource.data.get('status', '') == 'segregado'
+              && resource.data.get('status', '') != 'segregado';
+        }
+        function isTiraUro() {
+          return resource.data.get('tipo', '') == 'tira-uro';
+        }
+
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
-        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && (isTiraUro() ||
+                          (!affectsProtectedQcFields() && !affectsSegregadoTransition()));
         allow delete: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      }
+
+      // ── /insumo-qualificacoes (PR1 — 2026-04-26) ─────────────────────────
+      // Cliente cria docs em estado pendente; aprovação/reprovação é via
+      // callable Cloud Functions (Admin SDK bypassa rules). Update/delete
+      // bloqueados — toda transição passa pelo servidor (sign-and-write).
+      match /insumo-qualificacoes/{qId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && request.resource.data.status == 'em_andamento'
+                      && request.resource.data.signatureStatus == 'pending'
+                      && request.resource.data.logicalSignature is string
+                      && request.resource.data.logicalSignature.size() == 64
+                      && request.resource.data.createdBy == request.auth.uid
+                      && request.resource.data.tipo in ['reagente', 'controle']
+                      && request.resource.data.qualificacaoMode in
+                          ['corrida-validacao', 'checklist-rt', 'caracterizacao-rt'];
+        allow update: if false;
+        allow delete: if false;
+      }
+
+      // ── /alertas (PR1 — 2026-04-26) ──────────────────────────────────────
+      // Criação restrita a Admin SDK (triggers/callables). Cliente lê + faz
+      // ack (atualiza apenas acknowledgedBy/acknowledgedAt).
+      match /alertas/{id} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if false;
+        allow update: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && request.resource.data.diff(resource.data).affectedKeys()
+                          .hasOnly(['acknowledgedBy', 'acknowledgedAt']);
+        allow delete: if false;
       }
 
       match /equipment-setups/{module} {

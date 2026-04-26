@@ -15,7 +15,17 @@ import type { Timestamp } from 'firebase/firestore';
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
-export type InsumoStatus = 'ativo' | 'fechado' | 'vencido' | 'descartado';
+/**
+ * Status do lote físico.
+ *
+ * `segregado` (PR1 — 2026-04-26): lote bloqueado para uso por reprovação
+ * formal de qualificação (RDC 786/2023 art. 42 + RDC 978/2025 Art.128).
+ * Estado terminal — não transiciona via `scheduledExpireInsumos` para
+ * `vencido` (a query do schedule filtra `status == 'ativo'`, então
+ * segregado já está fora do escopo). Reabrir um segregado exige callable
+ * dedicada com nova qualificação aprovada — fora do escopo do PR1.
+ */
+export type InsumoStatus = 'ativo' | 'fechado' | 'vencido' | 'descartado' | 'segregado';
 export type InsumoTipo = 'controle' | 'reagente' | 'tira-uro';
 export type InsumoModulo = 'hematologia' | 'coagulacao' | 'uroanalise' | 'imunologia';
 
@@ -67,7 +77,20 @@ export function niveisDoModulo(modulo: InsumoModulo): ReadonlyArray<InsumoNivel>
 }
 
 /** Categoria de movimentação registrada no log imutável. */
-export type InsumoMovimentacaoTipo = 'entrada' | 'abertura' | 'fechamento' | 'descarte';
+export type InsumoMovimentacaoTipo =
+  | 'entrada'
+  | 'abertura'
+  | 'fechamento'
+  | 'descarte'
+  /**
+   * PR1 (2026-04-26) — decisão formal de qualificação do lote (aprovado/reprovado).
+   * Movimentação criada SOMENTE pela callable Admin SDK
+   * `approveQualificacao`/`reproveQualificacao`. Carrega `qualificacaoId` no
+   * payload canônico para selar o evento à decisão. Em reprovação, dispara
+   * adicionalmente a transição `status → 'segregado'` no insumo na mesma
+   * transação atômica.
+   */
+  | 'qualificacao';
 
 // ─── Shared base ──────────────────────────────────────────────────────────────
 
@@ -189,6 +212,47 @@ interface InsumoBase {
    * a primeira corrida pós-Fase B. Sem uso de Firestore index — apenas leitura.
    */
   lastRunAt?: Timestamp;
+
+  // ─── PR1 (2026-04-26) — Qualificação formal do lote ────────────────────────
+  // Campos populados EXCLUSIVAMENTE pelas callables `approveQualificacao` /
+  // `reproveQualificacao` (Admin SDK bypassa rules). Rules client-side bloqueiam
+  // mutações diretas (vide `affectsProtectedQcFields`).
+
+  /**
+   * Status formal de qualificação do lote (PR1). Convive com `qcStatus` do
+   * reagente (Imuno CQ-por-lote) — quando ambos existem, `qcStatus` da
+   * callable atualiza `qcStatus` do reagente também (escrita atômica server).
+   *
+   * - `pendente` (default em qualquer lote sem qualificação) — não é gravado
+   *    explicitamente; ausência == pendente.
+   * - `aprovado` — qualificação aprovada via callable.
+   * - `reprovado` — qualificação reprovada; dispara `status → 'segregado'`.
+   */
+  qcStatus?: 'pendente' | 'aprovado' | 'reprovado';
+
+  /** ID do doc em /labs/{lab}/insumo-qualificacoes/{qId} — fonte da decisão. */
+  qualificacaoId?: string;
+
+  /**
+   * UID do operador que aprovou/reprovou via callable. Capturado de
+   * `request.auth.uid` server-side — nunca aceito do payload do cliente.
+   */
+  qcApprovedBy?: string;
+
+  /** Timestamp server da decisão. */
+  qcApprovedAt?: Timestamp;
+
+  /**
+   * Modo de aprovação aplicado:
+   *   - 'corrida-validacao' — corrida(s) de CIQ aprovada(s) usadas como evidência (Imuno manual analítico)
+   *   - 'checklist-rt'      — qualificação documental (sem evidência analítica obrigatória)
+   *   - 'caracterizacao-rt' — multianalítico/quantitativo (PR2 — placeholder)
+   *   - 'migrated'          — migração 2026-04-26 (lotes legados com qcStatus já aprovado)
+   */
+  qcApprovalMethod?: 'corrida-validacao' | 'checklist-rt' | 'caracterizacao-rt' | 'migrated';
+
+  /** Motivo de reprovação. Obrigatório quando `qcStatus === 'reprovado'`. */
+  motivoReprovacao?: string;
 }
 
 // ─── Stats por modelo (Fase D — controles cross-equipamento) ──────────────────

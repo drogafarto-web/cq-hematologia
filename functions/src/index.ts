@@ -112,6 +112,17 @@ export {
   scheduledMarcarLeiturasPerdidas,
 } from './modules/ctIoT/index';
 
+// ─── insumoQualificacao module (PR1 — 2026-04-26) ────────────────────────────
+// approveQualificacao / reproveQualificacao: callables sign-and-write RT-only
+// que decidem formalmente o lote (Imuno PR1). Reprovação dispara
+// status='segregado' + bloqueia uso normal. onInsumoQualificacaoCreate
+// re-valida assinatura SHA-256 server-side e cria alerta em /alertas/ se inválida.
+export {
+  approveQualificacao,
+  reproveQualificacao,
+  onInsumoQualificacaoCreate,
+} from './modules/insumoQualificacao/index';
+
 // ─── controleTemperatura callables (Fase 0b equivalente EC) ──────────────────
 // ct_commitLeitura: sign-and-write atomic de leitura manual. Substitui geração
 // client-side de assinatura (CT-01). Server valida claim + re-lê limites +

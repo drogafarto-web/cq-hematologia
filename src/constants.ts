@@ -81,6 +81,13 @@ export const SUBCOLLECTIONS = {
   // Cadastro mestre de Insumos (controles, reagentes, tiras) — cross-module
   INSUMOS: 'insumos',
   INSUMO_MOVIMENTACOES: 'insumo-movimentacoes',
+  // PR1 (2026-04-26) — Qualificação de insumos (RDC 786/2023 art. 42 + RDC 978/2025 Art.128)
+  // Doc por qualificação; status em_andamento → aprovado/reprovado.
+  // Trigger onCreate recalcula assinatura server-side e cria alerta se inválida.
+  INSUMO_QUALIFICACOES: 'insumo-qualificacoes',
+  // Alertas operacionais cross-module (signature inválida, qualificação reprovada,
+  // insumo vencendo). Criação restrita a Admin SDK; UI lista + ack.
+  ALERTAS: 'alertas',
   // Fase A (2026-04-21) — Setup atual do equipamento + linha do tempo de insumo
   EQUIPMENT_SETUPS: 'equipment-setups',
   INSUMO_TRANSITIONS: 'insumo-transitions',

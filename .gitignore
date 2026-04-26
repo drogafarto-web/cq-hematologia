@@ -100,9 +100,13 @@ modulo educa*/*.ogg
 modulo educa*/*.mp3
 modulo educa*/*.mp4
 
-# Arquivos de planos e scripts locais
+# Arquivos de planos e scripts locais — bloqueia por padrão
 plans/
-scripts/
+scripts/*
+# Exceção: scripts/migrations/ hospeda migrations versionadas (PR1+)
+# Negação precisa do glob direto, sem o trailing slash, pra git reconhecer
+!scripts/migrations
+!scripts/migrations/**
 # Exceção: functions/scripts/ hospeda utilitários de dev versionados
 !functions/scripts/
 !functions/scripts/**
