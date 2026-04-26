@@ -63,6 +63,7 @@ Regras com escopo mais estreito vivem em `.claude/rules/`:
 | `auth` | Em prod · autenticação/onboarding | — |
 | `admin` | Em prod · superadmin | — |
 | `educacao-continuada` | Em prod · ISO 15189 + XLSX + callables server-side | 2026-04-24 |
+| `sgq` | Em prod · Documentos da Qualidade (DICQ 4.3) — MQ/PQ/IT/FR/POL + versionamento + audit | 2026-04-26 |
 
 Módulos com `CLAUDE.md` próprio: `educacao-continuada`, `controle-temperatura`.
 
@@ -102,3 +103,93 @@ Deploy requer autorização explícita a cada execução. Nunca encadear `&&` se
 4. **Nova aba com reset** → cola `src/features/<módulo>/HANDOFF.md` se existir
 
 Para qualquer sessão: o protocolo completo está em [`.claude/CONTEXT_PROTOCOL.md`](.claude/CONTEXT_PROTOCOL.md).
+
+---
+
+## Segundo cérebro (Obsidian)
+
+Visão de longo prazo, decisões abertas, compliance e roadmap vivem em `C:\Users\labcl\Obsidian_Brain\`. **Não duplicar conteúdo aqui** — quando precisar de contexto estratégico ou de acreditação, ler:
+
+- `01_Projetos/HC_Quality.md` — ficha técnica AS-IS (stack + módulos + regras)
+- `01_Projetos/HC_Quality_Visao.md` — north star
+- `01_Projetos/HC_Quality_Roadmap.md` — fases concluídas + próximas
+- `01_Projetos/HC_Quality_Decisoes_Abertas.md` — pendências arquiteturais (multi-tenant, CDN, OCR…)
+- `01_Projetos/HC_Quality_Compliance_DICQ.md` — mapa requisito ↔ módulo (blocos A-J)
+- `01_Projetos/HC_Quality_Checklist_Auditoria.md` — ~115 itens auditáveis com checkbox
+- `01_Projetos/HC_Quality_RDC_978_2025_Resumo.md` — norma legal vigente ANVISA (operacional)
+- `01_Projetos/HC_Quality_RDC_978_vs_786_vs_DICQ.md` — comparativo das 3 normas
+- `01_Projetos/HC_Quality_Referencias_Normativas.md` — índice dos PDFs oficiais arquivados
+
+**Regra**: ADRs vivem em `c:/hc quality/docs/adr/`; spec/tasks vivem no projeto; **planejamento estratégico e mapas de compliance vivem no Obsidian**.
+
+---
+
+## Diretrizes de comportamento (system rules ativas para este projeto)
+
+Estas seções são **regras de operação** que valem para toda sessão neste projeto. Complementam, sem substituir, o `~/.claude/CLAUDE.md` global.
+
+### 1. Frontend Pro Max (UI/UX)
+
+Toda interface é tratada como produto world-class por padrão. Se a referência implícita for Apple/Linear/Stripe/Vercel/Airbnb, aprovou. Se parecer template, reprovou.
+
+- **Tipografia editorial**: hierarquia clara, kerning/leading intencionais, números tabulares em tabelas de dados (`tabular-nums`), nunca usar tamanho default sem pensar no propósito.
+- **Variáveis de design**: cores, espaçamentos, sombras, raios — sempre via tokens em `DESIGN_SYSTEM.md` (dark-first, `bg-[#141417]`, `white/X` alpha, accents `violet-500` e `emerald-500`). Não inventar valores ad-hoc.
+- **Composição espacial**: usar grid de 4px (`p-1`, `p-2`, `p-4`, `p-6`, `p-8`); nunca números mágicos como `p-[13px]`. Espaços negativos são parte do design, não sobra.
+- **Microinterações**: hover/focus/active com transições 150-200ms; nada brusco, nada lento. Respeita `prefers-reduced-motion`.
+- **Realtime**: estados de loading/empty/error/success têm visual próprio; `<Skeleton>` em vez de spinner sempre que possível.
+- **Sem libs de ícones**: SVG inline com `currentColor` (decisão registrada em [hcquality_design_tokens]).
+- **Crítica antes de shippar**: antes de marcar UI como pronta, comparar com a referência (Apple/Linear/Stripe). Se "não mostraria com orgulho", refazer.
+
+### 2. Web Guidelines (a11y + performance estrutural)
+
+Auditoria contínua, não fase final.
+
+- **Acessibilidade AA mínimo**: contraste 4.5:1 texto normal, 3:1 texto grande; `aria-label` em botões só com ícone; `<button>` para ações, `<a>` para navegação; foco visível sempre; navegação por teclado funcional.
+- **Semântica**: `<main>`, `<nav>`, `<section>`, `<article>` no lugar certo. Heading hierarchy correta (`h1` único, sem pular níveis).
+- **Imagens**: `loading="lazy"` para imagens fora do viewport; `width`/`height` explícitos para evitar CLS.
+- **Bundle**: code-splitting por rota via `React.lazy`; novos imports pesados (>50KB gzip) requerem justificativa.
+- **Render**: `React.memo` em componentes de lista; `useMemo`/`useCallback` para deps de hooks de Firebase; `onSnapshot` sempre limpa unsubscribe.
+- **Web Vitals alvo**: LCP <2.5s, INP <200ms, CLS <0.1. Se uma mudança piorar, justificar ou reverter.
+
+### 3. Brainstorming + Specs antes de codar
+
+**Aplicabilidade calibrada por escopo** — não é gate universal. Ativa quando o trabalho mexe em arquitetura, novo módulo, mudança de schema cross-módulo, ou refator estrutural. Bug fix pontual e renomeação não passam por isso (overkill mata a velocidade).
+
+**Quando ativa, antes de qualquer código:**
+
+1. **Mapear o terreno**: ler arquivos relevantes do repositório (não tudo, só o que toca). Listar quais.
+2. **Propor 2 a 3 abordagens** com prós/contras técnicos honestos. Incluir custo de implementação, custo de manutenção, riscos de regressão e impacto em compliance (RDC 978 / DICQ) quando relevante.
+3. **Apontar ambiguidades** em regras de negócio — perguntar, não inferir. Especialmente quando o domínio for clínico/regulatório.
+4. **Aguardar aprovação** da abordagem antes de redigir spec/tasks formais.
+5. **Após aprovação**, escrever spec curta (decisão + escopo + critérios de aceite) antes de codar.
+
+**Quando NÃO ativa (executar direto):**
+- Bug fix em arquivo conhecido
+- Renomeação/refactor local sem mudança de comportamento
+- Atualização de texto/copy
+- Build/deploy steps já documentados
+
+### 4. Token Efficiency
+
+Output enxuto é parte do contrato.
+
+- **Sem preâmbulo**: não anunciar o que vai fazer antes de fazer; só o resultado importa.
+- **Sem recap final**: não resumir o que acabei de fazer se o diff já mostra. Resposta de fechamento = 1-2 linhas máx.
+- **Diffs cirúrgicos**: usar `Edit` em vez de `Write` para mudanças <50% do arquivo. Não recriar bloco que não mudou.
+- **Sem narração de tool calls**: tool já é visível ao usuário; comentar tool call é redundância.
+- **Markdown só onde agrega**: bullets quando há lista real; prosa quando é argumento contínuo. Não bullet-tudo por hábito.
+- **Sem emojis**: exceto quando o usuário pediu, ou em arquivos de documentação que já adotam (Obsidian).
+- **Tradeoff vs Brainstorming (#3)**: quando #3 está ativa, brevidade rende para profundidade — mas só nesses casos. No resto, brevidade vence.
+
+### 5. Skills invocadas (não auto-ativas)
+
+Algumas capacidades vivem como **skills sob demanda** em `.claude/skills/`, não em system rules. Invocar via `Skill` quando o trabalho casar:
+
+- `hcq-copywriting` — copy de marketing, landing, UI textual com gatilhos de conversão. **Não usar em decisões de engenharia.**
+- `hcq-ciq-module`, `hcq-module-generator`, `hcq-firestore-rules-generator`, `hcq-deploy-gates` — playbooks de execução técnica.
+
+### 6. Capacidades pendentes de habilitação
+
+Funcionalidades que dependem de setup adicional antes de virarem regra:
+
+- **Auditoria autônoma de UI em browser** — requer MCP Chrome DevTools ou Playwright instalado. Hoje, qualquer "teste de responsividade" depende de execução manual ou `/ultrareview` disparado pelo usuário. Setup documentado em `.claude/docs/AGENT_BROWSER_SETUP.md`.

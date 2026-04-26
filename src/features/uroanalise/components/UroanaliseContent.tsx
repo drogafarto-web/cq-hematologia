@@ -15,6 +15,8 @@ import {
   updateUroLotDecision,
   updateUroLotMeta,
   deleteUroLot,
+  vincularUroLot,
+  desvincularUroLot,
 } from '../services/uroanaliseFirebaseService';
 import type { UroanaliseFormData } from './UroanaliseForm.schema';
 import type { UroanaliseLot, UroanaliseRun } from '../types/Uroanalise';
@@ -246,6 +248,7 @@ export function UroanaliseContent({
   const canDecide = isSuperAdmin || userRole === 'owner' || userRole === 'admin';
 
   const [showForm, setShowForm] = useState(false);
+  const [formPrefill, setFormPrefill] = useState<UroanaliseLot | null>(null);
   const [showPrint, setShowPrint] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
@@ -302,16 +305,21 @@ export function UroanaliseContent({
 
         {showForm && (
           <NovaRunModal
-            onClose={() => setShowForm(false)}
+            onClose={() => {
+              setShowForm(false);
+              setFormPrefill(null);
+            }}
             onSubmit={async (data, options) => {
               clearError();
               await save(data, options);
               setShowForm(false);
+              setFormPrefill(null);
             }}
             isSaving={isSaving}
             error={saveError}
             ocrEnabled={ocrEnabled}
             labId={labId}
+            {...(formPrefill && { prefillFromLot: formPrefill })}
           />
         )}
       </div>
@@ -345,6 +353,25 @@ export function UroanaliseContent({
     exportUroRunsToCSV(runs, `FR036_Uro_Nivel${activeLot.nivel}_${activeLot.loteControle}`);
   }
 
+  async function handlePin(setupType: 'principal' | 'validacao_paralela') {
+    if (!activeLot || !user) return;
+    try {
+      await vincularUroLot(activeLot.labId, activeLot.id, setupType, user.uid);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Erro ao vincular.');
+    }
+  }
+
+  async function handleUnpin() {
+    if (!activeLot || !user) return;
+    if (!confirm(`Desvincular o lote ${activeLot.loteControle} (Nível ${activeLot.nivel}) da bancada?`)) return;
+    try {
+      await desvincularUroLot(activeLot.labId, activeLot.id, user.uid);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Erro ao desvincular.');
+    }
+  }
+
   async function handleDelete() {
     if (!activeLot || !user) return;
     try {
@@ -366,8 +393,97 @@ export function UroanaliseContent({
     }
   }
 
+  const pinnedLots = lots.filter(
+    (l) => l.setupType === 'principal' || l.setupType === 'validacao_paralela',
+  );
+
   return (
     <div className="space-y-6">
+      {/* ── Bancada · Setups Vinculados (Fase 5 — 2026-04-25) ─────────── */}
+      {pinnedLots.length > 0 && (
+        <section className="rounded-2xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.02] shadow-sm dark:shadow-none overflow-hidden">
+          <header className="px-5 py-3 border-b border-slate-100 dark:border-white/[0.05] flex items-center gap-2 bg-slate-50/60 dark:bg-white/[0.02]">
+            <span className="text-amber-500 dark:text-amber-400">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+                <path
+                  d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+            <h3 className="text-sm font-semibold text-slate-800 dark:text-white/85">
+              Bancada · Setups Vinculados
+            </h3>
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/[0.05] text-slate-500 dark:text-white/40">
+              {pinnedLots.length}
+            </span>
+          </header>
+          <div className="p-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5">
+            {pinnedLots.map((l) => {
+              const isPrincipal = l.setupType === 'principal';
+              const accent = isPrincipal
+                ? 'border-emerald-200 dark:border-emerald-500/25 bg-emerald-50/40 dark:bg-emerald-500/[0.05]'
+                : 'border-blue-200 dark:border-blue-500/25 bg-blue-50/40 dark:bg-blue-500/[0.05]';
+              const labelCls = isPrincipal
+                ? 'text-emerald-700 dark:text-emerald-400'
+                : 'text-blue-700 dark:text-blue-400';
+              const isActive = l.id === activeLot.id;
+              return (
+                <div
+                  key={l.id}
+                  className={`rounded-xl border p-3 transition-all ${accent} ${
+                    isActive ? 'ring-2 ring-amber-500/40' : ''
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setActiveLotId(l.id)}
+                    className="text-left w-full"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span
+                        className={`text-[10px] font-bold uppercase tracking-wider ${labelCls}`}
+                      >
+                        {isPrincipal ? 'Setup Oficial' : 'Em Validação'}
+                      </span>
+                      <span className="text-[10px] text-slate-400 dark:text-white/30">
+                        Nível {l.nivel}
+                      </span>
+                    </div>
+                    <p className="text-sm font-semibold text-slate-800 dark:text-white/85 truncate">
+                      {l.loteControle}
+                    </p>
+                    <p className="text-[11px] text-slate-500 dark:text-white/45 truncate mt-0.5">
+                      {l.fabricanteControle}
+                    </p>
+                    <p className="text-[10px] text-slate-400 dark:text-white/30 mt-1.5">
+                      {l.runCount} corrida{l.runCount !== 1 ? 's' : ''} · Val. {l.validadeControle}
+                    </p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveLotId(l.id);
+                      setFormPrefill(l);
+                      setShowForm(true);
+                    }}
+                    className={`mt-2 w-full inline-flex items-center justify-center gap-1.5 h-7 px-3 rounded-lg text-[11px] font-medium transition-colors ${
+                      isPrincipal
+                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                        : 'bg-blue-500 hover:bg-blue-600 text-white'
+                    }`}
+                  >
+                    + Corrida vinculada
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {/* Lot tabs */}
       {lots.length > 1 && (
         <div className="flex flex-wrap gap-2">
@@ -404,6 +520,31 @@ export function UroanaliseContent({
             </h1>
             <LotStatusBadge status={lotStatus} />
             {activeLot.uroDecision && <DecisionPill decision={activeLot.uroDecision} />}
+            {(activeLot.setupType === 'principal' ||
+              activeLot.setupType === 'validacao_paralela') && (
+              <span
+                title={
+                  activeLot.setupType === 'principal'
+                    ? 'Vinculado · Setup Oficial'
+                    : 'Vinculado · Em Validação'
+                }
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                  activeLot.setupType === 'principal'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30'
+                    : 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/30'
+                }`}
+              >
+                <svg width="9" height="9" viewBox="0 0 13 13" fill="none" aria-hidden>
+                  <path
+                    d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                {activeLot.setupType === 'principal' ? 'Oficial' : 'Validação'}
+              </span>
+            )}
           </div>
           <div className="mt-1.5 flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-white/45">
             <span className="font-mono">{activeLot.loteControle}</span>
@@ -455,6 +596,46 @@ export function UroanaliseContent({
               >
                 <BanIcon /> Rejeitar
               </button>
+              {activeLot.setupType ? (
+                <button
+                  type="button"
+                  onClick={handleUnpin}
+                  className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border border-amber-300 dark:border-amber-500/25 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-all"
+                >
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+                    <path d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+                    <path d="M2 11l9-9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                  </svg>
+                  Desvincular
+                </button>
+              ) : (
+                <>
+                  {activeLot.uroDecision === 'A' && (
+                    <button
+                      type="button"
+                      onClick={() => handlePin('principal')}
+                      title="Vincular como Setup Oficial"
+                      className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border border-emerald-300 dark:border-emerald-500/25 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-all"
+                    >
+                      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+                        <path d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+                      </svg>
+                      Vincular oficial
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handlePin('validacao_paralela')}
+                    title="Vincular como Em Validação"
+                    className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border border-blue-300 dark:border-blue-500/25 text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+                      <path d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+                    </svg>
+                    Em validação
+                  </button>
+                </>
+              )}
               <button
                 type="button"
                 onClick={() => setShowEdit(true)}
@@ -528,17 +709,22 @@ export function UroanaliseContent({
       {/* Modals */}
       {showForm && (
         <NovaRunModal
-          onClose={() => setShowForm(false)}
+          onClose={() => {
+            setShowForm(false);
+            setFormPrefill(null);
+          }}
           onSubmit={async (data, options) => {
             clearError();
             await save(data, options);
             setShowForm(false);
+            setFormPrefill(null);
           }}
           isSaving={isSaving}
           error={saveError}
           initialNivel={activeLot.nivel}
           ocrEnabled={ocrEnabled}
           labId={labId}
+          {...(formPrefill && { prefillFromLot: formPrefill })}
         />
       )}
 
@@ -774,6 +960,7 @@ function NovaRunModal({
   initialNivel,
   ocrEnabled,
   labId,
+  prefillFromLot,
 }: {
   onClose: () => void;
   onSubmit: (
@@ -785,10 +972,11 @@ function NovaRunModal({
   initialNivel?: 'N' | 'P';
   ocrEnabled: boolean;
   labId: string | null;
+  prefillFromLot?: UroanaliseLot;
 }) {
   return (
     <ModalShell
-      title="Nova corrida — Uroanálise"
+      title={prefillFromLot ? 'Nova corrida (lote vinculado)' : 'Nova corrida — Uroanálise'}
       subtitle="10 analitos da tira + pH + densidade"
       onClose={onClose}
       wide
@@ -805,6 +993,7 @@ function NovaRunModal({
         initialNivel={initialNivel}
         ocrEnabled={ocrEnabled}
         labId={labId}
+        {...(prefillFromLot && { prefillFromLot })}
       />
     </ModalShell>
   );

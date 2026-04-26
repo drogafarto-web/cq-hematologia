@@ -347,6 +347,66 @@ service cloud.firestore {
         allow update, delete: if false;
       }
 
+      // ── /sgq-documentos — DICQ 4.3 (hierarquia documental + controle de versão) ──
+      //
+      // Documentos da Qualidade do laboratório: Manual, Procedimentos, ITs (POPs),
+      // Formulários e Políticas. Ciclo de vida: em_revisao → vigente → obsoleto.
+      // Soft-delete só permitido em rascunhos (em_revisao); demais nunca são
+      // deletados — auditor exige trilha completa (DICQ 4.13 + ISO 15189 cl. 4.13).
+      //
+      // Audit append-only em /sgq-documentos-audit espelha toda transição.
+      match /sgq-documentos/{documentoId} {
+        function sgqValidNew(d) {
+          return d.labId == labId
+              && d.codigo is string
+              && d.codigo.matches('^[A-Z]+-[0-9]+$')
+              && d.tipo in ['MQ', 'PQ', 'IT', 'FR', 'POL']
+              && d.titulo is string
+              && d.titulo.size() > 0
+              && d.versao is int
+              && d.versao >= 1
+              && d.url is string
+              && d.url.size() > 0
+              && d.autoridadeEmitente is string
+              && d.dataEmissao is timestamp
+              && d.dataRevisao is timestamp
+              && d.proximaRevisao is timestamp
+              && d.status in ['em_revisao', 'vigente', 'obsoleto']
+              && d.criadoPor == request.auth.uid;
+        }
+
+        function sgqKeepsImmutable() {
+          return request.resource.data.criadoEm == resource.data.criadoEm
+              && request.resource.data.criadoPor == resource.data.criadoPor
+              && request.resource.data.labId == resource.data.labId
+              && request.resource.data.codigo == resource.data.codigo
+              && request.resource.data.versao == resource.data.versao;
+        }
+
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && sgqValidNew(request.resource.data);
+        // Update: campos imutáveis preservados; status válido; só caminhos
+        // válidos: rascunho ↔ vigente, qualquer → obsoleto, soft-delete.
+        allow update: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && sgqKeepsImmutable()
+                      && request.resource.data.status in ['em_revisao', 'vigente', 'obsoleto'];
+        // Hard-delete proibido — soft-delete via campo deletadoEm preserva trilha.
+        allow delete: if false;
+      }
+
+      match /sgq-documentos-audit/{auditId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && request.resource.data.labId == labId
+                      && request.resource.data.documentoId is string
+                      && request.resource.data.type in ['created', 'updated', 'status-changed', 'revisao-emitida']
+                      && request.resource.data.operadorId == request.auth.uid
+                      && request.resource.data.timestamp is timestamp;
+        allow update, delete: if false;
+      }
+
       match /insumo-movimentacoes/{movId} {
         function hasValidInitialChain(d) {
           return d.payloadSignature is string
@@ -483,17 +543,14 @@ service cloud.firestore {
       // IoT: origem='automatica_iot' — gravação pela Cloud Function com
       // Admin SDK bypassa rules. Client-side não consegue criar leitura IoT
       // sem assinatura — safe by construction.
+      // CT-01 (2026-04-24): `allow create: if false`. Criação ocorre
+      // exclusivamente via callable `ct_commitLeitura` (manual) ou pela
+      // HTTP function `registrarLeituraIoT` (automática) — ambos usam
+      // Admin SDK e bypassam rules. Client-side não pode mais forjar
+      // assinatura. Updates (softDelete) permanecem permitidos.
       match /leituras/{id} {
         allow read: if canReadCt();
-        allow create: if canWriteCt()
-                      && ctLabIdMatches(request.resource.data)
-                      && request.resource.data.deletadoEm == null
-                      && request.resource.data.equipamentoId is string
-                      && request.resource.data.dataHora is timestamp
-                      && request.resource.data.temperaturaAtual is number
-                      && request.resource.data.origem == 'manual'
-                      && request.resource.data.status in ['realizada', 'perdida', 'justificada']
-                      && ctValidSignature(request.resource.data);
+        allow create: if false;
         allow update: if canWriteCt()
                       && ctKeepsLabId()
                       && resource.data.equipamentoId == request.resource.data.equipamentoId
@@ -519,19 +576,14 @@ service cloud.firestore {
       }
 
       // ── Não Conformidades ─────────────────────────────────────────────
-      // Criação primária: batch da leitura fora dos limites (RN-01).
-      // Cliente também pode criar NC manual — caso de desvio observado
-      // sem leitura registrada ainda. Assinatura sempre obrigatória.
+      // CT-01 (2026-04-24): `allow create: if false`. NC automática é criada
+      // no mesmo batch do `ct_commitLeitura` server-side. Updates (resolver
+      // com ação corretiva, patchear status) permanecem permitidos via hook
+      // `useNCs.resolver` — mas assinatura congelada (ctAssinaturaOkUpdate).
+      // NC manual futura pode ser adicionada via callable dedicada.
       match /ncs/{id} {
         allow read: if canReadCt();
-        allow create: if canWriteCt()
-                      && ctLabIdMatches(request.resource.data)
-                      && request.resource.data.deletadoEm == null
-                      && request.resource.data.equipamentoId is string
-                      && request.resource.data.temperaturaRegistrada is number
-                      && request.resource.data.limiteViolado in ['max', 'min', 'umidade']
-                      && request.resource.data.status in ['aberta', 'em_andamento', 'resolvida']
-                      && ctValidSignature(request.resource.data);
+        allow create: if false;
         allow update: if canWriteCt()
                       && ctKeepsLabId()
                       && resource.data.equipamentoId == request.resource.data.equipamentoId

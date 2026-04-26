@@ -112,6 +112,13 @@ export {
   scheduledMarcarLeiturasPerdidas,
 } from './modules/ctIoT/index';
 
+// ─── controleTemperatura callables (Fase 0b equivalente EC) ──────────────────
+// ct_commitLeitura: sign-and-write atomic de leitura manual. Substitui geração
+// client-side de assinatura (CT-01). Server valida claim + re-lê limites +
+// deriva foraDosLimites + cria NC automática em batch. rules/{leituras,ncs}
+// vão pra `allow create: if false` — só server cria.
+export { ct_commitLeitura } from './modules/controleTemperatura/index';
+
 // ─── educacaoContinuada module (Fase 0b — 2026-04-24) ────────────────────────
 // 6 callables que migram a geração de assinatura de client-side (compliance
 // theater — RDC 978 reprovaria) para server-side. Hooks do módulo passam a
@@ -139,6 +146,9 @@ export {
   ec_scheduledAlertasVencimento,
   // Fase 7 trigger — RN-08 server-side (substitui observer client em 2026-04-24)
   ec_onColaboradorCreated,
+  // 2026-04-24 — defense-in-depth + soft-delete cascade
+  ec_onParticipanteCreated,
+  ec_softDeleteExecucaoCascade,
 } from './modules/educacaoContinuada/index';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

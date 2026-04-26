@@ -65,10 +65,33 @@ export interface CIQImunoRun extends Omit<
   registroANVISA?: string;
 
   // ── Resultado ─────────────────────────────────────────────────────────────
-  /** Resultado esperado pelo controle (definido pelo fabricante) */
+  /**
+   * Resultado esperado pelo controle (definido pelo fabricante).
+   *
+   * Em corridas de **analisador**, é o esperado da corrida (operador escolhe).
+   * Em corridas **manuais com kit P+N** (Fase G — 2026-04-25), espelha o
+   * esperado do **controle positivo** (deriva de `controlePositivo.nivel`:
+   * `positivo` → `R`).
+   */
   resultadoEsperado: 'R' | 'NR';
-  /** Resultado obtido na corrida — R = Reagente, NR = Não Reagente */
+  /**
+   * Resultado obtido na corrida — R = Reagente, NR = Não Reagente.
+   *
+   * Em modo manual, espelha o **obtido do controle positivo**.
+   */
   resultadoObtido: 'R' | 'NR';
+  /**
+   * Fase G (2026-04-25) — em corridas manuais com kit P+N, captura o par
+   * **negativo**: esperado deriva de `controleNegativo.nivel` (`negativo` →
+   * `NR`); obtido é a leitura do operador. Ausente em corridas de analisador
+   * (que rodam apenas o reagente, sem par P/N na corrida).
+   *
+   * Veredito da corrida em modo manual:
+   * `positivoConforme && negativoConforme`. Qualquer divergência → 'Rejeitada'
+   * + ação corretiva obrigatória (RDC 978/2025 Art.128).
+   */
+  resultadoEsperadoNegativo?: 'R' | 'NR';
+  resultadoObtidoNegativo?: 'R' | 'NR';
   /** Data em que o teste foi realizado (YYYY-MM-DD) */
   dataRealizacao: string;
   /**
@@ -118,14 +141,30 @@ export interface CIQImunoRun extends Omit<
   // ── Rastreabilidade de insumos (Fase B1 — 2026-04-21) ─────────────────────
 
   /**
-   * Snapshot imutável do insumo ativo. Imuno NÃO usa controle por corrida —
-   * CQ é feito por lote (ver `Insumo.qcStatus`). Slots controle/tira ficam
-   * ausentes legitimamente aqui; se algum dia o lab adotar controle por
-   * corrida, o slot `controle` fica disponível para popular.
+   * Snapshot imutável do insumo ativo.
+   *
+   * Imuno analisador: `reagente` é o único slot populado — CQ por lote, não
+   * por corrida.
+   *
+   * Imuno manual (Fase F 2026-04-24): kits manuais (PCR látex, VDRL lâmina,
+   * cartela imuno) incluem `controlePositivo` + `controleNegativo` do próprio
+   * kit rodando junto com o reagente. Em corridas manuais esses três devem
+   * ser capturados no snapshot — o Westgard categórico passa a avaliar
+   * consistência entre esperado e obtido dos controles como parte da corrida.
    */
   insumosSnapshot?: {
     reagente?: import('../../insumos/types/InsumoSnapshot').InsumoSnapshot;
+    controlePositivo?: import('../../insumos/types/InsumoSnapshot').InsumoSnapshot;
+    controleNegativo?: import('../../insumos/types/InsumoSnapshot').InsumoSnapshot;
   };
+
+  /**
+   * Fase F (2026-04-24) — true quando a corrida foi realizada como teste
+   * manual (kit lido a olho, sem analisador). Se `true`: `equipamentoId` e
+   * `equipamentoSnapshot` ficam vazios; `insumosSnapshot` traz os kits do
+   * `ManualKitPicker`. Ausente/false em runs de analisador.
+   */
+  manual?: boolean;
 
   /**
    * Classificação da corrida em Imuno:
@@ -187,6 +226,31 @@ export interface CIQImunoLot {
   // ── Auditoria ─────────────────────────────────────────────────────────────
   createdAt: import('firebase/firestore').Timestamp;
   createdBy: string;
+
+  // ── Vinculação à Bancada (Fase 1A — 2026-04-25) ──────────────────────────
+  /**
+   * Setup vinculado à bancada — destrava registro de corridas para esse
+   * lote sem fricção de selecionar manualmente.
+   *  - 'principal': lote em rotina (uso-normal). Requer qcStatus aprovado.
+   *  - 'validacao_paralela': lote em validação. Corridas viram classificacaoImuno='validacao'.
+   *  - null/ausente: lote no estoque, não vinculado.
+   */
+  setupType?: 'principal' | 'validacao_paralela' | null;
+  /** UID do operador que vinculou. Null/ausente quando setupType é null. */
+  pinnedBy?: string | null;
+  /** Timestamp da última vinculação ativa. */
+  pinnedAt?: import('firebase/firestore').Timestamp | null;
+  /**
+   * Histórico imutável de operações de vinculação. Append-only via transação.
+   * Cobre RDC 786 — toda mudança de vinculação rastreável.
+   */
+  pinHistory?: Array<{
+    at: import('firebase/firestore').Timestamp;
+    by: string;
+    action: 'vinculado' | 'desvinculado';
+    setupType?: 'principal' | 'validacao_paralela';
+    prevSetupType?: 'principal' | 'validacao_paralela';
+  }>;
 }
 
 // ─── Re-exports para conveniência dos importers do módulo ─────────────────────

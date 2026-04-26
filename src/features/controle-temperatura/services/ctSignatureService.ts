@@ -1,26 +1,19 @@
 /**
  * ctSignatureService.ts
  *
- * Gera e verifica `LogicalSignature` no formato usado pelas entidades
- * auditáveis deste módulo — mesmo algoritmo do `ecSignatureService`.
+ * Pós-CT-01 (2026-04-24): geração de assinatura migrada pra callable server
+ * `ct_commitLeitura`. Este arquivo mantém APENAS `verifyCtSignature` — útil
+ * pra auditoria UI de docs históricos e também pra smoke tests do próprio
+ * algoritmo espelho (server em `functions/src/modules/controleTemperatura/
+ * signatureCanonical.ts` produz o mesmo hash).
  *
- * Divergente da `generateLogicalSignature` global (`src/utils/logicalSignature.ts`)
- * em dois pontos intencionais:
- *   1. Aceita payload `Record<string, string | number>` — IDs de entidades
- *      (equipamentoId, leituraId) são strings e fazem parte essencial do
- *      que precisa ser assinado.
- *   2. Retorna wrapper `{ hash, operatorId, ts }` em vez de só o hash — a
- *      verificação futura (auditoria, Cloud Function) não precisa reabrir o
- *      doc pai para descobrir quando/quem assinou.
- *
- * ⚠️ Compliance RDC 978/2025: esta implementação roda no cliente e pode ser
- * recalculada via DevTools. Migração para Cloud Function Admin SDK fica
- * pendente (débito técnico CT-01) — mesmo gap do módulo Educação Continuada
- * antes da Fase 0b.
+ * ⚠️ Não reintroduzir `generateCtSignature` aqui. A assinatura é emitida
+ * EXCLUSIVAMENTE pelo server a partir de agora (RDC 978/2025 compliance
+ * real — não mais theater). Tentativa de forja client-side falha nas rules
+ * porque `/leituras` e `/ncs` têm `allow create: if false`.
  */
 
-import { Timestamp } from '../../../shared/services/firebase';
-import type { LogicalSignature, UserId } from '../types/_shared_refs';
+import type { LogicalSignature } from '../types/_shared_refs';
 
 export type CtSignaturePayload = Record<string, string | number>;
 
@@ -41,20 +34,11 @@ async function sha256Hex(input: string): Promise<string> {
   return arr.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-export async function generateCtSignature(
-  operatorId: UserId,
-  payload: CtSignaturePayload,
-): Promise<LogicalSignature> {
-  const ts = Timestamp.now();
-  const dataString = JSON.stringify({
-    operatorId,
-    ts: ts.toMillis(),
-    data: sortedStringify(payload),
-  });
-  const hash = await sha256Hex(dataString);
-  return { hash, operatorId, ts };
-}
-
+/**
+ * Recalcula o hash a partir de `operatorId + ts + payload` e compara com o
+ * hash armazenado. Usado pela UI de auditoria pra exibir "assinatura válida
+ * ✅ / adulterada ❌" em docs já gravados.
+ */
 export async function verifyCtSignature(
   signature: LogicalSignature,
   payload: CtSignaturePayload,

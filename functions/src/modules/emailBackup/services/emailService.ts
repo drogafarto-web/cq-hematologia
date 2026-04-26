@@ -238,7 +238,7 @@ function buildHtmlBody(
 
     <!-- Attachment note -->
     <div style="background:#161616;border:1px solid #2a2a2a;border-radius:6px;padding:14px;margin-bottom:24px">
-      <p style="color:#71717a;font-size:12px;margin:0">
+      <p style="color:#a1a1aa;font-size:12px;margin:0;line-height:1.5">
         ${
           attachmentCount > 1
             ? 'Este e-mail contém <strong>dois PDFs anexos</strong>: o <em>backup diário</em> (arquivo de redundância regulatório — guarde em local seguro conforme RDC 978/2025 e LGPD) e o <em>relatório operacional</em> (instrumento de decisão do RT — leitura diária, descarte mensal).'
@@ -292,10 +292,12 @@ function buildOperacionalBlock(
       : '—';
   return `
     <div style="border:1px solid #2a2a2a;border-radius:8px;padding:16px;margin-bottom:20px;background:#101010">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <span style="color:#3b82f6;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase">RELATÓRIO OPERACIONAL</span>
-        <span style="color:${statusColor};font-size:11px;font-weight:700;letter-spacing:.1em">${statusLabel}</span>
-      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:12px" role="presentation">
+        <tr>
+          <td style="color:#3b82f6;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase">RELATÓRIO OPERACIONAL</td>
+          <td style="color:${statusColor};font-size:11px;font-weight:700;letter-spacing:.1em;text-align:right">${statusLabel}</td>
+        </tr>
+      </table>
       <table style="width:100%;border-collapse:collapse">
         <tr>
           <td style="color:#71717a;font-size:12px">Taxa de aprovação</td>

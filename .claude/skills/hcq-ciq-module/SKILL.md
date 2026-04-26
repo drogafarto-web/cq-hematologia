@@ -5,9 +5,24 @@ description: Playbook do hc quality para construir ou estender módulos de CIQ l
 
 # hcq-ciq-module — Playbook de módulos CIQ
 
-> **Versão:** 1.0 · **Última atualização:** 2026-04-20 · **Piloto:** Labclin MG · **Aplicado a:** React 19 + TS 5.8 + Firebase 12
+> **Versão:** 1.1 · **Última atualização:** 2026-04-24 · **Piloto:** Labclin MG · **Aplicado a:** React 19 + TS 5.9 + Firebase 10
 
 Esta skill é a referência canônica de **como construir, estender ou integrar módulos de Controle de Qualidade Interno** no projeto hc quality. Toda decisão aqui foi tomada para maximizar estabilidade, reduzir quebras e escalar pros módulos seguintes sem refactor.
+
+## Skills complementares (família `hcq-*`)
+
+Este playbook é o **mapa conceitual**. Para execução, combine com:
+
+| Skill | Quando usar |
+|---|---|
+| [hcq-module-generator](../hcq-module-generator/SKILL.md) | Scaffold executável de módulo novo — gera os 21 arquivos da seção 3 |
+| [hcq-ciq-audit-trail](../hcq-ciq-audit-trail/SKILL.md) | Scaffold de logicalSignature + chainHash + verifier — expande a seção 8 |
+| [hcq-firestore-rules-generator](../hcq-firestore-rules-generator/SKILL.md) | Bloco de rules por módulo — expande a seção 9 |
+| [hcq-insumo-picker-integrator](../hcq-insumo-picker-integrator/SKILL.md) | Plugar InsumoPicker em form CIQ — expande a seção 7 |
+| [hcq-pdf-export-scaffold](../hcq-pdf-export-scaffold/SKILL.md) | Export FR-* + backup PDF — expande a seção 12 |
+| [hcq-deploy-gates](../hcq-deploy-gates/SKILL.md) | Gate pré-merge e pré-deploy — expande a seção 14 |
+
+Regra: este playbook descreve **o padrão**; as skills acima **aplicam** o padrão. Em caso de divergência, o código em produção vence — atualize a skill divergente.
 
 ---
 
@@ -31,6 +46,18 @@ Se o trabalho não toca nenhum desses, essa skill não se aplica — use `hm-eng
 ## 2. Invariantes não-negociáveis
 
 Essas regras não são ajustáveis por módulo. Quebrá-las é motivo de rejeitar o PR.
+
+### 2.0 Discriminação CIQ quantitativo vs. categórico
+
+Nem todo módulo é quantitativo. Distinga **antes de modelar**:
+
+- **Quantitativo** (hematologia, coagulação, bioquímica, hormonal): `value: number` + `unit`. Westgard e Levey-Jennings se aplicam. Tem `manufacturerStats` + `internalStats` derivado após ≥20 runs. Gera chart.
+- **Categórico** (imunocromatográfico): `esperado: 'R'|'NR'` + `obtido: 'R'|'NR'`. **Sem valor numérico, sem Westgard, sem Levey-Jennings.** Avalia match/mismatch; PALC categoriza separadamente. RDC 978/2025 Art.128 reconhece essa distinção.
+- **Híbrido** (uroanálise — tira reagente tem densidade/pH numérico + glicose/proteína categórico por faixa): discriminated union por analyte dentro do mesmo run.
+
+`logicalSignature` canonicaliza ambos, mas o **schema Zod** e a **lógica de stats** divergem. Ver [hcq-module-generator](../hcq-module-generator/SKILL.md) seção 2 para templates específicos.
+
+### 2.1 Regras gerais
 
 1. **Feature-based structure** — todo módulo vive em `src/features/<nome>/` com `components/`, `hooks/`, `services/`, `types/`, `utils/`. Nunca espalhe por pastas horizontais.
 2. **Multi-tenant por lab** — **zero dado cross-lab**. Todo path Firestore começa em `labs/{labId}/...`. Nenhum módulo consome ou grava em root collections.
@@ -671,8 +698,14 @@ Esta skill é **versionada** com o projeto. Toda decisão arquitetural nova que 
 2. Ser refletida aqui (seção correspondente)
 3. Bumpar a versão no topo
 4. Ser comunicada em `memory/` se afeta sessões futuras do Claude Code
+5. Propagada para as skills filhas (`hcq-module-generator`, `hcq-ciq-audit-trail`, etc.) se afetar templates
 
 Skill desatualizada é pior que skill inexistente — o Claude vai seguir conselho errado com confiança.
+
+### Histórico de versões
+
+- **1.1** (2026-04-24) — Corrige stack para Firebase 10 + TS 5.9. Adiciona seção 2.0 (discriminação quantitativo/categórico/híbrido). Introduz links cruzados para família `hcq-*` de skills filhas.
+- **1.0** (2026-04-20) — Versão inicial, playbook canônico consolidado pós-PRs #2 e #3.
 
 ---
 

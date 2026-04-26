@@ -19,6 +19,7 @@ import { UroanaliseView } from '../uroanalise/UroanaliseView';
 import { InsumosView } from '../insumos/InsumosView';
 import { EducacaoContinuadaView } from '../educacao-continuada/EducacaoContinuadaView';
 import { ControlTemperaturaView } from '../controle-temperatura/ControlTemperaturaView';
+import { SGQView } from '../sgq/SGQView';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
 
@@ -74,6 +75,8 @@ function AppRouter() {
     view = <EducacaoContinuadaView />;
   } else if (currentView === 'controle-temperatura') {
     view = <ControlTemperaturaView />;
+  } else if (currentView === 'sgq-documentos') {
+    view = <SGQView />;
   } else {
     view = <AnalyzerView />;
   }

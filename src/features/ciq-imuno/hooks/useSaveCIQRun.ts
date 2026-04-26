@@ -37,9 +37,20 @@ export interface SaveCIQRunOptions {
 
   /**
    * Fase D (2026-04-21 — 2º turno): equipamento da corrida + snapshot imutável.
+   *
+   * Fase F (2026-04-24): corridas manuais passam ambos ausentes — `manual:true`
+   * dispara a gravação sem equipamento.
    */
   equipamentoId?: string;
   equipamentoSnapshot?: import('../../equipamentos/types/Equipamento').EquipamentoSnapshot;
+
+  /**
+   * Fase F (2026-04-24) — corrida de teste manual (kit lido a olho).
+   * Quando `true`, `equipamentoId`/`equipamentoSnapshot` são ignorados e o
+   * run é gravado com `manual: true`; `insumosSnapshot` traz
+   * reagente + controlePositivo + controleNegativo vindos do ManualKitPicker.
+   */
+  manual?: boolean;
 }
 
 export interface SaveCIQRunResult {
@@ -215,7 +226,14 @@ function buildRun(
   logicalSignature: string,
   options: SaveCIQRunOptions = {},
 ): CIQImunoRun {
-  const resultouConforme = form.resultadoObtido === form.resultadoEsperado;
+  // Veredito unificado: positivo (sempre) + negativo (se manual P+N).
+  // Qualquer divergência reprova a corrida — em modo manual ambos os controles
+  // precisam bater pra liberar o lote como validado.
+  const positivoConforme = form.resultadoObtido === form.resultadoEsperado;
+  const negativoConforme =
+    form.resultadoEsperadoNegativo === undefined ||
+    form.resultadoObtidoNegativo === form.resultadoEsperadoNegativo;
+  const resultouConforme = positivoConforme && negativoConforme;
   const status = resultouConforme ? 'Aprovada' : ('Rejeitada' as const);
 
   return {
@@ -251,9 +269,11 @@ function buildRun(
     validadeReagente: form.validadeReagente,
     ...(form.codigoKit && { codigoKit: form.codigoKit }),
     ...(form.registroANVISA && { registroANVISA: form.registroANVISA }),
-    // Resultado
+    // Resultado — par positivo (sempre) + par negativo (apenas em manual P+N).
     resultadoEsperado: form.resultadoEsperado,
     resultadoObtido: form.resultadoObtido,
+    ...(form.resultadoEsperadoNegativo && { resultadoEsperadoNegativo: form.resultadoEsperadoNegativo }),
+    ...(form.resultadoObtidoNegativo && { resultadoObtidoNegativo: form.resultadoObtidoNegativo }),
     dataRealizacao: form.dataRealizacao,
     ...(form.acaoCorretiva && { acaoCorretiva: form.acaoCorretiva }),
     // Equipamento
@@ -263,16 +283,35 @@ function buildRun(
     }),
     // Qualidade
     westgardCategorico: westgardAlertas,
-    // Fase B1-etapa2 — rastreabilidade de insumos
-    ...(options.insumosSnapshot?.reagente && {
-      insumosSnapshot: { reagente: options.insumosSnapshot.reagente },
-    }),
+    // Fase B1-etapa2 / Fase F — rastreabilidade de insumos. Em modo analisador
+    // apenas `reagente` vai pro snapshot; em modo manual ambos os controles
+    // do kit acompanham.
+    ...(buildInsumosSnapshotPatch(options.insumosSnapshot)),
     ...(options.insumoVencidoOverride && { insumoVencidoOverride: true }),
     ...(options.qcNaoValidado && { qcNaoValidado: true }),
     ...(options.overrideMotivo && { overrideMotivo: options.overrideMotivo }),
     ...(options.classificacaoImuno && { classificacaoImuno: options.classificacaoImuno }),
-    // Fase D — rastreabilidade de equipamento
-    ...(options.equipamentoId && { equipamentoId: options.equipamentoId }),
-    ...(options.equipamentoSnapshot && { equipamentoSnapshot: options.equipamentoSnapshot }),
+    // Fase D / Fase F — rastreabilidade de equipamento. Manual omite ambos.
+    ...(!options.manual && options.equipamentoId && { equipamentoId: options.equipamentoId }),
+    ...(!options.manual &&
+      options.equipamentoSnapshot && { equipamentoSnapshot: options.equipamentoSnapshot }),
+    ...(options.manual && { manual: true }),
   };
+}
+
+/**
+ * Constrói o patch `insumosSnapshot` a partir do set completo — filtra para
+ * incluir apenas os slots suportados em Imuno (reagente + controles de kit
+ * manual). Se nenhum slot estiver presente, retorna `{}` pra não emitir
+ * `insumosSnapshot: {}` ruidoso no doc.
+ */
+function buildInsumosSnapshotPatch(
+  snap: import('../../insumos/types/InsumoSnapshot').InsumosSnapshotSet | undefined,
+): { insumosSnapshot?: CIQImunoRun['insumosSnapshot'] } {
+  if (!snap) return {};
+  const out: NonNullable<CIQImunoRun['insumosSnapshot']> = {};
+  if (snap.reagente) out.reagente = snap.reagente;
+  if (snap.controlePositivo) out.controlePositivo = snap.controlePositivo;
+  if (snap.controleNegativo) out.controleNegativo = snap.controleNegativo;
+  return Object.keys(out).length > 0 ? { insumosSnapshot: out } : {};
 }

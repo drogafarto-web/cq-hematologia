@@ -11,8 +11,31 @@
  * Imunoensaio — string livre configurável pelo laboratório.
  * A lista canônica é gerenciada em Firestore via useCIQTestTypes/saveTestTypes.
  * Historicamente: HCG | BhCG | HIV | HBsAg | Anti-HCV | Sifilis | Dengue | COVID | PCR | Troponina
+ *
+ * Continua `string` porque é o identificador usado em runs/lotes/relatórios —
+ * mudar o shape persistido nesses caminhos exigiria migração em massa sem ganho.
+ * A configuração (nome + flag de manualidade) é separada em `CIQTestTypeConfig`.
  */
 export type TestType = string;
+
+/**
+ * Configuração de um tipo de teste, gerenciada em
+ * `/labs/{labId}/ciq-imuno-config/testTypes`. Substitui o array cru `string[]`
+ * do modelo pré-2026-04-24 — backward-compat via normalização on-read: docs
+ * antigos com `types: string[]` são lidos como `[{name, manual: false}]`.
+ *
+ *   - `name`: identificador persistido em `CIQImunoRun.testType`. Imutável
+ *     durante o lifecycle — renomear emite `rename` atômico no service.
+ *   - `manual`: `true` quando o teste é feito fora de equipamento analisador
+ *     (aglutinação em lâmina, tira lida a olho, cartela imunocromatográfica).
+ *     Quando marcado, o form de corrida esconde o EquipamentoSelector, salta
+ *     a leitura de EquipmentSetup e troca a conferência obrigatória por um
+ *     picker direto de kit (reagente + controles do kit). Ver `ManualKitPicker`.
+ */
+export interface CIQTestTypeConfig {
+  name: string;
+  manual: boolean;
+}
 
 // ─── Status de Decisão do Lote ────────────────────────────────────────────────
 

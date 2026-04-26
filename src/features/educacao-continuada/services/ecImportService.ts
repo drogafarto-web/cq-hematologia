@@ -20,8 +20,6 @@
  * o auto-preenchimento de enums via data validation no Excel/Sheets.
  */
 
-import * as XLSX from 'xlsx';
-
 import type {
   ColaboradorInput,
   Modalidade,
@@ -29,6 +27,20 @@ import type {
   TreinamentoInput,
   Unidade,
 } from '../types/EducacaoContinuada';
+
+// ─── Lazy loader do XLSX (code-split) ────────────────────────────────────────
+// SheetJS é ~400KB gzipped — carregar só quando o usuário interage com import/export.
+// Primeira chamada paga latência de fetch; chamadas seguintes reusam a Promise.
+
+type XlsxModule = typeof import('xlsx');
+let xlsxPromise: Promise<XlsxModule> | null = null;
+
+function loadXlsx(): Promise<XlsxModule> {
+  if (!xlsxPromise) {
+    xlsxPromise = import('xlsx');
+  }
+  return xlsxPromise;
+}
 
 // ─── Schema de colunas ───────────────────────────────────────────────────────
 
@@ -76,7 +88,8 @@ const ATIVO_FALSE = new Set(['não', 'nao', 'n', 'no', 'false', '0', 'inativo'])
  *   - "Cronograma"  — header + 3 linhas de exemplo que o usuário substitui
  *   - "Instruções"  — valores aceitos para cada coluna enumerada
  */
-export function generateTreinamentosTemplate(): ArrayBuffer {
+export async function generateTreinamentosTemplate(): Promise<ArrayBuffer> {
+  const XLSX = await loadXlsx();
   const anoBase = new Date().getFullYear();
 
   const header = [
@@ -164,8 +177,10 @@ export function generateTreinamentosTemplate(): ArrayBuffer {
   return XLSX.write(wb, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer;
 }
 
-export function downloadTemplate(filename = 'cronograma-educacao-continuada.xlsx'): void {
-  const data = generateTreinamentosTemplate();
+export async function downloadTemplate(
+  filename = 'cronograma-educacao-continuada.xlsx',
+): Promise<void> {
+  const data = await generateTreinamentosTemplate();
   const blob = new Blob([data], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   });
@@ -329,6 +344,7 @@ function parseDatasPlanejadas(raw: unknown): { dates: Date[]; invalid: string[] 
 export async function parseTreinamentosXlsx(
   file: File,
 ): Promise<TreinamentoParseResult> {
+  const XLSX = await loadXlsx();
   const buffer = await file.arrayBuffer();
   const wb = XLSX.read(buffer, { type: 'array' });
   const sheetName = wb.SheetNames[0];
@@ -498,7 +514,8 @@ const COLUNAS_COLAB = {
   ativo: 'Ativo',
 } as const;
 
-export function generateColaboradoresTemplate(): ArrayBuffer {
+export async function generateColaboradoresTemplate(): Promise<ArrayBuffer> {
+  const XLSX = await loadXlsx();
   const header = [
     COLUNAS_COLAB.nome,
     COLUNAS_COLAB.cargo,
@@ -537,10 +554,10 @@ export function generateColaboradoresTemplate(): ArrayBuffer {
   return XLSX.write(wb, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer;
 }
 
-export function downloadColaboradoresTemplate(
+export async function downloadColaboradoresTemplate(
   filename = 'colaboradores-educacao-continuada.xlsx',
-): void {
-  const data = generateColaboradoresTemplate();
+): Promise<void> {
+  const data = await generateColaboradoresTemplate();
   const blob = new Blob([data], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   });
@@ -557,6 +574,7 @@ export function downloadColaboradoresTemplate(
 export async function parseColaboradoresXlsx(
   file: File,
 ): Promise<ParseResult<ColaboradorInput>> {
+  const XLSX = await loadXlsx();
   const buffer = await file.arrayBuffer();
   const wb = XLSX.read(buffer, { type: 'array' });
   const sheetName = wb.SheetNames[0];

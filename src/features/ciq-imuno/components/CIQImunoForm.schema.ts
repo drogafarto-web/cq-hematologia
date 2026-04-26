@@ -54,9 +54,16 @@ export const CIQImunoFormSchema = z
       required_error: 'Selecione o cargo do operador.',
     }),
 
-    // Resultado
+    // Resultado — em modo analisador, este par representa a corrida (single).
+    // Em modo manual (kit P+N), este par é espelhado a partir do CONTROLE POSITIVO
+    // (esperado=R derivado do nivel; obtido=user input) e o par adicional
+    // resultadoEsperadoNegativo/resultadoObtidoNegativo cobre o controle negativo.
+    // O form é a fonte de verdade do mapeamento; o schema só garante que se um
+    // par negativo for enviado, o outro também tem que ser.
     resultadoEsperado: z.enum(['R', 'NR'], { required_error: 'Resultado esperado obrigatório.' }),
     resultadoObtido: z.enum(['R', 'NR'], { required_error: 'Resultado obtido obrigatório.' }),
+    resultadoEsperadoNegativo: z.enum(['R', 'NR']).optional(),
+    resultadoObtidoNegativo: z.enum(['R', 'NR']).optional(),
     dataRealizacao: dateField('Data de realização inválida.'),
     acaoCorretiva: z.string().optional(),
 
@@ -90,11 +97,32 @@ export const CIQImunoFormSchema = z
     message: 'Data de abertura do controle não pode ser posterior à realização.',
     path: ['aberturaControle'],
   })
-  // RDC 978 Art.128: ação corretiva obrigatória em caso de não conformidade
-  .refine((d) => d.resultadoObtido === d.resultadoEsperado || Boolean(d.acaoCorretiva?.trim()), {
-    message: 'Ação corretiva é obrigatória quando o resultado não está conforme.',
-    path: ['acaoCorretiva'],
-  })
+  // Par negativo: se um lado vier, o outro também precisa vir (modo manual P+N).
+  .refine(
+    (d) =>
+      (d.resultadoEsperadoNegativo === undefined && d.resultadoObtidoNegativo === undefined) ||
+      (d.resultadoEsperadoNegativo !== undefined && d.resultadoObtidoNegativo !== undefined),
+    {
+      message: 'Resultado obtido do controle negativo é obrigatório.',
+      path: ['resultadoObtidoNegativo'],
+    },
+  )
+  // RDC 978 Art.128: ação corretiva obrigatória em qualquer não conformidade.
+  // Em modo manual avalia também o par negativo — basta um dos dois divergir
+  // pra disparar a obrigatoriedade.
+  .refine(
+    (d) => {
+      const positivoConforme = d.resultadoObtido === d.resultadoEsperado;
+      const negativoConforme =
+        d.resultadoEsperadoNegativo === undefined ||
+        d.resultadoObtidoNegativo === d.resultadoEsperadoNegativo;
+      return (positivoConforme && negativoConforme) || Boolean(d.acaoCorretiva?.trim());
+    },
+    {
+      message: 'Ação corretiva é obrigatória quando o resultado não está conforme.',
+      path: ['acaoCorretiva'],
+    },
+  )
   // Se status = 'notificado' → protocolo e data de envio obrigatórios
   .refine((d) => d.notivisaStatus !== 'notificado' || Boolean(d.notivisaProtocolo?.trim()), {
     message: 'Protocolo do NOTIVISA é obrigatório quando status = notificado.',

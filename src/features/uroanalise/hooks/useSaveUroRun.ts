@@ -39,9 +39,21 @@ export interface SaveUroRunOptions {
 
   /**
    * Fase D (2026-04-21 — 2º turno): equipamento da corrida + snapshot imutável.
+   *
+   * Fase F (2026-04-24): corridas de leitura manual (fita lida a olho, sem
+   * leitor reflexométrico) passam ambos ausentes — `manual: true` grava o run
+   * sem equipamento.
    */
   equipamentoId?: string;
   equipamentoSnapshot?: import('../../equipamentos/types/Equipamento').EquipamentoSnapshot;
+
+  /**
+   * Fase F (2026-04-24) — leitura manual (sem equipamento).
+   * Quando `true`, `equipamentoId`/`equipamentoSnapshot` são ignorados. O
+   * snapshot de insumos continua obrigatório (tira + controle escolhidos no
+   * ManualKitPicker).
+   */
+  manual?: boolean;
 }
 
 export interface SaveUroRunResult {
@@ -304,8 +316,10 @@ function buildRun(
     ...(options.insumoVencidoOverride && { insumoVencidoOverride: true }),
     ...(options.qcNaoValidado && { qcNaoValidado: true }),
     ...(options.overrideMotivo && { overrideMotivo: options.overrideMotivo }),
-    // Fase D — rastreabilidade de equipamento
-    ...(options.equipamentoId && { equipamentoId: options.equipamentoId }),
-    ...(options.equipamentoSnapshot && { equipamentoSnapshot: options.equipamentoSnapshot }),
+    // Fase D / F — rastreabilidade de equipamento. Manual omite ambos.
+    ...(!options.manual && options.equipamentoId && { equipamentoId: options.equipamentoId }),
+    ...(!options.manual &&
+      options.equipamentoSnapshot && { equipamentoSnapshot: options.equipamentoSnapshot }),
+    ...(options.manual && { manual: true }),
   };
 }
