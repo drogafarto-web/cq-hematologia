@@ -14,6 +14,7 @@ import { useMemo, useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { DocumentoFormModal } from './components/DocumentoFormModal';
 import { DocumentosListView } from './components/DocumentosListView';
+import { ImportarLM01Modal } from './components/ImportarLM01Modal';
 import { useDocumentos } from './hooks/useDocumentos';
 import {
   isVencido,
@@ -76,6 +77,7 @@ export function SGQView() {
   const [editando, setEditando] = useState<Documento | null>(null);
   const [revisaoDe, setRevisaoDe] = useState<Documento | null>(null);
   const [criando, setCriando] = useState<TipoDocumento | null>(null);
+  const [importing, setImporting] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [confirmacao, setConfirmacao] = useState<ConfirmacaoState | null>(null);
   const [motivoConfirmacao, setMotivoConfirmacao] = useState('');
@@ -164,6 +166,14 @@ export function SGQView() {
             DICQ 4.3
           </span>
           <div className="flex-1" />
+          <button
+            type="button"
+            onClick={() => setImporting(true)}
+            className="px-3 py-1.5 rounded-md text-sm font-medium text-white/65 hover:text-white/90 hover:bg-white/[0.05] transition-all"
+            title="Importa LM-01 (Lista Mestra) do Drive em bulk via TSV"
+          >
+            Importar LM-01
+          </button>
           <details className="relative">
             <summary className="list-none cursor-pointer px-3 py-1.5 rounded-md bg-emerald-500 text-slate-950 text-sm font-semibold hover:bg-emerald-400">
               + Novo documento
@@ -265,6 +275,12 @@ export function SGQView() {
             setRevisaoDe(null);
           }}
           onSubmit={handleSubmit}
+        />
+      )}
+
+      {importing && (
+        <ImportarLM01Modal
+          onClose={() => setImporting(false)}
         />
       )}
 
