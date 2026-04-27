@@ -6,15 +6,27 @@
  *
  * Formato TSV esperado (1 linha por documento, tab-separated):
  *
- *   codigo  titulo  url  versao  dataEmissao  proximaRevisao  autoridadeEmitente
+ *   codigo  titulo  url  versao  dataEmissao  proximaRevisao  autoridadeEmitente  listaDistribuicao?
  *
- * Tipo é derivado do prefixo do código (PQ-XX → PQ, FR-XX → FR, etc).
+ * Tipo é derivado do prefixo do código:
+ *   MQ-001  → MQ          PQ-01   → PQ          IT-001 → IT
+ *   FR-001  → FR          POL-001 → POL         DC-001 → DC
+ *   LM-01   → LM          (qualquer outro prefixo) → EXT (Documento Externo)
+ *
  * Datas em ISO YYYY-MM-DD ou DD/MM/YYYY (parser aceita ambos).
+ *
+ * Coluna 8 (opcional) — `listaDistribuicao`: setores separados por `|`
+ * (pipe). Ex: `Matriz|Mercês|Tabuleiro` ou `Hematologia|Imuno|Bioquímica`.
+ * Vazio = sem controle de distribuição.
+ *
+ * LM-02 (Documentos Externos): cole entradas como
+ *   RDC-786-2023  ANVISA · Laboratório Clínico  https://anvisa.gov.br/...  ...
+ * O parser não acha prefixo nas tipos canônicos, faz fallback pra EXT.
  *
  * Status inicial = `em_revisao`. RT valida e promove pra `vigente` via UI.
  *
- * Why TSV: copy/paste direto da LM-01 (Google Sheets) sem conversão. Operador
- * seleciona linhas, copia, cola aqui.
+ * Why TSV: copy/paste direto da LM-01/LM-02 (Google Sheets) sem conversão.
+ * Operador seleciona linhas, copia, cola aqui.
  */
 
 import { useMemo, useState } from 'react';
@@ -41,18 +53,41 @@ interface ParsedRow {
   dataEmissao: Date | null;
   proximaRevisao: Date | null;
   autoridadeEmitente: string;
+  listaDistribuicao: string[];
   errors: string[];
 }
 
-const VALID_TIPOS: TipoDocumento[] = ['MQ', 'PQ', 'IT', 'FR', 'POL'];
+const VALID_TIPOS: TipoDocumento[] = ['MQ', 'PQ', 'IT', 'FR', 'POL', 'DC', 'LM', 'EXT'];
 
+/**
+ * Deriva o tipo a partir do prefixo do código. Códigos com prefixo canônico
+ * (MQ/PQ/IT/FR/POL/DC/LM/EXT) recebem aquele tipo. Qualquer outro prefixo
+ * (RDC-, ABNT-, FISPQ-, ISO-, etc) faz fallback pra `EXT` — DICQ trata
+ * todo doc não-emitido pelo lab como Documento Externo.
+ *
+ * Retorna null APENAS quando o código não tem formato `PREFIXO-NUMERO`
+ * (sinal de linha malformada).
+ */
 function deriveTipo(codigo: string): TipoDocumento | null {
   const match = codigo.trim().match(/^([A-Z]+)-/);
   if (!match) return null;
   const prefix = match[1];
-  return VALID_TIPOS.includes(prefix as TipoDocumento)
-    ? (prefix as TipoDocumento)
-    : null;
+  if (VALID_TIPOS.includes(prefix as TipoDocumento)) {
+    return prefix as TipoDocumento;
+  }
+  // Prefixo não-canônico → trata como Documento Externo. Cobre LM-02
+  // (RDC-786, ABNT-NBR-15189, FISPQ-001, ISO-15189, etc.)
+  return 'EXT';
+}
+
+function parseListaDistribuicao(raw: string): string[] {
+  if (!raw || !raw.trim()) return [];
+  // Aceita pipe (|) como separador primário; vírgula como fallback.
+  const sep = raw.includes('|') ? '|' : ',';
+  return raw
+    .split(sep)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
 }
 
 function parseDate(raw: string): Date | null {
@@ -87,16 +122,18 @@ function parseTSV(raw: string): ParsedRow[] {
         dataEmissaoRaw = '',
         proximaRevisaoRaw = '',
         autoridadeEmitente = '',
+        listaDistribuicaoRaw = '',
       ] = cols;
 
       const tipo = deriveTipo(codigo);
       const versao = Number(versaoRaw) || 1;
       const dataEmissao = parseDate(dataEmissaoRaw);
       const proximaRevisao = parseDate(proximaRevisaoRaw);
+      const listaDistribuicao = parseListaDistribuicao(listaDistribuicaoRaw);
 
       const errors: string[] = [];
       if (!codigo) errors.push('código vazio');
-      if (!tipo) errors.push(`prefixo do código "${codigo}" não é tipo válido`);
+      if (!tipo) errors.push(`código "${codigo}" não tem formato PREFIXO-NUMERO`);
       if (!titulo) errors.push('título vazio');
       if (!url) errors.push('url vazia');
       if (!dataEmissao) errors.push('dataEmissao inválida');
@@ -112,15 +149,22 @@ function parseTSV(raw: string): ParsedRow[] {
         dataEmissao,
         proximaRevisao,
         autoridadeEmitente,
+        listaDistribuicao,
         errors,
       };
     });
 }
 
-const PLACEHOLDER = `# Cole aqui linhas da LM-01 (uma por documento, tab-separated):
-# codigo\ttítulo\turl\tversão\tdataEmissão\tpróximaRevisão\tautoridadeEmitente
-PQ-01\tElaboração de Documentos\thttps://drive.google.com/file/d/.../view\t1\t2024-06-26\t2025-06-26\tBruno de Andrade Pires CRF-MG 13.809
-PQ-02\tIndicadores\thttps://drive.google.com/file/d/.../view\t1\t2024-06-26\t2025-06-26\tBruno de Andrade Pires CRF-MG 13.809`;
+const PLACEHOLDER = `# Cole linhas da LM-01 / LM-02 (1 por documento, tab-separated):
+# código→título→url→versão→dataEmissão→próximaRevisão→autoridadeEmitente→listaDistribuicão
+#
+# LM-01 (docs próprios — PQ/IT/FR/MQ/POL/DC/LM):
+PQ-01\tElaboração de Documentos\thttps://drive.google.com/file/d/.../view\t1\t2024-06-26\t2025-06-26\tBruno de Andrade Pires CRF-MG 13.809\tMatriz|Mercês|Tabuleiro
+IT-005\tInstruções de Coleta\thttps://drive.google.com/file/d/.../view\t2\t2024-06-26\t2025-06-26\tBruno de Andrade Pires\tColeta|Recepção
+#
+# LM-02 (docs externos — RDC/ABNT/FISPQ/ISO viram tipo EXT automaticamente):
+RDC-786-2023\tBoas Práticas em Laboratório Clínico\thttps://anvisa.gov.br/...\t1\t2023-05-01\t2028-05-01\tANVISA\t
+ABNT-NBR-15189\tLaboratórios clínicos — Requisitos\thttps://abnt.org.br/...\t1\t2015-09-01\t2025-09-01\tABNT\t`;
 
 const TEXTAREA_CLS = `
   w-full px-3 py-2 rounded-lg text-xs font-mono
@@ -170,6 +214,9 @@ export function ImportarLM01Modal({ onClose, onDone }: Props) {
           dataRevisao: Timestamp.fromDate(r.dataEmissao as Date),
           proximaRevisao: Timestamp.fromDate(r.proximaRevisao as Date),
           status: 'em_revisao',
+          ...(r.listaDistribuicao.length > 0 && {
+            listaDistribuicao: r.listaDistribuicao,
+          }),
         } as DocumentoInput,
       }));
 
@@ -204,11 +251,12 @@ export function ImportarLM01Modal({ onClose, onDone }: Props) {
             id="importar-lm01-title"
             className="text-sm font-semibold text-slate-900 dark:text-white/90"
           >
-            Importar LM-01 → SGQ (TSV)
+            Importar Lista Mestra → SGQ (TSV)
           </h2>
           <p className="text-[11px] text-slate-500 dark:text-white/45 mt-0.5">
-            Cola linhas tab-separated da Lista Mestra. Status inicial será "em
-            revisão" — promova para vigente após validação RT.
+            LM-01 (docs próprios) + LM-02 (docs externos · RDC/ABNT/FISPQ).
+            Status inicial será "em revisão" — RT promove para vigente após
+            validar.
           </p>
         </div>
 
@@ -270,11 +318,25 @@ export function ImportarLM01Modal({ onClose, onDone }: Props) {
                           <span className="font-mono text-slate-700 dark:text-white/75">
                             {r.codigo || '(sem código)'}
                           </span>
-                          <span className="text-slate-500 dark:text-white/45 truncate">
+                          <span className="text-slate-500 dark:text-white/45 truncate flex-1">
                             {r.titulo}
                           </span>
+                          {r.listaDistribuicao.length > 0 && (
+                            <span
+                              className="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-700 dark:text-blue-300 font-mono text-[10px]"
+                              title={`Distribuído em: ${r.listaDistribuicao.join(', ')}`}
+                            >
+                              {r.listaDistribuicao.length} setor(es)
+                            </span>
+                          )}
                           {r.tipo && (
-                            <span className="ml-auto px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/[0.06] text-slate-500 dark:text-white/45 font-mono text-[10px]">
+                            <span
+                              className={`px-1.5 py-0.5 rounded font-mono text-[10px] ${
+                                r.tipo === 'EXT'
+                                  ? 'bg-amber-500/10 text-amber-700 dark:text-amber-300'
+                                  : 'bg-slate-100 dark:bg-white/[0.06] text-slate-500 dark:text-white/45'
+                              }`}
+                            >
                               {r.tipo}
                             </span>
                           )}
