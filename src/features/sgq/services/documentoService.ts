@@ -410,6 +410,61 @@ export async function existeCodigoDuplicado(
   return snap.docs.some((d) => d.id !== excludeId);
 }
 
+// ─── Bulk import (Drive → SGQ) ───────────────────────────────────────────────
+
+export interface BulkCreateItem {
+  input: DocumentoInput;
+}
+
+export interface BulkCreateResult {
+  created: { codigo: string; id: string }[];
+  skipped: { codigo: string; reason: string }[];
+}
+
+/**
+ * Cria múltiplos documentos em sequência. Pula códigos já existentes
+ * (não-deletados) — idempotente. Cada criação faz seu próprio batch
+ * (doc + audit), portanto N writes Firestore.
+ *
+ * Por que sequencial (não paralelo): rate limit das rules + clareza no
+ * skipped por código duplicado. Volume esperado em primeiro import: ~80
+ * docs (Labclin LM-01) — sequencial é aceitável.
+ *
+ * RN-08: status inicial sempre `em_revisao`. Auditor valida antes de
+ * promover pra `vigente` via UI.
+ */
+export async function bulkCreateDocumentos({
+  labId,
+  items,
+  operator,
+}: {
+  labId: string;
+  items: BulkCreateItem[];
+  operator: OperatorContext;
+}): Promise<BulkCreateResult> {
+  const created: { codigo: string; id: string }[] = [];
+  const skipped: { codigo: string; reason: string }[] = [];
+
+  for (const { input } of items) {
+    try {
+      const dup = await existeCodigoDuplicado(labId, input.codigo);
+      if (dup) {
+        skipped.push({ codigo: input.codigo, reason: 'já existe' });
+        continue;
+      }
+      const id = await createDocumento({ labId, input, operator });
+      created.push({ codigo: input.codigo, id });
+    } catch (err) {
+      skipped.push({
+        codigo: input.codigo,
+        reason: err instanceof Error ? err.message : 'erro desconhecido',
+      });
+    }
+  }
+
+  return { created, skipped };
+}
+
 // ─── Audit query ─────────────────────────────────────────────────────────────
 
 export function subscribeAuditDocumento(
