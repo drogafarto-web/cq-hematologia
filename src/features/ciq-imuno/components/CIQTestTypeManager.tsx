@@ -371,6 +371,16 @@ export function CIQTestTypeManager({
   const [addError, setAddError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Fecha em ESC — modal sem isso prendia operadores que não sabiam ter que
+  // clicar no X ou no backdrop. Smoke test também travou aqui (2026-04-26).
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
   async function handleAdd() {
     const trimmed = newName.trim();
     if (!trimmed) return;
@@ -424,6 +434,7 @@ export function CIQTestTypeManager({
           <button
             type="button"
             onClick={onClose}
+            aria-label="Fechar"
             className="p-1.5 rounded-lg text-white/30 hover:text-white/70
                        hover:bg-white/[0.06] transition-all"
             title="Fechar"
