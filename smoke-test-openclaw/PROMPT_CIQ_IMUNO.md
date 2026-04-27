@@ -153,13 +153,20 @@ ESC desde 2026-04-26 (commit be6bf87).
 8. **Etapa 1**: clica `+ Cadastrar novo produto no catálogo` (botão tracejado no rodapé da lista de produtos)
 9. ProdutoFormModal abre. Preenche:
    - `input#fabricante` → `SMOKE_Wama`
-   - `input#nomeComercial` → `SMOKE_KitPCR_${Date.now()}`
+   - `input#nomeComercial` → `SMOKE_KitPCR_${Date.now()}` (guarda em $SMOKE_PRODUTO_NAME)
    - Tipo: select com opções "Reagente"/"Controle"/"Tira uroanálise" — escolhe `Reagente`
    - Módulo (chips/checkboxes): marca apenas `Imunologia`
    - Estabilidade default: input com placeholder `Ex: 30` → `30`
-   - Salva: `button:has-text("Salvar produto")` (ou `button[type="submit"]` no modal interno)
-10. Modal de produto fecha; ProdutoPicker auto-seleciona o produto criado
-11. Avança pra Etapa 2 (alguns fluxos auto-avançam após produto select)
+   - Salva: `button:has-text("Cadastrar produto")` (texto exato; ou `button[type="submit"]` no modal interno)
+10. ProdutoFormModal fecha. **NÃO HÁ AUTO-AVANÇO** — operador volta pra
+    ProdutoPicker (Etapa 1). Comportamento intencional do código.
+11. **Aguarda 500-1000ms** o snapshot real-time do Firestore atualizar a lista
+    `produtos`. O produto SMOKE recém-criado aparece como novo row.
+12. Localiza o row do produto SMOKE pelo nome comercial:
+    `page.locator('text=$SMOKE_PRODUTO_NAME').locator('..').locator('button:has-text("Selecionar")').click()`
+    OU mais robusto: `page.getByRole('button', { name: 'Selecionar →' }).first()`
+    dentro do scope do row identificado pelo nomeComercial
+13. Etapa 2 abre. Header do modal vira "2 Lote" (active). AGORA `input#loteNum` existe.
 12. **Etapa 2**: preenche
     - `input#loteNum` → `SMOKE-RG-${Date.now()}` (sem espaços, ASCII)
     - `input#validade` → hoje + 365 dias no formato `YYYY-MM-DD`
