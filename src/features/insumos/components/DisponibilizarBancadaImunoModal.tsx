@@ -131,9 +131,17 @@ export function DisponibilizarBancadaImunoModal({ insumo, onClose, onDone }: Pro
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white dark:bg-[#0F1318] border border-slate-200 dark:border-white/[0.08] rounded-2xl shadow-2xl">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="disponibilizar-bancada-title"
+        className="w-full max-w-md bg-white dark:bg-[#0F1318] border border-slate-200 dark:border-white/[0.08] rounded-2xl shadow-2xl"
+      >
         <div className="px-5 py-4 border-b border-slate-100 dark:border-white/[0.06]">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-white/90">
+          <h2
+            id="disponibilizar-bancada-title"
+            className="text-sm font-semibold text-slate-900 dark:text-white/90"
+          >
             Disponibilizar lote para corrida de validação
           </h2>
           <p className="text-[11px] text-slate-500 dark:text-white/45 mt-0.5">
@@ -154,6 +162,7 @@ export function DisponibilizarBancadaImunoModal({ insumo, onClose, onDone }: Pro
               </div>
             ) : (
               <select
+                aria-label="Tipo de teste"
                 className={SELECT}
                 value={testType}
                 onChange={(e) => setTestType(e.target.value)}
