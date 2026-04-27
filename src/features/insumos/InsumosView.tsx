@@ -25,7 +25,9 @@ import { NovoLoteModal } from './components/NovoLoteModal';
 import { FR10ExportModal } from './components/FR10ExportModal';
 import { CatalogoProdutosView } from './components/CatalogoProdutosView';
 import { InsumoQualificacaoModal } from './components/InsumoQualificacaoModal';
-import type { CIQImunoRun } from '../ciq-imuno/types/CIQImuno';
+import { DisponibilizarBancadaImunoModal } from './components/DisponibilizarBancadaImunoModal';
+import { useCIQLots } from '../ciq-imuno/hooks/useCIQLots';
+import type { CIQImunoLot, CIQImunoRun } from '../ciq-imuno/types/CIQImuno';
 import { FornecedoresView } from '../fornecedores/FornecedoresView';
 import { useFornecedores } from '../fornecedores/hooks/useFornecedores';
 import { useNotasFiscais } from '../fornecedores/hooks/useNotasFiscais';
@@ -365,7 +367,28 @@ function LotesTable({
   const { produtos } = useProdutos();
   // Modal de qualificação PR1 — substitui o aprovarLoteImuno legado
   const [qualifyInsumo, setQualifyInsumo] = useState<Insumo | null>(null);
+  // Modal de disponibilização para bancada imuno — fluxo "cadastrei reagente
+  // imuno, quero rodar a corrida de validação". Pin como Em Validação.
+  const [disponibilizarInsumo, setDisponibilizarInsumo] = useState<Insumo | null>(null);
   const setCurrentViewForQualify = useAppStore((s) => s.setCurrentView);
+
+  // Mapeia loteControle → CIQImunoLot envelope mais relevante (priorizando
+  // pinned). Permite ao InsumoRow decidir se mostra "Disponibilizar" ou badge
+  // "Vinculado". Custo: subscription única, partilhada com o módulo CIQ-Imuno
+  // via Firestore cache.
+  const { lots: ciqLots } = useCIQLots();
+  const ciqLotByLote = useMemo(() => {
+    const m = new Map<string, CIQImunoLot>();
+    for (const l of ciqLots) {
+      const cur = m.get(l.loteControle);
+      // Prioriza pinned (setupType non-null) sobre não-pinned. Se ambos pinned,
+      // mantém o primeiro encontrado (estável).
+      const isPinned = l.setupType === 'principal' || l.setupType === 'validacao_paralela';
+      const curPinned = cur && (cur.setupType === 'principal' || cur.setupType === 'validacao_paralela');
+      if (!cur || (isPinned && !curPinned)) m.set(l.loteControle, l);
+    }
+    return m;
+  }, [ciqLots]);
   const insumos = useMemo(() => {
     switch (statusFilter) {
       case 'em-rotina':
@@ -451,6 +474,11 @@ function LotesTable({
   function handleAprovarImuno(i: Insumo) {
     setActionError(null);
     setQualifyInsumo(i);
+  }
+
+  function handleDisponibilizarBancada(i: Insumo) {
+    setActionError(null);
+    setDisponibilizarInsumo(i);
   }
 
   return (
@@ -599,6 +627,7 @@ function LotesTable({
           insumos.map((i) => {
             const nota = i.notaFiscalId ? notaById.get(i.notaFiscalId) ?? null : null;
             const fornecedor = nota ? fornecedorById.get(nota.fornecedorId) ?? null : null;
+            const ciqLot = ciqLotByLote.get(i.lote) ?? null;
             return (
               <InsumoRow
                 key={i.id}
@@ -606,10 +635,12 @@ function LotesTable({
                 nota={nota}
                 fornecedor={fornecedor}
                 canMutate={canMutate}
+                ciqLot={ciqLot}
                 onOpen={handleOpen}
                 onClose={handleClose}
                 onDescartar={handleDescartar}
                 onAprovarImuno={handleAprovarImuno}
+                onDisponibilizarBancada={handleDisponibilizarBancada}
               />
             );
           })
@@ -647,6 +678,19 @@ function LotesTable({
           onDecided={() => setQualifyInsumo(null)}
         />
       )}
+
+      {disponibilizarInsumo && (
+        <DisponibilizarBancadaImunoModal
+          insumo={disponibilizarInsumo}
+          onClose={() => setDisponibilizarInsumo(null)}
+          onDone={() => {
+            setDisponibilizarInsumo(null);
+            // Navega pra bancada imuno pra mostrar o lote recém-vinculado.
+            // Operador então clica "+ Corrida" no card e roda a validação.
+            setCurrentViewForQualify('ciq-imuno');
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -658,10 +702,12 @@ function InsumoRow({
   nota,
   fornecedor,
   canMutate,
+  ciqLot,
   onOpen,
   onClose,
   onDescartar,
   onAprovarImuno,
+  onDisponibilizarBancada,
 }: {
   insumo: Insumo;
   /** Resolvido pelo caller via `useNotasFiscais()`. `null` quando o lote não
@@ -671,10 +717,18 @@ function InsumoRow({
    * foi removido. */
   fornecedor: Fornecedor | null;
   canMutate: boolean;
+  /**
+   * CIQImunoLot envelope mais relevante (priorizando pinned) para este lote
+   * físico — match por `loteControle === insumo.lote`. `null` quando não há
+   * envelope (ex: lote recém-cadastrado, ainda sem corrida).
+   */
+  ciqLot: CIQImunoLot | null;
   onOpen: (i: Insumo) => void;
   onClose: (i: Insumo) => void;
   onDescartar: (i: Insumo) => void;
   onAprovarImuno: (i: Insumo) => void;
+  /** Abre modal pra criar envelope CIQImunoLot + pin como Em Validação. */
+  onDisponibilizarBancada: (i: Insumo) => void;
 }) {
   const state = resolveInsumoState(insumo);
   const v = validadeChip(insumo.validadeReal);
@@ -691,6 +745,18 @@ function InsumoRow({
     (insumo.modulos?.includes('imunologia') || insumo.modulo === 'imunologia');
   const isTiraUro = insumo.tipo === 'tira-uro';
   const qcStatus = insumo.qcStatus;
+  // Vinculação à Bancada (envelope CIQImunoLot pinned). Apenas reagentes imuno
+  // são alvo do botão "Disponibilizar" — controles entram automaticamente
+  // como slot do kit no ManualKitPicker quando o reagente roda. Tira-uro fica
+  // de fora (PR2). status='descartado'/'segregado' não devem oferecer pin.
+  const isReagenteImuno = insumo.tipo === 'reagente' && (insumo.modulos?.includes('imunologia') || insumo.modulo === 'imunologia');
+  const ciqIsPinned = ciqLot?.setupType === 'principal' || ciqLot?.setupType === 'validacao_paralela';
+  const canDisponibilizar =
+    isReagenteImuno &&
+    !ciqIsPinned &&
+    insumo.status !== 'descartado' &&
+    insumo.status !== 'segregado' &&
+    qcStatus !== 'reprovado';
 
   return (
     <div className="grid grid-cols-[1fr,140px,120px,180px,160px] gap-4 items-center px-5 py-3 border-b border-slate-100 dark:border-white/[0.04] hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-all">
@@ -739,6 +805,22 @@ function InsumoRow({
               Operacional (legado · PR2)
             </span>
           )}
+          {ciqLot?.setupType === 'validacao_paralela' && (
+            <span
+              className={`${CHIP} bg-blue-500/10 border-blue-500/30 text-blue-700 dark:text-blue-300`}
+              title={`Vinculado à Bancada como Em Validação (testType ${ciqLot.testType}). Corridas registradas viram evidência analítica.`}
+            >
+              Em validação · bancada
+            </span>
+          )}
+          {ciqLot?.setupType === 'principal' && (
+            <span
+              className={`${CHIP} bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300`}
+              title={`Setup oficial em rotina (testType ${ciqLot.testType}).`}
+            >
+              Setup oficial · bancada
+            </span>
+          )}
         </div>
         <div className="text-xs text-slate-500 dark:text-white/45 mt-0.5 truncate">
           {insumo.fabricante} · Lote {insumo.lote} · {insumo.modulo}
@@ -785,6 +867,16 @@ function InsumoRow({
       <span className={`${CHIP} ${v.bg} justify-self-start`}>{v.label}</span>
 
       <div className="flex items-center justify-end gap-1">
+        {canMutate && canDisponibilizar && (
+          <button
+            type="button"
+            onClick={() => onDisponibilizarBancada(insumo)}
+            className={`${BUTTON_GHOST} text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300`}
+            title="Vincula este lote à Bancada de Imunoensaios como Em Validação. Permite registrar corridas que servem como evidência analítica para qualificação formal."
+          >
+            Disponibilizar p/ corrida
+          </button>
+        )}
         {canMutate && isImunoQualifiable && qcStatus !== 'aprovado' && qcStatus !== 'reprovado' && insumo.status === 'ativo' && (
           <button
             type="button"

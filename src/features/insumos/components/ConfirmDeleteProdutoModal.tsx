@@ -122,7 +122,12 @@ export function ConfirmDeleteProdutoModal({
                 <input
                   type="checkbox"
                   checked={confirmChecked}
-                  onChange={(e) => setConfirmChecked(e.target.checked)}
+                  onChange={(e) => {
+                    setConfirmChecked(e.target.checked);
+                    // Limpa erro stale ao reinteragir — sem isso "Sem permissão"
+                    // persiste mesmo quando o operador volta atrás e tenta de novo.
+                    if (error) setError(null);
+                  }}
                   className="mt-0.5 w-4 h-4 rounded border-slate-300 dark:border-white/20 text-red-600 focus:ring-red-500"
                 />
                 <span className="text-xs text-slate-700 dark:text-white/70 leading-relaxed">
