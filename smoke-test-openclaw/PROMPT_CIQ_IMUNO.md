@@ -16,6 +16,29 @@ OUTPUT_DIR             = ./smoke-ciq-imuno-$(date +%Y%m%d-%H%M)
 
 Você é QA senior. Faz login em `$BASE_URL` (preenche E-mail/Senha, clica "Entrar", seleciona `$TEST_LAB_NAME` se aparecer LabSelector) e executa os 12 fluxos abaixo. Playwright com Chromium. Timeout 60s por ação (Firestore/callables podem demorar em cold start).
 
+**Pattern global — fechar modal antes de cada navegação por sidebar:**
+
+Modais HC Quality usam backdrop `fixed inset-0 ... bg-black/60` que intercepta
+clicks no que está atrás. Antes de QUALQUER click em sidebar/topbar, executa:
+
+```js
+async function closeAnyOpenModal(page) {
+  // Tenta ESC primeiro (CIQTestTypeManager + qualificacao + delete escutam)
+  await page.keyboard.press('Escape').catch(() => {});
+  await page.waitForTimeout(200);
+  // Fallback: clica em aria-label="Fechar" se ainda houver modal
+  const closeBtn = page.locator('[aria-label="Fechar"]').first();
+  if (await closeBtn.isVisible().catch(() => false)) {
+    await closeBtn.click().catch(() => {});
+    await page.waitForTimeout(200);
+  }
+  // Último recurso: clica fora do conteúdo do modal (no backdrop)
+  // Modais aceitam click no parent (e.target === e.currentTarget)
+}
+```
+
+Chame `await closeAnyOpenModal(page)` ANTES de cada `page.click(sidebar...)`.
+
 **Políticas não-negociáveis**:
 - Zero DELETE em dados que não tenham prefix `SMOKE_`
 - Cria apenas dados com prefix `SMOKE_` ou suffix `_SMOKE_${Date.now()}`
@@ -90,32 +113,68 @@ botão "Gerenciar" da CIQImunoForm. Não tente criar pela sidebar.
 
 Cadastra 1 reagente + 1 controle positivo + 1 controle negativo do mesmo "kit" SMOKE pra alimentar os fluxos seguintes.
 
+**Importante: feche TODOS os modais antes de cada navegação por sidebar.**
+Modais em HC Quality usam `bg-black/60 backdrop-blur-sm` e interceptam clicks.
+Use `keyboard.press('Escape')` ou click no botão `aria-label="Fechar"` antes
+de cada `page.goto`/click no sidebar. CIQTestTypeManager passou a fechar em
+ESC desde 2026-04-26 (commit be6bf87).
+
+**Seletores verificados (lidos do código):**
+
+| Elemento | Selector primário | Fallback (texto) |
+|---|---|---|
+| Botão "+ Novo lote" | `button:has-text("+ Novo lote")` | regex /\+ Novo lote/ |
+| "+ Cadastrar novo produto" (etapa 1) | `button:has-text("+ Cadastrar novo produto")` | regex /Cadastrar novo produto/ |
+| Input fabricante (produto) | `input#fabricante` | `[placeholder*="Bio-Rad"]` |
+| Input nome comercial (produto) | `input#nomeComercial` | `[placeholder*="ABX Diluent"]` |
+| Input registro ANVISA | `input#registroAnvisa` | `[placeholder*="10009010123"]` |
+| Input função técnica | `input#funcaoTecnica` | — |
+| Submit do produto | `button:has-text("Salvar produto")` ou `button[type="submit"]` no modal | — |
+| Input número do lote (etapa 2) | `input#loteNum` | `[placeholder="ex: 2841A24"]` |
+| Input validade | `input#validade` (type=date) | `[aria-label="Validade do fabricante"]` |
+| Checkbox "já foi aberto" | `input#alreadyOpen` | `[aria-label*="já está em uso"]` |
+| Input dataAbertura | `input#dataAbertura` (type=date) | `[aria-label="Data de abertura"]` |
+| Input dias estabilidade | `input#diasEstab` (type=number) | `[aria-label="Dias de estabilidade pós-abertura"]` |
+| Submit do lote | `button:has-text("Cadastrar lote")` | `button[type="submit"]` |
+| Voltar (etapa 1) | `button:has-text("← Voltar")` | — |
+
 **Steps**:
 
-1. Volta pra menu CIQ-Imuno → "Insumos e Catálogo" (sidebar). Aba "Todos os lotes" → tab "Reagentes"
-2. Screenshot: `f-im-02-lotes-list-before.png`
-3. Clica "+ Novo lote"
-4. **Etapa 1 (escolher produto)**: clica "+ Cadastrar novo produto" (ou similar)
-   - Tipo: `reagente`
-   - Módulo: `imunologia`
-   - Fabricante: `SMOKE_Wama`
-   - Nome Comercial: `SMOKE_KitPCR_${Date.now()}`
-   - Estabilidade pós-abertura: `30`
-   - Salva produto
-5. **Etapa 2 (dados do lote)**:
-   - Lote: `SMOKE-RG-${Date.now()}`
-   - Validade: hoje + 365 dias (ISO `YYYY-MM-DD`)
-   - "Já foi aberto?" → marca SIM, dataAbertura = hoje
-   - Estabilidade: `30`
-   - Salva
-6. Screenshot: `f-im-02-reagente-criado.png`
-7. **Repete pra controle positivo**:
-   - Tipo: `controle`, módulo: `imunologia`, nível: `positivo`
-   - Fabricante: `SMOKE_Wama`, Nome: `SMOKE_CtrlPos_${Date.now()}`
-   - Lote: `SMOKE-CP-${Date.now()}`, validade hoje+365, dataAbertura = hoje
-8. **Repete pra controle negativo**:
-   - Mesmo, mas nível: `negativo`, Nome: `SMOKE_CtrlNeg_${Date.now()}`, Lote: `SMOKE-CN-${Date.now()}`
-9. Screenshot: `f-im-02-3-lotes-criados.png`
+1. Garante que CIQTestTypeManager + qualquer modal de F-IM-01 foi fechado:
+   `await page.keyboard.press('Escape')` (loop 2x se necessário)
+2. Sidebar → "Insumos e Catálogo" (link com texto exato `Insumos e Catálogo`)
+3. Aba topo "Todos os lotes" (texto `Todos os lotes`) — clica
+4. Filter chip por tipo: clica em `Reagentes` (lista das chips abaixo da busca)
+5. Screenshot: `f-im-02-lotes-list-before.png`
+6. Clica `+ Novo lote` (botão violeta no topo direito)
+7. NovoLoteModal abre (header `Novo lote de insumo`). Screenshot: `f-im-02-modal.png`
+8. **Etapa 1**: clica `+ Cadastrar novo produto no catálogo` (botão tracejado no rodapé da lista de produtos)
+9. ProdutoFormModal abre. Preenche:
+   - `input#fabricante` → `SMOKE_Wama`
+   - `input#nomeComercial` → `SMOKE_KitPCR_${Date.now()}`
+   - Tipo: select com opções "Reagente"/"Controle"/"Tira uroanálise" — escolhe `Reagente`
+   - Módulo (chips/checkboxes): marca apenas `Imunologia`
+   - Estabilidade default: input com placeholder `Ex: 30` → `30`
+   - Salva: `button:has-text("Salvar produto")` (ou `button[type="submit"]` no modal interno)
+10. Modal de produto fecha; ProdutoPicker auto-seleciona o produto criado
+11. Avança pra Etapa 2 (alguns fluxos auto-avançam após produto select)
+12. **Etapa 2**: preenche
+    - `input#loteNum` → `SMOKE-RG-${Date.now()}` (sem espaços, ASCII)
+    - `input#validade` → hoje + 365 dias no formato `YYYY-MM-DD`
+    - Marca `input#alreadyOpen` (checkbox)
+    - `input#dataAbertura` → hoje no formato `YYYY-MM-DD`
+    - `input#diasEstab` → `30` (limpa antes; é tipo number, default pode ser 0)
+13. Submit: `button:has-text("Cadastrar lote")`
+14. Screenshot: `f-im-02-reagente-criado.png`
+15. **Repete pra controle positivo**:
+    - "+ Novo lote" → "+ Cadastrar novo produto"
+    - Tipo: `Controle`
+    - Módulo: `Imunologia`
+    - Aparece campo "Nível"/"Polaridade" (`label[for="nivel"]`) — escolhe `Positivo`
+    - Fabricante `SMOKE_Wama`, Nome `SMOKE_CtrlPos_${Date.now()}`
+    - Salva produto → etapa 2 → Lote `SMOKE-CP-${Date.now()}`, validade hoje+365, marca alreadyOpen, data hoje, estab 30 → Cadastrar lote
+16. **Repete pra controle negativo**: mesmo mas Nível `Negativo`, Nome `SMOKE_CtrlNeg_${Date.now()}`, Lote `SMOKE-CN-${Date.now()}`
+17. Screenshot: `f-im-02-3-lotes-criados.png`
 
 **Assertions**:
 - [ ] 3 lotes SMOKE_ aparecem na lista
