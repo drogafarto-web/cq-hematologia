@@ -129,7 +129,9 @@ ESC desde 2026-04-26 (commit be6bf87).
 | Input nome comercial (produto) | `input#nomeComercial` | `[placeholder*="ABX Diluent"]` |
 | Input registro ANVISA | `input#registroAnvisa` | `[placeholder*="10009010123"]` |
 | Input função técnica | `input#funcaoTecnica` | — |
-| Submit do produto | `button:has-text("Salvar produto")` ou `button[type="submit"]` no modal | — |
+| Submit do produto (criar) | `button:has-text("Cadastrar produto")` ou `button[type="submit"]` (único submit no modal) | regex /Cadastrar produto/ |
+| Submit do produto (editar) | `button:has-text("Salvar alterações")` | — |
+| Cancelar do produto | `button[type="button"]:has-text("Cancelar")` (no modal de produto) | — |
 | Input número do lote (etapa 2) | `input#loteNum` | `[placeholder="ex: 2841A24"]` |
 | Input validade | `input#validade` (type=date) | `[aria-label="Validade do fabricante"]` |
 | Checkbox "já foi aberto" | `input#alreadyOpen` | `[aria-label*="já está em uso"]` |
