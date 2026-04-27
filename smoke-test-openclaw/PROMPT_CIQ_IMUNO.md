@@ -162,10 +162,21 @@ ESC desde 2026-04-26 (commit be6bf87).
     ProdutoPicker (Etapa 1). Comportamento intencional do código.
 11. **Aguarda 500-1000ms** o snapshot real-time do Firestore atualizar a lista
     `produtos`. O produto SMOKE recém-criado aparece como novo row.
-12. Localiza o row do produto SMOKE pelo nome comercial:
-    `page.locator('text=$SMOKE_PRODUTO_NAME').locator('..').locator('button:has-text("Selecionar")').click()`
-    OU mais robusto: `page.getByRole('button', { name: 'Selecionar →' }).first()`
-    dentro do scope do row identificado pelo nomeComercial
+12. **CRÍTICO — JSX real (linhas 434-475)**: cada row do ProdutoPicker é um
+    `<li><button>...<p>{nomeComercial}</p>...<span>Selecionar →</span>...</button></li>`.
+    "Selecionar →" é SPAN, não button. Toda row tem esse span — selector
+    `button:has-text("Selecionar")` mata-rows múltiplas e `.first()` pega o
+    PRIMEIRO produto da lista, não o SMOKE. Filtra pelo nome ANTES:
+
+    ```js
+    // Robusto:
+    await page.getByRole('button', { name: new RegExp(SMOKE_PRODUTOS.reagente) }).click();
+    // Ou:
+    await page.locator('li').filter({ hasText: SMOKE_PRODUTOS.reagente })
+              .locator('button').click();
+    // Ou ainda mais simples (Playwright auto-bubbla ao button):
+    await page.getByText(SMOKE_PRODUTOS.reagente, { exact: true }).click();
+    ```
 13. Etapa 2 abre. Header do modal vira "2 Lote" (active). AGORA `input#loteNum` existe.
 12. **Etapa 2**: preenche
     - `input#loteNum` → `SMOKE-RG-${Date.now()}` (sem espaços, ASCII)
