@@ -520,8 +520,8 @@ function LoteForm({
   // e o lote só vira utilizável após `openInsumo` — regra regulatória (RDC 786).
   const [alreadyOpen, setAlreadyOpen] = useState(false);
   const [dataAbertura, setDataAbertura] = useState(todayIso);
-  const [diasEstab, setDiasEstab] = useState<number>(
-    produto.diasEstabilidadeAberturaDefault ?? 0,
+  const [diasEstab, setDiasEstab] = useState<number | ''>(
+    produto.diasEstabilidadeAberturaDefault ?? '',
   );
   const [nivel, setNivel] = useState<InsumoNivel | ''>(produto.nivelDefault ?? '');
   const [submitting, setSubmitting] = useState(false);
@@ -550,7 +550,8 @@ function LoteForm({
     // Quando a base de lotes começar a ter massa crítica e o módulo de
     // qualificação de fornecedores for ativado, tornar obrigatório em tira-uro
     // (RDC 786/2023 art. 42). Por ora só exibimos "recomendado" no label.
-    if (diasEstab < 0 || diasEstab > 365) {
+    const diasNum = Number(diasEstab) || 0;
+    if (diasNum < 0 || diasNum > 365) {
       e.diasEstab = 'Estabilidade deve ficar entre 0 e 365 dias.';
     }
     setErrors(e);
@@ -597,7 +598,7 @@ function LoteForm({
             lote: lote.trim(),
             validade: validadeTs,
             dataAbertura: aberturaTs,
-            diasEstabilidadeAbertura: diasEstab,
+            diasEstabilidadeAbertura: Number(diasEstab) || 0,
             ...(produto.registroAnvisa && { registroAnvisa: produto.registroAnvisa }),
             ...(equipamentoId && { equipamentosPermitidos: [equipamentoId] }),
             ...(notaFiscalId && { notaFiscalId }),
@@ -614,7 +615,7 @@ function LoteForm({
             lote: lote.trim(),
             validade: validadeTs,
             dataAbertura: aberturaTs,
-            diasEstabilidadeAbertura: diasEstab,
+            diasEstabilidadeAbertura: Number(diasEstab) || 0,
             analitosIncluidos: [], // pode ser enriquecido depois
             ...(produto.registroAnvisa && { registroAnvisa: produto.registroAnvisa }),
             ...(equipamentoId && { equipamentoId }),
@@ -632,7 +633,7 @@ function LoteForm({
             lote: lote.trim(),
             validade: validadeTs,
             dataAbertura: aberturaTs,
-            diasEstabilidadeAbertura: diasEstab,
+            diasEstabilidadeAbertura: Number(diasEstab) || 0,
             ...(produto.registroAnvisa && { registroAnvisa: produto.registroAnvisa }),
             ...(equipamentoId && { equipamentoId }),
             ...(notaFiscalId && { notaFiscalId }),
@@ -796,7 +797,15 @@ function LoteForm({
             max={365}
             className={INPUT_CLS}
             value={diasEstab}
-            onChange={(e) => setDiasEstab(Math.max(0, Math.min(365, Number(e.target.value) || 0)))}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === '') {
+                setDiasEstab('');
+              } else {
+                const n = Number(v);
+                if (!isNaN(n)) setDiasEstab(Math.max(0, Math.min(365, n)));
+              }
+            }}
           />
           <p className="text-xs text-slate-400 dark:text-white/25 mt-1">
             Default do produto: {produto.diasEstabilidadeAberturaDefault ?? 0} dias
