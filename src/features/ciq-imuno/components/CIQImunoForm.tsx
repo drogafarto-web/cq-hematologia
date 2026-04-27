@@ -436,7 +436,10 @@ export function CIQImunoForm({
   // Fase 2 — quando o form é aberto a partir de um lote vinculado, os campos
   // identificadores (tipo + lote + datas) ficam bloqueados. O operador só
   // edita resultado, reagente, controles e equipamento.
-  const lockedFromLot = !!prefillFromLot;
+  // Operador pode liberar manualmente via "Trocar lote" no banner — útil
+  // quando clicou no card errado e não quer cancelar pra reabrir.
+  const [unlockedByOperator, setUnlockedByOperator] = useState(false);
+  const lockedFromLot = !!prefillFromLot && !unlockedByOperator;
   const [errors, setErrors] = useState<Record<string, string>>({});
   // Em modo manual o "obtido" é capturado por controle (P/N), separado do
   // estado do schema que guarda os dois pares já mapeados (positivo no campo
@@ -756,7 +759,7 @@ export function CIQImunoForm({
               />
             </svg>
           </span>
-          <div className="text-xs leading-relaxed">
+          <div className="text-xs leading-relaxed flex-1">
             <p className="font-semibold">
               Corrida vinculada · {prefillFromLot.testType} · Lote {prefillFromLot.loteControle}
             </p>
@@ -766,6 +769,16 @@ export function CIQImunoForm({
                 : 'Lote em validação paralela. Corrida será classificada como validação.'}
             </p>
           </div>
+          {!unlockedByOperator && (
+            <button
+              type="button"
+              onClick={() => setUnlockedByOperator(true)}
+              className="shrink-0 underline text-[11px] font-medium opacity-80 hover:opacity-100"
+              title="Libera tipo, lote e datas para edição manual"
+            >
+              Trocar lote
+            </button>
+          )}
         </div>
       )}
 

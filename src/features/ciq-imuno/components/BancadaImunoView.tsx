@@ -172,8 +172,11 @@ export function BancadaImunoView({ onGoToLotes }: { onGoToLotes: () => void }) {
 
   function openFormBlank() {
     setFormError(null);
-    // Se há exatamente 1 setup vinculado, pré-preencher; senão, abrir em branco
-    setFormPrefill(pinnedLots.length === 1 ? pinnedLots[0] : null);
+    // Sempre abre em branco — auto-prefill com o único lote pinned bloqueia
+    // o operador quando ele quer registrar corrida em um lote ainda NÃO
+    // vinculado (ex: validação inicial de novo lote). O botão "+ Corrida" no
+    // row continua prefillando explicitamente via openFormForLot.
+    setFormPrefill(null);
     setShowForm(true);
   }
 
