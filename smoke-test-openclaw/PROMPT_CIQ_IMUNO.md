@@ -51,24 +51,38 @@ Você é QA senior. Faz login em `$BASE_URL` (preenche E-mail/Senha, clica "Entr
 
 ## F-IM-01 — Tipos de Teste: criar SMOKE testType manual
 
+**Importante**: a sidebar "Tipos de Teste" é apenas um placeholder/stub que aponta
+pra Configurações; o CRUD **real** só está dentro de um modal aberto via
+botão "Gerenciar" da CIQImunoForm. Não tente criar pela sidebar.
+
 **Steps**:
 
-1. CIQ-Imuno → procura sidebar "Tipos de Teste" (em CONFIGURAÇÃO). Clica.
-2. Screenshot: `f-im-01-test-types-list.png`
-3. Captura nomes existentes (ex: Dengue NS1, HIV, etc) — guarda lista pra cleanup mental
-4. Clica "+ Adicionar tipo de teste" / "+ Novo tipo"
-5. Preenche `SMOKE_PCR_${Date.now()}` (ex: `SMOKE_PCR_1714000000000`)
-6. Marca a flag "Manual" (kit lido a olho — sem analisador)
-7. Salva
-8. Screenshot: `f-im-01-test-type-criado.png`
-9. Confirma que aparece na lista com badge "manual"
-10. **Guarda esse nome em `$SMOKE_TEST_TYPE_NAME`** — usa em todos os fluxos seguintes
+1. CIQ-Imuno → sidebar "Bancada (Corridas)"
+2. Header → clica **"+ Registrar Corrida"** (botão preto)
+3. Form abre. Localiza seção "TIPO DE TESTE" (header em uppercase). Ao lado
+   direito do título tem um botão pequeno **"Gerenciar"** (texto exato, com
+   ícone de engrenagem). Clica.
+4. Modal `CIQTestTypeManager` abre (fundo escuro, lista de tipos existentes).
+   Screenshot: `f-im-01-manager-aberto.png`
+5. Captura nomes existentes (ex: Dengue NS1)
+6. Rola até seção rodapé **"Adicionar novo"**
+7. Input com placeholder exato `Nome do teste… ex: Chagas` — preenche
+   `SMOKE_PCR_${Date.now()}` (ex: `SMOKE_PCR_1714000000000`)
+8. Logo abaixo do input, radiogroup com `aria-label="Tipo de execução do teste"`
+   tem 2 botões role=radio. Clica no segundo botão (texto "Manual") pra
+   aria-checked=true
+9. Clica o botão verde quadrado à direita do input (PlusIcon, sem texto,
+   classe `bg-emerald-500`, é o único botão verde no rodapé)
+10. Screenshot: `f-im-01-test-type-criado.png`
+11. Confirma que `SMOKE_PCR_*` aparece na lista acima com badge/ícone "manual"
+12. Fecha modal (ícone X no canto superior do modal)
+13. **Guarda nome em `$SMOKE_TEST_TYPE_NAME`** — usa em todos os fluxos seguintes
 
 **Assertions**:
-- [ ] Toast/feedback de sucesso aparece
-- [ ] testType aparece na lista
+- [ ] Toast/feedback de sucesso ou aparição imediata na lista
+- [ ] testType aparece com flag "manual"
 - [ ] Network: write em `/labs/{labId}/ciq-imuno-config/testTypes` deu 200
-- [ ] Flag "manual" persistida (ícone/badge visível na linha)
+- [ ] Modal fecha sem erro
 
 ---
 
