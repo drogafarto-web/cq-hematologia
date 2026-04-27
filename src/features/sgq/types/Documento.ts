@@ -5,10 +5,18 @@
  * Hierarquia documental do laboratório:
  *
  *   MQ  — Manual da Qualidade            (1 documento, raiz da pirâmide)
- *   PQ  — Procedimento da Qualidade      (políticas/processos cross-cutting)
- *   IT  — Instrução de Trabalho          (procedimento operacional / POP)
+ *   PQ  — Procedimento da Qualidade      (políticas/processos cross-cutting;
+ *                                         substitui o termo antigo "POP" da
+ *                                         nomenclatura pré-DICQ 8)
+ *   IT  — Instrução de Trabalho          (procedimento técnico de bancada;
+ *                                         documento ATUAL — não é alias antigo
+ *                                         de POP — descreve "como executar"
+ *                                         um teste analítico no posto)
  *   FR  — Formulário/Registro            (template a preencher)
  *   POL — Política                       (declaração de princípio)
+ *   DC  — Descrição de Cargos            (DICQ 4.5 — perfis de função)
+ *   LM  — Lista Mestra                   (meta-doc: catálogo de docs)
+ *   EXT — Documento Externo              (RDC ANVISA, ABNT, bulas, FISPQs)
  *
  * Cada documento tem ciclo de vida obrigatório:
  *
@@ -31,10 +39,13 @@ import type { Timestamp } from 'firebase/firestore';
 
 export type TipoDocumento =
   | 'MQ'   // Manual da Qualidade
-  | 'PQ'   // Procedimento da Qualidade
-  | 'IT'   // Instrução de Trabalho (POP)
+  | 'PQ'   // Procedimento da Qualidade (substituiu o termo antigo "POP")
+  | 'IT'   // Instrução de Trabalho (procedimento técnico de bancada/setor)
   | 'FR'   // Formulário / Registro
-  | 'POL'; // Política
+  | 'POL'  // Política
+  | 'DC'   // Descrição de Cargos (DICQ 4.5 — cargos definidos)
+  | 'LM'   // Lista Mestra (meta-documento — LM-01, LM-02, LM-03)
+  | 'EXT'; // Documento Externo (RDC ANVISA, ABNT NBR, bulas, FISPQs)
 
 export type StatusDocumento =
   | 'em_revisao'  // Em rascunho — não é evidência ainda
@@ -47,6 +58,9 @@ export const TIPO_LABEL: Record<TipoDocumento, string> = {
   IT: 'Instrução de Trabalho',
   FR: 'Formulário / Registro',
   POL: 'Política',
+  DC: 'Descrição de Cargos',
+  LM: 'Lista Mestra',
+  EXT: 'Documento Externo',
 };
 
 export const STATUS_LABEL: Record<StatusDocumento, string> = {
@@ -124,6 +138,17 @@ export interface Documento {
   substitui?: string;
 
   observacoes?: string;
+
+  /**
+   * Setores/locais onde este documento é distribuído (lista controlada por
+   * lab — Labclin opera 17 setores entre matriz + 2 postos). Auditor DICQ
+   * verifica que o doc vigente está fisicamente disponível em cada local
+   * que o utiliza. Vazio/ausente = sem controle de distribuição (default).
+   *
+   * Texto livre por enquanto (MVP do importer); v2 referência uma coleção
+   * `/labs/{labId}/sgq-setores/{id}` quando o módulo de setores nascer.
+   */
+  listaDistribuicao?: string[];
 
   // ── Auditoria básica ──────────────────────────────────────────────────────
 

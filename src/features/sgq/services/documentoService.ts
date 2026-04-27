@@ -64,6 +64,7 @@ interface DocumentoSnapshot {
   substituidoPor?: string;
   substitui?: string;
   observacoes?: string;
+  listaDistribuicao?: string[];
   criadoEm: Timestamp;
   criadoPor: string;
   criadoPorName: string;
