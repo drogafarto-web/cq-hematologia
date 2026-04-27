@@ -126,7 +126,7 @@ interface FormState {
   lote?: string;
   validade?: string;
   dataAbertura?: string;
-  diasEstabilidadeAbertura?: number;
+  diasEstabilidadeAbertura?: number | '';
   registroAnvisa?: string;
   notaFiscal?: string;
   fornecedor?: string;
@@ -144,7 +144,7 @@ export function InsumoFormModal({
   const [form, setForm] = useState<FormState>(() => ({
     tipo: initialTipo,
     modulo: initialTipo === 'tira-uro' ? 'uroanalise' : undefined,
-    diasEstabilidadeAbertura: 0,
+    diasEstabilidadeAbertura: '',
   }));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -479,10 +479,11 @@ export function InsumoFormModal({
                 type="number"
                 min={0}
                 className={INPUT_CLS}
-                value={form.diasEstabilidadeAbertura ?? 0}
-                onChange={(e) =>
-                  set('diasEstabilidadeAbertura', Number(e.target.value) || 0)
-                }
+                value={form.diasEstabilidadeAbertura}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  set('diasEstabilidadeAbertura', v === '' ? '' : Number(v));
+                }}
               />
             </Field>
           </div>
