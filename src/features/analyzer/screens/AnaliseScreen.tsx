@@ -6,6 +6,7 @@ import type { ControlLot, Analyte } from '../../../types';
 import type { UseChartDataReturn } from '../../chart/hooks/useChartData';
 import { WARNING_ONLY_WESTGARD_RULES } from '../../../constants';
 import { DownloadIcon, PlusIcon } from '../components/icons';
+import { selectCurrentBulaLots } from '../../lots/utils/currentBula';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -41,14 +42,12 @@ function LevelPills({
   activeLot: ControlLot | null;
   onSelect: (id: string) => void;
 }) {
-  // Filtra por mês do lote ativo — sem isso aparecem múltiplos NV1 (um por bula).
-  const monthKey = activeLot
-    ? `${activeLot.startDate.getFullYear()}-${activeLot.startDate.getMonth()}`
-    : null;
-  const samePeriod = monthKey
-    ? lots.filter((l) => `${l.startDate.getFullYear()}-${l.startDate.getMonth()}` === monthKey)
-    : lots;
-  const sorted = [...samePeriod].sort((a, b) => (a.level ?? 0) - (b.level ?? 0));
+  // Mostra só os lotes da bula corrente (regra única em selectCurrentBulaLots:
+  // exclui archivedAt, manualHidden, vencidos; dedupa por bulaKey). Sem isso, lotes
+  // arquivados de bulas anteriores aparecem como pills duplicadas (NV1, NV1...).
+  const sorted = [...selectCurrentBulaLots(lots)].sort(
+    (a, b) => (a.level ?? 0) - (b.level ?? 0),
+  );
 
   if (sorted.length < 2) return null;
 
