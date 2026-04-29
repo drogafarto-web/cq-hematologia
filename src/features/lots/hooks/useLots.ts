@@ -236,19 +236,38 @@ export function useLots() {
     [lots, activeLotId, selectedAnalyteId, setLots, setActiveLotId, withSync],
   );
 
-  /** Sets the active lot and persists the selection. */
+  /**
+   * Sets the active lot and persists the selection.
+   *
+   * Auto-rebind do analito: bulas Controllab variam analitos por nível (ex:
+   * Yumizen H550 NV1 não fornece MCH/PCT — DP não aplicável). Sem rebind,
+   * trocar de NV2 (com MCH selecionado) pra NV1 deixa `validAnalyteId` null
+   * e o gráfico fica vazio sem feedback ao operador.
+   */
   const selectLot = useCallback(
     async (id: string | null): Promise<void> => {
-      const prev = activeLotId;
+      const prevLot = activeLotId;
+      const prevAnalyte = selectedAnalyteId;
+
+      const target = id ? (lots.find((l) => l.id === id) ?? null) : null;
+      const nextAnalyte =
+        target && selectedAnalyteId && !target.requiredAnalytes.includes(selectedAnalyteId)
+          ? (target.requiredAnalytes[0] ?? null)
+          : selectedAnalyteId;
+
       setActiveLotId(id);
+      if (nextAnalyte !== prevAnalyte) setSelectedAnalyteId(nextAnalyte);
       try {
-        await withSync((db) => db.saveAppState({ activeLotId: id, selectedAnalyteId }));
+        await withSync((db) =>
+          db.saveAppState({ activeLotId: id, selectedAnalyteId: nextAnalyte }),
+        );
       } catch (err) {
-        setActiveLotId(prev);
+        setActiveLotId(prevLot);
+        if (nextAnalyte !== prevAnalyte) setSelectedAnalyteId(prevAnalyte);
         throw err;
       }
     },
-    [activeLotId, selectedAnalyteId, setActiveLotId, withSync],
+    [activeLotId, selectedAnalyteId, lots, setActiveLotId, setSelectedAnalyteId, withSync],
   );
 
   /** Sets the selected analyte for the chart and persists. */
