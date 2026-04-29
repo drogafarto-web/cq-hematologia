@@ -160,7 +160,13 @@ function deserializeInsumoToControlLot(
     expiryDate: expiryDateTs.toDate(),
     createdAt: createdAtTs.toDate(),
     runs,
-    ...(raw.manualHidden !== undefined && { manualHidden: raw.manualHidden as boolean }),
+    ...(typeof raw.manualHidden === 'boolean' && { manualHidden: raw.manualHidden }),
+    // Flags operacionais — sem isso o dual-source merge sobrescreve o estado
+    // de /lots (onde elas vivem) com o /insumos (onde elas sumiriam).
+    ...(typeof raw.bulaPendente === 'boolean' && { bulaPendente: raw.bulaPendente }),
+    ...(raw.archivedAt instanceof Timestamp && {
+      archivedAt: raw.archivedAt.toDate(),
+    }),
   };
 }
 
