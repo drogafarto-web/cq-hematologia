@@ -1,9 +1,26 @@
 import { defineConfig } from 'vitest/config';
+import { loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
+import { readFileSync } from 'fs';
 
-export default defineConfig({
+const pkg = JSON.parse(readFileSync('./package.json', 'utf-8')) as { version: string };
+
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  const sentryAuthToken = env.SENTRY_AUTH_TOKEN;
+
+  return {
+  define: {
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(pkg.version),
+  },
+  build: {
+    // Sourcemaps são uploadados pro Sentry e removidos do bundle servido,
+    // mas precisam existir no build pra plugin processar.
+    sourcemap: true,
+  },
   plugins: [
     tailwindcss(),
     react(),
@@ -81,6 +98,20 @@ export default defineConfig({
         enabled: false,
       },
     }),
+    // Upload de source maps + criação de release versionada no Sentry.
+    // Sem auth token (CI sem secret, dev local) o plugin é no-op.
+    ...(sentryAuthToken
+      ? [
+          sentryVitePlugin({
+            org: 'labclin',
+            project: 'javascript-react',
+            authToken: sentryAuthToken,
+            release: { name: `hc-quality@${pkg.version}` },
+            sourcemaps: { filesToDeleteAfterUpload: ['./dist/**/*.map'] },
+            telemetry: false,
+          }),
+        ]
+      : []),
   ],
   server: {
     port: 3000,
@@ -106,4 +137,5 @@ export default defineConfig({
       },
     },
   },
+  };
 });

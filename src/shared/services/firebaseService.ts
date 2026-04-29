@@ -7,6 +7,8 @@ import {
   setDoc,
   collection,
   onSnapshot,
+  query,
+  where,
   writeBatch,
   serverTimestamp,
   Timestamp,
@@ -33,11 +35,12 @@ import type {
 
 type FirestoreLotDoc = Omit<
   ControlLot,
-  'id' | 'runs' | 'startDate' | 'expiryDate' | 'createdAt'
+  'id' | 'runs' | 'startDate' | 'expiryDate' | 'createdAt' | 'archivedAt'
 > & {
   startDate: Timestamp;
   expiryDate: Timestamp;
   createdAt: Timestamp;
+  archivedAt?: Timestamp;
 };
 
 type FirestoreRunDoc = Omit<Run, 'id' | 'timestamp' | 'results'> & {
@@ -50,17 +53,27 @@ type FirestoreAnalyteResult = Omit<AnalyteResult, 'timestamp'> & {
 };
 
 function serializeLot(lot: Omit<ControlLot, 'runs'>): FirestoreLotDoc {
-  const { id: _id, startDate, expiryDate, createdAt, ...rest } = lot;
+  const { id: _id, startDate, expiryDate, createdAt, archivedAt, ...rest } = lot;
   return {
     ...rest,
     startDate: Timestamp.fromDate(startDate),
     expiryDate: Timestamp.fromDate(expiryDate),
     createdAt: Timestamp.fromDate(createdAt),
+    // archivedAt é opcional — só inclui se presente (Firestore rejeita undefined).
+    ...(archivedAt && { archivedAt: Timestamp.fromDate(archivedAt) }),
   };
 }
 
 function deserializeLot(id: string, raw: Record<string, unknown>, runs: Run[]): ControlLot {
-  const d = raw as FirestoreLotDoc;
+  const d = raw as FirestoreLotDoc & {
+    bulaPendente?: boolean;
+    archivedAt?: Timestamp;
+  };
+  // manufacturerStats null = "lote sem bula"; UI desenha estado pendente
+  // em vez de zeros silenciosos. Ausência total = mesmo tratamento.
+  const mfr = d.manufacturerStats;
+  const manufacturerStats =
+    mfr && Object.keys(mfr).length > 0 ? (mfr as ManufacturerStats) : null;
   return {
     id,
     labId: d.labId,
@@ -70,7 +83,7 @@ function deserializeLot(id: string, raw: Record<string, unknown>, runs: Run[]): 
     serialNumber: d.serialNumber,
     level: d.level,
     requiredAnalytes: d.requiredAnalytes ?? [],
-    manufacturerStats: (d.manufacturerStats ?? {}) as ManufacturerStats,
+    manufacturerStats,
     statistics: (d.statistics ?? null) as InternalStats | null,
     runCount: d.runCount ?? 0,
     createdBy: d.createdBy,
@@ -78,6 +91,76 @@ function deserializeLot(id: string, raw: Record<string, unknown>, runs: Run[]): 
     expiryDate: d.expiryDate.toDate(),
     createdAt: d.createdAt.toDate(),
     runs,
+    ...(d.manualHidden !== undefined && { manualHidden: d.manualHidden }),
+    ...(d.bulaPendente !== undefined && { bulaPendente: d.bulaPendente }),
+    ...(d.archivedAt && { archivedAt: d.archivedAt.toDate() }),
+  };
+}
+
+// Adapter de leitura InsumoControle → ControlLot pro dual-source de
+// subscribeToState. Retorna null se o doc não for tipo='controle'.
+function deserializeInsumoToControlLot(
+  id: string,
+  raw: Record<string, unknown>,
+  runs: Run[],
+): ControlLot | null {
+  if (raw.tipo !== 'controle') return null;
+
+  const startDateTs = (raw.startDate ?? raw.createdAt) as Timestamp | undefined;
+  const expiryDateTs = (raw.validade ?? raw.expiryDate) as Timestamp | undefined;
+  const createdAtTs = raw.createdAt as Timestamp | undefined;
+  if (!expiryDateTs || !createdAtTs) return null;
+
+  // bulaLevel preservado pela migração; senão derivado do nivel categórico.
+  let level: 1 | 2 | 3;
+  if (raw.bulaLevel === 1 || raw.bulaLevel === 2 || raw.bulaLevel === 3) {
+    level = raw.bulaLevel;
+  } else {
+    const nivel = raw.nivel as string | undefined;
+    if (nivel === 'baixo' || nivel === 'positivo') level = 1;
+    else if (nivel === 'alto' || nivel === 'patologico') level = 3;
+    else level = 2;
+  }
+
+  // Stats: prefer `stats` (Insumo schema), fallback `manufacturerStats` (legacy).
+  const stats = (raw.stats ?? raw.manufacturerStats ?? {}) as ManufacturerStats;
+
+  // Internal stats em InsumoControle tem `{mean, sd, n}`; ControlLot espera só `{mean, sd}`.
+  let statistics: InternalStats | null = null;
+  if (raw.internalStats && typeof raw.internalStats === 'object') {
+    const inner: InternalStats = {};
+    for (const [analyteId, s] of Object.entries(
+      raw.internalStats as Record<string, { mean: number; sd: number }>,
+    )) {
+      inner[analyteId] = { mean: s.mean, sd: s.sd };
+    }
+    statistics = inner;
+  } else if (raw.statistics) {
+    statistics = raw.statistics as InternalStats;
+  }
+
+  const requiredAnalytes =
+    (raw.requiredAnalytes as string[] | undefined) ??
+    (Array.isArray(stats) ? [] : Object.keys(stats));
+
+  return {
+    id,
+    labId: raw.labId as string,
+    lotNumber: (raw.lote ?? raw.lotNumber ?? id) as string,
+    controlName: (raw.controlProgramName ?? raw.nomeComercial ?? '') as string,
+    equipmentName: (raw.equipmentName ?? '') as string,
+    serialNumber: (raw.serialNumber ?? '') as string,
+    level,
+    requiredAnalytes,
+    manufacturerStats: stats,
+    statistics,
+    runCount: (raw.runCount as number | undefined) ?? runs.length,
+    createdBy: (raw.createdBy as string | undefined) ?? '',
+    startDate: (startDateTs ?? createdAtTs).toDate(),
+    expiryDate: expiryDateTs.toDate(),
+    createdAt: createdAtTs.toDate(),
+    runs,
+    ...(raw.manualHidden !== undefined && { manualHidden: raw.manualHidden as boolean }),
   };
 }
 
@@ -184,6 +267,21 @@ export class FirebaseService implements DatabaseService {
       lotId,
       SUBCOLLECTIONS.RUNS,
       runId,
+    );
+  }
+
+  private insumosCol() {
+    return collection(db, COLLECTIONS.LABS, this.labId, SUBCOLLECTIONS.INSUMOS);
+  }
+
+  private insumoRunsCol(insumoId: string) {
+    return collection(
+      db,
+      COLLECTIONS.LABS,
+      this.labId,
+      SUBCOLLECTIONS.INSUMOS,
+      insumoId,
+      SUBCOLLECTIONS.RUNS,
     );
   }
 
@@ -308,10 +406,30 @@ export class FirebaseService implements DatabaseService {
     }
   }
 
-  // ── subscribeToState ───────────────────────────────────────────────────────
-  // Three-layer listener: appState → lots → runs per lot.
-  // Emits only after all three layers have delivered their first snapshot,
-  // preventing a flash of empty state on initial load.
+  // ── subscribeToState (dual-source) ───────────────────────────────────────
+  // Listener com 5 camadas:
+  //   1. appState (activeLotId, selectedAnalyteId)
+  //   2. /lots metadata           (legacy source — fallback)
+  //   3. /lots/{id}/runs          (sub-coleção legacy)
+  //   4. /insumos com tipo='controle' metadata  (PRIMARY após migração)
+  //   5. /insumos/{id}/runs       (sub-coleção primária após migração)
+  //
+  // Merge rules:
+  //   - Metadata: /insumos sobrepõe /lots quando ID coincide (cutover).
+  //   - Runs: união por run.id. Cada run.id aparece uma vez (dedupe). Quando
+  //     a migração tiver copiado runs pra /insumos/{id}/runs, ambas as
+  //     fontes contribuem com o mesmo run.id e o dedupe é estável.
+  //
+  // Antes da migração rodar:
+  //   - /insumos só tem novos lotes (dual-write em useLots.addLot) sem runs
+  //   - /lots tem todos lotes + runs históricas
+  //   - UI vê tudo de /lots, com /insumos sobrepondo metadata onde existe
+  //
+  // Após migração:
+  //   - /insumos tem tudo + runs em sub-coleção
+  //   - Merge ainda funcional, /insumos é a fonte primária
+  //
+  // Emite só após primeiras snapshots de TODAS as camadas — sem flash vazio.
 
   subscribeToState(callback: (state: StoredState) => void): Unsubscribe {
     let appStateData = {
@@ -319,24 +437,78 @@ export class FirebaseService implements DatabaseService {
       selectedAnalyteId: null as string | null,
     };
 
-    // lotsMap holds the current merged view: lot metadata + its runs
-    const lotsMap = new Map<string, { meta: Omit<ControlLot, 'runs'>; runs: Run[] }>();
-    const runUnsubbers = new Map<string, () => void>();
+    // Maps separados por fonte — merge no emit() pra simplicidade.
+    const metaFromLots = new Map<string, Omit<ControlLot, 'runs'>>();
+    const metaFromInsumos = new Map<string, Omit<ControlLot, 'runs'>>();
+    const runsFromLots = new Map<string, Run[]>();
+    const runsFromInsumos = new Map<string, Run[]>();
 
-    // Guards — ensure we only emit after all layers are ready
+    const lotsRunUnsubbers = new Map<string, () => void>();
+    const insumosRunUnsubbers = new Map<string, () => void>();
+
     let appStateReady = false;
     let lotsReady = false;
-    // Track lot IDs whose runs haven't delivered a first snapshot yet
-    const pendingRunInit = new Set<string>();
+    let insumosReady = false;
+    const pendingRunInitLots = new Set<string>();
+    const pendingRunInitInsumos = new Set<string>();
 
     const emit = () => {
-      if (!appStateReady || !lotsReady || pendingRunInit.size > 0) return;
+      if (
+        !appStateReady ||
+        !lotsReady ||
+        !insumosReady ||
+        pendingRunInitLots.size > 0 ||
+        pendingRunInitInsumos.size > 0
+      )
+        return;
 
-      const lots: ControlLot[] = Array.from(lotsMap.values()).map(({ meta, runs }) => ({
-        ...meta,
-        runs,
-      }));
+      // Merge metadata por ID: /insumos vence quando ID coincide.
+      const mergedById = new Map<string, Omit<ControlLot, 'runs'>>();
+      for (const [id, meta] of metaFromLots) mergedById.set(id, meta);
+      for (const [id, meta] of metaFromInsumos) mergedById.set(id, meta);
 
+      // Constrói entries com runs unificadas por run.id.
+      const candidates: ControlLot[] = [];
+      for (const [id, meta] of mergedById) {
+        const byRunId = new Map<string, Run>();
+        for (const r of runsFromLots.get(id) ?? []) byRunId.set(r.id, r);
+        for (const r of runsFromInsumos.get(id) ?? []) byRunId.set(r.id, r);
+        candidates.push({ ...meta, runs: Array.from(byRunId.values()) });
+      }
+
+      // Dedupe adicional por chave natural (lotNumber + level + controlName).
+      // O MESMO lote físico pode ter sido cadastrado em /lots e /insumos com
+      // IDs diferentes (ex: cadastro via Bula PDF + cadastro via NovoLote
+      // catálogo) — sem isto, o operador veria "NV1 NV1 NV1" no level picker.
+      // Critério de vencedor:
+      //   1. mais runs (preserva histórico LJ/Westgard)
+      //   2. empate em runs → o que veio de /insumos (futuro source-of-truth)
+      const byNaturalKey = new Map<string, ControlLot>();
+      for (const cand of candidates) {
+        const key = `${cand.lotNumber}::${cand.level}::${cand.controlName}`;
+        const existing = byNaturalKey.get(key);
+        if (!existing) {
+          byNaturalKey.set(key, cand);
+          continue;
+        }
+        // Merge runs de ambas entradas — não descarta histórico.
+        const allRuns = new Map<string, Run>();
+        for (const r of existing.runs) allRuns.set(r.id, r);
+        for (const r of cand.runs) allRuns.set(r.id, r);
+        const candFromInsumos = metaFromInsumos.has(cand.id);
+        const existingFromInsumos = metaFromInsumos.has(existing.id);
+        const winnerMeta =
+          cand.runs.length > existing.runs.length
+            ? cand
+            : existing.runs.length > cand.runs.length
+              ? existing
+              : candFromInsumos && !existingFromInsumos
+                ? cand
+                : existing;
+        byNaturalKey.set(key, { ...winnerMeta, runs: Array.from(allRuns.values()) });
+      }
+
+      const lots = Array.from(byNaturalKey.values());
       callback({ lots, ...appStateData });
     };
 
@@ -355,7 +527,7 @@ export class FirebaseService implements DatabaseService {
       (err) => console.error('[FirebaseService] appState listener error:', err),
     );
 
-    // Layer 2: lots collection
+    // Layer 2: /lots metadata + Layer 3: /lots/{id}/runs (legacy)
     const lotsUnsub = onSnapshot(
       this.lotsCol(),
       (snap) => {
@@ -363,54 +535,143 @@ export class FirebaseService implements DatabaseService {
           const lotId = change.doc.id;
 
           if (change.type === 'removed') {
-            lotsMap.delete(lotId);
-            pendingRunInit.delete(lotId);
-            runUnsubbers.get(lotId)?.();
-            runUnsubbers.delete(lotId);
+            metaFromLots.delete(lotId);
+            runsFromLots.delete(lotId);
+            pendingRunInitLots.delete(lotId);
+            lotsRunUnsubbers.get(lotId)?.();
+            lotsRunUnsubbers.delete(lotId);
             continue;
           }
 
-          // Add or modify: update metadata, preserve existing runs
-          const existing = lotsMap.get(lotId);
           const fullLot = deserializeLot(lotId, change.doc.data() as Record<string, unknown>, []);
-          const { runs: _runs, ...meta } = fullLot;
+          const { runs: _r, ...meta } = fullLot;
+          metaFromLots.set(lotId, meta);
 
-          lotsMap.set(lotId, { meta, runs: existing?.runs ?? [] });
-
-          // Layer 3: subscribe to runs for each lot (once)
-          if (!runUnsubbers.has(lotId)) {
-            pendingRunInit.add(lotId);
-
+          if (!lotsRunUnsubbers.has(lotId)) {
+            pendingRunInitLots.add(lotId);
             const runUnsub = onSnapshot(
               this.runsCol(lotId),
               (runsSnap) => {
                 const runs = runsSnap.docs.map((d) =>
                   deserializeRun(d.id, d.data() as Record<string, unknown>),
                 );
-                const entry = lotsMap.get(lotId);
-                if (entry) lotsMap.set(lotId, { ...entry, runs });
-
-                pendingRunInit.delete(lotId); // first snapshot received
+                runsFromLots.set(lotId, runs);
+                pendingRunInitLots.delete(lotId);
                 emit();
               },
-              (err) => console.error(`[FirebaseService] runs[${lotId}] listener error:`, err),
+              (err) =>
+                console.error(`[FirebaseService] /lots/${lotId}/runs listener error:`, err),
             );
-
-            runUnsubbers.set(lotId, runUnsub);
+            lotsRunUnsubbers.set(lotId, runUnsub);
           }
         }
 
         lotsReady = true;
         emit();
       },
-      (err) => console.error('[FirebaseService] lots listener error:', err),
+      (err) => console.error('[FirebaseService] /lots listener error:', err),
+    );
+
+    // Layer 4: /insumos com tipo='controle' + Layer 5: /insumos/{id}/runs
+    //
+    // CRÍTICO: filtra por módulo='hematologia'. /insumos é compartilhada entre
+    // todos os módulos (imuno, coag, uro têm seus próprios controles). Sem
+    // este filtro, o `useLots` (que é específico de hematologia, alimenta
+    // LJ chart e Westgard) misturaria controles de PCR/imuno com sangue
+    // controle Controllab — bagunçando level pickers e corrompendo gráficos.
+    //
+    // Filtro client-side em vez de query composta: docs legados pré-Fase A
+    // (2026-04-21) só têm `modulo` (singular); docs novos têm `modulos[]`
+    // (array, source-of-truth). Aceitamos ambos.
+    function isHematologiaInsumo(raw: Record<string, unknown>): boolean {
+      const modulos = raw['modulos'];
+      if (Array.isArray(modulos) && modulos.length > 0) {
+        return modulos.includes('hematologia');
+      }
+      return raw['modulo'] === 'hematologia';
+    }
+
+    const insumosQ = query(this.insumosCol(), where('tipo', '==', 'controle'));
+    const insumosUnsub = onSnapshot(
+      insumosQ,
+      (snap) => {
+        for (const change of snap.docChanges()) {
+          const insumoId = change.doc.id;
+
+          if (change.type === 'removed') {
+            metaFromInsumos.delete(insumoId);
+            runsFromInsumos.delete(insumoId);
+            pendingRunInitInsumos.delete(insumoId);
+            insumosRunUnsubbers.get(insumoId)?.();
+            insumosRunUnsubbers.delete(insumoId);
+            continue;
+          }
+
+          const rawData = change.doc.data() as Record<string, unknown>;
+
+          // Filtra módulo ANTES de criar runs listener — evita assinar
+          // sub-coleção de controle de outro módulo.
+          if (!isHematologiaInsumo(rawData)) {
+            // Se o doc estava antes (pré-edit que mudou módulo) e agora
+            // sai do filtro, limpa pra evitar stale data.
+            if (metaFromInsumos.has(insumoId)) {
+              metaFromInsumos.delete(insumoId);
+              runsFromInsumos.delete(insumoId);
+              insumosRunUnsubbers.get(insumoId)?.();
+              insumosRunUnsubbers.delete(insumoId);
+              pendingRunInitInsumos.delete(insumoId);
+            }
+            continue;
+          }
+
+          const adapted = deserializeInsumoToControlLot(insumoId, rawData, []);
+          if (!adapted) continue;
+          const { runs: _r, ...meta } = adapted;
+          metaFromInsumos.set(insumoId, meta);
+
+          if (!insumosRunUnsubbers.has(insumoId)) {
+            pendingRunInitInsumos.add(insumoId);
+            const runUnsub = onSnapshot(
+              this.insumoRunsCol(insumoId),
+              (runsSnap) => {
+                const runs = runsSnap.docs.map((d) =>
+                  deserializeRun(d.id, d.data() as Record<string, unknown>),
+                );
+                runsFromInsumos.set(insumoId, runs);
+                pendingRunInitInsumos.delete(insumoId);
+                emit();
+              },
+              (err) =>
+                console.error(
+                  `[FirebaseService] /insumos/${insumoId}/runs listener error:`,
+                  err,
+                ),
+            );
+            insumosRunUnsubbers.set(insumoId, runUnsub);
+          }
+        }
+
+        insumosReady = true;
+        emit();
+      },
+      (err) => {
+        // Pode falhar antes de rules permitirem ou se /insumos não existir
+        // (lab novíssimo) — não quebra leitura: marca pronto pra emit não
+        // ficar travado, /lots assume.
+        console.warn('[FirebaseService] /insumos listener warning:', err);
+        insumosReady = true;
+        emit();
+      },
     );
 
     return () => {
       appStateUnsub();
       lotsUnsub();
-      runUnsubbers.forEach((unsub) => unsub());
-      runUnsubbers.clear();
+      insumosUnsub();
+      lotsRunUnsubbers.forEach((unsub) => unsub());
+      lotsRunUnsubbers.clear();
+      insumosRunUnsubbers.forEach((unsub) => unsub());
+      insumosRunUnsubbers.clear();
     };
   }
 
@@ -449,8 +710,18 @@ export class FirebaseService implements DatabaseService {
   async saveLot(lot: ControlLot): Promise<void> {
     try {
       const { runs: _runs, ...lotWithoutRuns } = lot;
+      // Primary write — /lots (legacy, source-of-truth durante transição)
       await setDoc(this.lotRef(lot.id), serializeLot(lotWithoutRuns));
       if (this.knownLotIds) this.knownLotIds.add(lot.id);
+
+      // Dual-write /insumos preservando ID. merge:true preserva campos só
+      // de /insumos (qcStatus, equipamentosPermitidos, etc). Falha vira
+      // warning — /lots ficou íntegro.
+      void this.replicateLotToInsumos(lot).catch((err) => {
+        console.warn(
+          `[dual-write] saveLot ${lot.id} → /insumos falhou: ${err instanceof Error ? err.message : err}`,
+        );
+      });
     } catch (err) {
       throw new Error(firestoreErrorMessage(err), { cause: err });
     }
@@ -470,6 +741,26 @@ export class FirebaseService implements DatabaseService {
       ]);
       this.knownLotIds!.delete(lotId);
       this.knownRunIds!.delete(lotId);
+
+      // Dual-delete em /insumos. Best-effort.
+      void (async () => {
+        try {
+          // Lê e deleta sub-coleção runs em /insumos/{lotId}/runs
+          const runsSnap = await getDocs(this.insumoRunsCol(lotId));
+          await runBatched([
+            ...runsSnap.docs.map(
+              (d): BatchOp =>
+                (b) =>
+                  b.delete(d.ref),
+            ),
+            (b) => b.delete(doc(db, COLLECTIONS.LABS, this.labId, SUBCOLLECTIONS.INSUMOS, lotId)),
+          ]);
+        } catch (err) {
+          console.warn(
+            `[dual-write] deleteLot ${lotId} → /insumos falhou: ${err instanceof Error ? err.message : err}`,
+          );
+        }
+      })();
     } catch (err) {
       throw new Error(firestoreErrorMessage(err), { cause: err });
     }
@@ -477,12 +768,31 @@ export class FirebaseService implements DatabaseService {
 
   async saveRun(lotId: string, run: Run): Promise<void> {
     try {
-      await setDoc(this.runRef(lotId, run.id), serializeRun(run));
+      const serialized = serializeRun(run);
+      await setDoc(this.runRef(lotId, run.id), serialized);
       if (this.knownRunIds) {
         const set = this.knownRunIds.get(lotId) ?? new Set<string>();
         set.add(run.id);
         this.knownRunIds.set(lotId, set);
       }
+
+      // Dual-write em /insumos/{lotId}/runs/{runId} preservando ID.
+      void setDoc(
+        doc(
+          db,
+          COLLECTIONS.LABS,
+          this.labId,
+          SUBCOLLECTIONS.INSUMOS,
+          lotId,
+          SUBCOLLECTIONS.RUNS,
+          run.id,
+        ),
+        serialized,
+      ).catch((err) => {
+        console.warn(
+          `[dual-write] saveRun ${lotId}/${run.id} → /insumos falhou: ${err instanceof Error ? err.message : err}`,
+        );
+      });
     } catch (err) {
       throw new Error(firestoreErrorMessage(err), { cause: err });
     }
@@ -492,8 +802,83 @@ export class FirebaseService implements DatabaseService {
     try {
       await runBatched([(b) => b.delete(this.runRef(lotId, runId))]);
       this.knownRunIds?.get(lotId)?.delete(runId);
+
+      // Dual-delete em /insumos/{lotId}/runs/{runId}.
+      void runBatched([
+        (b) =>
+          b.delete(
+            doc(
+              db,
+              COLLECTIONS.LABS,
+              this.labId,
+              SUBCOLLECTIONS.INSUMOS,
+              lotId,
+              SUBCOLLECTIONS.RUNS,
+              runId,
+            ),
+          ),
+      ]).catch((err) => {
+        console.warn(
+          `[dual-write] deleteRun ${lotId}/${runId} → /insumos falhou: ${err instanceof Error ? err.message : err}`,
+        );
+      });
     } catch (err) {
       throw new Error(firestoreErrorMessage(err), { cause: err });
     }
+  }
+
+  // ── Dual-write replication helpers ────────────────────────────────────────
+
+  /**
+   * Replica metadata de um ControlLot para /insumos/{id} preservando ID.
+   * Mapping mirror do `controlLotAdapter.insumoControleWriteDataFromControlLot`.
+   * Usa merge:true para preservar campos exclusivos do /insumos (qcStatus etc).
+   */
+  private async replicateLotToInsumos(lot: ControlLot): Promise<void> {
+    // Derivado mínimo — sem importar adapter pra não criar dependência cíclica
+    // entre service e features. Mantém as decisões de mapeamento alinhadas com
+    // controlLotAdapter.ts — qualquer mudança em um precisa refletir no outro.
+    const nivel =
+      lot.level === 1 ? 'baixo' : lot.level === 3 ? 'alto' : 'normal';
+    const writeData: Record<string, unknown> = {
+      labId: lot.labId,
+      tipo: 'controle',
+      nivel,
+      modulo: 'hematologia',
+      modulos: ['hematologia'],
+      fabricante: 'Controllab',
+      nomeComercial: lot.controlName,
+      lote: lot.lotNumber,
+      validade: Timestamp.fromDate(lot.expiryDate),
+      dataAbertura: null,
+      diasEstabilidadeAbertura: 0,
+      validadeReal: Timestamp.fromDate(lot.expiryDate),
+      status: lot.expiryDate.getTime() < Date.now() ? 'vencido' : 'ativo',
+      createdAt: Timestamp.fromDate(lot.createdAt),
+      createdBy: lot.createdBy,
+      stats: lot.manufacturerStats,
+      bulaLevel: lot.level,
+      controlProgramName: lot.controlName,
+      startDate: Timestamp.fromDate(lot.startDate),
+      equipmentName: lot.equipmentName,
+      serialNumber: lot.serialNumber,
+      requiredAnalytes: lot.requiredAnalytes,
+      runCount: lot.runCount,
+    };
+    if (lot.statistics) {
+      const internalStats: Record<string, { mean: number; sd: number; n: number }> = {};
+      for (const [analyteId, s] of Object.entries(lot.statistics)) {
+        internalStats[analyteId] = { mean: s.mean, sd: s.sd, n: lot.runCount };
+      }
+      writeData.internalStats = internalStats;
+    }
+    if (lot.manualHidden !== undefined) {
+      writeData.manualHidden = lot.manualHidden;
+    }
+    await setDoc(
+      doc(db, COLLECTIONS.LABS, this.labId, SUBCOLLECTIONS.INSUMOS, lot.id),
+      writeData,
+      { merge: true },
+    );
   }
 }

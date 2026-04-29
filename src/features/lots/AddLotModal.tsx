@@ -1,10 +1,10 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { ANALYTES } from '../../constants';
 import { parseControlLotCSV, statsToManufacturerStats } from './services/csvParserService';
 import type { ParsedCSVResult } from './services/csvParserService';
 import type { AddLotInput } from './hooks/useLots';
 import { useAppStore } from '../../store/useAppStore';
-import type { BulaLevelData } from '../../types';
+import type { BulaLevelData, ManufacturerStats } from '../../types';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -159,6 +159,12 @@ function LevelSummaryCard({ lvl }: LevelSummaryCardProps) {
 interface AddLotModalProps {
   onAdd: (input: AddLotInput) => Promise<string>;
   onClose: () => void;
+  /** Quando presente, ativa modo "merge" pra lotes em estado bulaPendente. */
+  onApplyBula?: (
+    lotId: string,
+    manufacturerStats: ManufacturerStats,
+    requiredAnalytes: string[],
+  ) => Promise<void>;
 }
 
 // ─── Batch creation form ──────────────────────────────────────────────────────
@@ -170,9 +176,21 @@ interface BatchFormProps {
   onAdd: (input: AddLotInput) => Promise<string>;
   onClose: () => void;
   clearBulaData: () => void;
+  onApplyBula?: (
+    lotId: string,
+    manufacturerStats: ManufacturerStats,
+    requiredAnalytes: string[],
+  ) => Promise<void>;
 }
 
-function BatchCreationForm({ controlName, levels, onAdd, onClose, clearBulaData }: BatchFormProps) {
+function BatchCreationForm({
+  controlName,
+  levels,
+  onAdd,
+  onClose,
+  clearBulaData,
+  onApplyBula,
+}: BatchFormProps) {
   const [equipmentName, setEquipmentName] = useState('Yumizen H550');
   const [serialNumber, setSerialNumber] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -180,10 +198,93 @@ function BatchCreationForm({ controlName, levels, onAdd, onClose, clearBulaData 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [created, setCreated] = useState(0);
+  const [mergeMode, setMergeMode] = useState(true); // default ligado quando aplicável
+
+  // Guard contra reimport da MESMA bula Controllab. Casa por chave natural
+  // (lotNumber + level + controlName) contra os lotes já carregados na store.
+  // Distingue 2 casos:
+  //   - merge candidates: lote existe COM `bulaPendente` → operador quer
+  //     aplicar a bula recém-importada nele (não duplicar).
+  //   - duplicatas: lote existe SEM bulaPendente → bloqueio hard (já processado).
+  const existingLots = useAppStore((s) => s.lots);
+  const { collisions, mergeCandidates } = useMemo(() => {
+    const colls: Array<{ level: 1 | 2 | 3; lotNumber: string; existingDate: string }> = [];
+    const merges: Array<{
+      level: 1 | 2 | 3;
+      lotNumber: string;
+      lotId: string;
+      manufacturerStats: ManufacturerStats;
+    }> = [];
+    const trimmedName = controlName.trim();
+    for (const lvl of levels) {
+      const lotNumber = lvl.lotNumber ?? `${controlName}-N${lvl.level}`;
+      const dup = existingLots.find(
+        (l) =>
+          l.lotNumber === lotNumber &&
+          l.level === lvl.level &&
+          l.controlName === trimmedName,
+      );
+      if (!dup) continue;
+      const isPending = dup.bulaPendente === true || dup.manufacturerStats == null;
+      if (isPending && onApplyBula) {
+        merges.push({
+          level: lvl.level,
+          lotNumber,
+          lotId: dup.id,
+          manufacturerStats: lvl.manufacturerStats,
+        });
+      } else {
+        colls.push({
+          level: lvl.level,
+          lotNumber,
+          existingDate: dup.startDate.toLocaleDateString('pt-BR'),
+        });
+      }
+    }
+    return { collisions: colls, mergeCandidates: merges };
+  }, [existingLots, levels, controlName, onApplyBula]);
+
+  const hasMergeOption = mergeCandidates.length > 0 && collisions.length === 0;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    // Modo MERGE: bula está chegando pra lotes que estavam aguardando.
+    // Aplica os valores-alvo nos lotes existentes (mantém id+runs) e
+    // recomputa Westgard das corridas já gravadas.
+    if (hasMergeOption && mergeMode && onApplyBula) {
+      setSubmitting(true);
+      try {
+        let done = 0;
+        for (const m of mergeCandidates) {
+          await onApplyBula(
+            m.lotId,
+            m.manufacturerStats,
+            Object.keys(m.manufacturerStats),
+          );
+          done += 1;
+          setCreated(done);
+        }
+        clearBulaData();
+        onClose();
+        return;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Erro ao aplicar bula.');
+        setSubmitting(false);
+        return;
+      }
+    }
+
+    if (collisions.length > 0) {
+      const list = collisions
+        .map((c) => `NV${c.level} (${c.lotNumber}, cadastrado em ${c.existingDate})`)
+        .join('; ');
+      setError(
+        `Esta bula já está cadastrada: ${list}. Use os lotes existentes em "Lotes de controle".`,
+      );
+      return;
+    }
 
     if (!startDate) {
       setError('Data de início é obrigatória.');
@@ -239,6 +340,61 @@ function BatchCreationForm({ controlName, levels, onAdd, onClose, clearBulaData 
         <span className="font-medium">Criação em lote — bula PDF</span>
         <span className="text-slate-400 dark:text-white/30 truncate ml-1">{controlName}</span>
       </div>
+
+      {/* Aviso de colisão — bula já cadastrada (mesma chave natural) */}
+      {collisions.length > 0 && (
+        <div className="rounded-xl border-2 border-amber-300 dark:border-amber-500/50 bg-amber-50 dark:bg-amber-500/[0.07] px-4 py-3 text-xs text-amber-800 dark:text-amber-200 space-y-1.5">
+          <p className="font-semibold flex items-center gap-1.5">
+            <WarnIcon /> Esta bula já está cadastrada
+          </p>
+          <ul className="list-disc list-inside space-y-0.5 ml-0.5">
+            {collisions.map((c) => (
+              <li key={c.lotNumber}>
+                <span className="font-mono">{c.lotNumber}</span> · NV{c.level} · cadastrado em{' '}
+                {c.existingDate}
+              </li>
+            ))}
+          </ul>
+          <p className="pt-1 text-amber-700/80 dark:text-amber-200/70">
+            Use os lotes existentes em "Lotes de controle". Re-importar criaria duplicatas
+            que bagunçam o histórico estatístico.
+          </p>
+        </div>
+      )}
+
+      {/* Modo MERGE — bula chegou pra lotes que estavam aguardando */}
+      {hasMergeOption && (
+        <div className="rounded-xl border-2 border-emerald-300 dark:border-emerald-500/40 bg-emerald-50/60 dark:bg-emerald-500/[0.06] px-4 py-3 text-xs text-emerald-800 dark:text-emerald-200 space-y-2">
+          <p className="font-semibold flex items-center gap-1.5">
+            <CheckIcon /> Bula vai completar lotes pendentes
+          </p>
+          <ul className="list-disc list-inside space-y-0.5 ml-0.5">
+            {mergeCandidates.map((m) => (
+              <li key={m.lotId}>
+                <span className="font-mono">{m.lotNumber}</span> · NV{m.level} — recebe os
+                valores-alvo + Westgard recalculado retroativamente
+              </li>
+            ))}
+          </ul>
+          <label className="flex items-center gap-2 pt-1 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={mergeMode}
+              onChange={(e) => setMergeMode(e.target.checked)}
+              className="w-3.5 h-3.5 accent-emerald-600"
+            />
+            <span className="text-emerald-700 dark:text-emerald-300/90">
+              Aplicar bula nesses lotes (recomendado — preserva runs já gravadas)
+            </span>
+          </label>
+          {!mergeMode && (
+            <p className="text-emerald-700/70 dark:text-emerald-300/60 pl-5">
+              Desligado: o sistema vai bloquear como duplicata. Use o caminho normal de
+              cadastro acima.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Level summary */}
       <div>
@@ -326,8 +482,13 @@ function BatchCreationForm({ controlName, levels, onAdd, onClose, clearBulaData 
         </button>
         <button
           type="submit"
-          disabled={submitting}
-          className="flex-1 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-sm text-white font-medium disabled:opacity-50 transition-all shadow-lg shadow-violet-500/20 flex items-center justify-center gap-2"
+          disabled={submitting || collisions.length > 0}
+          title={
+            collisions.length > 0
+              ? `Bula já cadastrada — ${collisions.length} nível(eis) em colisão`
+              : undefined
+          }
+          className="flex-1 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-sm text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-violet-500/20 flex items-center justify-center gap-2"
         >
           {submitting ? (
             <>
@@ -347,7 +508,7 @@ function BatchCreationForm({ controlName, levels, onAdd, onClose, clearBulaData 
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function AddLotModal({ onAdd, onClose }: AddLotModalProps) {
+export function AddLotModal({ onAdd, onClose, onApplyBula }: AddLotModalProps) {
   // Bula data from store
   const pendingBulaData = useAppStore((s) => s.pendingBulaData);
   const setPendingBulaData = useAppStore((s) => s.setPendingBulaData);
@@ -567,6 +728,7 @@ export function AddLotModal({ onAdd, onClose }: AddLotModalProps) {
             onAdd={onAdd}
             onClose={onClose}
             clearBulaData={() => setPendingBulaData(null)}
+            onApplyBula={onApplyBula}
           />
         ) : (
           /* ── Single-lot form ────────────────────────────────────────────── */

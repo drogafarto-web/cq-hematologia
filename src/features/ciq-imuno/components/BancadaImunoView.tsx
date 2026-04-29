@@ -1,9 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useUser } from '../../../store/useAuthStore';
 import { useCIQLots } from '../hooks/useCIQLots';
+import { useCIQRuns } from '../hooks/useCIQRuns';
 import { useSaveCIQRun } from '../hooks/useSaveCIQRun';
 import { subscribeToCIQRuns } from '../services/ciqFirebaseService';
+import { CIQAuditor } from './CIQAuditor';
 import { CIQImunoForm } from './CIQImunoForm';
+import { CIQRelatorioPrint } from './CIQRelatorioPrint';
 import type { CIQImunoFormData } from './CIQImunoForm.schema';
 import type { CIQImunoLot, CIQImunoRun } from '../types/CIQImuno';
 
@@ -74,30 +77,32 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
   );
 }
 
-// ─── Recent runs cross-pinned-lots hook ──────────────────────────────────────
+// ─── Recent runs cross-lot hook ──────────────────────────────────────────────
+// Assina todos os lots do laboratório (pinned ou não) — operador precisa ver
+// a corrida que acabou de gravar mesmo se o lote ainda não foi vinculado à
+// bancada (ex: validação inicial de novo lote).
 
 interface EnrichedRun extends CIQImunoRun {
   _lotId: string;
   _testType: string;
-  _setupType: 'principal' | 'validacao_paralela';
+  _setupType?: 'principal' | 'validacao_paralela';
   _loteControle: string;
 }
 
-function useRecentBancadaRuns(pinnedLots: CIQImunoLot[], limit = 20) {
+function useRecentBancadaRuns(lots: CIQImunoLot[], limit = 20) {
   const [runs, setRuns] = useState<EnrichedRun[]>([]);
 
-  // Stable key triggers re-subscription only when pinned lot identity changes
-  const key = pinnedLots.map((l) => l.id).join('|');
+  const key = lots.map((l) => l.id).join('|');
 
   useEffect(() => {
-    if (pinnedLots.length === 0) {
+    if (lots.length === 0) {
       setRuns([]);
       return;
     }
 
     const perLot = new Map<string, EnrichedRun[]>();
 
-    const unsubs = pinnedLots.map((lot) =>
+    const unsubs = lots.map((lot) =>
       subscribeToCIQRuns(lot.labId, lot.id, (incoming) => {
         perLot.set(
           lot.id,
@@ -105,7 +110,7 @@ function useRecentBancadaRuns(pinnedLots: CIQImunoLot[], limit = 20) {
             ...r,
             _lotId: lot.id,
             _testType: lot.testType,
-            _setupType: lot.setupType as 'principal' | 'validacao_paralela',
+            ...(lot.setupType && { _setupType: lot.setupType }),
             _loteControle: lot.loteControle,
           })),
         );
@@ -141,11 +146,13 @@ export function BancadaImunoView({ onGoToLotes }: { onGoToLotes: () => void }) {
     [lots],
   );
 
-  const recentRuns = useRecentBancadaRuns(pinnedLots, 20);
+  const recentRuns = useRecentBancadaRuns(lots, 20);
 
   const [showForm, setShowForm] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [formPrefill, setFormPrefill] = useState<CIQImunoLot | null>(null);
+  const [selectedRun, setSelectedRun] = useState<EnrichedRun | null>(null);
+  const [printLot, setPrintLot] = useState<CIQImunoLot | null>(null);
 
   const validacaoLots = pinnedLots.filter((l) => l.setupType === 'validacao_paralela');
   const oficialCount = pinnedLots.filter((l) => l.setupType === 'principal').length;
@@ -346,16 +353,18 @@ export function BancadaImunoView({ onGoToLotes }: { onGoToLotes: () => void }) {
             <div className="rounded-xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.02] overflow-hidden">
               {recentRuns.length === 0 ? (
                 <p className="text-xs text-slate-400 dark:text-white/30 px-5 py-10 text-center">
-                  Nenhuma corrida registrada nos lotes vinculados.
+                  Nenhuma corrida registrada.
                 </p>
               ) : (
                 <div className="divide-y divide-slate-100 dark:divide-white/[0.05]">
                   {recentRuns.map((run) => {
                     const conforme = run.resultadoObtido === run.resultadoEsperado;
                     return (
-                      <div
+                      <button
                         key={`${run._lotId}-${run.id}`}
-                        className="px-4 py-3 flex items-center gap-3"
+                        type="button"
+                        onClick={() => setSelectedRun(run)}
+                        className="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-white/[0.03] focus:outline-none focus:bg-slate-50 dark:focus:bg-white/[0.04] transition-colors"
                       >
                         <div className="text-[11px] font-mono text-slate-500 dark:text-white/45 tabular-nums w-14 shrink-0">
                           {run.dataRealizacao?.slice(5) ?? ''}
@@ -368,6 +377,14 @@ export function BancadaImunoView({ onGoToLotes }: { onGoToLotes: () => void }) {
                             {run._setupType === 'validacao_paralela' && (
                               <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300">
                                 Validação
+                              </span>
+                            )}
+                            {!run._setupType && (
+                              <span
+                                className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/[0.06] text-slate-500 dark:text-white/45"
+                                title="Lote não vinculado à bancada"
+                              >
+                                Não vinculado
                               </span>
                             )}
                           </div>
@@ -385,7 +402,7 @@ export function BancadaImunoView({ onGoToLotes }: { onGoToLotes: () => void }) {
                           {conforme ? <CheckIcon /> : <XIcon />}
                           {conforme ? 'Conforme' : 'Rejeitada'}
                         </span>
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
@@ -402,6 +419,7 @@ export function BancadaImunoView({ onGoToLotes }: { onGoToLotes: () => void }) {
           onClose={() => {
             setShowForm(false);
             setFormPrefill(null);
+            setFormError(null);
           }}
         >
           {formError && (
@@ -415,11 +433,249 @@ export function BancadaImunoView({ onGoToLotes }: { onGoToLotes: () => void }) {
             onCancel={() => {
               setShowForm(false);
               setFormPrefill(null);
+              setFormError(null);
             }}
             {...(formPrefill && { prefillFromLot: formPrefill })}
           />
         </Modal>
       )}
+
+      {/* Modal: Detalhes da corrida — rastreabilidade + ação de impressão */}
+      {selectedRun && (
+        <RunDetailModal
+          run={selectedRun}
+          lot={lots.find((l) => l.id === selectedRun._lotId) ?? null}
+          onClose={() => setSelectedRun(null)}
+          onPrintLot={(lot) => {
+            setSelectedRun(null);
+            setPrintLot(lot);
+          }}
+        />
+      )}
+
+      {/* Modal: Impressão FR036 do lote */}
+      {printLot && <LotReportPrinter lot={printLot} onClose={() => setPrintLot(null)} />}
     </div>
+  );
+}
+
+// ─── Run Detail Modal ────────────────────────────────────────────────────────
+
+function RowDetail({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+  return (
+    <div className="flex justify-between gap-4 text-xs">
+      <span className="text-slate-400 dark:text-white/35 shrink-0">{label}</span>
+      <span
+        className={`text-slate-700 dark:text-white/75 text-right break-all ${mono ? 'font-mono' : ''}`}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function fmtDateBR(d?: string): string {
+  if (!d) return '—';
+  const [y, m, day] = d.split('-');
+  return y && m && day ? `${day}/${m}/${y}` : d;
+}
+
+const ALERT_LABELS: Record<string, string> = {
+  taxa_falha_10pct: '>10% NR no lote',
+  consecutivos_3nr: '3+ NR consecutivos',
+  consecutivos_4nr: '4+ NR nos últimos 10',
+  lote_expirado: 'Lote expirado',
+  validade_30d: 'Validade <30 dias',
+};
+
+function RunDetailModal({
+  run,
+  lot,
+  onClose,
+  onPrintLot,
+}: {
+  run: EnrichedRun;
+  lot: CIQImunoLot | null;
+  onClose: () => void;
+  onPrintLot: (lot: CIQImunoLot) => void;
+}) {
+  const conforme = run.resultadoObtido === run.resultadoEsperado;
+  const alerts = run.westgardCategorico ?? [];
+
+  return (
+    <Modal title={`Corrida ${run.runCode ?? ''}`.trim()} onClose={onClose}>
+      <div className="space-y-5">
+        {/* Status */}
+        <div
+          className={`rounded-xl px-4 py-3 border ${
+            conforme
+              ? 'bg-emerald-50 dark:bg-emerald-500/[0.06] border-emerald-200 dark:border-emerald-500/25 text-emerald-800 dark:text-emerald-300'
+              : 'bg-red-50 dark:bg-red-500/[0.06] border-red-200 dark:border-red-500/25 text-red-700 dark:text-red-300'
+          }`}
+        >
+          <p className="text-[11px] font-bold uppercase tracking-wider">
+            {conforme ? 'Conforme' : 'Rejeitada'}
+          </p>
+          <p className="text-[13px] font-semibold mt-0.5">
+            {run._testType} · Lote {run._loteControle}
+          </p>
+        </div>
+
+        {/* Identificação */}
+        <section className="rounded-xl border border-slate-100 dark:border-white/[0.07] bg-slate-50/60 dark:bg-white/[0.02] p-4 space-y-2">
+          <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-white/45 mb-2">
+            Identificação
+          </h3>
+          <RowDetail label="Código" value={run.runCode ?? '—'} mono />
+          <RowDetail label="Data" value={fmtDateBR(run.dataRealizacao)} />
+          <RowDetail label="Operador" value={run.operatorName ?? '—'} />
+          {run.operatorRole && (
+            <RowDetail label="Cargo" value={run.operatorRole} />
+          )}
+          {run.equipamentoSnapshot?.name && (
+            <RowDetail label="Equipamento" value={run.equipamentoSnapshot.name} />
+          )}
+          {run.manual && <RowDetail label="Modo" value="Kit manual (sem equipamento)" />}
+        </section>
+
+        {/* Controle */}
+        <section className="rounded-xl border border-slate-100 dark:border-white/[0.07] bg-slate-50/60 dark:bg-white/[0.02] p-4 space-y-2">
+          <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-white/45 mb-2">
+            Controle
+          </h3>
+          <RowDetail label="Lote" value={run.loteControle} mono />
+          <RowDetail label="Fabricante" value={run.fabricanteControle} />
+          <RowDetail label="Abertura" value={fmtDateBR(run.aberturaControle)} />
+          <RowDetail label="Validade" value={fmtDateBR(run.validadeControle)} />
+        </section>
+
+        {/* Reagente */}
+        <section className="rounded-xl border border-slate-100 dark:border-white/[0.07] bg-slate-50/60 dark:bg-white/[0.02] p-4 space-y-2">
+          <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-white/45 mb-2">
+            Reagente
+          </h3>
+          <RowDetail label="Lote" value={run.loteReagente} mono />
+          <RowDetail label="Fabricante" value={run.fabricanteReagente} />
+          <RowDetail label="Abertura" value={fmtDateBR(run.aberturaReagente)} />
+          <RowDetail label="Validade" value={fmtDateBR(run.validadeReagente)} />
+          {run.codigoKit && <RowDetail label="Código kit" value={run.codigoKit} mono />}
+          {run.registroANVISA && (
+            <RowDetail label="Registro ANVISA" value={run.registroANVISA} mono />
+          )}
+        </section>
+
+        {/* Resultado */}
+        <section className="rounded-xl border border-slate-100 dark:border-white/[0.07] bg-slate-50/60 dark:bg-white/[0.02] p-4 space-y-2">
+          <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-white/45 mb-2">
+            Resultado
+          </h3>
+          {run.resultadoEsperadoNegativo !== undefined ? (
+            <>
+              <RowDetail
+                label="Controle positivo"
+                value={`Esperado ${run.resultadoEsperado} · Obtido ${run.resultadoObtido}`}
+              />
+              <RowDetail
+                label="Controle negativo"
+                value={`Esperado ${run.resultadoEsperadoNegativo} · Obtido ${run.resultadoObtidoNegativo ?? '—'}`}
+              />
+            </>
+          ) : (
+            <>
+              <RowDetail label="Esperado" value={run.resultadoEsperado} />
+              <RowDetail label="Obtido" value={run.resultadoObtido} />
+            </>
+          )}
+          {run.acaoCorretiva && (
+            <RowDetail label="Ação corretiva" value={run.acaoCorretiva} />
+          )}
+        </section>
+
+        {/* Westgard */}
+        {alerts.length > 0 && (
+          <section className="rounded-xl border border-amber-200 dark:border-amber-500/25 bg-amber-50/60 dark:bg-amber-500/[0.06] p-4">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-amber-700 dark:text-amber-300 mb-2">
+              Alertas Westgard
+            </h3>
+            <ul className="space-y-1 text-xs text-amber-800 dark:text-amber-200">
+              {alerts.map((a) => (
+                <li key={a}>• {ALERT_LABELS[a] ?? a}</li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* Assinatura + QR */}
+        <section className="rounded-xl border border-slate-100 dark:border-white/[0.07] bg-slate-50/60 dark:bg-white/[0.02] p-4">
+          <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-white/45 mb-3">
+            Assinatura & Auditoria
+          </h3>
+          <div className="flex items-start gap-4">
+            <div className="flex-1 space-y-2 min-w-0">
+              <RowDetail
+                label="SHA-256"
+                value={run.logicalSignature ? `${run.logicalSignature.slice(0, 24)}…` : '—'}
+                mono
+              />
+              <RowDetail label="ID" value={run.id} mono />
+            </div>
+            <div className="shrink-0">
+              <CIQAuditor run={run} lotId={run._lotId} size={104} />
+            </div>
+          </div>
+        </section>
+
+        {/* Ações */}
+        <div className="flex justify-between items-center gap-2 pt-1">
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-9 px-4 rounded-lg text-sm text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/[0.10] hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-colors"
+          >
+            Fechar
+          </button>
+          <button
+            type="button"
+            onClick={() => lot && onPrintLot(lot)}
+            disabled={!lot}
+            className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-semibold bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 disabled:opacity-40 transition-colors"
+          >
+            <PrinterIcon /> Imprimir relatório do lote
+          </button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+// ─── Lot report printer wrapper ──────────────────────────────────────────────
+// Carrega as corridas do lote (sem cap) antes de renderizar o relatório FR036.
+
+function LotReportPrinter({ lot, onClose }: { lot: CIQImunoLot; onClose: () => void }) {
+  const { runs, isLoading } = useCIQRuns(lot.id);
+
+  if (isLoading) {
+    return (
+      <Modal title="Carregando relatório…" onClose={onClose}>
+        <div className="flex items-center justify-center py-10">
+          <svg className="animate-spin w-5 h-5 text-slate-400 dark:text-white/30" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
+            <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+          </svg>
+        </div>
+      </Modal>
+    );
+  }
+
+  return <CIQRelatorioPrint lot={lot} runs={runs} onClose={onClose} />;
+}
+
+function PrinterIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M6 9V2h12v7" />
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+      <rect x="6" y="14" width="12" height="8" rx="1" />
+    </svg>
   );
 }

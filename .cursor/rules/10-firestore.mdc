@@ -1,0 +1,41 @@
+---
+description: Modelo Firestore, rules, multi-tenancy, índices, audit chain. Ativa em arquivos de regras, schemas e tipos.
+globs:
+  - firestore.rules
+  - firestore.rules.*
+  - firestore.indexes.json
+  - src/**/types/**/*.ts
+  - src/types/**/*.ts
+  - functions/src/**/*.ts
+---
+
+# Firestore — modelo + rules
+
+Multi-tenant por `labId`. 99% dos paths sob `/labs/{labId}/...`. Conteúdo completo: [firestore-model](mdc:docs/playbooks/firestore-model.md).
+
+## Helpers em `firestore.rules`
+
+- `isSuperAdmin()` — claim JWT + fallback Firestore
+- `isActiveMemberOfLab(labId)` — checa member doc + `active == true`
+- `getMemberRole(labId)` / `isAdminOrOwner(labId)`
+- `hasModuleAccess('hematologia'|'imunologia'|'coagulacao'|'uroanalise')`
+
+## Padrões críticos — não violar
+
+1. **Chain hash é sagrado** — nunca delete `/labs/*/insumo-movimentacoes`, nunca "reset" o chain state. Genesis determinístico via SHA-256.
+2. **Audit é imutável** — rules denegam update/delete em `/auditLogs`, `/*-audit/`, `/ciq-audit`.
+3. **Claims JWT são fonte de verdade** pra module access — Firestore `users/{uid}.modules` é mirror read-only pra UI.
+4. **Denormalizações** (`activationsCount`, `runCount`, `lastRunAt`) são atualizadas via batch em hooks, **nunca editadas manualmente**.
+5. **Reagentes com `qcValidationRequired: true`** bloqueiam runs até passar por CQ aprovada.
+
+## Audit chain — Onda 4
+
+Genesis por lab: `SHA256('hcq-audit-genesis:' + labId)`. Writer é transacional — lê `_state/ciq-audit-chain` na mesma transação. Ações críticas exigem `reason` obrigatória (RDC 978 Art. 128): `REOPEN_RUN`, `EDIT_RUN_VALUE`, `DISCARD_LOT`, `SEGREGATE_LOT`.
+
+## HMAC signatures — Onda 5
+
+Secret `HCQ_SIGNATURE_HMAC_KEY`. Dual-write: server recalcula HMAC sobre payload canônico e grava `serverHmac` ao lado do `logicalSignature` do cliente. Divergência → log em `auditLogs` action=`SIGNATURE_DIVERGENCE`. Após 7-14 dias de zero divergência, promover rules pra exigir `serverHmac`.
+
+## Antes de mudar rules ou schema cross-module
+
+Ler [compliance-spines](mdc:docs/playbooks/compliance-spines.md). Se for nova coleção espinha, justificar pela regra dos **3+ consumidores**. Nunca duplicar entidade canônica.

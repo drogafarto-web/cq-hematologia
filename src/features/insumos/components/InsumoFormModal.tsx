@@ -476,12 +476,24 @@ export function InsumoFormModal({
               <input
                 id="diasEstabilidadeAbertura"
                 aria-label="Dias de estabilidade pós-abertura"
-                type="number"
-                min={0}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={3}
+                autoComplete="off"
                 className={INPUT_CLS}
-                value={form.diasEstabilidadeAbertura}
+                value={
+                  form.diasEstabilidadeAbertura === '' || form.diasEstabilidadeAbertura == null
+                    ? ''
+                    : String(form.diasEstabilidadeAbertura)
+                }
                 onChange={(e) => {
-                  const v = e.target.value;
+                  // Aceita apenas dígitos. Trocado de type=number para
+                  // type=text+inputMode=numeric pra eliminar comportamentos
+                  // browser-específicos (scroll-wheel mudando valor, spinners,
+                  // controlled/uncontrolled warnings em React 18+) que estavam
+                  // causando "modal quebra e fecha" relatado pela operadora.
+                  const v = e.target.value.replace(/\D/g, '').slice(0, 3);
                   set('diasEstabilidadeAbertura', v === '' ? '' : Number(v));
                 }}
               />

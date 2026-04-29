@@ -185,55 +185,154 @@ async function fetchHemaLots(
   labId: string,
   bounds: { start: Date; end: Date },
 ): Promise<HemaLot[]> {
+  // Fase B (2026-04-28) — dual-source read. Lê metadata de AMBAS coleções e
+  // mescla por lotId. /insumos vence em colisão (cutover progressivo).
+  // Runs são lidas da sub-coleção do lado vencedor; se vazia, fallback no outro.
+  type LotMeta = {
+    source: 'lots' | 'insumos';
+    data: admin.firestore.DocumentData;
+  };
+  const metaById = new Map<string, LotMeta>();
+
+  // Source A: /lots (legacy)
   const lotsSnap = await db.collection(`labs/${labId}/lots`).get();
-  if (lotsSnap.empty) return [];
+  for (const d of lotsSnap.docs) {
+    metaById.set(d.id, { source: 'lots', data: d.data() });
+  }
+
+  // Source B: /insumos com tipo='controle' (primary após migração).
+  // Defensive: try/catch — se a query falhar (rules em ajuste, lab novíssimo),
+  // /lots ainda atende.
+  try {
+    const insumosSnap = await db
+      .collection(`labs/${labId}/insumos`)
+      .where('tipo', '==', 'controle')
+      .get();
+    for (const d of insumosSnap.docs) {
+      metaById.set(d.id, { source: 'insumos', data: d.data() });
+    }
+  } catch (err) {
+    console.warn(
+      `[cqiReport] /insumos read failed for lab ${labId}: ${err instanceof Error ? err.message : err}`,
+    );
+  }
+
+  if (metaById.size === 0) return [];
+
+  // Adapta metadata do shape InsumoControle pro shape HemaLot esperado.
+  function lotMetaFields(m: LotMeta): {
+    lotNumber: string;
+    level: string | number;
+    equipmentName: string;
+    requiredAnalytes: string[];
+  } {
+    if (m.source === 'lots') {
+      return {
+        lotNumber: m.data['lotNumber'] ?? '',
+        level: m.data['level'] ?? '—',
+        equipmentName: m.data['equipmentName'] ?? '—',
+        requiredAnalytes: (m.data['requiredAnalytes'] ?? []) as string[],
+      };
+    }
+    // InsumoControle shape
+    return {
+      lotNumber: (m.data['lote'] ?? m.data['lotNumber'] ?? '') as string,
+      level: (m.data['bulaLevel'] ?? m.data['level'] ?? '—') as string | number,
+      equipmentName: (m.data['equipmentName'] ?? '—') as string,
+      requiredAnalytes: (m.data['requiredAnalytes'] ?? []) as string[],
+    };
+  }
+
+  // Lê runs de uma das fontes; se vazia, tenta a outra.
+  async function fetchTodayRuns(
+    lotId: string,
+    primarySource: 'lots' | 'insumos',
+  ): Promise<admin.firestore.QueryDocumentSnapshot[]> {
+    const sources: Array<'lots' | 'insumos'> =
+      primarySource === 'insumos' ? ['insumos', 'lots'] : ['lots', 'insumos'];
+    for (const src of sources) {
+      const sub = src === 'lots' ? 'lots' : 'insumos';
+      try {
+        const snap = await db
+          .collection(`labs/${labId}/${sub}/${lotId}/runs`)
+          .where('confirmedAt', '>=', admin.firestore.Timestamp.fromDate(bounds.start))
+          .where('confirmedAt', '<=', admin.firestore.Timestamp.fromDate(bounds.end))
+          .orderBy('confirmedAt', 'asc')
+          .get();
+        if (!snap.empty) return snap.docs;
+      } catch {
+        // try next source
+      }
+    }
+    return [];
+  }
+
+  async function fetchLast20Runs(
+    lotId: string,
+    primarySource: 'lots' | 'insumos',
+  ): Promise<admin.firestore.QueryDocumentSnapshot[]> {
+    const sources: Array<'lots' | 'insumos'> =
+      primarySource === 'insumos' ? ['insumos', 'lots'] : ['lots', 'insumos'];
+    for (const src of sources) {
+      const sub = src === 'lots' ? 'lots' : 'insumos';
+      try {
+        const snap = await db
+          .collection(`labs/${labId}/${sub}/${lotId}/runs`)
+          .orderBy('confirmedAt', 'desc')
+          .limit(20)
+          .get();
+        if (!snap.empty) return snap.docs;
+      } catch {
+        // try next source
+      }
+    }
+    return [];
+  }
 
   const result: HemaLot[] = [];
 
-  for (const lotDoc of lotsSnap.docs) {
-    const lotData = lotDoc.data();
+  for (const [lotId, m] of metaById.entries()) {
+    const todayDocs = await fetchTodayRuns(lotId, m.source);
+    if (todayDocs.length === 0) continue;
 
-    const todaySnap = await db
-      .collection(`labs/${labId}/lots/${lotDoc.id}/runs`)
-      .where('confirmedAt', '>=', admin.firestore.Timestamp.fromDate(bounds.start))
-      .where('confirmedAt', '<=', admin.firestore.Timestamp.fromDate(bounds.end))
-      .orderBy('confirmedAt', 'asc')
-      .get();
+    const chartDocs = await fetchLast20Runs(lotId, m.source);
 
-    if (todaySnap.empty) continue;
+    // Exclui corridas informativas (ex: lote vencido) — não compõem média/DP
+    // do relatório CQI nem o histórico oficial dos 20 últimos pontos. Mantêm-se
+    // gravadas no Firestore para auditoria, mas não viram evidência estatística.
+    const todayRuns: HemaRun[] = todayDocs
+      .filter((d) => d.data()['aproveitamento'] !== 'informativa')
+      .map((d) => {
+        const r = d.data();
+        return {
+          runCode: r['runCode'] ?? d.id.slice(0, 8).toUpperCase(),
+          confirmedAt: (r['confirmedAt'] as admin.firestore.Timestamp).toDate(),
+          operatorName: r['operatorName'] ?? '—',
+          status: r['status'] ?? 'Pendente',
+          results: (r['results'] ?? []) as RunResult[],
+        };
+      });
 
-    const chartSnap = await db
-      .collection(`labs/${labId}/lots/${lotDoc.id}/runs`)
-      .orderBy('confirmedAt', 'desc')
-      .limit(20)
-      .get();
+    // Reverse so chart shows oldest → newest. Filtra informativas pelo mesmo motivo.
+    const last20Runs = chartDocs
+      .slice()
+      .reverse()
+      .filter((d) => d.data()['aproveitamento'] !== 'informativa')
+      .map((d) => {
+        const r = d.data();
+        return {
+          confirmedAt: (r['confirmedAt'] as admin.firestore.Timestamp).toDate(),
+          results: (r['results'] ?? []) as RunResult[],
+        };
+      });
 
-    const todayRuns: HemaRun[] = todaySnap.docs.map((d) => {
-      const r = d.data();
-      return {
-        runCode: r['runCode'] ?? d.id.slice(0, 8).toUpperCase(),
-        confirmedAt: (r['confirmedAt'] as admin.firestore.Timestamp).toDate(),
-        operatorName: r['operatorName'] ?? '—',
-        status: r['status'] ?? 'Pendente',
-        results: (r['results'] ?? []) as RunResult[],
-      };
-    });
-
-    // Reverse so chart shows oldest → newest
-    const last20Runs = chartSnap.docs.reverse().map((d) => {
-      const r = d.data();
-      return {
-        confirmedAt: (r['confirmedAt'] as admin.firestore.Timestamp).toDate(),
-        results: (r['results'] ?? []) as RunResult[],
-      };
-    });
-
+    const fields = lotMetaFields(m);
     result.push({
-      lotId: lotDoc.id,
-      lotNumber: lotData['lotNumber'] ?? lotDoc.id,
-      level: lotData['level'] ?? '—',
-      equipmentName: lotData['equipmentName'] ?? '—',
-      requiredAnalytes: (lotData['requiredAnalytes'] ?? []) as string[],
+      lotId,
+      lotNumber: fields.lotNumber || lotId,
+      level: String(fields.level),
+      equipmentName: fields.equipmentName,
+      requiredAnalytes: fields.requiredAnalytes,
       todayRuns,
       last20Runs,
     });

@@ -105,6 +105,41 @@ export interface Run {
     kinds: string[];
     message: string;
   };
+
+  /**
+   * Classifica a corrida quanto ao uso estatístico:
+   * - `oficial` (default): entra em média/DP/Westgard/decisão da bancada.
+   * - `informativa`: registrada para julgamento clínico e rastreabilidade
+   *   (RDC 978/2025), mas EXCLUÍDA dos cálculos do lote. Usada quando algum
+   *   reagente foi declarado em estado reclassificável (ex: lote vencido em
+   *   contexto de difícil reposição). Determinação automática a partir de
+   *   `complianceOverride.blockers` no momento da gravação — operador NÃO
+   *   escolhe diretamente.
+   *
+   * Ausência do campo equivale a `oficial` (corridas legadas pré-feature).
+   */
+  aproveitamento?: 'oficial' | 'informativa';
+  /** Motivo concatenado da reclassificação. Preenchido sse aproveitamento === 'informativa'. */
+  motivoInformativa?: string;
+
+  /**
+   * `true` quando a corrida foi gravada antes da bula do lote chegar
+   * (lote em estado `bulaPendente`). Westgard fica suspenso até que
+   * `applyBulaToLots` recompute. Permite isolar runs do período
+   * "sem bula" pra auditoria e tratamento estatístico diferenciado.
+   */
+  semBula?: boolean;
+  /**
+   * Timestamp do recálculo retroativo de Westgard quando a bula chegou.
+   * Marca runs que mudaram de status `Pendente` (ou indeterminado) →
+   * Aprovada/Rejeitada após `applyBulaToLots`. Auditoria.
+   */
+  recalculatedAt?: Date;
+}
+
+/** Helper: corrida conta para média/DP/Westgard? */
+export function isRunOficial(r: Pick<Run, 'aproveitamento'>): boolean {
+  return r.aproveitamento !== 'informativa';
 }
 
 /** Transient in-memory state while operator reviews AI extraction */
@@ -149,7 +184,27 @@ export interface ControlLot {
   startDate: Date;
   expiryDate: Date;
   requiredAnalytes: string[];
-  manufacturerStats: ManufacturerStats;
+  /**
+   * Stats da bula Controllab (mean/sd por analito × equipamento). `null`
+   * quando o lote foi cadastrado SEM BULA — Controllab manda os controles
+   * antes da bula chegar (lag típico ≤7 dias). Nesse estado, runs são
+   * gravadas com valores brutos mas Westgard fica suspenso (sem limites de
+   * controle disponíveis). Ao chegar a bula, `applyBulaToLots` preenche
+   * `manufacturerStats` e dispara recálculo retroativo das runs.
+   */
+  manufacturerStats: ManufacturerStats | null;
+  /**
+   * `true` enquanto o lote aguarda a bula. Derivado naturalmente de
+   * `manufacturerStats == null` mas mantido como flag explícita pra
+   * facilitar queries e UI (badges, banners).
+   */
+  bulaPendente?: boolean;
+  /**
+   * Quando o operador "encerrou" o lote substituindo por uma bula nova,
+   * mesmo antes de vencer pela data. Move pra HISTÓRICO em
+   * `groupByStatus`. Distinto de `expiryDate` (validade impressa).
+   */
+  archivedAt?: Date;
   /**
    * All confirmed runs for this lot.
    * In Firestore this is a subcollection; in memory it is denormalized here
@@ -181,6 +236,15 @@ export interface ControlLot {
    * módulos ignoram esse flag (sempre exigem controle por corrida).
    */
   requerControlePorCorrida?: boolean;
+
+  /**
+   * Override manual de "em uso" — quando `true`, o lote é movido pra seção
+   * DISPONÍVEIS na tela de Lotes mesmo sendo da bula corrente. Usado em
+   * casos operacionais: lote contaminado, parou de rodar, retido pra
+   * investigação. Reversível via toggle. Ausente/false = comportamento
+   * padrão (segue a lógica de bula corrente).
+   */
+  manualHidden?: boolean;
 }
 
 // ─── Labs & Auth ──────────────────────────────────────────────────────────────
@@ -358,7 +422,77 @@ export type View =
   | 'lab-settings'
   | 'educacao-continuada'
   | 'controle-temperatura'
-  | 'sgq-documentos';
+  | 'sgq-documentos'
+  | 'rastreabilidade';
+
+// ─── Traceability ─────────────────────────────────────────────────────────────
+
+/**
+ * Evento de rastreabilidade — append-only event log que ancora um marco no
+ * tempo (troca de reagente, aprovação de controle, calibração) ao código
+ * sequencial de atendimento do LIS. Permite range queries que respondem
+ * "para o atendimento X, qual reagente/controle estava vigente?".
+ *
+ * Modelo: para um dado (unidade, equipmentId), o evento mais recente com
+ * `examCodeNum <= X` define a condição vigente. Sem duplicação por exame.
+ */
+export type TraceabilityEventType =
+  | 'reagent_change'
+  | 'control_run'
+  | 'calibration'
+  | 'maintenance';
+
+export interface TraceabilityEvent {
+  id: string;
+  tenantId: string;
+  /** Código da unidade do LIS (ex: 'CTL', 'SIL', 'GUA', 'MRC'). */
+  unidadeCode: string;
+  /** Identificador do equipamento (ex: 'yumizen-h550-sn1234'). */
+  equipmentId: string;
+  type: TraceabilityEventType;
+  /**
+   * Código do PRIMEIRO atendimento coberto após o evento (string original
+   * preserva zero-padding do LIS, ex: '0107036').
+   */
+  examCodeAtChange: string;
+  /** Versão numérica de `examCodeAtChange` para range queries (ex: 107036). */
+  examCodeNum: number;
+  timestamp: Date;
+  payload: {
+    /** Para 'reagent_change': id do lote de reagente recém-aberto. */
+    reagentLotId?: string;
+    /** Para 'control_run': id da run aprovada. */
+    controlRunId?: string;
+    /** Para 'control_run': id do lote de controle. */
+    controlLotId?: string;
+    /** Operador (futuro — quando módulo Operador for implementado). */
+    operatorId?: string;
+    /** Nota livre (manutenção, calibração). */
+    note?: string;
+  };
+  /** Usuário que registrou o evento. */
+  registeredBy: string;
+  /** Timestamp do registro (pode diferir de `timestamp` em caso de back-fill). */
+  registeredAt: Date;
+}
+
+/**
+ * Resultado consolidado da consulta de rastreabilidade para um exame.
+ * Cada slot é o último evento do tipo com `examCodeNum <= queryNum`.
+ */
+export interface TraceabilitySnapshot {
+  unidadeCode: string;
+  equipmentId: string;
+  queryExamCode: string;
+  queryExamNum: number;
+  reagentChange: TraceabilityEvent | null;
+  controlRun: TraceabilityEvent | null;
+  calibration: TraceabilityEvent | null;
+  maintenance: TraceabilityEvent | null;
+  /** Próximo evento de cada tipo (define fim da vigência). */
+  nextReagentChange: TraceabilityEvent | null;
+  nextControlRun: TraceabilityEvent | null;
+}
 export type StatsSource = 'manufacturer' | 'internal';
 export type ImageState = 'ready' | 'uploading' | 'none';
 

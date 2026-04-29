@@ -245,6 +245,13 @@ export interface CIQImunoLot {
   decisionBy?: string;
   /** Timestamp da decisão formal */
   decisionAt?: import('firebase/firestore').Timestamp;
+  /**
+   * Justificativa registrada pelo RT no momento da decisão formal.
+   * Obrigatória para rastreabilidade RDC 786 — capturada no modal de decisão
+   * com reauth, e gravada junto a `ciqDecision` (audit record imutável em
+   * `ciq-imuno/{lotId}/audit/`).
+   */
+  decisionJustificativa?: string;
 
   // ── Auditoria ─────────────────────────────────────────────────────────────
   createdAt: import('firebase/firestore').Timestamp;

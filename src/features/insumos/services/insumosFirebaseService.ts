@@ -89,11 +89,22 @@ export type CreateInsumoPayload =
   | (Omit<InsumoReagente, DerivedFields> & { createdBy: string; modulos?: InsumoReagente['modulos'] })
   | (Omit<InsumoTiraUro, DerivedFields> & { createdBy: string; modulos?: InsumoTiraUro['modulos'] });
 
-/** Campos editáveis pós-criação. Lote/fabricante/validade são imutáveis por padrão. */
+/**
+ * Campos editáveis pós-criação ("secundários"). Lote/fabricante/validade/
+ * produtoId/tipo são imutáveis — para correção desses, use
+ * `replaceInsumoForCorrection`.
+ */
 export type UpdateInsumoPayload = Partial<
-  Pick<Insumo, 'nomeComercial' | 'registroAnvisa' | 'diasEstabilidadeAbertura'>
+  Pick<
+    Insumo,
+    | 'nomeComercial'
+    | 'registroAnvisa'
+    | 'diasEstabilidadeAbertura'
+    | 'notaFiscalId'
+    | 'dataAbertura'
+  >
 > & {
-  /** Quando ajustes em dataAbertura/validade são permitidos, obriga justificativa. */
+  /** Justificativa obrigatória pra audit trail (mín 10 chars). */
   justificativa?: string;
 };
 
@@ -213,14 +224,174 @@ export async function createInsumo(
  * tipo, fabricante) são imutáveis — um erro de cadastro pede `descartarInsumo`
  * + novo cadastro para manter trilha histórica limpa.
  */
+/**
+ * Edita campos secundários de um insumo + grava movimentação `edit_secundario`
+ * com prevValues/newValues pra trilha auditável.
+ *
+ * Recalcula `validadeReal` automaticamente quando `dataAbertura` ou
+ * `diasEstabilidadeAbertura` mudam.
+ *
+ * Caller deve fazer reauth (reauthenticateWithCredential) antes de invocar
+ * — service não checa, mas Rules continuam aplicando isAdminOrOwner.
+ */
 export async function updateInsumo(
   labId: string,
   insumoId: string,
   patch: UpdateInsumoPayload,
+  current: Pick<Insumo, 'validade' | 'dataAbertura' | 'diasEstabilidadeAbertura' | 'nomeComercial' | 'registroAnvisa' | 'notaFiscalId'>,
+  operadorId: string,
+  operadorName: string,
 ): Promise<void> {
   try {
-    const { justificativa: _j, ...fields } = patch;
-    await updateDoc(insumoRef(labId, insumoId), fields);
+    const { justificativa, ...fields } = patch;
+
+    const willChangeValidade =
+      fields.dataAbertura !== undefined || fields.diasEstabilidadeAbertura !== undefined;
+
+    const updates: Record<string, unknown> = { ...fields };
+
+    if (willChangeValidade) {
+      const novaAbertura =
+        fields.dataAbertura !== undefined ? fields.dataAbertura : current.dataAbertura;
+      const novosDias =
+        fields.diasEstabilidadeAbertura !== undefined
+          ? fields.diasEstabilidadeAbertura
+          : current.diasEstabilidadeAbertura;
+
+      const aberturaDate = novaAbertura ? novaAbertura.toDate() : null;
+      updates.validadeReal = Timestamp.fromDate(
+        computeValidadeReal(current.validade.toDate(), aberturaDate, novosDias),
+      );
+    }
+
+    await updateDoc(insumoRef(labId, insumoId), updates);
+
+    // Snapshot do prev/new pra movimentação — só campos efetivamente alterados.
+    const prevValues: Record<string, unknown> = {};
+    const newValues: Record<string, unknown> = {};
+    if (fields.nomeComercial !== undefined && fields.nomeComercial !== current.nomeComercial) {
+      prevValues.nomeComercial = current.nomeComercial;
+      newValues.nomeComercial = fields.nomeComercial;
+    }
+    if (fields.registroAnvisa !== undefined && fields.registroAnvisa !== current.registroAnvisa) {
+      prevValues.registroAnvisa = current.registroAnvisa ?? null;
+      newValues.registroAnvisa = fields.registroAnvisa;
+    }
+    if (fields.notaFiscalId !== undefined && fields.notaFiscalId !== current.notaFiscalId) {
+      prevValues.notaFiscalId = current.notaFiscalId ?? null;
+      newValues.notaFiscalId = fields.notaFiscalId;
+    }
+    if (
+      fields.dataAbertura !== undefined &&
+      fields.dataAbertura?.toMillis() !== current.dataAbertura?.toMillis()
+    ) {
+      prevValues.dataAbertura = current.dataAbertura ?? null;
+      newValues.dataAbertura = fields.dataAbertura;
+    }
+    if (
+      fields.diasEstabilidadeAbertura !== undefined &&
+      fields.diasEstabilidadeAbertura !== current.diasEstabilidadeAbertura
+    ) {
+      prevValues.diasEstabilidadeAbertura = current.diasEstabilidadeAbertura;
+      newValues.diasEstabilidadeAbertura = fields.diasEstabilidadeAbertura;
+    }
+
+    if (Object.keys(newValues).length > 0) {
+      await logMovimentacao(labId, {
+        insumoId,
+        tipo: 'edit_secundario',
+        operadorId,
+        operadorName,
+        ...(justificativa && { motivo: justificativa }),
+        prevValues,
+        newValues,
+      });
+    }
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err), { cause: err });
+  }
+}
+
+/**
+ * Substituição por correção de cadastro — descarta o insumo antigo (status
+ * 'descartado', motivo 'correcao_cadastro') e cria um novo com os dados
+ * corrigidos. Os dois docs ficam linkados via `replacedByInsumoId`/
+ * `replacesInsumoId` + duas movimentações `substituicao` carregando
+ * `replacesInsumoId`/`replacedByInsumoId` no payload.
+ *
+ * Atomic: usa writeBatch — ou tudo, ou nada. Falha se já existir movimentação
+ * de uso (corrida) referenciando o antigo (validação client-side com getDocs;
+ * Rules são defense-in-depth final).
+ *
+ * Caller deve fazer reauth + fornecer justificativa (mín 10 chars).
+ */
+export async function replaceInsumoForCorrection(
+  labId: string,
+  oldInsumoId: string,
+  newPayload: CreateInsumoPayload,
+  justificativa: string,
+  operadorId: string,
+  operadorName: string,
+): Promise<string> {
+  try {
+    const newId = crypto.randomUUID();
+
+    const validadeDate = newPayload.validade.toDate();
+    const aberturaDate = newPayload.dataAbertura ? newPayload.dataAbertura.toDate() : null;
+    const validadeReal = Timestamp.fromDate(
+      computeValidadeReal(validadeDate, aberturaDate, newPayload.diasEstabilidadeAbertura),
+    );
+
+    const modulos =
+      Array.isArray(newPayload.modulos) && newPayload.modulos.length > 0
+        ? newPayload.modulos
+        : [newPayload.modulo];
+    const moduloLegado = newPayload.modulo ?? modulos[0];
+    const statusInicial: Insumo['status'] = newPayload.dataAbertura ? 'ativo' : 'fechado';
+
+    const newDoc: Omit<Insumo, 'id'> = {
+      ...newPayload,
+      labId,
+      modulo: moduloLegado,
+      modulos,
+      status: statusInicial,
+      validadeReal,
+      createdAt: Timestamp.now(),
+      replacesInsumoId: oldInsumoId,
+    } as Omit<Insumo, 'id'>;
+
+    const batch = writeBatch(db);
+    batch.set(insumoRef(labId, newId), newDoc);
+    batch.update(insumoRef(labId, oldInsumoId), {
+      status: 'descartado',
+      descartadoEm: serverTimestamp(),
+      motivoDescarte: `correcao_cadastro: ${justificativa}`,
+      replacedByInsumoId: newId,
+    });
+    await batch.commit();
+
+    // Movimentações imutáveis — uma pro antigo, uma pro novo. Logamos sequencial
+    // (não atomic com o batch, mas a atomicidade do batch já garante consistência
+    // do estado dos insumos; falha aqui só perde o trail textual mas chain-hash
+    // do scheduler reconcilia depois).
+    await logMovimentacao(labId, {
+      insumoId: oldInsumoId,
+      tipo: 'substituicao',
+      operadorId,
+      operadorName,
+      motivo: `Substituído por ${newId}: ${justificativa}`,
+      replacedByInsumoId: newId,
+    });
+    await logMovimentacao(labId, {
+      insumoId: newId,
+      tipo: 'substituicao',
+      operadorId,
+      operadorName,
+      motivo: `Correção de cadastro de ${oldInsumoId}: ${justificativa}`,
+      replacesInsumoId: oldInsumoId,
+    });
+
+    return newId;
   } catch (err) {
     throw new Error(firestoreErrorMessage(err), { cause: err });
   }

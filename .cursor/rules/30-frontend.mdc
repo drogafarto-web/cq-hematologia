@@ -1,0 +1,67 @@
+---
+description: Convenções frontend HC Quality — Zustand, custom router, design system dark-first, Tailwind 4, code-split.
+globs:
+  - src/**/*.ts
+  - src/**/*.tsx
+  - src/**/*.css
+  - vite.config.ts
+  - tailwind.config.*
+---
+
+# Frontend — convenções
+
+Stack: React 19 + Vite 6 + Tailwind 4 + Zustand. Mapa de paths: [paths-map](mdc:docs/playbooks/paths-map.md).
+
+## Roteamento
+
+**Custom router via `useAppStore.currentView`** — NÃO use React Router. Toda navegação é mudança de estado em `useAppStore`. Ver `src/features/auth/AuthWrapper.tsx`.
+
+## State
+
+- `useAuthStore` — `appProfile` + custom claims (módulos liberados)
+- `useAppStore` — `currentView`, `lots`, `pendingRun`, etc.
+- Stores são fonte da verdade. Componentes consomem via selectors estreitos pra evitar re-render.
+
+## Design system — dark-first
+
+Tailwind 4 com tokens via `@theme`. Light mode é derivação. Nunca shippe componente que só funciona em light.
+
+- Background base escuro (`#0A0A0B`-ish), tipografia editorial, letter-spacing negativo em headings, font-weight intencional.
+- Loading states: shimmer/skeleton, **nunca** spinner genérico girando.
+- Transições 200-300ms intencionais.
+- **Inline styles** quando Tailwind 4 + Turbopack não cooperam (classes arbitrárias). Já é padrão aceito.
+
+Validação completa: [designer-validation](mdc:docs/playbooks/designer-validation.md).
+
+## Forms
+
+Validação no cliente E no servidor. Servidor valida com Zod (callable). Cliente apresenta erro humanizado em pt-BR.
+
+## OCR / IA
+
+Gemini via callable `extractFromImage`, `analyzeImmunoStrip`, `extractFromBula`, `parseUrinaTira`. Nunca chame Gemini direto do frontend — sempre via Functions (chave fica no servidor).
+
+## Bundle / perf
+
+- Code-split por feature quando possível.
+- **XLSX import bloqueia code-split** — import estático em `src/features/controle-temperatura/services/ctXlsxService.ts`. Se mexer, considerar dynamic import.
+- Sem N+1 em listeners (usar query com índice).
+
+## A11y baseline
+
+Contraste WCAG AA, foco visível em todo interativo, labels em forms, alt em imagens, navegação por teclado.
+
+## Padrões de feature
+
+Cada feature em `src/features/<nome>/`:
+
+```
+features/<nome>/
+├── components/      # UI da feature
+├── hooks/           # Hooks de orquestração
+├── services/        # Chamadas a Firestore/Functions
+├── types/           # Schemas TS da feature
+└── index.tsx        # Entrypoint
+```
+
+Service usa `databaseService` factory (`src/shared/services/databaseService.ts`) — Firestore vs LocalStorage transparente pra teste.

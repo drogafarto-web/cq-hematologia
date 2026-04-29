@@ -66,6 +66,8 @@ const MOV_LABEL: Record<InsumoMovimentacaoTipo, { title: string; tone: TimelineE
   // PR1 (2026-04-26) — decisão formal de qualificação. Tone genérico aqui
   // (a UI específica diferencia aprovado/reprovado pelo campo `decision`).
   qualificacao: { title: 'Qualificação registrada', tone: 'neutral' },
+  edit_secundario: { title: 'Edição de dados secundários', tone: 'neutral' },
+  substituicao: { title: 'Substituição por correção', tone: 'warn' },
 };
 
 const TRANS_LABEL: Record<

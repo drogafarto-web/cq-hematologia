@@ -15,9 +15,14 @@ interface ExtractFromImageResult {
   results: Record<string, GeminiAnalyteResult>;
 }
 
+// Timeout client-side alinhado com o timeoutSeconds=300s do servidor.
+// Sem isso, o Firebase callable cliente desiste em 70s e mostra
+// `deadline-exceeded` ao operador mesmo quando o backend ainda está rodando
+// (ex: cai no fallback Nível 3 / Qwen OpenRouter, que demora ~1m+).
 const _extractFromImage = httpsCallable<ExtractFromImagePayload, ExtractFromImageResult>(
   functions,
   'extractFromImage',
+  { timeout: 300000 },
 );
 
 // ─── Public API ───────────────────────────────────────────────────────────────
@@ -68,6 +73,11 @@ function mapFunctionsError(err: unknown): Error {
 
     if (code === 'functions/resource-exhausted') {
       return new Error('Cota da API Gemini excedida. Aguarde alguns instantes e tente novamente.');
+    }
+    if (code === 'functions/deadline-exceeded' || code === 'deadline-exceeded') {
+      return new Error(
+        'A extração demorou mais que o esperado (sistema está usando um modelo de fallback). Tente novamente em alguns segundos.',
+      );
     }
     if (code === 'functions/unauthenticated') {
       return new Error('Sessão expirada. Faça login novamente.');

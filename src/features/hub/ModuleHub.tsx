@@ -286,6 +286,15 @@ const ShieldIcon = () => (
   </Svg>
 );
 
+const TraceIcon = () => (
+  <Svg size={20}>
+    <circle cx="5" cy="10" r="1.6" stroke="currentColor" strokeWidth="1.3" />
+    <circle cx="15" cy="10" r="1.6" stroke="currentColor" strokeWidth="1.3" />
+    <path d="M6.5 10h7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeDasharray="1.5 1.5" />
+    <path d="M10 4v3M10 13v3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+  </Svg>
+);
+
 /* ╭─────────────────────────────────────────────────────────────────────────╮
    │ Module definitions                                                       │
    ╰─────────────────────────────────────────────────────────────────────────╯ */
@@ -583,6 +592,7 @@ export function ModuleHub() {
       label: 'Ferramentas',
       items: [
         { label: 'Importar bula PDF', icon: <PdfIcon />, view: 'bulaparser' as View },
+        { label: 'Rastreabilidade', icon: <TraceIcon />, view: 'rastreabilidade' as View },
         { label: 'Relatórios', icon: <ReportsIcon />, view: 'reports' as View },
         { label: 'Insumos', icon: <InsumosIcon />, view: 'insumos' as View },
         ...(canManageSettings

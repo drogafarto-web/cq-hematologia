@@ -132,19 +132,48 @@ export async function updateCIQLot(
 
 /**
  * Registra a decisão formal de aprovação/rejeição de um lote pelo RT.
- * Grava ciqDecision, decisionBy e decisionAt atomicamente.
+ *
+ * Compliance RDC 786/2025 + RDC 978/2025 art. 128:
+ *  1. Audit record imutável é gravado em ciq-imuno/{lotId}/audit/{uuid}
+ *     ANTES da mutação no lot (subcoleção bloqueia update/delete via Rules).
+ *  2. Atualiza ciqDecision, decisionBy, decisionAt, decisionJustificativa
+ *     atomicamente no documento do lote.
+ *
+ * O caller deve garantir reautenticação do operador antes de invocar
+ * (via reauthenticateWithCredential). Justificativa é obrigatória para
+ * rastreabilidade auditável.
  */
 export async function updateLotDecision(
   labId: string,
   lotId: string,
   decision: CIQImunoLot['ciqDecision'],
   decisionBy: string,
+  justificativa: string,
+  prevDecision?: CIQImunoLot['ciqDecision'],
 ): Promise<void> {
   try {
+    const auditRef = doc(
+      db,
+      COLLECTIONS.LABS,
+      labId,
+      SUBCOLLECTIONS.CIQ_IMUNO,
+      lotId,
+      SUBCOLLECTIONS.AUDIT,
+      crypto.randomUUID(),
+    );
+    await setDoc(auditRef, {
+      action: 'lot_decision',
+      actorUid: decisionBy,
+      prevValues: { ciqDecision: prevDecision ?? null },
+      newValues: { ciqDecision: decision, justificativa },
+      createdAt: serverTimestamp(),
+    });
+
     await updateDoc(lotRef(labId, lotId), {
       ciqDecision: decision,
       decisionBy,
       decisionAt: serverTimestamp(),
+      decisionJustificativa: justificativa,
     });
   } catch (err) {
     throw new Error(firestoreErrorMessage(err), { cause: err });

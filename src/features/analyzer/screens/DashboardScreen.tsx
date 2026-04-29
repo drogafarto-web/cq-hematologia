@@ -241,7 +241,7 @@ export function DashboardScreen({ lots, activeLot, goTo, setCurrentView }: Props
         : hasWarning
           ? 'warn'
           : 'approved';
-      const stats = activeLot.manufacturerStats[id];
+      const stats = activeLot.manufacturerStats?.[id];
       const cv = mean && stats ? ((stats.sd / stats.mean) * 100).toFixed(1) : '—';
       return {
         id,

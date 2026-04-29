@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { ControlLot, StatsSource } from '../../../types';
+import { isRunOficial } from '../../../types';
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
@@ -106,12 +107,13 @@ export function useStatsByMode(
     }
 
     // ── Manufacturer stats ───────────────────────────────────────────────────
-    const mfrRaw = lot.manufacturerStats[analyteId] ?? null;
+    const mfrRaw = lot.manufacturerStats?.[analyteId] ?? null;
     const manufacturerStats = mfrRaw ? expand(mfrRaw) : null;
 
     // ── Internal stats (live, sample SD) ────────────────────────────────────
+    // Apenas oficiais — informativas não compõem média/DP do lote.
     const approvedValues = lot.runs
-      .filter((r) => r.status === 'Aprovada')
+      .filter((r) => r.status === 'Aprovada' && isRunOficial(r))
       .flatMap((r) => r.results.filter((res) => res.analyteId === analyteId))
       .map((res) => res.value);
 

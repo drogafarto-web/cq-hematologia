@@ -20,7 +20,7 @@ import { MODULO_RUN_CONFIG } from './modulosConfig';
 import type { Insumo, InsumoModulo } from '../types/Insumo';
 
 export type ReagenteIssueKind =
-  | 'vencido' // validadeReal < now — hard block
+  | 'vencido' // validadeReal < now — block reclassificável (corrida vira informativa)
   | 'nao_ativo' // status !== 'ativo' (fechado/vencido/descartado) — hard block
   | 'lote_reprovado' // qcStatus === 'reprovado' (imuno) — hard block
   | 'qc_pendente' // qcValidationRequired === true — warn only (a própria corrida valida)
@@ -34,6 +34,17 @@ export interface ReagenteIssue {
   severity: IssueSeverity;
   insumo: Pick<Insumo, 'id' | 'nomeComercial' | 'fabricante' | 'lote'>;
   message: string;
+  /**
+   * Quando true: o issue ainda exige override auditado (severity='block'),
+   * MAS a corrida resultante é registrada como informativa — entra no
+   * histórico para julgamento clínico e não compõe média/DP/Westgard do lote.
+   *
+   * Caso de uso: lote vencido em região remota onde reposição extemporânea
+   * é difícil. RDC 978/2025 exige rastreabilidade do desvio (justificativa)
+   * mas ANVISA não obriga descarte se o material está sendo usado pra
+   * referência — só não pode entrar em decisão estatística do CIQ.
+   */
+  marksRunAsInformational?: boolean;
 }
 
 export interface ValidateReagentesResult {
@@ -92,7 +103,8 @@ export function validateReagentesForRun(
         kind: 'vencido',
         severity: 'block',
         insumo: slim,
-        message: `${r.nomeComercial} (lote ${r.lote}) vencido há ${Math.abs(dias)} dia(s). Não pode ser usado em corridas de CIQ.`,
+        message: `${r.nomeComercial} (lote ${r.lote}) vencido há ${Math.abs(dias)} dia(s). Corrida será registrada como informativa (sem aproveitamento estatístico).`,
+        marksRunAsInformational: true,
       });
     }
 
@@ -179,4 +191,25 @@ export function isOverridable(_kind: ReagenteIssueKind): boolean {
   // Por ora todos são override-ables com justificativa. Reavaliar por kind
   // quando surgir caso concreto.
   return true;
+}
+
+/**
+ * Decide se a corrida resultante deve ser marcada como `informativa` com base
+ * nos issues detectados — i.e., se há algum bloqueio reclassificável (vencido
+ * sendo o único caso hoje). Retorna o motivo concatenado para auditoria.
+ *
+ * Caller só deve chamar isto APÓS o operador confirmar override — antes disso
+ * a corrida ainda pode ser cancelada.
+ */
+export function resolveAproveitamento(
+  result: ValidateReagentesResult,
+): { aproveitamento: 'oficial' | 'informativa'; motivo: string | null } {
+  const informationalIssues = result.issues.filter((i) => i.marksRunAsInformational);
+  if (informationalIssues.length === 0) {
+    return { aproveitamento: 'oficial', motivo: null };
+  }
+  return {
+    aproveitamento: 'informativa',
+    motivo: informationalIssues.map((i) => i.message).join(' | '),
+  };
 }

@@ -9,6 +9,7 @@ import type {
   AnalyteStats,
   StatsSource,
 } from '../../../types';
+import { isRunOficial } from '../../../types';
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
@@ -197,13 +198,15 @@ export function useChartData(
     if (!lot || !analyteId) return empty;
 
     // ── Resolve statistics ───────────────────────────────────────────────────
-    const mfrRaw = lot.manufacturerStats[analyteId] ?? null;
+    const mfrRaw = lot.manufacturerStats?.[analyteId] ?? null;
 
     // Compute internal stats LIVE from approved runs (sample SD, N-1).
     // Using lot.statistics (cached) would be stale; computing here ensures
     // the chart always reflects the exact current run set.
+    // Apenas oficiais entram em estatística interna — informativas (lote vencido
+    // etc.) ficam visíveis no gráfico mas não influenciam média/DP.
     const approvedValues = lot.runs
-      .filter((r) => r.status === 'Aprovada')
+      .filter((r) => r.status === 'Aprovada' && isRunOficial(r))
       .flatMap((r) => r.results.filter((res) => res.analyteId === analyteId))
       .map((res) => res.value);
 

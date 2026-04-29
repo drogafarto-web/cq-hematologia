@@ -12,11 +12,15 @@
  *   - aposentado: apenas leitura
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useControlLotsAsInsumos } from '../../insumos/hooks/useControlLotsAsInsumos';
 import { useInsumos } from '../../insumos/hooks/useInsumos';
 import { useProdutos } from '../../insumos/hooks/useProdutos';
 import { useEquipmentSetup } from '../../insumos/hooks/useEquipmentSetup';
 import { NovoLoteModal } from '../../insumos/components/NovoLoteModal';
+import { EditInsumoSecundarioModal } from '../../insumos/components/EditInsumoSecundarioModal';
+import { SubstituirLoteModal } from '../../insumos/components/SubstituirLoteModal';
 import { EquipamentoFormModal } from './EquipamentoFormModal';
 import {
   EnterManutencaoModal,
@@ -86,10 +90,26 @@ export function EquipamentoCard({
     [equipamento.module],
   );
   const { insumos: allAtivos } = useInsumos(expanded ? insumoFilters : {});
-  const insumosDesseEquipamento = useMemo(
-    () => allAtivos.filter((i) => insumoCobreEquipamento(i, equipamento.id)),
-    [allAtivos, equipamento.id],
+
+  // Bridge — controles cadastrados via Bula PDF vivem em /lots (coleção
+  // legada). Adapta-os pra forma InsumoControle para esta tela enxergar
+  // os 3 níveis NV1/NV2/NV3 da bula Controllab. Filtra por lotes que ainda
+  // NÃO existem em /insumos (dedupe por lote) — quando a migração
+  // unificadora rodar, os mesmos lotes vão aparecer em ambos lados e o
+  // dedupe evita duplicação na UI.
+  const lotesEmInsumos = useMemo(
+    () => new Set(allAtivos.filter((i) => i.tipo === 'controle').map((i) => i.lote)),
+    [allAtivos],
   );
+  const controlesFromLots = useControlLotsAsInsumos({
+    modulo: equipamento.module,
+    excludeLotes: lotesEmInsumos,
+  });
+
+  const insumosDesseEquipamento = useMemo(() => {
+    const todos = [...allAtivos, ...controlesFromLots];
+    return todos.filter((i) => insumoCobreEquipamento(i, equipamento.id));
+  }, [allAtivos, controlesFromLots, equipamento.id]);
 
   const s = STATUS_CHIP[equipamento.status];
 
@@ -294,7 +314,7 @@ export function EquipamentoCard({
               ) : (
                 <ul className="space-y-1 max-h-52 overflow-y-auto">
                   {insumosDesseEquipamento.map((i) => (
-                    <LoteRow key={i.id} insumo={i} />
+                    <LoteRow key={i.id} insumo={i} canMutate={canMutate && !isAposentado} />
                   ))}
                 </ul>
               )}
@@ -414,7 +434,10 @@ function SlotCard({
   );
 }
 
-function LoteRow({ insumo }: { insumo: Insumo }) {
+function LoteRow({ insumo, canMutate }: { insumo: Insumo; canMutate: boolean }) {
+  const [showEdit, setShowEdit] = useState(false);
+  const [showSubstituir, setShowSubstituir] = useState(false);
+
   const v = insumo.validadeReal.toDate();
   const status = validadeStatus(v);
   const dias = diasAteVencer(v);
@@ -440,25 +463,128 @@ function LoteRow({ insumo }: { insumo: Insumo }) {
     'tira-uro': 'Tira',
   };
   return (
-    <li className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.05]">
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-200/60 dark:bg-white/[0.05] text-slate-600 dark:text-white/50 font-medium">
-            {tipoLabel[insumo.tipo]}
-          </span>
-          <p className="text-xs font-medium text-slate-800 dark:text-white/80 truncate">
-            {insumo.nomeComercial}
+    <>
+      <li className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.05]">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-200/60 dark:bg-white/[0.05] text-slate-600 dark:text-white/50 font-medium">
+              {tipoLabel[insumo.tipo]}
+            </span>
+            <p className="text-xs font-medium text-slate-800 dark:text-white/80 truncate">
+              {insumo.nomeComercial}
+            </p>
+            <span className={`${CHIP} ${state.chipCls}`} title={state.tooltip}>
+              {state.label}
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-500 dark:text-white/40 truncate">
+            Lote {insumo.lote}
           </p>
-          <span className={`${CHIP} ${state.chipCls}`} title={state.tooltip}>
-            {state.label}
-          </span>
         </div>
-        <p className="text-[11px] text-slate-500 dark:text-white/40 truncate">
-          Lote {insumo.lote}
-        </p>
-      </div>
-      <span className={`${CHIP} ${validadeBadge.cls} shrink-0`}>{validadeBadge.label}</span>
-    </li>
+        <span className={`${CHIP} ${validadeBadge.cls} shrink-0`}>{validadeBadge.label}</span>
+        {canMutate && (
+          <LoteActionsMenu
+            onEdit={() => setShowEdit(true)}
+            onSubstituir={() => setShowSubstituir(true)}
+          />
+        )}
+      </li>
+
+      {showEdit && (
+        <EditInsumoSecundarioModal insumo={insumo} onClose={() => setShowEdit(false)} />
+      )}
+      {showSubstituir && (
+        <SubstituirLoteModal insumo={insumo} onClose={() => setShowSubstituir(false)} />
+      )}
+    </>
+  );
+}
+
+function LoteActionsMenu({
+  onEdit,
+  onSubstituir,
+}: {
+  onEdit: () => void;
+  onSubstituir: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  // Portal-rendered popover com `position: fixed` — escapa qualquer
+  // ancestor com `overflow: auto/hidden`. `absolute` clássico era cortado
+  // pelo container scrollável do EquipamentoCard.
+  const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  function toggle() {
+    if (!open && buttonRef.current) {
+      const r = buttonRef.current.getBoundingClientRect();
+      setPos({
+        top: r.bottom + 4,
+        right: Math.max(8, window.innerWidth - r.right),
+      });
+    }
+    setOpen((v) => !v);
+  }
+
+  return (
+    <div className="relative shrink-0">
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={toggle}
+        aria-label="Ações do lote"
+        className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-white/40 dark:hover:text-white/80 hover:bg-slate-100 dark:hover:bg-white/[0.05]"
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+          <circle cx="3" cy="7" r="1.2" fill="currentColor" />
+          <circle cx="7" cy="7" r="1.2" fill="currentColor" />
+          <circle cx="11" cy="7" r="1.2" fill="currentColor" />
+        </svg>
+      </button>
+      {open &&
+        pos &&
+        createPortal(
+          <>
+            <button
+              type="button"
+              aria-label="Fechar menu"
+              className="fixed inset-0 z-[9998]"
+              onClick={() => setOpen(false)}
+            />
+            <div
+              style={{ position: 'fixed', top: pos.top, right: pos.right }}
+              className="z-[9999] w-56 rounded-xl bg-white dark:bg-[#151d2a] border border-slate-200 dark:border-white/[0.1] shadow-2xl overflow-hidden"
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  onEdit();
+                }}
+                className="w-full text-left px-3.5 py-2.5 text-xs text-slate-700 dark:text-white/80 hover:bg-slate-50 dark:hover:bg-white/[0.05]"
+              >
+                <div className="font-medium">Editar dados</div>
+                <div className="text-[10px] text-slate-400 dark:text-white/35">
+                  ANVISA, abertura, nome, NF
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  onSubstituir();
+                }}
+                className="w-full text-left px-3.5 py-2.5 text-xs text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-500/[0.08] border-t border-slate-100 dark:border-white/[0.05]"
+              >
+                <div className="font-medium">Substituir lote (correção)</div>
+                <div className="text-[10px] text-amber-600/80 dark:text-amber-300/70">
+                  Lote, fabricante, validade
+                </div>
+              </button>
+            </div>
+          </>,
+          document.body,
+        )}
+    </div>
   );
 }
 
@@ -476,11 +602,26 @@ function ActionsMenu({
   onAposentar: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  function toggle() {
+    if (!open && buttonRef.current) {
+      const r = buttonRef.current.getBoundingClientRect();
+      setPos({
+        top: r.bottom + 4,
+        right: Math.max(8, window.innerWidth - r.right),
+      });
+    }
+    setOpen((v) => !v);
+  }
+
   return (
     <div className="relative">
       <button
+        ref={buttonRef}
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={toggle}
         aria-label="Ações"
         className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-white/40 dark:hover:text-white/80 hover:bg-slate-100 dark:hover:bg-white/[0.05]"
       >
@@ -491,50 +632,56 @@ function ActionsMenu({
         </svg>
       </button>
 
-      {open && (
-        <>
-          <button
-            type="button"
-            aria-label="Fechar menu"
-            className="fixed inset-0 z-30"
-            onClick={() => setOpen(false)}
-          />
-          <div className="absolute right-0 top-9 z-40 w-56 rounded-xl bg-white dark:bg-[#151d2a] border border-slate-200 dark:border-white/[0.1] shadow-2xl overflow-hidden">
-            <MenuItem
-              onClick={() => {
-                setOpen(false);
-                onEdit();
-              }}
-              label="Editar dados"
+      {open &&
+        pos &&
+        createPortal(
+          <>
+            <button
+              type="button"
+              aria-label="Fechar menu"
+              className="fixed inset-0 z-[9998]"
+              onClick={() => setOpen(false)}
             />
-            {status === 'ativo' ? (
+            <div
+              style={{ position: 'fixed', top: pos.top, right: pos.right }}
+              className="z-[9999] w-56 rounded-xl bg-white dark:bg-[#151d2a] border border-slate-200 dark:border-white/[0.1] shadow-2xl overflow-hidden"
+            >
               <MenuItem
                 onClick={() => {
                   setOpen(false);
-                  onEnterManu();
+                  onEdit();
                 }}
-                label="Colocar em manutenção"
+                label="Editar dados"
               />
-            ) : (
+              {status === 'ativo' ? (
+                <MenuItem
+                  onClick={() => {
+                    setOpen(false);
+                    onEnterManu();
+                  }}
+                  label="Colocar em manutenção"
+                />
+              ) : (
+                <MenuItem
+                  onClick={() => {
+                    setOpen(false);
+                    onLeaveManu();
+                  }}
+                  label="Liberar manutenção"
+                />
+              )}
               <MenuItem
                 onClick={() => {
                   setOpen(false);
-                  onLeaveManu();
+                  onAposentar();
                 }}
-                label="Liberar manutenção"
+                label="Aposentar…"
+                tone="danger"
               />
-            )}
-            <MenuItem
-              onClick={() => {
-                setOpen(false);
-                onAposentar();
-              }}
-              label="Aposentar…"
-              tone="danger"
-            />
-          </div>
-        </>
-      )}
+            </div>
+          </>,
+          document.body,
+        )}
     </div>
   );
 }

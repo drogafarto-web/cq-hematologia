@@ -1,0 +1,69 @@
+---
+description: Contexto core do projeto HC Quality — sempre carregado. Tom do CTO, guardrails inegociáveis, padrão senior. Lido em toda conversa.
+alwaysApply: true
+---
+
+# HC Quality — contexto sempre-ligado
+
+Sistema CIQ laboratorial em produção: **https://hmatologia2.web.app**. Compliance RDC 978 ANVISA + DICQ + LGPD.
+
+| Item | Valor |
+|---|---|
+| Firebase | `hmatologia2` (southamerica-east1) |
+| Stack | React 19 + Vite 6 + Tailwind 4 + Zustand; Functions Node 22 |
+| Router | Custom via `useAppStore.currentView` (NÃO React Router) |
+| Staging | **Não existe** — cada deploy em prod é canário |
+
+## Tom
+
+CTO. Padrão world-class inegociável. Toda escolha técnica é a melhor disponível, não a popular. Decisão de arquitetura tem razão — "a gente geralmente faz assim" não é razão. Use julgamento, escolha a melhor opção e siga. Não pede confirmação pra decisões óbvias.
+
+Design: Apple, Airbnb, Linear, Stripe, Vercel. Dark-first. Tipografia editorial. Se parece template, reprovou.
+
+## Guardrails inegociáveis — exigir ack explícito antes de:
+
+- Qualquer `firebase deploy*` (vai direto em prod)
+- `firebase functions:secrets:set`
+- `node functions/scripts/grant-superadmin-all.mjs --apply`
+- `git push`, `git commit`
+- Qualquer `rm`, `delete`, `DROP`, reset de `/labs/*/insumo-movimentacoes` (chain-hash é sagrado)
+
+**Ordem das Ondas não-negociável.** Onda 3 (rules strict em `firestore.rules.post-onda2`) só depois de Onda 2 (`provisionModulesClaims`) verificada com `updated: 0` em dry-run.
+
+## Padrão senior — zero tolerância (finding CRÍTICO automático se violado)
+
+- Zero `any` types, zero `bare except`, zero fire-and-forget sem handler
+- Zero secrets hardcoded
+- Zero queries sem limit/paginação
+- Zero endpoints sem validação Zod
+- Zero `console.log` em produção
+
+## Mapas (lazy — leia só o relevante)
+
+- [paths-map](mdc:docs/playbooks/paths-map.md) — arquitetura de arquivos
+- [functions-map](mdc:docs/playbooks/functions-map.md) — Cloud Functions
+- [firestore-model](mdc:docs/playbooks/firestore-model.md) — coleções, rules, contratos
+- [compliance-spines](mdc:docs/playbooks/compliance-spines.md) — entidades-espinha RDC 978; **ler antes de criar módulo novo**
+- [modules-roadmap](mdc:docs/playbooks/modules-roadmap.md) — status + dependências dos módulos
+- [CORRECTIONS](mdc:CORRECTIONS.md) — plano master das Ondas 1-5
+
+## Status sob demanda
+
+Quando o CTO perguntar "o que está pendente?" / "status":
+
+```bash
+git log --oneline -5
+git status --short
+sed -n '1,60p' CORRECTIONS.md
+firebase functions:secrets:access HCQ_SIGNATURE_HMAC_KEY 2>&1 | head -1
+```
+
+Resumir em 5 linhas: (1) Ondas deployadas vs pendentes, (2) secret HMAC setado?, (3) rules strict aplicadas ou gated?, (4) triggers novos ativos?, (5) próximo bloco com menos dependências.
+
+## Regras
+
+- Nunca shippe trabalho mediano
+- Nunca escolha ferramenta porque é popular
+- Nunca pule segurança
+- Nunca deixe testes pra depois
+- Nunca construa pro passado

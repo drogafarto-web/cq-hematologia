@@ -90,7 +90,7 @@ const LEVEL_TEXT_CLASS: Record<number, string> = {
 function AnalyteStatsRow({ analyteId, lot }: { analyteId: string; lot: ControlLot }) {
   const analyte = ANALYTE_MAP[analyteId];
   if (!analyte) return null;
-  const mfr = lot.manufacturerStats[analyteId];
+  const mfr = lot.manufacturerStats?.[analyteId];
   const approvedValues = lot.runs
     .filter((r) => r.status === 'Aprovada')
     .flatMap((r) => r.results.filter((res) => res.analyteId === analyteId))
@@ -135,7 +135,7 @@ function AnalyteStatsRow({ analyteId, lot }: { analyteId: string; lot: ControlLo
 
 function MiniChart({ analyteId, lot }: { analyteId: string; lot: ControlLot }) {
   const analyte = ANALYTE_MAP[analyteId];
-  const mfr = lot.manufacturerStats[analyteId];
+  const mfr = lot.manufacturerStats?.[analyteId];
   if (!analyte || !mfr) return null;
   const { mean, sd } = mfr;
   const sortedRuns = [...lot.runs].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
@@ -529,7 +529,7 @@ function LevelSection({ lot, auditCode, isFirst, generatedAt }: LevelSectionProp
         <div className="space-y-4">
           {analyteIds.map((id) => {
             const analyte = ANALYTE_MAP[id];
-            const mfr = lot.manufacturerStats[id];
+            const mfr = lot.manufacturerStats?.[id];
             if (!analyte || !mfr) return null;
             return (
               <div

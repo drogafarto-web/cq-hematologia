@@ -101,11 +101,126 @@ const REVOKE_TOKEN = 'REVOGAR';
 export function MigrationsTab() {
   return (
     <div className="space-y-8">
+      <LotsMigrationSection />
       <FaseDMigrationSection />
       <CleanupSection />
       <ProvisionClaimsSection />
       <TemporarySuperAdminSection />
     </div>
+  );
+}
+
+// ─── Seção — Migração /lots → /insumos (Fase B 2026-04-28) ──────────────────
+
+interface LotsMigrationSummary {
+  triggeredAt: string;
+  scannedLabs: number;
+  scannedLots: number;
+  migratedLots: number;
+  scannedRuns: number;
+  migratedRuns: number;
+  errors: string[];
+  durationMs: number;
+}
+
+function LotsMigrationSection() {
+  const [loading, setLoading] = useState(false);
+  const [labId, setLabId] = useState('');
+  const [result, setResult] = useState<LotsMigrationSummary | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function run() {
+    const scope = labId.trim()
+      ? `apenas o lab ${labId.trim()}`
+      : 'TODOS os labs do sistema';
+    const ok = window.confirm(
+      `Migrar /lots → /insumos com tipo='controle' em ${scope}?\n\n` +
+        `Cada lote em /lots será replicado em /insumos preservando o ID.\n` +
+        `Sub-coleção runs também é copiada. Idempotente — rerun safe.\n\n` +
+        `/lots permanece intacto como backup.`,
+    );
+    if (!ok) return;
+    setLoading(true);
+    setError(null);
+    setResult(null);
+    try {
+      const fn = httpsCallable<{ labId?: string }, LotsMigrationSummary>(
+        functions,
+        'triggerLotsMigration',
+      );
+      const res = await fn(labId.trim() ? { labId: labId.trim() } : {});
+      setResult(res.data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao disparar migração.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <section className="rounded-2xl bg-white/[0.03] border border-white/[0.08] p-6">
+      <header className="mb-4">
+        <p className="text-[10px] uppercase tracking-widest font-semibold text-violet-400/80">
+          Migração one-time · Fase B
+        </p>
+        <h3 className="text-base font-semibold text-white/90 mt-0.5">
+          /lots → /insumos (unificação de modelo)
+        </h3>
+        <p className="text-xs text-white/55 mt-1 leading-relaxed max-w-2xl">
+          Replica cada ControlLot em /labs/{`{lab}`}/insumos com tipo=&apos;controle&apos;,
+          preservando ID original e sub-coleção runs. /lots permanece intacto
+          como backup. Idempotente. Resolve a duplicação de modelo identificada
+          na auditoria 2026-04-27.
+        </p>
+      </header>
+
+      <div className="flex gap-2 mb-4 max-w-md">
+        <input
+          type="text"
+          value={labId}
+          onChange={(e) => setLabId(e.target.value)}
+          placeholder="labId (vazio = todos os labs)"
+          className="flex-1 px-3 h-10 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white/85 placeholder-white/30 focus:outline-none focus:border-violet-500/50 transition-all"
+        />
+        <button
+          type="button"
+          onClick={run}
+          disabled={loading}
+          className="px-4 h-10 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium disabled:opacity-50 transition-all"
+        >
+          {loading ? 'Migrando…' : 'Executar migração'}
+        </button>
+      </div>
+
+      {error && <ErrorBox message={error} />}
+      {result && (
+        <div className="rounded-xl bg-emerald-500/[0.08] border border-emerald-500/20 p-4 text-sm text-emerald-200/90 space-y-1">
+          <p className="font-semibold">
+            ✓ Migração concluída em {(result.durationMs / 1000).toFixed(1)}s
+          </p>
+          <p className="text-xs text-emerald-200/70">
+            Labs varridos: <strong>{result.scannedLabs}</strong> · Lotes:{' '}
+            <strong>{result.migratedLots}</strong> de {result.scannedLots} · Runs:{' '}
+            <strong>{result.migratedRuns}</strong> de {result.scannedRuns}
+          </p>
+          {result.errors.length > 0 && (
+            <details className="mt-2">
+              <summary className="text-xs text-amber-300 cursor-pointer">
+                {result.errors.length} erro(s) — clique pra ver
+              </summary>
+              <ul className="mt-1 ml-4 list-disc text-[11px] text-amber-200/80 space-y-0.5">
+                {result.errors.slice(0, 20).map((e, i) => (
+                  <li key={i}>{e}</li>
+                ))}
+                {result.errors.length > 20 && (
+                  <li className="italic">… e mais {result.errors.length - 20}</li>
+                )}
+              </ul>
+            </details>
+          )}
+        </div>
+      )}
+    </section>
   );
 }
 

@@ -955,7 +955,17 @@ export function CIQImunoDashboard() {
     setDecisionErr(null);
     setDecidingLot(true);
     try {
-      await updateLotDecision(activeLot.labId, activeLot.id, decision, user.uid);
+      // Legacy dashboard — não consumido pelo AnalyzerView.tsx atual. Mantido
+      // só pra type-check; novo fluxo formal de decisão (reauth + justificativa)
+      // está em CIQImunoContent.tsx via LotDecisionModal.
+      await updateLotDecision(
+        activeLot.labId,
+        activeLot.id,
+        decision,
+        user.uid,
+        'legacy-dashboard',
+        activeLot.ciqDecision,
+      );
     } catch (err) {
       setDecisionErr(err instanceof Error ? err.message : 'Erro ao registrar decisão.');
     } finally {

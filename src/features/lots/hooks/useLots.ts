@@ -2,9 +2,17 @@ import { useEffect, useCallback } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { useActiveLabId, useUser } from '../../../store/useAuthStore';
 import { getDatabaseService } from '../../../shared/services/databaseService';
-import type { ControlLot, InternalStats, DatabaseService } from '../../../types';
+import { checkWestgardRules, isRejection } from '../../chart/utils/westgardRules';
+import type {
+  ControlLot,
+  InternalStats,
+  DatabaseService,
+  ManufacturerStats,
+  Run,
+} from '../../../types';
 import { toast } from '../../../shared/store/useToastStore';
 import { haptic } from '../../../shared/hooks/useHaptic';
+import { trackEvent, Sentry } from '../../../lib/sentry';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -108,6 +116,23 @@ export function useLots() {
     async (input: AddLotInput): Promise<string> => {
       if (!labId) throw new Error('Nenhum laboratório ativo.');
 
+      // Chave natural: lotNumber+level+controlName. Bloqueia re-import da
+      // mesma bula Controllab — duplicatas com IDs distintos bagunçam picker
+      // de níveis e cálculo de estatística interna.
+      const dup = lots.find(
+        (l) =>
+          l.lotNumber === input.lotNumber &&
+          l.level === input.level &&
+          l.controlName === input.controlName,
+      );
+      if (dup) {
+        const dt = dup.startDate.toLocaleDateString('pt-BR');
+        throw new Error(
+          `Lote "${input.lotNumber}" NV${input.level} já cadastrado em ${dt}. ` +
+            `Verifique a aba "Lotes de controle" antes de re-importar a bula.`,
+        );
+      }
+
       const newLot: ControlLot = {
         ...input,
         id: crypto.randomUUID(),
@@ -122,11 +147,13 @@ export function useLots() {
       const prevLots = lots;
       setLots([...lots, newLot]);
       try {
+        // saveLot replica em /insumos internamente — ver firebaseService.
         await withSync((db) => db.saveLot(newLot));
       } catch (err) {
         setLots(prevLots);
         throw err;
       }
+
       haptic.confirm();
       toast.success(`Lote "${input.controlName}" adicionado.`);
       return newLot.id;
@@ -239,6 +266,118 @@ export function useLots() {
     [activeLotId, selectedAnalyteId, setSelectedAnalyteId, withSync],
   );
 
+  /**
+   * Aplica a bula a um lote pendente: preenche `manufacturerStats`,
+   * `requiredAnalytes`, zera `bulaPendente` e RECOMPUTA Westgard de todas
+   * as runs já gravadas nesse lote (que estavam sem limites). Cada run
+   * recebe `recalculatedAt` pra trilha auditável.
+   *
+   * O recálculo segue ordem cronológica (timestamp asc) — Westgard usa
+   * histórico de pontos anteriores. Status final de cada run:
+   *   - violation rejection presente → 'Rejeitada'
+   *   - else (warnings ou nenhuma) → 'Aprovada'
+   */
+  const applyBulaToLot = useCallback(
+    async (
+      lotId: string,
+      manufacturerStats: ManufacturerStats,
+      requiredAnalytes: string[],
+    ): Promise<void> => {
+      if (!labId) throw new Error('Nenhum laboratório ativo.');
+      const target = lots.find((l) => l.id === lotId);
+      if (!target) throw new Error(`Lote ${lotId} não encontrado.`);
+
+      trackEvent('bula', 'applyBulaToLot', {
+        lotId,
+        lotNumber: target.lotNumber,
+        level: target.level,
+        runsToRecalculate: target.runs.length,
+        analytesInBula: Object.keys(manufacturerStats).length,
+      });
+
+      // 1) Atualiza metadata do lote
+      const updatedLot: ControlLot = {
+        ...target,
+        manufacturerStats,
+        requiredAnalytes,
+        bulaPendente: false,
+      };
+
+      // 2) Recalcula Westgard das runs em ordem cronológica
+      const runsAsc = [...target.runs].sort(
+        (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+      );
+      const now = new Date();
+      const recalculatedRuns: Run[] = [];
+      const previousByAnalyte = new Map<string, number[]>();
+      for (const run of runsAsc) {
+        const newResults = run.results.map((res) => {
+          const stats = manufacturerStats[res.analyteId];
+          if (!stats) {
+            // Analito sem stats na bula — preserva resultado bruto, sem violations.
+            return { ...res, violations: [] };
+          }
+          const previous = previousByAnalyte.get(res.analyteId) ?? [];
+          const violations = checkWestgardRules(res.value, previous, stats);
+          // Atualiza histórico do analito pra próxima iteração.
+          previousByAnalyte.set(res.analyteId, [res.value, ...previous]);
+          return { ...res, violations };
+        });
+        const hasReject = newResults.some((r) => isRejection(r.violations ?? []));
+        recalculatedRuns.push({
+          ...run,
+          results: newResults,
+          status: hasReject ? 'Rejeitada' : 'Aprovada',
+          recalculatedAt: now,
+        });
+      }
+
+      // 3) Aplica em ordem original (mantém ordem do array de runs in-memory)
+      const recalcMap = new Map(recalculatedRuns.map((r) => [r.id, r]));
+      const newRuns = target.runs.map((r) => recalcMap.get(r.id) ?? r);
+      const finalLot: ControlLot = { ...updatedLot, runs: newRuns };
+
+      // 4) Persiste — saveLot atualiza metadata; saveRun por run individual
+      const prevLots = lots;
+      setLots(applyLotUpdate(lots, lotId, () => finalLot));
+      try {
+        await withSync(async (db) => {
+          await db.saveLot(finalLot);
+          for (const run of newRuns) {
+            await db.saveRun(lotId, run);
+          }
+        });
+      } catch (err) {
+        setLots(prevLots);
+        Sentry.captureException(err, {
+          tags: { feature: 'bula', action: 'applyBulaToLot' },
+          extra: { lotId, runsCount: newRuns.length },
+        });
+        throw err;
+      }
+
+      haptic.confirm();
+      toast.success(
+        `Bula aplicada — ${newRuns.length} corrida${newRuns.length === 1 ? '' : 's'} recalculada${newRuns.length === 1 ? '' : 's'}.`,
+      );
+    },
+    [labId, lots, setLots, withSync],
+  );
+
+  /**
+   * Toggle do override manual de "em uso". Quando ativado, o lote sai da
+   * seção EM USO mesmo sendo da bula corrente — usado em casos operacionais
+   * (lote contaminado, retido, etc). Reversível chamando de novo.
+   */
+  const toggleManualHidden = useCallback(
+    async (lotId: string): Promise<void> => {
+      const target = lots.find((l) => l.id === lotId);
+      if (!target) return;
+      await updateLot(lotId, { manualHidden: !target.manualHidden });
+    },
+    [lots, updateLot],
+  );
+
   return {
     // Data
     lots,
@@ -256,5 +395,7 @@ export function useLots() {
     deleteLot,
     selectLot,
     setSelectedAnalyte,
+    toggleManualHidden,
+    applyBulaToLot,
   } as const;
 }

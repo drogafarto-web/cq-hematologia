@@ -1,0 +1,49 @@
+---
+description: Compliance RDC 978 + LGPD — entidades-espinha, rastreabilidade, audit chain, retenção. Ativa em features de domínio sensível.
+globs:
+  - src/features/**/*.ts
+  - src/features/**/*.tsx
+  - functions/src/modules/**/*.ts
+  - firestore.rules
+---
+
+# Compliance — RDC 978 ANVISA + LGPD
+
+**Antes de criar módulo novo ou alterar schema cross-module: ler [compliance-spines](mdc:docs/playbooks/compliance-spines.md).** Cada módulo da RDC 978 referencia entidades-espinha canônicas em vez de inventar a sua. Sem isso, em 6 meses temos 7 versões de "Lote" e a auditoria quebra.
+
+## Espinhas (donos canônicos)
+
+| Spine | Dono (módulo) | Coleção | Status |
+|---|---|---|---|
+| Pessoa/Operador | Gestão de Pessoas | `/users` + `/labs/*/members` + `/labs/*/qualificacoes` | parcial — falta qualificações |
+| Fornecedor | Compras | `/labs/*/fornecedores` | placeholder (Fase E) |
+| Nota Fiscal | Compras | `/labs/*/notas-fiscais` | placeholder (Fase E) |
+| Lote rastreável | Estoque | `/labs/*/insumos` | live — falta vínculo NF + Fornecedor |
+| Movimentação assinada | infra (chain-hash) | `/labs/*/insumo-movimentacoes` | live |
+| Equipamento | Equipamentos | `/labs/*/equipamentos` | placeholder (Fase D) |
+| POP / Documento vigente | Documentos da Qualidade | `/labs/*/pops` | a construir |
+| Não-Conformidade | Qualidade | `/labs/*/nao-conformidades` | a construir |
+| Audit log assinado | infra | `/labs/*/ciq-audit` + `/auditLogs` | live |
+
+## Regras cross-module
+
+1. **Sempre por ID, nunca por embed.**
+   ```ts
+   // ❌ ERRADO
+   { operador: { uid, nome: 'João', cargo: 'Biomédico' } }
+   // ✅ CERTO
+   { operadorId: uid }
+   ```
+2. **Denormalização só se for invariante histórica** (ex.: nome do reagente impresso em laudo do passado). Nesse caso, salvar como `produtoSnapshot` explícito e documentar **por que** é snapshot.
+3. **Toda escrita sensível registra evento.** Estado sem evento = inauditável. Pattern: cliente escreve `chainStatus: 'pending'` → CF trigger sela com `chainHash`.
+4. **Nova coleção root só se compartilhada entre labs.** Default é `/labs/{labId}/...` (multi-tenant).
+
+## LGPD
+
+- `cpf` nunca raw — sempre `cpfHash` (SHA-256). LGPD + bom senso.
+- Soft-delete vs RDC 978 (retenção 5a) é conflito jurídico real, não auditado. Tratar com cautela.
+- Audit log deve permitir exclusão por solicitação do titular **mantendo** a invariância da chain (anonimizar PII, manter hash).
+
+## Mudanças sensíveis — revisão dupla
+
+Qualquer mudança em `/users`, `/auditLogs`, `firestore.rules`, ou campos de rastreabilidade exige revisão dupla antes de aplicar. Não pular.

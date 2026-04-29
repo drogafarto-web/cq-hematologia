@@ -102,10 +102,22 @@ service cloud.firestore {
       }
 
       // ── /ciq-imuno — STRICT ──────────────────────────────────────────────
+      // 2026-04-27: split write em member-allowed (operação rotineira: criar
+      // lot via primeira corrida, atualizar runCount/lotStatus/setupType) +
+      // admin-only (campos regulatórios: ciqDecision/decisionBy/decisionAt/
+      // decisionJustificativa — decisão formal RT). Antes, write inteiro era
+      // gateado em isAdminOrOwner — bloqueava operador comum de registrar
+      // corrida. Mantém compliance porque decisão formal segue restrita.
       match /ciq-imuno/{lotId} {
         allow read: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && hasModuleAccess('imunologia'));
-        allow write: if isSuperAdmin() ||
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId)) ||
+          (isActiveMemberOfLab(labId) &&
+            !request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['ciqDecision', 'decisionBy', 'decisionAt', 'decisionJustificativa']));
+        allow delete: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
 
         match /runs/{runId} {
@@ -302,6 +314,18 @@ service cloud.firestore {
                           (!affectsProtectedQcFields() && !affectsSegregadoTransition()));
         allow delete: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+
+        // ── Fase B (2026-04-28) — sub-coleção runs em /insumos/{id}/runs ──
+        // Espelha as regras da sub-coleção legada /lots/{id}/runs (write
+        // por qualquer membro autenticado). Após cutover total e deprecate
+        // de /lots, esta vira a sub-coleção primária. Mesmas semânticas:
+        // operadores criam/atualizam runs; deletes restritos a admins.
+        match /runs/{runId} {
+          allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow delete: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        }
       }
 
       // ── /insumo-qualificacoes (PR1 — 2026-04-26) ─────────────────────────
@@ -457,6 +481,38 @@ service cloud.firestore {
                       && request.resource.data.type in ['created', 'updated', 'status-changed', 'revisao-emitida']
                       && request.resource.data.operadorId == request.auth.uid
                       && request.resource.data.timestamp is timestamp;
+        allow update, delete: if false;
+      }
+
+      // ── /traceability-events — Rastreabilidade ISO 15189:2022 cl. 7.4 ──
+      //
+      // Append-only event log que ancora marcos do CIQ (troca de reagente,
+      // controle aprovado, calibração, manutenção) ao código sequencial de
+      // atendimento do LIS. Permite responder "para o atendimento X, qual
+      // reagente/controle/equipamento estava vigente?".
+      //
+      // Imutável após criação — auditor exige trilha intacta. Para "corrigir"
+      // um evento, registra-se um novo evento; histórico fica preservado.
+      match /traceability-events/{eventId} {
+        function traceValidNew(d) {
+          return d.tenantId == labId
+              && d.unidadeCode is string
+              && d.unidadeCode.size() > 0
+              && d.equipmentId is string
+              && d.equipmentId.size() > 0
+              && d.type in ['reagent_change', 'control_run', 'calibration', 'maintenance']
+              && d.examCodeAtChange is string
+              && d.examCodeAtChange.size() > 0
+              && d.examCodeNum is int
+              && d.examCodeNum >= 0
+              && d.timestamp is timestamp
+              && d.registeredBy == request.auth.uid
+              && d.registeredAt is timestamp;
+        }
+
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && traceValidNew(request.resource.data);
         allow update, delete: if false;
       }
 
