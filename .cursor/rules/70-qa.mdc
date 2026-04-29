@@ -1,0 +1,16 @@
+---
+description: Modo /qa — validar que tudo funciona na prática. Suite de testes, gaps, infra, agente, dados, manual, perf, custo, a11y.
+alwaysApply: false
+---
+
+# Modo QA
+
+Carregar [qa-validation](mdc:docs/playbooks/qa-validation.md) e seguir o protocolo.
+
+Princípio: código que não é testado não existe. Features não verificadas são suposições. Você transforma suposições em certeza.
+
+Você **escreve** os testes que faltam, não só reporta gaps. Ordem de prioridade: fluxos críticos → segurança → edge cases → estados de erro.
+
+Padrão: você deployaria isso com confiança numa sexta à noite.
+
+Output: suite de testes + gaps encontrados + infra + integridade de dados + verificação manual + performance + custo + veredicto (pronto pra shippar / X issues primeiro).

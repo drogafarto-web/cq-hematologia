@@ -41,7 +41,7 @@ function LevelPills({
   activeLot: ControlLot | null;
   onSelect: (id: string) => void;
 }) {
-  // Only show pills for lots in the same month/year as the active lot — prevents duplicate "NV1" buttons across months
+  // Filtra por mês do lote ativo — sem isso aparecem múltiplos NV1 (um por bula).
   const monthKey = activeLot
     ? `${activeLot.startDate.getFullYear()}-${activeLot.startDate.getMonth()}`
     : null;
@@ -208,6 +208,26 @@ export function AnaliseScreen({
         </div>
       ) : (
         <div className="space-y-4">
+          {activeLot.bulaPendente && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="rounded-xl border border-amber-300 dark:border-amber-500/30 bg-amber-50/70 dark:bg-amber-500/[0.06] px-4 py-3 flex items-start gap-3"
+            >
+              <span aria-hidden className="text-lg leading-none mt-0.5">⏳</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-amber-800 dark:text-amber-300/95">
+                  Lote sem bula — gráfico exibindo apenas pontos brutos
+                </p>
+                <p className="text-[12px] leading-snug text-amber-700/85 dark:text-amber-200/70 mt-0.5">
+                  A bula Controllab ainda não foi importada. Linhas-guia ±1s/±2s/±3s e
+                  regras de Westgard ficam suspensas. As corridas registradas serão
+                  recalculadas automaticamente quando a bula chegar.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Analyte selector */}
           {activeLot.requiredAnalytes.length > 0 && (
             <AnalyteSelector

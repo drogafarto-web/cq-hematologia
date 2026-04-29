@@ -90,7 +90,23 @@ export type InsumoMovimentacaoTipo =
    * adicionalmente a transição `status → 'segregado'` no insumo na mesma
    * transação atômica.
    */
-  | 'qualificacao';
+  | 'qualificacao'
+  /**
+   * Edição de campos secundários (registroAnvisa, dataAbertura, nomeComercial,
+   * notaFiscalId, diasEstabilidadeAbertura). Campos estruturais (lote,
+   * fabricante, validade, tipo, produtoId) seguem imutáveis — mudança nesses
+   * exige `substituicao`. Carrega `prevValues` + `newValues` no payload pra
+   * trilha auditável.
+   */
+  | 'edit_secundario'
+  /**
+   * Correção de erro de cadastro: o lote antigo é descartado com motivo
+   * `correcao_cadastro` e um novo lote é criado com os dados corretos. Os
+   * dois eventos são linkados via `replacesInsumoId`/`replacedByInsumoId`
+   * no payload da movimentação. Preserva spine de rastreabilidade — nenhum
+   * campo "duro" é alterado in-place.
+   */
+  | 'substituicao';
 
 // ─── Shared base ──────────────────────────────────────────────────────────────
 
@@ -185,6 +201,19 @@ interface InsumoBase {
   closedAt?: Timestamp;
   descartadoEm?: Timestamp;
   motivoDescarte?: string;
+
+  /**
+   * Substituição por correção de cadastro — quando este lote foi descartado
+   * porque o operador errou um campo "duro" (lote/fabricante/validade), aponta
+   * pro novo doc que o substituiu. Permite o auditor traçar a correção sem
+   * precisar buscar a movimentação.
+   */
+  replacedByInsumoId?: string;
+  /**
+   * Lado oposto de `replacedByInsumoId` — quando este lote foi criado pra
+   * substituir outro com erro de cadastro, aponta pro doc original.
+   */
+  replacesInsumoId?: string;
 
   /**
    * Quantas vezes este insumo foi selecionado como ativo em um EquipmentSetup.
@@ -328,6 +357,76 @@ export interface InsumoControle extends InsumoBase {
    * quantitativo (multianalíticos Bio-Rad etc.) o campo fica vazio.
    */
   testTypesCompativeis?: string[];
+
+  // ─── Fase B (2026-04-28) — unificação ControlLot → InsumoControle ─────────
+  // Campos absorvidos do tipo legado `ControlLot` (coleção `/lots`). Migram
+  // pra cá pra acabar com a duplicação de modelo de dados. Ver ADR
+  // hcquality-2026-04-28-unify-controllot-insumo.
+
+  /**
+   * Bula Controllab — posição do nível na embalagem mensal (NV1=baixo,
+   * NV2=normal, NV3=alto). Distinto do campo categórico `nivel` (string de
+   * domínio: 'baixo' | 'normal' | 'alto' | 'positivo' | etc.) — `bulaLevel`
+   * carrega a numeração 1-3 que aparece na bula e em listagens cronológicas
+   * por bula mensal. Hematologia: presente. Imuno/Coag: pode ficar vazio.
+   */
+  bulaLevel?: 1 | 2 | 3;
+
+  /**
+   * Nome comercial do "programa de controle" (ex: "Controle Interno
+   * Hematologia Automação", "Multiqual"). Distinto de `nomeComercial` que
+   * é o nome do produto físico — `controlProgramName` agrupa lotes da
+   * mesma assinatura mensal Controllab.
+   */
+  controlProgramName?: string;
+
+  /**
+   * Início da vigência da bula (data em que o lote começa a ser usado em
+   * rotina). Distinto de `validade` (fim) e `dataAbertura` (abertura física).
+   * Permite agrupar lotes por mês de referência da bula Controllab.
+   */
+  startDate?: Timestamp;
+
+  /**
+   * Nome textual do equipamento associado (ex: "Yumizen H550"). Coexiste com
+   * `equipamentoId`/`equipamentosPermitidos[]` — `equipmentName` é label
+   * humanamente legível, os IDs são chaves de relacionamento.
+   */
+  equipmentName?: string;
+
+  /** Número de série do equipamento. Texto livre. */
+  serialNumber?: string;
+
+  /**
+   * Lista de analitos obrigatórios (chaves de `stats`/`statsPorModelo`).
+   * Em hematologia: ['HGB', 'WBC', 'PLT', ...]. Pode divergir das chaves
+   * presentes em `stats` quando a bula trouxer analitos sem mean/sd.
+   */
+  requiredAnalytes?: string[];
+
+  /**
+   * Estatísticas internas calculadas a partir das corridas confirmadas
+   * (mean/sd observados após N corridas). Distinto de `stats` (manufacturer
+   * stats da bula) e `statsPorModelo` (por modelo). Atualizado server-side
+   * via Cloud Function quando run é gravada. Null/undefined até atingir
+   * o mínimo de runs (default 20 conforme CLSI).
+   */
+  internalStats?: Record<string, { mean: number; sd: number; n: number }>;
+
+  /**
+   * Frequência estruturada de uso (substitui string livre legada).
+   * Ausente => assume 'diaria'.
+   */
+  frequencyConfig?: {
+    frequencyType: 'diaria' | 'semanal' | 'quinzenal' | 'mensal' | 'custom';
+    frequencyDays?: number;
+  };
+
+  /**
+   * Se este lote exige registro de controle em cada corrida (default true).
+   * Relevante em Uroanálise — alguns fluxos aceitam rodar só a tira.
+   */
+  requerControlePorCorrida?: boolean;
 }
 
 /**
@@ -477,6 +576,21 @@ export interface InsumoMovimentacao {
 
   /** Timestamp de servidor no momento em que a função selou o doc. */
   sealedAt?: Timestamp;
+
+  /**
+   * Snapshot de campos antes da edição — só populado em `tipo='edit_secundario'`.
+   * Cobre o subset que `updateInsumo` permite editar.
+   */
+  prevValues?: Record<string, unknown>;
+  /** Snapshot de campos depois da edição — par com `prevValues`. */
+  newValues?: Record<string, unknown>;
+  /**
+   * Em `tipo='substituicao'` no insumo antigo, aponta pro novo doc.
+   * Permite traçar substituições sem buscar o insumoRef diretamente.
+   */
+  replacedByInsumoId?: string;
+  /** Em `tipo='substituicao'` no insumo novo, aponta pro doc original. */
+  replacesInsumoId?: string;
 }
 
 // ─── Filtros de consulta ──────────────────────────────────────────────────────

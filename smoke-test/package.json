@@ -1,0 +1,19 @@
+{
+  "name": "hc-quality-smoke-test-playwright",
+  "version": "1.0.0",
+  "description": "Pure Playwright Smoke Tests for HC Quality",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.43.1",
+    "dotenv": "^16.4.5",
+    "typescript": "^5.4.5"
+  }
+}

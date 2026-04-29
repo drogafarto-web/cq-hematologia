@@ -1,5 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AddLotModal } from './AddLotModal';
+import { CadastroSemBulaModal } from './CadastroSemBulaModal';
 import type { ControlLot } from '../../types';
 import type { AddLotInput } from './hooks/useLots';
 
@@ -57,13 +59,33 @@ function ExpiryLabel({ date }: { date: Date }) {
 
 interface LotRowProps {
   lot: ControlLot;
-  active: boolean;
-  onSelect: () => void;
+  /** Lote da bula corrente, em rotina operacional. Mostra badge "EM USO". */
+  isInUse: boolean;
   onDelete: () => void;
+  onToggleHidden: () => void;
+  /** Quando o lote está bulaPendente, opcionalmente abre o BulaProcessor
+   *  em modo "merge" (atualiza o lote em vez de criar novo). */
+  onImportBula?: () => void;
 }
 
-function LotRow({ lot, active, onSelect, onDelete }: LotRowProps) {
+function LotRow({ lot, isInUse, onDelete, onToggleHidden, onImportBula }: LotRowProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  function toggleMenu(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!menuOpen && menuButtonRef.current) {
+      const r = menuButtonRef.current.getBoundingClientRect();
+      setMenuPos({
+        top: r.bottom + 4,
+        right: Math.max(8, window.innerWidth - r.right),
+      });
+    }
+    setMenuOpen((v) => !v);
+    setConfirmDelete(false);
+  }
 
   function handleDelete(e: React.MouseEvent) {
     e.stopPropagation();
@@ -71,34 +93,65 @@ function LotRow({ lot, active, onSelect, onDelete }: LotRowProps) {
       setConfirmDelete(true);
       return;
     }
+    setMenuOpen(false);
+    setConfirmDelete(false);
     onDelete();
   }
 
   const expired = lot.expiryDate.getTime() < Date.now();
+  const hidden = lot.manualHidden === true;
+  const archived = lot.archivedAt != null;
+  const aguardandoBula = lot.bulaPendente === true || lot.manufacturerStats == null;
+  const diasSemBula = aguardandoBula
+    ? Math.max(0, Math.floor((Date.now() - lot.startDate.getTime()) / 86_400_000))
+    : 0;
+  const semBulaCritico = aguardandoBula && diasSemBula > 7;
 
   return (
     <div
-      onClick={onSelect}
-      className={`group relative flex items-start gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all ${
-        active
-          ? 'bg-emerald-500/[0.10] border border-emerald-500/40 shadow-sm shadow-emerald-500/10'
+      className={`group relative flex items-start gap-3 px-4 py-3 rounded-xl transition-all ${
+        isInUse
+          ? 'bg-emerald-500/[0.06] border border-emerald-500/25'
           : 'border border-transparent hover:bg-slate-100 dark:hover:bg-white/[0.04] hover:border-slate-200 dark:hover:border-white/[0.07]'
-      } ${expired && !active ? 'opacity-50' : ''}`}
+      } ${expired ? 'opacity-50' : ''} ${hidden ? 'opacity-60' : ''}`}
     >
-      {active && (
-        <span className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl bg-emerald-500" />
-      )}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5 flex-wrap">
           <LotBadge level={lot.level} />
           <span
-            className={`text-sm font-medium truncate ${active ? 'text-slate-900 dark:text-white/95' : 'text-slate-600 dark:text-white/70'}`}
+            className={`text-sm font-medium truncate ${isInUse ? 'text-slate-900 dark:text-white/95' : 'text-slate-600 dark:text-white/70'}`}
           >
             {lot.controlName}
           </span>
-          {active && (
+          {isInUse && (
             <span className="text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500 text-white shadow-sm shadow-emerald-500/30">
               EM USO
+            </span>
+          )}
+          {hidden && (
+            <span className="text-[9px] font-semibold tracking-wider px-2 py-0.5 rounded-full bg-slate-300/40 dark:bg-white/[0.08] text-slate-600 dark:text-slate-400 border border-slate-300/60 dark:border-white/[0.1]">
+              RETIRADO
+            </span>
+          )}
+          {archived && (
+            <span className="text-[9px] font-semibold tracking-wider px-2 py-0.5 rounded-full bg-slate-300/40 dark:bg-white/[0.08] text-slate-600 dark:text-slate-400 border border-slate-300/60 dark:border-white/[0.1]">
+              ENCERRADO
+            </span>
+          )}
+          {aguardandoBula && (
+            <span
+              title={
+                semBulaCritico
+                  ? `Sem bula há ${diasSemBula} dias — ultrapassou janela típica (≤7d)`
+                  : `Sem bula há ${diasSemBula} dia${diasSemBula === 1 ? '' : 's'} — Westgard suspenso`
+              }
+              className={`text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-full border ${
+                semBulaCritico
+                  ? 'bg-red-500/10 dark:bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30'
+                  : 'bg-amber-500/15 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30'
+              }`}
+            >
+              ⏳ AGUARDANDO BULA · {diasSemBula}d
             </span>
           )}
         </div>
@@ -108,19 +161,94 @@ function LotRow({ lot, active, onSelect, onDelete }: LotRowProps) {
           <span className="text-xs text-slate-400 dark:text-white/25">{lot.runCount} corridas</span>
         </div>
       </div>
+
+      {/* Action menu — portal pra escapar overflow do container */}
       <button
+        ref={menuButtonRef}
         type="button"
-        onClick={handleDelete}
-        onBlur={() => setConfirmDelete(false)}
-        aria-label={confirmDelete ? 'Confirmar exclusão' : 'Excluir lote'}
-        className={`shrink-0 flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 ${
-          confirmDelete
-            ? 'bg-red-500/20 text-red-500'
-            : 'text-slate-400 dark:text-white/25 hover:text-slate-600 dark:hover:text-white/60 hover:bg-slate-100 dark:hover:bg-white/[0.07]'
-        }`}
+        onClick={toggleMenu}
+        aria-label="Ações do lote"
+        className="shrink-0 flex items-center justify-center w-9 h-9 rounded-xl transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 text-slate-400 dark:text-white/30 hover:text-slate-700 dark:hover:text-white/80 hover:bg-slate-100 dark:hover:bg-white/[0.07]"
       >
-        <TrashIcon />
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+          <circle cx="3" cy="7" r="1.2" fill="currentColor" />
+          <circle cx="7" cy="7" r="1.2" fill="currentColor" />
+          <circle cx="11" cy="7" r="1.2" fill="currentColor" />
+        </svg>
       </button>
+      {menuOpen &&
+        menuPos &&
+        createPortal(
+          <>
+            <button
+              type="button"
+              aria-label="Fechar menu"
+              className="fixed inset-0 z-[9998]"
+              onClick={(e) => {
+                e.stopPropagation();
+                setMenuOpen(false);
+                setConfirmDelete(false);
+              }}
+            />
+            <div
+              style={{ position: 'fixed', top: menuPos.top, right: menuPos.right }}
+              className="z-[9999] w-60 rounded-xl bg-white dark:bg-[#151d2a] border border-slate-200 dark:border-white/[0.1] shadow-2xl overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {aguardandoBula && onImportBula && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onImportBula();
+                  }}
+                  className="w-full text-left px-3.5 py-2.5 text-xs text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-500/[0.08] border-b border-slate-100 dark:border-white/[0.05]"
+                >
+                  <div className="font-medium">📄 Importar bula deste lote</div>
+                  <div className="text-[10px] text-amber-600/80 dark:text-amber-300/70">
+                    Aplica valores-alvo + recalcula Westgard das corridas
+                  </div>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  onToggleHidden();
+                }}
+                className="w-full text-left px-3.5 py-2.5 text-xs text-slate-700 dark:text-white/80 hover:bg-slate-50 dark:hover:bg-white/[0.05]"
+              >
+                <div className="font-medium">{hidden ? 'Recolocar em uso' : 'Retirar de uso'}</div>
+                <div className="text-[10px] text-slate-400 dark:text-white/35">
+                  {hidden
+                    ? 'Volta pra "EM USO" se for da bula corrente'
+                    : 'Move pra "Disponíveis" sem deletar histórico'}
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                onBlur={() => setConfirmDelete(false)}
+                className={`w-full text-left px-3.5 py-2.5 text-xs border-t border-slate-100 dark:border-white/[0.05] ${
+                  confirmDelete
+                    ? 'bg-red-50 dark:bg-red-500/[0.08] text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-500/[0.12]'
+                    : 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/[0.05]'
+                }`}
+              >
+                <div className="font-medium flex items-center gap-1.5">
+                  <TrashIcon />
+                  {confirmDelete ? 'Clique novamente pra confirmar' : 'Excluir lote'}
+                </div>
+                {!confirmDelete && (
+                  <div className="text-[10px] text-red-500/70 dark:text-red-300/60">
+                    Ação irreversível — apaga runs vinculadas
+                  </div>
+                )}
+              </button>
+            </div>
+          </>,
+          document.body,
+        )}
     </div>
   );
 }
@@ -128,16 +256,10 @@ function LotRow({ lot, active, onSelect, onDelete }: LotRowProps) {
 // ─── Lot grouping by status ──────────────────────────────────────────────────
 
 /**
- * Agrupa lotes em 3 seções operacionais:
- *   - EM USO: lote ativo (activeLotId) + não vencido
- *   - DISPONÍVEIS: não-ativos, não vencidos (estoque pronto pra rotação)
- *   - HISTÓRICO: vencidos (arquivo)
- *
- * Dentro de cada seção, ordenação por nível (1→2→3) pra leitura consistente.
- * Este agrupamento é mais operacional que o legado "por mês" — a pergunta
- * mental do operador é "o que estou usando agora? o que tem pronto? o que
- * já está fora?", e chunking cronológico fazia operador ter que ler data
- * pra descobrir isso.
+ * EM USO: todos os 3 níveis da bula corrente (não vencidos, não arquivados).
+ * "Bula corrente" = `startDate` mais recente ainda vigente. Em hematologia
+ * Controllab os 3 níveis rodam simultaneamente, então EM USO ≠ activeLotId.
+ * DISPONÍVEIS: vigentes de outras bulas. HISTÓRICO: vencidos ou archivedAt.
  */
 interface LotSection {
   key: 'em-uso' | 'disponiveis' | 'historico';
@@ -145,33 +267,71 @@ interface LotSection {
   lots: ControlLot[];
 }
 
-function groupByStatus(lots: ControlLot[], activeLotId: string | null): LotSection[] {
-  const now = Date.now();
-  const sections: Record<LotSection['key'], ControlLot[]> = {
-    'em-uso': [],
-    disponiveis: [],
-    historico: [],
-  };
+function bulaKey(lot: ControlLot): string {
+  // Agrupador de bula = ano-mês de startDate. Mesma chave usada por
+  // shared/utils/lotUtils.groupByMonth.
+  const yr = lot.startDate.getFullYear();
+  const mo = lot.startDate.getMonth();
+  return `${yr}-${String(mo).padStart(2, '0')}`;
+}
 
+function groupByStatus(lots: ControlLot[]): LotSection[] {
+  const now = Date.now();
+
+  // 1) Particiona por validade.
+  // `archivedAt` força HISTÓRICO mesmo se não vencido — usado quando uma
+  // bula nova substitui a anterior e o operador escolhe "encerrar lotes
+  // anteriores" (RDC 786 mantém o doc, mas remove da rotina visual).
+  const vigentes: ControlLot[] = [];
+  const vencidos: ControlLot[] = [];
   for (const lot of lots) {
-    const isActive = lot.id === activeLotId;
-    const isExpired = lot.expiryDate.getTime() < now;
-    if (isActive && !isExpired) {
-      sections['em-uso'].push(lot);
-    } else if (isExpired) {
-      sections.historico.push(lot);
-    } else {
-      sections.disponiveis.push(lot);
+    if (lot.archivedAt || lot.expiryDate.getTime() < now) vencidos.push(lot);
+    else vigentes.push(lot);
+  }
+
+  // 2) Identifica a bula corrente — mais recente cujo startDate <= agora.
+  // Sem startDate <= agora válido, fallback pra bula com startDate mais
+  // recente entre os vigentes (evita seção "em uso" vazia em deploys onde
+  // startDate ainda é futura).
+  let bulaCorrente: string | null = null;
+  let bestStartTs = -Infinity;
+  for (const lot of vigentes) {
+    const ts = lot.startDate.getTime();
+    if (ts <= now && ts > bestStartTs) {
+      bestStartTs = ts;
+      bulaCorrente = bulaKey(lot);
+    }
+  }
+  if (bulaCorrente === null) {
+    // Fallback: bula com startDate mais recente (mesmo que ainda futura).
+    bestStartTs = -Infinity;
+    for (const lot of vigentes) {
+      const ts = lot.startDate.getTime();
+      if (ts > bestStartTs) {
+        bestStartTs = ts;
+        bulaCorrente = bulaKey(lot);
+      }
     }
   }
 
-  // Edge case: lote ativo vencido — aparece em Histórico (opacity) mas sinalizado
-  // separadamente no header da seção Em Uso quando vazio, via activeLotId.
+  const emUso: ControlLot[] = [];
+  const disponiveis: ControlLot[] = [];
+  for (const lot of vigentes) {
+    // `manualHidden` força o lote pra Disponíveis mesmo se for da bula
+    // corrente — operador removeu manualmente da rotina (ex: contaminação).
+    if (lot.manualHidden === true) {
+      disponiveis.push(lot);
+      continue;
+    }
+    if (bulaKey(lot) === bulaCorrente) emUso.push(lot);
+    else disponiveis.push(lot);
+  }
+
   const sortByLevel = (a: ControlLot, b: ControlLot) => (a.level ?? 0) - (b.level ?? 0);
   return [
-    { key: 'em-uso', label: 'Em uso agora', lots: sections['em-uso'].sort(sortByLevel) },
-    { key: 'disponiveis', label: 'Disponíveis', lots: sections.disponiveis.sort(sortByLevel) },
-    { key: 'historico', label: 'Histórico (vencidos)', lots: sections.historico.sort(sortByLevel) },
+    { key: 'em-uso', label: 'Em uso agora', lots: emUso.sort(sortByLevel) },
+    { key: 'disponiveis', label: 'Disponíveis', lots: disponiveis.sort(sortByLevel) },
+    { key: 'historico', label: 'Histórico (vencidos)', lots: vencidos.sort(sortByLevel) },
   ];
 }
 
@@ -184,7 +344,15 @@ interface LotManagerProps {
   onCloseAdd: () => void;
   onAdd: (input: AddLotInput) => Promise<string>;
   onDelete: (lotId: string) => Promise<void>;
-  onSelect: (id: string) => Promise<void>;
+  onToggleHidden: (lotId: string) => Promise<void>;
+  /** Aplica bula importada num lote pendente (modo merge do BatchForm). */
+  onApplyBula?: (
+    lotId: string,
+    manufacturerStats: import('../../types').ManufacturerStats,
+    requiredAnalytes: string[],
+  ) => Promise<void>;
+  /** Callback opcional pra navegar pra view de import de bula. */
+  onImportBula?: (lotId: string) => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -196,10 +364,13 @@ export function LotManager({
   onCloseAdd,
   onAdd,
   onDelete,
-  onSelect,
+  onToggleHidden,
+  onApplyBula,
+  onImportBula,
 }: LotManagerProps) {
   const [showHistorico, setShowHistorico] = useState(false);
-  const sections = useMemo(() => groupByStatus(lots, activeLotId), [lots, activeLotId]);
+  const [showSemBula, setShowSemBula] = useState(false);
+  const sections = useMemo(() => groupByStatus(lots), [lots]);
 
   /**
    * Banner proativo de rotação — aparece quando o lote ativo está vencendo
@@ -251,11 +422,21 @@ export function LotManager({
           <p className="text-sm text-slate-500 dark:text-white/40 font-medium">
             Nenhum lote cadastrado
           </p>
-          <p className="text-xs text-slate-400 dark:text-white/20 mt-1">
-            Clique em "+ Novo lote" para começar
+          <p className="text-xs text-slate-400 dark:text-white/20 mt-1 mb-4">
+            Use a bula PDF ou cadastre sem bula se ela ainda não chegou
           </p>
+          <button
+            type="button"
+            onClick={() => setShowSemBula(true)}
+            className="text-[11px] font-semibold px-3.5 h-9 rounded-lg border border-amber-300 dark:border-amber-500/30 bg-amber-50/60 dark:bg-amber-500/[0.06] text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-500/[0.1] transition-colors"
+          >
+            + Cadastrar sem bula (3 níveis)
+          </button>
         </div>
-        {showAdd && <AddLotModal onAdd={onAdd} onClose={onCloseAdd} />}
+        {showAdd && <AddLotModal onAdd={onAdd} onClose={onCloseAdd} onApplyBula={onApplyBula} />}
+        {showSemBula && (
+          <CadastroSemBulaModal onAdd={onAdd} onClose={() => setShowSemBula(false)} />
+        )}
       </>
     );
   }
@@ -311,9 +492,10 @@ export function LotManager({
               <LotRow
                 key={lot.id}
                 lot={lot}
-                active={lot.id === activeLotId}
-                onSelect={() => onSelect(lot.id)}
+                isInUse={section.key === 'em-uso'}
                 onDelete={() => onDelete(lot.id)}
+                onToggleHidden={() => onToggleHidden(lot.id)}
+                onImportBula={onImportBula ? () => onImportBula(lot.id) : undefined}
               />
             ))
           )}
@@ -325,6 +507,19 @@ export function LotManager({
   return (
     <>
       <div className="space-y-4">
+        {/* Atalho secundário: cadastro sem bula. Operacionalmente raro mas
+            crítico — Controllab manda sangue antes da bula em alguns meses. */}
+        <div className="flex items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={() => setShowSemBula(true)}
+            title="Use quando o sangue chegou e a bula está atrasada (≤7 dias)"
+            className="text-[11px] font-semibold px-3 h-8 rounded-lg border border-amber-300 dark:border-amber-500/30 bg-amber-50/60 dark:bg-amber-500/[0.06] text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-500/[0.1] transition-colors"
+          >
+            ⏳ Cadastrar sem bula
+          </button>
+        </div>
+
         {rotacaoHint && (
           <div
             role="status"
@@ -421,9 +616,10 @@ export function LotManager({
                   <LotRow
                     key={lot.id}
                     lot={lot}
-                    active={lot.id === activeLotId}
-                    onSelect={() => onSelect(lot.id)}
+                    isInUse={false}
                     onDelete={() => onDelete(lot.id)}
+                    onToggleHidden={() => onToggleHidden(lot.id)}
+                    onImportBula={onImportBula ? () => onImportBula(lot.id) : undefined}
                   />
                 ))
               )}
@@ -432,7 +628,10 @@ export function LotManager({
         </div>
       </div>
 
-      {showAdd && <AddLotModal onAdd={onAdd} onClose={onCloseAdd} />}
+      {showAdd && <AddLotModal onAdd={onAdd} onClose={onCloseAdd} onApplyBula={onApplyBula} />}
+      {showSemBula && (
+        <CadastroSemBulaModal onAdd={onAdd} onClose={() => setShowSemBula(false)} />
+      )}
     </>
   );
 }

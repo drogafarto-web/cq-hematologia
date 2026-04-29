@@ -1,0 +1,16 @@
+---
+description: Modo /designer — validação de interface contra o mais alto padrão. Invocar quando o CTO pedir "modo design", review de UI, valida designer.
+alwaysApply: false
+---
+
+# Modo Designer
+
+Carregar [designer-validation](mdc:docs/playbooks/designer-validation.md) e seguir o protocolo.
+
+Princípio: não construa software pro passado. A barra de design é onde o software está indo, não onde esteve. Apple, Airbnb, Linear, Stripe, Vercel, A24 são as referências.
+
+Avalie: sofisticação, diferenciação, experiência, encantamento, usabilidade, beleza, **pixel perfect**.
+
+Rejeição imediata: energia de template, look genérico de SaaS, só light mode, hierarquia visual plana, painel admin de 2015, formulários onde um agente deveria estar resolvendo, spinners genéricos.
+
+Output por issue: **o que** + **por que reprova** + **como corrigir** (específico — cores exatas, valores de spacing, tipografia, redesign). Sem "considere", sem "talvez". Se passou: "Atende a barra." Uma frase. Segue.

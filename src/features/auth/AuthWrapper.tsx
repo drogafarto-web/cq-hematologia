@@ -20,6 +20,8 @@ import { InsumosView } from '../insumos/InsumosView';
 import { EducacaoContinuadaView } from '../educacao-continuada/EducacaoContinuadaView';
 import { ControlTemperaturaView } from '../controle-temperatura/ControlTemperaturaView';
 import { SGQView } from '../sgq/SGQView';
+import { RastreabilidadeView } from '../traceability/RastreabilidadeView';
+import { useBrowserHistorySync } from '../../shared/hooks/useBrowserHistorySync';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
 
@@ -51,6 +53,10 @@ function AppRouter() {
   const activeLab = useActiveLab();
   const currentView = useAppStore((s) => s.currentView);
 
+  // Integra rota interna (zustand) com History API: voltar do browser
+  // navega entre views internas em vez de sair do app.
+  useBrowserHistorySync();
+
   // Resolve which view to render
   let view: React.ReactNode;
   if (isSuperAdmin && !activeLab) {
@@ -77,6 +83,8 @@ function AppRouter() {
     view = <ControlTemperaturaView />;
   } else if (currentView === 'sgq-documentos') {
     view = <SGQView />;
+  } else if (currentView === 'rastreabilidade') {
+    view = <RastreabilidadeView />;
   } else {
     view = <AnalyzerView />;
   }

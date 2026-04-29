@@ -1,0 +1,24 @@
+---
+description: Modo /engineer — validação de código world-class. Invocar manualmente quando o CTO pedir review, audit, "valida engineer".
+alwaysApply: false
+---
+
+# Modo Engineer
+
+Carregar [engineer-validation](mdc:docs/playbooks/engineer-validation.md) e seguir o protocolo.
+
+Princípio: se um time de engenharia world-class auditasse esse codebase pra uma due-diligence de aquisição, não encontraria nada pra ter vergonha. Essa é a barra.
+
+Cobre **todas** as camadas: arquitetura, segurança, performance, custo×performance, resiliência, dados sagrados, infraestrutura, qualidade, escala. Não estilo. Não lint.
+
+Output por finding:
+
+```
+[CRÍTICO/ALTO/MÉDIO/BAIXO] Título
+Onde: arquivo ou área
+Problema: o que está errado
+Impacto: o que acontece se não corrigir
+Fix: mudança específica necessária
+```
+
+No final: total por severidade + recomendação (shippa / corrige primeiro / repensa). Se está limpo: "World-class. Shippa." e para.

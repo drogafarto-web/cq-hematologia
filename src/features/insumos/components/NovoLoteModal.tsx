@@ -34,6 +34,8 @@ import { formatCnpj } from '../../fornecedores/types/Fornecedor';
 import type { Insumo, InsumoTipo, InsumoModulo, InsumoNivel } from '../types/Insumo';
 import { niveisDoModulo, NIVEIS_QUANTITATIVOS } from '../types/Insumo';
 import type { ProdutoInsumo } from '../types/ProdutoInsumo';
+import { useTraceability } from '../../traceability/hooks/useTraceability';
+import { UNIDADES, DEFAULT_EQUIPMENT_ID } from '../../traceability/constants';
 
 // ─── UI tokens ───────────────────────────────────────────────────────────────
 
@@ -520,13 +522,28 @@ function LoteForm({
   // e o lote só vira utilizável após `openInsumo` — regra regulatória (RDC 786).
   const [alreadyOpen, setAlreadyOpen] = useState(false);
   const [dataAbertura, setDataAbertura] = useState(todayIso);
-  const [diasEstab, setDiasEstab] = useState<number | ''>(
-    produto.diasEstabilidadeAberturaDefault ?? '',
+  // Estado como STRING — não `number | ''`. React controlled inputs com type=number
+  // e value de tipo união têm comportamento inconsistente entre browsers (Chrome/Edge/Firefox)
+  // e durante hot-reload. Manter string elimina toda essa classe de bug. A conversão
+  // pra number acontece só no submit/validate.
+  const [diasEstab, setDiasEstab] = useState<string>(
+    produto.diasEstabilidadeAberturaDefault != null
+      ? String(produto.diasEstabilidadeAberturaDefault)
+      : '',
   );
   const [nivel, setNivel] = useState<InsumoNivel | ''>(produto.nivelDefault ?? '');
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Rastreabilidade — apenas para reagentes (controles têm seu próprio fluxo
+  // via ReviewRunModal). Opcional; quando preenchido, registra evento
+  // `reagent_change` ancorando o lote ao primeiro atendimento coberto.
+  const traceability = useTraceability();
+  const [traceUnidade, setTraceUnidade] = useState<string>(UNIDADES[0].code);
+  const traceSuggested = traceability.suggestNextExamCode(traceUnidade, DEFAULT_EQUIPMENT_ID);
+  const [traceExamCode, setTraceExamCode] = useState<string>('');
+  const showTraceability = produto.tipo === 'reagente';
 
   function validate(): boolean {
     const e: Record<string, string> = {};
@@ -550,8 +567,8 @@ function LoteForm({
     // Quando a base de lotes começar a ter massa crítica e o módulo de
     // qualificação de fornecedores for ativado, tornar obrigatório em tira-uro
     // (RDC 786/2023 art. 42). Por ora só exibimos "recomendado" no label.
-    const diasNum = Number(diasEstab) || 0;
-    if (diasNum < 0 || diasNum > 365) {
+    const diasNum = diasEstab.trim() === '' ? 0 : Number(diasEstab);
+    if (!Number.isFinite(diasNum) || diasNum < 0 || diasNum > 365) {
       e.diasEstab = 'Estabilidade deve ficar entre 0 e 365 dias.';
     }
     setErrors(e);
@@ -598,7 +615,7 @@ function LoteForm({
             lote: lote.trim(),
             validade: validadeTs,
             dataAbertura: aberturaTs,
-            diasEstabilidadeAbertura: Number(diasEstab) || 0,
+            diasEstabilidadeAbertura: diasEstab.trim() === '' ? 0 : Number(diasEstab),
             ...(produto.registroAnvisa && { registroAnvisa: produto.registroAnvisa }),
             ...(equipamentoId && { equipamentosPermitidos: [equipamentoId] }),
             ...(notaFiscalId && { notaFiscalId }),
@@ -615,7 +632,7 @@ function LoteForm({
             lote: lote.trim(),
             validade: validadeTs,
             dataAbertura: aberturaTs,
-            diasEstabilidadeAbertura: Number(diasEstab) || 0,
+            diasEstabilidadeAbertura: diasEstab.trim() === '' ? 0 : Number(diasEstab),
             analitosIncluidos: [], // pode ser enriquecido depois
             ...(produto.registroAnvisa && { registroAnvisa: produto.registroAnvisa }),
             ...(equipamentoId && { equipamentoId }),
@@ -633,7 +650,7 @@ function LoteForm({
             lote: lote.trim(),
             validade: validadeTs,
             dataAbertura: aberturaTs,
-            diasEstabilidadeAbertura: Number(diasEstab) || 0,
+            diasEstabilidadeAbertura: diasEstab.trim() === '' ? 0 : Number(diasEstab),
             ...(produto.registroAnvisa && { registroAnvisa: produto.registroAnvisa }),
             ...(equipamentoId && { equipamentoId }),
             ...(notaFiscalId && { notaFiscalId }),
@@ -641,6 +658,26 @@ function LoteForm({
           });
         }
       })();
+
+      // Rastreabilidade: para reagentes com código preenchido, ancora a
+      // troca ao primeiro atendimento coberto. Fire-and-forget — falha não
+      // bloqueia o sucesso do cadastro do lote.
+      if (showTraceability && traceExamCode.trim()) {
+        traceability
+          .registerEvent({
+            unidadeCode: traceUnidade,
+            equipmentId: DEFAULT_EQUIPMENT_ID,
+            type: 'reagent_change',
+            examCodeAtChange: traceExamCode.trim(),
+            timestamp: new Date(),
+            payload: { reagentLotId: id },
+          })
+          .catch((err) => {
+            console.warn(
+              `[traceability] falha ao registrar reagent_change: ${err instanceof Error ? err.message : err}`,
+            );
+          });
+      }
 
       onCreated(id);
     } catch (err) {
@@ -792,19 +829,22 @@ function LoteForm({
           <input
             id="diasEstab"
             aria-label="Dias de estabilidade pós-abertura"
-            type="number"
-            min={0}
-            max={365}
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={3}
+            autoComplete="off"
             className={INPUT_CLS}
             value={diasEstab}
             onChange={(e) => {
-              const v = e.target.value;
-              if (v === '') {
-                setDiasEstab('');
-              } else {
-                const n = Number(v);
-                if (!isNaN(n)) setDiasEstab(Math.max(0, Math.min(365, n)));
-              }
+              // Aceita apenas dígitos (incluindo vazio durante digitação).
+              // Sem type="number": evita scroll-wheel mudando valor sem querer,
+              // setas do teclado decrementando além do mín, e comportamento
+              // browser-específico de spinners. Clamp 0-365 acontece no submit,
+              // não no onChange — durante digitação o operador pode estar a
+              // meio caminho (ex: "36" antes de virar "365"). UX > rigidez.
+              const v = e.target.value.replace(/\D/g, '');
+              setDiasEstab(v.slice(0, 3));
             }}
           />
           <p className="text-xs text-slate-400 dark:text-white/25 mt-1">
@@ -820,6 +860,62 @@ function LoteForm({
         setNivel={setNivel}
         error={errors.nivel}
       />
+
+      {showTraceability && (
+        <div className="rounded-xl border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.02] p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-white/45">
+                Rastreabilidade
+              </p>
+              <p className="text-[11px] text-slate-400 dark:text-white/30 mt-0.5">
+                Ancora a abertura deste reagente ao primeiro atendimento que será
+                processado com ele — opcional.
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-[120px_1fr] gap-2">
+            <select
+              aria-label="Unidade do atendimento"
+              value={traceUnidade}
+              onChange={(e) => setTraceUnidade(e.target.value)}
+              className={INPUT_CLS}
+            >
+              {UNIDADES.map((u) => (
+                <option key={u.code} value={u.code}>
+                  {u.code}
+                </option>
+              ))}
+            </select>
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              autoComplete="off"
+              aria-label="Primeiro atendimento coberto"
+              placeholder={
+                traceSuggested
+                  ? `Sugestão: ${traceSuggested}`
+                  : 'Primeiro atendimento (ex: 0107092)'
+              }
+              value={traceExamCode}
+              onChange={(e) =>
+                setTraceExamCode(e.target.value.replace(/\D/g, '').slice(0, 10))
+              }
+              className={`${INPUT_CLS} font-mono`}
+            />
+          </div>
+          {traceSuggested && !traceExamCode && (
+            <button
+              type="button"
+              onClick={() => setTraceExamCode(traceSuggested)}
+              className="mt-2 text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Usar sugestão {traceSuggested}
+            </button>
+          )}
+        </div>
+      )}
 
       {submitError && (
         <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm text-red-700 dark:text-red-300">

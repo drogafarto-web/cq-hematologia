@@ -1,0 +1,62 @@
+---
+description: Cloud Functions HC Quality — padrão de auth, secrets, validação Zod, triggers, schedulers. Ativa em functions/.
+globs:
+  - functions/**/*.ts
+  - functions/**/*.mjs
+---
+
+# Cloud Functions — convenções
+
+Todas em `southamerica-east1`. Mapa completo: [functions-map](mdc:docs/playbooks/functions-map.md).
+
+## Secrets gerenciados (Firebase Secret Manager)
+
+- `GEMINI_API_KEY` — extração OCR
+- `OPENROUTER_API_KEY` — fallback LLM
+- `RESEND_API_KEY` — email transacional
+- `HCQ_SIGNATURE_HMAC_KEY` — Onda 5 (dual-write HMAC)
+
+**Nunca hardcode.** Sempre via `defineSecret()` + `secrets: [...]` no onCall.
+
+## Padrão de auth nos onCall
+
+Top-level em `functions/src/index.ts`:
+
+```ts
+async function assertSuperAdmin(uid, token) { /* custom claim → Firestore fallback */ }
+async function assertLabAdminOrSuperAdmin(uid, labId, token) { /* idem + role check */ }
+```
+
+Toda callable segue este esqueleto:
+
+```ts
+export const foo = onCall({}, async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', '...');
+  await assertSuperAdmin(request.auth.uid, request.auth.token);
+  const parsed = SchemaZod.safeParse(request.data);
+  if (!parsed.success) throw new HttpsError('invalid-argument', parsed.error.message);
+  // ... lógica ...
+  // audit log não-bloqueante no final (não dropar a request se logging falhar)
+});
+```
+
+## Triggers existentes vs pendentes
+
+- `onInsumoMovimentacaoCreate` ✅ deployado (chain-hash)
+- `onHematologiaRunAudit`, `onImunoRunAudit`, `onInsumoLifecycleAudit` — Onda 4 pendente
+- `onHematologiaRunSignature`, `onImunoRunSignature`, `onMovimentacaoSignature` — Onda 5 pendente
+
+## Schedulers (BRT)
+
+- `scheduledDailyCQIReport` 23:00
+- `scheduledDailyBackup` 23:45 (+ anexo operacional)
+- `scheduledFirestoreExport` 03:00
+- `scheduledExpireInsumos` 03:15
+- `scheduledCleanupEquipamentosExpirados` 03:45
+
+## Regras de mudança
+
+- Toda função nova passa por validação **engineer** ([engineer-validation](mdc:docs/playbooks/engineer-validation.md)) antes de deploy.
+- `firebase deploy --only functions` exige ack do CTO (vai direto em prod).
+- Tornar trigger idempotente — early return se já processado (ex.: chain-hash checa `chainStatus === 'sealed'`).
+- Logger estruturado (`logger.info({ labId, ... })`), nunca `console.log`.

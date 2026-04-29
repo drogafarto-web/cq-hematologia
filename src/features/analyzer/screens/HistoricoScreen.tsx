@@ -435,10 +435,10 @@ export function HistoricoScreen({ lots, goTo }: Props) {
               <tbody>
                 {Object.entries(groups).map(([date, list]) => (
                   <React.Fragment key={date}>
-                    <tr className="bg-slate-50/70 dark:bg-white/[0.015]">
+                    <tr className="bg-slate-100/70 dark:bg-white/[0.03]">
                       <td
                         colSpan={7}
-                        className="px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500"
+                        className="px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300"
                       >
                         {(() => {
                           const d = new Date(date + 'T12:00:00');
@@ -513,6 +513,13 @@ export function HistoricoScreen({ lots, goTo }: Props) {
                               {r.timestamp.toLocaleTimeString('pt-BR', {
                                 hour: '2-digit',
                                 minute: '2-digit',
+                              })}
+                            </div>
+                            <div className="font-mono text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
+                              {r.timestamp.toLocaleDateString('pt-BR', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: '2-digit',
                               })}
                             </div>
                           </td>

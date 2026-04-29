@@ -10,10 +10,12 @@
 
 ## Contexto — duas camadas de defesa
 
-| Camada | Ferramenta                        | Janela                                    | Granularidade     | Uso                                                       |
-| ------ | --------------------------------- | ----------------------------------------- | ----------------- | --------------------------------------------------------- |
-| **1**  | **PITR** (Point-in-Time Recovery) | **7 dias**                                | Segundos          | Rollback rápido (delete/overwrite acidental, bug recente) |
-| **2**  | **Scheduled export** (GCS)        | **90 dias** (Nearline 30d → Coldline 60d) | Diário, 03:00 BRT | Incidente antigo, catástrofe, auditoria                   |
+| Camada | Ferramenta                        | Janela                                                   | Granularidade     | Uso                                                       |
+| ------ | --------------------------------- | -------------------------------------------------------- | ----------------- | --------------------------------------------------------- |
+| **1**  | **PITR** (Point-in-Time Recovery) | **7 dias**                                               | Segundos          | Rollback rápido (delete/overwrite acidental, bug recente) |
+| **2**  | **Scheduled export** (GCS)        | **5 anos** (Nearline 30d → Coldline 1y → Archive 4y)     | Diário, 03:00 BRT | Incidente antigo, catástrofe, auditoria, RDC 786          |
+
+Bucket `gs://hmatologia2-firestore-backups` tem **retention policy de 1825 dias** — exclusão de objetos rejeitada mesmo por Owner do projeto até cumprir o prazo. Verificação semanal via `scheduledVerifyBackupIntegrity` (segundas 04:00 BRT) que escreve em `firestore-backup-alerts` se algum backup faltar ou falhar.
 
 PITR é **sempre** a primeira escolha se o incidente for das últimas 168h (7 dias). O export é fallback para incidentes mais antigos ou para reconstrução total em outro projeto.
 
@@ -150,9 +152,9 @@ gcloud firestore databases create \
 
 ### 3.3 — Copiar bucket de backups pra novo projeto
 
-O bucket `hmatologia2-firestore-backups` precisa ser **replicado ou ter permissões cruzadas**. Se o original foi deletado junto com o projeto, só haverá recuperação se houver cópia off-GCP ou versioning/lock do bucket.
+O bucket `hmatologia2-firestore-backups` está com **retention policy de 5 anos** (UNLOCKED — pode ser aumentada mas não diminuída sem intervenção). Para LOCK irreversível (proteção máxima contra ransomware/conta comprometida), executar `gsutil retention lock gs://hmatologia2-firestore-backups` — após o lock o bucket não pode mais ser deletado nem ter retention reduzida pelos próximos 1825 dias.
 
-**TODO (roadmap Fase 2):** ativar versioning + retention lock no bucket de backups pra que exclusão acidental/maliciosa não elimine histórico. Ou replicar periodicamente pra bucket em conta separada (outro projeto ou outra conta Google).
+**Roadmap:** replicação periódica pra bucket em conta Google separada (defense in depth contra account takeover).
 
 ### 3.4 — Import pros new project
 
@@ -196,13 +198,14 @@ Registro auditável no Firestore: coleção `firestore-backup-logs` (SuperAdmin-
 
 ## Custos estimados
 
-| Item                                    | Estimativa mensal (banco <1GB)           |
-| --------------------------------------- | ---------------------------------------- |
-| PITR (7 dias retenção)                  | ~$0.10/GB/mês → **~$0.10**               |
-| Export diário (Nearline 30d)            | ~$0.01/GB/dia → **~$0.30**               |
-| Coldline (30-90d)                       | ~$0.004/GB/mês → **negligível**          |
-| Operações de import (apenas em restore) | $0.18/GB importado — pago só quando usar |
-| **Total**                               | **~$0.50/mês**                           |
+| Item                                    | Estimativa mensal (banco <1GB)            |
+| --------------------------------------- | ----------------------------------------- |
+| PITR (7 dias retenção)                  | ~$0.10/GB/mês → **~$0.10**                |
+| Export Nearline (0-30d)                 | ~$0.026/GB/mês → **~$0.03**               |
+| Coldline (30-365d)                      | ~$0.007/GB/mês × ~11 cópias → **~$0.08**  |
+| Archive (365-1825d)                     | ~$0.0025/GB/mês × ~48 cópias → **~$0.12** |
+| Operações de import (apenas em restore) | $0.18/GB importado — pago só quando usar  |
+| **Total**                               | **~$0.35/mês**                            |
 
 Escala linear com o tamanho do banco. Custo irrelevante comparado ao risco mitigado.
 

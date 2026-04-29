@@ -1,0 +1,72 @@
+# .cursorignore -- HC Quality
+#
+# Reduz o codebase indexado para o range ideal (500-2000 arquivos).
+# Sintaxe igual a .gitignore.
+#
+# Para arquivos que devem ser LEGIVEIS sob demanda mas nao
+# indexados na busca semantica, use .cursorindexingignore.
+
+# --- build artifacts ---
+node_modules/
+dist/
+coverage/
+.firebase/
+.netlify/
+.next/
+.cache/
+
+# --- locks gigantes ---
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# --- logs ---
+*.log
+firebase-debug.log
+firestore-debug.log
+
+# --- secrets ---
+.env
+.env.*
+!.env.example
+
+# --- binarios e assets pesados ---
+branding_assets/
+public/icons/
+public/assets/
+
+# --- pastas legacy/work-in-progress no root (nomes em pt-BR com espacos) ---
+controle temperatura/
+evolução ciq-imuno-orchestrator/
+modulo educaação continuada/
+plans/
+
+# --- markdowns soltos no root (nao sao codigo, poluem busca semantica) ---
+final.md
+gerado.md
+identidade.md
+identidade2.md
+plano_bula.md
+prompt_bula_multilevel.md
+prompt_claude_ocr_storage.md
+prompt_ocr_yumizen.md
+popular produção.md
+Estrutura do grafico a ser gerado.md
+prompt para rodar.txt
+prompt para rodar 2.txt
+THEME_UPDATE.md
+
+# --- smoke test fixtures (binarios) ---
+smoke-test-openclaw/fixtures/
+smoke-test/fixtures/
+
+# --- skills locais (vivem em ~/.claude/, nao no repo) ---
+.agents/
+skills/
+skills-lock.json
+
+# --- IDE e SO ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

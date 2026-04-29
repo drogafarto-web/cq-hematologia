@@ -1,8 +1,9 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { setGlobalOptions } from 'firebase-functions/v2';
 import { defineSecret } from 'firebase-functions/params';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 import { z } from 'zod';
+import { jsonrepair } from 'jsonrepair';
 import * as admin from 'firebase-admin';
 import { syncClaims, syncModuleClaims } from './helpers/claims';
 
@@ -33,6 +34,7 @@ export {
   scheduledFirestoreExport,
   triggerFirestoreExport_onCall as triggerFirestoreExport,
 } from './modules/firestoreBackup/index';
+export { scheduledVerifyBackupIntegrity } from './modules/firestoreBackup/verifyIntegrity';
 
 // ─── insumos module ──────────────────────────────────────────────────────────
 // Scheduled expiration: move insumos vencidos (validadeReal < now) de 'ativo'
@@ -47,6 +49,12 @@ export {
   validateFR10,
   triggerBackfillInsumoModulos,
 } from './modules/insumos/index';
+
+// ─── lotsMigration module (Fase B — 2026-04-28) ──────────────────────────────
+// Migração one-time idempotente /lots → /insumos com tipo='controle'.
+// Resolve a duplicação de modelo identificada na auditoria 2026-04-27.
+// Mantém /lots intacto como backup. SuperAdmin-only.
+export { triggerLotsMigration } from './modules/lotsMigration/index';
 
 // ─── equipamentos module (Fase D — 2026-04-21) ───────────────────────────────
 // triggerMigrateSetupsToEquipamentos: migra setups legados (docId=module) pra
@@ -689,8 +697,139 @@ const geminiApiKey = defineSecret('GEMINI_API_KEY');
 const openRouterApiKey = defineSecret('OPENROUTER_API_KEY');
 
 const GEMINI_DIRECT = 'gemini-3.1-flash-image-preview';
-const OPENROUTER_GEMINI = 'google/gemini-2.0-flash-001';
-const OPENROUTER_QWEN = 'qwen/qwen-vl-plus';
+
+// ─── Descoberta dinâmica de modelos OpenRouter ───────────────────────────────
+// Em vez de fixar slugs (que ficam obsoletos quando OpenRouter publica versões
+// novas), buscamos o catálogo `/api/v1/models` e ordenamos por preço crescente,
+// restrito a famílias com track record de OCR multimodal. Cache em memória
+// (1h TTL) evita overhead em cada request — cold start refaz a query.
+//
+// Whitelist: só famílias com qualidade comprovada em vision/OCR. Adicionar
+// nova família aqui é a forma SEGURA de ampliar o pool quando um provedor
+// novo (ex: DeepSeek-VL, Pixtral 2) entrar em produção. Ordem dos patterns
+// não importa — a ordenação é por preço.
+const VISION_MODEL_WHITELIST_PATTERNS: RegExp[] = [
+  /^qwen\/qwen.*-vl[-/]/i,           // Qwen VL family (qwen-vl-plus, qwen3-vl-*, etc.)
+  /^qwen\/qwen3\.5-plus/i,           // Qwen3.5 Plus (multimodal text+image+video)
+  /^qwen\/qwen3\.6.*plus/i,          // Qwen3.6 Plus quando ficar multimodal
+  /^google\/gemini-(?:2|2\.5|3)/i,   // Gemini 2.x e 3.x (vision nativo)
+  /^anthropic\/claude-(?:3|sonnet|haiku|opus)/i, // Claude 3+ com vision
+  /^openai\/gpt-4o/i,                // GPT-4o e variantes
+  /^deepseek\/deepseek-vl/i,         // DeepSeek VL (quando disponível)
+  /^mistralai\/pixtral-/i,           // Pixtral (Mistral vision)
+];
+
+// Limite de sanidade: rejeitar modelos com custo médio > $5/1M tokens
+// (= 5e-6 USD/token). Protege contra escolher acidentalmente um modelo
+// de "preview" experimental cobrando $50/1M.
+const MAX_REASONABLE_AVG_COST_PER_TOKEN = 5e-6;
+
+// Quantos modelos da lista ranked tentar antes de desistir.
+const MAX_FALLBACK_ATTEMPTS = 4;
+
+interface ORCatalogModel {
+  id?: string;
+  name?: string;
+  pricing?: { prompt?: string | number; completion?: string | number };
+  architecture?: {
+    modality?: string;
+    input_modalities?: string[];
+    output_modalities?: string[];
+  };
+}
+
+interface RankedVisionModel {
+  id: string;
+  promptCost: number;     // USD per token
+  completionCost: number; // USD per token
+  avgCost: number;
+}
+
+interface CatalogCache {
+  models: RankedVisionModel[];
+  expires: number;
+}
+
+const CATALOG_CACHE_TTL_MS = 60 * 60 * 1000; // 1h
+let CATALOG_CACHE: CatalogCache | null = null;
+
+function parseCost(v: unknown): number {
+  if (typeof v === 'number') return v;
+  if (typeof v === 'string') {
+    const n = parseFloat(v);
+    return Number.isFinite(n) ? n : Number.POSITIVE_INFINITY;
+  }
+  return Number.POSITIVE_INFINITY;
+}
+
+function isVisionCapable(m: ORCatalogModel): boolean {
+  const inputs = m.architecture?.input_modalities ?? [];
+  if (inputs.some((x) => /image|vision/i.test(x))) return true;
+  const modality = m.architecture?.modality ?? '';
+  return /image|vision|multimodal/i.test(modality);
+}
+
+function isWhitelistedFamily(id: string): boolean {
+  return VISION_MODEL_WHITELIST_PATTERNS.some((re) => re.test(id));
+}
+
+/** Lista de fallback hardcoded — usada quando catálogo OpenRouter está fora do ar. */
+const STATIC_FALLBACK_MODELS: RankedVisionModel[] = [
+  { id: 'google/gemini-2.0-flash-001',         promptCost: 1e-7,  completionCost: 4e-7,  avgCost: 2.5e-7 },
+  { id: 'qwen/qwen3-vl-235b-a22b-instruct',    promptCost: 2e-7,  completionCost: 8.8e-7, avgCost: 5.4e-7 },
+  { id: 'qwen/qwen3.5-plus',                   promptCost: 4e-7,  completionCost: 2.4e-6, avgCost: 1.4e-6 },
+];
+
+async function fetchVisionModelsRanked(openRouterKey: string): Promise<RankedVisionModel[]> {
+  if (CATALOG_CACHE && CATALOG_CACHE.expires > Date.now()) {
+    return CATALOG_CACHE.models;
+  }
+
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/models', {
+      headers: { Authorization: `Bearer ${openRouterKey}` },
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    const json = (await response.json()) as { data?: ORCatalogModel[] };
+    const all = json.data ?? [];
+
+    const ranked: RankedVisionModel[] = [];
+    for (const m of all) {
+      if (!m.id) continue;
+      if (!isVisionCapable(m)) continue;
+      if (!isWhitelistedFamily(m.id)) continue;
+      const promptCost = parseCost(m.pricing?.prompt);
+      const completionCost = parseCost(m.pricing?.completion);
+      // Excluir free tier — queremos pago confiável (free pode ter rate limits agressivos).
+      if (promptCost === 0 && completionCost === 0) continue;
+      if (!Number.isFinite(promptCost) || !Number.isFinite(completionCost)) continue;
+      const avgCost = (promptCost + completionCost) / 2;
+      if (avgCost > MAX_REASONABLE_AVG_COST_PER_TOKEN) continue;
+      ranked.push({ id: m.id, promptCost, completionCost, avgCost });
+    }
+    ranked.sort((a, b) => a.avgCost - b.avgCost);
+
+    if (ranked.length === 0) {
+      console.warn('⚠️ Catálogo OpenRouter retornou zero modelos elegíveis. Usando fallback estático.');
+      CATALOG_CACHE = { models: STATIC_FALLBACK_MODELS, expires: Date.now() + CATALOG_CACHE_TTL_MS };
+      return STATIC_FALLBACK_MODELS;
+    }
+
+    console.log(
+      `📚 Catálogo OpenRouter: ${ranked.length} modelos vision elegíveis. Top 3: ` +
+        ranked.slice(0, 3).map((m) => `${m.id} ($${(m.avgCost * 1e6).toFixed(3)}/1M)`).join(', '),
+    );
+    CATALOG_CACHE = { models: ranked, expires: Date.now() + CATALOG_CACHE_TTL_MS };
+    return ranked;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(`⚠️ Falha ao buscar catálogo OpenRouter (${msg}). Usando fallback estático.`);
+    // Não cacheamos a falha — próxima chamada tenta de novo.
+    return STATIC_FALLBACK_MODELS;
+  }
+}
 
 // ─── AI Service Helper ────────────────────────────────────────────────────────
 // Logic for calling Gemini with failover to OpenRouter (Qwen)
@@ -708,18 +847,100 @@ interface OpenRouterChatResponse {
   }>;
 }
 
+// ─── JSON Hardening ──────────────────────────────────────────────────────────
+// LLMs notoriamente devolvem JSON com sujeira: markdown fences, trailing commas,
+// truncamento por max-tokens, comentários, aspas inteligentes. Esta camada de
+// proteção tenta 3 estratégias antes de desistir, por isso o cliente nunca mais
+// vê "Expected ',' or '}' after property value in JSON at position N".
+// Incidente original: 2026-04-27 — corrida Yumizen H550 abortou no JSON.parse cru.
+function safeParseAIJson(rawText: string): { ok: true; data: unknown } | { ok: false; reason: string; raw: string } {
+  if (!rawText || !rawText.trim()) {
+    return { ok: false, reason: 'resposta vazia', raw: rawText };
+  }
+
+  // 1. Strip de markdown fences e texto ao redor do JSON
+  let s = rawText.trim();
+  s = s.replace(/^```(?:json|JSON)?\s*/i, '').replace(/\s*```\s*$/i, '');
+  // Pega o primeiro { até o último } (descarta lixo antes/depois do bloco JSON)
+  const firstBrace = s.indexOf('{');
+  const lastBrace = s.lastIndexOf('}');
+  if (firstBrace >= 0 && lastBrace > firstBrace) {
+    s = s.slice(firstBrace, lastBrace + 1);
+  }
+
+  // 2. Tentativa direta após sanitização
+  try {
+    return { ok: true, data: JSON.parse(s) };
+  } catch {
+    /* segue para repair */
+  }
+
+  // 3. Repair via jsonrepair (resolve trailing commas, aspas faltantes, etc.)
+  try {
+    const repaired = jsonrepair(s);
+    return { ok: true, data: JSON.parse(repaired) };
+  } catch (err) {
+    return {
+      ok: false,
+      reason: err instanceof Error ? err.message : 'repair falhou',
+      raw: rawText,
+    };
+  }
+}
+
+// ─── Schemas Gemini-native (Type API) ────────────────────────────────────────
+// Quando passados via `responseSchema`, o Gemini garante saída em conformidade
+// com o schema — eliminando ~95% dos casos de JSON inválido.
+
+const ANALYTE_KEYS = [
+  'RBC', 'HGB', 'HCT', 'MCV', 'MCH', 'MCHC', 'RDW',
+  'PLT', 'MPV', 'PDW', 'PCT',
+  'WBC', 'NEU#', 'LYM#', 'MON#', 'EOS#', 'BAS#', 'NLR',
+] as const;
+
+function buildOcrResponseSchema() {
+  const valuesProps: Record<string, unknown> = {};
+  const confProps: Record<string, unknown> = {};
+  for (const key of ANALYTE_KEYS) {
+    valuesProps[key] = { type: Type.NUMBER, nullable: true };
+    confProps[key] = { type: Type.STRING, enum: ['high', 'medium', 'low'] };
+  }
+  return {
+    type: Type.OBJECT,
+    properties: {
+      sampleId: { type: Type.STRING, nullable: true },
+      values: { type: Type.OBJECT, properties: valuesProps },
+      fieldConfidence: { type: Type.OBJECT, properties: confProps },
+      overallConfidence: { type: Type.STRING, enum: ['high', 'medium', 'low'] },
+    },
+    required: ['values'],
+  };
+}
+
+const STRIP_RESPONSE_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    resultado: { type: Type.STRING, enum: ['R', 'NR'] },
+    confidence: { type: Type.STRING, enum: ['high', 'medium', 'low'] },
+  },
+  required: ['resultado', 'confidence'],
+};
+
 async function callAIWithFallback(params: {
   prompt: string;
   base64: string;
   mimeType: string;
   geminiKey: string;
   openRouterKey: string;
+  /** Schema nativo do Gemini para forçar JSON estruturado válido. */
+  geminiResponseSchema?: ReturnType<typeof buildOcrResponseSchema> | typeof STRIP_RESPONSE_SCHEMA;
 }): Promise<string> {
-  const { prompt, base64, mimeType, geminiKey, openRouterKey } = params;
+  const { prompt, base64, mimeType, geminiKey, openRouterKey, geminiResponseSchema } = params;
   const isPdf = mimeType === 'application/pdf';
 
   // ─── NÍVEL 1: Gemini Direto (GCP) ─────────────────────
-  // Mais rápido e custo zero (enquanto houver cota)
+  // Mais rápido e custo zero (enquanto houver cota). responseSchema garante
+  // que a saída adere à estrutura — elimina truncamento/vírgula faltante.
   try {
     const genAI = new GoogleGenAI({ apiKey: geminiKey });
     const response = await genAI.models.generateContent({
@@ -730,7 +951,14 @@ async function callAIWithFallback(params: {
           parts: [{ text: prompt }, { inlineData: { mimeType, data: base64 } }],
         },
       ],
-      config: { responseMimeType: 'application/json' },
+      config: {
+        responseMimeType: 'application/json',
+        ...(geminiResponseSchema ? { responseSchema: geminiResponseSchema } : {}),
+        // Limite generoso para 18 analitos × 2 blocos + sampleId (~1.5KB);
+        // o default de 8192 é suficiente, fixar evita surpresa.
+        maxOutputTokens: 8192,
+        temperature: 0.0, // determinístico para OCR
+      },
     });
     const text = response.text ?? '';
     if (text.trim()) {
@@ -742,105 +970,84 @@ async function callAIWithFallback(params: {
     console.warn(`⚠️ Nível 1 falhou: ${msg}. Tentando Nível 2...`);
   }
 
-  // ─── NÍVEL 2: Gemini via OpenRouter ───────────────────
-  // Mantém a qualidade e velocidade do Gemini usando saldo OpenRouter
-  try {
-    const content: OpenRouterContentPart[] = [{ type: 'text', text: prompt }];
-    // Gemini no OpenRouter suporta PDFs nativamente ou via Vision em muitos casos.
-    // Usaremos a estrutura multimodal padrão do OpenRouter.
-    content.push(
-      isPdf
-        ? {
-            type: 'file',
-            file: {
-              filename: 'document.pdf',
-              file_data: `data:${mimeType};base64,${base64}`,
-            },
-          }
-        : {
-            type: 'image_url',
-            image_url: { url: `data:${mimeType};base64,${base64}` },
-          },
+  // ─── NÍVEIS 2+: Catálogo dinâmico OpenRouter (ordenado por preço) ─────────
+  // Em vez de slugs hardcoded, busca o catálogo, filtra por whitelist + vision
+  // capability + preço razoável, ordena por custo crescente. Tenta cada modelo
+  // em ordem até um responder. Self-updating: quando OpenRouter publica modelo
+  // novo (ex: qwen3.7-vl), entra automaticamente no pool sem deploy.
+  const ranked = await fetchVisionModelsRanked(openRouterKey);
+  const candidates = ranked.slice(0, MAX_FALLBACK_ATTEMPTS);
+
+  if (candidates.length === 0) {
+    throw new HttpsError(
+      'internal',
+      'Nenhum modelo de visão disponível no catálogo OpenRouter (e Gemini direto falhou).',
     );
+  }
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${openRouterKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: OPENROUTER_GEMINI,
-        messages: [{ role: 'user', content }],
-        response_format: { type: 'json_object' },
-      }),
-    });
+  let lastError = '';
+  for (const model of candidates) {
+    try {
+      const content: OpenRouterContentPart[] = [{ type: 'text', text: prompt }];
+      content.push(
+        isPdf
+          ? {
+              type: 'file',
+              file: {
+                filename: 'document.pdf',
+                file_data: `data:${mimeType};base64,${base64}`,
+              },
+            }
+          : {
+              type: 'image_url',
+              image_url: { url: `data:${mimeType};base64,${base64}` },
+            },
+      );
 
-    if (response.ok) {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${openRouterKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: model.id,
+          messages: [{ role: 'user', content }],
+          plugins: isPdf ? [{ id: 'file-parser', pdf: { engine: 'mistral-ocr' } }] : [],
+          response_format: { type: 'json_object' },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        const trimmed = errorText.length > 200 ? errorText.slice(0, 200) + '…' : errorText;
+        lastError = `${model.id}: HTTP ${response.status} — ${trimmed}`;
+        console.warn(`⚠️ ${model.id} retornou ${response.status}. Tentando próximo...`);
+        continue;
+      }
+
       const data = (await response.json()) as OpenRouterChatResponse;
       const text = data.choices?.[0]?.message?.content ?? '';
       if (text.trim()) {
-        console.log('✅ Extração bem-sucedida: Nível 2 (Gemini OpenRouter)');
+        console.log(
+          `✅ Extração bem-sucedida: ${model.id} (rank dinâmico — ` +
+            `$${(model.avgCost * 1e6).toFixed(3)}/1M tokens médio)`,
+        );
         return text;
       }
-    } else {
-      console.warn(`⚠️ Nível 2 retornou erro ${response.status}. Tentando Nível 3...`);
+      lastError = `${model.id}: retorno vazio`;
+      console.warn(`⚠️ ${model.id} retornou vazio. Tentando próximo...`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      lastError = `${model.id}: ${msg}`;
+      console.warn(`⚠️ ${model.id} falhou: ${msg}. Tentando próximo...`);
     }
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.warn(`⚠️ Erro no Nível 2: ${msg}. Tentando Nível 3...`);
   }
 
-  // ─── NÍVEL 3: Qwen VL via OpenRouter ──────────────────
-  // Segurança máxima para OCR complexo (mais lento)
-  try {
-    const content: OpenRouterContentPart[] = [{ type: 'text', text: prompt }];
-
-    if (isPdf) {
-      content.push({
-        type: 'file',
-        file: {
-          filename: 'document.pdf',
-          file_data: `data:${mimeType};base64,${base64}`,
-        },
-      });
-    } else {
-      content.push({
-        type: 'image_url',
-        image_url: { url: `data:${mimeType};base64,${base64}` },
-      });
-    }
-
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${openRouterKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: OPENROUTER_QWEN,
-        messages: [{ role: 'user', content }],
-        plugins: isPdf ? [{ id: 'file-parser', pdf: { engine: 'mistral-ocr' } }] : [],
-        response_format: { type: 'json_object' },
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`OpenRouter API error (${response.status}): ${errorText}`);
-    }
-
-    const data = (await response.json()) as OpenRouterChatResponse;
-    const text = data.choices?.[0]?.message?.content ?? '';
-    if (text.trim()) {
-      console.log('✅ Extração bem-sucedida: Nível 3 (Qwen OpenRouter)');
-      return text;
-    }
-    throw new Error('Retorno vazio do provedor Nível 3.');
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    throw new HttpsError('internal', `Falha crítica em todos os níveis: ${msg}`);
-  }
+  throw new HttpsError(
+    'internal',
+    `Falha crítica em todos os ${candidates.length} modelos tentados. Último erro: ${lastError}`,
+  );
 }
 
 // ─── extractFromImage ─────────────────────────────────────────────────────────
@@ -1063,27 +1270,36 @@ export const extractFromImage = onCall(
       mimeType,
       geminiKey: geminiKeyValue,
       openRouterKey: openRouterKeyValue,
+      geminiResponseSchema: buildOcrResponseSchema(),
     });
 
     if (!rawText.trim()) {
-      throw new HttpsError('internal', 'A IA retornou uma resposta vazia.');
-    }
-
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(rawText);
-    } catch (err) {
-      console.error('❌ Erro no JSON da IA:', rawText, err);
       throw new HttpsError(
         'internal',
-        `A IA retornou JSON inválido: ${err instanceof Error ? err.message : 'formato desconhecido'}`,
+        'Não consegui ler a foto. Tente uma imagem mais nítida ou outro ângulo.',
       );
     }
 
-    const validation = OcrResponseSchema.safeParse(parsed);
+    const repaired = safeParseAIJson(rawText);
+    if (!repaired.ok) {
+      // Log técnico fica no servidor; usuário vê mensagem amigável.
+      console.error(
+        '❌ extractFromImage: JSON irrecuperável da IA',
+        { reason: repaired.reason, rawHead: repaired.raw.slice(0, 600), rawTail: repaired.raw.slice(-200) },
+      );
+      throw new HttpsError(
+        'internal',
+        'A leitura automática falhou. Tente outra foto (boa iluminação, tela inteira no enquadramento, sem reflexo).',
+      );
+    }
+
+    const validation = OcrResponseSchema.safeParse(repaired.data);
     if (!validation.success) {
       console.error('❌ Erro de validação OCR (Zod):', validation.error.format());
-      throw new HttpsError('internal', `Dados OCR fora do formato: ${validation.error.message}`);
+      throw new HttpsError(
+        'internal',
+        'A IA respondeu fora do formato esperado. Tente outra foto.',
+      );
     }
 
     const { data } = validation;
@@ -1180,24 +1396,35 @@ Responda APENAS com JSON válido, sem markdown, sem explicações:
       mimeType,
       geminiKey: geminiApiKey.value(),
       openRouterKey: openRouterApiKey.value(),
+      geminiResponseSchema: STRIP_RESPONSE_SCHEMA,
     });
 
     if (!rawText.trim()) {
-      throw new HttpsError('internal', 'A IA retornou uma resposta vazia.');
+      throw new HttpsError(
+        'internal',
+        'Não consegui ler a foto do strip. Tente uma imagem mais nítida.',
+      );
     }
 
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(rawText);
-    } catch (err) {
-      console.error('❌ analyzeImmunoStrip: JSON inválido da IA:', rawText, err);
-      throw new HttpsError('internal', 'IA retornou resposta não-JSON.');
+    const repaired = safeParseAIJson(rawText);
+    if (!repaired.ok) {
+      console.error(
+        '❌ analyzeImmunoStrip: JSON irrecuperável da IA',
+        { reason: repaired.reason, rawHead: repaired.raw.slice(0, 600), rawTail: repaired.raw.slice(-200) },
+      );
+      throw new HttpsError(
+        'internal',
+        'A leitura automática do strip falhou. Tente outra foto.',
+      );
     }
 
-    const validation = STRIP_RESULT_SCHEMA.safeParse(parsed);
+    const validation = STRIP_RESULT_SCHEMA.safeParse(repaired.data);
     if (!validation.success) {
       console.error('❌ analyzeImmunoStrip: formato inválido (Zod):', validation.error.format());
-      throw new HttpsError('internal', `Formato inválido da IA: ${validation.error.message}`);
+      throw new HttpsError(
+        'internal',
+        'A IA respondeu fora do formato esperado. Tente outra foto.',
+      );
     }
 
     console.log(
@@ -1332,27 +1559,28 @@ export const extractFromBula = onCall(
     if (!rawText.trim()) {
       throw new HttpsError(
         'internal',
-        'A IA retornou uma resposta vazia. Verifique se o documento é legível.',
+        'Não consegui ler a bula. Verifique se o PDF é legível e tente de novo.',
       );
     }
 
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(rawText);
-    } catch (err) {
-      console.error('❌ Erro no JSON da IA (Bula):', rawText, err);
+    const repaired = safeParseAIJson(rawText);
+    if (!repaired.ok) {
+      console.error(
+        '❌ extractFromBula: JSON irrecuperável da IA',
+        { reason: repaired.reason, rawHead: repaired.raw.slice(0, 600), rawTail: repaired.raw.slice(-200) },
+      );
       throw new HttpsError(
         'internal',
-        `A IA retornou JSON inválido (Bula): ${err instanceof Error ? err.message : 'formato desconhecido'}`,
+        'A leitura automática da bula falhou. Tente outro arquivo ou versão do PDF.',
       );
     }
 
-    const validation = BulaResponseSchema.safeParse(parsed);
+    const validation = BulaResponseSchema.safeParse(repaired.data);
     if (!validation.success) {
       console.error('❌ Erro de validação Bula (Zod):', validation.error.format());
       throw new HttpsError(
         'internal',
-        `Dados da bula fora do formato: ${validation.error.message}`,
+        'A IA respondeu fora do formato esperado. Tente outro PDF.',
       );
     }
 
@@ -1568,21 +1796,31 @@ Responda APENAS com JSON válido, sem markdown:
     });
 
     if (!rawText.trim()) {
-      throw new HttpsError('internal', 'A IA retornou uma resposta vazia.');
+      throw new HttpsError(
+        'internal',
+        'Não consegui ler a tira. Tente outra foto.',
+      );
     }
 
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(rawText);
-    } catch (err) {
-      console.error('❌ parseUrinaTira: JSON inválido da IA:', rawText, err);
-      throw new HttpsError('internal', 'IA retornou resposta não-JSON.');
+    const repaired = safeParseAIJson(rawText);
+    if (!repaired.ok) {
+      console.error(
+        '❌ parseUrinaTira: JSON irrecuperável da IA',
+        { reason: repaired.reason, rawHead: repaired.raw.slice(0, 600), rawTail: repaired.raw.slice(-200) },
+      );
+      throw new HttpsError(
+        'internal',
+        'A leitura automática da tira falhou. Tente outra foto.',
+      );
     }
 
-    const validation = URO_OCR_RESULT_SCHEMA.safeParse(parsed);
+    const validation = URO_OCR_RESULT_SCHEMA.safeParse(repaired.data);
     if (!validation.success) {
       console.error('❌ parseUrinaTira: formato inválido (Zod):', validation.error.format());
-      throw new HttpsError('internal', `Formato inválido da IA: ${validation.error.message}`);
+      throw new HttpsError(
+        'internal',
+        'A IA respondeu fora do formato esperado. Tente outra foto.',
+      );
     }
 
     console.log('✅ parseUrinaTira: leitura bem-sucedida');

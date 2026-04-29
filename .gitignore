@@ -65,8 +65,15 @@ node_modules/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
+# dotenv environment variables file — todos com `.env` no início.
+# Inclui .env.test e .env.local pra impedir commit acidental de senhas
+# de smoke test ou credenciais locais.
 .env
+.env.local
+.env.*.local
+.env.test
+**/.env.test
+**/.env.local
 
 # dataconnect generated files
 .dataconnect
@@ -121,3 +128,16 @@ functions/lib/
 # Outputs de smoke tests dos geradores de PDF (dev-only)
 functions/smoke-*.pdf
 functions/tmp/
+
+# Smoke test outputs — screenshots, logs, audits gerados por execução.
+# Os specs/configs em si são versionados; só os artefatos de execução não.
+smoke-test/playwright-report/
+smoke-test/test-results/
+smoke-test/fail*.png
+smoke-test/gemini-audit-*/
+smoke-test-openclaw/smoke-ciq-imuno-*/
+
+# Anexos work-in-progress do módulo educação continuada
+modulo educa*/*.pdf
+modulo educa*/*.xlsx
+modulo educa*/*.docx

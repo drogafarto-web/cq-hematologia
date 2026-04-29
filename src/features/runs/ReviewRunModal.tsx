@@ -1,10 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useActiveLabId } from '../../store/useAuthStore';
 import { ANALYTE_MAP } from '../../constants';
 import { checkWestgardRules, isRejection } from '../chart/utils/westgardRules';
 import { InsumoPickerMulti } from '../insumos/components/InsumoPickerMulti';
 import { NovoLoteModal } from '../insumos/components/NovoLoteModal';
 import { validateReagentesForRun } from '../insumos/utils/insumoValidation';
+import { useInsumos } from '../insumos/hooks/useInsumos';
+import { useTraceability } from '../traceability/hooks/useTraceability';
+import { UNIDADES, DEFAULT_EQUIPMENT_ID } from '../traceability/constants';
 import type { Insumo, InsumoModulo } from '../insumos/types/Insumo';
 import type { PendingRun, ControlLot, WestgardViolation, AnalyteStats } from '../../types';
 
@@ -79,7 +82,9 @@ const VIOLATION_INFO: Record<WestgardViolation, ViolationInfo> = {
 // ─── Pure helpers ─────────────────────────────────────────────────────────────
 
 function resolveStats(lot: ControlLot, analyteId: string): AnalyteStats | null {
-  return lot.statistics?.[analyteId] ?? lot.manufacturerStats[analyteId] ?? null;
+  // manufacturerStats é null quando o lote ainda aguarda a bula. Nesse
+  // estado retornamos null e Westgard fica suspenso até `applyBulaToLots`.
+  return lot.statistics?.[analyteId] ?? lot.manufacturerStats?.[analyteId] ?? null;
 }
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -95,11 +100,6 @@ interface ReviewRunModalProps {
   ) => Promise<void>;
   onCancel: () => void;
   isConfirming: boolean;
-  /**
-   * Módulo da corrida — usado para validar reagentes contra requisitos do módulo.
-   * Default `hematologia` para preservar comportamento legado quando o caller
-   * (tela de nova corrida) não passa explicitamente.
-   */
   modulo?: InsumoModulo;
 }
 
@@ -129,17 +129,60 @@ export function ReviewRunModal({
   const [reagentes, setReagentes] = useState<Insumo[]>([]);
   const [showNovoLote, setShowNovoLote] = useState(false);
 
+  // Pré-popula o picker com os reagentes ativos do equipamento — operador
+  // não precisa selecionar manualmente o que já está cadastrado em rotina.
+  // Mesmo dataset do PreFlightCheck na tela de Nova Corrida (consistência).
+  // O state continua mutável: operador pode remover um item se não foi usado
+  // nesta corrida específica (raro, mas possível).
+  const { insumos: reagentesAtivosDoLab } = useInsumos({
+    tipo: 'reagente',
+    status: 'ativo',
+    modulo,
+  });
+  const reagentesAtivosDoEquip = useMemo(() => {
+    return reagentesAtivosDoLab.filter((r) => {
+      if (r.tipo !== 'reagente') return false;
+      // Reagente sem equipamentoId = legado (aceita); com = filtrado.
+      return !r.equipamentoId || r.equipamentoId === DEFAULT_EQUIPMENT_ID;
+    });
+  }, [reagentesAtivosDoLab]);
+  const [hasPrefilled, setHasPrefilled] = useState(false);
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (hasPrefilled) return;
+    if (reagentesAtivosDoEquip.length === 0) return;
+    setReagentes(reagentesAtivosDoEquip);
+    setHasPrefilled(true);
+  }, [reagentesAtivosDoEquip, hasPrefilled]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
   // Override auditado — operador força a corrida mesmo com blockers e fornece
   // justificativa obrigatória. A justificativa vai pro auditLog e a run
   // carrega `complianceOverride: true` na persistência.
   const [overrideMode, setOverrideMode] = useState(false);
   const [overrideJustificativa, setOverrideJustificativa] = useState('');
 
+  // Rastreabilidade — código do primeiro atendimento coberto pela aprovação
+  // deste controle. Opcional por enquanto; futuro: torná-lo obrigatório quando
+  // a feature estabilizar. Pré-preenche com último evento + 1 (sugestão).
+  const traceability = useTraceability();
+  const [traceUnidade, setTraceUnidade] = useState<string>(UNIDADES[0].code);
+  const traceSuggested = traceability.suggestNextExamCode(traceUnidade, DEFAULT_EQUIPMENT_ID);
+  const [traceExamCode, setTraceExamCode] = useState<string>('');
+
   const imageUrl = URL.createObjectURL(pendingRun.file);
 
   const lowConfidenceCount = Object.values(pendingRun.results).filter(
     (r) => r.confidence < 0.85,
   ).length;
+
+  // Lote aguardando bula Controllab — Westgard suspenso até `applyBulaToLot`
+  // recompute. A run será marcada `semBula: true` automaticamente em useRuns.
+  // Estado derivado do lote (sem override manual) — semântica fica consistente:
+  // a Run fica no lote a que pertence fisicamente. Se o sangue é de outro
+  // lote sem bula, operador deve cadastrar via "⏳ Cadastrar sem bula" no
+  // LotManager, não marcar checkbox em um lote que já tem bula.
+  const isSemBula = activeLot.bulaPendente === true;
 
   const complianceResult = useMemo(
     () => validateReagentesForRun({ reagentes, modulo }),
@@ -177,10 +220,44 @@ export function ReviewRunModal({
         ...(complianceResult.minimoFaltando && { minimoFaltando: complianceResult.minimoFaltando }),
       };
       await onConfirm(parsed, approve, reagentes, override);
+      maybeRegisterTraceabilityEvent(approve);
       return;
     }
 
     await onConfirm(parsed, approve, reagentes);
+    maybeRegisterTraceabilityEvent(approve);
+  }
+
+  /**
+   * Fire-and-forget — registra evento de `control_run` se o operador preencheu
+   * o código de atendimento e a corrida foi aprovada. Falha silencia (com
+   * warning no console) — rastreabilidade não bloqueia o fluxo principal de
+   * aprovação. Próxima rodada: integrar isto no submit server-side via Cloud
+   * Function trigger pra garantir consistência mesmo com cliente offline.
+   */
+  function maybeRegisterTraceabilityEvent(approve: boolean) {
+    if (!approve) return;
+    const code = traceExamCode.trim();
+    if (!code) return;
+    traceability
+      .registerEvent({
+        unidadeCode: traceUnidade,
+        equipmentId: DEFAULT_EQUIPMENT_ID,
+        type: 'control_run',
+        examCodeAtChange: code,
+        timestamp: new Date(),
+        payload: {
+          controlLotId: activeLot.id,
+          // controlRunId não está disponível aqui (run é gravada server-side
+          // após este return); ficará null e pode ser linkado depois via
+          // Cloud Function trigger se necessário.
+        },
+      })
+      .catch((err) => {
+        console.warn(
+          `[traceability] falha ao registrar control_run: ${err instanceof Error ? err.message : err}`,
+        );
+      });
   }
 
   // Build ordered list of analytes in this lot
@@ -208,6 +285,11 @@ export function ReviewRunModal({
   }
 
   const { violationEntries, hasRejectionViolation } = useMemo(() => {
+    // Sem bula → Westgard suspenso. Não calcula nem exibe violations.
+    if (isSemBula) {
+      return { violationEntries: [] as ViolationEntry[], hasRejectionViolation: false };
+    }
+
     const sortedRuns = [...activeLot.runs].sort(
       (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
     );
@@ -238,7 +320,7 @@ export function ReviewRunModal({
     return { violationEntries: entries, hasRejectionViolation: hasRejection };
     // editedValues key is stable; only the values inside change — spread forces re-evaluation
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editedValues, activeLot]);
+  }, [editedValues, activeLot, isSemBula]);
 
   const hasAnyViolation = violationEntries.length > 0;
 
@@ -258,6 +340,7 @@ export function ReviewRunModal({
             </h2>
             <p className="text-xs text-slate-500 dark:text-white/40 mt-0.5">
               {activeLot.controlName} — Nível {activeLot.level}
+              <span className="font-mono"> · {activeLot.lotNumber}</span>
             </p>
             {pendingRun.sampleId && (
               <p className="text-xs text-slate-500 dark:text-white/40 mt-0.5">
@@ -283,7 +366,26 @@ export function ReviewRunModal({
         </div>
 
         {/* Analyte table + reagentes */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-5">
+          {isSemBula && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="rounded-xl border border-amber-300 dark:border-amber-500/30 bg-amber-50/70 dark:bg-amber-500/[0.06] px-3.5 py-2.5 flex items-start gap-2.5"
+            >
+              <span aria-hidden className="text-base leading-none mt-0.5">⏳</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-semibold text-amber-800 dark:text-amber-300/95">
+                  Corrida sem bula
+                </p>
+                <p className="text-[11px] leading-snug text-amber-700/85 dark:text-amber-200/70 mt-0.5">
+                  Bula Controllab ainda não chegou — Westgard suspenso e Levey-Jennings
+                  sem linhas-guia. Quando a bula for importada, esta corrida será
+                  recalculada e classificada retroativamente.
+                </p>
+              </div>
+            </div>
+          )}
           <table className="w-full text-sm">
             <thead>
               <tr className="text-xs text-slate-400 dark:text-white/30 font-medium">
@@ -416,32 +518,156 @@ export function ReviewRunModal({
               </div>
             )}
 
-            {/* Override auditado — aparece só quando operador clicou "Confirmar"
-                e há blockers, pedindo justificativa por escrito antes de seguir. */}
-            {overrideMode && !complianceResult.canProceed && (
-              <div className="rounded-xl border-2 border-red-300 dark:border-red-500/40 bg-red-50/50 dark:bg-red-500/[0.05] p-3 space-y-2">
+          </section>
+
+          {/* Rastreabilidade — opcional. Ancora a aprovação deste controle ao
+              primeiro código de atendimento que será coberto. Vive no body
+              (não no footer) pra liberar viewport pro scroll em laptops. */}
+          <section
+            aria-labelledby="trace-title"
+            className="rounded-xl border border-slate-200 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.02] px-3 py-2.5"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <h3
+                id="trace-title"
+                className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400"
+              >
+                Rastreabilidade
+              </h3>
+              <span className="text-[10px] text-slate-400 dark:text-slate-500">opcional</span>
+            </div>
+            <div className="grid grid-cols-[110px_1fr] gap-2">
+              <select
+                aria-label="Unidade do atendimento"
+                value={traceUnidade}
+                onChange={(e) => setTraceUnidade(e.target.value)}
+                className="h-9 px-2.5 text-xs bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-lg text-slate-700 dark:text-white outline-none focus:border-blue-500 dark:focus:border-blue-500/60 transition-all"
+              >
+                {UNIDADES.map((u) => (
+                  <option key={u.code} value={u.code}>
+                    {u.code}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                autoComplete="off"
+                placeholder={
+                  traceSuggested
+                    ? `Primeiro atendimento (sugerido: ${traceSuggested})`
+                    : 'Primeiro atendimento coberto (ex: 0107037)'
+                }
+                value={traceExamCode}
+                onChange={(e) =>
+                  setTraceExamCode(e.target.value.replace(/\D/g, '').slice(0, 10))
+                }
+                className="h-9 px-3 font-mono text-xs bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-lg text-slate-700 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-blue-500 dark:focus:border-blue-500/60 transition-all"
+              />
+            </div>
+            {traceSuggested && !traceExamCode && (
+              <button
+                type="button"
+                onClick={() => setTraceExamCode(traceSuggested)}
+                className="mt-1.5 text-[10px] text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                Usar sugestão {traceSuggested}
+              </button>
+            )}
+          </section>
+        </div>
+
+        {/* Footer — sempre visível, fora do scroll. Contém alertas Westgard,
+            painel de override (quando ativo) e botões de ação. Rastreabilidade
+            ficou no body porque é opcional e estava roubando viewport demais
+            do scroll em laptops. */}
+        <div className="px-6 py-4 border-t border-slate-100 dark:border-white/[0.07] shrink-0 space-y-3">
+          {/* Override auditado — fixo no footer pra ficar sempre visível quando
+              ativo, sem depender de scroll. Quando TODOS os blockers são
+              reclassificáveis (marksRunAsInformational), muda visual para amarelo
+              + texto "informativa" — corrida será gravada mas não compõe
+              estatísticas do lote. */}
+          {overrideMode && !complianceResult.canProceed && (() => {
+            const blockersInformational = complianceResult.blockers.filter(
+              (b) => b.marksRunAsInformational,
+            );
+            const isFullyInformational =
+              complianceResult.blockers.length > 0 &&
+              blockersInformational.length === complianceResult.blockers.length &&
+              complianceResult.minimoFaltando === null;
+
+            return (
+              <div
+                className={`rounded-xl border-2 p-3 space-y-2 ${
+                  isFullyInformational
+                    ? 'border-amber-300 dark:border-amber-500/40 bg-amber-50/50 dark:bg-amber-500/[0.05]'
+                    : 'border-red-300 dark:border-red-500/40 bg-red-50/50 dark:bg-red-500/[0.05]'
+                }`}
+              >
                 <div>
-                  <p className="text-xs font-semibold text-red-700 dark:text-red-300">
-                    Override auditado — justificativa obrigatória
+                  <p
+                    className={`text-xs font-semibold ${
+                      isFullyInformational
+                        ? 'text-amber-700 dark:text-amber-300'
+                        : 'text-red-700 dark:text-red-300'
+                    }`}
+                  >
+                    {isFullyInformational
+                      ? 'Corrida será registrada como INFORMATIVA — justificativa obrigatória'
+                      : 'Override auditado — justificativa obrigatória'}
                   </p>
-                  <p className="text-[11px] text-red-600/80 dark:text-red-400/70 mt-0.5 leading-snug">
-                    Você está prestes a registrar esta corrida apesar dos bloqueios acima.
-                    A justificativa fica registrada permanentemente no log de auditoria (RDC
-                    978/2025). Mínimo 15 caracteres.
+                  <p
+                    className={`text-[11px] mt-0.5 leading-snug ${
+                      isFullyInformational
+                        ? 'text-amber-700/80 dark:text-amber-400/70'
+                        : 'text-red-600/80 dark:text-red-400/70'
+                    }`}
+                  >
+                    {isFullyInformational ? (
+                      <>
+                        Esta corrida entra no histórico do lote para julgamento clínico
+                        e rastreabilidade (RDC 978/2025), mas <strong>não é usada</strong>{' '}
+                        para média, DP, Westgard ou decisão de aprovação da bancada.
+                        Justificativa registrada permanentemente. Mínimo 15 caracteres.
+                      </>
+                    ) : (
+                      <>
+                        Você está prestes a registrar esta corrida apesar dos bloqueios
+                        listados acima. A justificativa fica registrada permanentemente
+                        no log de auditoria (RDC 978/2025). Mínimo 15 caracteres.
+                      </>
+                    )}
                   </p>
                 </div>
                 <textarea
                   value={overrideJustificativa}
                   onChange={(e) => setOverrideJustificativa(e.target.value)}
                   rows={2}
+                  autoFocus
                   placeholder="Ex: Lote novo chegou hoje e lote anterior acabou — corrida para qualificar o novo material."
                   aria-label="Justificativa do override"
                   className="w-full px-3 py-2 rounded-lg bg-white dark:bg-white/[0.08] border border-red-200 dark:border-red-500/30 text-sm text-slate-900 dark:text-white/85 placeholder-slate-400 dark:placeholder-white/25 focus:outline-none focus:border-red-500/60 resize-none"
                 />
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-slate-500 dark:text-white/40">
-                    {overrideJustificativa.trim().length}/15 mínimo
-                  </span>
+                  {(() => {
+                    const len = overrideJustificativa.trim().length;
+                    const faltam = Math.max(0, 15 - len);
+                    return (
+                      <span
+                        className={`text-[10px] font-medium ${
+                          len < 15
+                            ? 'text-red-600 dark:text-red-400'
+                            : 'text-emerald-600 dark:text-emerald-400'
+                        }`}
+                        aria-live="polite"
+                      >
+                        {len < 15
+                          ? `${len}/15 — faltam ${faltam} caracter${faltam === 1 ? '' : 'es'}`
+                          : `${len} caracteres ✓`}
+                      </span>
+                    );
+                  })()}
                   <button
                     type="button"
                     onClick={() => {
@@ -454,12 +680,9 @@ export function ReviewRunModal({
                   </button>
                 </div>
               </div>
-            )}
-          </section>
-        </div>
+            );
+          })()}
 
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-slate-100 dark:border-white/[0.07] shrink-0 space-y-3">
           {/* Westgard alerts panel — shown when violations are detected */}
           {hasAnyViolation && (
             <div
@@ -546,7 +769,12 @@ export function ReviewRunModal({
                   type="button"
                   onClick={() => handleSubmit(true)}
                   disabled={approveDisabled}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium text-white disabled:opacity-50 transition-all shadow-lg ${
+                  title={
+                    hasBlockers && overrideMode && !overrideReady
+                      ? `Justificativa precisa de ao menos 15 caracteres (faltam ${Math.max(0, 15 - overrideJustificativa.trim().length)})`
+                      : undefined
+                  }
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium text-white transition-all shadow-lg disabled:cursor-not-allowed disabled:shadow-none disabled:saturate-50 disabled:opacity-40 ${
                     hasBlockers
                       ? 'bg-red-600 hover:bg-red-500 shadow-red-500/20'
                       : hasRejectionViolation

@@ -8,6 +8,7 @@ import { NovoLoteModal } from '../../insumos/components/NovoLoteModal';
 import { CIQAuditor } from './CIQAuditor';
 import { CIQIndicadores } from './CIQIndicadores';
 import { CIQRelatorioPrint } from './CIQRelatorioPrint';
+import { LotDecisionModal } from './LotDecisionModal';
 import { exportRunsToCSV } from '../services/ciqExportService';
 import {
   updateLotDecision,
@@ -719,6 +720,7 @@ export function CIQImunoContent({
   const [exportErr, setExportErr] = useState<string | null>(null);
   const [decidingLot, setDecidingLot] = useState(false);
   const [decisionErr, setDecisionErr] = useState<string | null>(null);
+  const [pendingDecision, setPendingDecision] = useState<'A' | 'Rejeitado' | null>(null);
   const [showPrint, setShowPrint] = useState(false);
   const [editingLot, setEditingLot] = useState<CIQImunoLot | null>(null);
   const [isSavingLot, setIsSavingLot] = useState(false);
@@ -769,17 +771,27 @@ export function CIQImunoContent({
     }
   }
 
-  async function handleLotDecision(decision: CIQStatus) {
+  function handleLotDecision(decision: CIQStatus) {
     if (!activeLot || !user) return;
     setDecisionErr(null);
-    setDecidingLot(true);
-    try {
-      await updateLotDecision(activeLot.labId, activeLot.id, decision, user.uid);
-    } catch (err) {
-      setDecisionErr(err instanceof Error ? err.message : 'Erro ao registrar decisão.');
-    } finally {
-      setDecidingLot(false);
+    if (decision === 'A' || decision === 'Rejeitado') {
+      setPendingDecision(decision);
+      return;
     }
+    // Outros status (ex: 'Pendente') seguem o caminho direto sem reauth.
+    setDecidingLot(true);
+    void updateLotDecision(
+      activeLot.labId,
+      activeLot.id,
+      decision,
+      user.uid,
+      'Reset para pendente',
+      activeLot.ciqDecision,
+    )
+      .catch((err) =>
+        setDecisionErr(err instanceof Error ? err.message : 'Erro ao registrar decisão.'),
+      )
+      .finally(() => setDecidingLot(false));
   }
 
   function handleExportCSV() {
@@ -1433,6 +1445,19 @@ export function CIQImunoContent({
             </div>
           </div>
         </Modal>
+      )}
+
+      {/* Decisão formal de lote — reauth + justificativa + audit imutável */}
+      {pendingDecision && activeLot && user && (
+        <LotDecisionModal
+          open
+          decision={pendingDecision}
+          lot={activeLot}
+          runs={runs}
+          actorUid={user.uid}
+          actorName={user.displayName ?? user.email ?? 'Responsável Técnico'}
+          onClose={() => setPendingDecision(null)}
+        />
       )}
       </div>
     </div>

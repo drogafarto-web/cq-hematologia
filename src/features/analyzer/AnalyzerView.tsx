@@ -839,6 +839,8 @@ export function AnalyzerView() {
     deleteLot,
     selectLot,
     setSelectedAnalyte,
+    toggleManualHidden,
+    applyBulaToLot,
   } = useLots();
   const {
     pendingRun,
@@ -1025,10 +1027,8 @@ export function AnalyzerView() {
                         onCloseAdd={() => setShowAddLot(false)}
                         onAdd={addLot}
                         onDelete={deleteLot}
-                        onSelect={async (id) => {
-                          await selectLot(id);
-                          setPage('analise');
-                        }}
+                        onToggleHidden={toggleManualHidden}
+                        onApplyBula={applyBulaToLot}
                       />
                     </div>
                   </>

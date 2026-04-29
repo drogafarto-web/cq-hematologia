@@ -25,10 +25,15 @@ import type {
   WestgardViolation,
   DatabaseService,
 } from '../../../types';
+import { isRunOficial } from '../../../types';
 import type { Insumo, InsumoModulo } from '../../insumos/types/Insumo';
 import { clearInsumoQCValidation } from '../../insumos/services/insumosFirebaseService';
-import { validateReagentesForRun } from '../../insumos/utils/insumoValidation';
+import {
+  validateReagentesForRun,
+  resolveAproveitamento,
+} from '../../insumos/utils/insumoValidation';
 import { logComplianceAudit } from '../services/complianceAudit';
+import { trackEvent, Sentry } from '../../../lib/sentry';
 
 /**
  * Input de override que o caller (ReviewRunModal) monta quando o operador
@@ -58,7 +63,8 @@ function fileToBase64(file: File): Promise<string> {
 
 /** Returns the stat to use for a given analyte: internal first, manufacturer as fallback. */
 function resolveStats(lot: ControlLot, analyteId: string): AnalyteStats | null {
-  return lot.statistics?.[analyteId] ?? lot.manufacturerStats[analyteId] ?? null;
+  // manufacturerStats null = lote aguardando bula → sem limites disponíveis.
+  return lot.statistics?.[analyteId] ?? lot.manufacturerStats?.[analyteId] ?? null;
 }
 
 /**
@@ -69,7 +75,10 @@ function resolveStats(lot: ControlLot, analyteId: string): AnalyteStats | null {
  * Returns null when no analyte meets the minimum.
  */
 function calculateInternalStats(lot: ControlLot): InternalStats | null {
-  const approved = lot.runs.filter((r) => r.status === 'Aprovada');
+  // Apenas corridas oficiais aprovadas compõem média/DP do lote.
+  // Corridas `aproveitamento === 'informativa'` (ex: lote de controle vencido)
+  // permanecem visíveis no histórico/LJ mas não influenciam estatística.
+  const approved = lot.runs.filter((r) => r.status === 'Aprovada' && isRunOficial(r));
   if (approved.length < 2) return null;
 
   const stats: InternalStats = {};
@@ -106,8 +115,10 @@ function buildAnalyteResults(
   lot: ControlLot,
   now: Date,
 ): AnalyteResult[] {
-  // Existing runs sorted newest → oldest for Westgard lookback
-  const sortedRuns = [...lot.runs].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  // Informativas excluídas: contam no histórico mas não compõem sequência Westgard.
+  const sortedRuns = [...lot.runs]
+    .filter(isRunOficial)
+    .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
   return Object.entries(rawResults).map(([analyteId, raw]) => {
     const stats = resolveStats(lot, analyteId);
@@ -286,6 +297,15 @@ export function useRuns() {
       const runId = crypto.randomUUID();
       const now = new Date();
 
+      trackEvent('run', `confirmRun ${approve ? 'approve' : 'reject'}`, {
+        lotId: activeLot.id,
+        lotNumber: activeLot.lotNumber,
+        level: activeLot.level,
+        bulaPendente: activeLot.bulaPendente === true,
+        reagentesCount: reagentes.length,
+        hasOverride: !!overrideInput,
+      });
+
       try {
         // Defense-in-depth: revalida compliance aqui — UI já validou mas a lista
         // de reagentes pode ter mudado de estado entre modal aberto e save
@@ -315,7 +335,17 @@ export function useRuns() {
           ]),
         );
 
-        // Build results with Westgard violations (informational — operator decides status)
+        // Lote sem bula → marca a run pra recálculo retroativo quando a
+        // bula chegar (applyBulaToLot). `manufacturerStats` null é o sinal.
+        // Estado derivado do lote, sem override manual — semântica fica clara:
+        // se o sangue é de outro lote sem bula, o operador deve cadastrar via
+        // "⏳ Cadastrar sem bula" no LotManager antes de rodar a corrida.
+        const semBula =
+          activeLot.bulaPendente === true || activeLot.manufacturerStats == null;
+
+        // Build results with Westgard violations (informational — operator decides status).
+        // Quando `semBula`, buildAnalyteResults já retorna violations vazias porque
+        // resolveStats devolve null em lote sem manufacturerStats.
         const results = buildAnalyteResults(mergedResults, runId, activeLot, now);
         const status: RunStatus = approve ? 'Aprovada' : 'Rejeitada';
         // manualOverride = true when operator explicitly approved despite rejection-level violations
@@ -342,6 +372,13 @@ export function useRuns() {
             }
           : null;
 
+        // Reclassificação automática: se algum reagente declarado tem issue
+        // que reclassifica (hoje: lote vencido), a corrida sai como informativa.
+        // Operador NÃO escolhe — é consequência determinística do estado dos
+        // reagentes. Mantém rastreabilidade do desvio em complianceOverride.
+        const { aproveitamento, motivo: motivoInformativa } =
+          resolveAproveitamento(complianceCheck);
+
         const newRun: Run = {
           id: runId,
           lotId: activeLot.id,
@@ -358,6 +395,11 @@ export function useRuns() {
             reagentesSnapshot,
           }),
           ...(complianceOverride && { complianceOverride }),
+          ...(aproveitamento === 'informativa' && {
+            aproveitamento,
+            ...(motivoInformativa && { motivoInformativa }),
+          }),
+          ...(semBula && { semBula: true }),
         };
 
         // Update lot: add run, increment runCount, recalculate stats
@@ -457,6 +499,10 @@ export function useRuns() {
         })();
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Erro ao confirmar corrida.';
+        Sentry.captureException(err, {
+          tags: { feature: 'run', action: 'confirmRun' },
+          extra: { lotId: activeLot.id, runId },
+        });
         setRunError(msg);
         setError(msg);
         haptic.error();
