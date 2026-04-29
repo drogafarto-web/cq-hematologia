@@ -850,6 +850,7 @@ export function AnalyzerView() {
     newRun,
     confirmRun,
     cancelRun,
+    deleteRun,
   } = useRuns();
 
   const [showAddLot, setShowAddLot] = useState(false);
@@ -991,7 +992,9 @@ export function AnalyzerView() {
                     goTo={goTo}
                   />
                 )}
-                {page === 'historico' && <HistoricoScreen lots={lots} goTo={goTo} />}
+                {page === 'historico' && (
+                  <HistoricoScreen lots={lots} goTo={goTo} deleteRun={deleteRun} />
+                )}
                 {page === 'lotes' && (
                   <>
                     <div className="flex items-center gap-4 mb-6">
