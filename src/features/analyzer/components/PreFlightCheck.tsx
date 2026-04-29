@@ -15,14 +15,11 @@
 import React from 'react';
 import { useLots } from '../../lots/hooks/useLots';
 import { useInsumos } from '../../insumos/hooks/useInsumos';
+import { selectCurrentBulaLots } from '../../lots/utils/currentBula';
 import type { ControlLot } from '../../../types';
 import type { Insumo, InsumoModulo } from '../../insumos/types/Insumo';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function bulaKey(date: Date): string {
-  return `${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}`;
-}
 
 function fmtDate(d: Date): string {
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' });
@@ -106,32 +103,10 @@ export function PreFlightCheck({
   });
 
   // ── Controles em uso (bula corrente, não-vencidos, não retirados) ─────────
-  const now = Date.now();
-  const vigentes = lots.filter(
-    (l) => l.expiryDate.getTime() >= now && l.manualHidden !== true,
-  );
-
-  // Bula corrente = startDate mais recente <= agora.
-  let bulaCorrente: string | null = null;
-  let bestStart = -Infinity;
-  for (const l of vigentes) {
-    const ts = l.startDate.getTime();
-    if (ts <= now && ts > bestStart) {
-      bestStart = ts;
-      bulaCorrente = bulaKey(l.startDate);
-    }
-  }
-  if (!bulaCorrente && vigentes.length > 0) {
-    bestStart = -Infinity;
-    for (const l of vigentes) {
-      const ts = l.startDate.getTime();
-      if (ts > bestStart) {
-        bestStart = ts;
-        bulaCorrente = bulaKey(l.startDate);
-      }
-    }
-  }
-  const lotsBulaCorrente = vigentes.filter((l) => bulaKey(l.startDate) === bulaCorrente);
+  // Regra única em selectCurrentBulaLots — exclui archivedAt, manualHidden,
+  // vencidos. Compartilhada com LotPicker, LevelPills e LotSwitcher pra evitar
+  // drift (ex.: lote arquivado aparecer só aqui ou só lá).
+  const lotsBulaCorrente = selectCurrentBulaLots(lots);
 
   const controls: ControlSummary[] = ([1, 2, 3] as const)
     .slice(0, expectedControls)
