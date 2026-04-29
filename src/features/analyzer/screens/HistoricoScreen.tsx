@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import type { ControlLot, Run } from '../../../types';
 import { ANALYTE_MAP, WARNING_ONLY_WESTGARD_RULES } from '../../../constants';
-import { DownloadIcon, ChevRight } from '../components/icons';
+import { DownloadIcon } from '../components/icons';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -19,6 +19,28 @@ function FilterIcon() {
       aria-hidden
     >
       <path d="M22 3H2l8 9.46V19l4 2v-8.54z" />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M3 6h18" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+      <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      <line x1="10" y1="11" x2="10" y2="17" />
+      <line x1="14" y1="11" x2="14" y2="17" />
     </svg>
   );
 }
@@ -70,6 +92,7 @@ function StatusBadge({ status }: { status: string }) {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface RunWithLot extends Run {
+  lotId: string;
   lotNumber: string;
   lotName: string;
   lotLevel: 1 | 2 | 3;
@@ -78,6 +101,7 @@ interface RunWithLot extends Run {
 interface Props {
   lots: ControlLot[];
   goTo: (page: string) => void;
+  deleteRun: (lotId: string, runId: string) => Promise<void>;
 }
 
 // ─── CSV export ───────────────────────────────────────────────────────────────
@@ -132,13 +156,25 @@ function exportCSV(runs: RunWithLot[]) {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function HistoricoScreen({ lots, goTo }: Props) {
+export function HistoricoScreen({ lots, goTo, deleteRun }: Props) {
   const [filter, setFilter] = useState<'all' | 'Aprovada' | 'Rejeitada' | 'Pendente'>('all');
   const [query, setQuery] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [levelFilter, setLevelFilter] = useState<Set<number>>(new Set());
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [confirmingDelete, setConfirmingDelete] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
+
+  async function handleDelete(lotId: string, runId: string) {
+    setDeleting(runId);
+    try {
+      await deleteRun(lotId, runId);
+    } finally {
+      setDeleting(null);
+      setConfirmingDelete(null);
+    }
+  }
 
   const allRuns: RunWithLot[] = useMemo(
     () =>
@@ -146,6 +182,7 @@ export function HistoricoScreen({ lots, goTo }: Props) {
         .flatMap((l) =>
           l.runs.map((r) => ({
             ...r,
+            lotId: l.id,
             lotNumber: l.lotNumber,
             lotName: l.controlName ?? l.lotNumber,
             lotLevel: l.level,
@@ -526,8 +563,40 @@ export function HistoricoScreen({ lots, goTo }: Props) {
                           <td className="px-4 py-3 text-center">
                             <StatusBadge status={r.status} />
                           </td>
-                          <td className="px-4 py-3 text-slate-300 dark:text-slate-600">
-                            <ChevRight size={13} />
+                          <td
+                            className="px-4 py-3 text-right whitespace-nowrap"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {confirmingDelete === r.id ? (
+                              <div className="inline-flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  disabled={deleting === r.id}
+                                  onClick={() => handleDelete(r.lotId, r.id)}
+                                  className="px-2 h-7 text-[11px] font-semibold rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                                >
+                                  {deleting === r.id ? 'Excluindo…' : 'Confirmar'}
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={deleting === r.id}
+                                  onClick={() => setConfirmingDelete(null)}
+                                  className="px-2 h-7 text-[11px] font-medium rounded-md text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
+                                >
+                                  Cancelar
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => setConfirmingDelete(r.id)}
+                                aria-label={`Excluir corrida ${r.id.slice(-8)}`}
+                                title="Excluir corrida"
+                                className="inline-flex items-center justify-center w-7 h-7 rounded-md text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                              >
+                                <TrashIcon />
+                              </button>
+                            )}
                           </td>
                         </tr>
                       );
