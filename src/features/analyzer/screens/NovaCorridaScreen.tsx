@@ -103,9 +103,14 @@ interface LotPickerProps {
 
 function LotPicker({ lots, selectedId, onSelect, onConfirm, onNewMonth }: LotPickerProps) {
   const today = new Date();
-  const groups = groupByMonth(lots);
+  // Operador não pode registrar corrida em lote arquivado ou retirado de uso
+  // — LotManager mostra esses em HISTÓRICO; aqui ficam ocultos.
+  const selectableLots = lots.filter(
+    (l) => l.archivedAt == null && l.manualHidden !== true,
+  );
+  const groups = groupByMonth(selectableLots);
 
-  if (lots.length === 0) {
+  if (selectableLots.length === 0) {
     return (
       <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-xl p-10 text-center shadow-sm">
         <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
@@ -228,7 +233,7 @@ function LotPicker({ lots, selectedId, onSelect, onConfirm, onNewMonth }: LotPic
         <span className="text-xs text-slate-400 dark:text-slate-500">
           {selectedId
             ? (() => {
-                const lot = lots.find((l) => l.id === selectedId);
+                const lot = selectableLots.find((l) => l.id === selectedId);
                 return lot ? `Destino: NV${lot.level} · ${lot.lotNumber}` : '';
               })()
             : 'Nenhum lote selecionado'}

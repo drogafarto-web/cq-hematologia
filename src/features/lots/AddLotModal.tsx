@@ -5,6 +5,8 @@ import type { ParsedCSVResult } from './services/csvParserService';
 import type { AddLotInput } from './hooks/useLots';
 import { useAppStore } from '../../store/useAppStore';
 import type { BulaLevelData, ManufacturerStats } from '../../types';
+import { toast } from '../../shared/store/useToastStore';
+import { trackEvent, Sentry } from '../../lib/sentry';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -255,6 +257,10 @@ function BatchCreationForm({
     // recomputa Westgard das corridas já gravadas.
     if (hasMergeOption && mergeMode && onApplyBula) {
       setSubmitting(true);
+      trackEvent('bula', 'BatchCreationForm.merge', {
+        candidates: mergeCandidates.length,
+        lotIds: mergeCandidates.map((m) => m.lotId),
+      });
       try {
         let done = 0;
         for (const m of mergeCandidates) {
@@ -266,11 +272,20 @@ function BatchCreationForm({
           done += 1;
           setCreated(done);
         }
+        toast.success(
+          `Bula aplicada a ${done} lote${done === 1 ? '' : 's'} pendente${done === 1 ? '' : 's'}.`,
+        );
         clearBulaData();
         onClose();
         return;
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Erro ao aplicar bula.');
+        const msg = err instanceof Error ? err.message : 'Erro ao aplicar bula.';
+        toast.error(`Falha no merge da bula: ${msg}`);
+        Sentry.captureException(err, {
+          tags: { feature: 'bula', action: 'BatchCreationForm.merge' },
+          extra: { candidates: mergeCandidates.length },
+        });
+        setError(msg);
         setSubmitting(false);
         return;
       }
@@ -300,20 +315,26 @@ function BatchCreationForm({
     }
 
     setSubmitting(true);
-    try {
-      // Build one AddLotInput per level and fire them all in parallel
-      const inputs: AddLotInput[] = levels.map((lvl) => ({
-        lotNumber: lvl.lotNumber ?? `${controlName}-N${lvl.level}`,
-        controlName: controlName.trim(),
-        level: lvl.level,
-        equipmentName: equipmentName.trim() || 'Yumizen H550',
-        serialNumber: serialNumber.trim(),
-        startDate: new Date(startDate),
-        expiryDate: new Date(expiryDate),
-        requiredAnalytes: Object.keys(lvl.manufacturerStats),
-        manufacturerStats: lvl.manufacturerStats,
-      }));
+    const inputs: AddLotInput[] = levels.map((lvl) => ({
+      lotNumber: lvl.lotNumber ?? `${controlName}-N${lvl.level}`,
+      controlName: controlName.trim(),
+      level: lvl.level,
+      equipmentName: equipmentName.trim() || 'Yumizen H550',
+      serialNumber: serialNumber.trim(),
+      startDate: new Date(startDate),
+      expiryDate: new Date(expiryDate),
+      requiredAnalytes: Object.keys(lvl.manufacturerStats),
+      manufacturerStats: lvl.manufacturerStats,
+    }));
 
+    trackEvent('bula', 'BatchCreationForm.submit', {
+      controlName: controlName.trim(),
+      levelCount: inputs.length,
+      lotNumbers: inputs.map((i) => i.lotNumber),
+      analytes: Object.keys(inputs[0]?.manufacturerStats ?? {}),
+    });
+
+    try {
       let done = 0;
       await Promise.all(
         inputs.map(async (input) => {
@@ -323,10 +344,25 @@ function BatchCreationForm({
         }),
       );
 
+      toast.success(
+        `${inputs.length} lote${inputs.length === 1 ? '' : 's'} criado${inputs.length === 1 ? '' : 's'} a partir da bula.`,
+      );
+      trackEvent('bula', 'BatchCreationForm.success', { created: done });
       clearBulaData();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao salvar lotes.');
+      const msg = err instanceof Error ? err.message : 'Erro ao salvar lotes.';
+      // Toast persistente fora do modal — operador vê mesmo se fechar.
+      toast.error(`Falha ao salvar bula: ${msg}`);
+      Sentry.captureException(err, {
+        tags: { feature: 'bula', action: 'BatchCreationForm.submit' },
+        extra: {
+          controlName: controlName.trim(),
+          lotNumbers: inputs.map((i) => i.lotNumber),
+          progress: `${created}/${inputs.length}`,
+        },
+      });
+      setError(msg);
     } finally {
       setSubmitting(false);
     }
