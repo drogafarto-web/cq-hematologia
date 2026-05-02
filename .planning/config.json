@@ -1,0 +1,64 @@
+{
+  "projectId": "HC-QUALITY-GSD",
+  "name": "HC Quality — Sistema CIQ Laboratorial RDC 978",
+  "owner": "CTO",
+  "created": "2026-05-02",
+  "mode": "automatic",
+  "phase": 1,
+  "tracking": {
+    "milestones": true,
+    "research": true,
+    "adrs": true,
+    "spineIntegrity": true,
+    "compliance": true
+  },
+  "compliance": {
+    "framework": "RDC 978 ANVISA + LGPD",
+    "standards": ["NIST FIPS 198-1", "NIST SP 800-107", "ISO 27001"],
+    "auditCrypto": "HMAC-SHA256 chain-hash"
+  },
+  "phases": {
+    "phase1": {
+      "name": "Compliance Hardening (ADRs)",
+      "duration": "~10 semanas",
+      "adrs": ["0005", "0002", "0006", "0003", "0004", "0007"],
+      "gateBeforePhase2": "100% ADRs implemented + spine integrity verified"
+    },
+    "phase2": {
+      "name": "Construção de Módulos (13 modules)",
+      "duration": "~6-8 meses",
+      "status": "pending until phase1 complete"
+    }
+  },
+  "guardrails": {
+    "requireCTOApprovalBefore": [
+      "firebase deploy",
+      "firebase functions:secrets:set",
+      "firestore rules changes",
+      "git push"
+    ],
+    "requireDoubleReviewBefore": [
+      "/users schema change",
+      "/auditLogs change",
+      "firestore.rules change",
+      "traceability field modification"
+    ],
+    "forbiddenOperations": [
+      "rm /labs/*/insumo-movimentacoes (chain-hash is sacred)",
+      "reset chain-hash without CTO explicit consent",
+      "apply firestore.rules.post-onda2 before Onda 2 verified"
+    ]
+  },
+  "tools": {
+    "gsd": "v1.39.1",
+    "skills": [
+      "gsd-new-milestone",
+      "gsd-spec-phase",
+      "gsd-execute-phase",
+      "gsd-validate-phase",
+      "gsd-ship",
+      "gsd-code-review",
+      "gsd-audit-milestone"
+    ]
+  }
+}
