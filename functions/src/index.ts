@@ -79,6 +79,15 @@ export {
   revokeTemporarySuperAdmin,
 } from './modules/admin/temporarySuperAdmin';
 
+// ─── audit module (ADR 0005 — cryptoAudit helper) ───────────────────────────
+// Centralizes HMAC-SHA256 + chain-hash validation. Resolves V-009 duplication.
+// validateChainIntegrityScheduled: scheduled 12h validator.
+// validateChainIntegrityOnDemand: callable for admin debugging.
+export {
+  validateChainIntegrityScheduled,
+  validateChainIntegrityOnDemand,
+} from './modules/audit/chainHashValidator';
+
 // ─── ciqAudit module (Onda 4) ────────────────────────────────────────────────
 // Triggers onDocumentWritten em runs (hemato + imuno) e insumos — derivam
 // CIQAuditEvent e gravam em `labs/{labId}/ciq-audit` com hash chain tamper-evident.

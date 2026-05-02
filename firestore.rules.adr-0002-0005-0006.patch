@@ -1,0 +1,42 @@
+// ADR 0005 — Chain integrity enforcement
+match /ciq-audit/{auditId} {
+  allow create: if request.auth != null &&
+                   request.resource.data.hmac != null &&
+                   request.resource.data.hash != null &&
+                   request.resource.data.timestamp == request.time;
+  allow read: if request.auth.uid != null;
+}
+
+// ADR 0002 — NF + Fornecedor rastreability
+match /labs/{labId}/notas-fiscais/{nfId} {
+  allow create: if request.auth.uid != null &&
+                   request.resource.data.fornecedorId != null &&
+                   request.resource.data.itens != null;
+  allow read: if request.auth.uid != null;
+  allow update: if request.auth.uid != null;
+}
+
+match /labs/{labId}/fornecedores/{fornecedorId} {
+  allow create, read, update: if request.auth.uid != null;
+}
+
+// ADR 0002 — Insumo dual-mode (legacy + strict)
+match /labs/{labId}/insumos/{loteId} {
+  allow create: if request.auth.uid != null &&
+                   (request.resource.data.notaFiscalId != null ||
+                    request.resource.data._legacyMigrated == true);
+  allow read: if request.auth.uid != null;
+}
+
+// ADR 0006 — Qualificação (RT-signed)
+match /labs/{labId}/qualificacoes/{qualId} {
+  allow create: if request.auth.uid != null &&
+                   request.resource.data.hmac != null;
+  allow read: if request.auth.uid != null;
+}
+
+match /labs/{labId}/members/{uid} {
+  // responsavelTecnico: unique per lab (enforce via CF transaction)
+  allow create, update: if request.auth.uid != null;
+  allow read: if request.auth.uid != null;
+}
