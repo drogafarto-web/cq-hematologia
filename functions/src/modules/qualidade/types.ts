@@ -1,84 +1,64 @@
-import { Timestamp } from 'firebase-admin/firestore';
+import * as admin from 'firebase-admin';
 
 /**
- * ADR 0003 — Non-Conformidade (NC) Global Spine
+ * ADR 0003 — Não-Conformidade Global Spine
  */
 
-export type NCOrigin = 'insumo' | 'controle' | 'equipamento' | 'pessoas' | 'processo' | 'outro';
-export type NCSeveridade = 'leve' | 'grave' | 'critica';
-export type NCStatus = 'aberta' | 'investig' | 'correcao' | 'verif_eficacia' | 'fechada' | 'cancelada';
-export type CapaStatus = 'planejada' | 'em_exec' | 'concluida';
-export type EficaciaResult = 'eficaz' | 'ineficaz' | 'nao_concluida';
-
-export interface NCStatusHistoryEntry {
-  timestamp: Timestamp;
-  novoStatus: NCStatus;
-  mudadoPor: string;
-  motivo?: string;
-  hmac: string;
+export enum NCSeveridade {
+  LEVE = 'leve',
+  MEDIA = 'media',
+  CRITICA = 'critica',
 }
 
-export interface Investigacao {
-  realizada: boolean;
-  dataInicio?: Timestamp;
-  dataFim?: Timestamp;
-  descricao?: string;
-  investigadorId?: string;
-  achados?: string[];
-}
-
-export interface AcaoCorretiva {
-  descricao: string;
-  dataPrevista: Timestamp;
-  dataRealizacao?: Timestamp;
-  responsavel: string;
-  status: CapaStatus;
-  resultado?: string;
-}
-
-export interface VerificacaoEficacia {
-  realizada: boolean;
-  resultado?: EficaciaResult;
-  dataVerificacao?: Timestamp;
-  verificadoPor?: string;
-  evidencia?: string;
-  observacoes?: string;
+export interface NCOrigem {
+  tipo: 'ciq' | 'auditoria' | 'reclamacao' | 'manual' | 'cq';
+  modulo: string;
+  referenciaId?: string;
 }
 
 export interface CAPA {
-  investigacao?: Investigacao;
-  acaoCorretiva?: AcaoCorretiva;
-  verificacaoEficacia?: VerificacaoEficacia;
+  investigacao?: {
+    realizada: boolean;
+    dataInicio?: admin.firestore.Timestamp;
+    dataFim?: admin.firestore.Timestamp;
+    descricao?: string;
+    investigadorId?: string;
+    achados?: any[];
+  };
+  acaoCorretiva?: {
+    descricao: string;
+    dataPrevista: admin.firestore.Timestamp;
+    responsavel: string;
+    status: 'planejada' | 'em_execucao' | 'concluida';
+  };
+  verificacaoEficacia?: {
+    realizada: boolean;
+    resultado: 'eficaz' | 'ineficaz' | 'nao_concluida';
+    dataVerificacao: admin.firestore.Timestamp;
+    verificadoPor: string;
+    evidencia: string;
+  };
   reabertura?: boolean;
 }
 
 export interface NaoConformidade {
-  id: string;
+  id?: string;
   labId: string;
   numero: string;
-  origem: NCOrigin;
-  origemId?: string;
-  moduloOrigemId: string;
+  titulo: string;
   descricao: string;
-  severidade: NCSeveridade;
-  status: NCStatus;
-  statusHistory: NCStatusHistoryEntry[];
-  capa: CAPA;
-  aberta: {
-    timestamp: Timestamp;
-    uid: string;
-    motivo: string;
-  };
-  fechada?: {
-    timestamp: Timestamp;
-    uid: string;
-    motivo: string;
-  };
-  bloqueiaOperacoes: boolean;
-  operacoesTodasBloqueadas?: string[];
-  hmac: string;
-  previousHash: string | null;
-  _ncAuditTrailRef?: string;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
+  categoria?: string;
+  severidade: NCSeveridade | string;
+  status: string;
+  origem?: NCOrigem | string;
+  abertaPor: string;
+  dataAbertura?: admin.firestore.Timestamp;
+  capa?: CAPA;
+  hmac?: string;
+  previousHash?: string | null;
+  createdAt?: admin.firestore.Timestamp;
+  updatedAt?: admin.firestore.Timestamp;
+  criadoEm?: admin.firestore.Timestamp;
+  atualizadoEm?: admin.firestore.Timestamp;
+  _version?: number;
 }

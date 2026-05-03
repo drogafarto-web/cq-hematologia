@@ -209,6 +209,79 @@ export const assinaturaRT = onCall(
   }
 );
 
-// ADR 0004 — POP Validator integrated above
-// ADR 0003 — NC Gate (Wave 3 Integration)  
-// import { checkNCs } from '../qualidade/naoConformidade';
+export const recordarTreinamentoPOP = onCall(
+  { region: 'southamerica-east1' },
+  async (request: any) => {
+    if (!request.auth?.token.admin && !request.auth?.token.instrutorId) {
+      throw new HttpsError('permission-denied', 'Apenas admin/instrutor podem registrar treinamentos');
+    }
+
+    const { labId, operadorId, popId, popVersaoNumero } = request.data;
+
+    if (!labId || !operadorId || !popId || !popVersaoNumero) {
+      throw new HttpsError('invalid-argument', 'Campos obrigatórios: labId, operadorId, popId, popVersaoNumero');
+    }
+
+    try {
+      // Verify POP version is ativa
+      const popSnap = await db.collection(`labs/${labId}/pops`).doc(popId).get();
+      if (!popSnap.exists) {
+        throw new HttpsError('not-found', `POP ${popId} não encontrado`);
+      }
+
+      const pop = popSnap.data() as POP;
+      const versao = pop.versoes.find(v => v.numero === popVersaoNumero && v.status === 'ativa');
+
+      if (!versao) {
+        throw new HttpsError('invalid-argument', `POP v${popVersaoNumero} não está ativa`);
+      }
+
+      // Get or create qualificações entry for operador
+      const qualRef = db.collection(`labs/${labId}/qualificacoes`).doc(operadorId);
+      const qualSnap = await qualRef.get();
+
+      const dataConcluso = admin.firestore.Timestamp.now();
+      const validoAte = admin.firestore.Timestamp.fromDate(
+        new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+      );
+
+      const treinamentoPOP = {
+        popId,
+        popVersaoNumero,
+        dataConcluso,
+        validoAte,
+      };
+
+      if (qualSnap.exists) {
+        const qual = qualSnap.data() as any;
+        const treinamentos = qual?.treinamentosPOP || [];
+
+        // Remove old training record for same POP/versao if exists
+        const filtered = treinamentos.filter(
+          (t: any) => !(t.popId === popId && t.popVersaoNumero === popVersaoNumero)
+        );
+
+        filtered.push(treinamentoPOP);
+        await qualRef.update({ treinamentosPOP: filtered });
+      } else {
+        await qualRef.set({
+          labId,
+          uid: operadorId,
+          qualificacoes: [],
+          treinamentosPOP: [treinamentoPOP],
+          criadoEm: dataConcluso,
+        });
+      }
+
+      return {
+        success: true,
+        operadorId,
+        popId,
+        popVersaoNumero,
+        validoAte: validoAte.toDate(),
+      };
+    } catch (error: any) {
+      throw new HttpsError('internal', error.message || 'Erro ao registrar treinamento');
+    }
+  }
+);

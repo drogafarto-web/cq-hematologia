@@ -1,6 +1,6 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
-import { NaoConformidade, NCStatus, NCSeveridade } from './types';
+import { NaoConformidade, NCSeveridade, NCOrigem } from './types';
 import { signAuditEntry } from '../audit/cryptoAudit';
 
 const db = admin.firestore();
@@ -8,79 +8,56 @@ const db = admin.firestore();
 export const openNaoConformidade = onCall(
   { region: 'southamerica-east1' },
   async (request: any) => {
-    if (!request.auth) {
-      throw new HttpsError('unauthenticated', 'Autenticação necessária');
+    if (!request.auth?.uid) {
+      throw new HttpsError('unauthenticated', 'Usuário deve estar autenticado');
     }
 
-    const { labId, origem, origemId, moduloOrigemId, descricao, severidade } = request.data;
+    const { labId, titulo, descricao, categoria, severidade, origem } = request.data;
 
-    if (!labId || !origem || !moduloOrigemId || !descricao || !severidade) {
-      throw new HttpsError('invalid-argument', 'Campos obrigatórios: labId, origem, moduloOrigemId, descricao, severidade');
+    if (!labId || !titulo || !descricao || !severidade) {
+      throw new HttpsError('invalid-argument', 'Campos obrigatórios: labId, titulo, descricao, severidade');
     }
 
-    if (!['leve', 'grave', 'critica'].includes(severidade)) {
-      throw new HttpsError('invalid-argument', 'Severidade deve ser leve, grave ou critica');
+    // Gate: severidade CRITICA bloqueia operação
+    if (severidade === NCSeveridade.CRITICA) {
+      return {
+        success: false,
+        message: 'NC crítica requer aprovação de RT antes de ser aberta',
+        requiresApproval: true,
+      };
     }
 
     try {
       const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
-      if (!secret) throw new Error('HCQ_SIGNATURE_HMAC_KEY not set');
+      const numero = `NC-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-      const labDoc = await db.collection('labs').doc(labId).get();
-      if (!labDoc.exists) {
-        throw new HttpsError('not-found', `Lab ${labId} não encontrado`);
-      }
-
-      const counterRef = db.collection(`labs/${labId}`).doc('_nc_counter');
-      const counterSnap = await counterRef.get();
-      const seq = ((counterSnap.get('counter') || 0) + 1).toString().padStart(4, '0');
-      
-      const ano = new Date().getFullYear();
-      const numero = `NC-${ano}-${seq}`;
-
-      const ncData: Partial<NaoConformidade> = {
+      const nc: Partial<NaoConformidade> = {
         labId,
         numero,
-        origem,
-        origemId: origemId || null,
-        moduloOrigemId,
+        titulo,
         descricao,
+        categoria: categoria || 'geral',
         severidade: severidade as NCSeveridade,
-        status: 'aberta' as NCStatus,
-        statusHistory: [
-          {
-            timestamp: admin.firestore.FieldValue.serverTimestamp() as any,
-            novoStatus: 'aberta',
-            mudadoPor: request.auth.uid,
-            motivo: 'Abertura inicial',
-            hmac: '', // Will be filled by HMAC signing
-          },
-        ],
-        capa: {},
-        aberta: {
-          timestamp: admin.firestore.FieldValue.serverTimestamp() as any,
-          uid: request.auth.uid,
-          motivo: 'Aberta por operador',
-        },
-        bloqueiaOperacoes: severidade === 'critica' || severidade === 'grave',
-        createdAt: admin.firestore.FieldValue.serverTimestamp() as any,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp() as any,
+        status: 'aberta',
+        origem: (origem || { tipo: 'manual', modulo: 'geral' }) as NCOrigem,
+        abertaPor: request.auth.uid,
+        dataAbertura: admin.firestore.FieldValue.serverTimestamp() as any,
+        criadoEm: admin.firestore.FieldValue.serverTimestamp() as any,
+        atualizadoEm: admin.firestore.FieldValue.serverTimestamp() as any,
       };
 
-      // Sign NC via ADR 0005
-      const signedEntry = await signAuditEntry(
-        `/labs/${labId}/nao-conformidades`,
-        request.auth.uid,
-        `nc.open.${numero}`,
-        ncData,
-        secret
-      );
+      if (secret) {
+        const hmac = await signAuditEntry(
+          `/labs/${labId}/naoConformidades`,
+          request.auth.uid,
+          `nc.aberta.${numero}`,
+          nc,
+          secret
+        );
+        (nc as any).hmac = hmac.hmac;
+      }
 
-      ncData.hmac = signedEntry.hmac;
-      ncData.previousHash = signedEntry.previousHash;
-
-      const ncRef = await db.collection(`labs/${labId}/nao-conformidades`).add(ncData);
-      await counterRef.set({ counter: parseInt(seq) }, { merge: true });
+      const ncRef = await db.collection(`labs/${labId}/naoConformidades`).add(nc);
 
       return {
         success: true,
@@ -89,7 +66,6 @@ export const openNaoConformidade = onCall(
         status: 'aberta',
       };
     } catch (error: any) {
-      console.error('Error opening NC:', error);
       throw new HttpsError('internal', error.message || 'Erro ao abrir NC');
     }
   }
@@ -98,118 +74,95 @@ export const openNaoConformidade = onCall(
 export const updateNaoConformidade = onCall(
   { region: 'southamerica-east1' },
   async (request: any) => {
-    if (!request.auth) {
-      throw new HttpsError('unauthenticated', 'Autenticação necessária');
+    if (!request.auth?.uid) {
+      throw new HttpsError('unauthenticated', 'Usuário deve estar autenticado');
     }
 
-    const { labId, ncId, novoStatus, motivoStatus, capaField, capaValue } = request.data;
+    const { labId, ncId, updates } = request.data;
 
-    if (!labId || !ncId || !novoStatus) {
-      throw new HttpsError('invalid-argument', 'Campos obrigatórios: labId, ncId, novoStatus');
+    if (!labId || !ncId || !updates) {
+      throw new HttpsError('invalid-argument', 'Campos obrigatórios: labId, ncId, updates');
     }
 
     try {
-      const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
-      if (!secret) throw new Error('HCQ_SIGNATURE_HMAC_KEY not set');
+      const docRef = db.collection(`labs/${labId}/naoConformidades`).doc(ncId);
+      const snap = await docRef.get();
 
-      const ncRef = db.collection(`labs/${labId}/nao-conformidades`).doc(ncId);
-      const ncSnap = await ncRef.get();
-
-      if (!ncSnap.exists) {
-        throw new HttpsError('not-found', `NC ${ncId} não encontrado`);
+      if (!snap.exists) {
+        throw new HttpsError('not-found', `NC ${ncId} não encontrada`);
       }
 
-      const nc = ncSnap.data() as NaoConformidade;
-
-      // Validate status transition
-      const validTransitions: { [key in NCStatus]: NCStatus[] } = {
-        aberta: ['investig', 'cancelada'],
-        investig: ['correcao', 'aberta'],
-        correcao: ['verif_eficacia'],
-        verif_eficacia: ['fechada', 'investig'],
-        fechada: [],
-        cancelada: [],
+      const updateData: any = {
+        ...updates,
+        atualizadoEm: admin.firestore.FieldValue.serverTimestamp(),
       };
 
-      if (!validTransitions[nc.status].includes(novoStatus as NCStatus)) {
-        throw new HttpsError('invalid-argument', `Transição inválida: ${nc.status} → ${novoStatus}`);
-      }
+      // Prevent modification of core fields
+      delete updateData.labId;
+      delete updateData.numero;
+      delete updateData.abertaPor;
+      delete updateData.dataAbertura;
 
-      // Add status history entry
-      const newHistory = nc.statusHistory || [];
-      newHistory.push({
-        timestamp: admin.firestore.FieldValue.serverTimestamp() as any,
-        novoStatus: novoStatus as NCStatus,
-        mudadoPor: request.auth.uid,
-        motivo: motivoStatus || '',
-        hmac: '', // Will be filled
-      });
-
-      const updateData: Partial<NaoConformidade> = {
-        status: novoStatus as NCStatus,
-        statusHistory: newHistory,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp() as any,
-      };
-
-      // Update CAPA field if provided
-      if (capaField && capaValue) {
-        updateData.capa = { ...nc.capa, [capaField]: capaValue };
-      }
-
-      // Sign update
-      const signedEntry = await signAuditEntry(
-        `/labs/${labId}/nao-conformidades`,
-        request.auth.uid,
-        `nc.update.${nc.numero}`,
-        updateData,
-        secret
-      );
-
-      updateData.hmac = signedEntry.hmac;
-      updateData.previousHash = signedEntry.previousHash;
-
-      await ncRef.update(updateData);
+      await docRef.update(updateData);
 
       return {
         success: true,
         ncId,
-        novoStatus,
+        updated: Object.keys(updates),
       };
     } catch (error: any) {
-      console.error('Error updating NC:', error);
       throw new HttpsError('internal', error.message || 'Erro ao atualizar NC');
     }
   }
 );
 
-export async function checkNCs(
-  labId: string,
-  modulo: string
-): Promise<{ blocked: boolean; blockingNC?: NaoConformidade }> {
-  try {
-    const ncs = await db
-      .collection(`labs/${labId}/nao-conformidades`)
-      .where('status', '!=', 'fechada')
-      .where('severidade', 'in', ['grave', 'critica'])
-      .get();
-
-    for (const doc of ncs.docs) {
-      const nc = doc.data() as NaoConformidade;
-      if (nc.bloqueiaOperacoes) {
-        const blocksModule =
-          !nc.operacoesTodasBloqueadas ||
-          nc.operacoesTodasBloqueadas.length === 0 ||
-          nc.operacoesTodasBloqueadas.includes(modulo);
-
-        if (blocksModule) {
-          return { blocked: true, blockingNC: nc };
-        }
-      }
+export const addAcao = onCall(
+  { region: 'southamerica-east1' },
+  async (request: any) => {
+    if (!request.auth?.uid) {
+      throw new HttpsError('unauthenticated', 'Usuário deve estar autenticado');
     }
 
-    return { blocked: false };
-  } catch (error) {
-    console.error('Error checking NCs:', error);
-    return { blocked: false };
+    const { labId, ncId, descricao, responsavel, dataPlanejada } = request.data;
+
+    if (!labId || !ncId || !descricao || !responsavel) {
+      throw new HttpsError('invalid-argument', 'Campos obrigatórios: labId, ncId, descricao, responsavel');
+    }
+
+    try {
+      const docRef = db.collection(`labs/${labId}/naoConformidades`).doc(ncId);
+      const snap = await docRef.get();
+
+      if (!snap.exists) {
+        throw new HttpsError('not-found', `NC ${ncId} não encontrada`);
+      }
+
+      const nc = snap.data() as NaoConformidade;
+      const novaAcao = {
+        descricao,
+        responsavel,
+        dataPrevista: admin.firestore.Timestamp.fromDate(new Date(dataPlanejada)),
+        status: 'planejada' as const,
+      };
+
+      const newCapa = {
+        ...(nc.capa || {}),
+        acaoCorretiva: novaAcao,
+      };
+
+      await docRef.update({
+        capa: newCapa,
+        status: 'acaoPropostaPela_acao',
+        atualizadoEm: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      return {
+        success: true,
+        ncId,
+        status: 'acaoPropostaPela_acao',
+      };
+    } catch (error: any) {
+      throw new HttpsError('internal', error.message || 'Erro ao adicionar ação');
+    }
   }
-}
+);

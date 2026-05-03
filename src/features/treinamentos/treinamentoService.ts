@@ -11,7 +11,7 @@ import {
   type Unsubscribe,
   Timestamp,
 } from 'firebase/firestore';
-import { db } from '../../../shared/services/firebase';
+import { db } from '../../shared/services/firebase';
 import type { Treinamento, TreinamentoFilters } from './types/Treinamento';
 
 const treinamentosCollection = (labId: string) =>
@@ -25,27 +25,25 @@ export function subscribeTrainamentos(
   callback: (trainamentos: Treinamento[]) => void,
   onError?: (err: Error) => void,
 ): Unsubscribe {
-  const constraints = [where('deletadoEm', '==', null)];
+  const whereConstraints = [where('deletadoEm', '==', null)];
 
   if (filters.status) {
-    constraints.push(where('status', '==', filters.status));
+    whereConstraints.push(where('status', '==', filters.status));
   }
 
   if (filters.tipo) {
-    constraints.push(where('tipo', '==', filters.tipo));
+    whereConstraints.push(where('tipo', '==', filters.tipo));
   }
 
   if (filters.popId) {
-    constraints.push(where('popId', '==', filters.popId));
+    whereConstraints.push(where('popId', '==', filters.popId));
   }
 
   if (filters.instrutorId) {
-    constraints.push(where('instrutorId', '==', filters.instrutorId));
+    whereConstraints.push(where('instrutorId', '==', filters.instrutorId));
   }
 
-  constraints.push(orderBy('dataAgendada', 'desc'));
-
-  const q = query(treinamentosCollection(labId), ...constraints);
+  const q = query(treinamentosCollection(labId), ...whereConstraints, orderBy('dataAgendada', 'desc'));
 
   return onSnapshot(
     q,
