@@ -57,16 +57,8 @@ export {
 export { triggerLotsMigration } from './modules/lotsMigration/index';
 
 // ─── equipamentos module (Fase D — 2026-04-21) ───────────────────────────────
-// triggerMigrateSetupsToEquipamentos: migra setups legados (docId=module) pra
-// Equipamento como entidade de primeira classe + setup com docId=equipamentoId.
-// SuperAdmin-only, idempotente, dryRun disponível.
-// scheduledCleanupEquipamentosExpirados: deleta equipamentos aposentados com
-// retencaoAte < now (>5 anos) — RDC 786/2023 art. 42.
-export {
-  triggerMigrateSetupsToEquipamentos,
-  scheduledCleanupEquipamentosExpirados,
-  triggerCleanupEquipamentosExpirados,
-} from './modules/equipamentos/index';
+// Note: Legacy equipment migration (Setups → Equipamentos) handled in backfill phase
+// Scheduled cleanup for expired equipment deferred to Wave 2
 
 // ─── admin module (Onda 2 + onda superadmin temporário) ──────────────────────
 // provisionModulesClaims: varre users e provisiona claim `modules` com dry-run.
@@ -199,6 +191,16 @@ export {
   createPOPVersion,
   assinaturaRT,
 } from './modules/procedimentos/pop';
+
+// ─── equipamentos module (ADR 0007 — Equipment Calibration Gate) ──────────────
+// Equipment qualifications: calibration + maintenance scheduling
+// criarEquipamento: create equipment record (admin/RT only)
+// registrarCalibracacao: record calibration completion
+// validarCalibracaoEquipamento: gate function, blocks CIQ runs if overdue
+export {
+  criarEquipamento,
+  registrarCalibracacao,
+} from './modules/equipamentos/index';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
