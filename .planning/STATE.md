@@ -244,7 +244,30 @@ last_updated: "2026-05-02T20:58:54.762Z"
 
 ---
 
-**Last edit:** 2026-05-02 18:15 — Phase 1 Implementation 80% Complete  
-**Artifacts:** 14 files (code + docs + scripts)  
+**Last edit:** 2026-05-02 23:50 — Phase 1 ADR 0003-0004 Wave 1 Started  
+**Artifacts:** 14 files (code + docs + scripts) + ADR 0004 design doc  
 **Lines of code:** ~2,500 (types + CF + tests + migration)  
-**Coverage:** ADRs 0005, 0002, 0006 (partial) + Firestore rules
+**Coverage:** ADRs 0005, 0002, 0006 (partial) + Firestore rules + ADR 0004 schema design
+
+---
+
+## ADR 0004 Wave 1 (Design + Schema) — IN PROGRESS
+
+### ✅ Completed
+- ADR 0004 design doc finalized (0004-pop-versioning.md)
+  - POP/POPVersao/POPReferencia interfaces defined
+  - Versioning strategy (v1.0 → v1.1 → v2.0) designed
+  - Training linkage to Qualificacao planned
+  - CIQ module wire-in strategy defined
+  - Backfill plan for existing runs
+
+### ⏳ In Progress (Days 1-3)
+- [ ] Create types.ts in functions/src/modules/procedimentos/
+- [ ] Create pop.ts skeleton with function signatures
+- [ ] Map POP scope to 5 CIQ modules (detailed)
+- [ ] Design denormalization (popReferencia) structure
+- [ ] Prepare Wave 1 commit
+
+### 📋 Wave 1 Success Criteria
+- [ ] All interfaces finalized + CTO approved
+- [ ] Wave 1 commit: "ADR 0004 Wave 1: POP schema + versioning spec finalized"
