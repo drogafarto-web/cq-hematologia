@@ -26,7 +26,8 @@
       "Bash(GCLOUD_PROJECT=hmatologia2 node scripts/backfill-chainhash.mjs)",
       "Bash(GCLOUD_PROJECT=hmatologia2 node scripts/backfill-chainhash.mjs --apply)",
       "Bash(GCLOUD_PROJECT=hmatologia2 node scripts/backfill-pop-reference.mjs --labId=labclin-riopomba)",
-      "Bash(GCLOUD_PROJECT=hmatologia2 node scripts/backfill-naoConformidade.mjs --labId=labclin-riopomba)"
+      "Bash(GCLOUD_PROJECT=hmatologia2 node scripts/backfill-naoConformidade.mjs --labId=labclin-riopomba)",
+      "Skill(gsd-plan-phase)"
     ]
   }
 }
