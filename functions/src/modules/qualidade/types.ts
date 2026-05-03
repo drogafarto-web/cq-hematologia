@@ -6,7 +6,8 @@ import * as admin from 'firebase-admin';
 
 export enum NCSeveridade {
   LEVE = 'leve',
-  MEDIA = 'media',
+  MODERADA = 'moderada',
+  GRAVE = 'grave',
   CRITICA = 'critica',
 }
 
@@ -41,24 +42,36 @@ export interface CAPA {
   reabertura?: boolean;
 }
 
+export type CAPAStatus = 'nao_iniciada' | 'investigacao' | 'acao' | 'eficacia' | 'fechada' | 'reaberta';
+
 export interface NaoConformidade {
-  id?: string;
-  labId: string;
-  numero: string;
+  readonly id: string;
+  readonly labId: string;
+  codigo: string;
   titulo: string;
   descricao: string;
-  categoria?: string;
-  severidade: NCSeveridade | string;
-  status: string;
-  origem?: NCOrigem | string;
+  severidade: 'critica' | 'grave' | 'moderada' | 'leve';
+  origem: 'auditoria' | 'modulo' | 'cliente' | 'interno';
+  moduloOrigem?: string;
+  auditoriaId?: string;
+  bloqueiaOperacoes: boolean;
+  modulosBloqueados?: string[];
+  capaStatus: CAPAStatus;
+  capaHistorico: Array<{
+    estado: CAPAStatus;
+    dataTransicao: admin.firestore.Timestamp;
+    responsavel: string;
+    anotacoes?: string;
+  }>;
+  abertaEm: admin.firestore.Timestamp;
   abertaPor: string;
-  dataAbertura?: admin.firestore.Timestamp;
-  capa?: CAPA;
+  prazoClosure?: admin.firestore.Timestamp;
+  fechadaEm?: admin.firestore.Timestamp | null;
+  fechadaPor?: string;
+  // Audit fields
   hmac?: string;
   previousHash?: string | null;
-  createdAt?: admin.firestore.Timestamp;
-  updatedAt?: admin.firestore.Timestamp;
-  criadoEm?: admin.firestore.Timestamp;
-  atualizadoEm?: admin.firestore.Timestamp;
+  criadoEm: admin.firestore.Timestamp;
+  deletadoEm: admin.firestore.Timestamp | null;
   _version?: number;
 }
