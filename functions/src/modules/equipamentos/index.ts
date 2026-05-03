@@ -450,3 +450,7 @@ export const triggerCleanupEquipamentosExpirados = onCall(
     return runCleanup('manual');
   },
 );
+
+// ADR 0003 — NC Gate (Wave 3 Integration)
+import { checkNCs } from '../qualidade/naoConformidade';
+export { checkNCs as checkNCsEquipamentos };

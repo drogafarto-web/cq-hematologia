@@ -179,6 +179,35 @@ export {
   ec_softDeleteExecucaoCascade,
 } from './modules/educacaoContinuada/index';
 
+// ─── qualidade module (ADR 0003 — Não-Conformidade) ─────────────────────────
+// Lifecycle management for quality incidents (Não-Conformidades).
+// openNaoConformidade: create NC with audit trail
+// updateNaoConformidade: progress NC through workflow (aberta → investig → correcao → verif → fechada)
+// investigarNC: RT-only, populates investigation details
+// executarAcaoCorretiva: RT-only, records corrective action
+// verificarEficacia: RT-only, validates effectiveness and closes NC if eficaz
+export {
+  openNaoConformidade,
+  updateNaoConformidade,
+  investigarNC,
+  executarAcaoCorretiva,
+  verificarEficacia,
+} from './modules/qualidade/naoConformidade';
+
+// ─── procedimentos module (ADR 0004 — POP Versioning & RT Signatures) ────────
+// Standard Operating Procedure (POP) versioning with RT cryptographic signatures.
+// createPOP: creates new procedure document
+// createPOPVersion: creates versioned content with em_revisao status
+// assinaturaRT: RT-only signature + approval, marks version as ativa
+// canOperadorUsarPOP: validates training requirements for operator
+// Signatures use HMAC-SHA256 server-side (defense-in-depth).
+export {
+  createPOP,
+  createPOPVersion,
+  assinaturaRT,
+  canOperadorUsarPOP,
+} from './modules/procedimentos/pop';
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**

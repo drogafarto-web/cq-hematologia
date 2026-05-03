@@ -201,3 +201,6 @@ export async function validateChainIntegrity(
     },
   };
 }
+
+// ADR 0003 — NC Gate (Wave 3 Integration)
+import { checkNCs } from '../qualidade/naoConformidade';

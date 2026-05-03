@@ -205,3 +205,7 @@ export const triggerInsumosExpiration = onCall(
     return summary;
   },
 );
+
+// ADR 0003 — NC Gate (Wave 3 Integration)
+import { checkNCs } from '../qualidade/naoConformidade';
+export { checkNCs as checkNCsInsumos };
