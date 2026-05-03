@@ -19,7 +19,14 @@
       "Bash(xargs head *)",
       "Bash(firebase secrets:list --project hmatologia2)",
       "Bash(firebase functions:secrets:list --project hmatologia2)",
-      "Bash(firebase functions:secrets:set HCQ_SIGNATURE_HMAC_KEY --project hmatologia2)"
+      "Bash(firebase functions:secrets:set HCQ_SIGNATURE_HMAC_KEY --project hmatologia2)",
+      "Bash(firebase functions:config:get)",
+      "Bash(firebase firestore:get \"/labs\" --project hmatologia2 --pretty)",
+      "Bash(firebase auth:export C:\\\\tmp\\\\users.json --project hmatologia2)",
+      "Bash(GCLOUD_PROJECT=hmatologia2 node scripts/backfill-chainhash.mjs)",
+      "Bash(GCLOUD_PROJECT=hmatologia2 node scripts/backfill-chainhash.mjs --apply)",
+      "Bash(GCLOUD_PROJECT=hmatologia2 node scripts/backfill-pop-reference.mjs --labId=labclin-riopomba)",
+      "Bash(GCLOUD_PROJECT=hmatologia2 node scripts/backfill-naoConformidade.mjs --labId=labclin-riopomba)"
     ]
   }
 }
