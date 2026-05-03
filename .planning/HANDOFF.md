@@ -39,12 +39,14 @@
 
 ## 📋 PENDENTE (Próxima Sessão)
 
-### Deploy (Manual)
+### Deploy (Manual) — ATUALIZADO 2026-05-02 18:50
+
+**⚠️ Firebase Secret Syntax Fix:**
 ```bash
 cd "c:/hc quality"
 
-# 1. Set secret
-firebase functions:secrets:set HCQ_SIGNATURE_HMAC_KEY --data "fca3e8f25bf83ef96bb95e6f228058e0b8ff2b8890778e514593d0da59b4fdce"
+# 1. Set secret (CORRECTED SYNTAX)
+echo "fca3e8f25bf83ef96bb95e6f228058e0b8ff2b8890778e514593d0da59b4fdce" | firebase functions:secrets:set HCQ_SIGNATURE_HMAC_KEY
 
 # 2. Deploy functions (0005, 0002, 0006)
 firebase deploy --only functions
@@ -56,9 +58,11 @@ firebase deploy --only firestore:rules
 node functions/scripts/backfill-hmac.mjs --labId=default
 node functions/scripts/backfill-notaFiscal.mjs --labId=default
 
-# 5. Verificação (12h depois)
+# 5. Verificação (após 12h)
 firebase functions:call validateChainIntegrityOnDemand
 ```
+
+**Note:** Comando anterior `--data` falhou. Usar stdin (echo | set) ou check Firebase docs.
 
 ### Testes & Smoke
 - [ ] Scheduled validator 0005 rodou 1x sem erros
