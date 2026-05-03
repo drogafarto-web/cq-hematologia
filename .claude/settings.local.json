@@ -11,7 +11,8 @@
       "Bash(ls \"c:/hc quality/\"*.json)",
       "Bash(node_modules/.bin/vite build:*)",
       "Bash(firebase deploy:*)",
-      "Bash(ls \"c:/hc quality\"/*.json)"
+      "Bash(ls \"c:/hc quality\"/*.json)",
+      "Skill(gsd-progress)"
     ]
   }
 }
