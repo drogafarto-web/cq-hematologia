@@ -37,12 +37,12 @@ export const upsertFornecedor = functions.onCall(
       status: status || 'pendente',
       categoriasFornecidas: categoriasFornecidas || [],
       evidencias: evidencias || [],
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp() as any,
       updatedBy: request.auth.uid,
     };
 
     if (!fornecedorId) {
-      fornecedor.createdAt = admin.firestore.FieldValue.serverTimestamp();
+      fornecedor.createdAt = admin.firestore.FieldValue.serverTimestamp() as any;
       fornecedor.createdBy = request.auth.uid;
     }
 

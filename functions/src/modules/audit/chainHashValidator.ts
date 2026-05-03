@@ -1,4 +1,5 @@
-import * as functions from 'firebase-functions';
+import { onSchedule } from 'firebase-functions/v2/scheduler';
+import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { validateChainIntegrity } from './cryptoAudit';
 
@@ -8,10 +9,9 @@ const db = admin.firestore();
  * Scheduled Cloud Function to validate chain integrity
  * Runs every 12 hours
  */
-export const validateChainIntegrityScheduled = functions
-  .region('southamerica-east1')
-  .pubsub.schedule('every 12 hours')
-  .onRun(async context => {
+export const validateChainIntegrityScheduled = onSchedule(
+  { schedule: 'every 12 hours', timeZone: 'America/Sao_Paulo', region: 'southamerica-east1' },
+  async (context: any) => {
     const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
     if (!secret) {
       throw new Error('HCQ_SIGNATURE_HMAC_KEY environment variable not set');
@@ -47,11 +47,6 @@ export const validateChainIntegrityScheduled = functions
       } else {
         console.log('[OK] Chain integrity validation passed', ciqResult.stats);
       }
-
-      return {
-        success: true,
-        result: ciqResult,
-      };
     } catch (error) {
       console.error('[ERROR] Chain integrity validation failed', error);
       throw error;
@@ -62,21 +57,21 @@ export const validateChainIntegrityScheduled = functions
  * Callable Cloud Function to manually trigger chain validation
  * For debugging / on-demand verification
  */
-export const validateChainIntegrityOnDemand = functions
-  .region('southamerica-east1')
-  .https.onCall(async (data, context) => {
+export const validateChainIntegrityOnDemand = onCall(
+  { region: 'southamerica-east1' },
+  async (request: any) => {
     // Require authentication
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+    if (!request.auth) {
+      throw new HttpsError(
         'unauthenticated',
         'Must be authenticated'
       );
     }
 
     // Require admin role (check custom claims)
-    const claims = context.auth.token as any;
+    const claims = request.auth.token as any;
     if (!claims.admin) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'permission-denied',
         'Requires admin role'
       );
@@ -84,23 +79,23 @@ export const validateChainIntegrityOnDemand = functions
 
     const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
     if (!secret) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'internal',
         'HCQ_SIGNATURE_HMAC_KEY not configured'
       );
     }
 
     try {
-      const collectionPath = data.collectionPath || '/ciq-audit';
+      const collectionPath = request.data.collectionPath || '/ciq-audit';
       const result = await validateChainIntegrity(collectionPath, secret);
 
       return {
         valid: result.valid,
         stats: result.stats,
-        violations: result.violations.slice(0, 20), // Limit response size
+        violations: result.violations.slice(0, 20),
       };
     } catch (error: any) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'internal',
         error.message || 'Validation failed'
       );

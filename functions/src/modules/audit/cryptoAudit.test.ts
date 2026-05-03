@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
+// @ts-ignore
+import { describe, it, expect } from '@jest/globals';
 import * as crypto from 'crypto';
 import {
   computeHmac,

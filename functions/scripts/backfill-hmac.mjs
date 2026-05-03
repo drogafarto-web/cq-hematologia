@@ -3,16 +3,12 @@
  * Usage: node backfill-hmac.mjs --labId=<lab-id>
  */
 
-import * as admin from 'firebase-admin';
+import admin from 'firebase-admin';
 import * as crypto from 'crypto';
 import process from 'process';
 
 // Initialize Firebase Admin
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON || '{}');
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  projectId: 'hmatologia2',
-});
+admin.initializeApp({ projectId: 'hmatologia2' });
 
 const db = admin.firestore();
 
