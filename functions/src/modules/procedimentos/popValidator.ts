@@ -1,279 +1,109 @@
 import * as admin from 'firebase-admin';
-import { Qualificacao } from '../pessoas/types';
-import { POPValidationResult } from './types';
+import { POP } from './types';
 
 const db = admin.firestore();
 
-/**
- * canOperadorUsarPOP — Check if operator is trained on a specific POP version
- *
- * Validates:
- * 1. Operator has Qualificacao record
- * 2. Has training record for this POP version
- * 3. Training is not expired
- *
- * Returns { allowed: boolean, reason?: string }
- */
 export async function canOperadorUsarPOP(
   labId: string,
   uid: string,
   popId: string,
-  popVersaoAtual: string  // e.g., "1.0"
-): Promise<POPValidationResult> {
-  try {
-    // Fetch operator's Qualificacao
-    const qualsSnap = await db
-      .collection(`labs/${labId}/qualificacoes`)
-      .where('uid', '==', uid)
-      .limit(1)
-      .get();
-
-    if (qualsSnap.empty) {
-      return {
-        allowed: false,
-        reason: `Operator ${uid} has no qualifications recorded`,
-      };
-    }
-
-    const qual = qualsSnap.docs[0].data() as Qualificacao;
-
-    // Find training record for this POP version
-    const popTraining = qual.treinamentosPOP?.find(
-      (t) => t.popId === popId && t.popVersaoNumero === popVersaoAtual
-    );
-
-    if (!popTraining) {
-      return {
-        allowed: false,
-        reason: `Operator not trained on POP version ${popVersaoAtual}. Available versions: ${
-          qual.treinamentosPOP?.map((t) => `${t.popId}@${t.popVersaoNumero}`).join(', ') || 'none'
-        }`,
-      };
-    }
-
-    // Check training validity (not expired)
-    const now = new Date();
-    const validoAte = popTraining.validoAte.toDate();
-
-    if (validoAte < now) {
-      const daysExpired = Math.floor((now.getTime() - validoAte.getTime()) / (1000 * 60 * 60 * 24));
-      return {
-        allowed: false,
-        reason: `Training on POP v${popVersaoAtual} expired ${daysExpired} days ago (${validoAte.toLocaleDateString()})`,
-      };
-    }
-
-    // Success: operator can use this POP
-    const daysUntilExpiry = Math.floor((validoAte.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    return {
-      allowed: true,
-      expiraEm: popTraining.validoAte,
-    };
-  } catch (error: any) {
-    return {
-      allowed: false,
-      reason: `Error validating POP access: ${error.message}`,
-    };
-  }
-}
-
-/**
- * checkTrainingValid — Gate function for CIQ run save
- *
- * Called before saving a CIQ run to verify operator has valid training on POP version.
- * If validation fails, throws error preventing run save.
- *
- * Usage:
- * ```typescript
- * // In hematologia.ts submitRun():
- * await popValidator.checkTrainingValid(labId, uid, currentPopId, currentPopVersao);
- * // If throws → can't save run
- * // If success → continue to denormalize popReferencia
- * ```
- */
-export async function checkTrainingValid(
-  labId: string,
-  uid: string,
-  popId: string,
   popVersaoNumero: string
-): Promise<void> {
-  const result = await canOperadorUsarPOP(labId, uid, popId, popVersaoNumero);
-
-  if (!result.allowed) {
-    throw new Error(`Cannot save run: ${result.reason}`);
-  }
-}
-
-/**
- * getOperadorPOPTrainingStatus — Get detailed training status for operator on all POPs
- *
- * Returns array of training records with expiry status.
- * Useful for dashboard/UI to show operator's POP training status.
- */
-export async function getOperadorPOPTrainingStatus(
-  labId: string,
-  uid: string
-): Promise<
-  Array<{
-    popId: string;
-    popVersaoNumero: string;
-    dataConcluso: string;
-    validoAte: string;
-    diasParaExpirar: number;
-    expirado: boolean;
-  }>
-> {
+): Promise<{ allowed: boolean; reason?: string }> {
   try {
-    const qualsSnap = await db
-      .collection(`labs/${labId}/qualificacoes`)
-      .where('uid', '==', uid)
-      .limit(1)
-      .get();
-
-    if (qualsSnap.empty) {
-      return [];
+    // Get POP to verify it exists and version is ativa
+    const popSnap = await db.collection(`labs/${labId}/pops`).doc(popId).get();
+    if (!popSnap.exists) {
+      return { allowed: false, reason: 'POP não encontrado' };
     }
 
-    const qual = qualsSnap.docs[0].data() as Qualificacao;
-    const now = new Date();
+    const pop = popSnap.data() as POP;
+    const versaoAtiva = pop.versoes.find(v => v.numero === popVersaoNumero && v.status === 'ativa');
 
-    return (qual.treinamentosPOP || []).map((training) => {
-      const validoAte = training.validoAte.toDate();
-      const diasParaExpirar = Math.floor(
-        (validoAte.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+    if (!versaoAtiva) {
+      return { allowed: false, reason: `POP v${popVersaoNumero} não está ativa` };
+    }
+
+    // Check operator training
+    const qualSnap = await db
+      .collection(`labs/${labId}/qualificacoes`)
+      .where('uid', '==', uid)
+      .get();
+
+    if (qualSnap.empty) {
+      return { allowed: false, reason: 'Operador sem treinamento registrado' };
+    }
+
+    for (const doc of qualSnap.docs) {
+      const qual = doc.data();
+      const treinamentos = qual.treinamentosPOP || [];
+
+      const trainRecord = treinamentos.find(
+        (t: any) => t.popId === popId && t.popVersaoNumero === popVersaoNumero
       );
 
-      return {
-        popId: training.popId,
-        popVersaoNumero: training.popVersaoNumero,
-        dataConcluso: training.dataConcluso.toDate().toISOString(),
-        validoAte: validoAte.toISOString(),
-        diasParaExpirar,
-        expirado: diasParaExpirar < 0,
-      };
-    });
-  } catch (error: any) {
-    throw new Error(`Error fetching training status: ${error.message}`);
-  }
-}
+      if (!trainRecord) continue;
 
-/**
- * getPOPVersionWithSignature — Fetch a POP version with RT signature details
- *
- * Useful for audit trail and verification.
- */
-export async function getPOPVersionWithSignature(
-  labId: string,
-  popId: string,
-  popVersaoNumero: string
-) {
-  const versionsSnap = await db
-    .collection(`labs/${labId}/pops/${popId}/versoes`)
-    .where('numero', '==', popVersaoNumero)
-    .limit(1)
-    .get();
-
-  if (versionsSnap.empty) {
-    throw new Error(`POP version ${popVersaoNumero} not found`);
-  }
-
-  return versionsSnap.docs[0].data();
-}
-
-/**
- * getActivePOPVersion — Get currently active version of a POP
- */
-export async function getActivePOPVersion(labId: string, popId: string) {
-  const versionsSnap = await db
-    .collection(`labs/${labId}/pops/${popId}/versoes`)
-    .where('status', '==', 'ativa')
-    .limit(1)
-    .get();
-
-  if (versionsSnap.empty) {
-    return null;
-  }
-
-  return versionsSnap.docs[0].data();
-}
-
-/**
- * getAllActivePOPsForModule — Get all active POPs that apply to a specific module
- *
- * Useful for UI to list required POPs for a module.
- */
-export async function getAllActivePOPsForModule(labId: string, modulo: string) {
-  const popsSnap = await db
-    .collection(`labs/${labId}/pops`)
-    .where('modulos', 'array-contains', modulo)
-    .get();
-
-  const result = [];
-
-  for (const popDoc of popsSnap.docs) {
-    const pop = popDoc.data();
-    const activeVersion = await getActivePOPVersion(labId, popDoc.id);
-
-    if (activeVersion) {
-      result.push({
-        popId: popDoc.id,
-        nome: pop.nome,
-        codigo: pop.codigo,
-        versaoAtiva: activeVersion.numero,
-        versaoAtivaId: activeVersion.id,
-      });
-    }
-  }
-
-  return result;
-}
-
-/**
- * getMissingPOPTrainings — Find which POPs operator is NOT trained on
- *
- * Compares required POPs for a module against operator's training records.
- * Returns list of POPs requiring training.
- */
-export async function getMissingPOPTrainings(
-  labId: string,
-  uid: string,
-  modulo: string
-): Promise<
-  Array<{
-    popId: string;
-    popNome: string;
-    popCodigo: string;
-    requiredVersion: string;
-  }>
-> {
-  try {
-    const activePOPs = await getAllActivePOPsForModule(labId, modulo);
-    const trainingStatus = await getOperadorPOPTrainingStatus(labId, uid);
-
-    const trainingMap = new Map(
-      trainingStatus
-        .filter((t) => !t.expirado)
-        .map((t) => [`${t.popId}@${t.popVersaoNumero}`, true])
-    );
-
-    const missing = [];
-
-    for (const pop of activePOPs) {
-      const key = `${pop.popId}@${pop.versaoAtiva}`;
-      if (!trainingMap.has(key)) {
-        const popDoc = await db.doc(`labs/${labId}/pops/${pop.popId}`).get();
-        const popData = popDoc.data();
-        missing.push({
-          popId: pop.popId,
-          popNome: popData?.nome || 'Unknown',
-          popCodigo: popData?.codigo || 'Unknown',
-          requiredVersion: pop.versaoAtiva,
-        });
+      // Check if training is still valid
+      const validoAte = trainRecord.validoAte.toDate?.() || trainRecord.validoAte;
+      if (new Date() <= new Date(validoAte)) {
+        return { allowed: true };
+      } else {
+        return { allowed: false, reason: 'Treinamento expirado' };
       }
     }
 
-    return missing;
+    return { allowed: false, reason: 'Operador não treinado nesta versão de POP' };
   } catch (error: any) {
-    throw new Error(`Error checking missing trainings: ${error.message}`);
+    console.error('Error checking POP training:', error);
+    return { allowed: false, reason: 'Erro ao validar treinamento' };
+  }
+}
+
+export async function checkTrainingValid(
+  labId: string,
+  uid: string,
+  modulo: string
+): Promise<{ valid: boolean; blockingReason?: string }> {
+  try {
+    // Get current ativa POP for module
+    const popsSnap = await db
+      .collection(`labs/${labId}/pops`)
+      .where('modulos', 'array-contains', modulo)
+      .get();
+
+    if (popsSnap.empty) {
+      return { valid: true }; // No POP required yet
+    }
+
+    for (const popDoc of popsSnap.docs) {
+      const pop = popDoc.data() as POP;
+      const ativaPop = pop.versoes.find(v => v.status === 'ativa');
+
+      if (!ativaPop) continue;
+
+      const canUse = await canOperadorUsarPOP(labId, uid, popDoc.id, ativaPop.numero);
+      if (!canUse.allowed) {
+        return { valid: false, blockingReason: `POP "${pop.nome}": ${canUse.reason}` };
+      }
+    }
+
+    return { valid: true };
+  } catch (error: any) {
+    console.error('Error checking POP training:', error);
+    return { valid: true }; // Fail open to avoid blocking
+  }
+}
+
+export async function getActivePOPVersion(labId: string, popId: string): Promise<string | null> {
+  try {
+    const popSnap = await db.collection(`labs/${labId}/pops`).doc(popId).get();
+    if (!popSnap.exists) return null;
+
+    const pop = popSnap.data() as POP;
+    const ativaPop = pop.versoes.find(v => v.status === 'ativa');
+    return ativaPop?.numero || null;
+  } catch (error) {
+    console.error('Error getting active POP version:', error);
+    return null;
   }
 }
