@@ -178,6 +178,7 @@ export {
 export {
   openNaoConformidade,
   updateNaoConformidade,
+  addAcao,
 } from './modules/qualidade/naoConformidade';
 
 // ─── procedimentos module (ADR 0004 — POP Versioning & RT Signatures) ────────
@@ -190,6 +191,7 @@ export {
   createPOP,
   createPOPVersion,
   assinaturaRT,
+  recordarTreinamentoPOP,
 } from './modules/procedimentos/pop';
 
 // ─── equipamentos module (ADR 0007 — Equipment Calibration Gate) ──────────────
