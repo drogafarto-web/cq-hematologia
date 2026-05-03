@@ -1,7 +1,7 @@
 // @ts-ignore
 import { describe, it, expect, beforeEach } from '@jest/globals';
 import * as crypto from 'crypto';
-import { computeHmac, hashData } from '../audit/cryptoAudit';
+import { computeHmac } from '../audit/cryptoAudit';
 import { NaoConformidade, NCStatus, NCSeveridade } from './types';
 import * as admin from 'firebase-admin';
 

@@ -1,0 +1,134 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// ADR 0004 Firestore Security Rules Patch — POP Versionado (SOP)
+//
+// Purpose:
+//   - Gate POP creation to admin only (document control)
+//   - Gate POP version updates to Responsável Técnico (quality gate)
+//   - Allow all members to read active POPs (operational necessity)
+//   - Enforce HMAC on versao signatures (ADR 0005)
+//   - Protect training records from tampering
+//
+// Security Model:
+//   - Create POP: Admin only (document control responsibility)
+//   - Create POPVersion: Admin only (content ready for review)
+//   - Update POPVersion: Responsável Técnico only (sign & activate)
+//   - Read POPs: All lab members (must comply with current POP)
+//   - Read Training: Lab members (check qualification status)
+//   - Delete: Never allowed (immutable for audit trail)
+//
+// Integration in main firestore.rules:
+//   Add under: match /labs/{labId} { ... }
+//   Position: After match /nao-conformidades, before closing braces
+//
+// Deployment checklist:
+//   1. [ ] Run: firebase deploy --only firestore:rules --dry-run
+//   2. [ ] Review output: No validation errors, no unintended side effects
+//   3. [ ] Run: firebase deploy --only firestore:rules (staging first)
+//   4. [ ] Verify in staging: Test POP creation (admin), RT signature, training checks
+//   5. [ ] Prod deploy: npm run deploy:prod after staging validation
+//
+// Rollback procedure:
+//   1. git revert <commit-sha>
+//   2. firebase deploy --only firestore:rules
+//   3. Verify: https://console.firebase.google.com/project/hmatologia2/firestore/rules
+//
+// ─────────────────────────────────────────────────────────────────────────────
+
+      // ── ADR 0004: POP Versionado (Procedimentos Operacionais Padrão) ──────
+      // Document control for SOPs (procedures, work instructions)
+      // Versioning: Draft (em_revisao) → Active (ativa) → Obsolete (obsoleta)
+      match /labs/{labId}/pops/{popId} {
+        // Read: All lab members can read POPs (operational necessity)
+        allow read: if isActiveMemberOfLab(labId);
+
+        // Create: Admin only (document control responsibility)
+        allow create: if isActiveMemberOfLab(labId)
+                      && (request.auth.token.admin == true ||
+                          request.auth.token.isSuperAdmin == true)
+                      && request.resource.data.nome != null
+                      && request.resource.data.codigo != null;
+
+        // Update: Responsável Técnico or Admin only
+        // Typically used to update conteudo, not version status
+        allow update: if isActiveMemberOfLab(labId)
+                      && (request.auth.token.responsavelTecnico == true ||
+                          request.auth.token.admin == true ||
+                          request.auth.token.isSuperAdmin == true);
+
+        // Delete: Not allowed (immutable for audit trail)
+        allow delete: if false;
+
+        // ── POP Versions: Drafted, signed, activated ────────────────────────
+        // Versioning lifecycle: em_revisao (awaiting RT sig) → ativa → obsoleta
+        match /versoes/{vId} {
+          // Read: All lab members (must check current version for compliance)
+          allow read: if isActiveMemberOfLab(labId);
+
+          // Create: Admin only (prepare version for RT review)
+          allow create: if isActiveMemberOfLab(labId)
+                        && (request.auth.token.admin == true ||
+                            request.auth.token.isSuperAdmin == true)
+                        && request.resource.data.numero != null
+                        && request.resource.data.hashConteudo != null
+                        && request.resource.data.status in ['em_revisao', 'ativa']
+                        && request.resource.data.dataVigenciaInicio != null
+                        && request.resource.data.dataVigenciaFim != null;
+
+          // Update: Responsável Técnico only (sign version)
+          // Signature updates: assinadaPor + hmac + mark ativa/obsoleta
+          allow update: if isActiveMemberOfLab(labId)
+                        && request.auth.token.responsavelTecnico == true
+                        && request.resource.data.assinadaPor.hmac != null
+                        && request.resource.data.assinadaPor.hmac is string
+                        && request.resource.data.assinadaPor.hmac.size() == 64;
+
+          // Delete: Not allowed (immutable for audit trail)
+          allow delete: if false;
+        }
+
+        // ── Training records: Track operator qualification ──────────────────
+        // Operator must have valid training on current POP version to operate
+        match /treinamentos/{treinId} {
+          // Read: Lab members (check own training status)
+          allow read: if isActiveMemberOfLab(labId);
+
+          // Create: Responsável Técnico or Admin (record training completion)
+          allow create: if isActiveMemberOfLab(labId)
+                        && (request.auth.token.responsavelTecnico == true ||
+                            request.auth.token.admin == true)
+                        && request.resource.data.operadorUid != null
+                        && request.resource.data.popVersaoNumero != null
+                        && request.resource.data.dataConcluso != null
+                        && request.resource.data.validoAte != null;
+
+          // Update: Responsável Técnico or Admin (update expiration if renewal)
+          allow update: if isActiveMemberOfLab(labId)
+                        && (request.auth.token.responsavelTecnico == true ||
+                            request.auth.token.admin == true);
+
+          // Delete: Not allowed (immutable for audit trail)
+          allow delete: if false;
+        }
+      }
+
+      // ── Operator qualifications (cross-lab) ─────────────────────────────
+      // Stores all training records for an operator across POPs
+      match /qualificacoes/{qualId} {
+        // Read: User can read own record, admins can read all
+        allow read: if request.auth.uid == qualId ||
+                       isSuperAdmin() ||
+                       isActiveMemberOfLab(labId);
+
+        // Create: Responsável Técnico or Admin
+        allow create: if isActiveMemberOfLab(labId)
+                      && (request.auth.token.responsavelTecnico == true ||
+                          request.auth.token.admin == true);
+
+        // Update: Responsável Técnico or Admin
+        allow update: if isActiveMemberOfLab(labId)
+                      && (request.auth.token.responsavelTecnico == true ||
+                          request.auth.token.admin == true);
+
+        // Delete: Not allowed (immutable for audit trail)
+        allow delete: if false;
+      }
