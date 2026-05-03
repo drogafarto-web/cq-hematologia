@@ -1,0 +1,40 @@
+# ADR 0007 — Equipamento Firestore Rules Patch
+# Add this to main firestore.rules
+
+match /labs/{labId}/equipamentos/{equipId} {
+  allow read: if request.auth.uid != null;
+  
+  allow create: if request.auth.uid != null &&
+                   (request.auth.token.admin == true ||
+                    request.auth.token.responsavelTecnico == true) &&
+                   request.resource.data.nome != null &&
+                   request.resource.data.marca != null &&
+                   request.resource.data.modelo != null &&
+                   request.resource.data.numeroSerie != null;
+  
+  allow update: if request.auth.uid != null &&
+                   request.auth.token.responsavelTecnico == true &&
+                   (request.resource.data.proximaCalibracaoPrevista != null ||
+                    request.resource.data.proximaManutenccaoPrevista != null ||
+                    request.resource.data.status != null);
+  
+  match /calibracoes/{calibId} {
+    allow read: if request.auth.uid != null;
+    
+    allow create: if request.auth.uid != null &&
+                     request.resource.data.dataRealizacao != null &&
+                     request.resource.data.certificado_url != null;
+    
+    allow update: if false;
+  }
+  
+  match /manutencoes/{manutId} {
+    allow read: if request.auth.uid != null;
+    
+    allow create: if request.auth.uid != null &&
+                     request.resource.data.dataRealizacao != null &&
+                     request.resource.data.tipo != null;
+    
+    allow update: if false;
+  }
+}
