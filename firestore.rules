@@ -1094,6 +1094,58 @@ service cloud.firestore {
                      && request.resource.data.emailColaborador is bool
                      && request.resource.data.horaEnvio is string;
       }
+
+      // ── ADR 0004 — POPs (Procedimentos Operacionais Padrão) ──────────────
+      match /pops/{popId} {
+        allow read: if isSuperAdmin() ||
+                       (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'));
+        allow create, update: if false;  // Via callable only
+        allow delete: if false;
+      }
+
+      // ── ADR 0003 — Não-Conformidades + CAPA ──────────────────────────
+      match /naoConformidades/{ncId} {
+        allow read: if isSuperAdmin() ||
+                       (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'));
+        allow create: if isSuperAdmin() ||
+                         (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'))
+                       && labIdMatches(request.resource.data)
+                       && request.resource.data.deletadoEm == null
+                       && request.resource.data.codigo is string
+                       && request.resource.data.titulo is string
+                       && request.resource.data.severidade in ['critica', 'grave', 'moderada', 'leve']
+                       && request.resource.data.origem in ['auditoria', 'modulo', 'cliente', 'interno']
+                       && request.resource.data.bloqueiaOperacoes is bool
+                       && request.resource.data.capaStatus in ['nao_iniciada', 'investigacao', 'acao', 'eficacia', 'fechada', 'reaberta'];
+        allow update: if isSuperAdmin() ||
+                         (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'))
+                       && keepsLabId()
+                       && keepsCreatedAt()
+                       && request.resource.data.deletadoEm == null;
+        allow delete: if false;  // Soft-delete only
+      }
+
+      // ── ADR 0004 — Auditorias Internas ───────────────────────────────
+      match /auditorias/{auditoriaId} {
+        allow read: if isSuperAdmin() ||
+                       (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'));
+        allow create: if isSuperAdmin() ||
+                         (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'))
+                       && labIdMatches(request.resource.data)
+                       && request.resource.data.deletadoEm == null
+                       && request.resource.data.codigo is string
+                       && request.resource.data.titulo is string
+                       && request.resource.data.tipo in ['interna', 'externa', 'auditoria_cliente']
+                       && request.resource.data.status in ['planejada', 'em_execucao', 'finalizada', 'fechada']
+                       && request.resource.data.achados is list
+                       && request.resource.data.planosAcao is list;
+        allow update: if isSuperAdmin() ||
+                         (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'))
+                       && keepsLabId()
+                       && keepsCreatedAt()
+                       && request.resource.data.deletadoEm == null;
+        allow delete: if false;  // Soft-delete only
+      }
     }
   }
 }

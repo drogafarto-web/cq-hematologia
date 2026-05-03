@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Plus, Search, AlertCircle } from 'lucide-react';
 import type { POP, POPFilters } from '../../types/POP';
 import { usePOPs } from '../usePOPs';
 import { isVersaoExpirada, getVersaoAtiva } from '../../types/POP';
@@ -33,7 +32,6 @@ export default function POPsList({ onSelectPOP }: POPsListProps) {
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <div className="relative">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-white/40" />
             <input
               type="text"
               placeholder="Buscar por nome ou código..."
@@ -47,8 +45,7 @@ export default function POPsList({ onSelectPOP }: POPsListProps) {
           onClick={() => setShowCreateModal(true)}
           className="ml-3 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
         >
-          <Plus className="h-4 w-4" />
-          Novo POP
+          + Novo POP
         </button>
       </div>
 
@@ -74,7 +71,7 @@ export default function POPsList({ onSelectPOP }: POPsListProps) {
                     <div className="flex items-center gap-2">
                       <h3 className="font-medium text-white">{pop.codigo}</h3>
                       {isExpirada && (
-                        <AlertCircle className="h-4 w-4 text-red-400" title="POP expirado" />
+                        <span className="text-red-400 font-bold" title="POP expirado">⚠</span>
                       )}
                     </div>
                     <p className="text-sm text-white/60 mt-1">{pop.nome}</p>

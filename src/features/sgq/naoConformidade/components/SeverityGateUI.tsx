@@ -1,4 +1,3 @@
-import { AlertTriangle, Lock, Unlock } from 'lucide-react';
 import type { NaoConformidade } from '../../types/NaoConformidade';
 import { isBloqueada } from '../../types/NaoConformidade';
 
@@ -26,9 +25,9 @@ export default function SeverityGateUI({ nc }: SeverityGateUIProps) {
     }`}>
       <div className="flex items-start gap-3">
         {bloqueada ? (
-          <Lock className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
+          <span className="text-red-400 flex-shrink-0 mt-0.5 text-lg">🔒</span>
         ) : (
-          <Unlock className="h-5 w-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+          <span className="text-emerald-400 flex-shrink-0 mt-0.5 text-lg">🔓</span>
         )}
 
         <div className="flex-1">

@@ -1,4 +1,3 @@
-import { CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import type { Auditoria } from '../../types/Auditoria';
 import { statusProgressoPlanoAcao } from '../../types/Auditoria';
 
@@ -53,11 +52,11 @@ export default function PlanoAcaoUI({ auditoria }: PlanoAcaoUIProps) {
             >
               <div className="flex items-start gap-3">
                 {plano.status === 'fechado' ? (
-                  <CheckCircle2 className="h-5 w-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                  <span className="text-emerald-400 flex-shrink-0 mt-0.5 text-lg">✓</span>
                 ) : vencida ? (
-                  <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
+                  <span className="text-red-400 flex-shrink-0 mt-0.5 text-lg">⚠</span>
                 ) : (
-                  <Clock className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                  <span className="text-amber-400 flex-shrink-0 mt-0.5 text-lg">⏱</span>
                 )}
 
                 <div className="flex-1">

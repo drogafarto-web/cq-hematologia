@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useActiveLabId } from '@/store/useAuthStore';
+import { useActiveLabId } from '../../../store/useAuthStore';
 import type { POP, POPFilters } from '../types/POP';
 import { subscribePOPs } from './popsService';
 
