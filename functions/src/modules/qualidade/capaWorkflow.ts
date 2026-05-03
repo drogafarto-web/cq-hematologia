@@ -22,7 +22,7 @@ export const investigarNC = onCall(
       const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
       if (!secret) throw new Error('HCQ_SIGNATURE_HMAC_KEY not set');
 
-      const ncRef = db.collection(`labs/${labId}/nao-conformidades`).doc(ncId);
+      const ncRef = db.collection(`labs/${labId}/naoConformidades`).doc(ncId);
       const ncSnap = await ncRef.get();
 
       if (!ncSnap.exists) {
@@ -48,7 +48,7 @@ export const investigarNC = onCall(
       };
 
       const signedEntry = await signAuditEntry(
-        `/labs/${labId}/nao-conformidades`,
+        `/labs/${labId}/naoConformidades`,
         request.auth.uid,
         `nc.investigate.${nc.numero}`,
         updateData,
@@ -84,7 +84,7 @@ export const executarAcaoCorretiva = onCall(
       const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
       if (!secret) throw new Error('HCQ_SIGNATURE_HMAC_KEY not set');
 
-      const ncRef = db.collection(`labs/${labId}/nao-conformidades`).doc(ncId);
+      const ncRef = db.collection(`labs/${labId}/naoConformidades`).doc(ncId);
       const ncSnap = await ncRef.get();
 
       if (!ncSnap.exists) {
@@ -94,7 +94,7 @@ export const executarAcaoCorretiva = onCall(
       const nc = ncSnap.data() as NaoConformidade;
 
       const updateData: Partial<NaoConformidade> = {
-        status: 'correcao',
+        status: 'acaoCorretiva',
         capa: {
           ...nc.capa,
           acaoCorretiva: {
@@ -108,7 +108,7 @@ export const executarAcaoCorretiva = onCall(
       };
 
       const signedEntry = await signAuditEntry(
-        `/labs/${labId}/nao-conformidades`,
+        `/labs/${labId}/naoConformidades`,
         request.auth.uid,
         `nc.acaoCorretiva.${nc.numero}`,
         updateData,
@@ -148,7 +148,7 @@ export const verificarEficacia = onCall(
       const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
       if (!secret) throw new Error('HCQ_SIGNATURE_HMAC_KEY not set');
 
-      const ncRef = db.collection(`labs/${labId}/nao-conformidades`).doc(ncId);
+      const ncRef = db.collection(`labs/${labId}/naoConformidades`).doc(ncId);
       const ncSnap = await ncRef.get();
 
       if (!ncSnap.exists) {
@@ -183,7 +183,7 @@ export const verificarEficacia = onCall(
       };
 
       const signedEntry = await signAuditEntry(
-        `/labs/${labId}/nao-conformidades`,
+        `/labs/${labId}/naoConformidades`,
         request.auth.uid,
         `nc.verificaEficacia.${nc.numero}`,
         updateData,

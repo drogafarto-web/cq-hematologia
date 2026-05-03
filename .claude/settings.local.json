@@ -16,7 +16,10 @@
       "Skill(gsd-execute-phase)",
       "Bash(git commit *)",
       "Skill(gsd-pause-work)",
-      "Bash(xargs head *)"
+      "Bash(xargs head *)",
+      "Bash(firebase secrets:list --project hmatologia2)",
+      "Bash(firebase functions:secrets:list --project hmatologia2)",
+      "Bash(firebase functions:secrets:set HCQ_SIGNATURE_HMAC_KEY --project hmatologia2)"
     ]
   }
 }
