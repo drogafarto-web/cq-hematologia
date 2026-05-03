@@ -1,0 +1,47 @@
+/**
+ * ADR 0003 Firestore Security Rules
+ * Non-Conformidade (NC) Collection — Unified spine
+ *
+ * Rules enforce:
+ * - Only authenticated users can create/read/update NC
+ * - Only RT (responsavelTecnico) or admin can update status/CAPA
+ * - HMAC signature must be present on all documents
+ * - Read access scoped to user's labs
+ */
+
+match /labs/{labId}/nao-conformidades/{ncId} {
+  // Create: Any authenticated user can open NC
+  // But Cloud Function validates fields before write
+  allow create: if request.auth != null &&
+                   request.resource.data.numero != null &&
+                   request.resource.data.descricao != null &&
+                   request.resource.data.severidade != null &&
+                   request.resource.data.hmac != null &&
+                   request.auth.uid != null;
+
+  // Read: Any user in this lab can read NCs
+  allow read: if request.auth != null &&
+                 (request.auth.token.admin == true ||
+                  request.auth.token.labs[labId] != null);
+
+  // Update: Only RT or admin can update status/CAPA
+  // (Cloud Function enforces transitions)
+  allow update: if request.auth != null &&
+                   (request.auth.token.responsavelTecnico == true ||
+                    request.auth.token.admin == true) &&
+                   // Must have HMAC after update
+                   request.resource.data.hmac != null;
+
+  // Delete: Not allowed (immutable records)
+  allow delete: if false;
+
+  // Nested audit trail
+  match /audit-trail/{entryId} {
+    allow create: if request.auth != null &&
+                     request.resource.data.hmac != null;
+    allow read: if request.auth != null &&
+                   (request.auth.token.admin == true ||
+                    request.auth.token.labs[labId] != null);
+    allow update, delete: if false;
+  }
+}
