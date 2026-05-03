@@ -1,0 +1,101 @@
+{"users": [
+{
+  "localId": "2C7CDajpigXfaAVAzzJVFfrhgYB2",
+  "email": "drogafarto@gmail.com",
+  "emailVerified": true,
+  "passwordHash": "NzOb3Wn43HGa1a4LoM+VawP+TNpJXF++8OJBe0cLTtZvTrbfvkevvyhl8TVaDeXcXb2rjM6zbjqi+pk1bopa8Q==",
+  "salt": "kgGhdOUAYZnt9g==",
+  "displayName": "bruno pires",
+  "photoUrl": "https://lh3.googleusercontent.com/a/ACg8ocJrDPRCE3YBj9Y_bqRCCp0rSv9fPiVEDHO16xUd0Jeeg3v2sLlMXQ=s96-c",
+  "lastSignedInAt": "1777497925457",
+  "createdAt": "1776217036022",
+  "disabled": false,
+  "customAttributes": "{\"superAdmin\":true,\"modules\":{\"hematologia\":true,\"imunologia\":true,\"coagulacao\":true,\"uroanalise\":true,\"educacao-continuada\":true,\"controle-temperatura\":true}}",
+  "providerUserInfo": [
+    {
+      "providerId": "google.com",
+      "rawId": "111119550363843567701",
+      "email": "drogafarto@gmail.com",
+      "displayName": "bruno pires",
+      "photoUrl": "https://lh3.googleusercontent.com/a/ACg8ocJrDPRCE3YBj9Y_bqRCCp0rSv9fPiVEDHO16xUd0Jeeg3v2sLlMXQ=s96-c"
+    }
+  ]
+},
+{
+  "localId": "C9CyOeoR1OYUqIiV6PmSYGPTaCE2",
+  "email": "ernanigomes06@gmail.com",
+  "emailVerified": true,
+  "passwordHash": "TcM644IJPzQ4xTvHdYUZl+SDKlxUOaG7oeCGODOnBbvS1HReP5i5VKnAQmsgdyOb1v8Z4KFWDQ2nwIHkghxY2A==",
+  "salt": "dxrqYpDEx94Bhw==",
+  "displayName": "Ernani Gomes",
+  "createdAt": "1776217038717",
+  "disabled": false,
+  "customAttributes": "{\"modules\":{\"hematologia\":true,\"imunologia\":true,\"coagulacao\":true,\"uroanalise\":true,\"educacao-continuada\":true,\"controle-temperatura\":true}}",
+  "providerUserInfo": []
+},
+{
+  "localId": "LYBPnpoFkAYtxMK7wypmfBBvmFA2",
+  "email": "gqlabclin@gmail.com",
+  "emailVerified": true,
+  "passwordHash": "VeE9JiccXqXMr721WYaRCsIgkWjeLy3xFi+uJDucHKCCvl6Squb5t07VrWr+mENN36sJL3GoUUR1AOT+wagFvQ==",
+  "salt": "X5TFa4YieKUazg==",
+  "displayName": "Qualidade Labclin",
+  "photoUrl": "https://lh3.googleusercontent.com/a/ACg8ocJxfjr2SZ_TeWBeduUMTSL8sWGXpwCKksTvDdTdiFslh4IDfw=s96-c",
+  "lastSignedInAt": "1776968990474",
+  "createdAt": "1776217034982",
+  "disabled": false,
+  "customAttributes": "{\"modules\":{\"hematologia\":true,\"imunologia\":true,\"coagulacao\":true,\"uroanalise\":true,\"educacao-continuada\":true,\"controle-temperatura\":true}}",
+  "providerUserInfo": [
+    {
+      "providerId": "google.com",
+      "rawId": "116279643963860819230",
+      "email": "gqlabclin@gmail.com",
+      "displayName": "Qualidade Labclin",
+      "photoUrl": "https://lh3.googleusercontent.com/a/ACg8ocJxfjr2SZ_TeWBeduUMTSL8sWGXpwCKksTvDdTdiFslh4IDfw=s96-c"
+    }
+  ]
+},
+{
+  "localId": "c5HUnwMkNuQTwLE0DQP2xjgxeR02",
+  "email": "areatecnicalabclinlabclin@gmail.com",
+  "emailVerified": true,
+  "passwordHash": "Vaqc7k47Y7PKaboH0jZvpRkc8uHbW5/6ixi+0v3kDRHnv/ZuizKGd/K/Xdne8FtGMrobBohAbUMdpFph4HjEGQ==",
+  "salt": "WHSLTtnQ9uRlqw==",
+  "displayName": "Areatecnica Labclin",
+  "lastSignedInAt": "1777848656223",
+  "createdAt": "1776217033946",
+  "disabled": false,
+  "customAttributes": "{\"modules\":{\"hematologia\":true,\"imunologia\":true,\"coagulacao\":true,\"uroanalise\":true,\"educacao-continuada\":true,\"controle-temperatura\":true}}",
+  "providerUserInfo": []
+},
+{
+  "localId": "kcqEYaViwxNW11zPFBtLFqDfvQd2",
+  "email": "drogafartomercadolivre@gmail.com",
+  "emailVerified": true,
+  "passwordHash": "DGyyQDxv1oe5NUx06IivLcgkaSoVn+MPcB+JvX6NenE8nH5m8RnD3a0Kmu1SmyYpanwLVgAzXeEjDbnZmCkKUQ==",
+  "salt": "fc2P+eGK+BiyIw==",
+  "displayName": "Drogafarto Admin",
+  "lastSignedInAt": "1776680951874",
+  "createdAt": "1776217037551",
+  "disabled": false,
+  "customAttributes": "{\"modules\":{\"hematologia\":true,\"imunologia\":true,\"coagulacao\":true,\"uroanalise\":true,\"educacao-continuada\":true,\"controle-temperatura\":true}}",
+  "providerUserInfo": []
+},
+{
+  "localId": "vyeni8KOfNRKjdXWRKq7n4YDY1g1",
+  "email": "brunopires@unipac.br",
+  "emailVerified": true,
+  "displayName": "BRUNO DE ANDRADE PIRES",
+  "photoUrl": "https://lh3.googleusercontent.com/a/ACg8ocLBL48_2TY1CLXxi6U9sj6_RxseILnjeA_y2IouTv2MK_VpKw=s96-c",
+  "lastSignedInAt": "1777172313471",
+  "createdAt": "1777172313471",
+  "providerUserInfo": [
+    {
+      "providerId": "google.com",
+      "rawId": "105442159702933194788",
+      "email": "brunopires@unipac.br",
+      "displayName": "BRUNO DE ANDRADE PIRES",
+      "photoUrl": "https://lh3.googleusercontent.com/a/ACg8ocLBL48_2TY1CLXxi6U9sj6_RxseILnjeA_y2IouTv2MK_VpKw=s96-c"
+    }
+  ]
+}]}
