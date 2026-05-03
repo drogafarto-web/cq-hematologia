@@ -1,4 +1,4 @@
-import * as admin from 'firebase-admin';
+import admin from 'firebase-admin';
 
 admin.initializeApp({ projectId: 'hmatologia2' });
 const db = admin.firestore();

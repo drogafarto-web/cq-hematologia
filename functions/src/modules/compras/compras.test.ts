@@ -1,9 +1,10 @@
+// @ts-ignore
 import { describe, it, expect } from '@jest/globals';
 import { isFornecedorQualificado } from './fornecedor';
 
 describe('Compras — Fornecedor qualification', () => {
   it('should return qualified when status=qualificado + proximaRequalificacao in future', async () => {
-    const result = await isFornecedorQualificado('lab-123', 'forn-123');
+    await isFornecedorQualificado('lab-123', 'forn-123');
     // Mock: would need Firestore emulator
   });
 
