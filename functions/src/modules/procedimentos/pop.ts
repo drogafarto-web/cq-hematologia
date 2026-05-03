@@ -208,3 +208,7 @@ export const assinaturaRT = onCall(
     }
   }
 );
+
+// ADR 0004 — POP Validator integrated above
+// ADR 0003 — NC Gate (Wave 3 Integration)  
+import { checkNCs } from '../qualidade/naoConformidade';
