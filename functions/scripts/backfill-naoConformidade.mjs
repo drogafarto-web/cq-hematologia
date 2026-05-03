@@ -27,8 +27,11 @@
 
 import admin from 'firebase-admin';
 import process from 'process';
-import { readFileSync } from 'fs';
-import { computeHmac, hashData } from '../src/modules/audit/cryptoAudit.js';
+
+// Initialize Firebase BEFORE importing cryptoAudit
+if (!admin.apps.length) {
+  admin.initializeApp({ projectId: 'hmatologia2' });
+}
 
 // Parse CLI args
 const labIdArg = process.argv.find((arg) => arg.startsWith('--labId='))?.split('=')[1] || 'default';
@@ -37,16 +40,6 @@ const dryRun = process.argv.includes('--dry-run');
 console.log(`\n🔄 ADR 0003 Backfill: NCTemps → NaoConformidade`);
 console.log(`📋 Lab ID: ${labIdArg}`);
 console.log(`🧪 Dry Run: ${dryRun ? 'YES (no writes)' : 'NO (will write)'}\n`);
-
-// Initialize Firebase
-const serviceAccountPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || './serviceAccountKey.json';
-if (!admin.apps.length) {
-  const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, 'utf-8'));
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    projectId: serviceAccount.project_id,
-  });
-}
 
 const db = admin.firestore();
 const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
@@ -317,6 +310,8 @@ async function backfillLab(labId) {
  * Main
  */
 async function main() {
+  const { computeHmac, hashData } = await import('../lib/modules/audit/cryptoAudit.js');
+
   try {
     if (labIdArg === 'all') {
       // Get all labs

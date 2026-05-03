@@ -1,47 +1,82 @@
-/**
- * ADR 0003 Firestore Security Rules
- * Non-Conformidade (NC) Collection — Unified spine
- *
- * Rules enforce:
- * - Only authenticated users can create/read/update NC
- * - Only RT (responsavelTecnico) or admin can update status/CAPA
- * - HMAC signature must be present on all documents
- * - Read access scoped to user's labs
- */
+// ─────────────────────────────────────────────────────────────────────────────
+// ADR 0003 Firestore Security Rules Patch — Non-Conformidade (NC) Global Spine
+//
+// Purpose:
+//   - Enforce HMAC requirement on NC creation (ADR 0005)
+//   - Gate NC updates to Responsável Técnico role only
+//   - Allow authenticated read for compliance visibility
+//   - Protect statusHistory from tampering (append-only)
+//
+// Security Model:
+//   - Create: Lab member + HMAC signature required (64-char hex string)
+//   - Read: Lab member (for compliance visibility)
+//   - Update: Responsável Técnico or Admin only
+//   - Delete: Not allowed (immutable for audit trail)
+//   - statusHistory: Append-only, each entry must be signed with HMAC
+//
+// Integration in main firestore.rules:
+//   Add under: match /labs/{labId} { ... }
+//   Position: After match /insumo-qualificacoes, before closing braces
+//
+// Deployment checklist:
+//   1. [ ] Run: firebase deploy --only firestore:rules --dry-run
+//   2. [ ] Review output: No validation errors, no unintended side effects
+//   3. [ ] Run: firebase deploy --only firestore:rules (staging first)
+//   4. [ ] Verify in staging: Test NC creation with HMAC, status transitions
+//   5. [ ] Prod deploy: npm run deploy:prod after staging validation
+//
+// Rollback procedure:
+//   1. git revert <commit-sha>
+//   2. firebase deploy --only firestore:rules
+//   3. Verify: https://console.firebase.google.com/project/hmatologia2/firestore/rules
+//
+// ─────────────────────────────────────────────────────────────────────────────
 
-match /labs/{labId}/nao-conformidades/{ncId} {
-  // Create: Any authenticated user can open NC
-  // But Cloud Function validates fields before write
-  allow create: if request.auth != null &&
-                   request.resource.data.numero != null &&
-                   request.resource.data.descricao != null &&
-                   request.resource.data.severidade != null &&
-                   request.resource.data.hmac != null &&
-                   request.auth.uid != null;
+      // ── ADR 0003: Nao-Conformidade (Non-Conformidade) ──────────────────────
+      // Global NC spine: every lab can track NCs for quality management
+      match /labs/{labId}/nao-conformidades/{ncId} {
+        // Create: Lab member only, HMAC required (ADR 0005)
+        allow create: if isActiveMemberOfLab(labId)
+                      && request.resource.data.numero != null
+                      && request.resource.data.descricao != null
+                      && request.resource.data.severidade in ['leve', 'grave', 'critica']
+                      && request.resource.data.hmac != null
+                      && request.resource.data.hmac is string
+                      && request.resource.data.hmac.size() == 64;
 
-  // Read: Any user in this lab can read NCs
-  allow read: if request.auth != null &&
-                 (request.auth.token.admin == true ||
-                  request.auth.token.labs[labId] != null);
+        // Read: All lab members can read NCs (compliance visibility)
+        allow read: if isActiveMemberOfLab(labId);
 
-  // Update: Only RT or admin can update status/CAPA
-  // (Cloud Function enforces transitions)
-  allow update: if request.auth != null &&
-                   (request.auth.token.responsavelTecnico == true ||
-                    request.auth.token.admin == true) &&
-                   // Must have HMAC after update
-                   request.resource.data.hmac != null;
+        // Update: Responsável Técnico or Admin only (status transitions, CAPA)
+        allow update: if isActiveMemberOfLab(labId)
+                      && (request.auth.token.responsavelTecnico == true ||
+                          isAdminOrOwner(labId))
+                      && request.resource.data.hmac != null
+                      && request.resource.data.hmac is string
+                      && request.resource.data.hmac.size() == 64;
 
-  // Delete: Not allowed (immutable records)
-  allow delete: if false;
+        // Delete: Not allowed (immutable for audit trail)
+        allow delete: if false;
 
-  // Nested audit trail
-  match /audit-trail/{entryId} {
-    allow create: if request.auth != null &&
-                     request.resource.data.hmac != null;
-    allow read: if request.auth != null &&
-                   (request.auth.token.admin == true ||
-                    request.auth.token.labs[labId] != null);
-    allow update, delete: if false;
-  }
-}
+        // ── Status History: Append-only signed entries ──────────────────────
+        // Each NC must maintain an immutable history of status changes
+        // Every entry is signed with HMAC for non-repudiation
+        match /statusHistory/{entryId} {
+          // Create: Lab member, entry must have HMAC
+          allow create: if isActiveMemberOfLab(labId)
+                        && request.resource.data.timestamp != null
+                        && request.resource.data.novoStatus != null
+                        && request.resource.data.mudadoPor != null
+                        && request.resource.data.hmac != null
+                        && request.resource.data.hmac is string
+                        && request.resource.data.hmac.size() == 64;
+
+          // Read: Lab member
+          allow read: if isActiveMemberOfLab(labId);
+
+          // Append-only: Update/delete never allowed
+          allow update: if false;
+          allow delete: if false;
+        }
+      }
+

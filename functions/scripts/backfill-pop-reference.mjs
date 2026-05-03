@@ -24,7 +24,6 @@
 
 import admin from 'firebase-admin';
 import process from 'process';
-import { readFileSync } from 'fs';
 
 // Parse CLI args
 const labIdArg = process.argv.find((arg) => arg.startsWith('--labId='))?.split('=')[1] || 'default';
@@ -40,13 +39,8 @@ console.log(`📊 Limit: ${limitArg}`);
 console.log(`🧪 Dry Run: ${dryRun ? 'YES (no writes)' : 'NO (will write)'}\n`);
 
 // Initialize Firebase
-const serviceAccountPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || './serviceAccountKey.json';
 if (!admin.apps.length) {
-  const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, 'utf-8'));
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    projectId: serviceAccount.project_id,
-  });
+  admin.initializeApp({ projectId: 'hmatologia2' });
 }
 
 const db = admin.firestore();
