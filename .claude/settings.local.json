@@ -15,7 +15,8 @@
       "Skill(gsd-progress)",
       "Skill(gsd-execute-phase)",
       "Bash(git commit *)",
-      "Skill(gsd-pause-work)"
+      "Skill(gsd-pause-work)",
+      "Bash(xargs head *)"
     ]
   }
 }

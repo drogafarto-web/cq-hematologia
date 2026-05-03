@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
-import { useActiveLabId } from '@/store/useAuthStore';
+import { useActiveLabId } from '../../../../store/useAuthStore';
 import type { POPInput } from '../../types/POP';
 import { createPOPClient } from '../popsService';
 
@@ -78,9 +77,9 @@ export default function CreatePOPModal({
           <h2 className="text-lg font-semibold text-white">Novo POP</h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-white/10 rounded transition-colors"
+            className="p-1 hover:bg-white/10 rounded transition-colors text-white/60 font-bold text-xl"
           >
-            <X className="h-5 w-5 text-white/60" />
+            ×
           </button>
         </div>
 

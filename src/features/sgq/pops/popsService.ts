@@ -12,7 +12,7 @@ import {
   type Unsubscribe,
   serverTimestamp,
 } from 'firebase/firestore';
-import { db } from '@/shared/services/firebase';
+import { db } from '../../../shared/services/firebase';
 import type { POP, POPInput, POPFilters } from '../types/POP';
 
 const popsCollection = (labId: string) => collection(db, `labs/${labId}/pops`);

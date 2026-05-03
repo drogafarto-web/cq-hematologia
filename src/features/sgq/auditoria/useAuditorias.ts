@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useActiveLabId } from '@/store/useAuthStore';
+import { useActiveLabId } from '../../../store/useAuthStore';
 import type { Auditoria, AuditoriaFilters } from '../types/Auditoria';
 import { subscribeAuditorias } from './auditoriaService';
 

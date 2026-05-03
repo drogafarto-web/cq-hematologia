@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { CheckCircle2, Clock, AlertCircle, Upload } from 'lucide-react';
 import type { POP } from '../../types/POP';
 import { isTreinamentoValido } from '../../types/POP';
 
@@ -32,7 +31,7 @@ export default function TrainingAssignmentUI({
   }
 
   const isValid = trainingStatus?.completed && trainingStatus?.validoAte
-    ? isTreinamentoValido({ validoAte: { toDate: () => trainingStatus.validoAte! } as any })
+    ? new Date(trainingStatus.validoAte).getTime() > new Date().getTime()
     : false;
 
   return (
@@ -53,20 +52,11 @@ export default function TrainingAssignmentUI({
               </div>
               <div className="text-right">
                 {isValid ? (
-                  <div className="flex items-center gap-2 text-emerald-400">
-                    <CheckCircle2 className="h-4 w-4" />
-                    <span className="text-xs font-medium">Válido</span>
-                  </div>
+                  <div className="text-xs font-medium text-emerald-400">✓ Válido</div>
                 ) : trainingStatus?.completed ? (
-                  <div className="flex items-center gap-2 text-amber-400">
-                    <Clock className="h-4 w-4" />
-                    <span className="text-xs font-medium">Vencido</span>
-                  </div>
+                  <div className="text-xs font-medium text-amber-400">⏱ Vencido</div>
                 ) : (
-                  <div className="flex items-center gap-2 text-red-400">
-                    <AlertCircle className="h-4 w-4" />
-                    <span className="text-xs font-medium">Pendente</span>
-                  </div>
+                  <div className="text-xs font-medium text-red-400">⚠ Pendente</div>
                 )}
               </div>
             </div>
@@ -83,9 +73,9 @@ export default function TrainingAssignmentUI({
             </button>
             <button
               onClick={() => setShowUpload(!showUpload)}
-              className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+              className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white text-sm font-medium rounded-lg transition-colors"
             >
-              <Upload className="h-4 w-4" />
+              ⬆
             </button>
           </div>
         )}

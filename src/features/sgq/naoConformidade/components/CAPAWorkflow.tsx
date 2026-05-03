@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { ChevronRight, CheckCircle2, Clock } from 'lucide-react';
 import type { NaoConformidade, CAPAStatus } from '../../types/NaoConformidade';
 import { CAPA_STATUS_LABEL, getProximoStatusCAPAValido } from '../../types/NaoConformidade';
 import { updateCAPAStatus } from '../ncService';
-import { useActiveLabId } from '@/store/useAuthStore';
+import { useActiveLabId } from '../../../../store/useAuthStore';
 
 interface CAPAWorkflowProps {
   nc: NaoConformidade;
@@ -67,7 +66,7 @@ export default function CAPAWorkflow({ nc, onUpdate }: CAPAWorkflowProps) {
                     }`}
                   >
                     {isCompleted ? (
-                      <CheckCircle2 className="h-5 w-5" />
+                      <span>✓</span>
                     ) : (
                       <span>{idx + 1}</span>
                     )}

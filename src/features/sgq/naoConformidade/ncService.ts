@@ -10,7 +10,7 @@ import {
   type Unsubscribe,
   Timestamp,
 } from 'firebase/firestore';
-import { db } from '@/shared/services/firebase';
+import { db } from '../../../shared/services/firebase';
 import type {
   NaoConformidade,
   NCFilters,

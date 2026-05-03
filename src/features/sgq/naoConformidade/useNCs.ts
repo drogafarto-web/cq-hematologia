@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useActiveLabId } from '@/store/useAuthStore';
+import { useActiveLabId } from '../../../store/useAuthStore';
 import type { NaoConformidade, NCFilters } from '../types/NaoConformidade';
 import { subscribeNCs } from './ncService';
 

@@ -9,7 +9,7 @@ import {
   serverTimestamp,
   type Unsubscribe,
 } from 'firebase/firestore';
-import { db } from '@/shared/services/firebase';
+import { db } from '../../../shared/services/firebase';
 import type { Auditoria, AuditoriaFilters } from '../types/Auditoria';
 
 const auditoriaCollection = (labId: string) =>

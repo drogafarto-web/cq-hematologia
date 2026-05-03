@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Search, AlertTriangle, ChevronRight } from 'lucide-react';
 import type { Auditoria, AuditoriaFilters } from '../../types/Auditoria';
 import { temAchadosGraves, contaAchadosPorSeveridade, diasAteVencimento } from '../../types/Auditoria';
 import { useAuditorias } from '../useAuditorias';
@@ -30,7 +29,6 @@ export default function AuditoriaList({ onSelectAuditoria }: AuditoriaListProps)
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-white/40" />
           <input
             type="text"
             placeholder="Buscar auditoria..."
@@ -88,7 +86,7 @@ export default function AuditoriaList({ onSelectAuditoria }: AuditoriaListProps)
                     <div className="flex items-center gap-2">
                       <h3 className="font-medium text-white">{auditoria.codigo}</h3>
                       {temGraves && (
-                        <AlertTriangle className="h-4 w-4 text-amber-400" title="Achados graves" />
+                        <span className="text-amber-400" title="Achados graves">⚠</span>
                       )}
                     </div>
                     <p className="text-sm text-white/60 mt-1">{auditoria.titulo}</p>
@@ -116,7 +114,7 @@ export default function AuditoriaList({ onSelectAuditoria }: AuditoriaListProps)
                     </div>
                   </div>
 
-                  <ChevronRight className="h-5 w-5 text-white/30 group-hover:text-white/60 flex-shrink-0" />
+                  <span className="text-white/30 group-hover:text-white/60 flex-shrink-0">›</span>
                 </div>
               </div>
             );

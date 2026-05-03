@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { AlertTriangle, Search, ChevronRight } from 'lucide-react';
 import type { NaoConformidade, NCFilters } from '../../types/NaoConformidade';
 import {
   SEVERIDADE_LABEL,
@@ -39,7 +38,6 @@ export default function NCList({ onSelectNC, showBloqueando = false }: NCListPro
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-white/40" />
           <input
             type="text"
             placeholder="Buscar NC..."
@@ -56,12 +54,12 @@ export default function NCList({ onSelectNC, showBloqueando = false }: NCListPro
           <button
             key={sev}
             onClick={() => {
-              const current = filters.severidade as string[];
+              const current = Array.isArray(filters.severidade) ? filters.severidade : [];
               setFilters({
                 ...filters,
-                severidade: current?.includes(sev)
+                severidade: current.includes(sev as any)
                   ? current.filter((s) => s !== sev)
-                  : [...(current || []), sev],
+                  : [...current, sev as any],
               });
             }}
             className="px-3 py-1 text-xs rounded-full border transition-colors"
@@ -90,7 +88,7 @@ export default function NCList({ onSelectNC, showBloqueando = false }: NCListPro
               >
                 <div className="flex items-start gap-3">
                   {bloqueada && (
-                    <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-red-500 flex-shrink-0 mt-0.5 text-lg">⚠</span>
                   )}
 
                   <div className="flex-1 min-w-0">
@@ -112,7 +110,7 @@ export default function NCList({ onSelectNC, showBloqueando = false }: NCListPro
                     </div>
                   </div>
 
-                  <ChevronRight className="h-5 w-5 text-white/30 group-hover:text-white/60 flex-shrink-0" />
+                  <span className="text-white/30 group-hover:text-white/60 flex-shrink-0">›</span>
                 </div>
               </div>
             );

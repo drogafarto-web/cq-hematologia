@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Plus, X } from 'lucide-react';
 import type { Auditoria, Achado, SeveridadeAchado } from '../../types/Auditoria';
 
 interface FindingsFormProps {
@@ -127,9 +126,9 @@ export default function FindingsForm({ auditoria, onAddFinding }: FindingsFormPr
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white text-xs rounded transition-colors"
+              className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white text-xs rounded transition-colors font-bold"
             >
-              <X className="h-4 w-4" />
+              ×
             </button>
           </div>
         </form>
@@ -138,8 +137,7 @@ export default function FindingsForm({ auditoria, onAddFinding }: FindingsFormPr
           onClick={() => setShowForm(true)}
           className="w-full px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors"
         >
-          <Plus className="h-4 w-4" />
-          Novo achado
+          + Novo achado
         </button>
       )}
     </div>
