@@ -2,8 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: `phase1-pending-cto-approval`
-last_updated: "2026-05-02T20:58:54.762Z"
+status: `phase1-deployed`
+last_updated: "2026-05-03T22:04:48.804Z"
+progress:
+  total_phases: 2
+  completed_phases: 0
+  total_plans: 3
+  completed_plans: 0
+  percent: 0
 ---
 
 # HC Quality — Project State & Memory
@@ -254,6 +260,7 @@ last_updated: "2026-05-02T20:58:54.762Z"
 ## ADR 0004 Wave 1 (Design + Schema) — ✅ COMPLETE
 
 ### ✅ Completed (2026-05-03 00:15 UTC)
+
 - ADR 0004 design doc finalized (0004-pop-versioning.md) ✓
   - POP/POPVersao/POPReferencia interfaces defined
   - Versioning strategy (v1.0 → v1.1 → v2.0) designed
@@ -268,6 +275,7 @@ last_updated: "2026-05-02T20:58:54.762Z"
 - Wave 1 commit: "ADR 0004 Wave 1: POP schema + versioning spec finalized" ✓
 
 ### 📋 Wave 1 Success Criteria
+
 - ✅ All interfaces finalized + ready for implementation
 - ✅ Cloud function signatures in place (pop.ts)
 - ✅ Validator functions designed (popValidator.ts)
@@ -280,6 +288,7 @@ last_updated: "2026-05-02T20:58:54.762Z"
 ## ADR 0004 Wave 2 (Cloud Functions + Validators) — READY TO START
 
 ### 📋 Wave 2 Checklist (Days 4-6)
+
 - [ ] Implement `createPOP()` callable
 - [ ] Implement `createPOPVersion()` callable
 - [ ] Implement `assinaturaRT()` callable (RT-only, ADR 0005 integration)

@@ -12,7 +12,10 @@
       "Bash(node_modules/.bin/vite build:*)",
       "Bash(firebase deploy:*)",
       "Bash(ls \"c:/hc quality\"/*.json)",
-      "Skill(gsd-progress)"
+      "Skill(gsd-progress)",
+      "Skill(gsd-execute-phase)",
+      "Bash(git commit *)",
+      "Skill(gsd-pause-work)"
     ]
   }
 }
