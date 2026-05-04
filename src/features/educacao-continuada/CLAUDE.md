@@ -41,11 +41,12 @@ obrigatório — não existe caminho de escrita sem tenant.
 
 ## Status atual
 
-**Fase:** **MÓDULO EM PRODUÇÃO + ISO 15189 COMPLETO + ASSINATURA SERVER-SIDE + RULES STRICT + MATRIZ + BIBLIOTECA TEMPLATES** — 2026-04-24.
-**URL:** https://hmatologia2.web.app (5 users com claim `'educacao-continuada'`)
-**Functions:** 6 callables `ec_*` em `southamerica-east1` runtime Node 22 (upgrade 2026-04-24).
+**Fase:** **MÓDULO EM PRODUÇÃO COMPLETO** — 2026-05-04 (Phase 2 Batch 2).
+**URL:** https://hmatologia2.web.app (5+ users com claim `'educacao-continuada'`)
+**Functions:** 8 callables `ec_*` em `southamerica-east1` runtime Node 22 (inclui 2 novas: `ec_onParticipanteCreated`, `ec_softDeleteExecucaoCascade`).
 **Rules:** 5 coleções regulatórias com `allow create: if false` ou restrição planejado-only. Toda escrita regulatória passa por callable.
-**Próximo passo prioritário:** smoke test E2E em prod + deploy das 2 functions novas deste batch.
+**Último deploy:** 2026-05-04 (trigger defense-in-depth + soft-delete cascade).
+**Próximo passo prioritário:** smoke test E2E em prod.
 
 ### Entregue neste batch (2026-04-24 — cleanup + prep)
 
@@ -60,15 +61,18 @@ obrigatório — não existe caminho de escrita sem tenant.
 
 ### Pendências restantes (ordem de prioridade)
 
-1. **Deploy functions novas** — `firebase deploy --only functions:ec_onParticipanteCreated,functions:ec_softDeleteExecucaoCascade --project hmatologia2`
-2. **Smoke test E2E** — checklist em `SMOKE_E2E_CHECKLIST.md`
-3. **Code-split SheetJS bloqueado por CT** — ver dívida acima. Ou editar CT, ou forçar `manualChunks` no `vite.config.ts`, ou aceitar overhead.
-4. Audit log em Template/Kit/Trilha (12 mutations; padrão já estabelecido)
-5. UI admin de revisão manual de dissertativas (Fase 8) — hoje ficam `null` aguardando humano
-6. Gerador automático de Execuções planejadas a partir de periodicidade
-7. Tab "Auditoria" no módulo EC listando `/auditLogs/` do lab
-8. Migração do audit log client → trigger `onDocumentCreated` server-side (compliance estrito)
-9. Divisão em chunks do cascade (>500 writes) — débito documentado
+✅ **CONCLUÍDO** (2026-05-04):
+- Deploy functions novas — `ec_onParticipanteCreated` + `ec_softDeleteExecucaoCascade` ✅
+
+**Débitos técnicos (MVP-aceitável):**
+1. **Smoke test E2E** — checklist em `SMOKE_E2E_CHECKLIST.md` (manual)
+2. **Code-split SheetJS** — bloqueado por CT (overhead ~3.2MB / 890KB gzip aceitável)
+3. Audit log em Template/Kit/Trilha (12 mutations; padrão já estabelecido)
+4. UI admin de revisão manual de dissertativas (Fase 8) — hoje ficam `null` aguardando humano
+5. Gerador automático de Execuções planejadas a partir de periodicidade
+6. Tab "Auditoria" no módulo EC listando `/auditLogs/` do lab
+7. Migração do audit log client → trigger `onDocumentCreated` server-side (compliance estrito)
+8. Divisão em chunks do cascade (>500 writes) — débito documentado
 
 ✅ **Done (acumulado):**
 - ~~Cloud Function para assinatura~~ Fase 0b (2026-04-24)

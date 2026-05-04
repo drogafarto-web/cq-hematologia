@@ -8,17 +8,17 @@
 
 **Status**: Production live (hmatologia2)
 
-### Phase 2 Batch 2 — controle-temperatura (2026-05-04)
+### Phase 2 Batch 2 — Multiple Modules Complete (2026-05-04)
 
 | Module | Deliverable | Status |
 |--------|-------------|--------|
 | controle-temperatura | FR-11 + IoT ESP32 + assinatura callable | ✅ Deployed |
+| educacao-continuada | 2 new callables: trigger defense + soft-delete cascade | ✅ Deployed |
 
 **What's included**:
-- Firestore rules: callable-only gates (CT-01 ✅), schema strict (CT-04 ✅)
-- Cloud Functions: `ct_commitLeitura` callable with HMAC chain
-- UI: CTDashboard + forms (FR-11, calibration, IoT device provisioning)
-- Hosting: Live on hmatologia2.web.app
+- **controle-temperatura**: Firestore rules (CT-01 ✅, CT-04 ✅), `ct_commitLeitura` callable, CTDashboard UI
+- **educacao-continuada**: `ec_onParticipanteCreated` (trigger defense-in-depth), `ec_softDeleteExecucaoCascade` (atomic cascade)
+- Hosting: Live on hmatologia2.web.app with both modules
 
 ### Deliverables
 
