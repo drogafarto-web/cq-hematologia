@@ -1,5 +1,6 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
+import { checkNCs } from '../qualidade/naoConformidade';
 
 const db = admin.firestore();
 
@@ -17,6 +18,15 @@ export const criarTreinamento = onCall(
     }
 
     try {
+      // ADR 0003 Wave 3: Check for blocking NCs before creating treinamento
+      const ncCheck = await checkNCs(labId, 'treinamentos');
+      if (ncCheck.blocked) {
+        throw new HttpsError(
+          'failed-precondition',
+          ncCheck.message || 'NC crítica aberta bloqueia operações neste módulo'
+        );
+      }
+
       const treinamento: any = {
         labId,
         popId,

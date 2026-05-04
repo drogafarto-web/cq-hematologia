@@ -1,6 +1,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import type { Auditoria, Achado } from './types';
+import { checkNCs } from '../qualidade/naoConformidade';
 
 const db = admin.firestore();
 
@@ -32,6 +33,15 @@ export const createAuditoria = onCall(
     }
 
     try {
+      // ADR 0003 Wave 3: Check for blocking NCs before creating auditoria
+      const ncCheck = await checkNCs(labId, 'auditoria');
+      if (ncCheck.blocked) {
+        throw new HttpsError(
+          'failed-precondition',
+          ncCheck.message || 'NC crítica aberta bloqueia operações neste módulo'
+        );
+      }
+
       const auditoria: Partial<Auditoria> = {
         labId,
         codigo,

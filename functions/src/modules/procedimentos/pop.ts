@@ -4,6 +4,7 @@ import * as crypto from 'crypto';
 import { z } from 'zod';
 import { POP, POPVersao } from './types';
 import { computeHmac } from '../audit/cryptoAudit';
+import { checkNCs } from '../qualidade/naoConformidade';
 
 const db = admin.firestore();
 
@@ -43,6 +44,15 @@ export const createPOP = onCall(
     try {
       const payload = POPCreationSchema.parse(request.data);
       const { labId, nome, codigo, conteudo, modulos, treinamentosObrigatorios } = payload;
+
+      // ADR 0003 Wave 3: Check for blocking NCs before creating POP
+      const ncCheck = await checkNCs(labId, 'procedimentos');
+      if (ncCheck.blocked) {
+        throw new HttpsError(
+          'failed-precondition',
+          ncCheck.message || 'NC crítica aberta bloqueia operações neste módulo'
+        );
+      }
 
       // RN-SGQ-01: Check for duplicate code within lab
       const existingSnap = await db

@@ -2,6 +2,7 @@ import * as functions from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import * as crypto from 'crypto';
 import { Qualificacao } from './types';
+import { checkNCs } from '../qualidade/naoConformidade';
 
 const db = admin.firestore();
 
@@ -17,6 +18,15 @@ export const criarQualificacao = functions.onCall(async (request) => {
   const memberSnap = await db.doc(`labs/${labId}/members/${request.auth.uid}`).get();
   if (!memberSnap.data()?.responsavelTecnico) {
     throw new functions.HttpsError('permission-denied', 'Only RT can grant qualifications');
+  }
+
+  // ADR 0003 Wave 3: Check for blocking NCs before creating qualification
+  const ncCheck = await checkNCs(labId, 'pessoas');
+  if (ncCheck.blocked) {
+    throw new functions.HttpsError(
+      'failed-precondition',
+      ncCheck.message || 'NC crítica aberta bloqueia operações neste módulo'
+    );
   }
 
   const secret = process.env.HCQ_SIGNATURE_HMAC_KEY || 'dev-key';
@@ -54,5 +64,3 @@ export async function isOperadorQualificadoPara(
   return false;
 }
 
-// ADR 0003 — NC Gate (Wave 3 Integration)
-// import { checkNCs } from '../qualidade/naoConformidade';

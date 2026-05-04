@@ -44,4 +44,7 @@ export interface NaoConformidade {
   deletadoEm?: admin.firestore.Timestamp | null;
   hmac?: string;
   previousHash?: string | null;
+  // ADR 0003 Wave 3: Module-level blocking gates
+  moduloOrigemId?: string; // 'equipamento', 'pessoas', 'procedimentos', etc
+  origemId?: string; // FK to specific resource (equipId, userId, popId, etc)
 }

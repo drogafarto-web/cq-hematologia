@@ -5,6 +5,52 @@ import { signAuditEntry } from '../audit/cryptoAudit';
 
 const db = admin.firestore();
 
+// ─── NC Blocking Gate Helper ──────────────────────────────────────────────────
+// Used by 7 modules to check if critical NCs are open before operations
+
+export interface NCBlockingCheckResult {
+  blocked: boolean;
+  blockingNC?: NaoConformidade;
+  message?: string;
+}
+
+/**
+ * checkNCs — Check if there are critical NCs open for a given module.
+ * Called by module services before create/update operations.
+ *
+ * Returns: { blocked: true, blockingNC } if critical NC found
+ *          { blocked: false } if clear to proceed
+ */
+export async function checkNCs(
+  labId: string,
+  moduloId: string
+): Promise<NCBlockingCheckResult> {
+  try {
+    const snapshot = await db
+      .collection(`labs/${labId}/naoConformidades`)
+      .where('moduloOrigemId', '==', moduloId)
+      .where('severidade', '==', 'critica')
+      .where('bloqueiaOperacoes', '==', true)
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) {
+      return { blocked: false };
+    }
+
+    const blockingNC = snapshot.docs[0].data() as NaoConformidade;
+    return {
+      blocked: true,
+      blockingNC,
+      message: `NC crítica ${blockingNC.codigo} bloqueia operações no módulo ${moduloId}. Resolva a NC antes de prosseguir.`,
+    };
+  } catch (error: any) {
+    // If there's an error checking NCs, fail-safe: don't block
+    console.error(`Error checking NCs for ${moduloId}:`, error);
+    return { blocked: false };
+  }
+}
+
 export const openNaoConformidade = onCall(
   { region: 'southamerica-east1' },
   async (request: any) => {
