@@ -78,12 +78,15 @@ async function backfillHmac() {
       const hash = hashData({ ...dataForHmac, hmac });
 
       // Update document
-      await doc.ref.update({
+      const update = {
         hmac,
         hash,
         _migratedAt: admin.firestore.FieldValue.serverTimestamp(),
-        _legacyHash: oldHash, // Keep old hash for reference
-      });
+      };
+      if (oldHash) {
+        update._legacyHash = oldHash; // Keep old hash for reference if exists
+      }
+      await doc.ref.update(update);
 
       updated++;
       processed++;
