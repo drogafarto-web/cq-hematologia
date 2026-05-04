@@ -216,6 +216,16 @@ export {
   registrarCalibracacao,
 } from './modules/equipamentos/index';
 
+// ─── treinamentos module (Phase 2 Batch 2 — Training Registry) ──────────────
+// criarTreinamento: schedule training linked to POP + instructor + participants
+// registrarPresenca: attendance tracking with signatures
+// emitirCertificado: issue certificates with validity tracking
+export {
+  criarTreinamento,
+  registrarPresenca,
+  emitirCertificado,
+} from './modules/treinamentos/treinamentos';
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
