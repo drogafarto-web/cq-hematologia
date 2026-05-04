@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useActiveLabId } from '../../../store/useAuthStore';
 import type { Auditoria, AuditoriaFilters } from '../types/Auditoria';
-import { subscribeAuditorias } from './auditoriaService';
+import { subscribeAuditorias, updateAuditoriaStatus, softDeleteAuditoria } from './auditoriaService';
 
 export function useAuditorias(filters: AuditoriaFilters = {}) {
   const labId = useActiveLabId();
@@ -34,5 +34,21 @@ export function useAuditorias(filters: AuditoriaFilters = {}) {
     return unsubscribe;
   }, [labId, JSON.stringify(filters)]);
 
-  return { auditorias, loading, error };
+  const updateStatus = useCallback(
+    async (auditoriaId: string, novoStatus: Auditoria['status']) => {
+      if (!labId) throw new Error('Lab não selecionado');
+      return updateAuditoriaStatus(labId, auditoriaId, novoStatus);
+    },
+    [labId],
+  );
+
+  const deletar = useCallback(
+    async (auditoriaId: string) => {
+      if (!labId) throw new Error('Lab não selecionado');
+      return softDeleteAuditoria(labId, auditoriaId);
+    },
+    [labId],
+  );
+
+  return { auditorias, loading, error, updateStatus, deletar };
 }

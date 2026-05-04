@@ -4,12 +4,15 @@ import type { Auditoria, Achado, SeveridadeAchado } from '../../types/Auditoria'
 interface FindingsFormProps {
   auditoria: Auditoria;
   onAddFinding?: (achado: Achado) => void;
+  onCreateNCs?: (achadosIds: string[]) => void;
 }
 
 const SEVERIDADES: SeveridadeAchado[] = ['critica', 'grave', 'moderada', 'leve', 'observacao'];
 
-export default function FindingsForm({ auditoria, onAddFinding }: FindingsFormProps) {
+export default function FindingsForm({ auditoria, onAddFinding, onCreateNCs }: FindingsFormProps) {
   const [showForm, setShowForm] = useState(false);
+  const [showNCDialog, setShowNCDialog] = useState(false);
+  const [pendingAchados, setPendingAchados] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     descricao: '',
     severidade: 'grave' as SeveridadeAchado,
@@ -27,8 +30,21 @@ export default function FindingsForm({ auditoria, onAddFinding }: FindingsFormPr
     };
 
     onAddFinding?.(novoAchado);
+
+    // Check if achado is grave or critica
+    if (['critica', 'grave'].includes(formData.severidade)) {
+      setPendingAchados([novoAchado.id]);
+      setShowNCDialog(true);
+    }
+
     setFormData({ descricao: '', severidade: 'grave', criterio: '' });
     setShowForm(false);
+  };
+
+  const handleCreateNCs = () => {
+    onCreateNCs?.(pendingAchados);
+    setShowNCDialog(false);
+    setPendingAchados([]);
   };
 
   return (
@@ -139,6 +155,38 @@ export default function FindingsForm({ auditoria, onAddFinding }: FindingsFormPr
         >
           + Novo achado
         </button>
+      )}
+
+      {/* NC Auto-gen Dialog */}
+      {showNCDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl bg-[#141417] border border-white/[0.08] shadow-2xl">
+            <div className="px-6 py-5 space-y-3">
+              <h3 className="text-sm font-semibold text-white">
+                Achado grave/crítico detectado
+              </h3>
+              <p className="text-xs text-white/50">
+                Um ou mais achados com severidade grave/crítica foram registrados. Deseja criar Não-Conformidades automaticamente?
+              </p>
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowNCDialog(false)}
+                  className="px-4 py-2 rounded-md text-sm text-white/60 hover:bg-white/[0.05]"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCreateNCs}
+                  className="px-4 py-2 rounded-md bg-emerald-500 text-slate-950 text-sm font-semibold hover:bg-emerald-400"
+                >
+                  Criar NCs
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
