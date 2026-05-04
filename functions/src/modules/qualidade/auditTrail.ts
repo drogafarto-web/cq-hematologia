@@ -1,13 +1,17 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
-import type { AuditEntry } from './types';
-import { signAuditEntry } from '../audit/cryptoAudit';
+import type { AuditEntry, ComplianceReport, ChainValidationResult, AuditTrailFilters } from './types';
+import {
+  signAuditEntry,
+  validateChainIntegrity,
+  verifyAuditEntry,
+} from '../audit/cryptoAudit';
 
 const db = admin.firestore();
 
 /**
- * ADR 0001 Wave 1 — Audit Trail Skeleton
- * Complete implementation in Wave 2
+ * ADR 0001 Wave 2 — Audit Trail Complete Implementation
+ * Callables: logAction, getAuditTrail, validateChain, generateComplianceReport
  */
 
 export const logAction = onCall(
@@ -20,7 +24,7 @@ export const logAction = onCall(
     const { labId, operation, modulo, acao, resultado, payload } = request.data;
 
     if (!labId || !operation || !modulo) {
-      throw new HttpsError('invalid-argument', 'Missing required fields');
+      throw new HttpsError('invalid-argument', 'Missing required fields: labId, operation, modulo');
     }
 
     try {
@@ -57,9 +61,206 @@ export const logAction = onCall(
       return {
         success: true,
         entryId: entryRef.id,
+        timestamp: admin.firestore.Timestamp.now(),
       };
     } catch (error: any) {
-      throw new HttpsError('internal', error.message);
+      throw new HttpsError('internal', `Failed to log action: ${error.message}`);
+    }
+  }
+);
+
+export const getAuditTrail = onCall(
+  { region: 'southamerica-east1' },
+  async (request: any) => {
+    if (!request.auth?.uid) {
+      throw new HttpsError('unauthenticated', 'Auth required');
+    }
+
+    const { labId, filters = {}, limit = 100, offset = 0 } = request.data;
+
+    if (!labId) {
+      throw new HttpsError('invalid-argument', 'labId required');
+    }
+
+    try {
+      let query: FirebaseFirestore.Query = db.collection(`labs/${labId}/audit-trail`);
+
+      // Apply filters
+      if ((filters as AuditTrailFilters).modulo) {
+        query = query.where('modulo', '==', (filters as AuditTrailFilters).modulo);
+      }
+      if ((filters as AuditTrailFilters).operadorId) {
+        query = query.where('operatorId', '==', (filters as AuditTrailFilters).operadorId);
+      }
+      if ((filters as AuditTrailFilters).resultado) {
+        query = query.where('resultado', '==', (filters as AuditTrailFilters).resultado);
+      }
+
+      // Order and paginate
+      const snapshot = await query
+        .orderBy('timestamp', 'desc')
+        .limit(limit + 1)
+        .offset(offset)
+        .get();
+
+      const entries = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      return {
+        success: true,
+        entries,
+        count: entries.length,
+        hasMore: entries.length > limit,
+      };
+    } catch (error: any) {
+      throw new HttpsError('internal', `Failed to fetch audit trail: ${error.message}`);
+    }
+  }
+);
+
+export const validateChain = onCall(
+  { region: 'southamerica-east1' },
+  async (request: any) => {
+    if (!request.auth?.uid) {
+      throw new HttpsError('unauthenticated', 'Auth required');
+    }
+
+    const { labId } = request.data;
+
+    if (!labId) {
+      throw new HttpsError('invalid-argument', 'labId required');
+    }
+
+    try {
+      const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
+      if (!secret) {
+        throw new Error('HMAC key not configured');
+      }
+
+      const result = await validateChainIntegrity(`labs/${labId}/audit-trail`, secret);
+
+      return {
+        success: true,
+        ...result,
+      };
+    } catch (error: any) {
+      throw new HttpsError('internal', `Chain validation failed: ${error.message}`);
+    }
+  }
+);
+
+export const generateComplianceReport = onCall(
+  { region: 'southamerica-east1' },
+  async (request: any) => {
+    if (!request.auth?.uid) {
+      throw new HttpsError('unauthenticated', 'Auth required');
+    }
+
+    const { labId, dateStart, dateEnd } = request.data;
+
+    if (!labId || !dateStart || !dateEnd) {
+      throw new HttpsError('invalid-argument', 'labId, dateStart, dateEnd required');
+    }
+
+    try {
+      const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
+
+      // Fetch all entries in date range
+      const startDate = new Date(dateStart);
+      const endDate = new Date(dateEnd);
+
+      const snapshot = await db
+        .collection(`labs/${labId}/audit-trail`)
+        .where('timestamp', '>=', admin.firestore.Timestamp.fromDate(startDate))
+        .where('timestamp', '<=', admin.firestore.Timestamp.fromDate(endDate))
+        .orderBy('timestamp', 'asc')
+        .get();
+
+      const entries = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as (AuditEntry & { id: string })[];
+
+      // Analyze entries
+      const operators = new Set<string>();
+      const modules = new Set<string>();
+      let successCount = 0;
+      let failureCount = 0;
+      let warningCount = 0;
+
+      for (const entry of entries) {
+        operators.add(entry.operatorId);
+        modules.add(entry.modulo);
+        if (entry.resultado === 'sucesso') successCount++;
+        else if (entry.resultado === 'falha') failureCount++;
+        else if (entry.resultado === 'aviso') warningCount++;
+      }
+
+      // Validate chain integrity
+      let chainStatus: 'válida' | 'inválida' | 'parcial' = 'válida';
+      let chainViolations: Array<{ entryId: string; reason: string }> = [];
+
+      if (secret && entries.length > 0) {
+        let previousHash: string | null = null;
+        for (const entry of entries) {
+          const verification = verifyAuditEntry(entry, secret);
+          if (!verification.valid) {
+            chainStatus = 'inválida';
+            chainViolations.push({
+              entryId: entry.id,
+              reason: verification.reason || 'HMAC mismatch',
+            });
+          }
+          if (entry.previousHash !== previousHash) {
+            if (chainStatus === 'válida') chainStatus = 'parcial';
+            chainViolations.push({
+              entryId: entry.id,
+              reason: 'Hash sequence broken',
+            });
+          }
+          previousHash = entry.hash;
+        }
+      }
+
+      const report: ComplianceReport = {
+        labId,
+        generatedAt: admin.firestore.Timestamp.now(),
+        generatedBy: request.auth.uid,
+        dateRange: {
+          inicio: startDate,
+          fim: endDate,
+        },
+        summary: {
+          totalEntries: entries.length,
+          operatorsInvolved: operators.size,
+          modulesCovered: Array.from(modules),
+          successCount,
+          failureCount,
+          warningCount,
+        },
+        chainStatus,
+        chainViolations: chainViolations.length > 0 ? chainViolations : undefined,
+        rdc978Compliance: {
+          auditTrailComplete: entries.length > 0,
+          noGapsinSequence: chainStatus !== 'inválida',
+          hmacIntegrityValid: chainStatus !== 'inválida',
+        },
+        dicq44Compliance: {
+          entriesImmutable: chainStatus !== 'inválida',
+          operatorIdentification: entries.every((e) => !!e.operatorId),
+          timestampServerGenerated: entries.every((e) => !!e.timestamp),
+          auditTrailIsolated: true, // Firestore rules enforce isolation
+        },
+      };
+
+      return {
+        success: true,
+        report,
+      };
+    } catch (error: any) {
+      throw new HttpsError('internal', `Failed to generate compliance report: ${error.message}`);
     }
   }
 );
