@@ -39,7 +39,9 @@
       "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
       "Bash(netstat -ano)",
       "Bash(findstr :5173)",
-      "Skill(gsd-resume-work)"
+      "Skill(gsd-resume-work)",
+      "Bash(dir \".planning\\\\phases\\\\02-construction\")",
+      "Bash(findstr \".md\")"
     ]
   },
   "enabledMcpjsonServers": [

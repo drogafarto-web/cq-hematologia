@@ -20,6 +20,7 @@ interface RotacaoLoteSuggestionProps {
   labId: string;
   novoInsumo: Pick<Insumo, 'id' | 'nomeComercial' | 'lote' | 'validade' | 'diasEstabilidadeAbertura' | 'tipo' | 'status'>;
   loteAnterior: Pick<Insumo, 'id' | 'nomeComercial' | 'lote' | 'validadeReal'>;
+  examCode?: string;
   onFinish: () => void;
 }
 
@@ -27,6 +28,7 @@ export function RotacaoLoteSuggestion({
   labId,
   novoInsumo,
   loteAnterior,
+  examCode,
   onFinish,
 }: RotacaoLoteSuggestionProps) {
   const user = useUser();
@@ -61,6 +63,7 @@ export function RotacaoLoteSuggestion({
         },
         operadorId: user.uid,
         operadorName,
+        ...(examCode && { examCode }),
       });
       onFinish();
     } catch (err) {
