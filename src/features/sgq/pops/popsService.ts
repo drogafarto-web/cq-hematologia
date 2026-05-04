@@ -14,7 +14,7 @@ import {
 } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { db, functions } from '../../../shared/services/firebase';
-import type { POP, POPInput, POPFilters } from '../types/POP';
+import type { POP, POPInput, POPFilters, TreinamentoPOP } from '../types/POP';
 
 const popsCollection = (labId: string) => collection(db, `labs/${labId}/pops`);
 
@@ -39,7 +39,7 @@ export function subscribePOPs(
     q,
     (snap) => {
       const pops = snap.docs
-        .map((d) => d.data() as POP)
+        .map((d) => ({ id: d.id, ...d.data() } as POP))
         .filter((pop) => {
           if (filters.status) {
             const versaoAtiva = pop.versoes?.find((v) => v.status === 'ativa');
@@ -65,7 +65,8 @@ export function subscribePOPs(
 export async function getPOP(labId: string, popId: string): Promise<POP | null> {
   const docRef = doc(popsCollection(labId), popId);
   const snap = await getDocs(query(popsCollection(labId), where('id', '==', popId)));
-  return snap.empty ? null : (snap.docs[0].data() as POP);
+  if (snap.empty) return null;
+  return { id: snap.docs[0].id, ...snap.docs[0].data() } as POP;
 }
 
 // ─── Create POP (via Cloud Function callable) ──────────────────────────────
@@ -115,7 +116,7 @@ export async function searchPOPByCode(
     where('deletadoEm', '==', null),
   );
   const snap = await getDocs(q);
-  return snap.empty ? null : (snap.docs[0].data() as POP);
+  return snap.empty ? null : { id: snap.docs[0].id, ...snap.docs[0].data() } as POP;
 }
 
 // ─── Get POPs by modulo ────────────────────────────────────────────────────
@@ -127,7 +128,7 @@ export async function getPOPsByModulo(labId: string, modulo: string): Promise<PO
     where('deletadoEm', '==', null),
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => d.data() as POP);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as POP));
 }
 
 // ─── Create POP Version (via Cloud Function callable) ────────────────────────
@@ -137,7 +138,7 @@ export async function createPOPVersion(
   popId: string,
   conteudo: { markdown?: string; pdfUrl?: string },
   isMajorVersion?: boolean,
-): Promise<{ versao: string; status: string }> {
+): Promise<{ versao: string; status: string; hashConteudo: string }> {
   const callable = httpsCallable(functions, 'createPOPVersion');
   const result: any = await callable({
     labId,
@@ -148,6 +149,7 @@ export async function createPOPVersion(
   return {
     versao: result.data.versao,
     status: result.data.status,
+    hashConteudo: result.data.hashConteudo,
   };
 }
 
@@ -156,16 +158,40 @@ export async function createPOPVersion(
 export async function signPOPVersion(
   labId: string,
   popId: string,
-  versao: string,
-): Promise<{ status: string; assinadoPor: string }> {
+  popVersaoNumero: string,
+): Promise<{ status: string; assinadoPor: string; assinadoEm: Timestamp }> {
   const callable = httpsCallable(functions, 'assinaturaRT');
   const result: any = await callable({
     labId,
     popId,
-    versao,
+    popVersaoNumero,
   });
   return {
     status: result.data.status,
     assinadoPor: result.data.assinadoPor,
+    assinadoEm: result.data.assinadoEm,
+  };
+}
+
+// ─── Record Operator Training (via Cloud Function callable) ──────────────────
+
+export async function recordarTreinamentoPOP(
+  labId: string,
+  operadorUid: string,
+  popId: string,
+  popVersaoNumero: string,
+  certificado_url?: string,
+): Promise<{ success: boolean; validoAte: Date }> {
+  const callable = httpsCallable(functions, 'recordarTreinamentoPOP');
+  const result: any = await callable({
+    labId,
+    operadorUid,
+    popId,
+    popVersaoNumero,
+    certificado_url,
+  });
+  return {
+    success: result.data.success,
+    validoAte: new Date(result.data.validoAte),
   };
 }
