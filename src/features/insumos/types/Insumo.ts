@@ -242,6 +242,66 @@ interface InsumoBase {
    */
   lastRunAt?: Timestamp;
 
+  // ─── Rastreabilidade Worklab LIS ──────────────────────────────────────────────
+  // Integração com LIS Worklab para faixa de exames por lote — rastreabilidade
+  // clínica: "quais exames rodaram com este reagente/controle?".
+
+  /**
+   * Código do primeiro exame processado com este lote (ex: "0107200").
+   * Preenchido pelo operador ao abrir o lote via `openInsumoWithExamCode`.
+   * Junto com `ultimoExameWorklab` define a faixa completa de rastreabilidade.
+   */
+  primeiroExameWorklab?: string;
+
+  /**
+   * Código do último exame processado com este lote. Preenchido ATOMICAMENTE
+   * durante a abertura do novo lote: `ultimoExameAnterior = parseInt(examCode) - 1`.
+   * Operador nunca edita este campo — seu cálculo é automático.
+   */
+  ultimoExameWorklab?: string;
+
+  /**
+   * Timestamp client-side de quando o lote foi aberto pela primeira vez
+   * (momento em que `primeiroExameWorklab` foi registrado). Usado para:
+   * - Calcular `diasEmUso` no badge visual (alert se > 30 dias)
+   * - Ordenar e agrupar lotes em relatórios de consumo histórico
+   */
+  abertoPrimeiraVezEm?: Timestamp;
+
+  // ─── Rastreabilidade de operador (quem fez a troca) ──────────────────────────
+  // Registra quem e quando abriu/fechou cada lote — essencial para auditoria
+  // de conformidade (RDC 978/2025 Art.14 exige rastreabilidade de quem).
+
+  /**
+   * Snapshot de quem abriu este lote e quando (quando `status` transicionou
+   * para 'ativo' via `openInsumoWithExamCode` ou similar). Campo aninhado com:
+   * - `operadorId`: UID do usuário logado
+   * - `operadorName`: display name do operador
+   * - `timestamp`: Timestamp de servidor da abertura
+   *
+   * Preenchido APENAS no transaction atomicamente junto com a abertura.
+   * Imutável após gravado.
+   */
+  abertoPor?: {
+    operadorId: string;
+    operadorName: string;
+    timestamp: Timestamp;
+  };
+
+  /**
+   * Snapshot de quem fechou este lote e quando (quando `status` transicionou
+   * para 'fechado', tipicamente por rotação de lote via `openInsumoWithExamCode`).
+   * Mesmo schema de `abertoPor`.
+   *
+   * Null/ausente enquanto lote está ativo. Preenchido uma única vez na
+   * transição para 'fechado'.
+   */
+  fechadoPor?: {
+    operadorId: string;
+    operadorName: string;
+    timestamp: Timestamp;
+  };
+
   // ─── PR1 (2026-04-26) — Qualificação formal do lote ────────────────────────
   // Campos populados EXCLUSIVAMENTE pelas callables `approveQualificacao` /
   // `reproveQualificacao` (Admin SDK bypassa rules). Rules client-side bloqueiam

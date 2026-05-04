@@ -155,7 +155,7 @@ interface NovoLoteModalProps {
   /** Modelo normalizado do equipamento — usado pra wiring futuro de statsPorModelo. */
   equipamentoModelo?: string;
   onClose: () => void;
-  onCreated?: (insumoId: string) => void;
+  onCreated?: (insumoId: string, examCode?: string) => void;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -182,10 +182,11 @@ export function NovoLoteModal({
   const [rotacaoSugestao, setRotacaoSugestao] = useState<{
     novo: Insumo;
     anterior: Insumo;
+    examCode?: string;
   } | null>(null);
 
-  async function handleLoteCreated(insumoId: string, produtoId: string) {
-    onCreated?.(insumoId);
+  async function handleLoteCreated(insumoId: string, produtoId: string, examCode?: string) {
+    onCreated?.(insumoId, examCode);
     // Busca ativo do mesmo produto (ignorando o recém-criado). Se retornar,
     // popula sugestão de rotação que mantém o NovoLoteModal montado até o
     // operador decidir. Se não houver, fecha direto.
@@ -199,7 +200,7 @@ export function NovoLoteModal({
       onClose();
       return;
     }
-    setRotacaoSugestao({ novo, anterior });
+    setRotacaoSugestao({ novo, anterior, examCode });
   }
 
   const filters = useMemo(
@@ -242,8 +243,8 @@ export function NovoLoteModal({
               {...(equipamentoId && { equipamentoId })}
               {...(equipamentoModelo && { equipamentoModelo })}
               onBack={() => setProdutoSelecionado(null)}
-              onCreated={(id) => {
-                void handleLoteCreated(id, produtoSelecionado.id);
+              onCreated={(id, examCode) => {
+                void handleLoteCreated(id, produtoSelecionado.id, examCode);
               }}
             />
           </ErrorBoundary>
@@ -283,6 +284,7 @@ export function NovoLoteModal({
           labId={labId}
           novoInsumo={rotacaoSugestao.novo}
           loteAnterior={rotacaoSugestao.anterior}
+          examCode={rotacaoSugestao.examCode}
           onFinish={() => {
             setRotacaoSugestao(null);
             onClose();
@@ -516,7 +518,7 @@ interface LoteFormProps {
   equipamentoId?: string;
   equipamentoModelo?: string;
   onBack: () => void;
-  onCreated: (insumoId: string) => void;
+  onCreated: (insumoId: string, examCode?: string) => void;
 }
 
 function LoteForm({
@@ -560,7 +562,7 @@ function LoteForm({
   const [traceUnidade, setTraceUnidade] = useState<string>(UNIDADES[0].code);
   const traceSuggested = traceability.suggestNextExamCode(traceUnidade, DEFAULT_EQUIPMENT_ID);
   const [traceExamCode, setTraceExamCode] = useState<string>('');
-  const showTraceability = produto.tipo === 'reagente';
+  const showTraceability = true; // Worklab rastreabilidade em todos os tipos: reagentes, controles e tiras
 
   function validate(): boolean {
     const e: Record<string, string> = {};
@@ -579,6 +581,10 @@ function LoteForm({
     }
     if (produto.tipo === 'controle' && !nivel) {
       e.nivel = 'Selecione o nível do controle.';
+    }
+    // Rastreabilidade Worklab: obrigatória quando aplicável
+    if (showTraceability && !traceExamCode.trim()) {
+      e.traceExamCode = 'Informe o código do primeiro atendimento (Worklab).';
     }
     // Nota fiscal: opcional em TODOS os tipos durante a fase inicial de produção.
     // Quando a base de lotes começar a ter massa crítica e o módulo de
@@ -696,7 +702,7 @@ function LoteForm({
           });
       }
 
-      onCreated(id);
+      onCreated(id, traceExamCode.trim() || undefined);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Erro ao cadastrar lote.');
     } finally {
@@ -883,11 +889,11 @@ function LoteForm({
           <div className="flex items-center justify-between mb-3">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-white/45">
-                Rastreabilidade
+                Rastreabilidade Worklab
               </p>
               <p className="text-[11px] text-slate-400 dark:text-white/30 mt-0.5">
-                Ancora a abertura deste reagente ao primeiro atendimento que será
-                processado com ele — opcional.
+                Obrigatório: registre o código do primeiro atendimento (exame) que será
+                processado com este lote. Consulte Worklab para obter o código.
               </p>
             </div>
           </div>
@@ -909,11 +915,12 @@ function LoteForm({
               inputMode="numeric"
               pattern="[0-9]*"
               autoComplete="off"
-              aria-label="Primeiro atendimento coberto"
+              required
+              aria-label="Código do primeiro atendimento (obrigatório)"
               placeholder={
                 traceSuggested
                   ? `Sugestão: ${traceSuggested}`
-                  : 'Primeiro atendimento (ex: 0107092)'
+                  : 'Código do primeiro atendimento *'
               }
               value={traceExamCode}
               onChange={(e) =>
@@ -930,6 +937,9 @@ function LoteForm({
             >
               Usar sugestão {traceSuggested}
             </button>
+          )}
+          {errors.traceExamCode && (
+            <p className="text-xs text-red-500 dark:text-red-400 mt-2">{errors.traceExamCode}</p>
           )}
         </div>
       )}

@@ -29,6 +29,7 @@ import {
   writeBatch,
   increment,
   firestoreErrorMessage,
+  runTransaction,
 } from '../../../shared/services/firebase';
 import type { Unsubscribe } from '../../../shared/services/firebase';
 import { COLLECTIONS, SUBCOLLECTIONS } from '../../../constants';
@@ -415,6 +416,7 @@ export async function openInsumo(
 ): Promise<void> {
   try {
     const now = new Date();
+    const nowTimestamp = Timestamp.fromDate(now);
     const validadeReal = Timestamp.fromDate(
       computeValidadeReal(current.validade.toDate(), now, current.diasEstabilidadeAbertura),
     );
@@ -422,9 +424,15 @@ export async function openInsumo(
     const requiresQC = current.tipo === 'reagente' || current.tipo === 'tira-uro';
 
     await updateDoc(insumoRef(labId, insumoId), {
-      dataAbertura: Timestamp.fromDate(now),
+      dataAbertura: nowTimestamp,
       validadeReal,
       status: 'ativo',
+      abertoPor: {
+        operadorId,
+        operadorName,
+        timestamp: nowTimestamp,
+      },
+      abertoPrimeiraVezEm: nowTimestamp,
       ...(requiresQC && { qcValidationRequired: true }),
     });
 
@@ -447,9 +455,16 @@ export async function closeInsumo(
   operadorName: string,
 ): Promise<void> {
   try {
+    const nowTimestamp = Timestamp.fromDate(new Date());
+
     await updateDoc(insumoRef(labId, insumoId), {
       status: 'fechado',
-      closedAt: serverTimestamp(),
+      closedAt: nowTimestamp,
+      fechadoPor: {
+        operadorId,
+        operadorName,
+        timestamp: nowTimestamp,
+      },
     });
 
     await logMovimentacao(labId, {
@@ -696,6 +711,120 @@ export async function reprovarLoteImuno(
 }
 
 /**
+ * Abre insumo novo com rastreabilidade Worklab — integração LIS para faixa de exames.
+ *
+ * Fluxo atômico (transaction Firestore):
+ *   1. Lê novo insumo + anterior (se existir)
+ *   2. Valida que anterior está 'ativo' (race condition detection)
+ *   3. Calcula `ultimoExame = examCode - 1` do anterior
+ *   4. WRITE anterior: status='fechado', ultimoExameWorklab, fechadoPor {operadorId/Name/timestamp}
+ *   5. WRITE novo: status='ativo', primeiroExameWorklab, abertoPrimeiraVezEm, abertoPor, validadeReal, qcValidationRequired
+ *   6. Após transaction: log movimentações (abertura + fechamento)
+ *
+ * Rastreabilidade: faixa de exames [primeiroExameWorklab, ultimoExameWorklab] do lote anterior
+ * fica fechada automaticamente sem input adicional do operador.
+ *
+ * Race condition: se outro operador fechou o lote anterior entre o read e write,
+ * a transaction falha com mensagem "Lote anterior não mais ativo" — recuperável
+ * via retry.
+ */
+export async function openInsumoWithExamCode(
+  labId: string,
+  insumoId: string,
+  examCode: string, // ex: "0107200"
+  current: Pick<Insumo, 'validade' | 'diasEstabilidadeAbertura' | 'tipo'>,
+  previousActiveId: string | null,
+  operadorId: string,
+  operadorName: string,
+): Promise<void> {
+  try {
+    const now = new Date();
+    const nowTimestamp = Timestamp.fromDate(now);
+    const validadeReal = Timestamp.fromDate(
+      computeValidadeReal(current.validade.toDate(), now, current.diasEstabilidadeAbertura),
+    );
+    const requiresQC = current.tipo === 'reagente' || current.tipo === 'tira-uro';
+
+    const newRef = doc(insumosCol(labId), insumoId);
+    const prevRef = previousActiveId ? doc(insumosCol(labId), previousActiveId) : null;
+
+    // Transaction: fecha anterior atomicamente, abre novo, evita race condition
+    await runTransaction(db, async (transaction) => {
+      // READ phase
+      const newSnap = await transaction.get(newRef);
+      if (!newSnap.exists()) {
+        throw new Error(`Insumo ${insumoId} não encontrado.`);
+      }
+
+      let prevSnap: Awaited<ReturnType<typeof transaction.get>> | undefined;
+      if (prevRef) {
+        prevSnap = await transaction.get(prevRef);
+        if (!prevSnap?.exists()) {
+          throw new Error(`Lote anterior ${previousActiveId} não encontrado.`);
+        }
+        const prevStatus = (prevSnap.data() as Insumo | undefined)?.status;
+        if (prevStatus !== 'ativo') {
+          throw new Error(
+            'Lote anterior não mais ativo — outro operador pode ter realizado a rotação. Recarregue e tente novamente.',
+          );
+        }
+      }
+
+      // WRITE phase
+      // 1. Fecha lote anterior com rastreabilidade
+      if (prevRef && prevSnap) {
+        const ultimoExameNum = Math.max(1, parseInt(examCode, 10) - 1);
+        const ultimoExame = String(ultimoExameNum).padStart(examCode.length, '0');
+
+        transaction.update(prevRef, {
+          status: 'fechado',
+          closedAt: nowTimestamp,
+          ultimoExameWorklab: ultimoExame,
+          fechadoPor: {
+            operadorId,
+            operadorName,
+            timestamp: nowTimestamp,
+          },
+        });
+      }
+
+      // 2. Abre novo lote com rastreabilidade Worklab + operador
+      transaction.update(newRef, {
+        status: 'ativo',
+        dataAbertura: nowTimestamp,
+        validadeReal,
+        primeiroExameWorklab: examCode,
+        abertoPrimeiraVezEm: nowTimestamp,
+        abertoPor: {
+          operadorId,
+          operadorName,
+          timestamp: nowTimestamp,
+        },
+        ...(requiresQC && { qcValidationRequired: true }),
+      });
+    });
+
+    // POST-TRANSACTION: log movimentações (eventually consistent, OK fora de transaction)
+    if (prevRef) {
+      await logMovimentacao(labId, {
+        insumoId: previousActiveId!,
+        tipo: 'fechamento',
+        operadorId,
+        operadorName,
+      });
+    }
+    await logMovimentacao(labId, {
+      insumoId,
+      tipo: 'abertura',
+      operadorId,
+      operadorName,
+    });
+  } catch (err) {
+    throw new Error(firestoreErrorMessage(err), { cause: err });
+  }
+}
+
+/**
  * Rotação assistida — fluxo atômico "fecha lote anterior + abre/confirma novo lote"
  * quando o operador cadastra lote novo do mesmo produto já em uso.
  *
@@ -730,11 +859,28 @@ export async function rotateInsumoLote(
     newInsumo?: Pick<Insumo, 'validade' | 'diasEstabilidadeAbertura' | 'tipo'>;
     operadorId: string;
     operadorName: string;
+    /** Código do primeiro exame Worklab (ex: "0107200"). Se presente, usa transaction atômica. */
+    examCode?: string;
   },
 ): Promise<void> {
-  const { oldInsumoId, newInsumoId, newAlreadyActive, newInsumo, operadorId, operadorName } =
+  const { oldInsumoId, newInsumoId, newAlreadyActive, newInsumo, operadorId, operadorName, examCode } =
     params;
 
+  // Fluxo 1: Se examCode é fornecido, delega para transaction atômica com rastreabilidade Worklab
+  if (examCode && newInsumo) {
+    await openInsumoWithExamCode(
+      labId,
+      newInsumoId,
+      examCode,
+      newInsumo,
+      oldInsumoId, // previousActiveId
+      operadorId,
+      operadorName,
+    );
+    return;
+  }
+
+  // Fluxo 2: Comportamento legado (sem Worklab) — dois updates sequenciais
   // Ordem importa: fecha o anterior PRIMEIRO pra evitar ter dois ativos mesmo
   // que brevemente (cenário de concorrência com outro operador abrindo o
   // mesmo lote em outro dispositivo). Se falhar aqui, o novo continua fechado
