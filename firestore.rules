@@ -1190,6 +1190,15 @@ service cloud.firestore {
                        && request.resource.data.deletadoEm == null;
         allow delete: if false;  // Soft-delete only
       }
+
+      // ── ADR 0001 — Audit Trail (RDC 978 5.3 + DICQ 4.4) ──────────────────
+      match /audit-trail/{entryId} {
+        allow read: if isSuperAdmin() ||
+                       (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'));
+        allow create: if false;  // Via logAction callable only
+        allow update: if false;  // Immutable after creation
+        allow delete: if false;  // Never delete audit entries
+      }
     }
   }
 }
