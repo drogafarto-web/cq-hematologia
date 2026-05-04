@@ -48,3 +48,59 @@ export interface NaoConformidade {
   moduloOrigemId?: string; // 'equipamento', 'pessoas', 'procedimentos', etc
   origemId?: string; // FK to specific resource (equipId, userId, popId, etc)
 }
+
+// ADR 0001 Wave 2 — Compliance Reporting Types
+export interface QualidadeAuditEntry {
+  labId: string;
+  operation: string;
+  modulo: string;
+  acao: string;
+  resultado: 'sucesso' | 'falha' | 'aviso';
+  operatorId: string;
+  payload: Record<string, any>;
+  timestamp: admin.firestore.Timestamp;
+  deletadoEm: null;
+  previousHash: string | null;
+  hmac: string;
+  hash: string;
+}
+
+export interface AuditTrailFilters {
+  modulo?: string;
+  operadorId?: string;
+  resultado?: string;
+}
+
+export interface ComplianceReport {
+  labId: string;
+  generatedAt: admin.firestore.Timestamp;
+  generatedBy: string;
+  dateRange: {
+    inicio: Date;
+    fim: Date;
+  };
+  summary: {
+    totalEntries: number;
+    operatorsInvolved: number;
+    modulesCovered: string[];
+    successCount: number;
+    failureCount: number;
+    warningCount: number;
+  };
+  chainStatus: 'válida' | 'inválida' | 'parcial';
+  chainViolations?: Array<{
+    entryId: string;
+    reason: string;
+  }>;
+  rdc978Compliance: {
+    auditTrailComplete: boolean;
+    noGapsinSequence: boolean;
+    hmacIntegrityValid: boolean;
+  };
+  dicq44Compliance: {
+    entriesImmutable: boolean;
+    operatorIdentification: boolean;
+    timestampServerGenerated: boolean;
+    auditTrailIsolated: boolean;
+  };
+}

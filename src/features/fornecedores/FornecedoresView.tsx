@@ -32,9 +32,19 @@ import type { NotaFiscal } from './types/NotaFiscal';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function formatDate(ts: { toDate: () => Date } | null | undefined): string {
+function formatDate(ts: { toDate: () => Date } | Date | string | null | undefined): string {
   if (!ts) return '—';
-  return ts.toDate().toLocaleDateString('pt-BR');
+  let date: Date;
+  if (ts instanceof Date) {
+    date = ts;
+  } else if (typeof ts === 'string') {
+    date = new Date(ts);
+  } else if (ts && typeof ts.toDate === 'function') {
+    date = ts.toDate();
+  } else {
+    return '—';
+  }
+  return date.toLocaleDateString('pt-BR');
 }
 
 function formatBRL(value: number | undefined): string {

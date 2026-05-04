@@ -1,6 +1,6 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
-import type { AuditEntry, ComplianceReport, ChainValidationResult, AuditTrailFilters } from './types';
+import type { QualidadeAuditEntry, ComplianceReport, AuditTrailFilters } from './types';
 import {
   signAuditEntry,
   validateChainIntegrity,
@@ -29,7 +29,7 @@ export const logAction = onCall(
 
     try {
       const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
-      const entry: Partial<AuditEntry> = {
+      const entry: Partial<QualidadeAuditEntry> = {
         labId,
         operation,
         modulo,
@@ -181,7 +181,7 @@ export const generateComplianceReport = onCall(
       const entries = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      })) as (AuditEntry & { id: string })[];
+      })) as (QualidadeAuditEntry & { id: string })[];
 
       // Analyze entries
       const operators = new Set<string>();
@@ -205,7 +205,7 @@ export const generateComplianceReport = onCall(
       if (secret && entries.length > 0) {
         let previousHash: string | null = null;
         for (const entry of entries) {
-          const verification = verifyAuditEntry(entry, secret);
+          const verification = verifyAuditEntry(entry as any, secret);
           if (!verification.valid) {
             chainStatus = 'inválida';
             chainViolations.push({

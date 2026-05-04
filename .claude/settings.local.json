@@ -38,7 +38,11 @@
       "Bash(node backfill-notaFiscal.mjs --labId=labclin-riopomba)",
       "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
       "Bash(netstat -ano)",
-      "Bash(findstr :5173)"
+      "Bash(findstr :5173)",
+      "Skill(gsd-resume-work)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "firebase"
+  ]
 }

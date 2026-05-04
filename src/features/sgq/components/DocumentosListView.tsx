@@ -232,7 +232,11 @@ function DocumentoRow({
         </span>
       </td>
       <td className="px-4 py-2.5 text-white/50 text-xs">
-        {doc.proximaRevisao.toDate().toLocaleDateString('pt-BR')}
+        {(doc.proximaRevisao && typeof doc.proximaRevisao.toDate === 'function'
+          ? doc.proximaRevisao.toDate().toLocaleDateString('pt-BR')
+          : doc.proximaRevisao instanceof Date
+            ? doc.proximaRevisao.toLocaleDateString('pt-BR')
+            : '—')}
       </td>
       <td className="px-4 py-2.5 text-right">
         <div className="inline-flex items-center gap-1 justify-end">
