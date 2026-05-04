@@ -1,0 +1,60 @@
+# HC Quality — Current State
+
+**Last updated**: 2026-05-04 (Session 2026-05-04 — Phase 2 Production Deploy)
+
+---
+
+## Phase 2 Batch 1 — DEPLOYED ✅
+
+**Status**: Production live (hmatologia2)
+
+### Deliverables
+
+| ADR | Module | Status | Commit |
+|-----|--------|--------|--------|
+| 0001 | Audit Trail (RDC 978 5.3) | ✅ Wave 2 callable complete | 085d5f1 |
+| 0003 | NC Blocking Gates (RDC 978 4.2.1) | ✅ Wave 5 E2E tests complete | 085d5f1 |
+| 0004 | POPs Versionamento | ✅ Wave 3 UI + smoke tested | be35a40 |
+
+### Production Status
+
+- **Type-check**: ✅ tsc --noEmit clean
+- **Build**: ✅ npm run build (33.56s)
+- **Firestore rules**: ✅ Deployed to cloud.firestore
+- **Functions**: ✅ All functions deployed (57 callables + triggers)
+- **E2E tests**: ⏳ Smoke test in progress (6 specs)
+- **Hosting**: ✅ Phase 1 code live (hmatologia2.web.app)
+
+### Next Batch
+
+**Phase 2 Batch 2 — Scheduled for**: 2026-05-11 (provisional)
+
+Modules to tackle:
+- `controle-temperatura` (FR-11 IoT calibration + rules)
+- `educacao-continuada` (Edge cases + UI refinement)
+- `sgq/pops` (Cross-audit linking + report generation)
+
+---
+
+## Roadmap
+
+| Phase | Status | Modules | Go-live |
+|-------|--------|---------|---------|
+| Phase 1 | ✅ Complete | 13 core modules | 2026-04 |
+| Phase 2 Batch 1 | ✅ Deployed | auditoria + pops + nc-gates | 2026-05-04 |
+| Phase 2 Batch 2 | 🔄 Planning | temp-control + ec-refinement | 2026-05 (est) |
+| Phase 3 | 📋 Backlog | Analytics + Data Export + Mobile | Q3 2026 |
+
+---
+
+## Production Labs
+
+- `labclin-riopomba` — Active (backfills sealed ✅)
+
+---
+
+## Documentation
+
+- ADRs: `docs/adr/` (0001–0007 implemented)
+- Backfill runbook: `.claude/docs/BACKFILL_RUNBOOK.md`
+- Phase 2 context: `.planning/.continue-here.md`
