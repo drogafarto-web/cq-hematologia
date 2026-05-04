@@ -9,7 +9,8 @@ import {
   serverTimestamp,
   type Unsubscribe,
 } from 'firebase/firestore';
-import { db } from '../../../shared/services/firebase';
+import { httpsCallable } from 'firebase/functions';
+import { db, functions } from '../../../shared/services/firebase';
 import type { Auditoria, AuditoriaFilters } from '../types/Auditoria';
 
 const auditoriaCollection = (labId: string) =>
@@ -118,4 +119,80 @@ export async function getAuditoriasByEscopo(
     ),
   );
   return snap.docs.map((d) => d.data() as Auditoria);
+}
+
+// ─── Create Auditoria (via Cloud Function callable) ─────────────────────────
+
+export async function createAuditoria(
+  labId: string,
+  codigo: string,
+  titulo: string,
+  tipo: 'interna' | 'externa' | 'auditoria_cliente',
+  escopo: string,
+  agendadaPara: Date,
+): Promise<string> {
+  const callable = httpsCallable(functions, 'createAuditoria');
+  const result: any = await callable({
+    labId,
+    codigo,
+    titulo,
+    tipo,
+    escopo,
+    agendadaPara: agendadaPara.toISOString(),
+  });
+  return result.data.auditoriaId;
+}
+
+// ─── Register Achado (via Cloud Function callable) ──────────────────────────
+
+export async function registerAchado(
+  labId: string,
+  auditoriaId: string,
+  descricao: string,
+  severidade: 'critica' | 'grave' | 'moderada' | 'leve' | 'observacao',
+  criterio: string,
+  evidencias?: string[],
+): Promise<{ achadoId: string; requerNCAutomatica: boolean }> {
+  const callable = httpsCallable(functions, 'registerAchado');
+  const result: any = await callable({
+    labId,
+    auditoriaId,
+    descricao,
+    severidade,
+    criterio,
+    evidencias,
+  });
+  return {
+    achadoId: result.data.achadoId,
+    requerNCAutomatica: result.data.requerNCAutomatica,
+  };
+}
+
+// ─── Create Plano de Ação (via Cloud Function callable) ──────────────────────
+
+export async function createPlanoAcao(
+  labId: string,
+  auditoriaId: string,
+  achadoId: string,
+  descricao: string,
+  responsavel: string,
+  prazo: Date,
+): Promise<string> {
+  const callable = httpsCallable(functions, 'createPlanoAcao');
+  const result: any = await callable({
+    labId,
+    auditoriaId,
+    achadoId,
+    descricao,
+    responsavel,
+    prazo: prazo.toISOString(),
+  });
+  return result.data.planoId;
+}
+
+// ─── Close Auditoria (via Cloud Function callable) ────────────────────────
+
+export async function closeAuditoria(labId: string, auditoriaId: string): Promise<void> {
+  const callable = httpsCallable(functions, 'closeAuditoria');
+  await callable({ labId, auditoriaId });
 }

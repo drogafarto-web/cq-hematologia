@@ -12,7 +12,8 @@ import {
   type Unsubscribe,
   serverTimestamp,
 } from 'firebase/firestore';
-import { db } from '../../../shared/services/firebase';
+import { httpsCallable } from 'firebase/functions';
+import { db, functions } from '../../../shared/services/firebase';
 import type { POP, POPInput, POPFilters } from '../types/POP';
 
 const popsCollection = (labId: string) => collection(db, `labs/${labId}/pops`);
@@ -67,23 +68,19 @@ export async function getPOP(labId: string, popId: string): Promise<POP | null> 
   return snap.empty ? null : (snap.docs[0].data() as POP);
 }
 
-// ─── Create POP (thin wrapper — actual callable is in Cloud Functions) ─────
+// ─── Create POP (via Cloud Function callable) ──────────────────────────────
 
 export async function createPOPClient(labId: string, input: POPInput): Promise<string> {
-  const newRef = doc(popsCollection(labId));
-
-  const pop: POP = {
-    ...input,
-    id: newRef.id,
+  const callable = httpsCallable(functions, 'createPOP');
+  const result: any = await callable({
     labId,
-    versoes: [],
-    criadoEm: Timestamp.now(),
-    criadoPor: '', // Set by callable
-    deletadoEm: null,
-  };
-
-  await setDoc(newRef, pop);
-  return newRef.id;
+    nome: input.nome,
+    codigo: input.codigo,
+    modulos: input.modulos,
+    conteudo: input.conteudo,
+    treinamentosObrigatorios: input.treinamentosObrigatorios,
+  });
+  return result.data.popId;
 }
 
 // ─── Update POP ────────────────────────────────────────────────────────────
@@ -131,4 +128,44 @@ export async function getPOPsByModulo(labId: string, modulo: string): Promise<PO
   );
   const snap = await getDocs(q);
   return snap.docs.map((d) => d.data() as POP);
+}
+
+// ─── Create POP Version (via Cloud Function callable) ────────────────────────
+
+export async function createPOPVersion(
+  labId: string,
+  popId: string,
+  conteudo: { markdown?: string; pdfUrl?: string },
+  isMajorVersion?: boolean,
+): Promise<{ versao: string; status: string }> {
+  const callable = httpsCallable(functions, 'createPOPVersion');
+  const result: any = await callable({
+    labId,
+    popId,
+    conteudo,
+    isMajorVersion,
+  });
+  return {
+    versao: result.data.versao,
+    status: result.data.status,
+  };
+}
+
+// ─── POP Signature by RT (via Cloud Function callable) ────────────────────────
+
+export async function signPOPVersion(
+  labId: string,
+  popId: string,
+  versao: string,
+): Promise<{ status: string; assinadoPor: string }> {
+  const callable = httpsCallable(functions, 'assinaturaRT');
+  const result: any = await callable({
+    labId,
+    popId,
+    versao,
+  });
+  return {
+    status: result.data.status,
+    assinadoPor: result.data.assinadoPor,
+  };
 }

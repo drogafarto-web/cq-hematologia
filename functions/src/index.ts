@@ -194,6 +194,18 @@ export {
   recordarTreinamentoPOP,
 } from './modules/procedimentos/pop';
 
+// ─── auditoria module (ADR 0004 — Internal Audit + Findings → NC Auto-gen) ────
+// createAuditoria: create internal audit with scope and scheduled date
+// registerAchado: record audit findings (grave/critica trigger NC auto-gen dialog)
+// createPlanoAcao: action plan for closure (CAPA workflow)
+// closeAuditoria: mark audit as fechada
+export {
+  createAuditoria,
+  registerAchado,
+  createPlanoAcao,
+  closeAuditoria,
+} from './modules/auditoria/auditoria';
+
 // ─── equipamentos module (ADR 0007 — Equipment Calibration Gate) ──────────────
 // Equipment qualifications: calibration + maintenance scheduling
 // criarEquipamento: create equipment record (admin/RT only)
