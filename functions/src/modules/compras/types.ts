@@ -43,7 +43,7 @@ export interface NotaFiscal {
   labId: string;
   numero: string;
   serie: string;
-  dataEmissao: string; // YYYY-MM-DD
+  dataEmissao: Timestamp; // Converterá de string (ISO) client-side antes de salvar
   dataRecebimento?: Timestamp;
   fornecedorId: string;
   fornecedorRazaoSocial?: string;

@@ -43,12 +43,29 @@ export const criarNotaFiscal = functions.onCall(async (request) => {
 
   const nfRef = db.collection(`labs/${labId}/notas-fiscais`).doc();
 
+  // Convert dataEmissao: string (ISO) → Timestamp
+  let dataEmissaoTs: admin.firestore.Timestamp;
+  try {
+    if (typeof dataEmissao === 'string') {
+      dataEmissaoTs = admin.firestore.Timestamp.fromDate(new Date(`${dataEmissao}T00:00:00`));
+    } else if (dataEmissao instanceof admin.firestore.Timestamp) {
+      dataEmissaoTs = dataEmissao;
+    } else {
+      throw new Error('dataEmissao deve ser string ISO ou Timestamp');
+    }
+  } catch (err) {
+    throw new functions.HttpsError(
+      'invalid-argument',
+      `dataEmissao inválida: ${err instanceof Error ? err.message : String(err)}`
+    );
+  }
+
   const notaFiscal: NotaFiscal = {
     id: nfRef.id,
     labId,
     numero,
     serie,
-    dataEmissao,
+    dataEmissao: dataEmissaoTs,
     fornecedorId,
     itens: itens as NotaFiscalItem[],
     valorTotal,
