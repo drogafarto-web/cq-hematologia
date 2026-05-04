@@ -1145,21 +1145,8 @@ service cloud.firestore {
       match /naoConformidades/{ncId} {
         allow read: if isSuperAdmin() ||
                        (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'));
-        allow create: if isSuperAdmin() ||
-                         (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'))
-                       && labIdMatches(request.resource.data)
-                       && request.resource.data.deletadoEm == null
-                       && request.resource.data.codigo is string
-                       && request.resource.data.titulo is string
-                       && request.resource.data.severidade in ['critica', 'grave', 'moderada', 'leve']
-                       && request.resource.data.origem in ['auditoria', 'modulo', 'cliente', 'interno']
-                       && request.resource.data.bloqueiaOperacoes is bool
-                       && request.resource.data.capaStatus in ['nao_iniciada', 'investigacao', 'acao', 'eficacia', 'fechada', 'reaberta'];
-        allow update: if isSuperAdmin() ||
-                         (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'))
-                       && keepsLabId()
-                       && keepsCreatedAt()
-                       && request.resource.data.deletadoEm == null;
+        allow create: if false;  // Via callable only (Wave 4)
+        allow update: if false;  // Via callable only (Wave 4)
         allow delete: if false;  // Soft-delete only
       }
 
