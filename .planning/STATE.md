@@ -250,10 +250,10 @@ progress:
 
 ---
 
-**Last edit:** 2026-05-03 00:15 — ADR 0004 Wave 1 COMPLETE  
-**Artifacts:** 22 files (code + docs + scripts)  
-**Lines of code:** ~2,500 base + ~1,500 ADR 0004 Wave 1 (types + CF stubs + validators)  
-**Coverage:** ADRs 0005, 0002, 0006 (partial) + ADR 0004 schema design complete
+**Last edit:** 2026-05-04 03:45 UTC — PHASE 1 DEPLOYED TO PRODUCTION  
+**Deployment:** Rules + Functions + Secrets + Backfill completed  
+**Status:** ✅ ADRs 0005, 0002, 0006, 0004-Wave1 live in hmatologia2  
+**Next:** ADR 0003 (NC global spine) + ADR 0004 Wave 2 (POP Cloud Functions)
 
 ---
 
