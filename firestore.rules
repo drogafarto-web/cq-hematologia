@@ -1146,6 +1146,25 @@ service cloud.firestore {
                        && request.resource.data.deletadoEm == null;
         allow delete: if false;  // Soft-delete only
       }
+
+      // ── Treinamentos — Phase 2 Batch 2 (Training Registry) ──────────────
+      match /treinamentos/{treinamentoId} {
+        allow read: if isSuperAdmin() ||
+                       (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'));
+        allow create: if isSuperAdmin() ||
+                         (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'))
+                       && labIdMatches(request.resource.data)
+                       && request.resource.data.deletadoEm == null
+                       && request.resource.data.popId is string
+                       && request.resource.data.tipo in ['inicial', 'reciclagem', 'complementar']
+                       && request.resource.data.participantes is list;
+        allow update: if isSuperAdmin() ||
+                         (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'))
+                       && keepsLabId()
+                       && keepsCreatedAt()
+                       && request.resource.data.deletadoEm == null;
+        allow delete: if false;  // Soft-delete only
+      }
     }
   }
 }
