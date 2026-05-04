@@ -32,25 +32,24 @@ export const investigarNC = onCall(
       const nc = ncSnap.data() as NaoConformidade;
 
       const updateData: Partial<NaoConformidade> = {
-        status: 'investig',
-        capa: {
-          ...nc.capa,
-          investigacao: {
-            realizada: true,
-            dataInicio: nc.capa?.investigacao?.dataInicio || (admin.firestore.FieldValue.serverTimestamp() as any),
-            dataFim: admin.firestore.FieldValue.serverTimestamp() as any,
+        capaStatus: 'investigacao',
+        capaHistorico: [
+          ...(nc.capaHistorico || []),
+          {
+            estado: 'investigacao',
+            dataTransicao: admin.firestore.FieldValue.serverTimestamp() as any,
+            responsavel: request.auth.uid,
             descricao,
-            investigadorId: request.auth.uid,
             achados: achados || [],
           },
-        },
-        updatedAt: admin.firestore.FieldValue.serverTimestamp() as any,
+        ],
+        atualizadoEm: admin.firestore.FieldValue.serverTimestamp() as any,
       };
 
       const signedEntry = await signAuditEntry(
         `/labs/${labId}/naoConformidades`,
         request.auth.uid,
-        `nc.investigate.${nc.numero}`,
+        `nc.investigate.${nc.codigo}`,
         updateData,
         secret
       );
@@ -94,23 +93,24 @@ export const executarAcaoCorretiva = onCall(
       const nc = ncSnap.data() as NaoConformidade;
 
       const updateData: Partial<NaoConformidade> = {
-        status: 'acaoCorretiva',
-        capa: {
-          ...nc.capa,
-          acaoCorretiva: {
+        capaStatus: 'acao',
+        capaHistorico: [
+          ...(nc.capaHistorico || []),
+          {
+            estado: 'acao',
+            dataTransicao: admin.firestore.FieldValue.serverTimestamp() as any,
+            responsavel: request.auth.uid,
             descricao,
             dataPrevista: new admin.firestore.Timestamp(Math.floor(dataPrevista / 1000), 0),
-            responsavel: request.auth.uid,
-            status: 'planejada',
           },
-        },
-        updatedAt: admin.firestore.FieldValue.serverTimestamp() as any,
+        ],
+        atualizadoEm: admin.firestore.FieldValue.serverTimestamp() as any,
       };
 
       const signedEntry = await signAuditEntry(
         `/labs/${labId}/naoConformidades`,
         request.auth.uid,
-        `nc.acaoCorretiva.${nc.numero}`,
+        `nc.acaoCorretiva.${nc.codigo}`,
         updateData,
         secret
       );
@@ -157,35 +157,27 @@ export const verificarEficacia = onCall(
 
       const nc = ncSnap.data() as NaoConformidade;
 
-      const novoStatus = resultado === 'eficaz' ? 'fechada' : resultado === 'ineficaz' ? 'investig' : 'verif_eficacia';
+      const novoCapaStatus = resultado === 'eficaz' ? 'fechada' : resultado === 'ineficaz' ? 'investigacao' : 'eficacia';
 
       const updateData: Partial<NaoConformidade> = {
-        status: novoStatus as any,
-        capa: {
-          ...nc.capa,
-          verificacaoEficacia: {
-            realizada: true,
+        capaStatus: novoCapaStatus,
+        capaHistorico: [
+          ...(nc.capaHistorico || []),
+          {
+            estado: novoCapaStatus,
+            dataTransicao: admin.firestore.FieldValue.serverTimestamp() as any,
+            responsavel: request.auth.uid,
             resultado: resultado as any,
-            dataVerificacao: admin.firestore.FieldValue.serverTimestamp() as any,
-            verificadoPor: request.auth.uid,
             evidencia: evidencia || '',
           },
-          reabertura: resultado === 'ineficaz',
-        },
-        ...(novoStatus === 'fechada' && {
-          fechada: {
-            timestamp: admin.firestore.FieldValue.serverTimestamp() as any,
-            uid: request.auth.uid,
-            motivo: 'Ação corretiva verificada como eficaz',
-          },
-        }),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp() as any,
+        ],
+        atualizadoEm: admin.firestore.FieldValue.serverTimestamp() as any,
       };
 
       const signedEntry = await signAuditEntry(
         `/labs/${labId}/naoConformidades`,
         request.auth.uid,
-        `nc.verificaEficacia.${nc.numero}`,
+        `nc.verificaEficacia.${nc.codigo}`,
         updateData,
         secret
       );
@@ -195,7 +187,7 @@ export const verificarEficacia = onCall(
 
       await ncRef.update(updateData);
 
-      return { success: true, ncId, status: novoStatus };
+      return { success: true, ncId, status: novoCapaStatus };
     } catch (error: any) {
       throw new HttpsError('internal', error.message || 'Erro na verificação de eficacia');
     }
