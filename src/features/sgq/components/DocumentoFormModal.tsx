@@ -33,8 +33,17 @@ export interface DocumentoFormModalProps {
   onSubmit: (input: DocumentoInput, mode: 'criar' | 'editar' | 'revisao') => Promise<void>;
 }
 
-function toDateInput(ts: Timestamp): string {
-  const d = ts.toDate();
+function toDateInput(ts: Timestamp | string | Date | any): string {
+  let d: Date;
+  if (ts instanceof Timestamp) {
+    d = ts.toDate();
+  } else if (ts instanceof Date) {
+    d = ts;
+  } else if (typeof ts === 'string') {
+    d = new Date(ts);
+  } else {
+    d = new Date();
+  }
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
