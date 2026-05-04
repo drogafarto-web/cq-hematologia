@@ -229,6 +229,39 @@ export {
   emitirCertificado,
 } from './modules/treinamentos/treinamentos';
 
+// ─── pgrss module (Phase 2 Batch 2 — Waste Management RDC 222/2018) ─────────────
+// registrarGeracao: record waste generation with type + quantity
+// registrarColeta: collection tracking with evidence (PDF)
+// validarSegregacao: check segregation rule violations
+// gerarRelatorioMensal: monthly compliance report (scheduled)
+export {
+  registrarGeracao,
+  registrarColeta,
+  validarSegregacao,
+  gerarRelatorioMensal,
+} from './modules/pgrss/index';
+
+// ─── kpis module (Phase 2 Batch 2 — Metrics Dashboard) ────────────────────────
+// aggregateKPIs: daily scheduled aggregation (00:00 UTC)
+//   - Turnaround (creation → release time)
+//   - Rework% (repeat runs)
+//   - Conformance% (popId + equipId + operadorId)
+//   - NC origins (count by module)
+//   - SLA compliance tracking + alerts
+export { aggregateKPIs } from './modules/kpis/index';
+
+// ─── lgpd module (Phase 2 Batch 2 — Data Privacy + Deletion) ─────────────────
+// criarSolicitacao: initiate access/deletion/rectification requests (30-day SLA)
+// processarExclusao: anonymization pipeline (hash PII, randomize names, archive, verify)
+// gerarDPIA: Data Protection Impact Assessment template generation
+// scheduledProcessarSolicitacoesVencidas: cleanup task for expired requests
+export {
+  criarSolicitacao,
+  processarExclusao,
+  gerarDPIA,
+  scheduledProcessarSolicitacoesVencidas,
+} from './modules/lgpd/index';
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
