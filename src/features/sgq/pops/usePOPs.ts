@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useActiveLabId } from '../../../store/useAuthStore';
-import type { POP, POPFilters } from '../types/POP';
-import { subscribePOPs } from './popsService';
+import type { POP, POPFilters, POPInput } from '../types/POP';
+import { subscribePOPs, createPOPClient, updatePOP, softDeletePOP } from './popsService';
 
 export function usePOPs(filters: POPFilters = {}) {
   const labId = useActiveLabId();
@@ -34,5 +34,29 @@ export function usePOPs(filters: POPFilters = {}) {
     return unsubscribe;
   }, [labId, JSON.stringify(filters)]);
 
-  return { pops, loading, error };
+  const criar = useCallback(
+    async (input: POPInput) => {
+      if (!labId) throw new Error('Lab não selecionado');
+      return createPOPClient(labId, input);
+    },
+    [labId],
+  );
+
+  const atualizar = useCallback(
+    async (popId: string, updates: Partial<Omit<POP, 'id' | 'labId' | 'criadoEm' | 'criadoPor'>>) => {
+      if (!labId) throw new Error('Lab não selecionado');
+      return updatePOP(labId, popId, updates);
+    },
+    [labId],
+  );
+
+  const deletar = useCallback(
+    async (popId: string) => {
+      if (!labId) throw new Error('Lab não selecionado');
+      return softDeletePOP(labId, popId);
+    },
+    [labId],
+  );
+
+  return { pops, loading, error, criar, atualizar, deletar };
 }
