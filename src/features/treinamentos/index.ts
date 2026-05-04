@@ -3,7 +3,7 @@ export type { Treinamento, TreinamentoInput, TreinamentoCreationRequest, Treinam
 export { TIPO_LABEL, STATUS_LABEL, isTreinamentoPendente, isTreinamentoRealizado, diasAteVencimentoCertificado, calcularFrequencia } from './types/Treinamento';
 
 // Service
-export { subscribeTrainamentos, getTreinamento, getTreinamentosByPopId, getTreinamentosAtrasados, getTreinamentosCertificadosVencendo, registrarPresenca, updateTreinamentoStatus, emitirCertificado, softDeleteTreinamento } from './treinamentoService';
+export { subscribeTrainamentos, getTreinamento, getTreinamentosByPopId, getTreinamentosAtrasados, registrarPresenca, updateTreinamentoStatus, emitirCertificado, softDeleteTreinamento } from './treinamentoService';
 
 // Hook
 export { useTreinamentos } from './useTreinamentos';

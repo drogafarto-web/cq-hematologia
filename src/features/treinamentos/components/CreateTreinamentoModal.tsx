@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../../../shared/services/firebase';
-import { useAuthStore } from '../../../store/useAuthStore';
+import { useActiveLabId, useUser } from '../../../store/useAuthStore';
 import { TIPO_LABEL } from '../types/Treinamento';
 import type { TipoTreinamento } from '../types/Treinamento';
 
@@ -12,8 +12,9 @@ interface CreateTreinamentoModalProps {
 }
 
 export function CreateTreinamentoModal({ isOpen, onClose, onSuccess }: CreateTreinamentoModalProps) {
-  const labId = useAuthStore((s) => s.activeLabId as string);
-  const uid = useAuthStore((s) => s.currentUser?.uid as string);
+  const labId = useActiveLabId();
+  const user = useUser();
+  const uid = user?.uid;
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
