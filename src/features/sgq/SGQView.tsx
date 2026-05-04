@@ -15,6 +15,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { DocumentoFormModal } from './components/DocumentoFormModal';
 import { DocumentosListView } from './components/DocumentosListView';
 import { ImportarLM01Modal } from './components/ImportarLM01Modal';
+import POPsList from './pops/components/POPsList';
 import { useDocumentos } from './hooks/useDocumentos';
 import {
   isVencido,
@@ -29,6 +30,7 @@ import {
 
 type FiltroTipo = TipoDocumento | 'todos';
 type FiltroStatus = StatusDocumento | 'todos';
+type SGQTab = 'documentos' | 'procedimentos';
 
 interface ConfirmacaoState {
   doc: Documento;
@@ -39,6 +41,7 @@ interface ConfirmacaoState {
 export function SGQView() {
   const setCurrentView = useAppStore((s) => s.setCurrentView);
 
+  const [tab, setTab] = useState<SGQTab>('documentos');
   const [filtroTipo, setFiltroTipo] = useState<FiltroTipo>('todos');
   const [filtroStatus, setFiltroStatus] = useState<FiltroStatus>('todos');
   const [incluirObsoletos, setIncluirObsoletos] = useState(false);
@@ -153,49 +156,73 @@ export function SGQView() {
     <div className="min-h-screen bg-[#0B0F14] text-white">
       {/* ── Topbar ─────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-20 border-b border-white/[0.06] bg-[#0B0F14]/95 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center gap-4">
-          <button
-            type="button"
-            onClick={() => setCurrentView('hub')}
-            className="text-xs text-white/50 hover:text-white/85"
-          >
-            ← Hub
-          </button>
-          <h1 className="text-base font-semibold">Gestão Documental</h1>
-          <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            DICQ 4.3
-          </span>
-          <div className="flex-1" />
-          <button
-            type="button"
-            onClick={() => setImporting(true)}
-            className="px-3 py-1.5 rounded-md text-sm font-medium text-white/65 hover:text-white/90 hover:bg-white/[0.05] transition-all"
-            title="Importa LM-01 (Lista Mestra) do Drive em bulk via TSV"
-          >
-            Importar LM-01
-          </button>
-          <details className="relative">
-            <summary className="list-none cursor-pointer px-3 py-1.5 rounded-md bg-emerald-500 text-slate-950 text-sm font-semibold hover:bg-emerald-400">
-              + Novo documento
-            </summary>
-            <div className="absolute right-0 top-10 z-30 w-56 rounded-xl bg-[#151d2a] border border-white/[0.1] shadow-2xl py-1">
-              {(['MQ', 'PQ', 'IT', 'FR', 'POL'] as TipoDocumento[]).map((t) => (
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="h-14 flex items-center gap-4 border-b border-white/[0.06]">
+            <button
+              type="button"
+              onClick={() => setCurrentView('hub')}
+              className="text-xs text-white/50 hover:text-white/85"
+            >
+              ← Hub
+            </button>
+            <h1 className="text-base font-semibold">Gestão Documental</h1>
+            <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              DICQ 4.3
+            </span>
+            <div className="flex-1" />
+            {tab === 'documentos' && (
+              <>
                 <button
-                  key={t}
                   type="button"
-                  onClick={() => setCriando(t)}
-                  className="w-full text-left px-4 py-2 text-sm text-white/70 hover:bg-white/[0.05] hover:text-white"
+                  onClick={() => setImporting(true)}
+                  className="px-3 py-1.5 rounded-md text-sm font-medium text-white/65 hover:text-white/90 hover:bg-white/[0.05] transition-all"
+                  title="Importa LM-01 (Lista Mestra) do Drive em bulk via TSV"
                 >
-                  <span className="font-mono text-emerald-400 mr-2">{t}</span>
-                  <span className="text-white/60">{TIPO_LABEL[t]}</span>
+                  Importar LM-01
                 </button>
-              ))}
-            </div>
-          </details>
+                <details className="relative">
+                  <summary className="list-none cursor-pointer px-3 py-1.5 rounded-md bg-emerald-500 text-slate-950 text-sm font-semibold hover:bg-emerald-400">
+                    + Novo documento
+                  </summary>
+                  <div className="absolute right-0 top-10 z-30 w-56 rounded-xl bg-[#151d2a] border border-white/[0.1] shadow-2xl py-1">
+                    {(['MQ', 'PQ', 'IT', 'FR', 'POL'] as TipoDocumento[]).map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => setCriando(t)}
+                        className="w-full text-left px-4 py-2 text-sm text-white/70 hover:bg-white/[0.05] hover:text-white"
+                      >
+                        <span className="font-mono text-emerald-400 mr-2">{t}</span>
+                        <span className="text-white/60">{TIPO_LABEL[t]}</span>
+                      </button>
+                    ))}
+                  </div>
+                </details>
+              </>
+            )}
+          </div>
+          <div className="flex items-center gap-1">
+            {(['documentos', 'procedimentos'] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTab(t)}
+                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  tab === t
+                    ? 'border-emerald-500 text-white'
+                    : 'border-transparent text-white/50 hover:text-white/70'
+                }`}
+              >
+                {t === 'documentos' ? 'Documentos' : 'Procedimentos'}
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-6 space-y-6">
+        {tab === 'documentos' && (
+        <>
         {/* ── KPIs ──────────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           <Kpi label="Documentos" value={kpis.total} />
@@ -212,6 +239,8 @@ export function SGQView() {
             tone={kpis.vencidos > 0 ? 'red' : 'slate'}
           />
         </div>
+        </>
+        )}
 
         {/* ── Aviso de bootstrapping ───────────────────────────────── */}
         {documentos.length === 0 && (
@@ -240,6 +269,8 @@ export function SGQView() {
           </div>
         )}
 
+        {tab === 'documentos' && (
+        <>
         {erro && (
           <div role="alert" className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
             {erro}
@@ -261,6 +292,12 @@ export function SGQView() {
           onMudarStatus={handleMudarStatus}
           onRemover={handleRemover}
         />
+        </>
+        )}
+
+        {tab === 'procedimentos' && (
+          <POPsList />
+        )}
       </main>
 
       {/* ── Modais ─────────────────────────────────────────────────── */}
