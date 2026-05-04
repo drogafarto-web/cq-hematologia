@@ -88,37 +88,21 @@ Registradas em `functions/src/index.ts`:
 
 ## Status atual
 
-**Fase:** módulo em desenvolvimento — ainda não deployado em prod (firestore.rules do bloco `/controleTemperatura/{labId}/**` pendente — ver CT-04).
-**Próximo passo prioritário:** escrever rules + deploy (CT-04) para habilitar acesso; em seguida migração de assinatura para Cloud Function (CT-01).
+**Fase:** Em produção desde 2026-05-04 (Phase 2 Batch 1 deployment).
+**Última atualização:** Assinatura migrada para callable (CT-01 ✅); Firestore rules deployadas (CT-04 ✅).
+**Próximo passo:** Resolver débitos CT-02 a CT-06 (não bloqueiam MVP).
 
 ## Débitos técnicos
 
-- **CT-01** — Assinatura ainda gerada client-side. Migrar para callable Admin
-  SDK (mesmo caminho do módulo EC na Fase 0b). Arquivo:
-  `services/ctSignatureService.ts`.
-- **CT-02** — Token de dispositivo gerado client-side. Aceitável pra MVP,
-  upgrade drop-in via callable `ct_mintDeviceToken` (não muda contrato de
-  `DispositivoInput`).
-- **CT-03** — Calendário ignora feriados (cai no bucket `diasUteis`).
-  Integrar lookup de feriados nacionais/municipais antes de ir pra produção
-  em labs 24/7.
-- **CT-04** — firestore.rules **não foi atualizado** nesta sessão (fora do
-  escopo autorizado). Adicionar antes do deploy:
+**Concluídos:**
+- ✅ **CT-01** (2026-05-04) — Assinatura migrada para callable `ct_commitLeitura` (Cloud Function admin SDK). Client-side mantém apenas `verifyCtSignature` para auditoria histórica. Arquivo: `services/ctSignatureService.ts`.
+- ✅ **CT-04** (2026-05-04) — Firestore rules completo (180 linhas) com schema strict, gate `hasModuleAccess('controle-temperatura')`, soft-delete enforçado. Deployed em produção.
 
-  ```
-  match /controleTemperatura/{labId}/{document=**} {
-    allow read, write: if isSuperAdmin() || isActiveMemberOf(labId);
-  }
-  ```
-
-  Sem isso, clientes levam `permission-denied` em qualquer leitura/escrita.
-
-- **CT-05** — Firestore pode exigir índice composto para a query do IoT
-  (`equipamentoId + status + dataHoraPrevista` em `leituras-previstas`).
-  Conferir no primeiro deploy via Firebase Console.
-- **CT-06** — Filtro client-side em `subscribeLeituras` por equipamentoId
-  + janela de datas. Rever se algum tenant ultrapassar ~10k leituras/mês
-  por equipamento.
+**Abertos (MVP-aceitável):**
+- **CT-02** — Token de dispositivo gerado client-side. Upgrade drop-in via callable `ct_mintDeviceToken` (não muda contrato de `DispositivoInput`). Prioridade: Baixa.
+- **CT-03** — Calendário ignora feriados (cai no bucket `diasUteis`). Integrar lookup de feriados nacionais/municipais antes de ir pra produção em labs 24/7. Prioridade: Média.
+- **CT-05** — Firestore pode exigir índice composto para a query do IoT (`equipamentoId + status + dataHoraPrevista` em `leituras-previstas`). Verificar no primeiro acesso real via Firebase Console. Prioridade: Alta.
+- **CT-06** — Filtro client-side em `subscribeLeituras` por equipamentoId + janela de datas. Rever se algum tenant ultrapassar ~10k leituras/mês por equipamento. Prioridade: Baixa.
 
 ## Roadmap IoT
 

@@ -49,7 +49,7 @@ Regras com escopo mais estreito vivem em `.claude/rules/`:
 | `coagulacao` | Em prod · CIQ coagulação | — |
 | `ciq-imuno` | Em prod · CIQ imunologia qualitativa | — |
 | `insumos` | Em prod · controle de insumos | — |
-| `controle-temperatura` | **Dev** · FR-11 + IoT ESP32 + calibração; rules pendentes antes de prod | — |
+| `controle-temperatura` | Em prod · FR-11 + IoT ESP32 + calibração + assinatura callable | 2026-05-04 |
 | `uroanalise` | Em prod · uroanálise | — |
 | `equipamentos` | Em prod · cadastro de equipamentos | — |
 | `fornecedores` | Em prod · cadastro de fornecedores | — |

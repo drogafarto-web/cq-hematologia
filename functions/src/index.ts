@@ -36,6 +36,9 @@ export {
 } from './modules/firestoreBackup/index';
 export { scheduledVerifyBackupIntegrity } from './modules/firestoreBackup/verifyIntegrity';
 
+// ─── Data migrations (one-time and scheduled) ────────────────────────────────
+export { scheduledMigrateNotaFiscalDates } from './scheduledMigrateNotaFiscalDates';
+
 // ─── insumos module ──────────────────────────────────────────────────────────
 // Scheduled expiration: move insumos vencidos (validadeReal < now) de 'ativo'
 // para 'vencido'. Manual trigger disponível para admin/owner do lab.
