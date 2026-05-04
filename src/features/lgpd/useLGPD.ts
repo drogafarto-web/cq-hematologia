@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { functions } from '../../shared/services/firebase';
 import { httpsCallable } from 'firebase/functions';
-import { useAuthStore } from '../../store/useAuthStore';
+import { useActiveLabId } from '../../store/useAuthStore';
 import {
   subscribeSolicitacoes,
   subscribeDPIAs,
@@ -17,7 +17,7 @@ import type {
  * Hook para gerenciar operações LGPD (solicitações, DPIAs, exclusão).
  */
 export function useLGPD() {
-  const { activeLabId: labId } = useAuthStore();
+  const labId = useActiveLabId();
 
   const criarSolicitacao = useCallback(
     async (titular_id: string, titular_nome: string, titular_email: string, tipo: 'acesso' | 'retificacao' | 'exclusao' | 'portabilidade', motivo?: string) => {
