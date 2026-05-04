@@ -155,9 +155,15 @@ service cloud.firestore {
       // Bloquear create completamente quebra o deleteCIQLot — manter permissão
       // até o caller ser migrado para trigger puro (backlog).
       match /ciq-audit/{docId} {
+        function hasValidSignature(d) {
+          return d.hmac is string && d.hmac.size() > 0 &&
+                 d.hash is string && d.hash.size() == 64 &&
+                 d.timestamp is timestamp;
+        }
         allow read: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
-        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId)) &&
+                       hasValidSignature(request.resource.data);
         allow update, delete: if false;
       }
 
@@ -281,8 +287,16 @@ service cloud.firestore {
       }
 
       match /notas-fiscais/{notaId} {
+        function nfIsValid(d) {
+          return d.labId == labId &&
+                 d.fornecedorId is string && d.fornecedorId.size() > 0 &&
+                 d.itens is list && d.itens.size() > 0;
+        }
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
-        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId)) &&
+                       nfIsValid(request.resource.data);
+        allow update: if (isSuperAdmin() || isActiveMemberOfLab(labId)) &&
+                       nfIsValid(request.resource.data);
         allow delete: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
       }
@@ -294,6 +308,7 @@ service cloud.firestore {
         //   approveQualificacao / reproveQualificacao (Admin SDK).
         // - status='segregado' só é set pela callable reproveQualificacao.
         // - tira-uro mantém comportamento legado (PR2 abrange esse fluxo).
+        // ADR 0002: notaFiscalId obrigatório (ou _legacyMigrated=true para backfill)
         function affectsProtectedQcFields() {
           return request.resource.data.diff(resource.data).affectedKeys()
             .hasAny(['qcStatus', 'qualificacaoId', 'qcApprovedBy', 'qcApprovedAt',
@@ -306,9 +321,14 @@ service cloud.firestore {
         function isTiraUro() {
           return resource.data.get('tipo', '') == 'tira-uro';
         }
+        function nfCompliant(d) {
+          return (d.notaFiscalId is string && d.notaFiscalId.size() > 0) ||
+                 d._legacyMigrated == true;
+        }
 
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
-        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId)) &&
+                       nfCompliant(request.resource.data);
         allow update: if (isSuperAdmin() || isActiveMemberOfLab(labId))
                       && (isTiraUro() ||
                           (!affectsProtectedQcFields() && !affectsSegregadoTransition()));
@@ -345,6 +365,24 @@ service cloud.firestore {
                           ['corrida-validacao', 'checklist-rt', 'caracterizacao-rt'];
         allow update: if false;
         allow delete: if false;
+      }
+
+      // ── /qualificacoes (ADR 0006 — Habilitação operador) ────────────────
+      // Operadores habilitados para executar procedimentos em módulos.
+      // HMAC assinado (CF only); cliente cria apenas via request assíncrono.
+      match /qualificacoes/{qualId} {
+        function qualValidNew(d) {
+          return d.labId == labId &&
+                 d.operadorId is string && d.operadorId.size() > 0 &&
+                 d.modulos is list &&
+                 d.validadeDe is timestamp &&
+                 d.validadeAte is timestamp &&
+                 d.hmac is string && d.hmac.size() > 0;
+        }
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId)) &&
+                       qualValidNew(request.resource.data);
+        allow update, delete: if false;
       }
 
       // ── /alertas (PR1 — 2026-04-26) ──────────────────────────────────────
