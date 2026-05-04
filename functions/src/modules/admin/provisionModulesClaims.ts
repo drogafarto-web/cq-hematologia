@@ -37,6 +37,10 @@ const ALL_MODULES = [
   'uroanalise',
   'educacao-continuada',
   'controle-temperatura',
+  'biosseguranca',
+  'pgrss',
+  'kpis',
+  'lgpd',
 ] as const;
 
 type ModuleKey = (typeof ALL_MODULES)[number];
@@ -50,6 +54,10 @@ function fullAccess(): ModulesClaim {
     uroanalise: true,
     'educacao-continuada': true,
     'controle-temperatura': true,
+    biosseguranca: true,
+    pgrss: true,
+    kpis: true,
+    lgpd: true,
   };
 }
 
@@ -61,6 +69,10 @@ function noAccess(): ModulesClaim {
     uroanalise: false,
     'educacao-continuada': false,
     'controle-temperatura': false,
+    biosseguranca: false,
+    pgrss: false,
+    kpis: false,
+    lgpd: false,
   };
 }
 

@@ -46,6 +46,10 @@ service cloud.firestore {
       return role == 'admin' || role == 'owner';
     }
 
+    function isAdmin(labId) {
+      return getMemberRole(labId) == 'admin';
+    }
+
     // ── Module access (claims obrigatórias — pós-provisioning) ───────────────
     // Onda 2 concluída: todo user ativo tem `modules` no token. Sem bypass.
     function hasModuleAccess(module) {
@@ -1198,6 +1202,119 @@ service cloud.firestore {
         allow create: if false;  // Via logAction callable only
         allow update: if false;  // Immutable after creation
         allow delete: if false;  // Never delete audit entries
+      }
+
+      // ── /labs/{labId}/biosseguranca-* — Phase 2 Batch 2, Task 2 ──────────
+      // Gestão de áreas de risco biosafety (NB1-NB4), EPE, inspeções com ISO 14644
+      match /biosseguranca-areas/{areaId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('biosseguranca'));
+        allow create: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('biosseguranca') && isAdmin(labId));
+        allow update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('biosseguranca') && isAdmin(labId))
+          && resource.data.criadoEm == request.resource.data.criadoEm;
+        allow delete: if false;  // Soft-delete only
+      }
+
+      match /biosseguranca-epe/{epeId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('biosseguranca'));
+        allow create: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('biosseguranca') && isAdmin(labId));
+        allow update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('biosseguranca') && isAdmin(labId));
+        allow delete: if false;  // Soft-delete only
+      }
+
+      match /biosseguranca-inspecoes/{inspId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('biosseguranca'));
+        allow create: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('biosseguranca'));
+        allow update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('biosseguranca'));
+        allow delete: if false;  // Soft-delete only
+      }
+
+      // ── /labs/{labId}/pgrss-* — Phase 2 Batch 2, Task 3 ───────────────────
+      // PGRSS: gestão de resíduos (RDC 222/2018) — segregação, coleta, comprovantes
+      match /pgrss-geracao/{geracaoId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('pgrss'));
+        allow create: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('pgrss'));
+        allow update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('pgrss'));
+        allow delete: if false;  // Soft-delete only
+      }
+
+      match /pgrss-coleta/{coletaId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('pgrss'));
+        allow create: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('pgrss'));
+        allow update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('pgrss'));
+        allow delete: if false;  // Soft-delete only
+      }
+
+      // ── /labs/{labId}/kpi-* — Phase 2 Batch 2, Task 4 ──────────────────────
+      // KPI Dashboard: turnaround, retrabalho%, conformidade, NC origem, SLA
+      match /kpi-metrics/{metricId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('kpis'));
+        allow create: if false;  // Cloud Function scheduled only
+        allow update: if false;  // Immutable after generation
+        allow delete: if false;  // Never delete metrics
+      }
+
+      match /kpi-alerts/{alertId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('kpis'));
+        allow create: if false;  // Cloud Function only
+        allow update: if false;  // Immutable after creation
+        allow delete: if false;  // Never delete alerts
+      }
+
+      // ── /labs/{labId}/lgpd-* — Phase 2 Batch 2, Task 5 ──────────────────────
+      // LGPD: política de privacidade + direitos do titular + DPIA + exclusão
+      match /lgpd-solicitacoes/{solId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('lgpd'));
+        allow create: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('lgpd')) ||
+          request.auth.uid == labId;  // Data subject can request
+        allow update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('lgpd') && isAdmin(labId));
+        allow delete: if false;  // Soft-delete only
+      }
+
+      match /lgpd-dpia/{dpiaId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('lgpd') && isAdmin(labId));
+        allow create: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('lgpd') && isAdmin(labId));
+        allow update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('lgpd') && isAdmin(labId));
+        allow delete: if false;  // Soft-delete only
+      }
+
+      match /lgpd-consentimento/{consentId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('lgpd'));
+        allow create: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('lgpd'));
+        allow update: if false;  // Immutable after consent recorded
+        allow delete: if false;  // Never delete consent records
+      }
+
+      match /lgpd-exclusao/{exclusaoId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('lgpd') && isAdmin(labId));
+        allow create: if false;  // Via callable only (verified deletion)
+        allow update: if false;  // Immutable after execution
+        allow delete: if false;  // Never delete deletion records
       }
     }
   }
