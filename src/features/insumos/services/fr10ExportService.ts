@@ -413,7 +413,12 @@ function resolveRastreabilidadeFiscal(
           numero: nota.numero,
           ...(nota.serie && { serie: nota.serie }),
           ...(nota.chaveAcesso && { chaveAcesso: nota.chaveAcesso }),
-          ...(nota.dataEmissao && { dataEmissao: nota.dataEmissao.toDate() }),
+          ...(nota.dataEmissao && {
+            dataEmissao:
+              typeof nota.dataEmissao === 'string'
+                ? new Date(nota.dataEmissao)
+                : (nota.dataEmissao as any).toDate?.() || nota.dataEmissao,
+          }),
         },
       };
     }
@@ -483,7 +488,11 @@ export function canonicalFR10(payload: FR10Payload): string {
           ...(r.notaFiscal.serie && { serie: r.notaFiscal.serie }),
           ...(r.notaFiscal.chaveAcesso && { chaveAcesso: r.notaFiscal.chaveAcesso }),
           ...(r.notaFiscal.dataEmissao && {
-            dataEmissao: r.notaFiscal.dataEmissao.toISOString(),
+            dataEmissao:
+              typeof r.notaFiscal.dataEmissao === 'string'
+                ? r.notaFiscal.dataEmissao
+                : (r.notaFiscal.dataEmissao as any).toDate?.()?.toISOString() ||
+                  r.notaFiscal.dataEmissao,
           }),
         },
       }),

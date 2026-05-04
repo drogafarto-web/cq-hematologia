@@ -53,6 +53,23 @@ const TIPO_LABEL: Record<InsumoTipo, string> = {
   'tira-uro': 'Tira Uroanálise',
 };
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function formatDataEmissao(data: string | Timestamp | Date | undefined): string {
+  if (!data) return 'N/A';
+  let date: Date;
+  if (typeof data === 'string') {
+    date = new Date(data);
+  } else if (data instanceof Date) {
+    date = data;
+  } else if (data && typeof data === 'object' && 'toDate' in data) {
+    date = (data as Timestamp).toDate();
+  } else {
+    return 'N/A';
+  }
+  return date.toLocaleDateString('pt-BR');
+}
+
 // ─── Componentes Auxiliares ───────────────────────────────────────────────────
 
 function NivelControleField({
@@ -1092,7 +1109,7 @@ function NotaFiscalPicker({
                           )}
                         </p>
                         <p className="text-[11px] text-slate-500 dark:text-white/40 truncate">
-                          Emitida {n.dataEmissao.toDate().toLocaleDateString('pt-BR')}
+                          Emitida {formatDataEmissao(n.dataEmissao)}
                           {f && ` · CNPJ ${formatCnpj(f.cnpj)}`}
                         </p>
                       </button>
