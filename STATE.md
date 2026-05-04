@@ -1,10 +1,31 @@
 # HC Quality — Current State
 
-**Last updated**: 2026-05-04 (Session 2026-05-04 — Phase 2 Production Deploy)
+**Last updated**: 2026-05-04 (Session 2026-05-04 — Phase 2 Complete)
 
 ---
 
-## Phase 2 Batch 1 & 2 — DEPLOYED ✅
+## PHASE 2 — COMPLETE ✅
+
+**Status**: Production live (hmatologia2)
+
+### Summary: Phase 2 Batch 1 + Batch 2 Closure
+
+All Phase 2 ADRs and modules deployed in two batches:
+
+**Batch 1 (2026-04-24 → 2026-05-04):**
+- ✅ ADR 0001 Wave 2: Audit Trail callable (log + get + validate + report)
+- ✅ ADR 0003 Wave 5: NC Blocking gates + 24 E2E tests
+- ✅ ADR 0004 Wave 3: POPs UI (versioning, RT training signature)
+- **Result**: sgq + pops + auditoria modules live
+
+**Batch 2 (2026-05-04):**
+- ✅ controle-temperatura: Rules (CT-01 ✅, CT-04 ✅) + UI + hosting
+- ✅ educacao-continuada: 2 new callables (trigger defense, cascade) deployed
+- **Result**: 2 additional modules + 2 new callable safeguards live
+
+---
+
+## Phase 2 Batch 1 — DEPLOYED ✅
 
 **Status**: Production live (hmatologia2)
 
@@ -45,6 +66,21 @@ Modules to tackle:
 - `controle-temperatura` (FR-11 IoT calibration + rules)
 - `educacao-continuada` (Edge cases + UI refinement)
 - `sgq/pops` (Cross-audit linking + report generation)
+
+---
+
+## Production Status (as of 2026-05-04)
+
+**Modules live**: 20 / 20 core + regulatory modules
+**Tests passing**: 347 / 347
+**Type-check**: ✅ Clean
+**Compliance blocks**: 13 / 13 RDC violations (audit trail + NC gates + rules strict)
+
+**Deploy artifacts**:
+- Hosting: hmatologia2.web.app (PWA with auto-update)
+- Functions: 59 callables + 8 triggers + 6 scheduled (southamerica-east1)
+- Firestore rules: 800+ lines (strict schema + callable gates)
+- Schemas: All Zod-validated inputs + output mappings
 
 ---
 
