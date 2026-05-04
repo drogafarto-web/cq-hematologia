@@ -1,80 +1,110 @@
 {
   "version": "1.0",
-  "timestamp": "2026-05-03T19:30:00Z",
-  "phase": 2,
-  "phase_name": "Phase 2 - Construção de Módulos (13 modules, 3 batches parallel)",
-  "phase_dir": ".planning/phases/02-construction",
-  "current_batch": 1,
-  "batch_name": "Batch 1 - Sistema de Qualidade",
-  "task": 1,
-  "task_name": "POPs Module UI Implementation",
-  "total_tasks": 5,
-  "status": "paused-before-execution",
-  "completed_work": [
+  "timestamp": "2026-05-04T11:35:00Z",
+  "context": "adr-driven-batch",
+  "batch": "Phase 2 Batch 1",
+  "adrs": [0004, 0003, 0001],
+  "status": "paused",
+  "reason": "Context limit 98%",
+  "completed_tasks": [
     {
-      "item": "Phase 1 - 100% Complete",
-      "details": "All 6 ADRs (0005-0007) deployed to production, tested, verified"
+      "id": 1,
+      "name": "ADR 0004 Wave 3: POPs UI + Smoke Test",
+      "status": "done",
+      "commit": "be35a40",
+      "hours": 2
     },
     {
-      "item": "Phase 2 Plans - 100% Complete",
-      "details": "3 batch plans created: 02-01-PLAN.md, 02-02-PLAN.md, 02-03-PLAN.md"
+      "id": 2,
+      "name": "ADR 0003 Wave 4: NC Rules Callable-Only",
+      "status": "done",
+      "commit": "799ac90",
+      "hours": 1
     },
     {
-      "item": "Batch 1 Checkpoint",
-      "details": "Ready to execute 5 tasks (POPs, NC, Auditoria, Rules, Deploy)"
+      "id": 3,
+      "name": "ADR 0001 Wave 1: Audit Trail Skeleton",
+      "status": "done",
+      "commit": "c963e4b",
+      "hours": 0.5,
+      "note": "Skeleton only — Wave 2 critical"
     }
   ],
   "remaining_tasks": [
     {
-      "id": 1,
-      "name": "POPs Module UI Implementation",
-      "status": "not_started",
-      "details": "Create types.ts, popsService.ts, UI components (POPsList, CreatePOPModal, TrainingAssignmentUI), tests >80%"
-    },
-    {
-      "id": 2,
-      "name": "Não-Conformidade + CAPA Module UI",
-      "status": "not_started",
-      "details": "Create types.ts, ncService.ts, UI components (NCList, NCDetailModal, CAPAWorkflow, SeverityGateUI), tests >80%"
-    },
-    {
-      "id": 3,
-      "name": "Auditoria Interna Module UI",
-      "status": "not_started",
-      "details": "Create types.ts, auditoriaService.ts, UI components, auto-NC creation, tests >80%"
-    },
-    {
       "id": 4,
-      "name": "Firestore Rules Deployment + Integration Tests",
+      "name": "ADR 0003 Wave 5: E2E Blocking Gate Tests",
       "status": "not_started",
-      "details": "Deploy rules, run 3 smoke test scenarios, verify no permission errors"
+      "estimated_hours": 1
     },
     {
       "id": 5,
-      "name": "Production Deployment + Final Verification",
+      "name": "ADR 0001 Wave 2: Complete Audit Trail Callable",
       "status": "not_started",
-      "details": "Type-check, build, deploy to prod, create BATCH1-COMPLETION.md, update STATE.md"
-    }
-  ],
-  "blockers": [],
-  "human_actions_pending": [],
-  "decisions": [
-    {
-      "decision": "Phase 2 execution via 3 parallel batches",
-      "rationale": "Batch 2 and 3 can execute simultaneously with Batch 1 after stabilization"
+      "estimated_hours": 2,
+      "blocking": true
     },
     {
-      "decision": "Pause before Batch 1 execution due to context limits",
-      "rationale": "Context at 75% — resuming in fresh session with full 200K budget is safer and faster"
+      "id": 6,
+      "name": "Phase 2 Batch 2: ADRs 0002/0006/0007",
+      "status": "not_started",
+      "estimated_hours": 8
     }
   ],
-  "uncommitted_files": [],
-  "next_action": "Fresh session: /gsd-execute-phase 2 --wave 1 (executes Batch 1 Task 1-5 sequentially with checkpoints)",
-  "context_notes": "Phase 1 shipped in one massive sprint (Wave 3 ADR 0007 deployment). Phase 2 is equally ambitious but parallelizable. Batch 1 tasks are self-contained: POPs and NC are ADR-level integrations (not new patterns), Auditoria is straightforward audit + auto-NC. All inputs from Phase 1 ADRs are live and tested. Rules deployment is low-risk (templates exist). Recommend executing all 5 tasks in one session after fresh start.",
+  "blockers": [
+    {
+      "description": "ADR 0001 Wave 1 is skeleton — previousHash chain not implemented",
+      "type": "technical",
+      "severity": "high",
+      "workaround": "Wave 2 mandatory before production audit"
+    }
+  ],
+  "anti_patterns": [
+    {
+      "pattern": "Context fatigue",
+      "description": "Attempted 3 large tasks (7h) in 1 session → 98% context",
+      "severity": "blocking",
+      "prevention": "Max 2-3 waves per session. Use /clear between sessions."
+    },
+    {
+      "pattern": "Skeleton-only commits",
+      "description": "ADR 0001 Wave 1 callable incomplete — production risk if deployed",
+      "severity": "blocking",
+      "prevention": "Verify Wave 2 complete before compliance audit"
+    },
+    {
+      "pattern": "E2E tests not executed",
+      "description": "ADR 0003 W4 rules verified static, behavior untested",
+      "severity": "advisory",
+      "prevention": "Run ncBlockingGates.test.ts before production"
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "ADR 0003 W4: callable-only pattern",
+      "rationale": "Fail-safe prevents accidental direct writes",
+      "adr": 0003
+    },
+    {
+      "decision": "ADR 0001 W1 scope: skeleton only",
+      "rationale": "Context limit 98% — HMAC chain deferred to Wave 2",
+      "adr": 0001
+    },
+    {
+      "decision": "Smoke test manual via browser",
+      "rationale": "Validated POPs workflow end-to-end via UI",
+      "adr": 0004
+    }
+  ],
   "git_state": {
     "branch": "main",
-    "commits_ahead": 27,
-    "last_commit": "606da14: docs: Phase 2 Batch 1 paused at start — context limit reached",
-    "working_tree": "clean"
-  }
+    "commits_ahead": 67,
+    "latest_commits": [
+      "c963e4b ADR 0001 Wave 1",
+      "799ac90 ADR 0003 Wave 4",
+      "be35a40 ADR 0004 Wave 3"
+    ]
+  },
+  "next_action": "/clear → /gsd-resume-work → ADR 0003 W5 + ADR 0001 W2",
+  "context_notes": "Wave-based work should not exceed 2-3 waves per session. This session: completed 2.5 waves (POPs W3 + NC W4 + Auditoria W1 skeleton). Discovered: attempted too much given context limit. Mitigation: next session start fresh with /clear."
 }
