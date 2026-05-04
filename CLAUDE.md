@@ -65,11 +65,12 @@ Regras com escopo mais estreito vivem em `.claude/rules/`:
 | `educacao-continuada` | Em prod · ISO 15189 + XLSX + callables server-side | 2026-04-24 |
 | `sgq` | Em prod · Documentos da Qualidade (DICQ 4.3) — MQ/PQ/IT/FR/POL + versionamento + audit | 2026-04-26 |
 
-**Phase 2 — Próximos (DEV, Batch 1 kickoff 2026-05-03):**
-| `pops` | **Dev** · Procedimentos Operacionais Padrão (DICQ 4.3) — versionamento + treinamento + assinatura RT | TBW |
-| `auditoria` | **Dev** · Trilha de audit (write intent + read consent) — RDC 978 5.3 + DICQ 4.4 | TBW |
+| `pops` | Em prod · Procedimentos Operacionais Padrão (DICQ 4.3) — versionamento + treinamento + assinatura RT | 2026-05-03 |
+| `auditoria` | Em prod · Trilha de audit (write intent + read consent) — RDC 978 5.3 + DICQ 4.4 | 2026-05-03 |
 
-Módulos com `CLAUDE.md` próprio: `educacao-continuada`, `controle-temperatura`, `pops` (TBW), `auditoria` (TBW)
+**Phase 2 Batch 2 — Próximos (DEV):**
+
+Módulos com documentação dedicada: `educacao-continuada` (próprio CLAUDE.md), `controle-temperatura` (próprio CLAUDE.md), `sgq` (contém pops + auditoria subdomínios)
 
 ---
 
