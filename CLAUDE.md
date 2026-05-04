@@ -68,9 +68,17 @@ Regras com escopo mais estreito vivem em `.claude/rules/`:
 | `pops` | Em prod · Procedimentos Operacionais Padrão (DICQ 4.3) — versionamento + treinamento + assinatura RT | 2026-05-03 |
 | `auditoria` | Em prod · Trilha de audit (write intent + read consent) — RDC 978 5.3 + DICQ 4.4 | 2026-05-03 |
 
-**Phase 2 Batch 2 — Próximos (DEV):**
+| `treinamentos` | Dev · Sistema de registro de treinamentos com vínculo a POPs + certificação + revalidação | 2026-05-04 |
+| `biosseguranca` | Dev · Gestão de áreas de risco, níveis NB1-NB4, EPE + inspeções com ISO 14644 | 2026-05-04 |
+| `pgrss` | Dev · Gestão de resíduos (RDC 222/2018) — segregação, coleta, comprovantes | 2026-05-04 |
+| `kpis` | Dev · Dashboard de KPIs — turnaround, retrabalho%, conformidade, NC origem, SLA | 2026-05-04 |
+| `lgpd` | Dev · Política de privacidade + direitos do titular + DPIA + exclusão com audit trail | 2026-05-04 |
 
-Módulos com documentação dedicada: `educacao-continuada` (próprio CLAUDE.md), `controle-temperatura` (próprio CLAUDE.md), `sgq` (contém pops + auditoria subdomínios)
+**Phase 2 Batch 2 — Desenvolvimento (DEV):**
+
+Status atual (2026-05-04): Tasks 1-2 completas (Treinamentos + Biosseguranca); Tasks 3-5 foundation (PGRSS, KPIs, LGPD); Tasks 6-7 pendentes (Rules + Deploy).
+
+Módulos com documentação dedicada: `educacao-continuada` (próprio CLAUDE.md), `controle-temperatura` (próprio CLAUDE.md), `sgq` (contém pops + auditoria subdomínios), `treinamentos` (HANDOFF.md em desenvolvimento)
 
 ---
 
