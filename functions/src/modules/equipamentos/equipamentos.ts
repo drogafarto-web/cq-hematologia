@@ -2,6 +2,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { Equipamento, Calibracao, Manutencao } from './types';
 import { signAuditEntry } from '../audit/cryptoAudit';
+import { checkNCs } from '../qualidade/naoConformidade';
 
 const db = admin.firestore();
 
@@ -28,6 +29,15 @@ export const criarEquipamento = onCall(
     }
 
     try {
+      // ADR 0003 Wave 3: Check for blocking NCs before creating equipment
+      const ncCheck = await checkNCs(labId, 'equipamento');
+      if (ncCheck.blocked) {
+        throw new HttpsError(
+          'failed-precondition',
+          ncCheck.message || 'NC crítica aberta bloqueia operações neste módulo'
+        );
+      }
+
       const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
       const now = admin.firestore.Timestamp.now();
 

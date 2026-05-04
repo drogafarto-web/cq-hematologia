@@ -127,7 +127,7 @@ export interface AreaCreationRequest {
   epeObrigatorio: TipoEPE[];
 }
 
-export interface EPEInput = Omit<EPE, 'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm'>;
+export type EPEInput = Omit<EPE, 'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm'>;
 
 export interface InspecaoAreaRequest {
   labId: string;

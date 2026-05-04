@@ -29,7 +29,13 @@
       "Bash(GCLOUD_PROJECT=hmatologia2 node scripts/backfill-naoConformidade.mjs --labId=labclin-riopomba)",
       "Skill(gsd-plan-phase)",
       "PowerShell(Test-Path *)",
-      "Skill(gsd-manager)"
+      "Skill(gsd-manager)",
+      "Bash(git apply *)",
+      "Bash(npx -y firebase-tools@latest emulators:exec --only firestore 'echo \"Rules validated\"')",
+      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(32\\).toString\\('hex'\\)\\)\")",
+      "Bash(node backfill-hmac.mjs --labId=labclin-riopomba)",
+      "Bash(HCQ_SIGNATURE_HMAC_KEY=\"f136c0b1fa5a7c5002d35ff21a7546bb1f3ddcc4ca0933f8b29b7b5703041cd5\" node backfill-hmac.mjs --labId=labclin-riopomba)",
+      "Bash(node backfill-notaFiscal.mjs --labId=labclin-riopomba)"
     ]
   }
 }
