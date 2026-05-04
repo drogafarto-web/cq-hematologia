@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { functions } from '../../shared/services/firebase';
 import { httpsCallable } from 'firebase/functions';
-import { useAuthStore } from '../../store/useAuthStore';
+import { useActiveLabId } from '../../store/useAuthStore';
 import { subscribeGeracoes, subscribeColetas } from './pgrssService';
 import type { RegistroGeracao, ColletaResiduo } from './types/PGRSS';
 
@@ -9,7 +9,7 @@ import type { RegistroGeracao, ColletaResiduo } from './types/PGRSS';
  * Hook para gerenciar operações PGRSS (geração e coleta de resíduos).
  */
 export function usePGRSS() {
-  const { activeLabId: labId } = useAuthStore();
+  const labId = useActiveLabId();
 
   const registrarGeracao = useCallback(
     async (tipo: string, descricao: string, peso_kg: number, responsavel: string, observacoes?: string) => {
