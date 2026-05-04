@@ -16,6 +16,7 @@ import { DocumentoFormModal } from './components/DocumentoFormModal';
 import { DocumentosListView } from './components/DocumentosListView';
 import { ImportarLM01Modal } from './components/ImportarLM01Modal';
 import POPsList from './pops/components/POPsList';
+import AuditoriaList from './auditoria/components/AuditoriaList';
 import { useDocumentos } from './hooks/useDocumentos';
 import {
   isVencido,
@@ -30,7 +31,7 @@ import {
 
 type FiltroTipo = TipoDocumento | 'todos';
 type FiltroStatus = StatusDocumento | 'todos';
-type SGQTab = 'documentos' | 'procedimentos';
+type SGQTab = 'documentos' | 'procedimentos' | 'auditorias';
 
 interface ConfirmacaoState {
   doc: Documento;
@@ -202,7 +203,7 @@ export function SGQView() {
             )}
           </div>
           <div className="flex items-center gap-1">
-            {(['documentos', 'procedimentos'] as const).map((t) => (
+            {(['documentos', 'procedimentos', 'auditorias'] as const).map((t) => (
               <button
                 key={t}
                 type="button"
@@ -213,7 +214,7 @@ export function SGQView() {
                     : 'border-transparent text-white/50 hover:text-white/70'
                 }`}
               >
-                {t === 'documentos' ? 'Documentos' : 'Procedimentos'}
+                {t === 'documentos' ? 'Documentos' : t === 'procedimentos' ? 'Procedimentos' : 'Auditorias'}
               </button>
             ))}
           </div>
@@ -297,6 +298,10 @@ export function SGQView() {
 
         {tab === 'procedimentos' && (
           <POPsList />
+        )}
+
+        {tab === 'auditorias' && (
+          <AuditoriaList />
         )}
       </main>
 
