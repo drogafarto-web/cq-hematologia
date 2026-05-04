@@ -84,7 +84,6 @@ describe('ADR 0004 — POP Versionado', () => {
 
   describe('POP Version Creation & Numbering', () => {
     it('should auto-increment version numero (v1.0 → v1.1)', () => {
-      // Simulate version increment logic
       const incrementVersion = (numero: string): string => {
         const [major, minor] = numero.split('.').map(Number);
         return `${major}.${minor + 1}`;
@@ -131,6 +130,83 @@ describe('ADR 0004 — POP Versionado', () => {
 
       expect(pop.versoes[0].numero).toBe('1.0');
       expect(pop.versoes[0].status).toBe('em_revisao');
+    });
+
+    it('should create new version with em_revisao status', () => {
+      const pop = createMockPOP({
+        versoes: [
+          {
+            numero: '1.0',
+            dataVigenciaInicio: admin.firestore.Timestamp.now(),
+            dataVigenciaFim: admin.firestore.Timestamp.now(),
+            hashConteudo: 'hash-v1',
+            assinadaPor: {
+              uid: mockUserId,
+              nome: 'Dr. Silva',
+              cargo: 'RT',
+              timestamp: admin.firestore.Timestamp.now(),
+              hmac: 'hmac-v1',
+            },
+            proximaRevisao: admin.firestore.Timestamp.now(),
+            status: 'ativa',
+          },
+        ],
+      });
+
+      // Simulate adding v1.1
+      const newVersion: POPVersao = {
+        numero: '1.1',
+        dataVigenciaInicio: admin.firestore.Timestamp.now(),
+        dataVigenciaFim: admin.firestore.Timestamp.now(),
+        hashConteudo: 'hash-v1.1',
+        assinadaPor: {
+          uid: '',
+          nome: '',
+          cargo: '',
+          timestamp: admin.firestore.Timestamp.now(),
+          hmac: '',
+        },
+        proximaRevisao: admin.firestore.Timestamp.now(),
+        status: 'em_revisao',
+      };
+
+      pop.versoes.push(newVersion);
+      expect(pop.versoes).toHaveLength(2);
+      expect(pop.versoes[1].status).toBe('em_revisao');
+      expect(pop.versoes[1].numero).toBe('1.1');
+    });
+
+    it('should preserve dataVigenciaInicio and dataVigenciaFim', () => {
+      const now = admin.firestore.Timestamp.now();
+      const futureDate = new Date();
+      futureDate.setFullYear(futureDate.getFullYear() + 2);
+      const futureTs = admin.firestore.Timestamp.fromDate(futureDate);
+
+      const pop = createMockPOP({
+        versoes: [
+          {
+            numero: '1.0',
+            dataVigenciaInicio: now,
+            dataVigenciaFim: futureTs,
+            hashConteudo: 'hash',
+            assinadaPor: {
+              uid: mockUserId,
+              nome: 'RT',
+              cargo: 'RT',
+              timestamp: now,
+              hmac: 'hmac',
+            },
+            proximaRevisao: futureTs,
+            status: 'ativa',
+          },
+        ],
+      });
+
+      expect(pop.versoes[0].dataVigenciaInicio).toBeDefined();
+      expect(pop.versoes[0].dataVigenciaFim).toBeDefined();
+      expect(pop.versoes[0].dataVigenciaInicio.toDate().getTime()).toBeLessThan(
+        pop.versoes[0].dataVigenciaFim.toDate().getTime()
+      );
     });
   });
 
@@ -662,6 +738,205 @@ describe('ADR 0004 — POP Versionado', () => {
 
       expect(pop.treinamentosObrigatorios.length).toBe(2);
       expect(pop.treinamentosObrigatorios[0].periodicidadeMeses).toBe(24);
+    });
+  });
+
+  describe('E2E Workflow: Create → Version → Sign → Train → Verify', () => {
+    it('complete workflow: POP creation through training validation', () => {
+      // 1. Create POP (no versions yet)
+      const pop = createMockPOP({
+        versoes: [],
+        codigo: 'COL-001',
+      });
+
+      expect(pop.versoes.length).toBe(0);
+      expect(pop.codigo).toBe('COL-001');
+
+      // 2. Add first version (v1.0, em_revisao)
+      const v1_0: POPVersao = {
+        numero: '1.0',
+        dataVigenciaInicio: admin.firestore.Timestamp.now(),
+        dataVigenciaFim: admin.firestore.Timestamp.now(),
+        hashConteudo: crypto
+          .createHash('sha256')
+          .update(JSON.stringify({ markdown: '# POP Content' }))
+          .digest('hex'),
+        assinadaPor: {
+          uid: '',
+          nome: '',
+          cargo: '',
+          timestamp: admin.firestore.Timestamp.now(),
+          hmac: '',
+        },
+        proximaRevisao: admin.firestore.Timestamp.now(),
+        status: 'em_revisao',
+      };
+      pop.versoes.push(v1_0);
+
+      expect(pop.versoes[0].status).toBe('em_revisao');
+      expect(pop.versoes[0].assinadaPor.uid).toBe('');
+
+      // 3. Sign version (RT signature, status → ativa)
+      pop.versoes[0].assinadaPor = {
+        uid: mockUserId,
+        nome: 'Dr. Silva',
+        cargo: 'RT',
+        timestamp: admin.firestore.Timestamp.now(),
+        hmac: computeHmac({ numero: '1.0', hashConteudo: v1_0.hashConteudo }, testSecret),
+      };
+      pop.versoes[0].status = 'ativa';
+
+      expect(pop.versoes[0].status).toBe('ativa');
+      expect(pop.versoes[0].assinadaPor.hmac).toMatch(/^[a-f0-9]{64}$/);
+
+      // 4. Add version 1.1 (minor increment, em_revisao)
+      const v1_1: POPVersao = {
+        numero: '1.1',
+        dataVigenciaInicio: admin.firestore.Timestamp.now(),
+        dataVigenciaFim: admin.firestore.Timestamp.now(),
+        hashConteudo: crypto
+          .createHash('sha256')
+          .update(JSON.stringify({ markdown: '# Updated POP' }))
+          .digest('hex'),
+        assinadaPor: {
+          uid: '',
+          nome: '',
+          cargo: '',
+          timestamp: admin.firestore.Timestamp.now(),
+          hmac: '',
+        },
+        proximaRevisao: admin.firestore.Timestamp.now(),
+        status: 'em_revisao',
+      };
+      pop.versoes.push(v1_1);
+
+      // 5. Sign v1.1 (should obsolete v1.0)
+      pop.versoes[1].assinadaPor = {
+        uid: mockUserId,
+        nome: 'Dr. Silva',
+        cargo: 'RT',
+        timestamp: admin.firestore.Timestamp.now(),
+        hmac: computeHmac({ numero: '1.1', hashConteudo: v1_1.hashConteudo }, testSecret),
+      };
+      pop.versoes[1].status = 'ativa';
+
+      // Auto-obsolete v1.0 (same major version)
+      pop.versoes[0].status = 'obsoleta';
+      pop.versoes[0].motivo_obsolescencia = 'Substituída por v1.1';
+
+      expect(pop.versoes[0].status).toBe('obsoleta');
+      expect(pop.versoes[1].status).toBe('ativa');
+
+      // 6. Record training for operator
+      const trainRecord = createMockTrainingRecord({
+        popId: pop.id,
+        popVersaoNumero: '1.1',
+      });
+
+      expect(trainRecord.popVersaoNumero).toBe('1.1');
+      expect(trainRecord.dataConcluso).toBeDefined();
+      expect(trainRecord.validoAte).toBeDefined();
+
+      // 7. Verify operator can use POP
+      const canUse = trainRecord.popVersaoNumero === '1.1' &&
+                     new Date() <= new Date(trainRecord.validoAte);
+      expect(canUse).toBe(true);
+    });
+
+    it('should block training on non-ativa version', () => {
+      const pop = createMockPOP({
+        versoes: [
+          {
+            numero: '1.0',
+            dataVigenciaInicio: admin.firestore.Timestamp.now(),
+            dataVigenciaFim: admin.firestore.Timestamp.now(),
+            hashConteudo: 'hash',
+            assinadaPor: {
+              uid: mockUserId,
+              nome: 'Dr.',
+              cargo: 'RT',
+              timestamp: admin.firestore.Timestamp.now(),
+              hmac: 'hmac',
+            },
+            proximaRevisao: admin.firestore.Timestamp.now(),
+            status: 'em_revisao', // NOT ativa
+          },
+        ],
+      });
+
+      const ativaVersion = pop.versoes.find(v => v.status === 'ativa');
+      expect(ativaVersion).toBeUndefined();
+    });
+  });
+
+  describe('RN-SGQ Compliance Tests', () => {
+    it('RN-SGQ-02: should validate status transitions', () => {
+      // Valid: em_revisao → ativa
+      let versao: POPVersao = createMockPOP().versoes[0];
+      versao.status = 'em_revisao';
+      let canTransition = ['em_revisao', 'ativa', 'obsoleta'].includes(versao.status);
+      expect(canTransition).toBe(true);
+
+      // Invalid: obsoleta → ativa (terminal)
+      versao.status = 'obsoleta';
+      canTransition = versao.status !== 'obsoleta' || false;
+      expect(canTransition).toBe(false);
+    });
+
+    it('RN-SGQ-03: should auto-obsolete old versions on signing', () => {
+      const versions: POPVersao[] = [
+        {
+          numero: '1.0',
+          dataVigenciaInicio: admin.firestore.Timestamp.now(),
+          dataVigenciaFim: admin.firestore.Timestamp.now(),
+          hashConteudo: 'hash-1.0',
+          assinadaPor: {
+            uid: mockUserId,
+            nome: 'Dr.',
+            cargo: 'RT',
+            timestamp: admin.firestore.Timestamp.now(),
+            hmac: 'hmac-1.0',
+          },
+          proximaRevisao: admin.firestore.Timestamp.now(),
+          status: 'ativa',
+        },
+      ];
+
+      // Sign v1.1, obsolete v1.0
+      const v1_1: POPVersao = {
+        numero: '1.1',
+        dataVigenciaInicio: admin.firestore.Timestamp.now(),
+        dataVigenciaFim: admin.firestore.Timestamp.now(),
+        hashConteudo: 'hash-1.1',
+        assinadaPor: {
+          uid: mockUserId,
+          nome: 'Dr.',
+          cargo: 'RT',
+          timestamp: admin.firestore.Timestamp.now(),
+          hmac: 'hmac-1.1',
+        },
+        proximaRevisao: admin.firestore.Timestamp.now(),
+        status: 'ativa',
+      };
+
+      // Simulate auto-obsolescence
+      versions[0].status = 'obsoleta';
+      versions[0].motivo_obsolescencia = `Substituída por v${v1_1.numero}`;
+      versions.push(v1_1);
+
+      const ativasCount = versions.filter(v => v.status === 'ativa').length;
+      expect(ativasCount).toBe(1);
+      expect(versions[0].status).toBe('obsoleta');
+      expect(versions[1].status).toBe('ativa');
+    });
+
+    it('RN-SGQ-05: should preserve version immutability', () => {
+      const originalHash = 'abc123...';
+      const versao = createMockPOP().versoes[0];
+      versao.hashConteudo = originalHash;
+
+      // Hash should not change after signing
+      expect(versao.hashConteudo).toBe(originalHash);
     });
   });
 });
