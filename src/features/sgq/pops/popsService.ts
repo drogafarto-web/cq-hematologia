@@ -84,6 +84,10 @@ export async function createPOPClient(labId: string, input: POPInput): Promise<s
   return result.data.popId;
 }
 
+export async function createPOP(labId: string, input: POPInput): Promise<string> {
+  return createPOPClient(labId, input);
+}
+
 // ─── Update POP ────────────────────────────────────────────────────────────
 
 export async function updatePOP(
