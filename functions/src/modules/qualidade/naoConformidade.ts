@@ -33,15 +33,15 @@ export const openNaoConformidade = onCall(
 
       const nc: Partial<NaoConformidade> = {
         labId,
-        numero,
+        codigo: numero,
         titulo,
         descricao,
         categoria: categoria || 'geral',
         severidade: severidade as NCSeveridade,
-        status: 'aberta',
-        origem: (origem || { tipo: 'manual', modulo: 'geral' }) as NCOrigem,
+        capaStatus: 'nao_iniciada',
+        capaHistorico: [],
+        origem: (origem || 'interno') as NCOrigem,
         abertaPor: request.auth.uid,
-        dataAbertura: admin.firestore.FieldValue.serverTimestamp() as any,
         criadoEm: admin.firestore.FieldValue.serverTimestamp() as any,
         atualizadoEm: admin.firestore.FieldValue.serverTimestamp() as any,
       };
@@ -94,7 +94,7 @@ export const updateNaoConformidade = onCall(
 
       const updateData: any = {
         ...updates,
-        atualizadoEm: admin.firestore.FieldValue.serverTimestamp(),
+        atualizadoEm: admin.firestore.FieldValue.serverTimestamp() as any,
       };
 
       // Prevent modification of core fields
@@ -145,16 +145,22 @@ export const addAcao = onCall(
         status: 'planejada' as const,
       };
 
-      const newCapa = {
-        ...(nc.capa || {}),
-        acaoCorretiva: novaAcao,
+      const updateData: Partial<NaoConformidade> = {
+        capaStatus: 'acao',
+        capaHistorico: [
+          ...(nc.capaHistorico || []),
+          {
+            estado: 'acao',
+            dataTransicao: admin.firestore.FieldValue.serverTimestamp() as any,
+            responsavel: request.auth.uid,
+            descricao: novaAcao.descricao,
+            dataPrevista: novaAcao.dataPrevista,
+          },
+        ],
+        atualizadoEm: admin.firestore.FieldValue.serverTimestamp() as any,
       };
 
-      await docRef.update({
-        capa: newCapa,
-        status: 'acaoPropostaPela_acao',
-        atualizadoEm: admin.firestore.FieldValue.serverTimestamp(),
-      });
+      await docRef.update(updateData);
 
       return {
         success: true,
