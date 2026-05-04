@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAuthStore } from '../../store/useAuthStore';
+import { useActiveLabId } from '../../store/useAuthStore';
 import type { Treinamento, TreinamentoFilters } from './types/Treinamento';
 import {
   subscribeTrainamentos,
@@ -10,7 +10,7 @@ import {
 } from './treinamentoService';
 
 export function useTreinamentos(filters?: TreinamentoFilters) {
-  const labId = useAuthStore((s) => s.activeLabId as string);
+  const labId = useActiveLabId();
   const [treinamentos, setTreinamentos] = useState<Treinamento[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
