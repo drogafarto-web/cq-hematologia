@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { User } from 'firebase/auth';
 import { persist, createJSONStorage } from 'zustand/middleware';
+// @ts-ignore - react-native compatibility
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface AuthState {
