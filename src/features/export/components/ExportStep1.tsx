@@ -24,11 +24,11 @@ const FORMATS: FormatCard[] = [
   },
   {
     format: 'csv',
-    title: 'XLSX — Não Conformidades',
+    title: 'CSV — Trilha de Auditoria',
     description:
-      'Relatório de não conformidades registradas no período: ocorrências, causas raiz e ações corretivas.',
+      'Exporta a trilha de auditoria em formato CSV — operações registradas no período, conforme RDC 978 §5.3. Compatível com Excel, LibreOffice e sistemas de análise.',
     accent: 'emerald',
-    badge: 'Auditoria',
+    badge: 'Compliance',
   },
 ];
 

@@ -1,7 +1,7 @@
 import { onCall, HttpsError, CallableRequest } from 'firebase-functions/v2/https';
 import { getFirestore } from 'firebase-admin/firestore';
 import { PubSub } from '@google-cloud/pubsub';
-import { nanoid } from 'nanoid';
+import { randomUUID } from 'crypto';
 import {
   ExportRequest,
   ExportJob,
@@ -76,7 +76,7 @@ export const initiateExport = onCall(
       // For now, assume auth token is sufficient (Firestore rules validate)
 
       // 4. Create job document
-      const jobId = nanoid();
+      const jobId = randomUUID();
       const now = new Date();
 
       const job: ExportJob = {
