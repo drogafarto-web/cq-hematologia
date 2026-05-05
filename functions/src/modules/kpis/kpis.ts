@@ -29,10 +29,12 @@ export const aggregateKPIs = onSchedule(
         const yesterday = new Date(now.toDate().getTime() - 24 * 60 * 60 * 1000);
         const yesterdayTs = admin.firestore.Timestamp.fromDate(yesterday);
 
+        // KPI-FIX-1: exclude soft-deleted runs from all calculations
         const runsSnapshot = await db
           .collectionGroup('runs')
           .where('labId', '==', labId)
           .where('criadoEm', '>=', yesterdayTs)
+          .where('deletadoEm', '==', null)
           .get();
 
         if (runsSnapshot.empty) {
@@ -62,42 +64,63 @@ export const aggregateKPIs = onSchedule(
         turnaroundTimes.sort((a, b) => a - b);
         const turnaroundP95 = turnaroundTimes[Math.ceil(turnaroundTimes.length * 0.95) - 1] || 0;
 
-        // REWORK: repeat runs (same sample, same equipment, within 24h)
-        const runsPerSample: Record<string, number> = {};
+        // KPI-FIX-3: use explicit rerun flag instead of amostraId duplication inference.
+        // Schema check: prefer run.rerun === true or run.statusRun === 'repetido'.
+        // Fallback: count amostraId duplicates only for non-null/non-unknown amostraIds to
+        // reduce false positives — but this is a best-effort approximation.
+        // TODO(GAP-rerun): add explicit `rerun: boolean` field to Run schema so this is exact.
         let reruns = 0;
 
-        for (const run of runs) {
-          const sampleKey = `${run.amostraId || 'unknown'}`;
-          runsPerSample[sampleKey] = (runsPerSample[sampleKey] || 0) + 1;
-        }
+        const hasExplicitRerunField = runs.some(
+          r => r.rerun !== undefined || r.statusRun !== undefined,
+        );
 
-        for (const count of Object.values(runsPerSample)) {
-          if (count > 1) reruns += count - 1;
+        if (hasExplicitRerunField) {
+          reruns = runs.filter(
+            r => r.rerun === true || r.statusRun === 'repetido',
+          ).length;
+        } else {
+          // Fallback: amostraId-based heuristic — exclude null/'unknown' to avoid over-counting
+          const validRuns = runs.filter(
+            r => r.amostraId && r.amostraId !== 'unknown',
+          );
+          const runsPerSample: Record<string, number> = {};
+          for (const run of validRuns) {
+            const key = run.amostraId as string;
+            runsPerSample[key] = (runsPerSample[key] || 0) + 1;
+          }
+          for (const count of Object.values(runsPerSample)) {
+            if (count > 1) reruns += count - 1;
+          }
         }
 
         const retrabalhoPercentual = totalRuns > 0 ? (reruns / totalRuns) * 100 : 0;
 
-        // CONFORMANCE: runs with popId + equipId + operadorId
-        let runsConformes = 0;
+        // KPI-FIX-4: renamed to documentacao_percentual — measures documentation completeness
+        // (popId + equipId + operadorId preenchidos), NOT conformidade CIQ (Levey-Jennings/Westgard).
+        // GAP-TODO-conformidade-ciq: implement true CIQ conformance via Westgard rules on chart module.
+        let runsDocumentados = 0;
         for (const run of runs) {
           if (run.popId && run.equipId && run.operadorId) {
-            runsConformes += 1;
+            runsDocumentados += 1;
           }
         }
-        const conformancePercentual = totalRuns > 0 ? (runsConformes / totalRuns) * 100 : 0;
+        // documentacao_percentual: % of runs with popId + equipId + operadorId filled in
+        const documentacaoPercentual = totalRuns > 0 ? (runsDocumentados / totalRuns) * 100 : 0;
 
-        // NC ORIGINS: count by module
-        const ncSnapshot = await db
+        // KPI-FIX-2: nc_total_abertas = NCs with status 'aberta' (cumulative open),
+        // NOT NCs created in the last 24h. Removed criadoEm >= yesterdayTs filter.
+        const ncAbertas = await db
           .collectionGroup('nao-conformidades')
           .where('labId', '==', labId)
-          .where('criadoEm', '>=', yesterdayTs)
+          .where('status', '==', 'aberta')
           .where('deletadoEm', '==', null)
           .get();
 
         const ncPorOrigem: Record<string, number> = {};
         let ncAbertasTotal = 0;
 
-        for (const ncDoc of ncSnapshot.docs) {
+        for (const ncDoc of ncAbertas.docs) {
           const ncData = ncDoc.data();
           const modulo = ncData.modulo || 'unknown';
           ncPorOrigem[modulo] = (ncPorOrigem[modulo] || 0) + 1;
@@ -135,14 +158,14 @@ export const aggregateKPIs = onSchedule(
           });
         }
 
-        // Low conformance alert
-        if (conformancePercentual < 95) {
+        // Low documentation alert (KPI-FIX-4: was 'low_conformance' / conformidade_percentual)
+        if (documentacaoPercentual < 95) {
           const alertRef = db.collection(`labs/${labId}/kpi-alerts`).doc();
           await alertRef.set({
             labId,
             tipo: 'low_conformance',
-            severidade: conformancePercentual < 90 ? 'critical' : 'warning',
-            mensagem: `Conformidade em ${conformancePercentual.toFixed(1)}% (meta: 95%+)`,
+            severidade: documentacaoPercentual < 90 ? 'critical' : 'warning',
+            mensagem: `Documentação de corridas em ${documentacaoPercentual.toFixed(1)}% (meta: 95%+)`,
             acionada_em: admin.firestore.FieldValue.serverTimestamp(),
             lida: false,
             criadoEm: admin.firestore.FieldValue.serverTimestamp(),
@@ -157,9 +180,10 @@ export const aggregateKPIs = onSchedule(
           turnaround_percentil_95: turnaroundP95,
           retrabalho_percentual: retrabalhoPercentual,
           retrabalho_total: reruns,
-          conformidade_percentual: conformancePercentual,
+          // KPI-FIX-4: renamed from conformidade_percentual — see type KPIDaily
+          documentacao_percentual: documentacaoPercentual,
           runs_total: totalRuns,
-          runs_conformes: runsConformes,
+          runs_documentados: runsDocumentados,
           nc_total_abertas: ncAbertasTotal,
           nc_por_origem: ncPorOrigem,
           sla_atendido: slaAtendido,
@@ -180,7 +204,7 @@ export const aggregateKPIs = onSchedule(
               runs: totalRuns,
               turnaround: turnaroundMedia.toFixed(1),
               retrabalho: retrabalhoPercentual.toFixed(1),
-              conformance: conformancePercentual.toFixed(1),
+              documentacao: documentacaoPercentual.toFixed(1),
             },
             timestamp: admin.firestore.FieldValue.serverTimestamp(),
           })

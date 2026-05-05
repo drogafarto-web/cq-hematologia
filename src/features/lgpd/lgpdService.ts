@@ -95,10 +95,19 @@ export function subscribeLogsExclusao(
   );
 }
 
+/**
+ * @deprecated Use the `criarSolicitacao` Cloud Function callable instead.
+ * Client-side writes to lgpd-solicitacoes are deprecated as of Phase 0b.
+ * This function will be removed after one sprint transition period.
+ */
 export async function createSolicitacao(
   labId: string,
   input: Omit<SolicitacaoDados, 'id' | 'labId' | 'criadoEm' | 'criadoPor'>,
+  uid?: string,
 ): Promise<string> {
+  console.warn(
+    '[lgpdService] createSolicitacao is deprecated — use the criarSolicitacao callable instead.',
+  );
   const newDocRef = doc(solicitacoesCollection(labId));
 
   const data: SolicitacaoDados = {
@@ -106,7 +115,7 @@ export async function createSolicitacao(
     labId,
     ...input,
     criadoEm: serverTimestamp() as Timestamp,
-    criadoPor: 'system',
+    criadoPor: uid ?? 'system',
   };
 
   await setDoc(newDocRef, data);
@@ -123,10 +132,19 @@ export async function updateSolicitacao(
   await updateDoc(docRef, safeUpdates);
 }
 
+/**
+ * @deprecated Use the `gerarDPIA` Cloud Function callable instead.
+ * Client-side writes to lgpd-dpia are deprecated as of Phase 0b.
+ * This function will be removed after one sprint transition period.
+ */
 export async function createDPIA(
   labId: string,
   input: Omit<DPIA, 'id' | 'labId' | 'criadoEm'>,
+  uid?: string,
 ): Promise<string> {
+  console.warn(
+    '[lgpdService] createDPIA is deprecated — use the gerarDPIA callable instead.',
+  );
   const newDocRef = doc(dpiaCollection(labId));
 
   const data: DPIA = {
@@ -140,10 +158,19 @@ export async function createDPIA(
   return newDocRef.id;
 }
 
+/**
+ * @deprecated Client-side writes to lgpd-consentimento are deprecated as of Phase 0b.
+ * Migrate to a server-side callable for audit-grade consent records.
+ * This function will be removed after one sprint transition period.
+ */
 export async function createConsentimento(
   labId: string,
   input: Omit<ConsentimentoUsuario, 'id' | 'labId' | 'criadoEm'>,
+  uid?: string,
 ): Promise<string> {
+  console.warn(
+    '[lgpdService] createConsentimento is deprecated — migrate to a server-side callable.',
+  );
   const newDocRef = doc(consentimentoCollection(labId));
 
   const data: ConsentimentoUsuario = {
@@ -157,10 +184,19 @@ export async function createConsentimento(
   return newDocRef.id;
 }
 
+/**
+ * @deprecated Deletion logs are now written server-side by the `processarExclusao` callable.
+ * Client-side writes to lgpd-exclusao are deprecated as of Phase 0b.
+ * This function will be removed after one sprint transition period.
+ */
 export async function createLogExclusao(
   labId: string,
   input: Omit<LogExclusao, 'id' | 'labId' | 'criadoEm' | 'criadoPor'>,
+  uid?: string,
 ): Promise<string> {
+  console.warn(
+    '[lgpdService] createLogExclusao is deprecated — deletion logs are written by the processarExclusao callable.',
+  );
   const newDocRef = doc(exclusaoCollection(labId));
 
   const data: LogExclusao = {
@@ -168,7 +204,7 @@ export async function createLogExclusao(
     labId,
     ...input,
     criadoEm: serverTimestamp() as Timestamp,
-    criadoPor: 'system',
+    criadoPor: uid ?? 'system',
   };
 
   await setDoc(newDocRef, data);

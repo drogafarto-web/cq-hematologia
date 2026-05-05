@@ -80,9 +80,9 @@ export async function getKPIDashboardData(labId: string): Promise<KPIDashboardDa
   // Determine trend
   let tendencia: 'mejora' | 'deterioro' | 'estavel' = 'estavel';
   if (dataAnterior) {
-    if (dataAtual.conformidade_percentual > dataAnterior.conformidade_percentual) {
+    if (dataAtual.documentacao_percentual > dataAnterior.documentacao_percentual) {
       tendencia = 'mejora';
-    } else if (dataAtual.conformidade_percentual < dataAnterior.conformidade_percentual) {
+    } else if (dataAtual.documentacao_percentual < dataAnterior.documentacao_percentual) {
       tendencia = 'deterioro';
     }
   }

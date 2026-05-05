@@ -52,8 +52,14 @@ export function subscribeColetas(
   );
 }
 
+/**
+ * @deprecated PGRSS-FIX-3: writes should go through the `registrarGeracao` callable.
+ * This client-side function remains for rollback (Fase 0b); will be removed in next sprint.
+ * Pass `uid` explicitly — never use 'system' as the author for regulatory records.
+ */
 export async function createGeracao(
   labId: string,
+  uid: string,
   input: Omit<RegistroGeracao, 'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm'>,
 ): Promise<string> {
   const newDocRef = doc(geracaoCollection(labId));
@@ -63,7 +69,7 @@ export async function createGeracao(
     labId,
     ...input,
     criadoEm: serverTimestamp() as Timestamp,
-    criadoPor: 'system',
+    criadoPor: uid ?? 'system',
     deletadoEm: null,
   };
 
@@ -71,8 +77,14 @@ export async function createGeracao(
   return newDocRef.id;
 }
 
+/**
+ * @deprecated PGRSS-FIX-3: writes should go through the `registrarColeta` callable.
+ * This client-side function remains for rollback (Fase 0b); will be removed in next sprint.
+ * Pass `uid` explicitly — never use 'system' as the author for regulatory records.
+ */
 export async function createColeta(
   labId: string,
+  uid: string,
   input: Omit<ColletaResiduo, 'id' | 'labId' | 'criadoEm' | 'criadoPor'>,
 ): Promise<string> {
   const newDocRef = doc(coletaCollection(labId));
@@ -82,7 +94,7 @@ export async function createColeta(
     labId,
     ...input,
     criadoEm: serverTimestamp() as Timestamp,
-    criadoPor: 'system',
+    criadoPor: uid ?? 'system',
   };
 
   await setDoc(newDocRef, data);
