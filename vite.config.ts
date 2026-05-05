@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
+import { visualizer } from 'rollup-plugin-visualizer';
 import { readFileSync } from 'fs';
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8')) as { version: string };
@@ -38,6 +39,9 @@ export default defineConfig(({ mode }) => {
           if (id.includes('node_modules/pdfjs-dist')) {
             // pdf.js worker já está em asset separado via pdfConverterLazy
             return 'vendor-pdf';
+          }
+          if (id.includes('node_modules/zod')) {
+            return 'vendor-zod';
           }
 
           // Feature modules (lazy-loaded per route)
@@ -145,6 +149,20 @@ export default defineConfig(({ mode }) => {
         enabled: false,
       },
     }),
+    // ── Bundle visualizer (só quando ANALYZE=true) ─────────────────────────
+    // Gera dist/stats.html com treemap interativo do bundle. Nunca incluir
+    // em build de produção normal — aumenta tempo de build e expõe estrutura.
+    ...(process.env.ANALYZE === 'true'
+      ? [
+          visualizer({
+            filename: 'dist/stats.html',
+            open: false, // abrir via script npm run analyze
+            gzipSize: true,
+            brotliSize: true,
+            template: 'treemap',
+          }),
+        ]
+      : []),
     // Upload de source maps + criação de release versionada no Sentry.
     // Sem auth token (CI sem secret, dev local) o plugin é no-op.
     ...(sentryAuthToken
