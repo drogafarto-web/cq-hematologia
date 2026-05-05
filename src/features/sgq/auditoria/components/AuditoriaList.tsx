@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import type { Auditoria, AuditoriaFilters } from '../../types/Auditoria';
 import { temAchadosGraves, contaAchadosPorSeveridade, diasAteVencimento } from '../../types/Auditoria';
 import { useAuditorias } from '../useAuditorias';
@@ -69,58 +69,73 @@ export default function AuditoriaList({ onSelectAuditoria }: AuditoriaListProps)
             <p>Nenhuma auditoria encontrada</p>
           </div>
         ) : (
-          auditorias.map((auditoria) => {
-            const temGraves = temAchadosGraves(auditoria);
-            const criticas = contaAchadosPorSeveridade(auditoria, 'critica');
-            const graves = contaAchadosPorSeveridade(auditoria, 'grave');
-            const diasVenc = auditoria.prazoClosure ? diasAteVencimento(auditoria) : null;
-
-            return (
-              <div
-                key={auditoria.id}
-                onClick={() => onSelectAuditoria?.(auditoria)}
-                className="p-4 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 cursor-pointer transition-colors group"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-medium text-white">{auditoria.codigo}</h3>
-                      {temGraves && (
-                        <span className="text-amber-400" title="Achados graves">⚠</span>
-                      )}
-                    </div>
-                    <p className="text-sm text-white/60 mt-1">{auditoria.titulo}</p>
-
-                    <div className="flex items-center gap-3 mt-2 text-xs">
-                      <span className="px-2 py-1 bg-white/10 rounded text-white/70">
-                        {auditoria.status.replace(/_/g, ' ')}
-                      </span>
-                      <span className="text-white/50">{auditoria.escopo}</span>
-                      {criticas > 0 && (
-                        <span className="text-red-400">
-                          {criticas} crítica{criticas !== 1 ? 's' : ''}
-                        </span>
-                      )}
-                      {graves > 0 && (
-                        <span className="text-amber-400">
-                          {graves} grave{graves !== 1 ? 's' : ''}
-                        </span>
-                      )}
-                      {diasVenc !== null && (
-                        <span className={diasVenc <= 7 ? 'text-red-400' : 'text-white/50'}>
-                          Vence em {diasVenc}d
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <span className="text-white/30 group-hover:text-white/60 flex-shrink-0">›</span>
-                </div>
-              </div>
-            );
-          })
+          auditorias.map((auditoria) => (
+            <AuditoriaCard
+              key={auditoria.id}
+              auditoria={auditoria}
+              onSelect={onSelectAuditoria}
+            />
+          ))
         )}
       </div>
     </div>
   );
 }
+
+// ─── AuditoriaCard ───────────────────────────────────────────────────────────
+
+const AuditoriaCard = memo(function AuditoriaCard({
+  auditoria,
+  onSelect,
+}: {
+  auditoria: Auditoria;
+  onSelect?: (auditoria: Auditoria) => void;
+}) {
+  const temGraves = temAchadosGraves(auditoria);
+  const criticas = contaAchadosPorSeveridade(auditoria, 'critica');
+  const graves = contaAchadosPorSeveridade(auditoria, 'grave');
+  const diasVenc = auditoria.prazoClosure ? diasAteVencimento(auditoria) : null;
+
+  return (
+    <div
+      onClick={() => onSelect?.(auditoria)}
+      className="p-4 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 cursor-pointer transition-colors group"
+    >
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <h3 className="font-medium text-white">{auditoria.codigo}</h3>
+            {temGraves && (
+              <span className="text-amber-400" title="Achados graves">⚠</span>
+            )}
+          </div>
+          <p className="text-sm text-white/60 mt-1">{auditoria.titulo}</p>
+
+          <div className="flex items-center gap-3 mt-2 text-xs">
+            <span className="px-2 py-1 bg-white/10 rounded text-white/70">
+              {auditoria.status.replace(/_/g, ' ')}
+            </span>
+            <span className="text-white/50">{auditoria.escopo}</span>
+            {criticas > 0 && (
+              <span className="text-red-400">
+                {criticas} crítica{criticas !== 1 ? 's' : ''}
+              </span>
+            )}
+            {graves > 0 && (
+              <span className="text-amber-400">
+                {graves} grave{graves !== 1 ? 's' : ''}
+              </span>
+            )}
+            {diasVenc !== null && (
+              <span className={diasVenc <= 7 ? 'text-red-400' : 'text-white/50'}>
+                Vence em {diasVenc}d
+              </span>
+            )}
+          </div>
+        </div>
+
+        <span className="text-white/30 group-hover:text-white/60 flex-shrink-0">›</span>
+      </div>
+    </div>
+  );
+});

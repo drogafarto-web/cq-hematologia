@@ -9,7 +9,7 @@
  * dilui qualidade. Cada um merece módulo próprio com seu próprio CLAUDE.md.
  */
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { useAppStore } from '../../store/useAppStore';
 import { DocumentoFormModal } from './components/DocumentoFormModal';
@@ -86,6 +86,8 @@ export function SGQView() {
   const [confirmacao, setConfirmacao] = useState<ConfirmacaoState | null>(null);
   const [motivoConfirmacao, setMotivoConfirmacao] = useState('');
 
+  const handleToggleObsoletos = useCallback(() => setIncluirObsoletos((v) => !v), []);
+
   const codigoSugerido = useMemo(() => {
     if (!criando) return undefined;
     return sugerirProximoCodigo(criando, documentos);
@@ -110,7 +112,7 @@ export function SGQView() {
     }
   };
 
-  const handleMudarStatus = (doc: Documento, toStatus: StatusDocumento) => {
+  const handleMudarStatus = useCallback((doc: Documento, toStatus: StatusDocumento) => {
     // Publicação direta (em_revisao → vigente) não exige motivo.
     if (doc.status === 'em_revisao' && toStatus === 'vigente') {
       mudarStatus(doc.id, toStatus).catch((e) => {
@@ -128,7 +130,7 @@ export function SGQView() {
           ? 'Motivo da descontinuação (≥10 caracteres)…'
           : 'Motivo da volta a rascunho (≥10 caracteres)…',
     });
-  };
+  }, [mudarStatus]);
 
   const confirmarMudancaStatus = async () => {
     if (!confirmacao) return;
@@ -141,7 +143,7 @@ export function SGQView() {
     }
   };
 
-  const handleRemover = async (doc: Documento) => {
+  const handleRemover = useCallback(async (doc: Documento) => {
     setErro(null);
     if (!confirm(`Remover ${doc.codigo} (rascunho)? Esta ação é reversível via auditoria.`)) {
       return;
@@ -151,7 +153,7 @@ export function SGQView() {
     } catch (e) {
       setErro(e instanceof Error ? e.message : 'Erro ao remover.');
     }
-  };
+  }, [remover]);
 
   return (
     <div className="min-h-screen bg-[#0B0F14] text-white">
@@ -287,9 +289,9 @@ export function SGQView() {
           incluirObsoletos={incluirObsoletos}
           onFiltroTipo={setFiltroTipo}
           onFiltroStatus={setFiltroStatus}
-          onToggleObsoletos={() => setIncluirObsoletos((v) => !v)}
-          onEditar={(d) => setEditando(d)}
-          onRevisar={(d) => setRevisaoDe(d)}
+          onToggleObsoletos={handleToggleObsoletos}
+          onEditar={setEditando}
+          onRevisar={setRevisaoDe}
           onMudarStatus={handleMudarStatus}
           onRemover={handleRemover}
         />

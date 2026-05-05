@@ -13,7 +13,7 @@
  * (audit log) é feita expandindo a linha — fora do MVP, vai pra v2.
  */
 
-import { useMemo, useState } from 'react';
+import { memo, useMemo } from 'react';
 
 import {
   isProximoVencimento,
@@ -143,10 +143,10 @@ export function DocumentosListView({
                 <DocumentoRow
                   key={d.id}
                   doc={d}
-                  onEditar={() => onEditar(d)}
-                  onRevisar={() => onRevisar(d)}
-                  onMudarStatus={(s) => onMudarStatus(d, s)}
-                  onRemover={() => onRemover(d)}
+                  onEditar={onEditar}
+                  onRevisar={onRevisar}
+                  onMudarStatus={onMudarStatus}
+                  onRemover={onRemover}
                 />
               ))
             )}
@@ -184,7 +184,7 @@ function FiltroChip({
   );
 }
 
-function DocumentoRow({
+const DocumentoRow = memo(function DocumentoRow({
   doc,
   onEditar,
   onRevisar,
@@ -192,10 +192,10 @@ function DocumentoRow({
   onRemover,
 }: {
   doc: Documento;
-  onEditar: () => void;
-  onRevisar: () => void;
-  onMudarStatus: (toStatus: StatusDocumento) => void;
-  onRemover: () => void;
+  onEditar: (doc: Documento) => void;
+  onRevisar: (doc: Documento) => void;
+  onMudarStatus: (doc: Documento, toStatus: StatusDocumento) => void;
+  onRemover: (doc: Documento) => void;
 }) {
   const vencido = isVencido(doc);
   const proximo = isProximoVencimento(doc);
@@ -253,21 +253,21 @@ function DocumentoRow({
             <>
               <button
                 type="button"
-                onClick={() => onMudarStatus('vigente')}
+                onClick={() => onMudarStatus(doc, 'vigente')}
                 className="text-[11px] text-emerald-400 hover:text-emerald-300 px-2 py-1 rounded hover:bg-emerald-500/10"
               >
                 Publicar
               </button>
               <button
                 type="button"
-                onClick={onEditar}
+                onClick={() => onEditar(doc)}
                 className="text-[11px] text-white/50 hover:text-white/85 px-2 py-1 rounded hover:bg-white/[0.05]"
               >
                 Editar
               </button>
               <button
                 type="button"
-                onClick={onRemover}
+                onClick={() => onRemover(doc)}
                 className="text-[11px] text-red-400/70 hover:text-red-400 px-2 py-1 rounded hover:bg-red-500/10"
               >
                 Remover
@@ -278,14 +278,14 @@ function DocumentoRow({
             <>
               <button
                 type="button"
-                onClick={onRevisar}
+                onClick={() => onRevisar(doc)}
                 className="text-[11px] text-emerald-400 hover:text-emerald-300 px-2 py-1 rounded hover:bg-emerald-500/10"
               >
                 Revisar
               </button>
               <button
                 type="button"
-                onClick={onEditar}
+                onClick={() => onEditar(doc)}
                 className="text-[11px] text-white/50 hover:text-white/85 px-2 py-1 rounded hover:bg-white/[0.05]"
               >
                 Editar
@@ -296,7 +296,7 @@ function DocumentoRow({
       </td>
     </tr>
   );
-}
+});
 
 function SkeletonRows() {
   return (
