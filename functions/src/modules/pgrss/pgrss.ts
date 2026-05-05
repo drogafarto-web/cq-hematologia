@@ -12,13 +12,28 @@ const db = admin.firestore();
 export const registrarGeracao = onCall(
   { region: 'southamerica-east1' },
   async (request: any) => {
-    if (!request.auth?.token?.admin && !request.auth?.token?.operadorId) {
-      throw new HttpsError('permission-denied', 'Apenas admin/operador podem registrar geração de resíduo');
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Autenticação obrigatória');
     }
 
+    // PGRSS-FIX-1: Admin SDK bypasses Firestore Rules — validate membership manually.
     const { labId, tipo, descricao, peso_kg, responsavel, observacoes } = request.data;
 
-    if (!labId || !tipo || !descricao || peso_kg === undefined || !responsavel) {
+    if (!labId || typeof labId !== 'string') {
+      throw new HttpsError('invalid-argument', 'labId é obrigatório');
+    }
+
+    const memberSnap = await db.doc(`labs/${labId}/members/${request.auth.uid}`).get();
+    if (!memberSnap.exists || memberSnap.data()?.active !== true) {
+      throw new HttpsError('permission-denied', 'Usuário não é membro ativo deste laboratório');
+    }
+
+    const modulosAcesso: string[] = memberSnap.data()?.modulosAcesso ?? [];
+    if (!modulosAcesso.includes('pgrss') && !request.auth.token?.admin) {
+      throw new HttpsError('permission-denied', 'Sem acesso ao módulo PGRSS');
+    }
+
+    if (!tipo || !descricao || peso_kg === undefined || !responsavel) {
       throw new HttpsError('invalid-argument', 'Campos obrigatórios incompletos');
     }
 
@@ -87,13 +102,29 @@ export const registrarGeracao = onCall(
 export const registrarColeta = onCall(
   { region: 'southamerica-east1' },
   async (request: any) => {
-    if (!request.auth?.token?.admin) {
-      throw new HttpsError('permission-denied', 'Apenas admin podem registrar coleta');
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Autenticação obrigatória');
     }
 
+    // PGRSS-FIX-1 + PGRSS-FIX-2: replaced admin-only check with member+module validation.
+    // Admin SDK bypasses Firestore Rules — validate membership manually.
     const { labId, empresa_coletora, registroGeracaoIds, peso_total_kg, comprovante_url } = request.data;
 
-    if (!labId || !empresa_coletora || !registroGeracaoIds || !Array.isArray(registroGeracaoIds) || registroGeracaoIds.length === 0 || peso_total_kg === undefined) {
+    if (!labId || typeof labId !== 'string') {
+      throw new HttpsError('invalid-argument', 'labId é obrigatório');
+    }
+
+    const memberSnap = await db.doc(`labs/${labId}/members/${request.auth.uid}`).get();
+    if (!memberSnap.exists || memberSnap.data()?.active !== true) {
+      throw new HttpsError('permission-denied', 'Usuário não é membro ativo deste laboratório');
+    }
+
+    const modulosAcesso: string[] = memberSnap.data()?.modulosAcesso ?? [];
+    if (!modulosAcesso.includes('pgrss') && !request.auth.token?.admin) {
+      throw new HttpsError('permission-denied', 'Sem acesso ao módulo PGRSS');
+    }
+
+    if (!empresa_coletora || !registroGeracaoIds || !Array.isArray(registroGeracaoIds) || registroGeracaoIds.length === 0 || peso_total_kg === undefined) {
       throw new HttpsError('invalid-argument', 'Campos obrigatórios incompletos');
     }
 
@@ -155,14 +186,25 @@ export const registrarColeta = onCall(
 export const validarSegregacao = onCall(
   { region: 'southamerica-east1' },
   async (request: any) => {
-    if (!request.auth?.token?.admin && !request.auth?.token?.operadorId) {
-      throw new HttpsError('permission-denied', 'Apenas admin/operador podem validar segregação');
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Autenticação obrigatória');
     }
 
+    // PGRSS-FIX-1: Admin SDK bypasses Firestore Rules — validate membership manually.
     const { labId } = request.data;
 
-    if (!labId) {
+    if (!labId || typeof labId !== 'string') {
       throw new HttpsError('invalid-argument', 'labId obrigatório');
+    }
+
+    const memberSnap = await db.doc(`labs/${labId}/members/${request.auth.uid}`).get();
+    if (!memberSnap.exists || memberSnap.data()?.active !== true) {
+      throw new HttpsError('permission-denied', 'Usuário não é membro ativo deste laboratório');
+    }
+
+    const modulosAcesso: string[] = memberSnap.data()?.modulosAcesso ?? [];
+    if (!modulosAcesso.includes('pgrss') && !request.auth.token?.admin) {
+      throw new HttpsError('permission-denied', 'Sem acesso ao módulo PGRSS');
     }
 
     try {

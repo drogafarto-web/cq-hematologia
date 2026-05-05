@@ -7,7 +7,7 @@ const db = admin.firestore();
 
 /**
  * criarSolicitacao — Initiate LGPD data subject access/deletion/rectification request.
- * 30-day SLA enforcement with audit trail.
+ * 15-day SLA enforcement (LGPD art. 18) with audit trail.
  */
 export const criarSolicitacao = onCall(
   { region: 'southamerica-east1' },
@@ -34,7 +34,16 @@ export const criarSolicitacao = onCall(
       }
 
       const now = admin.firestore.Timestamp.now();
-      const prazoDate = new Date(now.toDate().getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
+      // LGPD art. 18 — prazo máximo de 15 dias para todos os tipos de solicitação
+      const prazosDias: Record<string, number> = {
+        acesso: 15,
+        retificacao: 15,
+        exclusao: 15,
+        portabilidade: 15,
+        oposicao: 15,
+      };
+      const diasPrazo = prazosDias[tipo] ?? 15;
+      const prazoDate = new Date(now.toDate().getTime() + diasPrazo * 24 * 60 * 60 * 1000);
       const dataPrairie = admin.firestore.Timestamp.fromDate(prazoDate);
 
       const solicitacao = {
@@ -101,7 +110,6 @@ export const processarExclusao = onCall(
         throw new HttpsError('not-found', 'Solicitação de exclusão não encontrada');
       }
 
-      const batch = db.batch();
       const solicitacaoRef = db.doc(`labs/${labId}/lgpd-solicitacoes/${solicitacaoId}`);
       const now = admin.firestore.Timestamp.now();
 
@@ -109,60 +117,117 @@ export const processarExclusao = onCall(
       const emailHash = crypto.createHash('sha256').update(solicitacaoSnap.data()?.titular_email || '').digest('hex');
       const nomeAnon = `Paciente_${emailHash.substring(0, 8)}`;
 
-      const dadosExcluidos: string[] = [];
-
-      // Find and anonymize user records across modules
-      // This is a simplified approach — in production, iterate all collections
-      const colecoes = [
-        `labs/${labId}/runs`,
-        `labs/${labId}/amostras`,
-        `labs/${labId}/relatorios`,
+      // All collections with personal data, mapped to the field that holds the subject UID
+      const colecoesPorCampo: Array<{ colecao: string; campo: string }> = [
+        { colecao: 'runs', campo: 'operadorId' },
+        { colecao: 'amostras', campo: 'pacienteId' },
+        { colecao: 'relatorios', campo: 'operadorId' },
+        { colecao: 'coagulacao', campo: 'operadorId' },
+        { colecao: 'ciq-imuno', campo: 'operadorId' },
+        { colecao: 'uroanalise', campo: 'operadorId' },
+        { colecao: 'treinamentos', campo: 'colaboradorId' },
+        { colecao: 'nao-conformidades', campo: 'operadorId' },
+        { colecao: 'pops', campo: 'criadoPor' },
+        { colecao: 'lots', campo: 'operadorId' },
+        { colecao: 'pgrss-geracao', campo: 'operadorId' },
+        { colecao: 'biosseguranca-areas', campo: 'responsavelId' },
+        { colecao: 'lgpd-consentimento', campo: 'usuario_id' },
+        { colecao: 'controle-temperatura', campo: 'operadorId' },
       ];
 
-      for (const colecaoPath of colecoes) {
-        const snap = await db.collection(colecaoPath).where('usuario_id', '==', usuario_id).get();
-        for (const doc of snap.docs) {
-          batch.update(doc.ref, {
-            usuario_id: `ANON_${emailHash.substring(0, 16)}`,
-            usuario_nome: nomeAnon,
-            usuario_email: `anon_${emailHash.substring(0, 8)}@anonymized.local`,
-            anonimizadoEm: now,
-          });
-          dadosExcluidos.push(`${colecaoPath}/${doc.id}`);
+      const dadosExcluidos: string[] = [];
+      const colecoesSummary: Array<{ colecao: string; campo: string; count: number }> = [];
+
+      // Collect all ops first, then flush in batches of ≤490 ops each
+      const pendingOps: Array<() => void> = [];
+      let currentBatch = db.batch();
+      let opsInBatch = 0;
+      const batches: admin.firestore.WriteBatch[] = [currentBatch];
+
+      const enqueue = (op: (b: admin.firestore.WriteBatch) => void) => {
+        if (opsInBatch >= 490) {
+          currentBatch = db.batch();
+          batches.push(currentBatch);
+          opsInBatch = 0;
         }
+        op(currentBatch);
+        opsInBatch++;
+      };
+
+      for (const { colecao, campo } of colecoesPorCampo) {
+        const colecaoPath = `labs/${labId}/${colecao}`;
+        const snap = await db.collection(colecaoPath).where(campo, '==', usuario_id).get();
+        let count = 0;
+
+        for (const docSnap of snap.docs) {
+          const anonFields: Record<string, unknown> = {
+            [campo]: `ANON_${emailHash.substring(0, 16)}`,
+            anonimizadoEm: now,
+          };
+          // Anonymize email-like and name-like fields when present
+          const data = docSnap.data();
+          if ('usuario_email' in data) anonFields['usuario_email'] = `anon_${emailHash.substring(0, 8)}@anonymized.local`;
+          if ('usuario_nome' in data) anonFields['usuario_nome'] = nomeAnon;
+          if ('colaboradorNome' in data) anonFields['colaboradorNome'] = nomeAnon;
+          if ('operadorNome' in data) anonFields['operadorNome'] = nomeAnon;
+
+          enqueue((b) => b.update(docSnap.ref, anonFields));
+          dadosExcluidos.push(`${colecaoPath}/${docSnap.id}`);
+          count++;
+        }
+
+        colecoesSummary.push({ colecao, campo, count });
       }
 
       // Archive original data (7-year retention for compliance)
       const arquivoRef = db.collection(`labs/${labId}/lgpd-arquivo`).doc();
-      batch.set(arquivoRef, {
-        usuario_id,
-        data_original: solicitacaoSnap.data(),
-        data_exclusao: now,
-        motivo: 'LGPD request processing',
-        retencao_ate: new Date(now.toDate().getTime() + 7 * 365 * 24 * 60 * 60 * 1000),
-      });
+      enqueue((b) =>
+        b.set(arquivoRef, {
+          usuario_id,
+          data_original: solicitacaoSnap.data(),
+          data_exclusao: now,
+          motivo: 'LGPD request processing',
+          retencao_ate: new Date(now.toDate().getTime() + 7 * 365 * 24 * 60 * 60 * 1000),
+        }),
+      );
 
       // Update solicitação status
-      batch.update(solicitacaoRef, {
-        status: 'concluida',
-        data_conclusao: now,
-      });
+      enqueue((b) =>
+        b.update(solicitacaoRef, {
+          status: 'concluida',
+          data_conclusao: now,
+        }),
+      );
 
       // Create deletion log
       const logRef = db.collection(`labs/${labId}/lgpd-exclusao`).doc();
-      batch.set(logRef, {
-        labId,
-        usuario_id,
-        usuario_nome: solicitacaoSnap.data()?.titular_nome,
-        data_exclusao: now,
-        tipo: 'anonimizacao',
-        dados_excluidos: dadosExcluidos,
-        verificado: true,
-        criadoEm: now,
-        criadoPor: request.auth.uid,
-      });
+      enqueue((b) =>
+        b.set(logRef, {
+          labId,
+          usuario_id,
+          usuario_nome: solicitacaoSnap.data()?.titular_nome,
+          data_exclusao: now,
+          tipo: 'anonimizacao',
+          dados_excluidos: dadosExcluidos,
+          colecoes_processadas: colecoesSummary,
+          batches_usados: batches.length,
+          verificado: true,
+          criadoEm: now,
+          criadoPor: request.auth.uid,
+        }),
+      );
 
-      await batch.commit();
+      // Commit all batches sequentially
+      for (const b of batches) {
+        await b.commit();
+      }
+
+      // Detailed audit log per collection
+      console.log(
+        `[LGPD] processarExclusao — lab=${labId} uid=${usuario_id} total=${dadosExcluidos.length} docs, ` +
+          `batches=${batches.length}, coleções: ` +
+          colecoesSummary.map((c) => `${c.colecao}(${c.campo})=${c.count}`).join(', '),
+      );
 
       // Audit log
       db.collection('auditLogs')
@@ -170,7 +235,13 @@ export const processarExclusao = onCall(
           action: 'LGPD_EXCLUSAO_PROCESSADA',
           callerUid: request.auth.uid,
           labId,
-          payload: { solicitacaoId, usuario_id, dadosAnominizados: dadosExcluidos.length },
+          payload: {
+            solicitacaoId,
+            usuario_id,
+            dadosAnonimizados: dadosExcluidos.length,
+            colecoesSummary,
+            batchesUsados: batches.length,
+          },
           timestamp: admin.firestore.FieldValue.serverTimestamp(),
         })
         .catch(() => {});
@@ -178,7 +249,8 @@ export const processarExclusao = onCall(
       return {
         success: true,
         logId: logRef.id,
-        dadosAnominizados: dadosExcluidos.length,
+        dadosAnonimizados: dadosExcluidos.length,
+        colecoesSummary,
       };
     } catch (error: any) {
       if (error instanceof HttpsError) throw error;
@@ -251,7 +323,7 @@ export const gerarDPIA = onCall(
 
 /**
  * scheduledProcessarSolicitacoesVencidas — Cleanup task for expired requests.
- * Runs daily to mark requests exceeding 30-day SLA.
+ * Runs daily to mark requests exceeding 15-day SLA (LGPD art. 18).
  */
 export const scheduledProcessarSolicitacoesVencidas = onSchedule(
   {
@@ -277,7 +349,7 @@ export const scheduledProcessarSolicitacoesVencidas = onSchedule(
           await doc.ref.update({
             status: 'recusada',
             data_conclusao: now,
-            motivo_recusa: 'SLA de 30 dias expirado',
+            motivo_recusa: 'SLA de 15 dias expirado (LGPD art. 18)',
           });
         }
 

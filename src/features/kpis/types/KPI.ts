@@ -26,10 +26,12 @@ export interface KPIDaily {
   retrabalho_percentual: number;
   retrabalho_total: number;
 
-  // Conformidade
-  conformidade_percentual: number;
+  // Documentação (KPI-FIX-4: renamed from conformidade_percentual)
+  // Measures % of runs with popId + equipId + operadorId filled in.
+  // NOT CIQ conformance (Levey-Jennings/Westgard) — see GAP-TODO-conformidade-ciq.
+  documentacao_percentual: number;
   runs_total: number;
-  runs_conformes: number;
+  runs_documentados: number;
 
   // NC Origins
   nc_total_abertas: number;

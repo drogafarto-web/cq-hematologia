@@ -3,7 +3,7 @@ import { useLGPD } from '../useLGPD';
 
 /**
  * RequestForm — Data subject request form (access, rectification, deletion, portability).
- * LGPD/GDPR/CCPA alignment with 30-day SLA enforcement.
+ * LGPD (Lei 13.709/2018) alignment with 15-day SLA enforcement (art. 18).
  */
 export function RequestForm() {
   const { criarSolicitacao } = useLGPD();
@@ -59,14 +59,14 @@ export function RequestForm() {
     <div className="space-y-6 p-6">
       <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
         <div className="text-sm text-blue-900">
-          <strong>Seus Direitos LGPD:</strong>
+          <strong>Seus Direitos — LGPD (Lei 13.709/2018):</strong>
           <ul className="mt-2 ml-4 space-y-1 list-disc">
             <li><strong>Acesso:</strong> Solicite cópia de seus dados processados</li>
             <li><strong>Retificação:</strong> Corrija dados incompletos ou incorretos</li>
             <li><strong>Exclusão:</strong> Solicite exclusão de seus dados (direito ao esquecimento)</li>
             <li><strong>Portabilidade:</strong> Receba seus dados em formato estruturado</li>
           </ul>
-          <div className="mt-3 text-xs">Prazo de resposta: 30 dias</div>
+          <div className="mt-3 text-xs">Prazo de resposta: 15 dias (LGPD art. 18)</div>
         </div>
       </div>
 
@@ -136,7 +136,7 @@ export function RequestForm() {
 
         {success && (
           <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-900">
-            Solicitação criada com sucesso. Prazo: 30 dias
+            Solicitação criada com sucesso. Prazo: 15 dias (LGPD art. 18)
           </div>
         )}
 
@@ -153,7 +153,7 @@ export function RequestForm() {
         <div className="text-xs text-gray-600">
           <strong>Proteção de Dados:</strong>
           <p className="mt-2">
-            Seus dados serão processados de forma segura conforme LGPD 14.506/2018.
+            Seus dados serão processados de forma segura conforme a LGPD (Lei 13.709/2018).
             Você receberá confirmação por email e pode acompanhar o status da solicitação aqui.
           </p>
         </div>

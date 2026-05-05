@@ -78,14 +78,14 @@ export function KPIDashboard() {
           </div>
         </div>
 
-        {/* Conformidade */}
+        {/* Documentação de Corridas (KPI-FIX-4: era "Conformidade", renomeado para evitar erro auditorial) */}
         <div className="rounded-lg border p-6">
-          <div className="text-sm font-medium text-gray-600">Conformidade</div>
-          <div className={`mt-2 text-3xl font-bold ${getMetricColor(kpi.conformidade_percentual, 95)}`}>
-            {kpi.conformidade_percentual.toFixed(1)}%
+          <div className="text-sm font-medium text-gray-600">Documentação de Corridas</div>
+          <div className={`mt-2 text-3xl font-bold ${getMetricColor(kpi.documentacao_percentual, 95)}`}>
+            {kpi.documentacao_percentual.toFixed(1)}%
           </div>
           <div className="mt-1 text-xs text-gray-500">
-            {kpi.runs_conformes} de {kpi.runs_total} com POP+Equip+Op
+            {kpi.runs_documentados} de {kpi.runs_total} com POP+Equip+Op
           </div>
           <div className="mt-2 text-xs text-gray-500">
             Meta: 95%+
