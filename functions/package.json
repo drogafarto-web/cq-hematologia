@@ -25,6 +25,7 @@
     "qrcode": "^1.5.4",
     "resend": "^4.5.2",
     "xlsx": "^0.18.5",
+    "puppeteer": "^22.15.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {

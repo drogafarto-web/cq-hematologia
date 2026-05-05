@@ -1,24 +1,31 @@
 /**
- * ExportWizard — 3-step modal for initiating async export jobs.
+ * ExportWizard — 4-step modal for initiating async export jobs.
  *
- * Step 1: Format selection (XLSX CIQ / XLSX NC)
+ * Step 1: Format selection (XLSX CIQ / XLSX NC / PDF / CSV)
  * Step 2: Date range (native <input type="date">)
- * Step 3: Review + confirm (initiates Cloud Callable → Pub/Sub)
+ * Step 3: Email delivery (optional — enter email to receive download link)
+ * Step 4: Review + confirm (initiates Cloud Callable → Pub/Sub)
  *
  * State: managed by useExportWizardStore (Zustand)
  * Job initiation: useExportInitiate (Cloud Callable wrapper)
  * Decouples UI from async XLSX generation — job status tracked separately in ExportQueueView.
+ *
+ * Phase 3.3: Step 3 (email) is optional — operator can skip it.
+ * When email is provided, backgroundWorker will send the signed URL
+ * after job completion (non-fatal failure mode).
  */
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useExportWizardStore } from '../hooks/useExportWizardState';
 import { useExportInitiate } from '../hooks/useExportInitiate';
 import { ExportStep1 } from './ExportStep1';
 import { ExportStep2 } from './ExportStep2';
 import { ExportStep3 } from './ExportStep3';
+import { EmailDeliveryStep } from './EmailDeliveryStep';
 import type { ExportFormat } from '../types';
 
-const STEP_LABELS = ['Formato', 'Período', 'Confirmar'] as const;
+const STEP_LABELS = ['Formato', 'Período', 'Email', 'Confirmar'] as const;
+const TOTAL_STEPS = 4;
 
 interface ExportWizardProps {
   labId: string;
@@ -45,6 +52,9 @@ export function ExportWizard({ labId, operatorId, onSubmitted }: ExportWizardPro
   } = useExportWizardStore();
 
   const { submit, loading, error, clearError } = useExportInitiate();
+
+  // Email delivery state — optional, local to wizard lifecycle
+  const [emailRecipient, setEmailRecipient] = useState('');
 
   // Focus trap: keep focus inside modal while open
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -101,6 +111,8 @@ export function ExportWizard({ labId, operatorId, onSubmitted }: ExportWizardPro
   const canAdvanceStep1 = format !== null;
   const canAdvanceStep2 =
     Boolean(startDate) && Boolean(endDate) && startDate <= endDate;
+  // Step 3 (email) is always advanceable — email is optional
+  const canAdvanceStep3 = true;
 
   const handleNext = useCallback(() => {
     clearError();
@@ -117,6 +129,7 @@ export function ExportWizard({ labId, operatorId, onSubmitted }: ExportWizardPro
         startDate,
         endDate,
         operatorId,
+        ...(emailRecipient ? { emailRecipient } : {}),
       });
 
       setSubmittedJobId(response.jobId);
@@ -124,7 +137,7 @@ export function ExportWizard({ labId, operatorId, onSubmitted }: ExportWizardPro
     } catch {
       // Error already set in useExportInitiate
     }
-  }, [format, startDate, endDate, labId, operatorId, submit, setSubmittedJobId, onSubmitted]);
+  }, [format, startDate, endDate, labId, operatorId, emailRecipient, submit, setSubmittedJobId, onSubmitted]);
 
   // Success state — job was submitted
   if (isOpen && submittedJobId) {
@@ -144,10 +157,10 @@ export function ExportWizard({ labId, operatorId, onSubmitted }: ExportWizardPro
       <ModalCard
         ref={dialogRef}
         title={`Exportar dados — ${STEP_LABELS[step - 1]}`}
-        subtitle={`Passo ${step} de 3`}
+        subtitle={`Passo ${step} de ${TOTAL_STEPS}`}
       >
         {/* Step indicator */}
-        <StepIndicator currentStep={step} totalSteps={3} labels={STEP_LABELS} />
+        <StepIndicator currentStep={step} totalSteps={TOTAL_STEPS} labels={STEP_LABELS} />
 
         {/* Step content */}
         <div className="mt-5">
@@ -169,6 +182,12 @@ export function ExportWizard({ labId, operatorId, onSubmitted }: ExportWizardPro
             />
           )}
           {step === 3 && (
+            <EmailDeliveryStep
+              emailRecipient={emailRecipient}
+              onChange={setEmailRecipient}
+            />
+          )}
+          {step === 4 && (
             <ExportStep3
               format={format}
               startDate={startDate}
@@ -180,8 +199,8 @@ export function ExportWizard({ labId, operatorId, onSubmitted }: ExportWizardPro
           )}
         </div>
 
-        {/* Navigation footer (only for steps 1 & 2) */}
-        {step < 3 && (
+        {/* Navigation footer (for steps 1, 2, 3) */}
+        {step < TOTAL_STEPS && (
           <div className="mt-6 flex items-center justify-between">
             <button
               type="button"
@@ -196,23 +215,26 @@ export function ExportWizard({ labId, operatorId, onSubmitted }: ExportWizardPro
               onClick={handleNext}
               disabled={
                 (step === 1 && !canAdvanceStep1) ||
-                (step === 2 && !canAdvanceStep2)
+                (step === 2 && !canAdvanceStep2) ||
+                (step === 3 && !canAdvanceStep3)
               }
               className={[
                 'rounded-xl px-5 py-2 text-sm font-semibold text-white transition-all duration-150',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/60',
-                (step === 1 && !canAdvanceStep1) || (step === 2 && !canAdvanceStep2)
+                (step === 1 && !canAdvanceStep1) ||
+                (step === 2 && !canAdvanceStep2) ||
+                (step === 3 && !canAdvanceStep3)
                   ? 'bg-white/10 text-white/30 cursor-not-allowed'
                   : 'bg-violet-600 hover:bg-violet-500 active:bg-violet-700',
               ].join(' ')}
             >
-              Próximo
+              {step === 3 ? (emailRecipient ? 'Próximo' : 'Pular') : 'Próximo'}
             </button>
           </div>
         )}
 
-        {/* Back button for step 3 */}
-        {step === 3 && !loading && (
+        {/* Back button for step 4 */}
+        {step === TOTAL_STEPS && !loading && (
           <div className="mt-4 flex justify-start">
             <button
               type="button"

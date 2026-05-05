@@ -13,7 +13,7 @@ interface ExportWizardActions {
   /** Close the wizard and reset all state */
   close: () => void;
   /** Advance to a specific step */
-  setStep: (step: 1 | 2 | 3) => void;
+  setStep: (step: 1 | 2 | 3 | 4) => void;
   /** Go to next step (capped at 3) */
   nextStep: () => void;
   /** Go to previous step (floored at 1) */
@@ -51,12 +51,12 @@ export const useExportWizardStore = create<ExportWizardState & ExportWizardActio
 
     nextStep: () => {
       const current = get().step;
-      if (current < 3) set({ step: (current + 1) as 1 | 2 | 3 });
+      if (current < 4) set({ step: (current + 1) as 1 | 2 | 3 | 4 });
     },
 
     prevStep: () => {
       const current = get().step;
-      if (current > 1) set({ step: (current - 1) as 1 | 2 | 3 });
+      if (current > 1) set({ step: (current - 1) as 1 | 2 | 3 | 4 });
     },
 
     setFormat: (format) => set({ format }),
@@ -69,7 +69,7 @@ export const useExportWizardStore = create<ExportWizardState & ExportWizardActio
 
     reset: () =>
       set({
-        step: 1,
+        step: 1 as const,
         format: null,
         startDate: '',
         endDate: '',

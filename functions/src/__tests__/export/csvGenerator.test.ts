@@ -75,8 +75,6 @@ const mockQueryChain = {
   }),
 };
 
-const mockCollection = vi.fn().mockReturnThis();
-const mockDoc = vi.fn().mockReturnThis();
 
 vi.mock('firebase-admin/firestore', () => {
   const Timestamp = {

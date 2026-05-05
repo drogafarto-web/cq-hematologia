@@ -268,6 +268,10 @@ export {
 // Cache: /labs/{labId}/analytics/cache/metrics/ciqCompliance
 export { aggregateAnalytics } from './modules/analytics/aggregateDaily';
 
+// generateDashboardPDF: callable (Phase 3.3) — Puppeteer snapshot of dashboard
+// HTML → PDF → Cloud Storage signed URL. 2GiB / 300s.
+export { generateDashboardPDF } from './modules/analytics/generateDashboardPDF';
+
 // ─── export module (Phase 3.1 — Async Data Export) ───────────────────────────
 // initiateExport: callable that validates auth, creates an export job in
 // Firestore (status='queued'), and publishes to Pub/Sub topic 'exports'.
@@ -275,6 +279,10 @@ export { aggregateAnalytics } from './modules/analytics/aggregateDaily';
 // generates XLSX via SheetJS, uploads to Cloud Storage, returns signed URL.
 export { initiateExport } from './modules/export/initiateExport';
 export { exportWorker } from './modules/export/exportWorker';
+// Phase 3.3 extensions: expanded worker + batch callable + scheduler
+export { backgroundWorker } from './modules/export/backgroundWorker';
+export { batchExport } from './modules/export/batchExport';
+export { scheduledWeeklyExport } from './modules/export/scheduledExport';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
