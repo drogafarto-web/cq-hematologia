@@ -138,8 +138,7 @@ export const processarExclusao = onCall(
       const dadosExcluidos: string[] = [];
       const colecoesSummary: Array<{ colecao: string; campo: string; count: number }> = [];
 
-      // Collect all ops first, then flush in batches of ≤490 ops each
-      const pendingOps: Array<() => void> = [];
+      // Collect all ops in batches of ≤490 ops each
       let currentBatch = db.batch();
       let opsInBatch = 0;
       const batches: admin.firestore.WriteBatch[] = [currentBatch];

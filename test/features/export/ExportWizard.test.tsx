@@ -64,7 +64,7 @@ describe('ExportWizard', () => {
     render(<ExportWizard labId={LAB_ID} operatorId={OPERATOR_ID} />);
 
     expect(screen.queryByText(/exportar dados/i)).not.toBeNull();
-    expect(screen.queryByText(/passo 1 de 3/i)).not.toBeNull();
+    expect(screen.queryByText(/passo 1 de 4/i)).not.toBeNull();
   });
 
   it('shows format selection cards in step 1', () => {
@@ -101,7 +101,7 @@ describe('ExportWizard', () => {
     fireEvent.click(screen.getByRole('button', { name: /XLSX — CIQ Completo/i }));
     fireEvent.click(screen.getByRole('button', { name: /próximo/i }));
 
-    expect(screen.queryByText(/passo 2 de 3/i)).not.toBeNull();
+    expect(screen.queryByText(/passo 2 de 4/i)).not.toBeNull();
     expect(screen.queryByLabelText(/data inicial/i)).not.toBeNull();
     expect(screen.queryByLabelText(/data final/i)).not.toBeNull();
   });
@@ -110,10 +110,10 @@ describe('ExportWizard', () => {
     useExportWizardStore.setState({ isOpen: true, step: 2, format: 'xlsx' });
     render(<ExportWizard labId={LAB_ID} operatorId={OPERATOR_ID} />);
 
-    expect(screen.queryByText(/passo 2 de 3/i)).not.toBeNull();
+    expect(screen.queryByText(/passo 2 de 4/i)).not.toBeNull();
     const progressbar = screen.getByRole('progressbar');
     expect(progressbar.getAttribute('aria-valuenow')).toBe('2');
-    expect(progressbar.getAttribute('aria-valuemax')).toBe('3');
+    expect(progressbar.getAttribute('aria-valuemax')).toBe('4');
   });
 
   it('Back button on step 2 returns to step 1', () => {
@@ -121,7 +121,7 @@ describe('ExportWizard', () => {
     render(<ExportWizard labId={LAB_ID} operatorId={OPERATOR_ID} />);
 
     fireEvent.click(screen.getByRole('button', { name: /voltar/i }));
-    expect(screen.queryByText(/passo 1 de 3/i)).not.toBeNull();
+    expect(screen.queryByText(/passo 1 de 4/i)).not.toBeNull();
   });
 
   it('Cancel button on step 1 closes the wizard', () => {
@@ -132,7 +132,7 @@ describe('ExportWizard', () => {
     expect(useExportWizardStore.getState().isOpen).toBe(false);
   });
 
-  it('advances to step 3 after setting valid date range', () => {
+  it('advances to step 3 (email) after setting valid date range', () => {
     useExportWizardStore.setState({
       isOpen: true,
       step: 2,
@@ -143,31 +143,31 @@ describe('ExportWizard', () => {
     render(<ExportWizard labId={LAB_ID} operatorId={OPERATOR_ID} />);
 
     fireEvent.click(screen.getByRole('button', { name: /próximo/i }));
-    expect(screen.queryByText(/passo 3 de 3/i)).not.toBeNull();
+    expect(screen.queryByText(/passo 3 de 4/i)).not.toBeNull();
   });
 
-  it('shows review summary on step 3', () => {
+  it('shows review summary on step 4 (confirm)', () => {
     useExportWizardStore.setState({
       isOpen: true,
-      step: 3,
+      step: 4,
       format: 'xlsx',
       startDate: '2026-01-01',
       endDate: '2026-03-31',
     });
     render(<ExportWizard labId={LAB_ID} operatorId={OPERATOR_ID} />);
 
-    // Step 3 subtitle says "Passo 3 de 3" and title contains "Confirmar"
-    expect(screen.queryByText(/passo 3 de 3/i)).not.toBeNull();
+    // Step 4 subtitle says "Passo 4 de 4" and title contains "Confirmar"
+    expect(screen.queryByText(/passo 4 de 4/i)).not.toBeNull();
     // Review card shows the format label
     expect(screen.queryByText(/XLSX — CIQ Completo/i)).not.toBeNull();
-    // Gerar exportação button appears on step 3
+    // Gerar exportação button appears on step 4
     expect(screen.queryByText(/gerar exportação/i)).not.toBeNull();
   });
 
   it('shows success view after job is submitted', () => {
     useExportWizardStore.setState({
       isOpen: true,
-      step: 3,
+      step: 4,
       format: 'xlsx',
       startDate: '2026-01-01',
       endDate: '2026-03-31',

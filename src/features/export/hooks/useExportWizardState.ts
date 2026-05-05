@@ -51,7 +51,7 @@ export const useExportWizardStore = create<ExportWizardState & ExportWizardActio
 
     nextStep: () => {
       const current = get().step;
-      if (current < 4) set({ step: (current + 1) as 1 | 2 | 3 | 4 });
+      if (current < 3) set({ step: (current + 1) as 1 | 2 | 3 | 4 });
     },
 
     prevStep: () => {

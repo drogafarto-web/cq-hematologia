@@ -34,8 +34,6 @@ import type {
   CEQResultadoInput,
   ZScoreResult,
 } from '../types/CEQ';
-import { calculateLogicalSignature } from '../../../utils/logicalSignature';
-
 // ─── Collection Refs ─────────────────────────────────────────────────────────
 
 const getCEQParticipacaoRef = (labId: string) =>

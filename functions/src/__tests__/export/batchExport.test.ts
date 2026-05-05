@@ -135,7 +135,7 @@ describe('batchExport', () => {
     const formats = ['xlsx-ciq', 'xlsx-nc', 'pdf-compliance'] as const;
     const request = makeRequest({ labId: 'lab-123', formats, dateRange: VALID_DATE_RANGE });
 
-    const result = await (batchExport as (req: MockRequest) => Promise<unknown>)(request);
+    const result = await (batchExport as unknown as (req: MockRequest) => Promise<unknown>)(request);
 
     expect(result).toMatchObject({
       jobIds: expect.any(Array),
@@ -150,7 +150,7 @@ describe('batchExport', () => {
     const formats = ['xlsx-ciq', 'xlsx-nc', 'csv-audit'] as const;
     const request = makeRequest({ labId: 'lab-123', formats, dateRange: VALID_DATE_RANGE });
 
-    await (batchExport as (req: MockRequest) => Promise<unknown>)(request);
+    await (batchExport as unknown as (req: MockRequest) => Promise<unknown>)(request);
 
     expect(batchCommitCalled).toBe(true);
     expect(mockBatch.commit).toHaveBeenCalledOnce();
@@ -160,7 +160,7 @@ describe('batchExport', () => {
     const formats = ['xlsx-ciq', 'xlsx-nc', 'pdf-compliance'] as const;
     const request = makeRequest({ labId: 'lab-123', formats, dateRange: VALID_DATE_RANGE });
 
-    await (batchExport as (req: MockRequest) => Promise<unknown>)(request);
+    await (batchExport as unknown as (req: MockRequest) => Promise<unknown>)(request);
 
     // batch.set should be called once per format
     expect(mockBatch.set).toHaveBeenCalledTimes(3);
@@ -170,7 +170,7 @@ describe('batchExport', () => {
     const formats = ['xlsx-ciq', 'xlsx-nc'] as const;
     const request = makeRequest({ labId: 'lab-abc', formats, dateRange: VALID_DATE_RANGE });
 
-    await (batchExport as (req: MockRequest) => Promise<unknown>)(request);
+    await (batchExport as unknown as (req: MockRequest) => Promise<unknown>)(request);
 
     // Verify each batch.set call has the expected format
     const setCalls = mockBatch.set.mock.calls;
@@ -184,7 +184,7 @@ describe('batchExport', () => {
     const formats = ['xlsx-ciq', 'xlsx-nc', 'csv-audit'] as const;
     const request = makeRequest({ labId: 'lab-123', formats, dateRange: VALID_DATE_RANGE });
 
-    await (batchExport as (req: MockRequest) => Promise<unknown>)(request);
+    await (batchExport as unknown as (req: MockRequest) => Promise<unknown>)(request);
 
     expect(pubsubPublishCalls).toHaveLength(3);
   });
@@ -198,7 +198,7 @@ describe('batchExport', () => {
     });
 
     await expect(
-      (batchExport as (req: MockRequest) => Promise<unknown>)(request),
+      (batchExport as unknown as (req: MockRequest) => Promise<unknown>)(request),
     ).rejects.toMatchObject({
       code: 'invalid-argument',
     });
@@ -214,7 +214,7 @@ describe('batchExport', () => {
     });
 
     await expect(
-      (batchExport as (req: MockRequest) => Promise<unknown>)(request),
+      (batchExport as unknown as (req: MockRequest) => Promise<unknown>)(request),
     ).rejects.toMatchObject({
       code: 'invalid-argument',
     });
@@ -224,7 +224,7 @@ describe('batchExport', () => {
     const request = { auth: null, data: { labId: 'lab-123', formats: ['xlsx-ciq'], dateRange: VALID_DATE_RANGE } };
 
     await expect(
-      (batchExport as (req: MockRequest) => Promise<unknown>)(request),
+      (batchExport as unknown as (req: MockRequest) => Promise<unknown>)(request),
     ).rejects.toMatchObject({
       code: 'unauthenticated',
     });
@@ -239,7 +239,7 @@ describe('batchExport', () => {
       emailRecipient: 'analyst@lab.example.com',
     });
 
-    await (batchExport as (req: MockRequest) => Promise<unknown>)(request);
+    await (batchExport as unknown as (req: MockRequest) => Promise<unknown>)(request);
 
     const setCalls = mockBatch.set.mock.calls;
     const jobData = setCalls[0][1] as Record<string, unknown>;
@@ -254,7 +254,7 @@ describe('batchExport', () => {
       dateRange: VALID_DATE_RANGE,
     });
 
-    await (batchExport as (req: MockRequest) => Promise<unknown>)(request);
+    await (batchExport as unknown as (req: MockRequest) => Promise<unknown>)(request);
 
     const setCalls = mockBatch.set.mock.calls;
     const jobData = setCalls[0][1] as Record<string, unknown>;
@@ -265,7 +265,7 @@ describe('batchExport', () => {
     const formats = ['xlsx-ciq', 'xlsx-nc', 'csv-audit'] as const;
     const request = makeRequest({ labId: 'lab-123', formats, dateRange: VALID_DATE_RANGE });
 
-    const result = await (batchExport as (req: MockRequest) => Promise<unknown>)(request);
+    const result = await (batchExport as unknown as (req: MockRequest) => Promise<unknown>)(request);
     const response = result as { jobIds: string[]; batchId: string };
 
     const setCalls = mockBatch.set.mock.calls;
@@ -280,7 +280,7 @@ describe('batchExport', () => {
 
     // Should not throw
     await expect(
-      (batchExport as (req: MockRequest) => Promise<unknown>)(request),
+      (batchExport as unknown as (req: MockRequest) => Promise<unknown>)(request),
     ).resolves.toMatchObject({
       jobIds: expect.any(Array),
     });
