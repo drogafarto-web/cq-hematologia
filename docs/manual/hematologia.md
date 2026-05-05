@@ -246,3 +246,8 @@ Pare imediatamente e chame o RT (ou suporte técnico) quando:
 4. **Frasco acabou**: clica em **Encerrar** no card do lote (não "Descartar" — esse é pra acidente). Vai pra aba "Encerrados", histórico fica salvo.
 
 Se algo gritar vermelho ou der erro estranho — **para, anota, chama o RT**. Nunca apague, nunca refaça pra mascarar.
+
+
+---
+## 🔗 Conexões Centrais
+- [[HC_Quality]]

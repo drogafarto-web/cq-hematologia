@@ -122,3 +122,8 @@ No final:
 - Cheque TODAS as camadas. Não só a mais fácil de revisar.
 - Custo conta como finding. API call desnecessária é bug de performance.
 - Dados em risco é sempre CRÍTICO. Nunca MÉDIO, nunca BAIXO.
+
+
+---
+## 🔗 Conexões Centrais
+- [[HC_Quality]]

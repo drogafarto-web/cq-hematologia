@@ -365,3 +365,8 @@ Não é opcional. Se o dado importa para auditoria/rastreabilidade, escreva o ev
 Pergunta-teste: **3+ módulos vão referenciar essa entidade**, ou a entidade tem **regulamentação própria de retenção/auditoria**?
 - Sim → spine. Aplica padrão deste doc.
 - Não → fica encapsulada dentro do módulo dono.
+
+
+---
+## 🔗 Conexões Centrais
+- [[HC_Quality]]

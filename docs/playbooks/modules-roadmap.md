@@ -206,3 +206,8 @@ Antes de começar um módulo novo:
 3. Se cria nova spine: justifica pela regra dos 3+ consumidores.
 4. Se consome: reusa schema canônico, **nunca** duplica.
 5. Atualiza o status (⚪ → 🔵 → 🟡 → ✅) neste doc após deploy.
+
+
+---
+## 🔗 Conexões Centrais
+- [[HC_Quality]]

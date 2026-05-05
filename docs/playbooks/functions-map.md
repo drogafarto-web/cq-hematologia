@@ -91,3 +91,8 @@ Genesis por lab: `SHA256('hcq-audit-genesis:' + labId)`. Writer é transacional 
 ## HMAC signatures — Onda 5
 
 Secret `HCQ_SIGNATURE_HMAC_KEY` (não setado ainda). Dual-write: server recalcula HMAC sobre payload canônico e grava `serverHmac` ao lado do `logicalSignature` do cliente. Divergência → log em `auditLogs` action=`SIGNATURE_DIVERGENCE`. Após 7-14 dias de zero divergência, promover rules pra exigir `serverHmac`.
+
+
+---
+## 🔗 Conexões Centrais
+- [[HC_Quality]]
