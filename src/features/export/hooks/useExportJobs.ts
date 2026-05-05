@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { doc, onSnapshot, DocumentSnapshot } from 'firebase/firestore';
-import { db } from '../../core/firebase';
-import { useAuthStore } from '../../store/useAuthStore';
+import { db } from '../../../shared/services/firebase';
 import { ExportJob } from '../types';
 
 /**

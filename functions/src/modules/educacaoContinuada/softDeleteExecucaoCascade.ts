@@ -131,6 +131,8 @@ export const ec_softDeleteExecucaoCascade = onCall<unknown, Promise<Result>>(
       ok: true,
       execucaoId,
       participantesArquivados: participantesAtivos.length,
+      avaliacoesEficaciaArquivadas: eficaciaAtivas.length,
+      avaliacoesCompetenciaArquivadas: competenciaAtivas.length,
     };
   },
 );

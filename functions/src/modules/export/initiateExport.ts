@@ -1,5 +1,5 @@
 import { onCall, HttpsError, CallableRequest } from 'firebase-functions/v2/https';
-import { getFirestore, Timestamp } from 'firebase-admin/firestore';
+import { getFirestore } from 'firebase-admin/firestore';
 import { PubSub } from '@google-cloud/pubsub';
 import { nanoid } from 'nanoid';
 import {
@@ -7,7 +7,7 @@ import {
   ExportJob,
   ExportJobMessage,
   ExportFormat,
-} from '../../../src/features/export/types';
+} from './types';
 
 const db = getFirestore();
 const pubsub = new PubSub({ projectId: process.env.GCLOUD_PROJECT });
