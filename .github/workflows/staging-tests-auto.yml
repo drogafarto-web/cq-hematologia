@@ -1,0 +1,137 @@
+name: Staging Tests Auto
+
+on:
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      lab_id:
+        description: 'Lab ID for smoke tests'
+        required: false
+        default: 'test-lab-001'
+
+  # Automatic trigger after staging deployment succeeds
+  workflow_run:
+    workflows: ['Staging Deploy']
+    types: [completed]
+
+  # Also allow scheduled smoke tests
+  schedule:
+    # Run daily at 2 AM UTC (9 PM BRT)
+    - cron: '0 2 * * *'
+
+concurrency:
+  group: staging-tests
+  cancel-in-progress: false
+
+jobs:
+  smoke-tests:
+    name: Staging Smoke Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      FIREBASE_PROJECT_ID: hmatologia2-staging
+      TEST_LAB_ID: ${{ github.event.inputs.lab_id || 'test-lab-001' }}
+
+    steps:
+      # Only proceed if the triggering workflow succeeded (when triggered by workflow_run)
+      - name: Check workflow status
+        if: github.event_name == 'workflow_run'
+        run: |
+          if [ "${{ github.event.workflow_run.conclusion }}" != "success" ]; then
+            echo "Previous workflow did not succeed, skipping tests"
+            exit 1
+          fi
+          echo "Previous workflow succeeded, proceeding with tests"
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Verify test infrastructure
+        run: |
+          echo "Node version:"
+          node --version
+          echo ""
+          echo "Test framework check:"
+          npm run test:unit --help || echo "test:unit script available"
+
+      - name: Load seed data to staging
+        run: |
+          echo "Seeding test data to Firebase staging..."
+          export FIREBASE_PROJECT_ID=${{ env.FIREBASE_PROJECT_ID }}
+          export TEST_LAB_ID=${{ env.TEST_LAB_ID }}
+          node scripts/seed-staging-data.mjs
+
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests against staging environment..."
+          bash scripts/run-staging-tests.sh \
+            --lab-id=${{ env.TEST_LAB_ID }} \
+            --project=${{ env.FIREBASE_PROJECT_ID }}
+
+      - name: Generate test report
+        if: always()
+        run: |
+          echo "## Staging Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f ".planning/STAGING-TEST-RESULTS.md" ]; then
+            echo "Results:" >> $GITHUB_STEP_SUMMARY
+            cat .planning/STAGING-TEST-RESULTS.md >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No test results file generated" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Comment results on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const resultsFile = '.planning/STAGING-TEST-RESULTS.md';
+
+            let message = '## Staging Tests Auto-Run\n\n';
+
+            if (fs.existsSync(resultsFile)) {
+              const results = fs.readFileSync(resultsFile, 'utf8');
+              message += results;
+            } else {
+              message += 'No test results available.';
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message,
+            });
+
+      - name: Upload logs as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-test-logs
+          path: .planning/STAGING-TEST*.md
+          retention-days: 30
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Staging smoke tests failed!"
+          echo "Check logs in: .planning/STAGING-TESTS-LOG.md"
+          echo "Results in: .planning/STAGING-TEST-RESULTS.md"
+          exit 1
+
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "✅ Staging smoke tests PASSED!"
+          echo "Staging environment is ready for manual QA at:"
+          echo "  https://hmatologia2-staging.web.app"

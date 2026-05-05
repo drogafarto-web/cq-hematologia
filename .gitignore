@@ -114,6 +114,10 @@ scripts/*
 # Negação precisa do glob direto, sem o trailing slash, pra git reconhecer
 !scripts/migrations
 !scripts/migrations/**
+# Exceção: scripts/staging/ hospeda scripts de automação de staging versionados
+!scripts/run-staging-tests.sh
+!scripts/seed-staging-data.mjs
+!scripts/watch-staging-setup.mjs
 # Exceção: functions/scripts/ hospeda utilitários de dev versionados
 !functions/scripts/
 !functions/scripts/**
