@@ -1,0 +1,17 @@
+{
+  "name": "hcQualityMobile",
+  "displayName": "HC Quality",
+  "version": "1.0.0",
+  "description": "Multi-tenant clinical quality control system",
+  "platforms": ["ios", "android"],
+  "privacy": "unlisted",
+  "scheme": "hcquality",
+  "plugins": [],
+  "android": {
+    "versionCode": 1
+  },
+  "ios": {
+    "supportsTablet": true,
+    "bundleIdentifier": "com.hcquality.mobile"
+  }
+}
