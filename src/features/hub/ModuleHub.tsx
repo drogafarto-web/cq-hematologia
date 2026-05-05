@@ -295,6 +295,22 @@ const TraceIcon = () => (
   </Svg>
 );
 
+const BarChartIcon = () => (
+  <Svg size={20}>
+    <path d="M3 16.5h14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    <rect x="4" y="10" width="3" height="6.5" rx="0.5" stroke="currentColor" strokeWidth="1.3" />
+    <rect x="8.5" y="6" width="3" height="10.5" rx="0.5" stroke="currentColor" strokeWidth="1.3" />
+    <rect x="13" y="3" width="3" height="13.5" rx="0.5" stroke="currentColor" strokeWidth="1.3" />
+  </Svg>
+);
+
+const DownloadTrayIcon = () => (
+  <Svg size={20}>
+    <path d="M10 3v9M7 9l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M3.5 13.5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+  </Svg>
+);
+
 /* ╭─────────────────────────────────────────────────────────────────────────╮
    │ Module definitions                                                       │
    ╰─────────────────────────────────────────────────────────────────────────╯ */
@@ -517,6 +533,34 @@ const MODULES: ModuleDef[] = [
     status: 'soon',
     category: 'sgq',
   },
+
+  // ── Ferramentas transversais ──────────────────────────────────────────────
+  {
+    id: 'analytics',
+    name: 'Analytics',
+    tagline: 'Inteligência analítica · tendências · conformidade',
+    bullets: ['KPIs de conformidade', 'Tendências CIQ', 'NC heatmap'],
+    icon: <BarChartIcon />,
+    bloco: 'Cross',
+    iconBg: 'bg-violet-500/15',
+    iconColor: 'text-violet-400',
+    status: 'active',
+    category: 'sgq',
+    view: 'analytics' as View,
+  },
+  {
+    id: 'exports',
+    name: 'Exportações',
+    tagline: 'XLSX, relatórios PDF, histórico de exports',
+    bullets: ['Export XLSX multi-módulo', 'Relatórios PDF', 'Histórico de jobs'],
+    icon: <DownloadTrayIcon />,
+    bloco: 'Cross',
+    iconBg: 'bg-emerald-500/15',
+    iconColor: 'text-emerald-400',
+    status: 'active',
+    category: 'sgq',
+    view: 'exports' as View,
+  },
 ];
 
 const ROLE_LABELS: Record<string, string> = {
@@ -591,6 +635,8 @@ export function ModuleHub() {
     {
       label: 'Ferramentas',
       items: [
+        { label: 'Analytics', icon: <BarChartIcon />, view: 'analytics' as View },
+        { label: 'Exportações', icon: <DownloadTrayIcon />, view: 'exports' as View },
         { label: 'Importar bula PDF', icon: <PdfIcon />, view: 'bulaparser' as View },
         { label: 'Rastreabilidade', icon: <TraceIcon />, view: 'rastreabilidade' as View },
         { label: 'Relatórios', icon: <ReportsIcon />, view: 'reports' as View },

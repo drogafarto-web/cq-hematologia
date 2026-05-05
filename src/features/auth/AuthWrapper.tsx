@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuthFlow } from './hooks/useAuthFlow';
-import { useIsSuperAdmin, useActiveLab } from '../../store/useAuthStore';
+import { useIsSuperAdmin, useActiveLab, useUser } from '../../store/useAuthStore';
 import { useAppStore } from '../../store/useAppStore';
 import LoginScreen from './LoginScreen';
 import { FirstLabSetupScreen } from './FirstLabSetupScreen';
@@ -21,6 +21,9 @@ import { EducacaoContinuadaView } from '../educacao-continuada/EducacaoContinuad
 import { ControlTemperaturaView } from '../controle-temperatura/ControlTemperaturaView';
 import { SGQView } from '../sgq/SGQView';
 import { RastreabilidadeView } from '../traceability/RastreabilidadeView';
+import { AnalyticsHub } from '../analytics/components/AnalyticsHub';
+import { ExportQueueView } from '../export/components/ExportQueueView';
+import { ExportWizard } from '../export/components/ExportWizard';
 import { useBrowserHistorySync } from '../../shared/hooks/useBrowserHistorySync';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
@@ -47,6 +50,72 @@ function FullScreenLoader() {
 }
 
 // ─── Router for ready state ───────────────────────────────────────────────────
+
+function ExportsView() {
+  const activeLab = useActiveLab();
+  const user = useUser();
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const labId = activeLab?.id ?? '';
+  const operatorId = user?.uid ?? '';
+
+  return (
+    <div className="min-h-screen bg-[#0B0F14] text-white">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-bold tracking-widest uppercase text-emerald-400/80 mb-1">
+              Ferramentas
+            </p>
+            <h1 className="text-2xl font-semibold tracking-tight">Exportações</h1>
+            <p className="text-sm text-white/40 mt-1">
+              XLSX, relatórios PDF, histórico de exports
+            </p>
+          </div>
+          {labId && (
+            <button
+              type="button"
+              onClick={() => setWizardOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-medium transition-colors"
+            >
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden>
+                <path d="M10 4v9M7 10l3 3 3-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M3.5 14v1.5a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+              </svg>
+              Novo export
+            </button>
+          )}
+        </div>
+
+        {labId ? (
+          <ExportQueueView labId={labId} />
+        ) : (
+          <p className="text-white/40 text-sm">Nenhum laboratório ativo.</p>
+        )}
+
+        {wizardOpen && labId && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-[#141417] border border-white/[0.08] rounded-2xl shadow-2xl w-full max-w-lg">
+              <ExportWizard
+                labId={labId}
+                operatorId={operatorId}
+                onSubmitted={() => setWizardOpen(false)}
+              />
+              <div className="px-6 pb-5">
+                <button
+                  type="button"
+                  onClick={() => setWizardOpen(false)}
+                  className="w-full py-2 text-sm text-white/40 hover:text-white/70 transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function AppRouter() {
   const isSuperAdmin = useIsSuperAdmin();
@@ -85,6 +154,10 @@ function AppRouter() {
     view = <SGQView />;
   } else if (currentView === 'rastreabilidade') {
     view = <RastreabilidadeView />;
+  } else if (currentView === 'analytics') {
+    view = <AnalyticsHub />;
+  } else if (currentView === 'exports') {
+    view = <ExportsView />;
   } else {
     view = <AnalyzerView />;
   }

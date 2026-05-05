@@ -423,7 +423,9 @@ export type View =
   | 'educacao-continuada'
   | 'controle-temperatura'
   | 'sgq-documentos'
-  | 'rastreabilidade';
+  | 'rastreabilidade'
+  | 'analytics'
+  | 'exports';
 
 // ─── Traceability ─────────────────────────────────────────────────────────────
 
