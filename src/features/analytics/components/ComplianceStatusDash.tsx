@@ -104,14 +104,24 @@ function retrabalhoVariant(pct: number): CardVariant {
   return 'critical';
 }
 
+// ─── Active filters ───────────────────────────────────────────────────────────
+
+interface ActiveFilters {
+  equipmentIds: Set<string>;
+  operatorIds: Set<string>;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 interface ComplianceStatusDashProps {
   className?: string;
+  /** Filter state from AnalyticsHub — passed through for future aggregate filtering */
+  activeFilters?: ActiveFilters;
 }
 
 export const ComplianceStatusDash = React.memo(function ComplianceStatusDash({
   className = '',
+  activeFilters: _activeFilters,
 }: ComplianceStatusDashProps) {
   const aggregate = useAnalyticsAggregate();
   const loading = useAnalyticsLoading();
@@ -166,7 +176,7 @@ export const ComplianceStatusDash = React.memo(function ComplianceStatusDash({
 
       {/* KPI grid */}
       <div
-        className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         role="list"
         aria-label="Indicadores chave"
       >

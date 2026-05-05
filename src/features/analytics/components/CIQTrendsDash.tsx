@@ -112,14 +112,23 @@ function ChartSkeleton() {
   );
 }
 
+// ─── Active filters ───────────────────────────────────────────────────────────
+
+interface ActiveFilters {
+  equipmentIds: Set<string>;
+  operatorIds: Set<string>;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 interface CIQTrendsDashProps {
   className?: string;
+  activeFilters?: ActiveFilters;
 }
 
 export const CIQTrendsDash = React.memo(function CIQTrendsDash({
   className = '',
+  activeFilters: _activeFilters,
 }: CIQTrendsDashProps) {
   const { ljChartData } = useChartData();
   const loading = useAnalyticsLoading();
@@ -181,8 +190,8 @@ export const CIQTrendsDash = React.memo(function CIQTrendsDash({
       </div>
 
       {/* Chart */}
-      <div className="rounded-xl border border-white/8 bg-white/[0.02] p-4">
-        <ResponsiveContainer width="100%" height={280}>
+      <div className="w-full aspect-[4/3] md:aspect-[16/9] rounded-xl border border-white/8 bg-white/[0.02] p-4">
+        <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={ljChartData} margin={{ top: 8, right: 8, bottom: 0, left: -8 }}>
             <CartesianGrid
               strokeDasharray="3 3"

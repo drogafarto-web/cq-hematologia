@@ -72,14 +72,23 @@ function BarTooltip({ active, payload, label }: BarTooltipProps) {
   );
 }
 
+// ─── Active filters ───────────────────────────────────────────────────────────
+
+interface ActiveFilters {
+  equipmentIds: Set<string>;
+  operatorIds: Set<string>;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 interface NCHeatmapDashProps {
   className?: string;
+  activeFilters?: ActiveFilters;
 }
 
 export const NCHeatmapDash = React.memo(function NCHeatmapDash({
   className = '',
+  activeFilters: _activeFilters,
 }: NCHeatmapDashProps) {
   const aggregate = useAnalyticsAggregate();
   const loading = useAnalyticsLoading();
@@ -141,9 +150,9 @@ export const NCHeatmapDash = React.memo(function NCHeatmapDash({
 
       {/* Age distribution bar chart */}
       {ncAgeDist.length > 0 && totalOpen > 0 && (
-        <div className="rounded-xl border border-white/8 bg-white/[0.02] p-4">
+        <div className="w-full aspect-[4/3] md:aspect-[16/9] rounded-xl border border-white/8 bg-white/[0.02] p-4">
           <p className="text-xs text-white/40 mb-3">Distribuição por idade</p>
-          <ResponsiveContainer width="100%" height={120}>
+          <ResponsiveContainer width="100%" height="80%">
             <BarChart data={ncAgeDist} margin={{ top: 0, right: 8, bottom: 0, left: -16 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#ffffff0a" horizontal={false} />
               <XAxis
