@@ -5,7 +5,14 @@
  * Integration with NC module for automatic non-conformidade creation when |Z| > 3.
  */
 
-import type { LogicalSignature } from '../../../utils/logicalSignature';
+import type { Timestamp } from 'firebase/firestore';
+
+/** ADR 0005 — logical audit signature */
+interface LogicalSignature {
+  hash: string;        // SHA-256 hex, 64 chars
+  operatorId: string;  // === request.auth.uid (Firestore rule validates)
+  ts: Timestamp;
+}
 
 /**
  * CEQParticipacao — Registration in external proficiency program

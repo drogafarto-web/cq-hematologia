@@ -13,8 +13,8 @@ import { useState, useCallback, useEffect } from 'react';
 import { onSnapshot } from 'firebase/firestore';
 import { db } from '../../../config/firebase.config';
 import { collection, query, where } from 'firebase/firestore';
-import { useAuthStore } from '../../../store/useAuthStore';
-import { useToastStore } from '../../../shared/store/useToastStore';
+import { useAuthStore, useActiveLab } from '../../../store/useAuthStore';
+import { toast } from '../../../shared/store/useToastStore';
 import type {
   CEQParticipacao,
   CEQAmostra,
@@ -58,9 +58,8 @@ const initialState: CEQState = {
 
 export function useCEQ() {
   const [state, setState] = useState(initialState);
-  const { activeLab } = useAuthStore();
-  const { addToast } = useToastStore();
-  const uid = useAuthStore((s) => s.user?.uid || '');
+  const activeLab = useActiveLab();
+  const uid = useAuthStore((s) => s.appProfile?.user?.uid ?? '');
 
   // ─── Load participacoes ──────────────────────────────────────────────────
 
@@ -172,20 +171,16 @@ export function useCEQ() {
 
       try {
         const participacao = await criarCEQParticipacao(activeLab.id, input, uid);
-        addToast({
-          type: 'success',
-          title: 'Participação criada',
-          message: `${participacao.provedorNome} — ${participacao.esquema}`,
-        });
+        toast.success(`Participação criada — ${participacao.provedorNome} · ${participacao.esquema}`);
       } catch (error) {
         const msg = error instanceof Error ? error.message : 'Erro ao criar participação';
         setState((s) => ({ ...s, error: msg }));
-        addToast({ type: 'error', title: 'Erro', message: msg });
+        toast.error(msg);
       } finally {
         setState((s) => ({ ...s, loading: false }));
       }
     },
-    [activeLab, uid, addToast],
+    [activeLab, uid],
   );
 
   const receberAmostra = useCallback(
@@ -196,20 +191,16 @@ export function useCEQ() {
 
       try {
         const amostra = await receberCEQAmostra(activeLab.id, input, uid);
-        addToast({
-          type: 'success',
-          title: 'Amostra recebida',
-          message: `Rodada ${amostra.rodada}/${amostra.ano}`,
-        });
+        toast.success(`Amostra recebida — Rodada ${amostra.rodada}/${amostra.ano}`);
       } catch (error) {
         const msg = error instanceof Error ? error.message : 'Erro ao receber amostra';
         setState((s) => ({ ...s, error: msg }));
-        addToast({ type: 'error', title: 'Erro', message: msg });
+        toast.error(msg);
       } finally {
         setState((s) => ({ ...s, loading: false }));
       }
     },
-    [activeLab, uid, addToast],
+    [activeLab, uid],
   );
 
   const lancarResultado = useCallback(
@@ -222,27 +213,19 @@ export function useCEQ() {
         const resultado = await lancarCEQResultado(activeLab.id, input, uid);
 
         if (resultado.temNCGrave) {
-          addToast({
-            type: 'warning',
-            title: 'NC Automática Criada',
-            message: `Z-Score ${resultado.zScore.toFixed(2)} ≥ 3 — Investigação necessária`,
-          });
+          toast.warning(`NC Automática Criada — Z-Score ${resultado.zScore.toFixed(2)} ≥ 3 — Investigação necessária`);
         } else {
-          addToast({
-            type: 'success',
-            title: 'Resultado lançado',
-            message: `${resultado.analyteName} — Z ${resultado.zScore.toFixed(2)}`,
-          });
+          toast.success(`Resultado lançado — ${resultado.analyteName} · Z ${resultado.zScore.toFixed(2)}`);
         }
       } catch (error) {
         const msg = error instanceof Error ? error.message : 'Erro ao lançar resultado';
         setState((s) => ({ ...s, error: msg }));
-        addToast({ type: 'error', title: 'Erro', message: msg });
+        toast.error(msg);
       } finally {
         setState((s) => ({ ...s, loading: false }));
       }
     },
-    [activeLab, uid, addToast],
+    [activeLab, uid],
   );
 
   const validar = useCallback(
@@ -253,16 +236,16 @@ export function useCEQ() {
 
       try {
         await validarCEQResultado(activeLab.id, resultadoId, uid);
-        addToast({ type: 'success', title: 'Resultado validado' });
+        toast.success('Resultado validado');
       } catch (error) {
         const msg = error instanceof Error ? error.message : 'Erro ao validar';
         setState((s) => ({ ...s, error: msg }));
-        addToast({ type: 'error', title: 'Erro', message: msg });
+        toast.error(msg);
       } finally {
         setState((s) => ({ ...s, loading: false }));
       }
     },
-    [activeLab, uid, addToast],
+    [activeLab, uid],
   );
 
   return {

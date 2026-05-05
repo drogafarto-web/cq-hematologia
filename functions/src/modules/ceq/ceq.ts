@@ -15,7 +15,6 @@ import {
   HttpsError,
 } from 'firebase-functions/v2/https';
 import {
-  onDocumentCreated,
   onDocumentUpdated,
 } from 'firebase-functions/v2/firestore';
 import {
@@ -27,9 +26,7 @@ import {
   getFirestore,
   Timestamp,
   FieldValue,
-  serverTimestamp,
 } from 'firebase-admin/firestore';
-import { getAuth } from 'firebase-admin/auth';
 import type {
   CreateCEQParticipacaoRequest,
   RecebeCEQAmostraRequest,
@@ -45,7 +42,6 @@ if (!getApps().length) {
 }
 
 const db = getFirestore();
-const auth = getAuth();
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -114,7 +110,7 @@ async function criarNCAutomatica(
       status: 'aberta',
       statusHistory: [
         {
-          timestamp: serverTimestamp(),
+          timestamp: FieldValue.serverTimestamp(),
           novoStatus: 'aberta',
           mudadoPor: uid,
           motivo: 'Auto-criada por resultado CEQ insatisfatório (|Z| ≥ 3)',
@@ -122,12 +118,12 @@ async function criarNCAutomatica(
       ],
       bloqueiaOperacoes: true,
       aberta: {
-        timestamp: serverTimestamp(),
+        timestamp: FieldValue.serverTimestamp(),
         uid,
         motivo: 'Resultado CEQ fora dos limites de aceitabilidade',
       },
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
     };
 
     await ncRef.set(ncDoc);
@@ -155,7 +151,7 @@ export const createCEQParticipacao = onCall(async (request) => {
 
   // Lab membership check
   const labDoc = await db.collection('labs').doc(labId).get();
-  if (!labDoc.exists()) {
+  if (!labDoc.exists) {
     throw new HttpsError('not-found', 'Lab not found');
   }
 
@@ -165,9 +161,9 @@ export const createCEQParticipacao = onCall(async (request) => {
     const participacao = {
       ...input,
       labId,
-      criadoEm: serverTimestamp(),
+      criadoEm: FieldValue.serverTimestamp(),
       criadoPor: request.auth.uid,
-      atualizadoEm: serverTimestamp(),
+      atualizadoEm: FieldValue.serverTimestamp(),
       atualizadoPor: request.auth.uid,
       dataInicio: Timestamp.fromDate(new Date(input.dataInicio)),
       dataFim: input.dataFim ? Timestamp.fromDate(new Date(input.dataFim)) : null,
@@ -208,9 +204,9 @@ export const receiveCEQAmostra = onCall(async (request) => {
       dataRecepcao: Timestamp.fromDate(new Date(req.dataRecepcao)),
       provedorRodadaId: req.provedorRodadaId || null,
       status: 'recebida',
-      criadoEm: serverTimestamp(),
+      criadoEm: FieldValue.serverTimestamp(),
       criadoPor: request.auth.uid,
-      atualizadoEm: serverTimestamp(),
+      atualizadoEm: FieldValue.serverTimestamp(),
       atualizadoPor: request.auth.uid,
       deletadoEm: null,
     };
@@ -266,9 +262,9 @@ export const lacarCEQResultado = onCall(async (request) => {
       interpretacao,
       temNCGrave,
       status: 'lancado',
-      criadoEm: serverTimestamp(),
+      criadoEm: FieldValue.serverTimestamp(),
       criadoPor: request.auth.uid,
-      atualizadoEm: serverTimestamp(),
+      atualizadoEm: FieldValue.serverTimestamp(),
       atualizadoPor: request.auth.uid,
       deletadoEm: null,
     };
@@ -294,7 +290,7 @@ export const lacarCEQResultado = onCall(async (request) => {
         // Update resultado with NC reference
         await resultadoRef.update({
           ncAutomaticaCriadaId,
-          ncAutomaticaCriadaEm: serverTimestamp(),
+          ncAutomaticaCriadaEm: FieldValue.serverTimestamp(),
         });
       }
     }
@@ -303,8 +299,8 @@ export const lacarCEQResultado = onCall(async (request) => {
     const amostraRef = db.collection('labs').doc(req.labId).collection('ceq-amostras').doc(req.ceqAmostraId);
     await amostraRef.update({
       status: 'resultado_lancado',
-      dataResultado: serverTimestamp(),
-      atualizadoEm: serverTimestamp(),
+      dataResultado: FieldValue.serverTimestamp(),
+      atualizadoEm: FieldValue.serverTimestamp(),
       atualizadoPor: request.auth.uid,
     });
 
@@ -364,7 +360,7 @@ export const onCEQResultadoValidado = onDocumentUpdated(
           .doc(ceqAmostraId)
           .update({
             status: 'processada',
-            atualizadoEm: serverTimestamp(),
+            atualizadoEm: FieldValue.serverTimestamp(),
           });
       }
     }

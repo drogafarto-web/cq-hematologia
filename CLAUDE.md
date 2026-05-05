@@ -73,16 +73,14 @@ Regras com escopo mais estreito vivem em `.claude/rules/`:
 | `pgrss` | Em prod · Gestão de resíduos (RDC 222/2018) — segregação, coleta, comprovantes | 2026-05-05 |
 | `kpis` | Em prod · Dashboard de KPIs — turnaround, retrabalho%, conformidade, NC origem, SLA | 2026-05-05 |
 | `lgpd` | Em prod · Política de privacidade + direitos do titular + DPIA + exclusão com audit trail | 2026-05-05 |
-| `analytics` | Em dev · Phase 3.2 — dashboards ComplianceStatus + CIQTrends + NCHeatmap + TrainingMatrix | 2026-05-05 |
-| `export` | Em dev · Phase 3.2 — ExportWizard 3-step + job queue Pub/Sub | 2026-05-05 |
-| `mobile` | Em dev · Phase 3.1 foundation — React Native auth + navigation scaffold | 2026-05-05 |
+| `analytics` | Em prod · Phase 3.3 — polling 30s, date/equipment/operator filters, PDF export CF, tablet responsive | 2026-05-05 |
+| `export` | Em prod · Phase 3.3 — ExportWizard 4-step + XLSX CF + PDF compress + email + batch+scheduled | 2026-05-05 |
+| `mobile` | Em dev · Phase 3.3 — NativeWind dark theme + biometric auth + Detox E2E (5 critical flows) | 2026-05-05 |
+| `ceq` | Em dev · Controle de Qualidade Externo — participação externa, z-score, comparação interlaboratorial | 2026-05-05 |
 
 **Phase 2 — COMPLETE (2026-05-05):** Todos os 20 módulos em produção. 347/347 testes passando. ADRs 0005+0002+0006+0003+0004 todos deployados.
 
-**Phase 3 — IN PROGRESS:**
-
-- 3.1 Foundation completa (2026-05-05): Mobile scaffold (hc-quality-mobile/), Analytics hourly CF, Export Pub/Sub + XLSX, 26+ unit tests.
-- 3.2 em execução paralela: 03.2-01 (Mobile screens) + 03.2-02 (Analytics UI) + 03.2-03 (Export Wizard) + Stream C (Lighthouse CI + perf).
+**Phase 3 — COMPLETE (2026-05-05):** 3.1 Foundation + 3.2 Core Features + 3.3 Polish todos concluídos. Web TSC limpo. Functions TSC limpo. 738/738 testes passando. Stream C (Lighthouse CI infra) parcialmente completo — auditoria de runtime pendente para próxima milestone.
 
 Módulos com documentação dedicada: `educacao-continuada` (próprio CLAUDE.md), `controle-temperatura` (próprio CLAUDE.md), `sgq` (contém pops + auditoria subdomínios), `treinamentos` (HANDOFF.md em desenvolvimento)
 

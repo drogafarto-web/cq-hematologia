@@ -9,32 +9,32 @@
 
 import { describe, it, expect } from 'vitest';
 
+// Helper function (mirrors ceq.ts calcularZScore)
+function calcularZScore(
+  valorObtido: number,
+  valorReferencia: number,
+  desvioEstimado: number,
+): { zScore: number; interpretacao: 'satisfatoria' | 'questionavel' | 'insatisfatoria' } {
+  if (desvioEstimado === 0) {
+    return { zScore: NaN, interpretacao: 'questionavel' };
+  }
+
+  const zScore = (valorObtido - valorReferencia) / desvioEstimado;
+  let interpretacao: 'satisfatoria' | 'questionavel' | 'insatisfatoria';
+
+  if (Math.abs(zScore) < 2) {
+    interpretacao = 'satisfatoria';
+  } else if (Math.abs(zScore) < 3) {
+    interpretacao = 'questionavel';
+  } else {
+    interpretacao = 'insatisfatoria';
+  }
+
+  return { zScore, interpretacao };
+}
+
 describe('CEQ Cloud Functions', () => {
   describe('Z-Score Calculation (Server-side Validation)', () => {
-    // Helper function (mirrors ceq.ts calcularZScore)
-    function calcularZScore(
-      valorObtido: number,
-      valorReferencia: number,
-      desvioEstimado: number,
-    ): { zScore: number; interpretacao: 'satisfatoria' | 'questionavel' | 'insatisfatoria' } {
-      if (desvioEstimado === 0) {
-        return { zScore: NaN, interpretacao: 'questionavel' };
-      }
-
-      const zScore = (valorObtido - valorReferencia) / desvioEstimado;
-      let interpretacao: 'satisfatoria' | 'questionavel' | 'insatisfatoria';
-
-      if (Math.abs(zScore) < 2) {
-        interpretacao = 'satisfatoria';
-      } else if (Math.abs(zScore) < 3) {
-        interpretacao = 'questionavel';
-      } else {
-        interpretacao = 'insatisfatoria';
-      }
-
-      return { zScore, interpretacao };
-    }
-
     it('calculates satisfactory result correctly', () => {
       const result = calcularZScore(100, 100, 10);
       expect(result.zScore).toBe(0);
@@ -160,7 +160,7 @@ describe('CEQ Cloud Functions', () => {
       // Type-safe check: if this compiles, validation passes
       expect(validRequest.labId).toBeDefined();
       expect(validRequest.ceqAmostraId).toBeDefined();
-      expect(validRequest.zScore).toBeUndefined(); // Should not be in request
+      expect((validRequest as Record<string, unknown>)['zScore']).toBeUndefined(); // Should not be in request
     });
 
     it('validates numeric constraints', () => {
@@ -175,7 +175,7 @@ describe('CEQ Cloud Functions', () => {
       expect(typeof request.valorReferencia).toBe('number');
       expect(typeof request.desvioEstimado).toBe('number');
 
-      expect(request.desvioEstimado).toBeGreater(0);
+      expect(request.desvioEstimado).toBeGreaterThan(0);
     });
   });
 

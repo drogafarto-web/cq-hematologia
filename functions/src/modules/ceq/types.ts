@@ -3,7 +3,16 @@
  * Server-side interfaces for proficiency testing
  */
 
-import type { CEQParticipacaoInput, CEQResultado } from '../../..';
+/** Input for enrolling a lab in an external proficiency testing (CEQ) program. */
+export interface CEQParticipacaoInput {
+  provedorId: string;
+  provedorNome: string;
+  programaNome: string;
+  analitoIds: string[];
+  dataInicio: string; // ISO date
+  dataFim?: string;  // ISO date, optional
+  [key: string]: unknown;
+}
 
 export interface CreateCEQParticipacaoRequest {
   labId: string;
