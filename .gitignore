@@ -141,6 +141,10 @@ smoke-test/fail*.png
 smoke-test/gemini-audit-*/
 smoke-test-openclaw/smoke-ciq-imuno-*/
 
+# Detox / Jest E2E test result artifacts
+test-results.xml
+test-results/
+
 # Anexos work-in-progress do módulo educação continuada
 modulo educa*/*.pdf
 modulo educa*/*.xlsx

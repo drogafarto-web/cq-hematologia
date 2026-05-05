@@ -29,8 +29,11 @@
   "author": "HC Quality CTO",
   "license": "MIT",
   "devDependencies": {
+    "@types/detox": "^17.14.3",
     "@types/jest": "^30.0.0",
+    "detox": "^20.51.1",
     "jest": "^30.3.0",
+    "jest-circus": "^30.3.0",
     "ts-jest": "^29.4.9"
   }
 }
