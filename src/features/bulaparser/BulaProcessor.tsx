@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useId } from 'react';
 import { extractDataFromBulaPdf } from './services/bulaGeminiService';
-import { convertPdfToImage } from './utils/pdfConverter';
+import { convertPdfToImage } from './utils/pdfConverterLazy';
 import {
   convertBulaPDFtoCSV,
   downloadCsvFile,

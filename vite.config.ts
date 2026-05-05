@@ -20,6 +20,53 @@ export default defineConfig(({ mode }) => {
     // Sourcemaps são uploadados pro Sentry e removidos do bundle servido,
     // mas precisam existir no build pra plugin processar.
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        // ── Manual chunk splitting: separa vendor, shared e feature modules ────
+        // Alvo: app shell <400KB gzip, vendor chunks reutilizáveis, lazy features
+        manualChunks(id: string) {
+          // Vendor chunks (large, static dependencies)
+          if (id.includes('node_modules/firebase/')) {
+            return 'vendor-firebase';
+          }
+          if (id.includes('node_modules/react')) {
+            return 'vendor-react';
+          }
+          if (id.includes('node_modules/recharts')) {
+            return 'vendor-charts';
+          }
+          if (id.includes('node_modules/pdfjs-dist')) {
+            // pdf.js worker já está em asset separado via pdfConverterLazy
+            return 'vendor-pdf';
+          }
+
+          // Feature modules (lazy-loaded per route)
+          if (id.includes('src/features/educacao-continuada')) {
+            return 'module-educacao';
+          }
+          if (id.includes('src/features/controle-temperatura')) {
+            return 'module-ct';
+          }
+          if (id.includes('src/features/sgq')) {
+            return 'module-sgq';
+          }
+          if (id.includes('src/features/bulaparser')) {
+            return 'module-bulaparser';
+          }
+
+          // Shared services (low-churn, referenced by multiple modules)
+          if (
+            id.includes('src/shared/services/') ||
+            id.includes('src/store/') ||
+            id.includes('src/utils/')
+          ) {
+            return 'shared';
+          }
+        },
+      },
+    },
+    // Aumenta limite de aviso de chunk size (muitos módulos no projeto)
+    chunkSizeWarningLimit: 600,
   },
   plugins: [
     tailwindcss(),

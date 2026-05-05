@@ -12,9 +12,22 @@
  * Parse é 2-fase: (a) lê ambas as abas e valida tudo client-side,
  * (b) caller confirma → ctFirebaseService#importarXlsxBatch grava atômico.
  * Erros e warnings não abortam parse — todos são retornados pra UI decidir.
+ *
+ * ⚠️ SheetJS é ~400KB gzipped — carregado via lazy import só quando o usuário
+ * interage com geração/parsing de XLSX. Primeira chamada paga latência de fetch;
+ * chamadas seguintes reusam a Promise cacheada.
  */
 
-import * as XLSX from 'xlsx';
+// ─── Lazy loader do XLSX (code-split) ────────────────────────────────────────
+type XlsxModule = typeof import('xlsx');
+let xlsxPromise: Promise<XlsxModule> | null = null;
+
+function loadXlsx(): Promise<XlsxModule> {
+  if (!xlsxPromise) {
+    xlsxPromise = import('xlsx');
+  }
+  return xlsxPromise;
+}
 
 import { Timestamp } from '../../../shared/services/firebase';
 import type {
@@ -96,7 +109,8 @@ const NAO_RE = new Set(['não', 'nao', 'n', 'no', 'false', '0']);
  * Gera o arquivo XLSX modelo. Caller faz download via blob URL.
  * 3 abas como spec. Exemplos pré-preenchidos.
  */
-export function generateCtTemplate(): ArrayBuffer {
+export async function generateCtTemplate(): Promise<ArrayBuffer> {
+  const XLSX = await loadXlsx();
   const wb = XLSX.utils.book_new();
 
   // Aba 1 — Equipamentos
@@ -321,6 +335,7 @@ const CALENDARIO_VAZIO: ConfiguracaoCalendarioDia = { obrigatorio: false, horari
  * resultado estruturado para a UI decidir se confirma.
  */
 export async function parseImportXlsx(file: File): Promise<ImportParseResult> {
+  const XLSX = await loadXlsx();
   const buffer = await file.arrayBuffer();
   const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
 
@@ -542,8 +557,8 @@ export async function parseImportXlsx(file: File): Promise<ImportParseResult> {
 }
 
 /** Dispara o download do modelo no browser. */
-export function downloadCtTemplate(): void {
-  const buf = generateCtTemplate();
+export async function downloadCtTemplate(): Promise<void> {
+  const buf = await generateCtTemplate();
   const blob = new Blob([buf], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   });
