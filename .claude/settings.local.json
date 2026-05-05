@@ -41,7 +41,20 @@
       "Bash(findstr :5173)",
       "Skill(gsd-resume-work)",
       "Bash(dir \".planning\\\\phases\\\\02-construction\")",
-      "Bash(findstr \".md\")"
+      "Bash(findstr \".md\")",
+      "Bash(firebase functions:describe criarTreinamento --project hmatologia2)",
+      "Bash(git tag *)",
+      "Skill(gsd-help)",
+      "Bash(ls -la \"C:\\\\\\\\hc quality\\\\\\\\.planning\\\\\\\\phases\\\\\\\\\")",
+      "Skill(gsd-discuss-phase)",
+      "Bash(cat \"C:\\\\\\\\hc quality\\\\\\\\firebase.json\")",
+      "Bash(ls -la \"C:\\\\\\\\hc quality\\\\\\\\functions\\\\\\\\\")",
+      "Bash(find \"C:\\\\\\\\hc quality\\\\\\\\src\\\\\\\\features\\\\\\\\educacao-continuada\" -type f -name \"*.ts\")",
+      "Bash(find *)",
+      "Bash(ls *)",
+      "Bash(grep -r \"firebase\" \"C:\\\\\\\\hc quality\\\\\\\\functions\\\\\\\\src\" --include=\"*.ts\")",
+      "Bash(cat \"C:\\\\\\\\hc quality\\\\\\\\vitest.config.ts\")",
+      "Bash(awk '{print $9, $5, $6, $7, $8}')"
     ]
   },
   "enabledMcpjsonServers": [

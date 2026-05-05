@@ -92,12 +92,11 @@ export const ec_softDeleteExecucaoCascade = onCall<unknown, Promise<Result>>(
       (d) => d.data()?.['deletadoEm'] === null,
     );
 
-    const totalWrites =
-      1 + participantesAtivos.length + eficaciaAtivas.length + competenciaAtivas.length;
+    const totalWrites = 1 + participantesAtivos.length;
     if (totalWrites > 500) {
       throw new HttpsError(
         'resource-exhausted',
-        `Execução tem ${totalWrites - 1} dependentes — excede limite de 500 writes por batch. Dividir em chunks fica como débito.`,
+        `Execução tem ${totalWrites - 1} participantes — excede limite de 500 writes por batch. Dividir em chunks fica como débito.`,
       );
     }
 
@@ -106,33 +105,32 @@ export const ec_softDeleteExecucaoCascade = onCall<unknown, Promise<Result>>(
 
     batch.update(execRef, { deletadoEm: now });
     for (const p of participantesAtivos) batch.update(p.ref, { deletadoEm: now });
-    for (const a of eficaciaAtivas) batch.update(a.ref, { deletadoEm: now });
-    for (const a of competenciaAtivas) batch.update(a.ref, { deletadoEm: now });
+    // NOTE: Evaluations (AvaliacoesEficacia, AvaliacoesCompetencia) are NOT cascade-deleted.
+    // Archiving an Execucao preserves evaluation history per RDC 978 audit trail requirements.
+    // Evaluations remain queryable and contribute to operator competency records.
 
     await batch.commit();
 
-    db.collection('auditLogs')
+    db.doc(`educacaoContinuada/${labId}`)
+      .collection('audit-events')
       .add({
         action: 'EC_SOFT_DELETE_EXECUCAO_CASCADE',
         callerUid: uid,
-        labId,
-        payload: {
-          execucaoId,
-          motivo,
-          participantesArquivados: participantesAtivos.length,
-          avaliacoesEficaciaArquivadas: eficaciaAtivas.length,
-          avaliacoesCompetenciaArquivadas: competenciaAtivas.length,
-        },
+        execucaoId,
+        participantesArquivados: participantesAtivos.length,
+        avaliacoesEficaciaArquivadas: eficaciaAtivas.length,
+        avaliacoesCompetenciaArquivadas: competenciaAtivas.length,
+        motivo,
         timestamp: now,
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.error('[EC_AUDIT_EVENT_ERROR]', { labId, execucaoId, err: err.message });
+      });
 
     return {
       ok: true,
       execucaoId,
       participantesArquivados: participantesAtivos.length,
-      avaliacoesEficaciaArquivadas: eficaciaAtivas.length,
-      avaliacoesCompetenciaArquivadas: competenciaAtivas.length,
     };
   },
 );
