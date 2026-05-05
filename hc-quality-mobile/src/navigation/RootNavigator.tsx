@@ -172,7 +172,13 @@ export function RootNavigator(): React.JSX.Element {
       {/* Header bar for non-tab (stack) screens */}
       {!isTabScreen ? (
         <View style={styles.header}>
-          <TouchableOpacity onPress={navigation.goBack} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={navigation.goBack}
+            style={styles.backButton}
+            accessibilityRole="button"
+            accessibilityLabel="Voltar"
+            accessibilityHint="Retorna à tela anterior"
+          >
             <Text style={styles.backText}>← Voltar</Text>
           </TouchableOpacity>
           <View style={styles.headerTitleContainer}>
@@ -191,6 +197,8 @@ export function RootNavigator(): React.JSX.Element {
           <TouchableOpacity
             onPress={() => navigation.navigate('OfflineQueue')}
             style={styles.queueButton}
+            accessibilityRole="button"
+            accessibilityLabel={isOnline ? 'Ver fila offline' : 'Sem conexão — ver fila offline'}
           >
             <Text style={[styles.queueText, !isOnline && styles.queueTextOffline]}>
               {isOnline ? 'Fila' : '⚠ Offline'}
@@ -207,6 +215,8 @@ export function RootNavigator(): React.JSX.Element {
         <View style={styles.tabBar}>
           {AUTHENTICATED_TABS.map((tab) => {
             const isActive = activeTab === tab.name;
+            // testID maps: Home→tab-home, CIQ→tab-ciq, NC→tab-nc, Readings→tab-readings, Training→tab-training
+            const tabTestId = `tab-${tab.name.toLowerCase()}`;
             return (
               <TouchableOpacity
                 key={tab.name}
@@ -215,6 +225,7 @@ export function RootNavigator(): React.JSX.Element {
                 accessibilityRole="tab"
                 accessibilityState={{ selected: isActive }}
                 accessibilityLabel={tab.label}
+                testID={tabTestId}
               >
                 <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
                   {tab.label}
@@ -297,7 +308,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   tabLabel: {
-    color: '#555',
+    // Upgraded #555 → #b3b3b3 (WCAG AA 4.5:1 on #141417)
+    color: '#b3b3b3',
     fontSize: 11,
     fontWeight: '500',
   },

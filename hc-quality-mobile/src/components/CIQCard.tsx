@@ -36,6 +36,8 @@ export function CIQCard({ run, onPress }: CIQCardProps): React.JSX.Element {
       activeOpacity={0.7}
       accessibilityRole="button"
       accessibilityLabel={`Corrida ${run.equipmentId} — ${run.status}`}
+      accessibilityHint="Duplo toque para ver detalhes da corrida"
+      testID="ciq-card"
     >
       <View style={styles.header}>
         <Text style={styles.equipment} numberOfLines={1}>
@@ -98,7 +100,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   timestamp: {
-    color: '#888',
+    // Upgraded #888 → #b3b3b3 (WCAG AA 4.5:1 on #141417)
+    color: '#b3b3b3',
     fontSize: 11,
     marginBottom: 4,
   },

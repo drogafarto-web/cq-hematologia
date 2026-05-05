@@ -30,7 +30,7 @@ export function NCScreen({ navigation }: NCScreenProps): React.JSX.Element {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="nc-screen">
       <OfflineIndicator />
       <ScrollView style={styles.scroll}>
         <View style={styles.content}>
@@ -48,6 +48,8 @@ export function NCScreen({ navigation }: NCScreenProps): React.JSX.Element {
               color="#6366f1"
               size="large"
               style={styles.loader}
+              accessible
+              accessibilityLabel="Carregando não-conformidades"
             />
           ) : null}
 
@@ -150,7 +152,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   emptySubtitle: {
-    color: '#555',
+    // Decorative text — non-interactive, sub-AA acceptable
+    color: '#666666',
     fontSize: 12,
     textAlign: 'center',
   },
