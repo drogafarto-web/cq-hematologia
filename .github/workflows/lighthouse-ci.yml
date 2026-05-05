@@ -1,0 +1,53 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Mondays 08:00 UTC
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    name: Lighthouse Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build
+        run: npm run build
+
+      - name: Run Lighthouse CI
+        run: |
+          npx @lhci/cli@0.14.x autorun \
+            --collect.staticDistDir=./dist \
+            --collect.url=http://localhost \
+            --collect.numberOfRuns=3 \
+            --upload.target=temporary-public-storage
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Upload Lighthouse report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report-${{ github.sha }}
+          path: .lighthouseci/
+          retention-days: 30
