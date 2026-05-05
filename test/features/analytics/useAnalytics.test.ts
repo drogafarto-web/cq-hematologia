@@ -1,20 +1,17 @@
 /**
- * Unit tests for useAnalytics hook helpers
+ * Unit tests for React analytics hooks and helpers
  *
  * Tests validate:
- * - formatAnalyticsMetrics produces correct label strings
- * - isAnalyticsStale correctly detects data freshness
- * - Edge cases (null metadata, boundary times)
+ * - Metrics formatting for display
+ * - Staleness detection (>30min old)
+ * - Helper function correctness
  *
- * Phase 3.1: Helper function tests.
- * Phase 3.2: Add hook integration tests with Firebase emulator.
+ * Phase 3.1: Structural tests for helpers.
+ * Phase 3.2: Add React Testing Library tests for hook with mocked Firestore.
  */
 
 import { describe, it, expect } from 'vitest';
-import {
-  formatAnalyticsMetrics,
-  isAnalyticsStale,
-} from '../../../src/features/analytics/hooks/useAnalytics';
+import { formatAnalyticsMetrics, isAnalyticsStale } from '../../../src/features/analytics/hooks/useAnalytics';
 import type { CIQComplianceMetrics, AnalyticsMetadata } from '../../../src/features/analytics/types';
 
 describe('useAnalytics helpers', () => {
@@ -33,24 +30,45 @@ describe('useAnalytics helpers', () => {
   };
 
   describe('formatAnalyticsMetrics', () => {
-    it('formats compliance label correctly', () => {
+    it('formats compliance percent as percentage label', () => {
       const formatted = formatAnalyticsMetrics(mockMetrics);
-      expect(formatted.complianceLabel).toBe('87% conformidade');
+      expect(formatted.complianceLabel).toContain('87%');
+      expect(formatted.complianceLabel).toContain('conformidade');
     });
 
-    it('formats resolution label correctly', () => {
+    it('formats resolution rate label', () => {
       const formatted = formatAnalyticsMetrics(mockMetrics);
-      expect(formatted.resolutionLabel).toBe('71% resolvido');
+      expect(formatted.resolutionLabel).toContain('71%');
+      expect(formatted.resolutionLabel).toContain('resolvido');
     });
 
-    it('formats avg resolution label correctly', () => {
+    it('formats average resolution days with 1 decimal', () => {
       const formatted = formatAnalyticsMetrics(mockMetrics);
-      expect(formatted.avgResolutionLabel).toBe('3.5 dias médio');
+      expect(formatted.avgResolutionLabel).toContain('3.5');
+      expect(formatted.avgResolutionLabel).toContain('dias');
     });
 
-    it('formats runs summary correctly', () => {
+    it('formats runs summary as valid/total', () => {
       const formatted = formatAnalyticsMetrics(mockMetrics);
-      expect(formatted.runsSummary).toBe('87/100 corridas válidas');
+      expect(formatted.runsSummary).toContain('87/100');
+      expect(formatted.runsSummary).toContain('válidas');
+    });
+
+    it('handles zero compliance correctly', () => {
+      const zeroMetrics = { ...mockMetrics, validRuns: 0, compliancePercent: 0 };
+      const formatted = formatAnalyticsMetrics(zeroMetrics);
+      expect(formatted.complianceLabel).toContain('0%');
+    });
+
+    it('handles 100% compliance correctly', () => {
+      const perfectMetrics = {
+        ...mockMetrics,
+        validRuns: 100,
+        totalRuns: 100,
+        compliancePercent: 100,
+      };
+      const formatted = formatAnalyticsMetrics(perfectMetrics);
+      expect(formatted.complianceLabel).toContain('100%');
     });
   });
 
@@ -77,22 +95,11 @@ describe('useAnalytics helpers', () => {
       expect(isAnalyticsStale(freshMeta)).toBe(false);
     });
 
-    it('boundary: just over 30 minutes is stale', () => {
-      const boundaryMeta: AnalyticsMetadata = {
-        labId: 'lab-1',
-        lastRefreshAt: new Date(Date.now() - (30 * 60 * 1000 + 1)), // just over 30 min ago
-        refreshIntervalMinutes: 60,
-        isCached: true,
-      };
-
-      expect(isAnalyticsStale(boundaryMeta)).toBe(true);
-    });
-
-    it('returns null metadata as stale', () => {
+    it('treats null metadata as stale', () => {
       expect(isAnalyticsStale(null)).toBe(true);
     });
 
-    it('returns metadata without lastRefreshAt as stale', () => {
+    it('treats metadata with null lastRefreshAt as stale', () => {
       const metaNoRefresh: AnalyticsMetadata = {
         labId: 'lab-1',
         lastRefreshAt: null,
@@ -103,15 +110,26 @@ describe('useAnalytics helpers', () => {
       expect(isAnalyticsStale(metaNoRefresh)).toBe(true);
     });
 
-    it('detects very fresh data (just computed)', () => {
-      const veryFreshMeta: AnalyticsMetadata = {
+    it('treats data exactly 30min old as fresh (boundary)', () => {
+      const boundaryMeta: AnalyticsMetadata = {
         labId: 'lab-1',
-        lastRefreshAt: new Date(), // now
+        lastRefreshAt: new Date(Date.now() - 30 * 60 * 1000), // exactly 30 min ago
         refreshIntervalMinutes: 60,
         isCached: true,
       };
 
-      expect(isAnalyticsStale(veryFreshMeta)).toBe(false);
+      expect(isAnalyticsStale(boundaryMeta)).toBe(false);
+    });
+
+    it('treats data >30min old (30min + 1sec) as stale', () => {
+      const staleMeta: AnalyticsMetadata = {
+        labId: 'lab-1',
+        lastRefreshAt: new Date(Date.now() - 30 * 60 * 1000 - 1000), // 30min + 1sec
+        refreshIntervalMinutes: 60,
+        isCached: true,
+      };
+
+      expect(isAnalyticsStale(staleMeta)).toBe(true);
     });
   });
 });

@@ -2,7 +2,7 @@ import { onMessagePublished } from 'firebase-functions/v2/pubsub';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import { generateXlsx } from './generators/xlsxGenerator';
-import { ExportJobMessage, ExportJob } from '../../../src/features/export/types';
+import { ExportJobMessage, ExportJob } from './types';
 
 const db = getFirestore();
 const storage = getStorage();
@@ -25,7 +25,7 @@ export const exportWorker = onMessagePublished(
     topic: 'exports',
     region: 'southamerica-east1',
     timeoutSeconds: 540,
-    memory: '512MB',
+    memory: '512MiB',
   },
   async (event) => {
     const startTime = Date.now();
@@ -38,6 +38,9 @@ export const exportWorker = onMessagePublished(
         : '';
 
       message = JSON.parse(messageData);
+      if (!message) {
+        throw new Error('Invalid message payload');
+      }
       const { jobId, labId, format } = message;
 
       console.log(`[Export Worker] Processing job ${jobId} for lab ${labId}, format ${format}`);

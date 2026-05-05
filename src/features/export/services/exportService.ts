@@ -1,5 +1,5 @@
 import { httpsCallable } from 'firebase/functions';
-import { functions } from '../../core/firebase';
+import { functions } from '../../../config/firebase.config';
 import { ExportRequest, ExportInitiateResponse } from '../types';
 
 /**
