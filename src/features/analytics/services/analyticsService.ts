@@ -2,12 +2,16 @@
  * Client-side service for analytics operations
  *
  * Phase 3.1: Placeholder for reads only (via hook).
- * Phase 3.2: Will add manual refresh callable and export operations.
- *
- * Provides a contract for future expansion with manual refresh
- * and export functionality (cross-module integration with export system).
+ * Phase 3.2: Manual refresh callable, export operations.
+ * Phase 3.3: refreshAggregates for polling-triggered re-fetch.
  */
 
+import { getDoc, doc } from '../../../shared/services/firebase';
+import { db } from '../../../shared/services/firebase';
+import { useAnalyticsStore } from '../hooks/useAnalyticsCache';
+import { ciqComplianceRef } from './analyticsQueries';
+import { parseAnalyticsAggregate, coerceAggregateTimestamps } from './analyticsSchema';
+import type { AnalyticsAggregate } from '../types/Analytics';
 import type { AggregationResult } from '../types';
 
 /**
@@ -36,6 +40,38 @@ export const AnalyticsService = {
       metrics: {} as any,
       error: 'Not implemented in Phase 3.1',
     };
+  },
+
+  /**
+   * Re-fetch the latest CIQ compliance aggregate from Firestore.
+   * Called by useRealtimePolling when meta lastRefreshAt changes.
+   *
+   * @param labId Active lab ID
+   */
+  refreshAggregates: async (labId: string): Promise<void> => {
+    const { setAggregate, setLoading, setError } = useAnalyticsStore.getState();
+    setLoading(true);
+    try {
+      const snap = await getDoc(ciqComplianceRef(labId));
+      if (!snap.exists()) {
+        setAggregate(null);
+        return;
+      }
+      const raw = snap.data();
+      const parsed = parseAnalyticsAggregate({ labId, ...raw });
+      if (!parsed) {
+        setError('Dados de analytics inválidos — cache corrompido.');
+        return;
+      }
+      const coerced = coerceAggregateTimestamps(parsed);
+      setAggregate(coerced as unknown as AnalyticsAggregate);
+      setError(null);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Falha ao atualizar analytics';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
   },
 
   /**

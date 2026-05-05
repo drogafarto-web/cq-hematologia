@@ -14,6 +14,7 @@
 import React, { useState } from 'react';
 import { useAnalyticsAggregates } from '../hooks/useAnalyticsAggregates';
 import { useAnalyticsMeta } from '../hooks/useAnalyticsMeta';
+import { useRealtimePolling } from '../hooks/useRealtimePolling';
 import { ComplianceStatusDash } from './ComplianceStatusDash';
 import { CIQTrendsDash } from './CIQTrendsDash';
 import { NCHeatmapDash } from './NCHeatmapDash';
@@ -146,27 +147,83 @@ function TabPanel({ tab, activeTab }: { tab: TabId; activeTab: TabId }) {
   );
 }
 
+// ─── Inline SVG for polling ────────────────────────────────────────────────────
+
+function SpinnerIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg
+      width={12}
+      height={12}
+      viewBox="0 0 20 20"
+      fill="none"
+      aria-hidden
+      className={['animate-spin', className].join(' ')}
+      style={{ animationDuration: '700ms' }}
+    >
+      <path
+        d="M17 10a7 7 0 1 1-7-7"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 // ─── Staleness indicator ──────────────────────────────────────────────────────
 
-function StalenessIndicator() {
+interface StalenessIndicatorProps {
+  isPolling: boolean;
+  lastCheckedAt: Date | null;
+  nextCheckIn: number;
+}
+
+function StalenessIndicator({ isPolling, lastCheckedAt, nextCheckIn }: StalenessIndicatorProps) {
   const { ageLabel, isStale } = useAnalyticsMeta();
+
+  // Compute "checked Xs ago" from lastCheckedAt
+  const checkedLabel = React.useMemo(() => {
+    if (!lastCheckedAt) return null;
+    const secsAgo = Math.floor((Date.now() - lastCheckedAt.getTime()) / 1000);
+    if (secsAgo < 5) return 'verificado agora';
+    if (secsAgo < 60) return `verificado há ${secsAgo}s`;
+    return null;
+  }, [lastCheckedAt]);
+
   return (
     <div
-      className={[
-        'flex items-center gap-1.5 text-xs',
-        isStale ? 'text-amber-400' : 'text-white/30',
-      ].join(' ')}
+      className="flex items-center gap-2 text-xs"
       aria-live="polite"
       aria-label={`Cache: ${ageLabel}`}
     >
-      <span
+      {/* Cache staleness */}
+      <div
         className={[
-          'inline-block w-1.5 h-1.5 rounded-full',
-          isStale ? 'bg-amber-400' : 'bg-emerald-500',
+          'flex items-center gap-1.5',
+          isStale ? 'text-amber-400' : 'text-white/30',
         ].join(' ')}
-        aria-hidden
-      />
-      {ageLabel}
+      >
+        <span
+          className={[
+            'inline-block w-1.5 h-1.5 rounded-full',
+            isStale ? 'bg-amber-400' : 'bg-emerald-500',
+          ].join(' ')}
+          aria-hidden
+        />
+        {ageLabel}
+      </div>
+
+      {/* Polling status */}
+      {isPolling ? (
+        <div className="flex items-center gap-1 text-white/30">
+          <SpinnerIcon />
+          <span>Verificando…</span>
+        </div>
+      ) : checkedLabel ? (
+        <span className="text-white/20">{checkedLabel}</span>
+      ) : (
+        <span className="text-white/20">próx. {nextCheckIn}s</span>
+      )}
     </div>
   );
 }
@@ -176,6 +233,9 @@ function StalenessIndicator() {
 export function AnalyticsHub() {
   // Establish Firestore subscriptions — populates the Zustand store
   useAnalyticsAggregates();
+
+  // 30s polling with meta diff guard (Phase 3.3)
+  const { isPolling, lastCheckedAt, nextCheckIn } = useRealtimePolling();
 
   const [activeTab, setActiveTab] = useState<TabId>('compliance');
 
@@ -198,7 +258,11 @@ export function AnalyticsHub() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <StalenessIndicator />
+              <StalenessIndicator
+                isPolling={isPolling}
+                lastCheckedAt={lastCheckedAt}
+                nextCheckIn={nextCheckIn}
+              />
               <RefreshButton />
             </div>
           </div>
