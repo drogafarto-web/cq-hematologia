@@ -149,3 +149,4 @@ test-results/
 modulo educa*/*.pdf
 modulo educa*/*.xlsx
 modulo educa*/*.docx
+.claude/worktrees/
