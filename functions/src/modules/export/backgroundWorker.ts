@@ -185,8 +185,9 @@ async function generateCompliancePDF(
   startDate: Date,
   endDate: Date,
 ): Promise<Buffer> {
-  const PDFKit = await import('pdfkit');
-  const PDFDocument = PDFKit.default;
+  // Dynamic import avoids top-level ESM issues with pdfkit in commonjs context
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const PDFDocument = require('pdfkit') as typeof import('pdfkit');
 
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 50, size: 'A4' });

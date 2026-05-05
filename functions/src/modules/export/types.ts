@@ -63,6 +63,11 @@ export interface ExportJob {
   // Error (if status='failed')
   errorMessage?: string;
 
+  // Email delivery (Phase 3.3)
+  emailRecipient?: string;
+  emailSentAt?: Date;
+  emailError?: string;
+
   // Processing info
   startedAt?: Date;
   completedAt?: Date;

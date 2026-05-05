@@ -22,6 +22,8 @@ export interface ExportRequest {
   startDate: string | Date; // ISO string or Date; CF will parse
   endDate: string | Date;
   operatorId?: string; // For audit trail (optional; Cloud CF can extract from auth)
+  /** Optional: email to receive the signed URL when job completes (Phase 3.3) */
+  emailRecipient?: string;
 }
 
 /**
