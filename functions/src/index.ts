@@ -262,6 +262,20 @@ export {
   scheduledProcessarSolicitacoesVencidas,
 } from './modules/lgpd/index';
 
+// ─── analytics module (Phase 3.1 — CIQ Compliance Aggregation) ───────────────
+// aggregateAnalytics: scheduled hourly function that aggregates CIQ compliance
+// metrics for all labs and caches results in Firestore.
+// Cache: /labs/{labId}/analytics/cache/metrics/ciqCompliance
+export { aggregateAnalytics } from './modules/analytics/aggregateDaily';
+
+// ─── export module (Phase 3.1 — Async Data Export) ───────────────────────────
+// initiateExport: callable that validates auth, creates an export job in
+// Firestore (status='queued'), and publishes to Pub/Sub topic 'exports'.
+// exportWorker: Pub/Sub trigger subscribed to 'exports'; processes jobs,
+// generates XLSX via SheetJS, uploads to Cloud Storage, returns signed URL.
+export { initiateExport } from './modules/export/initiateExport';
+export { exportWorker } from './modules/export/exportWorker';
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
