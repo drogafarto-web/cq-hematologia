@@ -1376,6 +1376,20 @@ service cloud.firestore {
         allow update: if false;  // Via aggregateDaily scheduled function only
         allow delete: if false;  // Cache lifecycle managed by Cloud Function only
       }
+
+      // ── /labs/{labId}/exportSchedule — Phase 3.3 (Scheduled Export Config) ──
+      // Configuração do export agendado (semanal). Leitura e escrita por
+      // membros ativos do lab. Scheduler (Admin SDK) bypassa rules.
+      // Soft-disable via `enabled: false` — sem hard delete.
+      match /exportSchedule/{scheduleId} {
+        allow read: if isSuperAdmin() ||
+          isActiveMemberOfLab(labId);
+        allow create: if isSuperAdmin() ||
+          isActiveMemberOfLab(labId);
+        allow update: if isSuperAdmin() ||
+          isActiveMemberOfLab(labId);
+        allow delete: if false;  // Disable via enabled:false, never hard delete
+      }
     }
   }
 }
