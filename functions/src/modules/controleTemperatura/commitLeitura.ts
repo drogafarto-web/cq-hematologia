@@ -108,7 +108,7 @@ export const ct_commitLeitura = onCall<unknown, Promise<CommitLeituraResult>>(
         temperaturaAtual: input.temperaturaAtual,
         temperaturaMax: input.temperaturaMax,
         temperaturaMin: input.temperaturaMin,
-        umidade: input.umidade ?? -1,
+        ...(input.umidade !== undefined && { umidade: input.umidade }),
       },
       nowTs,
     );
