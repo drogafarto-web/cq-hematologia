@@ -425,7 +425,8 @@ export type View =
   | 'sgq-documentos'
   | 'rastreabilidade'
   | 'analytics'
-  | 'exports';
+  | 'exports'
+  | 'ceq';
 
 // ─── Traceability ─────────────────────────────────────────────────────────────
 

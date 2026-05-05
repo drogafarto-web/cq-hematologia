@@ -168,7 +168,7 @@ describe('CEQService', () => {
       it('creatinine: unsatisfactory result', () => {
         // Ref: 1.0 mg/dL, SD: 0.1, Lab result: 1.35
         const result = calcularZScore(1.35, 1.0, 0.1);
-        expect(result.zScore).toBe(3.5);
+        expect(result.zScore).toBeCloseTo(3.5, 5);
         expect(result.interpretacao).toBe('insatisfatoria');
       });
 

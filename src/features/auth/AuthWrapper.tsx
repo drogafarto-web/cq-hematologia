@@ -24,6 +24,7 @@ import { RastreabilidadeView } from '../traceability/RastreabilidadeView';
 import { AnalyticsHub } from '../analytics/components/AnalyticsHub';
 import { ExportQueueView } from '../export/components/ExportQueueView';
 import { ExportWizard } from '../export/components/ExportWizard';
+import { CEQDashboard } from '../ceq/components/CEQDashboard';
 import { useBrowserHistorySync } from '../../shared/hooks/useBrowserHistorySync';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
@@ -158,6 +159,8 @@ function AppRouter() {
     view = <AnalyticsHub />;
   } else if (currentView === 'exports') {
     view = <ExportsView />;
+  } else if (currentView === 'ceq') {
+    view = <CEQDashboard />;
   } else {
     view = <AnalyzerView />;
   }

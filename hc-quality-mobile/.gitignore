@@ -33,11 +33,16 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Native
+# Native — generated files are ignored; signing template is tracked
 android/
+!android/app/build.gradle
 ios/
 .gradle/
 build/
+
+# Keystore — NEVER commit signing credentials
+*.keystore
+!debug.keystore
 
 # Watchman
 .watchmanconfig

@@ -463,15 +463,16 @@ const MODULES: ModuleDef[] = [
   },
   {
     id: 'ceq',
-    name: 'Controle Externo (CEQ)',
-    tagline: 'Ensaio de proficiência',
-    bullets: ['ControlLab · PNCQ · SBAC', 'Análise periódica', 'Ações corretivas'],
+    name: 'CQ Externo (CEQ)',
+    tagline: 'Ensaios interlaboratoriais · Z-score · ISO 17043',
+    bullets: ['Controllab · BIPEA · PNCQ', 'Z-score por analito · NC automática', 'DICQ 4.5 · RDC 978'],
     icon: <AwardIcon />,
     bloco: 'Bloco 4',
-    iconBg: 'bg-teal-500/10',
-    iconColor: 'text-teal-400/60',
-    status: 'soon',
+    iconBg: 'bg-teal-500/15',
+    iconColor: 'text-teal-400',
+    status: 'active',
     category: 'sgq',
+    view: 'ceq' as View,
   },
   {
     id: 'nao-conformidades',
@@ -863,11 +864,11 @@ export function ModuleHub() {
                 subtitle="Aguardando módulo SGQ — Bloco 1"
               />
               <AlertWidget
-                tone="muted"
+                tone="info"
                 icon={<AwardIcon />}
-                title="Controle Externo (CEQ)"
+                title="CQ Externo (CEQ)"
                 value="—"
-                subtitle="Aguardando módulo SGQ — Bloco 4"
+                subtitle="Participações interlaboratoriais · Z-score"
               />
             </div>
 
