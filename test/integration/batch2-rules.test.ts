@@ -22,9 +22,7 @@ import {
   updateDoc,
   serverTimestamp,
 } from 'firebase/firestore';
-import { initializeTestingModule } from '../../src/shared/services/firebase';
-
-const db = initializeTestingModule();
+import { db } from '../../src/shared/services/firebase';
 const LAB_ID = 'test-lab-001';
 const ADMIN_UID = 'admin-user-001';
 const MEMBER_UID = 'member-user-001';
