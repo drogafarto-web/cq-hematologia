@@ -6,20 +6,29 @@
  *   2. Provides tab navigation between 4 dashboard views
  *   3. Renders RefreshButton and cache age indicator in header
  *   4. All child dashboards read from Zustand store — no additional Firestore calls
+ *   5. Hosts date range filter (useDateRangeFilter) — Phase 3.3-02 Task 2
+ *   6. Hosts equipment + operator filters — Phase 3.3-02 Task 3
+ *   7. 30s polling with meta diff guard — Phase 3.3-02 Task 1
  *
  * Multi-tenant: labId isolation enforced in useAnalyticsAggregates().
  * Performance: dashboards load <2s when aggregates cached in Zustand.
+ * Responsive: max-w-screen-xl, filter bars wrap at sm; charts responsive at lg.
  */
 
 import React, { useState } from 'react';
 import { useAnalyticsAggregates } from '../hooks/useAnalyticsAggregates';
 import { useAnalyticsMeta } from '../hooks/useAnalyticsMeta';
 import { useRealtimePolling } from '../hooks/useRealtimePolling';
+import { useDateRangeFilter } from '../hooks/useDateRangeFilter';
+import { useEquipmentFilter } from '../hooks/useEquipmentFilter';
+import { useOperatorFilter } from '../hooks/useOperatorFilter';
 import { ComplianceStatusDash } from './ComplianceStatusDash';
 import { CIQTrendsDash } from './CIQTrendsDash';
 import { NCHeatmapDash } from './NCHeatmapDash';
 import { TrainingMatrixDash } from './TrainingMatrixDash';
 import { RefreshButton } from './RefreshButton';
+import { DateRangePickerBar } from './DateRangePickerBar';
+import { FilterBar } from './FilterBar';
 
 // ─── Tab definition ───────────────────────────────────────────────────────────
 
@@ -131,7 +140,20 @@ const TABS: Tab[] = [
 
 // ─── Tab panel ────────────────────────────────────────────────────────────────
 
-function TabPanel({ tab, activeTab }: { tab: TabId; activeTab: TabId }) {
+interface ActiveFilters {
+  equipmentIds: Set<string>;
+  operatorIds: Set<string>;
+}
+
+function TabPanel({
+  tab,
+  activeTab,
+  activeFilters,
+}: {
+  tab: TabId;
+  activeTab: TabId;
+  activeFilters: ActiveFilters;
+}) {
   if (tab !== activeTab) return null;
   return (
     <div
@@ -139,10 +161,18 @@ function TabPanel({ tab, activeTab }: { tab: TabId; activeTab: TabId }) {
       id={`panel-${tab}`}
       aria-labelledby={`tab-${tab}`}
     >
-      {tab === 'compliance' && <ComplianceStatusDash />}
-      {tab === 'trends' && <CIQTrendsDash />}
-      {tab === 'nc-heatmap' && <NCHeatmapDash />}
-      {tab === 'training' && <TrainingMatrixDash />}
+      {tab === 'compliance' && (
+        <ComplianceStatusDash activeFilters={activeFilters} />
+      )}
+      {tab === 'trends' && (
+        <CIQTrendsDash activeFilters={activeFilters} />
+      )}
+      {tab === 'nc-heatmap' && (
+        <NCHeatmapDash activeFilters={activeFilters} />
+      )}
+      {tab === 'training' && (
+        <TrainingMatrixDash activeFilters={activeFilters} />
+      )}
     </div>
   );
 }
@@ -234,10 +264,23 @@ export function AnalyticsHub() {
   // Establish Firestore subscriptions — populates the Zustand store
   useAnalyticsAggregates();
 
-  // 30s polling with meta diff guard (Phase 3.3)
+  // 30s polling with meta diff guard (Phase 3.3 Task 1)
   const { isPolling, lastCheckedAt, nextCheckIn } = useRealtimePolling();
 
+  // Date range filter (Phase 3.3 Task 2)
+  const dateRange = useDateRangeFilter();
+
+  // Equipment + operator filters (Phase 3.3 Task 3)
+  const equipmentFilter = useEquipmentFilter();
+  const operatorFilter = useOperatorFilter();
+
   const [activeTab, setActiveTab] = useState<TabId>('compliance');
+
+  // Memoized active filter state to pass to dashboards
+  const activeFilters = React.useMemo<ActiveFilters>(() => ({
+    equipmentIds: equipmentFilter.selectedIds,
+    operatorIds: operatorFilter.selectedIds,
+  }), [equipmentFilter.selectedIds, operatorFilter.selectedIds]);
 
   return (
     <main
@@ -245,10 +288,10 @@ export function AnalyticsHub() {
       aria-label="Analytics Dashboard"
     >
       {/* ── Page header ───────────────────────────────────────────────────── */}
-      <header className="border-b border-white/8 px-6 pt-8 pb-0">
-        <div className="max-w-7xl mx-auto">
+      <header className="border-b border-white/8 px-4 sm:px-6 pt-8 pb-0">
+        <div className="max-w-screen-xl mx-auto">
           {/* Title row */}
-          <div className="flex items-start justify-between mb-6">
+          <div className="flex items-start justify-between mb-4">
             <div>
               <h1 className="text-xl font-semibold text-white tracking-tight">
                 Analytics CIQ
@@ -265,6 +308,20 @@ export function AnalyticsHub() {
               />
               <RefreshButton />
             </div>
+          </div>
+
+          {/* ── Filter bars ──────────────────────────────────────────────── */}
+          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center mb-4 flex-wrap">
+            <DateRangePickerBar
+              range={dateRange.range}
+              setPreset={dateRange.setPreset}
+              setCustomRange={dateRange.setCustomRange}
+            />
+            <div className="w-px h-4 bg-white/10 hidden sm:block" aria-hidden />
+            <FilterBar
+              equipment={equipmentFilter}
+              operators={operatorFilter}
+            />
           </div>
 
           {/* ── Tab bar ─────────────────────────────────────────────────── */}
@@ -307,9 +364,14 @@ export function AnalyticsHub() {
       </header>
 
       {/* ── Tab content ───────────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-6">
         {TABS.map((tab) => (
-          <TabPanel key={tab.id} tab={tab.id} activeTab={activeTab} />
+          <TabPanel
+            key={tab.id}
+            tab={tab.id}
+            activeTab={activeTab}
+            activeFilters={activeFilters}
+          />
         ))}
       </div>
     </main>

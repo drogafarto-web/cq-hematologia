@@ -143,14 +143,23 @@ function formatModuleLabel(slug: string): string {
   return labels[slug] ?? slug;
 }
 
+// ─── Active filters ───────────────────────────────────────────────────────────
+
+interface ActiveFilters {
+  equipmentIds: Set<string>;
+  operatorIds: Set<string>;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 interface TrainingMatrixDashProps {
   className?: string;
+  activeFilters?: ActiveFilters;
 }
 
 export const TrainingMatrixDash = React.memo(function TrainingMatrixDash({
   className = '',
+  activeFilters: _activeFilters,
 }: TrainingMatrixDashProps) {
   const aggregate = useAnalyticsAggregate();
   const loading = useAnalyticsLoading();
@@ -221,8 +230,8 @@ export const TrainingMatrixDash = React.memo(function TrainingMatrixDash({
 
       {/* Table */}
       {rows.length > 0 ? (
-        <div className="rounded-xl border border-white/8 overflow-hidden">
-          <table className="w-full text-xs" role="table" aria-label="Certificações por módulo">
+        <div className="w-full overflow-x-auto rounded-xl border border-white/8">
+          <table className="min-w-[600px] w-full text-xs" role="table" aria-label="Certificações por módulo">
             <thead>
               <tr className="border-b border-white/8 bg-white/[0.025]">
                 <th

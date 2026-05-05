@@ -60,18 +60,19 @@ export async function checkForUpdatesTestOnly(
   }
   if (!snap.exists()) return;
 
-  const data = snap.data();
-  const rawTs = data?.lastRefreshAt;
+  const data = snap.data() as Record<string, unknown> | undefined;
+  const rawTs = data?.['lastRefreshAt'];
 
   // Coerce Firestore Timestamp or Date → ISO string for comparison
   let tsString: string | null = null;
   if (rawTs) {
-    if (typeof rawTs.toDate === 'function') {
-      tsString = rawTs.toDate().toISOString();
-    } else if (rawTs instanceof Date) {
-      tsString = rawTs.toISOString();
-    } else if (typeof rawTs === 'string') {
-      tsString = rawTs;
+    const ts = rawTs as { toDate?: () => Date } | Date | string;
+    if (typeof (ts as { toDate?: unknown }).toDate === 'function') {
+      tsString = (ts as { toDate: () => Date }).toDate().toISOString();
+    } else if (ts instanceof Date) {
+      tsString = ts.toISOString();
+    } else if (typeof ts === 'string') {
+      tsString = ts;
     }
   }
 
@@ -80,10 +81,11 @@ export async function checkForUpdatesTestOnly(
 
     // Update Zustand metadata
     const store = useAnalyticsStore.getState();
-    const coercedDate = rawTs?.toDate
-      ? rawTs.toDate()
-      : rawTs instanceof Date
-      ? rawTs
+    const tsRaw0 = rawTs as { toDate?: () => Date } | Date | null | undefined;
+    const coercedDate = tsRaw0 && typeof (tsRaw0 as { toDate?: unknown }).toDate === 'function'
+      ? (tsRaw0 as { toDate: () => Date }).toDate()
+      : tsRaw0 instanceof Date
+      ? tsRaw0
       : null;
     if (coercedDate) {
       store.setMetadata(
@@ -139,14 +141,14 @@ export function useRealtimePolling(): RealtimePollingState {
       const snap = await getDoc(analyticsMetaRef(labId));
       if (!snap.exists()) return;
 
-      const data = snap.data();
-      const rawTs = data?.lastRefreshAt;
+      const data = snap.data() as Record<string, unknown> | undefined;
+      const rawTs = data?.['lastRefreshAt'];
 
       // Coerce Firestore Timestamp or Date → ISO string for comparison
       let tsString: string | null = null;
       if (rawTs) {
-        if (typeof rawTs.toDate === 'function') {
-          tsString = rawTs.toDate().toISOString();
+        if (typeof (rawTs as { toDate?: unknown }).toDate === 'function') {
+          tsString = (rawTs as { toDate: () => Date }).toDate().toISOString();
         } else if (rawTs instanceof Date) {
           tsString = rawTs.toISOString();
         } else if (typeof rawTs === 'string') {
@@ -159,10 +161,11 @@ export function useRealtimePolling(): RealtimePollingState {
         lastKnownRefreshAt.current = tsString;
 
         const store = useAnalyticsStore.getState();
-        const coercedDate = rawTs?.toDate
-          ? rawTs.toDate()
-          : rawTs instanceof Date
-          ? rawTs
+        const tsRaw = rawTs as { toDate?: () => Date } | Date | null | undefined;
+        const coercedDate = tsRaw && typeof (tsRaw as { toDate?: unknown }).toDate === 'function'
+          ? (tsRaw as { toDate: () => Date }).toDate()
+          : tsRaw instanceof Date
+          ? tsRaw
           : null;
         if (coercedDate) {
           store.setMetadata(

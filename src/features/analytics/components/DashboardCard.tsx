@@ -69,7 +69,7 @@ export const DashboardCard = React.memo(function DashboardCard({
   return (
     <article
       className={[
-        'rounded-xl border bg-white/[0.035] p-5 transition-all duration-200',
+        'rounded-xl border bg-white/[0.035] p-4 md:p-6 transition-all duration-200',
         'hover:bg-white/[0.05] hover:border-white/15',
         'shadow-lg',
         accent,
