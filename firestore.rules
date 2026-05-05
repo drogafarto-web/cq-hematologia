@@ -1347,6 +1347,32 @@ service cloud.firestore {
         allow update: if false;
         allow delete: if false;
       }
+
+      // ── /labs/{labId}/export-jobs — Phase 3.1 (Export Pipeline) ─────────────
+      // Jobs de exportação criados exclusivamente pela Cloud Function
+      // `initiateExport` (Admin SDK bypassa rules). Atualizações de status
+      // feitas pela Cloud Function `exportWorker`. Client é somente-leitura.
+      // Sem soft-delete: jobs usam campo `status` como ciclo de vida — hard
+      // delete proibido (trilha de auditoria de exportações).
+      match /export-jobs/{jobId} {
+        allow read: if isSuperAdmin() ||
+          (isAuthenticated() && request.auth.token.labId == labId);
+        allow create: if false;  // Via callable initiateExport only
+        allow update: if false;  // Via exportWorker Cloud Function only
+        allow delete: if false;  // Never delete export job records
+      }
+
+      // ── /labs/{labId}/analytics/cache — Phase 3.1 (Analytics Cache) ─────────
+      // Cache de agregações gerado exclusivamente pela scheduled Cloud Function
+      // `aggregateDaily` (Admin SDK bypassa rules). Client é somente-leitura.
+      // Wildcard `{document=**}` cobre doc raiz + todos os sub-documentos do cache.
+      match /analytics/cache/{document=**} {
+        allow read: if isSuperAdmin() ||
+          (isAuthenticated() && request.auth.token.labId == labId);
+        allow create: if false;  // Via aggregateDaily scheduled function only
+        allow update: if false;  // Via aggregateDaily scheduled function only
+        allow delete: if false;  // Cache lifecycle managed by Cloud Function only
+      }
     }
   }
 }

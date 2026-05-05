@@ -1,31 +1,30 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: phase-2-batch-1
-status: `phase2-batch1-deployed`
-last_updated: "2026-05-04T13:45:00.000Z"
+milestone: v1.1
+milestone_name: phase-3-mobile-analytics-export
+status: phase3.2-in-progress
+last_updated: "2026-05-05T20:00:00.000Z"
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 5
-  completed_plans: 1
-  percent: 20
+  completed_plans: 2
+  percent: 67
 ---
 
 # HC Quality — Project State & Memory
 
-**Last Updated:** 2026-05-04  
-**Status:** `phase2-batch1-deployed`
+**Last Updated:** 2026-05-05  
+**Status:** `phase3.2-in-progress`
 
 ---
 
 ## Current Status
 
 - ✓ **Phase 1:** ADRs 0005 + 0002 + 0006 + 0003 Wave 4 + 0004 Wave 3 deployed
-- ✓ **Phase 2 Batch 1:** POPs + NC + Auditoria modules live in production
-- ✓ **Test Coverage:** 347/347 tests passing
-- ✓ **Production Modules:** 20/26 total (77% complete)
-- ⏳ **Next:** Phase 2 Batch 2 (Controle-Temperatura + Educação-Continuada)
+- ✓ **Phase 2:** COMPLETE — 20/20 modules live in production. 347/347 tests passing.
+- ✓ **Phase 3.1 Foundation:** COMPLETE (2026-05-05) — Mobile scaffold + Analytics CF + Export Pub/Sub + 26+ unit tests passing.
+- ⏳ **Phase 3.2:** IN PROGRESS — 4 parallel agents executing 03.2 streams (Mobile screens, Analytics UI, Export Wizard, Stream C perf)
 
 ---
 
@@ -107,51 +106,18 @@ progress:
 
 ## Next Steps
 
-### Immediate (Today/Tomorrow)
+### Phase 3.2 — Parallel Execution (In Progress)
 
-1. **CTO review:**
-   - [ ] REQUIREMENTS.md — ADR 0005 spec OK?
-   - [ ] ROADMAP.md — timeline + batch sequence OK?
-   - [ ] Alguma mudança no escopo?
+- **03.2-01:** Mobile core screens — CIQ, NC, Readings, Training, Offline queue
+- **03.2-02:** Analytics dashboard UI — 4 dashboards (ComplianceStatus, CIQTrends, NCHeatmap, TrainingMatrix)
+- **03.2-03:** Export Wizard UI — 3-step modal + job queue view
+- **Stream C:** Lighthouse CI + bundle splitting + xlsx import fix + Firebase Perf Monitoring
 
-2. **Approval gate:**
-   - [ ] "Phase 1 ready" signature
+### After 03.2 Complete
 
-### After CTO Approval
-
-3. **ADR 0005 Design (Weeks 1-2):**
-   ```bash
-   /gsd-plan-phase 1
-   ```
-
-   - Design document (HMAC spec, CF signature)
-   - Implementation plan
-   - Test strategy
-
-4. **ADR 0005 Execution:**
-   ```bash
-   /gsd-execute-phase
-   ```
-
-   - Code helper `cryptoAudit.ts`
-   - Backfill dados legados
-   - Tests >90%
-
-5. **ADR 0005 Validation:**
-   ```bash
-   /gsd-validate-phase
-   ```
-
-   - Chain integrity verified
-   - Smoke test pass
-   - CTO approval
-
-6. **ADR 0005 Ship:**
-   ```bash
-   /gsd-ship
-   ```
-
-   - Deploy + monitoring
+- Merge all worktree branches in dependency order (01+02+03 first, then E2E)
+- E2E integration tests across mobile + web
+- Phase 3 production deploy gate
 
 ---
 
