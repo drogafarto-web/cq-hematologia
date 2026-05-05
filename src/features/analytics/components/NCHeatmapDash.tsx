@@ -25,6 +25,11 @@ import {
 import { useAnalyticsAggregate, useAnalyticsLoading, useAnalyticsError } from '../hooks/useAnalyticsCache';
 import { useChartData } from '../hooks/useChartData';
 import { heatmapCellColor } from '../services/chartColorMap';
+import { FilterUnavailableBanner } from './FilterUnavailableBanner';
+import {
+  shouldShowFilterUnavailableBanner,
+  filterCapabilities,
+} from '../utils/aggregateFilters';
 import type { NCHeatmapCell } from '../types/Analytics';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -88,12 +93,30 @@ interface NCHeatmapDashProps {
 
 export const NCHeatmapDash = React.memo(function NCHeatmapDash({
   className = '',
-  activeFilters: _activeFilters,
+  activeFilters,
 }: NCHeatmapDashProps) {
   const aggregate = useAnalyticsAggregate();
   const loading = useAnalyticsLoading();
   const error = useAnalyticsError();
   const { ncAgeDist, heatmapCells } = useChartData();
+
+  const equipmentIds = activeFilters?.equipmentIds ?? new Set<string>();
+  const operatorIds = activeFilters?.operatorIds ?? new Set<string>();
+
+  const showFilterBanner = shouldShowFilterUnavailableBanner(
+    'nc-heatmap',
+    equipmentIds,
+    operatorIds,
+  );
+
+  const filterBannerReason = filterCapabilities('nc-heatmap').reason;
+
+  const activeFilterLabel = useMemo(() => {
+    const parts: string[] = [];
+    if (equipmentIds.size > 0) parts.push(`${equipmentIds.size} equipamento${equipmentIds.size > 1 ? 's' : ''}`);
+    if (operatorIds.size > 0) parts.push(`${operatorIds.size} operador${operatorIds.size > 1 ? 'es' : ''}`);
+    return parts.join(', ');
+  }, [equipmentIds, operatorIds]);
 
   // Group cells by module for rendering rows
   const moduleRows = useMemo(() => {
@@ -147,6 +170,14 @@ export const NCHeatmapDash = React.memo(function NCHeatmapDash({
           </span>
         )}
       </div>
+
+      {/* Filter unavailable notice — aggregate data has no equipment/operator breakdown */}
+      {showFilterBanner && (
+        <FilterUnavailableBanner
+          reason={filterBannerReason}
+          activeFilterLabel={activeFilterLabel}
+        />
+      )}
 
       {/* Age distribution bar chart */}
       {ncAgeDist.length > 0 && totalOpen > 0 && (
