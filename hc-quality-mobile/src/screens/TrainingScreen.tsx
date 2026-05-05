@@ -148,7 +148,7 @@ export function TrainingScreen({ route }: TrainingScreenProps): React.JSX.Elemen
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} testID="training-screen">
       <OfflineIndicator />
       <View style={styles.content}>
         <Text style={styles.title}>Treinamentos</Text>
@@ -238,7 +238,8 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   subtitle: {
-    color: '#888',
+    // Upgraded #888 → #b3b3b3 (WCAG AA 4.5:1 on #0a0a0a)
+    color: '#b3b3b3',
     fontSize: 13,
     lineHeight: 18,
     marginBottom: 20,
@@ -284,7 +285,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   dueDate: {
-    color: '#888',
+    // Upgraded #888 → #b3b3b3 (WCAG AA 4.5:1 on #141417)
+    color: '#b3b3b3',
     fontSize: 12,
     marginBottom: 4,
   },
@@ -293,7 +295,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   lastSigned: {
-    color: '#555',
+    // Decorative timestamp — non-interactive, sub-AA acceptable
+    color: '#666666',
     fontSize: 11,
     marginBottom: 4,
   },

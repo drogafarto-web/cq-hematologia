@@ -36,7 +36,9 @@ export function NCCard({ nc, onPress }: NCCardProps): React.JSX.Element {
       onPress={() => onPress(nc.id)}
       activeOpacity={0.7}
       accessibilityRole="button"
-      accessibilityLabel={`NC ${nc.description} — ${label}`}
+      accessibilityLabel={`Não-conformidade: ${nc.description}, status: ${label}`}
+      accessibilityHint="Duplo toque para ver detalhes e atualizar status"
+      testID="nc-card"
     >
       <View style={styles.header}>
         <Text style={styles.description} numberOfLines={2}>
@@ -103,11 +105,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   metaText: {
-    color: '#888',
+    // Upgraded #888 → #b3b3b3 (WCAG AA 4.5:1 on #141417)
+    color: '#b3b3b3',
     fontSize: 11,
   },
   metaSeparator: {
-    color: '#555',
+    // Decorative separator — non-interactive
+    color: '#666666',
     fontSize: 11,
   },
   statusLabel: {

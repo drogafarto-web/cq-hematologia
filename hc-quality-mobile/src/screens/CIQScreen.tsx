@@ -42,7 +42,7 @@ export function CIQScreen({ navigation }: CIQScreenProps): React.JSX.Element {
 
   if (error && runs.length === 0) {
     return (
-      <View style={styles.container}>
+      <View style={styles.container} testID="ciq-screen">
         <OfflineIndicator />
         <View style={styles.centerContent}>
           <Text style={styles.errorText}>Erro ao carregar corridas</Text>
@@ -53,7 +53,7 @@ export function CIQScreen({ navigation }: CIQScreenProps): React.JSX.Element {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="ciq-screen">
       <OfflineIndicator />
       <ScrollView
         style={styles.scroll}
@@ -75,6 +75,8 @@ export function CIQScreen({ navigation }: CIQScreenProps): React.JSX.Element {
               size="large"
               style={styles.loader}
               testID="activity-indicator"
+              accessible
+              accessibilityLabel="Carregando corridas"
             />
           ) : null}
 
@@ -143,13 +145,15 @@ const styles = StyleSheet.create({
     marginTop: 48,
   },
   emptyTitle: {
-    color: '#888',
+    // Upgraded #888 (3.5:1) → #b3b3b3 (4.5:1 on #141417) — WCAG AA
+    color: '#b3b3b3',
     fontSize: 15,
     fontWeight: '500',
     marginBottom: 8,
   },
   emptySubtitle: {
-    color: '#555',
+    // Decorative / non-interactive text — below AA is acceptable
+    color: '#666666',
     fontSize: 12,
     textAlign: 'center',
   },

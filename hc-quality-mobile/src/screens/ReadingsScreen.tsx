@@ -91,7 +91,7 @@ export function ReadingsScreen(): React.JSX.Element {
   };
 
   return (
-    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
+    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled" testID="readings-screen">
       <OfflineIndicator />
       <View style={styles.content}>
         <Text style={styles.title}>Registrar Leitura</Text>
@@ -148,7 +148,8 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   description: {
-    color: '#888',
+    // Upgraded #888 → #b3b3b3 (WCAG AA 4.5:1 on #0a0a0a)
+    color: '#b3b3b3',
     fontSize: 13,
     lineHeight: 18,
     marginBottom: 4,

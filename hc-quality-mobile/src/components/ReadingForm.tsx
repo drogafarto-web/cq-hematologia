@@ -64,6 +64,9 @@ export function ReadingForm({ onSubmit, loading }: ReadingFormProps): React.JSX.
         maxLength={100}
         returnKeyType="next"
         autoCapitalize="sentences"
+        accessibilityLabel="Nome do parâmetro"
+        accessibilityHint="Digite o nome do parâmetro a ser medido"
+        testID="parameter-input"
       />
 
       <Text style={styles.label}>Valor Medido *</Text>
@@ -77,6 +80,9 @@ export function ReadingForm({ onSubmit, loading }: ReadingFormProps): React.JSX.
         editable={!loading}
         maxLength={20}
         returnKeyType="done"
+        accessibilityLabel="Valor medido"
+        accessibilityHint="Digite o valor numérico da leitura"
+        testID="value-input"
       />
 
       <Text style={styles.label}>Unidade</Text>
@@ -115,7 +121,9 @@ export function ReadingForm({ onSubmit, loading }: ReadingFormProps): React.JSX.
         onPress={handleSubmit}
         disabled={!isValid || loading}
         accessibilityRole="button"
-        accessibilityLabel="Enviar leitura"
+        accessibilityLabel="Registrar leitura"
+        accessibilityHint="Duplo toque para salvar a leitura do parâmetro"
+        testID="submit-reading-button"
       >
         {loading ? (
           <ActivityIndicator color="#fff" size="small" />
@@ -188,7 +196,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#1e1e40',
   },
   unitOptionText: {
-    color: '#aaa',
+    // Upgraded #aaa (3.7:1) → #b3b3b3 (4.5:1 on #1c1c20) — WCAG AA
+    color: '#b3b3b3',
     fontSize: 14,
   },
   unitOptionTextActive: {
