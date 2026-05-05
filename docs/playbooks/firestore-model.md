@@ -82,3 +82,8 @@ Ver [`firestore.indexes.json`](../../firestore.indexes.json). Destacar novos:
 3. **Claims JWT são fonte de verdade** pra module access — Firestore `users/{uid}.modules` é mirror read-only pra UI.
 4. **`activationsCount`, `runCount`, `lastRunAt`** em Insumo são denormalizações — atualizadas via batch em hooks, nunca editadas manualmente.
 5. **Reagentes com `qcValidationRequired: true`** bloqueiam runs até passar por CQ aprovada (Fase B — soft warning hoje, hard gate futuro).
+
+
+---
+## 🔗 Conexões Centrais
+- [[HC_Quality]]

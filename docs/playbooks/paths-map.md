@@ -159,3 +159,8 @@ smoke-test-openclaw/
     ├── strip-mock.jpg
     └── tira-mock.jpg
 ```
+
+
+---
+## 🔗 Conexões Centrais
+- [[HC_Quality]]

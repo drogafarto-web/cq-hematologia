@@ -124,3 +124,8 @@ Pronto pra shippar / X issues pra corrigir primeiro
 - Se algo está quebrado, forneça o fix, não só o report.
 - Custo conta como métrica. API call desnecessária é desperdício.
 - O padrão: você deployaria isso com confiança numa sexta à noite.
+
+
+---
+## 🔗 Conexões Centrais
+- [[HC_Quality]]

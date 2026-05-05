@@ -54,7 +54,25 @@
       "Bash(ls *)",
       "Bash(grep -r \"firebase\" \"C:\\\\\\\\hc quality\\\\\\\\functions\\\\\\\\src\" --include=\"*.ts\")",
       "Bash(cat \"C:\\\\\\\\hc quality\\\\\\\\vitest.config.ts\")",
-      "Bash(awk '{print $9, $5, $6, $7, $8}')"
+      "Bash(awk '{print $9, $5, $6, $7, $8}')",
+      "Skill(gsd-health)",
+      "Bash(dir C:\\\\Users\\\\labcl\\\\Desktop *)",
+      "Bash(git -C \".claude/worktrees/agent-a3e95a87e9cd3e743\" log --oneline main..HEAD)",
+      "Bash(git -C \".claude/worktrees/agent-a3e95a87e9cd3e743\" status --short)",
+      "Bash(git -C \".claude/worktrees/agent-a10dfd101d84151c4\" log --oneline main..HEAD)",
+      "Bash(git -C \".claude/worktrees/agent-a10dfd101d84151c4\" status --short)",
+      "Bash(git -C \".claude/worktrees/agent-a6a111e9c6d27f4da\" log --oneline main..HEAD)",
+      "Bash(git -C \".claude/worktrees/agent-a6a111e9c6d27f4da\" status --short)",
+      "Bash(git -C .claude/worktrees/__TRACKED_VAR__ checkout -- .)",
+      "Bash(git worktree *)",
+      "Bash(git -C \".claude/worktrees/agent-a50e92f3cf799427b\" rebase main)",
+      "Bash(git merge *)",
+      "Bash(git -C \".claude/worktrees/agent-a50e92f3cf799427b\" checkout -- .claude/settings.local.json)",
+      "Bash(git -C \"C:\\\\hc quality\" status)",
+      "Bash(git -C \"C:\\\\hc quality\" diff --stat)",
+      "Bash(git *)",
+      "Bash(node -e \"const m = require\\('firebase-admin/firestore'\\); console.log\\(Object.keys\\(m\\).filter\\(k => k.toLowerCase\\(\\).includes\\('timestamp'\\) || k.toLowerCase\\(\\).includes\\('field'\\)\\)\\)\")",
+      "PowerShell(New-Item *)"
     ]
   },
   "enabledMcpjsonServers": [

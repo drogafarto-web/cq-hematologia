@@ -85,3 +85,8 @@ Não descreva fixes vagamente. Se o fix é "mude o background pra #0A0A0B e aume
 - Não compare com produtos medianos. Compare com os melhores.
 - O gosto do fundador é o padrão. Se o design não atende esse padrão, reprova.
 - Se um pixel está fora do lugar, reprova. Sem tolerância.
+
+
+---
+## 🔗 Conexões Centrais
+- [[HC_Quality]]
