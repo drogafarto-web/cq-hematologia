@@ -15,10 +15,11 @@
     "sourceMap": true,
     "outDir": "./build",
     "baseUrl": ".",
+    "types": ["jest", "@types/node"],
     "paths": {
       "@/*": ["src/*"]
     }
   },
   "include": ["src/**/*", "App.tsx"],
-  "exclude": ["node_modules", "build", "**/*.test.ts", "**/*.test.tsx"]
+  "exclude": ["node_modules", "build"]
 }
