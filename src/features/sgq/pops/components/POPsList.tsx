@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import type { POP, POPFilters } from '../../types/POP';
 import { usePOPs } from '../usePOPs';
 import { isVersaoExpirada, getVersaoAtiva } from '../../types/POP';
@@ -56,46 +56,9 @@ export default function POPsList({ onSelectPOP }: POPsListProps) {
             <p>Nenhum POP encontrado</p>
           </div>
         ) : (
-          pops.map((pop) => {
-            const versaoAtiva = getVersaoAtiva(pop);
-            const isExpirada = versaoAtiva && isVersaoExpirada(versaoAtiva);
-
-            return (
-              <div
-                key={pop.id}
-                onClick={() => onSelectPOP?.(pop)}
-                className="p-4 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 cursor-pointer transition-colors group"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-medium text-white">{pop.codigo}</h3>
-                      {isExpirada && (
-                        <span className="text-red-400 font-bold" title="POP expirado">⚠</span>
-                      )}
-                    </div>
-                    <p className="text-sm text-white/60 mt-1">{pop.nome}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      {versaoAtiva && (
-                        <span className="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded">
-                          v{versaoAtiva.numero}
-                        </span>
-                      )}
-                      <div className="text-xs text-white/40 space-x-1">
-                        <span>{pop.modulos.join(', ')}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-xs text-white/40">
-                      {pop.treinamentosObrigatorios.length} treinamento
-                      {pop.treinamentosObrigatorios.length !== 1 ? 's' : ''}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })
+          pops.map((pop) => (
+            <POPCard key={pop.id} pop={pop} onSelect={onSelectPOP} />
+          ))
         )}
       </div>
 
@@ -111,3 +74,51 @@ export default function POPsList({ onSelectPOP }: POPsListProps) {
     </div>
   );
 }
+
+// ─── POPCard ─────────────────────────────────────────────────────────────────
+
+const POPCard = memo(function POPCard({
+  pop,
+  onSelect,
+}: {
+  pop: POP;
+  onSelect?: (pop: POP) => void;
+}) {
+  const versaoAtiva = getVersaoAtiva(pop);
+  const isExpirada = versaoAtiva ? isVersaoExpirada(versaoAtiva) : false;
+
+  return (
+    <div
+      onClick={() => onSelect?.(pop)}
+      className="p-4 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 cursor-pointer transition-colors group"
+    >
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <h3 className="font-medium text-white">{pop.codigo}</h3>
+            {isExpirada && (
+              <span className="text-red-400 font-bold" title="POP expirado">⚠</span>
+            )}
+          </div>
+          <p className="text-sm text-white/60 mt-1">{pop.nome}</p>
+          <div className="flex items-center gap-2 mt-2">
+            {versaoAtiva && (
+              <span className="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded">
+                v{versaoAtiva.numero}
+              </span>
+            )}
+            <div className="text-xs text-white/40 space-x-1">
+              <span>{pop.modulos.join(', ')}</span>
+            </div>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-xs text-white/40">
+            {pop.treinamentosObrigatorios.length} treinamento
+            {pop.treinamentosObrigatorios.length !== 1 ? 's' : ''}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
