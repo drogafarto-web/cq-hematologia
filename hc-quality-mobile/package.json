@@ -10,6 +10,8 @@
     "test:unit": "jest",
     "lint": "eslint .",
     "build:android": "cd android && ./gradlew assembleRelease",
+    "build:android:release": "cd android && ./gradlew assembleRelease",
+    "build:android:bundle": "cd android && ./gradlew bundleRelease",
     "build:ios": "xcodebuild -workspace ios/hcQualityMobile.xcworkspace -scheme hcQualityMobile -configuration Release"
   },
   "dependencies": {
