@@ -1,0 +1,83 @@
+name: Smoke Tests — Phase 3.1 + Stream A
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  smoke-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Run smoke tests with coverage
+        run: npm run test:smoke:ci
+        continue-on-error: false
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: test-results.xml
+          retention-days: 30
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 30
+
+      - name: Comment coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          lcov-file: ./coverage/lcov.info
+
+      - name: Validate coverage thresholds
+        run: |
+          STATEMENTS=$(grep -oP 'Lines\s+:\s+\K[^%]+' coverage/index.html | head -1)
+          if (( $(echo "$STATEMENTS < 80" | bc -l) )); then
+            echo "❌ Coverage below 80%: $STATEMENTS%"
+            exit 1
+          fi
+          echo "✅ Coverage OK: $STATEMENTS%"
+
+      - name: Report results
+        if: always()
+        run: |
+          echo "## Smoke Test Results" >> $GITHUB_STEP_SUMMARY
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "✅ All tests passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Tests failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "- **Coverage Report**: [View](./coverage/index.html)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Test Results**: [XML](./test-results.xml)" >> $GITHUB_STEP_SUMMARY
