@@ -162,7 +162,8 @@ service cloud.firestore {
         function hasValidSignature(d) {
           return d.hmac is string && d.hmac.size() > 0 &&
                  d.hash is string && d.hash.size() == 64 &&
-                 d.timestamp is timestamp;
+                 d.timestamp is timestamp &&
+                 d.operatorId == request.auth.uid;
         }
         allow read: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
@@ -1158,21 +1159,23 @@ service cloud.firestore {
       match /auditorias/{auditoriaId} {
         allow read: if isSuperAdmin() ||
                        (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'));
-        allow create: if isSuperAdmin() ||
-                         (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'))
-                       && labIdMatches(request.resource.data)
-                       && request.resource.data.deletadoEm == null
-                       && request.resource.data.codigo is string
-                       && request.resource.data.titulo is string
-                       && request.resource.data.tipo in ['interna', 'externa', 'auditoria_cliente']
-                       && request.resource.data.status in ['planejada', 'em_execucao', 'finalizada', 'fechada']
-                       && request.resource.data.achados is list
-                       && request.resource.data.planosAcao is list;
-        allow update: if isSuperAdmin() ||
-                         (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'))
-                       && keepsLabId()
-                       && keepsCreatedAt()
-                       && request.resource.data.deletadoEm == null;
+        allow create: if isSuperAdmin() || (
+                         isActiveMemberOfLab(labId) && hasModuleAccess('sgq')
+                         && labIdMatches(request.resource.data)
+                         && request.resource.data.deletadoEm == null
+                         && request.resource.data.codigo is string
+                         && request.resource.data.titulo is string
+                         && request.resource.data.tipo in ['interna', 'externa', 'auditoria_cliente']
+                         && request.resource.data.status in ['planejada', 'em_execucao', 'finalizada', 'fechada']
+                         && request.resource.data.achados is list
+                         && request.resource.data.planosAcao is list
+                       );
+        allow update: if isSuperAdmin() || (
+                         isActiveMemberOfLab(labId) && hasModuleAccess('sgq')
+                         && keepsLabId()
+                         && keepsCreatedAt()
+                         && request.resource.data.deletadoEm == null
+                       );
         allow delete: if false;  // Soft-delete only
       }
 
@@ -1180,18 +1183,20 @@ service cloud.firestore {
       match /treinamentos/{treinamentoId} {
         allow read: if isSuperAdmin() ||
                        (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'));
-        allow create: if isSuperAdmin() ||
-                         (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'))
-                       && labIdMatches(request.resource.data)
-                       && request.resource.data.deletadoEm == null
-                       && request.resource.data.popId is string
-                       && request.resource.data.tipo in ['inicial', 'reciclagem', 'complementar']
-                       && request.resource.data.participantes is list;
-        allow update: if isSuperAdmin() ||
-                         (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'))
-                       && keepsLabId()
-                       && keepsCreatedAt()
-                       && request.resource.data.deletadoEm == null;
+        allow create: if isSuperAdmin() || (
+                         isActiveMemberOfLab(labId) && hasModuleAccess('sgq')
+                         && labIdMatches(request.resource.data)
+                         && request.resource.data.deletadoEm == null
+                         && request.resource.data.popId is string
+                         && request.resource.data.tipo in ['inicial', 'reciclagem', 'complementar']
+                         && request.resource.data.participantes is list
+                       );
+        allow update: if isSuperAdmin() || (
+                         isActiveMemberOfLab(labId) && hasModuleAccess('sgq')
+                         && keepsLabId()
+                         && keepsCreatedAt()
+                         && request.resource.data.deletadoEm == null
+                       );
         allow delete: if false;  // Soft-delete only
       }
 
@@ -1211,9 +1216,10 @@ service cloud.firestore {
           (isActiveMemberOfLab(labId) && hasModuleAccess('biosseguranca'));
         allow create: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && hasModuleAccess('biosseguranca') && isAdmin(labId));
-        allow update: if isSuperAdmin() ||
-          (isActiveMemberOfLab(labId) && hasModuleAccess('biosseguranca') && isAdmin(labId))
-          && resource.data.criadoEm == request.resource.data.criadoEm;
+        allow update: if isSuperAdmin() || (
+          isActiveMemberOfLab(labId) && hasModuleAccess('biosseguranca') && isAdmin(labId)
+          && resource.data.criadoEm == request.resource.data.criadoEm
+        );
         allow delete: if false;  // Soft-delete only
       }
 
@@ -1259,6 +1265,14 @@ service cloud.firestore {
         allow delete: if false;  // Soft-delete only
       }
 
+      match /pgrss-relatorios/{relatorioId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('pgrss'));
+        allow create: if false;
+        allow update: if false;
+        allow delete: if false;
+      }
+
       // ── /labs/{labId}/kpi-* — Phase 2 Batch 2, Task 4 ──────────────────────
       // KPI Dashboard: turnaround, retrabalho%, conformidade, NC origem, SLA
       match /kpi-metrics/{metricId} {
@@ -1273,7 +1287,10 @@ service cloud.firestore {
         allow read: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && hasModuleAccess('kpis'));
         allow create: if false;  // Cloud Function only
-        allow update: if false;  // Immutable after creation
+        allow update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('kpis')
+           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lida'])
+           && request.resource.data.lida == true);
         allow delete: if false;  // Never delete alerts
       }
 
@@ -1284,7 +1301,14 @@ service cloud.firestore {
           (isActiveMemberOfLab(labId) && hasModuleAccess('lgpd'));
         allow create: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && hasModuleAccess('lgpd')) ||
-          request.auth.uid == labId;  // Data subject can request
+          (
+            isAuthenticated()
+            && request.resource.data.titularUid == request.auth.uid
+            && request.resource.data.status == 'pendente'
+            && request.resource.data.labId == labId
+            && !('processadoPor' in request.resource.data)
+            && !('processadoEm' in request.resource.data)
+          );
         allow update: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && hasModuleAccess('lgpd') && isAdmin(labId));
         allow delete: if false;  // Soft-delete only
@@ -1315,6 +1339,13 @@ service cloud.firestore {
         allow create: if false;  // Via callable only (verified deletion)
         allow update: if false;  // Immutable after execution
         allow delete: if false;  // Never delete deletion records
+      }
+
+      match /lgpd-arquivo/{arquivoId} {
+        allow read: if isSuperAdmin();
+        allow create: if false;
+        allow update: if false;
+        allow delete: if false;
       }
     }
   }
