@@ -29,6 +29,8 @@ import { TrainingMatrixDash } from './TrainingMatrixDash';
 import { RefreshButton } from './RefreshButton';
 import { DateRangePickerBar } from './DateRangePickerBar';
 import { FilterBar } from './FilterBar';
+import { AnalyticsPDFExport } from './AnalyticsPDFExport';
+import type { DashboardType } from '../services/analyticsExportService';
 
 // ─── Tab definition ───────────────────────────────────────────────────────────
 
@@ -110,6 +112,14 @@ function TrainingIcon() {
     </Svg>
   );
 }
+
+// Map tab IDs to DashboardType for PDF export
+const TAB_TO_DASHBOARD_TYPE: Record<TabId, DashboardType> = {
+  compliance: 'compliance',
+  trends: 'ciq-trends',
+  'nc-heatmap': 'nc-heatmap',
+  training: 'training-matrix',
+};
 
 const TABS: Tab[] = [
   {
@@ -305,6 +315,18 @@ export function AnalyticsHub() {
                 isPolling={isPolling}
                 lastCheckedAt={lastCheckedAt}
                 nextCheckIn={nextCheckIn}
+              />
+              <AnalyticsPDFExport
+                dashboardType={TAB_TO_DASHBOARD_TYPE[activeTab]}
+                dateRange={dateRange.range}
+                filters={{
+                  equipmentIds: equipmentFilter.selectedIds.size > 0
+                    ? Array.from(equipmentFilter.selectedIds)
+                    : undefined,
+                  operatorIds: operatorFilter.selectedIds.size > 0
+                    ? Array.from(operatorFilter.selectedIds)
+                    : undefined,
+                }}
               />
               <RefreshButton />
             </div>

@@ -326,6 +326,9 @@ service cloud.firestore {
         function isTiraUro() {
           return resource.data.get('tipo', '') == 'tira-uro';
         }
+        // ADR 0002 — every insumo must reference a notaFiscalId or be legacy-migrated.
+        // CEQ module writes ONLY to: ceq-participacoes, ceq-amostras, ceq-resultados, nao-conformidades.
+        // It does NOT write to insumos. This rule must NOT be relaxed for CEQ or any other module.
         function nfCompliant(d) {
           return (d.notaFiscalId is string && d.notaFiscalId.size() > 0) ||
                  d._legacyMigrated == true;

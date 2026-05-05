@@ -13,6 +13,7 @@
 
 import React, { useMemo } from 'react';
 import { DashboardCard } from './DashboardCard';
+import { FilterUnavailableBanner } from './FilterUnavailableBanner';
 import {
   useAnalyticsAggregate,
   useAnalyticsLoading,
@@ -24,6 +25,10 @@ import {
   calculateRetrabalho,
   deriveKPISummary,
 } from '../services/kpiCalculators';
+import {
+  shouldShowFilterUnavailableBanner,
+  filterCapabilities,
+} from '../utils/aggregateFilters';
 import type { CardVariant } from './DashboardCard';
 
 // ─── Inline SVG icons ─────────────────────────────────────────────────────────
@@ -121,11 +126,29 @@ interface ComplianceStatusDashProps {
 
 export const ComplianceStatusDash = React.memo(function ComplianceStatusDash({
   className = '',
-  activeFilters: _activeFilters,
+  activeFilters,
 }: ComplianceStatusDashProps) {
   const aggregate = useAnalyticsAggregate();
   const loading = useAnalyticsLoading();
   const error = useAnalyticsError();
+
+  const equipmentIds = activeFilters?.equipmentIds ?? new Set<string>();
+  const operatorIds = activeFilters?.operatorIds ?? new Set<string>();
+
+  const showFilterBanner = shouldShowFilterUnavailableBanner(
+    'compliance',
+    equipmentIds,
+    operatorIds,
+  );
+
+  const filterBannerReason = filterCapabilities('compliance').reason;
+
+  const activeFilterLabel = useMemo(() => {
+    const parts: string[] = [];
+    if (equipmentIds.size > 0) parts.push(`${equipmentIds.size} equipamento${equipmentIds.size > 1 ? 's' : ''}`);
+    if (operatorIds.size > 0) parts.push(`${operatorIds.size} operador${operatorIds.size > 1 ? 'es' : ''}`);
+    return parts.join(', ');
+  }, [equipmentIds, operatorIds]);
 
   const kpis = useMemo(() => {
     if (!aggregate) return null;
@@ -173,6 +196,14 @@ export const ComplianceStatusDash = React.memo(function ComplianceStatusDash({
           </p>
         )}
       </div>
+
+      {/* Filter unavailable notice — aggregate data has no equipment/operator breakdown */}
+      {showFilterBanner && (
+        <FilterUnavailableBanner
+          reason={filterBannerReason}
+          activeFilterLabel={activeFilterLabel}
+        />
+      )}
 
       {/* KPI grid */}
       <div
