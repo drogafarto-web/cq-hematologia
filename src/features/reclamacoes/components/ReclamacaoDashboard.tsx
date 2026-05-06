@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, QueryConstraint } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
 import { useActiveLabId } from '../../../store/useAuthStore';
+import { useAppStore } from '../../../store/useAppStore';
+import { ReclamacaoDetail } from './ReclamacaoDetail';
 import type { LabId } from '../types';
 
 interface ReclamacaoItem {
@@ -21,6 +23,7 @@ export const ReclamacaoDashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState('Nova');
   const [selectedSeveridade, setSelectedSeveridade] = useState('todas');
+  const [selectedReclamacaoId, setSelectedReclamacaoId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!labId) return;
@@ -120,10 +123,10 @@ export const ReclamacaoDashboard: React.FC = () => {
           <div className="text-center py-8 text-gray-500">Nenhuma reclamação encontrada</div>
         ) : (
           reclamacoes.map((rec) => (
-            <a
+            <button
               key={rec.id}
-              href={`/reclamacoes/${rec.id}`}
-              className="block p-4 bg-white dark:bg-[#1f2937] border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a3746] transition-colors"
+              onClick={() => setSelectedReclamacaoId(rec.id)}
+              className="w-full text-left p-4 bg-white dark:bg-[#1f2937] border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a3746] transition-colors"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
@@ -164,10 +167,19 @@ export const ReclamacaoDashboard: React.FC = () => {
                   </span>
                 </div>
               </div>
-            </a>
+            </button>
           ))
         )}
       </div>
+
+      {/* Detail view modal */}
+      {selectedReclamacaoId && (
+        <div className="fixed inset-0 z-40 bg-black/40 overflow-y-auto">
+          <ReclamacaoDetail
+            id={selectedReclamacaoId}
+          />
+        </div>
+      )}
     </div>
   );
 };

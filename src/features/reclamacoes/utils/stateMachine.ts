@@ -34,12 +34,12 @@ export function getStatusLabel(status: ReclamacaoStatus): string {
 
 export function getStatusColor(status: ReclamacaoStatus): string {
   const colors: Record<ReclamacaoStatus, string> = {
-    Nova: 'blue',
-    Analisando: 'yellow',
-    RCA: 'orange',
-    Resolvida: 'green',
-    Comunicada: 'purple',
-    Fechada: 'gray',
+    Nova: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+    Analisando: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
+    RCA: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400',
+    Resolvida: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
+    Comunicada: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400',
+    Fechada: 'bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-400',
   };
   return colors[status];
 }
