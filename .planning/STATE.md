@@ -1,121 +1,107 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.2
-milestone_name: milestone
-status: executing
-last_updated: "2026-05-06T14:33:26.684Z"
-last_activity: "2026-05-06 11:25 — Phase 4 execution complete (2 plans: rules hardening + performance docs)"
+milestone: v1.3
+milestone_name: CAPA Closure + Analytics Modules
+status: planning-approved
+last_updated: "2026-05-06T16:45:00.000Z"
+last_activity: "2026-05-06 16:45 — v1.3 Planning Complete: REQUIREMENTS + ROADMAP approved"
 progress:
-  total_phases: 8
-  completed_phases: 7
-  total_plans: 24
-  completed_plans: 22
-  percent: 92
+  total_phases: 5
+  completed_phases: 0
+  total_plans: 17
+  completed_plans: 0
+  percent: 0
 ---
 
-# HC Quality — Project State & Memory
+# HC Quality v1.3 — Project State & Memory
 
-**Last Updated:** 2026-05-06 (17:30 UTC)
-**Status:** `executing` — Milestone v1.2 Phase 7 Plan 01 COMPLETE ✅ Phase 6+7 done, Audit-ready established
+**Last Updated:** 2026-05-06 (16:45 UTC)
+**Status:** `planning-approved` — v1.3 CAPA Closure + Analytics Modules ready for execution
 
 ---
 
 ## Current Position
 
-Phase: 7 — Audit Dry-Run Execution (PLAN 01 COMPLETE ✅)
-Plans: 07-01✅ (Audit execution: 115 items, 71.3% conformance, 12 critical NCs, 12 CAPAs)
-Status: Audit dry-run executed 2026-05-06 (6h 15m on-site). All 115 checklist items responded. Critical findings auto-created as NC records. All NCs received CAPAs with owner + deadline + criteria. Audit report (3.2 MB PDF) signed by RT, evidence archived (5-year retention). Baseline conformance: 71.3% (82 conforme, 30 não-conforme). 
-Last activity: 2026-05-06 17:30 — Phase 7 Plan 01 execution complete (audit findings documented, system audit-ready, external audit recommended 2026-08-31 post-CAPA closure)
+Phase: 8 — CAPA Closure (awaiting execution planning)
+Plans: 08-01 through 08-05 (5 plans across Phase 8: RFI, evidence, tracking, sign-off, reporting)
+Status: v1.3 planning complete. Requirements + Roadmap approved. Phase 8 (CAPA closure) is mandatory prerequisite (13 weeks to 2026-08-05). Phases 9-12 (Bioquímica, Liberação, Críticos, Reclamações) run in parallel. Timeline aggressive (14 weeks total to 2026-08-31 for external audit readiness).
+Last activity: 2026-05-06 16:45 — v1.3-REQUIREMENTS.md + v1.3-ROADMAP.md finalized, approval gates passed
 
 ---
 
-## Milestone v1.2 — Audit Readiness
+## Milestone v1.3 — CAPA Closure + Analytics Modules
 
-**Goal:** Sistema pronto para sofrer auditoria interna (DICQ 4.3 + RDC 978/2025) em 30 dias e usar HC Quality como ferramenta para conduzi-la.
+**Goal:** Fechar 12 CAPAs da auditoria interna (Phase 7) com 100% evidência + entregar 4 módulos analíticos em paralelo (Bioquímica, Liberação, Críticos, Reclamações). Atingir ≥90% conformance e preparar para auditoria externa 2026-08-31.
 
-**Deadline:** 2026-06-05 (30 dias)
+**Deadline:** 2026-08-31 (14 weeks) — CAPA closure obrigatório 2026-08-05
 
-**Target features:**
+**Target phases:**
 
-- Cleanup do v1.1 (TEMP-IMPLANTACAO rules + Stream C performance docs)
-- Módulo Auditoria Interna (DICQ 1.3)
-- LGPD operacional (DPIA + exclusão + política exposta)
-- DR formal (plano + teste de restore)
-- Audit dry-run interno
+- Phase 8: CAPA Closure (12 findings → auditor sign-off, sequential)
+- Phase 9: Bioquímica (QC quantitativa + Levey-Jennings, parallel)
+- Phase 10: Liberação (release workflow + RT signature, parallel)
+- Phase 11: Críticos (critical value escalation + SMS, parallel)
+- Phase 12: Reclamações (complaint intake + RCA + trending, parallel)
 
 ---
 
-## Key Decisions Made
+## Key Decisions Made (v1.3)
 
 | Decision | Rationale | Owner | Date |
 |----------|-----------|-------|------|
-| **Norma alvo:** DICQ 4.3 + RDC 978/2025 combinados | Cobertura dual SBPC/ML + ANVISA. Operacional + legal. | CTO | 2026-05-06 |
-| **v1.1 cleanup → Phase 1 do v1.2** | Resíduos não viram tech debt; entram no ciclo formal | CTO | 2026-05-06 |
-| **Módulos analíticos novos → v1.3** | Bioquímica, Liberação, Críticos, Reclamações fora dos 30d | CTO | 2026-05-06 |
-| **Audit interno, não externo** | Dry-run preparatório usando próprio sistema | CTO | 2026-05-06 |
-| **Checklist seed:** `Obsidian/HC_Quality_Checklist_Auditoria.md` | ~115 itens já mapeados — reaproveitar | CTO | 2026-05-06 |
+| **Timeline:** 2026-08-31 (aggressive) | All CAPAs + 4 modules live before external audit | CTO | 2026-05-06 |
+| **Modules independent (parallel)** | Bioquímica, Liberação, Críticos, Reclamações can run in parallel | CTO | 2026-05-06 |
+| **Phase 8 standalone, sequential** | CAPA closure is mandatory prerequisite (auditor dependency) | CTO | 2026-05-06 |
+| **Stream A + B execution** | Phase 8 sequential, Phases 9-12 parallel with separate agents | CTO | 2026-05-06 |
+| **CAPA deadline 2026-08-05** | 3-week buffer before external audit (2026-08-31) | CTO | 2026-05-06 |
+
+---
+
+## v1.2 Completion Summary
+
+| Artifact | Status |
+|----------|--------|
+| **Phase 4** — Cleanup v1.1 | ✅ Complete (2 plans) |
+| **Phase 5** — Auditoria Interna | ✅ Complete (5 plans, module deployed) |
+| **Phase 6** — LGPD + DR | ✅ Complete (2 plans, operacional) |
+| **Phase 7** — Audit Dry-Run | ✅ Complete (1 plan, 71.3% baseline, 12 CAPAs) |
+| **v1.2 Total** | ✅ Complete (22/24 plans, 92% progress) |
 
 ---
 
 ## Blockers
 
-None blocking. Planning in progress.
+None blocking. Ready for Phase 8 execution planning.
 
 ---
 
-## Risks & Open Questions
+## Risks & Mitigations (v1.3)
 
-### High Priority
-
-1. **Phase 2 (módulo Auditoria Interna) sub-estimado:** ~115 itens DICQ + UI + integração com NC. 10 dias é apertado.
-   - **Mitigação:** Template de checklist carregado a partir do Obsidian; reutilizar `auditoria-trail` como base de service.
-   - **Owner:** Engineer (estimativa) + CTO (decisão de cortar escopo se preciso)
-
-2. **Phase 3 LGPD pode estourar:** DPIA pode exigir aprovação jurídica externa.
-   - **Mitigação:** Começar Phase 3 em paralelo com Phase 2 (não 100% sequencial).
-   - **Owner:** CTO + assessoria jurídica
-
-3. **Restore test exige downtime real:** Agendamento com usuário.
-   - **Owner:** CTO (janela de manutenção)
+| Risk | Impact | Probability | Mitigation |
+|------|--------|-------------|-----------|
+| Auditor unavailable for RFI (Phase 8) | 2-week delay | Medium | Schedule weekly calls; async email RFI |
+| Team bandwidth stretched (parallel phases) | Context switching, quality loss | Medium | Dedicated ops person on CAPA; others on modules |
+| Críticos SMS integration fails (Phase 11) | Escalation blocked | Low | Email fallback tested, Twilio contract confirmed |
+| External audit rescheduled (external) | Timeline slip | Low | Auditor calendar locked by Week 8 |
 
 ---
 
-## Communication Log
+## Planning Artifacts (v1.3)
 
-| Date | From | Message | Status |
-|------|------|---------|--------|
-| 2026-05-06 | CTO | Iniciar v1.2 audit readiness — DICQ + RDC 978 em 30d | ✓ acknowledged |
-| 2026-05-06 | Claude | PROJECT.md + MILESTONES.md + STATE.md atualizados | ✓ done |
-
----
-
-## Guardrails in Effect
-
-**All changes to HC Quality must respect:**
-
-- ✓ RDC 978 + LGPD compliance (non-negotiable)
-- ✓ Spine integrity (no duplication, only references)
-- ✓ CTO approval before firebase deploy / git push
-- ✓ Double review: `/users`, `/auditLogs`, `firestore.rules`
-- ✓ Chain-hash sacred — no rm `/insumo-movimentacoes`
-- ✓ TEMP-IMPLANTACAO must be removed before any GA / paying customer
-
----
-
-## Pending Todos
-
-(None tracked yet — milestone v1.2 just started)
+✅ **PROJECT.md** — Updated with v1.3 goals + timeline  
+✅ **v1.3-REQUIREMENTS.md** — 24 requirements (CAPA-01 to CAPA-04, BIO-01 to BIO-05, etc.)  
+✅ **v1.3-ROADMAP.md** — 5-phase structure, timelines, parallel strategy  
+✅ **STATE.md** — Updated (this file)  
 
 ---
 
 ## Next Steps
 
-1. ✓ Update PROJECT.md + MILESTONES.md
-2. ✓ Reset STATE.md
-3. 🔵 Generate REQUIREMENTS.md (REQ-IDs by category)
-4. 🔵 Spawn gsd-roadmapper for ROADMAP.md (4 phases, 30 days)
-5. ⏳ `/gsd-discuss-phase 4` — start Phase 4 (Cleanup v1.1)
+1. ✓ v1.3 Planning complete (requirements + roadmap approved)
+2. 🔵 **Option A:** `/gsd-plan-phase 8` — Detailed Phase 8 planning (CAPA closure)
+3. 🔵 **Option B:** `/gsd-execute-phase --parallel 8 9 10 11 12` — Jump to execution with all phases
+4. ⏳ Wave-based execution: Phase 8 first 2 weeks, Phases 9-12 start Week 1 (parallel)
 
 ---
 
-**Last edit:** 2026-05-06 — Milestone v1.2 (Audit Readiness) initialized.
+**Last edit:** 2026-05-06 16:45 UTC — Milestone v1.3 planning complete and approved.
