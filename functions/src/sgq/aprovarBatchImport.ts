@@ -12,7 +12,7 @@
  * - Audit logged: each doc creation logged in sgq-documentos-audit
  */
 
-import * as functions from 'firebase-functions';
+import { onCall, HttpsError, type CallableRequest } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import * as crypto from 'crypto';
 
@@ -48,18 +48,18 @@ function generateDocHash(driveFileId: string, labId: string): string {
     .digest('hex');
 }
 
-export const aprovarBatchImport = functions.https.onCall(
-  async (input: AprovarBatchImportInput, context) => {
+export const aprovarBatchImport = onCall<AprovarBatchImportInput, Promise<AprovarBatchImportOutput>>(
+  async (request: CallableRequest<AprovarBatchImportInput>) => {
     // Auth: requires RT claim (will add once RT identity is finalized)
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+    if (!request.auth) {
+      throw new HttpsError(
         'unauthenticated',
         'User must be authenticated',
       );
     }
 
-    const { labId, docs } = input;
-    const userId = context.auth.uid;
+    const { labId, docs } = request.data;
+    const userId = request.auth.uid;
     const batch = admin.firestore().batch();
     const importJobId = admin.firestore().collection('_').doc().id;
 
@@ -110,10 +110,10 @@ export const aprovarBatchImport = functions.https.onCall(
           listaDistribuicao: doc.setoresLD || [],
           criadoEm: now,
           criadoPor: userId,
-          criadoPorName: context.auth?.token?.name || 'Unknown',
+          criadoPorName: request.auth?.token?.name || 'Unknown',
           atualizadoEm: now,
           atualizadoPor: userId,
-          atualizadoPorName: context.auth?.token?.name || 'Unknown',
+          atualizadoPorName: request.auth?.token?.name || 'Unknown',
           deletadoEm: null,
           importedFromDrive: true,
           importedFromDriveFileId: doc.driveFileId,
@@ -140,7 +140,7 @@ export const aprovarBatchImport = functions.https.onCall(
           toStatus: 'em_revisao',
           timestamp: now,
           operadorId: userId,
-          operadorName: context.auth?.token?.name || 'Unknown',
+          operadorName: request.auth?.token?.name || 'Unknown',
           motivo: 'Import from Drive',
         });
 
@@ -187,7 +187,7 @@ export const aprovarBatchImport = functions.https.onCall(
           timestamp: admin.firestore.FieldValue.serverTimestamp(),
         });
 
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'internal',
         error instanceof Error ? error.message : 'Batch import failed',
       );

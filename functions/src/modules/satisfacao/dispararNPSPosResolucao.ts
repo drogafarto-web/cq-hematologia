@@ -1,5 +1,4 @@
-import * as functions from 'firebase-functions';
-import { onDocumentUpdated } from 'firebase-functions/firestore';
+import { onDocumentUpdated } from 'firebase-functions/v2/firestore';
 import { db, admin } from '../../shared/firebase';
 import { Resend } from 'resend';
 import { generateNPSToken } from '../../shared/tokenUtils';
@@ -11,11 +10,12 @@ const resend = new Resend(process.env.RESEND_API_KEY);
  * Action: Send NPS survey email to reclamant with unique token (valid 14 days)
  */
 export const dispararNPSPosResolucao = onDocumentUpdated(
-  'labs/{labId}/reclamacoes/{reclamacaoId}',
-  async (change, context) => {
-    const { labId, reclamacaoId } = context.params;
-    const before = change.data.before.data();
-    const after = change.data.after.data();
+  { document: 'labs/{labId}/reclamacoes/{reclamacaoId}' },
+  async (event) => {
+    const { labId, reclamacaoId } = event.params as { labId: string; reclamacaoId: string };
+    const before = event.data?.before.data();
+    const after = event.data?.after.data();
+    if (!before || !after) return;
 
     // Only trigger if status changed to 'Resolvida'
     if (before.status === after.status || after.status !== 'Resolvida') {
@@ -53,13 +53,14 @@ export const dispararNPSPosResolucao = onDocumentUpdated(
       });
 
       // Log email delivery
+      const resendId = response.data?.id ?? null;
       await db.collection('comunicacoes-cliente').add({
         labId,
         reclamacaoId,
         tipo: 'nps-pos-resolucao',
         destinatario: reclamante.email,
-        status: response.id ? 'enviado' : 'erro',
-        resendId: response.id,
+        status: resendId ? 'enviado' : 'erro',
+        resendId,
         criadoEm: admin.firestore.FieldValue.serverTimestamp(),
       });
 

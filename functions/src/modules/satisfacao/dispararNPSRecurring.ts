@@ -1,5 +1,5 @@
-import * as functions from 'firebase-functions';
 import { onSchedule } from 'firebase-functions/scheduler';
+import { onMessagePublished } from 'firebase-functions/v2/pubsub';
 import { db, admin } from '../../shared/firebase';
 import { PubSub } from '@google-cloud/pubsub';
 import { Resend } from 'resend';
@@ -16,7 +16,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
  */
 export const dispararNPSRecurring = onSchedule(
   { schedule: '0 12 15 */3 *', timeZone: 'America/Sao_Paulo' },
-  async (context) => {
+  async (_event) => {
     try {
       // Get all active labs
       const labsSnap = await db.collection('labs').where('ativo', '==', true).get();
@@ -81,12 +81,16 @@ export const dispararNPSRecurring = onSchedule(
  * Cloud Task / Pub/Sub handler: Process NPS email queue
  * Sends NPS survey emails with rate limiting (max 1000/hour = 1/3.6s)
  */
-export const npsEmailQueueHandler = functions.pubsub
-  .topic('nps-email-queue')
-  .onPublish(async (message) => {
+export const npsEmailQueueHandler = onMessagePublished(
+  'nps-email-queue',
+  async (event) => {
     try {
-      const payload = JSON.parse(message.data.toString());
+      const messageData = event.data.message.data
+        ? Buffer.from(event.data.message.data, 'base64').toString('utf-8')
+        : '{}';
+      const payload = JSON.parse(messageData);
       const { labId, pacienteId, email, nome, npsToken, tipo } = payload;
+      void npsToken;
 
       const npsUrl = `https://hmatologia2.web.app/portal-paciente/nps/${npsToken}`;
       const htmlBody = `
@@ -106,13 +110,14 @@ export const npsEmailQueueHandler = functions.pubsub
       });
 
       // Log delivery
+      const resendId = response.data?.id ?? null;
       await db.collection('comunicacoes-cliente').add({
         labId,
         pacienteId,
         tipo: `nps-${tipo}`,
         destinatario: email,
-        status: response.id ? 'enviado' : 'erro',
-        resendId: response.id,
+        status: resendId ? 'enviado' : 'erro',
+        resendId,
         criadoEm: admin.firestore.FieldValue.serverTimestamp(),
       });
 
@@ -121,4 +126,5 @@ export const npsEmailQueueHandler = functions.pubsub
       console.error('[NPS Email Queue] Error:', error);
       throw error;
     }
-  });
+  },
+);

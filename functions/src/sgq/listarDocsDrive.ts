@@ -12,7 +12,7 @@
  *   - gaps: LM-01 entries without Drive file match
  */
 
-import * as functions from 'firebase-functions';
+import { onCall, HttpsError, type CallableRequest } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { google } from 'googleapis';
 import { getAccessToken } from './_drive/oauthClient';
@@ -45,28 +45,29 @@ export interface ListarDocsDriveOutput {
   totalMatched: number;
 }
 
-export const listarDocsDrive = functions.https.onCall(
-  async (input: ListarDocsDriveInput, context) => {
+export const listarDocsDrive = onCall<ListarDocsDriveInput, Promise<ListarDocsDriveOutput>>(
+  async (request: CallableRequest<ListarDocsDriveInput>) => {
     // Auth: requires RT claim or authenticated user (will refine to RT later)
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+    if (!request.auth) {
+      throw new HttpsError(
         'unauthenticated',
         'User must be authenticated',
       );
     }
 
-    const { labId, lm01SheetId } = input;
-    const userId = context.auth.uid;
+    const { labId, lm01SheetId } = request.data;
+    const userId = request.auth.uid;
 
     try {
       // Get stored access token
       const accessToken = await getAccessToken(labId, userId);
 
+      // OAuth2 client with the user's access token
+      const oauth2Client = new google.auth.OAuth2();
+      oauth2Client.setCredentials({ access_token: accessToken });
+
       // Fetch LM-01 from Google Sheets
-      const sheets = google.sheets({ version: 'v4', auth: new google.auth.OAuth2() });
-      sheets.context._options.auth = new google.auth.GoogleAuth({
-        credentials: { access_token: accessToken },
-      });
+      const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
 
       const lm01Response = await sheets.spreadsheets.values.get({
         spreadsheetId: lm01SheetId,
@@ -77,9 +78,7 @@ export const listarDocsDrive = functions.https.onCall(
       const lm01Entries = await parseLM01Sheet(lm01Values);
 
       // Get Drive API client
-      const drive = google.drive({ version: 'v3', auth: new google.auth.GoogleAuth({
-        credentials: { access_token: accessToken },
-      }) });
+      const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
       const matched: MatchedDoc[] = [];
       const gaps: { codigo: string; titulo: string }[] = [];
@@ -134,7 +133,7 @@ export const listarDocsDrive = functions.https.onCall(
       } as ListarDocsDriveOutput;
     } catch (error) {
       console.error('[listarDocsDrive] error:', error);
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'internal',
         error instanceof Error ? error.message : 'Failed to list documents',
       );
