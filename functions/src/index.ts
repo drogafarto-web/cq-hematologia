@@ -202,12 +202,16 @@ export {
 // registerAchado: record audit findings (grave/critica trigger NC auto-gen dialog)
 // createPlanoAcao: action plan for closure (CAPA workflow)
 // closeAuditoria: mark audit as fechada
+// installChecklistTemplate: load DICQ template (~115 items) into audit session
+// updateChecklistResponses: batch-sync offline checklist responses
 export {
   createAuditoria,
   registerAchado,
   createPlanoAcao,
   closeAuditoria,
-} from './modules/auditoria/auditoria';
+  installChecklistTemplate,
+  updateChecklistResponses,
+} from './modules/auditoria/index';
 
 // ─── equipamentos module (ADR 0007 — Equipment Calibration Gate) ──────────────
 // Equipment qualifications: calibration + maintenance scheduling

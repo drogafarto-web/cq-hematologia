@@ -25,6 +25,7 @@ import { AnalyticsHub } from '../analytics/components/AnalyticsHub';
 import { ExportQueueView } from '../export/components/ExportQueueView';
 import { ExportWizard } from '../export/components/ExportWizard';
 import { CEQDashboard } from '../ceq/components/CEQDashboard';
+import { AuditoriaView } from '../auditoria-interna/components/AuditoriaView';
 import { useBrowserHistorySync } from '../../shared/hooks/useBrowserHistorySync';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
@@ -161,6 +162,8 @@ function AppRouter() {
     view = <ExportsView />;
   } else if (currentView === 'ceq') {
     view = <CEQDashboard />;
+  } else if (currentView === 'auditoria-interna') {
+    view = <AuditoriaView />;
   } else {
     view = <AnalyzerView />;
   }

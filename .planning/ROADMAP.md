@@ -47,11 +47,20 @@ Phase 7 (3-5 dias):   Dry-Run ───────────────┴�
 3. Alertas Firebase Perf disparam em ambiente de teste quando budget é violado
 4. Baseline Lighthouse documentado e CI alerta regressão >10%
 
+**Plans:**
+- [x] `04-01-PLAN.md` — Replace TEMP-IMPLANTACAO rules + write tests (Wave 1, depends on none) ✅ COMPLETE
+- [x] `04-02-PLAN.md` — Performance patterns docs + Lighthouse baseline + Firebase alerts (Wave 1, depends on none) ✅ COMPLETE
+
+**Execution notes:**
+- Both plans run in parallel (Wave 1). No blocking dependencies.
+- Plan 01 has 1 checkpoint (human review of rules changes before deploy).
+- Plan 02 is fully autonomous (docs + Firebase console config).
+
 **Skills GSD:**
 - `/gsd-discuss-phase 4` — clarificar membership rules (qual claim/role usar?)
-- `/gsd-plan-phase 4`
-- `/gsd-execute-phase 4`
-- `/gsd-validate-phase 4`
+- `/gsd-plan-phase 4` ✅ COMPLETE — 2 plans created
+- `/gsd-execute-phase 4` ✅ COMPLETE
+- `/gsd-validate-phase 4` ✅ COMPLETE
 
 ---
 
@@ -81,11 +90,23 @@ Phase 7 (3-5 dias):   Dry-Run ───────────────┴�
 - Phase 4 não bloqueia início (pode rodar em paralelo a partir do dia 3)
 - Consome spines existentes: `/users` (Pessoa), `/pops` (POP), `/naoConformidades` (NC)
 
+**Plans:**
+- [ ] `05-01-PLAN.md` — Foundation: types, service, hooks, rules, checklist template (Wave 1, depends on none) ✅ PLAN CREATED
+- [ ] `05-02-PLAN.md` — UI components: AuditoriaView, SessaoExecucaoPanel, AchadoForm, tablet UX (Wave 2, depends on 05-01)
+- [ ] `05-03-PLAN.md` — Cloud Functions: registerAchado, installChecklistTemplate, updateChecklistResponses, auto-NC (Wave 2, depends on 05-01)
+- [ ] `05-04-PLAN.md` — PDF generation + E2E tests: generateAuditReportPDF, export button, full workflow test (Wave 3, depends on 05-02/03)
+
+**Execution notes:**
+- Plan 05-01 already executed (Foundation complete)
+- Plans 05-02 and 05-03 can run in parallel (Wave 2)
+- Plan 05-04 depends on both (Wave 3)
+- Critical path: 05-01 → (05-02 + 05-03 parallel) → 05-04
+
 **Skills GSD:**
 - `/gsd-discuss-phase 5` — clarificar UX tablet, modo offline, severity mapping
 - `/gsd-ui-phase 5` — design contract do módulo (frontend novo, dark-first)
-- `/gsd-plan-phase 5`
-- `/gsd-execute-phase 5`
+- `/gsd-plan-phase 5` ✅ COMPLETE
+- `/gsd-execute-phase 5` (in progress: 05-01 done, 05-02/03/04 pending)
 - `/gsd-secure-phase 5` — rules + audit trail revisados antes de deploy
 
 ---
@@ -116,10 +137,13 @@ Phase 7 (3-5 dias):   Dry-Run ───────────────┴�
 - Pode rodar em paralelo com Phase 5 (independências)
 - Phase 4 (CLEAN-01 rules tightening) deve estar terminado antes de DR test (não restaurar dados em staging com rules abertas)
 
+**Plans:**
+- [ ] TBD (planning pending)
+
 **Skills GSD:**
 - `/gsd-discuss-phase 6` — clarificar fluxo OTP exclusão, janela de manutenção do restore
-- `/gsd-plan-phase 6`
-- `/gsd-execute-phase 6`
+- `/gsd-plan-phase 6` (pending)
+- `/gsd-execute-phase 6` (pending)
 - `/gsd-secure-phase 6` — revisar deleteTitularData (chain-hash não pode quebrar)
 
 ---
@@ -149,10 +173,19 @@ Phase 7 (3-5 dias):   Dry-Run ───────────────┴�
 - Phase 5 (módulo) DEVE estar em produção
 - Phase 6 não bloqueia (mas auditoria vai gerar achados sobre LGPD/DR, então melhor ter prontas)
 
+**Plans:**
+- [ ] `07-01-PLAN.md` — Audit coordination, execution, CAPA consolidation, report generation (Wave 1, depends on Phase 5 deployment) ✅ PLAN CREATED
+
+**Execution notes:**
+- Single plan: sequential audit execution workflow
+- 5 major tasks: briefing/go-no-go, environment prep, in-loco execution, CAPA consolidation, report generation + sign-off
+- 2 checkpoints: (a) pre-execution go-no-go decision, (b) post-execution environment verification
+- Fully autonomous after checkpoints (all data entry via Phase 5 UI, Cloud Functions handle NC auto-creation)
+
 **Skills GSD:**
 - `/gsd-discuss-phase 7` — quem conduz, qual data, RT disponível
-- `/gsd-plan-phase 7` — checklist de execução da auditoria real
-- `/gsd-execute-phase 7` — execução acompanhada
+- `/gsd-plan-phase 7` ✅ COMPLETE
+- `/gsd-execute-phase 7` (pending)
 - `/gsd-validate-phase 7` — verificar que evidências geradas são auditáveis
 
 ---
@@ -161,10 +194,10 @@ Phase 7 (3-5 dias):   Dry-Run ───────────────┴�
 
 Antes de fechar v1.2 e iniciar v1.3:
 
-- [ ] Phase 4: Resíduos do v1.1 fechados
-- [ ] Phase 5: Módulo Auditoria Interna em produção, smoke test verde
-- [ ] Phase 6: DPIA + exclusão titular + DR plan + restore test todos comprovados
-- [ ] Phase 7: 1 auditoria interna real executada e documentada
+- [x] Phase 4: Resíduos do v1.1 fechados ✅ COMPLETE
+- [ ] Phase 5: Módulo Auditoria Interna em produção, smoke test verde (05-01 done, 05-02/03/04 pending)
+- [ ] Phase 6: DPIA + exclusão titular + DR plan + restore test todos comprovados (planning pending)
+- [ ] Phase 7: 1 auditoria interna real executada e documentada (plan ready, execution pending)
 - [ ] CTO sign-off: "v1.2 done, ready for v1.3 planning"
 - [ ] `/gsd-complete-milestone` — arquivar phases + atualizar MILESTONES.md
 
@@ -218,4 +251,4 @@ Antes de fechar v1.2 e iniciar v1.3:
 
 ---
 
-**Next:** `/gsd-discuss-phase 4` — começar Phase 4 (Cleanup v1.1).
+**Next:** Phase 5 execution (Plans 05-02/03 can start in parallel after 05-01 deployment)

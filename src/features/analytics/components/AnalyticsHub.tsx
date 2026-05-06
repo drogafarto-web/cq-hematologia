@@ -22,6 +22,7 @@ import { useRealtimePolling } from '../hooks/useRealtimePolling';
 import { useDateRangeFilter } from '../hooks/useDateRangeFilter';
 import { useEquipmentFilter } from '../hooks/useEquipmentFilter';
 import { useOperatorFilter } from '../hooks/useOperatorFilter';
+import { useAppStore } from '../../../store/useAppStore';
 import { ComplianceStatusDash } from './ComplianceStatusDash';
 import { CIQTrendsDash } from './CIQTrendsDash';
 import { NCHeatmapDash } from './NCHeatmapDash';
@@ -274,6 +275,8 @@ export function AnalyticsHub() {
   // Establish Firestore subscriptions — populates the Zustand store
   useAnalyticsAggregates();
 
+  const goBack = useAppStore((s) => s.goBack);
+
   // 30s polling with meta diff guard (Phase 3.3 Task 1)
   const { isPolling, lastCheckedAt, nextCheckIn } = useRealtimePolling();
 
@@ -303,6 +306,30 @@ export function AnalyticsHub() {
           {/* Title row */}
           <div className="flex items-start justify-between mb-4">
             <div>
+              <button
+                type="button"
+                onClick={goBack}
+                className="flex items-center gap-1 mb-2 text-xs text-white/35 hover:text-white/70 transition-colors duration-150 group"
+                aria-label="Voltar"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  aria-hidden
+                  className="group-hover:-translate-x-0.5 transition-transform duration-150"
+                >
+                  <path
+                    d="M12.5 4L6 10l6.5 6"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                Voltar
+              </button>
               <h1 className="text-xl font-semibold text-white tracking-tight">
                 Analytics CIQ
               </h1>
