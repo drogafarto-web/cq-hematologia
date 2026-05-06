@@ -359,7 +359,26 @@ export {
   classificarReclamacaoIA,
   parseEmailReclamacao,
   criarNCDraft,
+  transitarReclamacao,
 } from './modules/reclamacoes/index';
+
+// ─── satisfacao module (Phase 11 — NPS surveys) ────────────────────────────────
+// NPS post-resolution, quarterly campaigns, response anonymization (LGPD).
+export {
+  dispararNPSPosResolucao,
+  dispararNPSRecurring,
+  npsEmailQueueHandler,
+  submitNPSResposta,
+  anonimizarRespostas,
+} from './modules/satisfacao/index';
+
+// ─── sugestoes module (Phase 11 — Improvement suggestions) ──────────────────────
+// Internal + public suggestion intake, upvoting, workflow (aberta → analisada → implementada/rejeitada).
+export {
+  criarSugestao,
+  transitarSugestao,
+  upvoteSugestao,
+} from './modules/sugestoes/index';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -2019,3 +2038,12 @@ Responda APENAS com JSON válido, sem markdown:
     return validation.data;
   },
 );
+
+// ─── sgq module (Phase 12 — Drive Importer + Classification) ──────────────────
+// OAuth callback and Drive import callables for Document Management System
+export { transitarVigencia } from './sgq/transitarVigencia';
+export { oauthCallbackDrive } from './sgq/oauthCallbackDrive';
+export { listarDocsDrive } from './sgq/listarDocsDrive';
+export { previewDocDrive } from './sgq/previewDocDrive';
+export { classificarDocAuto } from './sgq/classificarDocAuto';
+export { aprovarBatchImport } from './sgq/aprovarBatchImport';

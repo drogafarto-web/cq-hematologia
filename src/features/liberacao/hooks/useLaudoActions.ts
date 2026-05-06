@@ -8,8 +8,7 @@
  */
 
 import { useCallback, useState } from 'react';
-import { httpsCallable } from 'firebase/functions';
-import { functions } from '@shared/firebase';
+import { httpsCallable, functions } from '../../../shared/services/firebase';
 
 interface CriarLaudoInput {
   labId: string;

@@ -93,7 +93,9 @@
       "Bash(find src *)",
       "Bash(Get-ChildItem -Path \"src\\\\features\\\\capa\" -Recurse -ErrorAction SilentlyContinue)",
       "Bash(Select-Object FullName)",
-      "Skill(gsd-config)"
+      "Skill(gsd-config)",
+      "Bash(tsc --noEmit)",
+      "PowerShell(Head *)"
     ]
   },
   "model": "haiku",
