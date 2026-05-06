@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Timestamp, httpsCallable } from 'firebase/functions';
-import { functions } from '../../../services/firebase';
-import { useAuthStore } from '../../../stores/useAuthStore';
+import { Timestamp } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../../../shared/services/firebase';
+import { useActiveLabId, useUser } from '../../../store/useAuthStore';
 import { useManagementReview } from '../hooks/useManagementReview';
 import { useReviewTemplate } from '../hooks/useReviewTemplate';
 import {
@@ -50,7 +51,8 @@ export default function ReviewForm({
   onSubmitSuccess,
   onCancel
 }: ReviewFormProps) {
-  const { labId, user } = useAuthStore();
+  const labId = useActiveLabId();
+  const user = useUser();
   const { template, loading: templateLoading, ready: templateReady } = useReviewTemplate(
     new Date().getFullYear()
   );

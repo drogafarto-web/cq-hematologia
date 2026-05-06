@@ -1,7 +1,7 @@
-import { onCall, HttpsCallableOptions } from 'firebase-functions/v2/https';
-import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
+import { onCall, CallableOptions } from 'firebase-functions/v2/https';
+import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 import * as crypto from 'crypto';
-import { ManagementReview, ReviewEntry, LogicalSignature } from '../../../../../../src/features/management-review/types';
+import { ManagementReview, ReviewEntry, LogicalSignature } from './types';
 
 /**
  * Cloud Function: submitReview
@@ -43,13 +43,13 @@ interface SubmitReviewResponse {
   error?: string;
 }
 
-const options: HttpsCallableOptions = {
-  memory: '256MB',
+const options: CallableOptions = {
+  memory: '256MiB',
   timeoutSeconds: 60,
   region: 'southamerica-east1'
 };
 
-export const submitReview = onCall<SubmitReviewRequest, SubmitReviewResponse>(
+export const submitReview = onCall<SubmitReviewRequest>(
   options,
   async (request): Promise<SubmitReviewResponse> => {
     try {
@@ -74,7 +74,7 @@ export const submitReview = onCall<SubmitReviewRequest, SubmitReviewResponse>(
       // Validate lab exists
       const labRef = db.collection('labs').doc(labId);
       const labDoc = await labRef.get();
-      if (!labDoc.exists()) {
+      if (!labDoc.exists) {
         throw new Error('Lab not found');
       }
 

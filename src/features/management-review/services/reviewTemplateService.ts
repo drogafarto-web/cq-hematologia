@@ -8,7 +8,7 @@ import {
   Timestamp,
   QueryConstraint
 } from 'firebase/firestore';
-import { db } from '../../../services/firebase';
+import { db } from '../../../shared/services/firebase';
 import {
   ReviewTemplate,
   createEmptyReviewTemplate,
@@ -127,7 +127,13 @@ async function pullAuditResults(labId: string): Promise<Record<string, any>> {
   const q = query(path, where('deletedAt', '==', null));
   const snapshot = await getDocs(q);
 
-  const audits = [];
+  const audits: Array<{
+    id: string;
+    dataAuditoria: Date | null;
+    tipo: any;
+    escopo: any;
+    findingsCount: number;
+  }> = [];
   let totalFindings = 0;
   let totalClosed = 0;
 
@@ -345,7 +351,12 @@ async function pullSupplierPerformance(labId: string): Promise<Record<string, an
   const path = collection(db, 'labs', labId, 'fornecedores');
   const snapshot = await getDocs(query(path, where('deletedAt', '==', null)));
 
-  const suppliers = [];
+  const suppliers: Array<{
+    id: string;
+    nome: any;
+    status: any;
+    ultimaAvaliacao: Date | null;
+  }> = [];
   let activeCount = 0;
 
   snapshot.forEach((doc) => {

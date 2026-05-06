@@ -10,7 +10,7 @@ import {
   QueryConstraint,
   Unsubscribe
 } from 'firebase/firestore';
-import { db } from '../../../services/firebase';
+import { db } from '../../../shared/services/firebase';
 import { Ata } from '../types';
 
 /**
