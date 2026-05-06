@@ -1454,6 +1454,42 @@ service cloud.firestore {
         allow delete: if false;  // Soft-delete only (RN-06)
       }
 
+      // ── /labs/{labId}/personnel/** — Phase 8 (Personnel/Cargos + Designações) ──
+      // Job descriptions (Cargos) + organizational designations (GQ/RT/Diretor).
+      // DICQ 5.1.3 (Descrição de Cargos) + DICQ 4.1.2.7 (GQ Designação) compliance.
+      // Soft-delete only (RN-06): nunca hard delete — auditor exige trilha completa.
+      // Writes via Cloud Function callable `signDesignacao` (Fase 0b pattern).
+      match /personnel/{document=**} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if false;  // Via signDesignacao callable only
+        allow update: if false;  // Via signDesignacao callable only
+        allow delete: if false;  // Soft-delete only (RN-06)
+      }
+
+      // ── /labs/{labId}/management-reviews/** — Phase 8 (DICQ 4.15) ────────────
+      // Annual Direction Critical Analysis (Análise Crítica pela Direção).
+      // 15 mandatory sections with pre-populated data aggregation.
+      // DICQ 4.15 compliance: leadership commitment + data-driven review.
+      // Soft-delete only (RN-06): nunca hard delete — auditor exige 5-year history.
+      // Writes via Cloud Function callable `submitReview` (Fase 0b pattern).
+      match /management-reviews/{reviewId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if false;  // Via submitReview callable only
+        allow update: if false;  // Via submitReview callable only
+        allow delete: if false;  // Soft-delete only (RN-06)
+      }
+
+      // ── /labs/{labId}/management-review-atas/** — Phase 8 (Meeting Minutes) ───
+      // Meeting minutes (Atas) linked to management reviews.
+      // Audit trail for decision tracking and compliance evidence.
+      // Soft-delete only (RN-06).
+      match /management-review-atas/{ataId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if false;  // Via Cloud Function only
+        allow update: if false;  // Via Cloud Function only
+        allow delete: if false;  // Soft-delete only (RN-06)
+      }
+
       // ── /users/{userId}/privacyAceites — Privacy Policy Acceptance Tracking ──
       // User acceptance records per policy version. Scoped to /users/{userId}
       // (not under /labs/) because acceptance is personal, not lab-specific.
