@@ -197,6 +197,15 @@ export {
   recordarTreinamentoPOP,
 } from './modules/procedimentos/pop';
 
+// ─── bioquimica module (Phase 9 — CIQ Quantitativo) ─────────────────────────
+// parseBulaBioquimica: Gemini 2.5 Flash multimodal PDF parsing for control material
+// applyBulaToLot: atomic application of parsed bula data to ControlMaterial
+// Both use rate limiting, Zod validation, server-side auth (isActiveMemberOfLab).
+export {
+  parseBulaBioquimica,
+  applyBulaToLot,
+} from './bioquimica/index';
+
 // ─── auditoria module (ADR 0004 — Internal Audit + Findings → NC Auto-gen) ────
 // createAuditoria: create internal audit with scope and scheduled date
 // registerAchado: record audit findings (grave/critica trigger NC auto-gen dialog)

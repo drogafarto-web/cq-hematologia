@@ -90,7 +90,10 @@
       "Skill(gsd-complete-milestone)",
       "Skill(gsd-new-milestone)",
       "Bash(ls -la src/core/)",
-      "Bash(find src *)"
+      "Bash(find src *)",
+      "Bash(Get-ChildItem -Path \"src\\\\features\\\\capa\" -Recurse -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object FullName)",
+      "Skill(gsd-config)"
     ]
   },
   "model": "haiku",

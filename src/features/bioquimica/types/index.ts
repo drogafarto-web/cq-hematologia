@@ -50,3 +50,6 @@ export type {
   WestgardViolation,
 } from './westgard';
 export { CLSI_RULES, EXTENDED_RULES } from './westgard';
+
+// Bula parsing
+export type { BulaParseResult } from './bula';
