@@ -1358,9 +1358,7 @@ service cloud.firestore {
       // Sem soft-delete: jobs usam campo `status` como ciclo de vida — hard
       // delete proibido (trilha de auditoria de exportações).
       match /export-jobs/{jobId} {
-        // TEMP-IMPLANTACAO 2026-05: leitura aberta a qualquer user autenticado
-        // durante rollout. Voltar para isActiveMemberOfLab(labId) após Q3-2026.
-        allow read: if isAuthenticated();
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow create: if false;  // Via callable initiateExport only
         allow update: if false;  // Via exportWorker Cloud Function only
         allow delete: if false;  // Never delete export job records
@@ -1372,9 +1370,7 @@ service cloud.firestore {
       // rules). Client é somente-leitura. Cobre /analytics/meta e
       // /analytics/cache/** num único match para evitar gaps.
       match /analytics/{document=**} {
-        // TEMP-IMPLANTACAO 2026-05: leitura aberta a qualquer user autenticado
-        // durante rollout. Voltar para isActiveMemberOfLab(labId) após Q3-2026.
-        allow read: if isAuthenticated();
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow create: if false;  // Via scheduled Cloud Functions only
         allow update: if false;  // Via scheduled Cloud Functions only
         allow delete: if false;  // Cache lifecycle managed by Cloud Functions only
