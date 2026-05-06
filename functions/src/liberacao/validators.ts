@@ -101,24 +101,72 @@ export async function assertRTAccess(
 }
 
 // ─── Schemas Zod ─────────────────────────────────────────────────────────────
+//
+// Per SECURITY_AUDIT.md #3: replaced `z.array(z.record(z.any())).min(1)` with
+// a fully-typed ExameLaudoSchema that matches the ExameLaudo interface in
+// _shared/types.ts. `.strict()` rejects unknown keys (anti payload injection).
+// Length caps applied to every string field. Array caps prevent oversized
+// requests (max 50 exames per laudo, max 200 resultados per exame).
 
-export const SignaturePayloadSchema = z.object({
-  hash: z.string().regex(/^[a-f0-9]{64}$/i, 'Hash deve ter 64 caracteres hexadecimais'),
-  operatorId: z.string().min(1),
-  timestamp: z.number().int().positive(),
-});
+const ID_REGEX = /^[a-zA-Z0-9_\-:]+$/;
 
-export const CriarLaudoInputSchema = z.object({
-  labId: z.string().min(1),
-  runIds: z.array(z.string().min(1)).min(1),
-  pacienteId: z.string().min(1),
-  medicoSolicitanteId: z.string().min(1),
-  exames: z.array(z.record(z.any())).min(1),
-});
+const idString = (max = 100) =>
+  z.string().min(1).max(max).regex(ID_REGEX, 'ID inválido');
 
-export const LiberarLaudoInputSchema = z.object({
-  labId: z.string().min(1),
-  laudoId: z.string().min(1),
-  signaturePayload: SignaturePayloadSchema,
-  observacao: z.string().optional(),
-});
+const ResultadoExameSchema = z
+  .object({
+    value: z.number().finite(),
+    unidade: z.string().max(20),
+    nivelId: z.string().max(50).optional(),
+  })
+  .strict();
+
+const ValoresReferenciaSchema = z
+  .object({
+    min: z.number().finite(),
+    max: z.number().finite(),
+    descricao: z.string().max(500),
+  })
+  .strict();
+
+export const ExameLaudoSchema = z
+  .object({
+    id: idString(100),
+    nome: z.string().min(1).max(255),
+    tipoMaterial: z.string().min(1).max(100),
+    metodoAnalitico: z.string().min(1).max(255),
+    resultados: z.array(ResultadoExameSchema).min(0).max(200),
+    valoresReferencia: ValoresReferenciaSchema,
+    limitacoesTecnicas: z.string().max(2000).optional(),
+    interpretacao: z.string().max(5000).optional(),
+  })
+  .strict();
+
+export const SignaturePayloadSchema = z
+  .object({
+    hash: z
+      .string()
+      .regex(/^[a-f0-9]{64}$/i, 'Hash deve ter 64 caracteres hexadecimais'),
+    operatorId: z.string().min(1).max(100),
+    timestamp: z.number().int().positive(),
+  })
+  .strict();
+
+export const CriarLaudoInputSchema = z
+  .object({
+    labId: idString(100),
+    runIds: z.array(idString(100)).min(1).max(100),
+    pacienteId: idString(100),
+    medicoSolicitanteId: idString(100),
+    exames: z.array(ExameLaudoSchema).min(1).max(50),
+  })
+  .strict();
+
+export const LiberarLaudoInputSchema = z
+  .object({
+    labId: idString(100),
+    laudoId: idString(100),
+    signaturePayload: SignaturePayloadSchema,
+    observacao: z.string().max(2000).optional(),
+  })
+  .strict();
