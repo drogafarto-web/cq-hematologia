@@ -87,15 +87,13 @@ export function useChartData() {
 
   // ── Simulated LJ trend data (placeholder until real CIQ time series) ───────
   const ljChartData = useMemo((): ChartDataPoint[] => {
-    if (!aggregate) return [];
-
-    // Generate synthetic observations based on aggregate compliance
-    // Real data would come from a separate CIQ runs sub-collection
+    // Generate synthetic observations — always shown; compliance drives outlier rate.
+    // When no aggregate exists (no Firestore data yet), default to 88% compliance for demo.
     const POINTS = 20;
     const mean = 10;
     const sd = 0.5;
     const now = Date.now();
-    const compliance = aggregate.compliancePercent / 100;
+    const compliance = aggregate ? aggregate.compliancePercent / 100 : 0.88;
 
     return Array.from({ length: POINTS }, (_, i) => {
       const timestamp = now - (POINTS - i) * 3_600_000; // hourly

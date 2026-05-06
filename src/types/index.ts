@@ -426,7 +426,8 @@ export type View =
   | 'rastreabilidade'
   | 'analytics'
   | 'exports'
-  | 'ceq';
+  | 'ceq'
+  | 'auditoria-interna';
 
 // ─── Traceability ─────────────────────────────────────────────────────────────
 

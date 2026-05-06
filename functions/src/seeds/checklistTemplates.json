@@ -1,0 +1,1026 @@
+{
+  "dicq-4-3-rdc-978-v1": {
+    "id": "dicq-4-3-rdc-978-v1",
+    "nome": "DICQ 8ª Edição + RDC 978/2025",
+    "versao": "1.0",
+    "descricao": "~115 itens mapeados de DICQ 4.3 + RDC 978/2025 (Requisitos Técnicos e da Direção)",
+    "itens": [
+      {
+        "numeroDICQ": "4.1.1.2",
+        "descricao": "Pessoa jurídica documentada (Contrato Social, CNES, Alvará Sanitário, AVCB, registro Conselho de Classe)",
+        "categoria": "Organização e Responsabilidade",
+        "bloco": "A",
+        "mapeamentoRDC": "978:5.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.1.1.3",
+        "descricao": "Planejamento Estratégico documentado + Plano de Ação monitorado",
+        "categoria": "Organização e Responsabilidade",
+        "bloco": "A",
+        "mapeamentoRDC": "978:5.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.1.1.3a",
+        "descricao": "Norteadores Estratégicos publicados (Missão, Visão, Valores)",
+        "categoria": "Organização e Responsabilidade",
+        "bloco": "A",
+        "mapeamentoRDC": "978:5.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.1.1.3b",
+        "descricao": "Código de Conduta Ética + canal de denúncias funcional",
+        "categoria": "Organização e Responsabilidade",
+        "bloco": "A",
+        "mapeamentoRDC": "978:5.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.1.1.4",
+        "descricao": "Diretor do Laboratório — qualificação, designação, responsabilidades formalizadas",
+        "categoria": "Organização e Responsabilidade",
+        "bloco": "A",
+        "mapeamentoRDC": "978:5.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.1.2.1",
+        "descricao": "Comprometimento da direção evidenciado (atas, comunicações, planejamento)",
+        "categoria": "Organização e Responsabilidade",
+        "bloco": "A",
+        "mapeamentoRDC": "978:5.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.1.2.2",
+        "descricao": "Necessidades dos usuários levantadas e documentadas",
+        "categoria": "Organização e Responsabilidade",
+        "bloco": "A",
+        "mapeamentoRDC": "978:5.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.1.2.3",
+        "descricao": "Política da Qualidade documentada e comunicada ao pessoal",
+        "categoria": "Qualidade",
+        "bloco": "A",
+        "mapeamentoRDC": "978:5.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.1.2.4",
+        "descricao": "Planejamento da Qualidade + Sistema de Medição de Desempenho (KPIs)",
+        "categoria": "Qualidade",
+        "bloco": "A",
+        "mapeamentoRDC": "978:5.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.1.2.5",
+        "descricao": "Descrição de cargos, autoridades, substitutos formalizados",
+        "categoria": "Organização e Responsabilidade",
+        "bloco": "A",
+        "mapeamentoRDC": "978:5.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.1.2.6",
+        "descricao": "Processos de comunicação interna estabelecidos e documentados",
+        "categoria": "Organização e Responsabilidade",
+        "bloco": "A",
+        "mapeamentoRDC": "978:5.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.1.2.7",
+        "descricao": "Designação formal do Gerente da Qualidade (documento assinado pelo Diretor)",
+        "categoria": "Qualidade",
+        "bloco": "A",
+        "mapeamentoRDC": "978:5.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.2.1",
+        "descricao": "Mapa de processos do SGQ (sequência, integração, monitoramento)",
+        "categoria": "Sistema de Gestão da Qualidade",
+        "bloco": "A",
+        "mapeamentoRDC": "978:5.3",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.2.2.1",
+        "descricao": "Procedimento da qualidade para emissão/aprovação/revisão de documentos",
+        "categoria": "Sistema de Gestão da Qualidade",
+        "bloco": "A",
+        "mapeamentoRDC": "978:5.3",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.2.2.2",
+        "descricao": "Manual da Qualidade documentado (escopo, política, estrutura, responsabilidades)",
+        "categoria": "Sistema de Gestão da Qualidade",
+        "bloco": "A",
+        "mapeamentoRDC": "978:5.3",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.3",
+        "descricao": "Hierarquia documental (MQ → PQ → IT → FR + Lista Mestra) com controle de versão",
+        "categoria": "Controle de Documentos",
+        "bloco": "A",
+        "mapeamentoRDC": "978:5.4",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.3a",
+        "descricao": "Documentos obsoletos datados e segregados (status terminal, ocultos por padrão)",
+        "categoria": "Controle de Documentos",
+        "bloco": "A",
+        "mapeamentoRDC": "978:5.4",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.3b",
+        "descricao": "Frequência de revisão de planos/políticas/procedimentos pré-definida",
+        "categoria": "Controle de Documentos",
+        "bloco": "A",
+        "mapeamentoRDC": "978:5.4",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.4.1",
+        "descricao": "Cadastro de paciente/cliente com dados mínimos (id, solicitante, exame, material)",
+        "categoria": "Contrato de Serviço",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.5",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.4.2",
+        "descricao": "Procedimento de elaboração e análise crítica de contratos",
+        "categoria": "Contrato de Serviço",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.5",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.4.3",
+        "descricao": "Lista de exames oferecidos disponível aos usuários",
+        "categoria": "Contrato de Serviço",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.5",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.5.1",
+        "descricao": "Lista de exames terceirizados + critérios de seleção do lab de apoio",
+        "categoria": "Laboratórios de Apoio",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.6",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.5.1a",
+        "descricao": "Contrato formal com lab de apoio + análise crítica periódica",
+        "categoria": "Laboratórios de Apoio",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.6",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.5.2",
+        "descricao": "Laudo identifica exames realizados pelo lab de apoio (transcrição fidedigna)",
+        "categoria": "Laboratórios de Apoio",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.6",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.6",
+        "descricao": "Lista de fornecedores qualificados com critérios de seleção e avaliação periódica",
+        "categoria": "Suprimentos e Serviços Externos",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.7",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.6a",
+        "descricao": "Procedimento de credenciamento + monitoramento de fornecedores",
+        "categoria": "Suprimentos e Serviços Externos",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.7",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.6b",
+        "descricao": "Critérios de verificação/aceitação/recusa de reagentes documentados",
+        "categoria": "Suprimentos e Serviços Externos",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.7",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.7.1",
+        "descricao": "Canais de comunicação para orientação clínica documentados",
+        "categoria": "Serviços de Consultoria",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.8",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.7.2",
+        "descricao": "Comunicação de resultados de desempenho às partes interessadas",
+        "categoria": "Serviços de Consultoria",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.8",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.8",
+        "descricao": "Sistemática para receber, analisar, tratar e comunicar reclamações",
+        "categoria": "Tratamento de Reclamações",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.9",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.8a",
+        "descricao": "Registro de reclamações com ações tomadas e comunicação do resultado",
+        "categoria": "Tratamento de Reclamações",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.9",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.9",
+        "descricao": "Procedimento de identificação e controle de não-conformidades",
+        "categoria": "Identificação e Controle de NCs",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.10",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.9a",
+        "descricao": "Registro de cada NC com: extensão, retenção de exames, médico notificado, autorização de retomada",
+        "categoria": "Identificação e Controle de NCs",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.10",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.9b",
+        "descricao": "Análise crítica periódica de NCs (tendências, causas raiz, impacto)",
+        "categoria": "Identificação e Controle de NCs",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.10",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.10",
+        "descricao": "Procedimento documentado para ação corretiva (analisar NC → causas → ações → eficácia)",
+        "categoria": "Ação Corretiva",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.10",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.10a",
+        "descricao": "Registros de ações corretivas + análise de eficácia + evidências de encerramento",
+        "categoria": "Ação Corretiva",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.10",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.11",
+        "descricao": "Procedimento proativo (oportunidades de melhoria, análise de risco, ações preventivas)",
+        "categoria": "Ação Preventiva",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.10",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.11a",
+        "descricao": "Registros de ações preventivas + eficácia + encerramento",
+        "categoria": "Ação Preventiva",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.10",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.12",
+        "descricao": "Procedimento de melhoria contínua + indicadores de desempenho com metas",
+        "categoria": "Melhoria Contínua",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.11",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.12.1",
+        "descricao": "Planos de melhoria formalizados, monitorados, comunicados aos envolvidos",
+        "categoria": "Melhoria Contínua",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.11",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.13",
+        "descricao": "Procedimento de armazenamento, retenção, descarte seguro de registros",
+        "categoria": "Controle de Registros",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.12",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.13a",
+        "descricao": "Período de retenção definido por tipo de registro (legais, técnicos, operacionais)",
+        "categoria": "Controle de Registros",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.12",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.13b",
+        "descricao": "Política formal de destruição segura (incineração, trituração, reciclagem conforme tipo)",
+        "categoria": "Controle de Registros",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.12",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.14.1",
+        "descricao": "Sistemática de avaliação e auditorias internas documentada (frequência, escopo, equipe)",
+        "categoria": "Avaliação e Auditorias",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.13",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.14.2",
+        "descricao": "Análise crítica periódica de solicitações/amostras (pré/analítico/pós-analítico)",
+        "categoria": "Avaliação e Auditorias",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.14.3",
+        "descricao": "Avaliação da satisfação do usuário (NPS, pesquisas, feedback)",
+        "categoria": "Avaliação e Auditorias",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.13",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.14.4",
+        "descricao": "Caixa de sugestões + tratamento documentado + feedback ao sugerente",
+        "categoria": "Avaliação e Auditorias",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.13",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.14.5",
+        "descricao": "Auditoria interna (periodicidade, escopo, equipe imparcial, registros de achados)",
+        "categoria": "Avaliação e Auditorias",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.13",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.14.6",
+        "descricao": "Plano de Gerenciamento de Riscos (mapeamento, prob×gravidade, controles, monitoramento)",
+        "categoria": "Avaliação e Auditorias",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.14",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.14.7",
+        "descricao": "Indicadores de qualidade pré/analítico/pós com metas e análise crítica periódica",
+        "categoria": "Avaliação e Auditorias",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.11",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.14.8",
+        "descricao": "Registros de avaliações por organizações externas + ações tomadas",
+        "categoria": "Avaliação e Auditorias",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.13",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.15.1",
+        "descricao": "Reunião periódica da Direção documentada (ata + lista de presença)",
+        "categoria": "Análise Crítica pela Direção",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.15",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.15.2",
+        "descricao": "15 entradas obrigatórias compiladas: solicitações, satisfação, sugestões, auditorias, riscos, indicadores, externas, EP/AEQ, reclamações, fornecedores, NCs, melhoria, ações anteriores, mudanças, recomendações",
+        "categoria": "Análise Crítica pela Direção",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.15",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.15.3",
+        "descricao": "Análise registrada (tendências, padrões, causas raiz, oportunidades)",
+        "categoria": "Análise Crítica pela Direção",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.15",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "4.15.4",
+        "descricao": "Saídas com prazos definidos + comunicação ao pessoal + acompanhamento de cumprimento",
+        "categoria": "Análise Crítica pela Direção",
+        "bloco": "B",
+        "mapeamentoRDC": "978:5.15",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.1.1",
+        "descricao": "Documento de gestão de pessoal + planejamento de RH (necessidades, competências, capacitação)",
+        "categoria": "Pessoal",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.2.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.1.2",
+        "descricao": "Arquivo individual com CV, qualificação, experiência (inclui consultores/voluntários)",
+        "categoria": "Pessoal",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.2.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.1.3",
+        "descricao": "Descrição de cargos formalizada (atribuições, qualificação mínima, responsabilidades)",
+        "categoria": "Pessoal",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.2.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.1.4",
+        "descricao": "Programa de integração de novos funcionários (biossegurança, POPs, acesso, sistema)",
+        "categoria": "Pessoal",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.2.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.1.5",
+        "descricao": "Procedimento de treinamento + registros (certificados, listas de presença, avaliação)",
+        "categoria": "Pessoal",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.2.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.1.6",
+        "descricao": "Avaliação de competência pós-treinamento com critérios e evidências (ISO 15189 cl. 6.2.4)",
+        "categoria": "Pessoal",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.2.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.1.7",
+        "descricao": "Análise crítica periódica de desempenho (planejada, padronizada, documentada, com feedback)",
+        "categoria": "Pessoal",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.2.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.1.8",
+        "descricao": "Programa de educação continuada formal + avaliação de eficácia (ISO 15189 cl. 6.2.2)",
+        "categoria": "Pessoal",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.2.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.1.9",
+        "descricao": "Dossiê único do colaborador (CV, qualificação, cargos, treinamentos, competências, desempenho)",
+        "categoria": "Pessoal",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.2.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.1.10",
+        "descricao": "Programa de saúde e segurança (vestimenta, EPI, vacinação, NR-32, prevenção de violência)",
+        "categoria": "Pessoal",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.2.3",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.1.11",
+        "descricao": "Bem-estar, gestão de estresse, carga de trabalho monitorada (saúde mental e física)",
+        "categoria": "Pessoal",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.2.3",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.2.1",
+        "descricao": "Espaço adequado avaliado e determinado (layout, acessibilidade, conformidade com normas)",
+        "categoria": "Acomodações e Ambiente",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.3.1",
+        "isApplicable": false
+      },
+      {
+        "numeroDICQ": "5.2.2",
+        "descricao": "Áreas com dimensões adequadas + acessos controlados (segregação, limpeza, controle de pragas)",
+        "categoria": "Acomodações e Ambiente",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.3.1",
+        "isApplicable": false
+      },
+      {
+        "numeroDICQ": "5.2.3",
+        "descricao": "Instalações de armazenamento (integridade de amostras/reagentes, prevenção contaminação cruzada)",
+        "categoria": "Acomodações e Ambiente",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.3.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.2.4",
+        "descricao": "Instalações para o pessoal (banheiro, água potável, EPI, espaço descanso)",
+        "categoria": "Acomodações e Ambiente",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.3.3",
+        "isApplicable": false
+      },
+      {
+        "numeroDICQ": "5.2.5",
+        "descricao": "Sala de coleta com privacidade + primeiros socorros + acessibilidade para idosos/deficientes",
+        "categoria": "Acomodações e Ambiente",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.3.4",
+        "isApplicable": false
+      },
+      {
+        "numeroDICQ": "5.2.6",
+        "descricao": "Monitoramento de condições ambientais (temperatura, umidade, limpeza, validação de ambiência)",
+        "categoria": "Acomodações e Ambiente",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.3.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.2.7",
+        "descricao": "Equidade, acessibilidade, saúde, segurança alimentar (conformidade com leis e normas)",
+        "categoria": "Acomodações e Ambiente",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.3",
+        "isApplicable": false
+      },
+      {
+        "numeroDICQ": "5.2.8",
+        "descricao": "Programa de prevenção e controle de infecções (higienização, capacitação, indicadores)",
+        "categoria": "Acomodações e Ambiente",
+        "bloco": "C",
+        "mapeamentoRDC": "978:6.3.3",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.3.1.1",
+        "descricao": "Procedimento de seleção/aquisição/gerenciamento de equipamentos",
+        "categoria": "Equipamentos",
+        "bloco": "D",
+        "mapeamentoRDC": "978:6.4.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.3.1.2",
+        "descricao": "Testes de aceitação no momento da instalação + identificação por etiqueta única",
+        "categoria": "Equipamentos",
+        "bloco": "D",
+        "mapeamentoRDC": "978:6.4.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.3.1.3",
+        "descricao": "Instruções de uso (operação, limpeza, manutenção, calibração) com pessoal treinado",
+        "categoria": "Equipamentos",
+        "bloco": "D",
+        "mapeamentoRDC": "978:6.4.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.3.1.4",
+        "descricao": "Procedimento de calibração + rastreabilidade metrológica (padrão, certificado, intervalos)",
+        "categoria": "Equipamentos",
+        "bloco": "D",
+        "mapeamentoRDC": "978:6.4.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.3.1.5",
+        "descricao": "Manutenção (preventiva planejada, corretiva, registro de defeitos, equipamento fora-de-uso marcado)",
+        "categoria": "Equipamentos",
+        "bloco": "D",
+        "mapeamentoRDC": "978:6.4.3",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.3.1.6",
+        "descricao": "Notificação de incidentes adversos a fabricante e autoridades (NOTIVISA/tecnovigilância)",
+        "categoria": "Equipamentos",
+        "bloco": "D",
+        "mapeamentoRDC": "978:6.4.4",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.3.1.7",
+        "descricao": "Registro completo do equipamento (12 campos: id, fabricante, modelo, série, fornecedor, recebimento, localização, condição, instruções, manutenção, desempenho, danos)",
+        "categoria": "Equipamentos",
+        "bloco": "D",
+        "mapeamentoRDC": "978:6.4",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.3.2.1",
+        "descricao": "Procedimento de recepção/armazenamento/aceitação/gestão de reagentes e insumos",
+        "categoria": "Reagentes e Insumos",
+        "bloco": "D",
+        "mapeamentoRDC": "978:6.4.5",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.3.2.2",
+        "descricao": "Recepção e armazenamento conforme especificações do fabricante (T°, umidade, luz, preservação)",
+        "categoria": "Reagentes e Insumos",
+        "bloco": "D",
+        "mapeamentoRDC": "978:6.4.5",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.3.2.3",
+        "descricao": "Teste de aceitação por mudança de lote/formulação/procedimento antes de uso rotineiro",
+        "categoria": "Reagentes e Insumos",
+        "bloco": "D",
+        "mapeamentoRDC": "978:6.4.5",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.3.2.4",
+        "descricao": "Sistemática de controle de estoque (FIFO, rastreabilidade, descartes vencidos)",
+        "categoria": "Reagentes e Insumos",
+        "bloco": "D",
+        "mapeamentoRDC": "978:6.4.5",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.3.2.5",
+        "descricao": "Instruções de uso disponíveis no local de trabalho (bula, armazenamento, segurança)",
+        "categoria": "Reagentes e Insumos",
+        "bloco": "D",
+        "mapeamentoRDC": "978:6.4.5",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.3.2.6",
+        "descricao": "Notificação de incidentes adversos relacionados a reagentes/insumos",
+        "categoria": "Reagentes e Insumos",
+        "bloco": "D",
+        "mapeamentoRDC": "978:6.4.6",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.3.2.7",
+        "descricao": "Registros por lote (id, fabricante, código, lote, fornecedor, recebimento, validade, condição, desempenho)",
+        "categoria": "Reagentes e Insumos",
+        "bloco": "D",
+        "mapeamentoRDC": "978:6.4.5",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.4.1",
+        "descricao": "Procedimento documentado para garantir validade dos resultados pré-analíticos",
+        "categoria": "Pré-analítico",
+        "bloco": "E",
+        "mapeamentoRDC": "978:6.5.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.4.2",
+        "descricao": "Catálogo de exames ao paciente/usuário (preparo, transporte, consentimento, privacidade, reclamações)",
+        "categoria": "Pré-analítico",
+        "bloco": "E",
+        "mapeamentoRDC": "978:6.5.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.4.2.1",
+        "descricao": "Direitos e responsabilidades dos pacientes + consentimento informado por exame",
+        "categoria": "Pré-analítico",
+        "bloco": "E",
+        "mapeamentoRDC": "978:6.5.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.4.3.1",
+        "descricao": "Formulário de solicitação com dados mínimos (paciente, solicitante, responsável, exame, amostra)",
+        "categoria": "Pré-analítico",
+        "bloco": "E",
+        "mapeamentoRDC": "978:6.5.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.4.3.2",
+        "descricao": "Cadastro/registro com confidencialidade + retenção/descarte conforme requisitos legais (LGPD)",
+        "categoria": "Pré-analítico",
+        "bloco": "E",
+        "mapeamentoRDC": "978:6.5.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.4.4.1",
+        "descricao": "Instruções escritas para coleta de todos os exames (tipos de tubo, volume, aditivos)",
+        "categoria": "Pré-analítico",
+        "bloco": "E",
+        "mapeamentoRDC": "978:6.5.3",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.4.4.2",
+        "descricao": "Instruções de pré-coleta (preparo, tipo/quantidade, horário especial, info clínica, observações)",
+        "categoria": "Pré-analítico",
+        "bloco": "E",
+        "mapeamentoRDC": "978:6.5.3",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.4.4.3",
+        "descricao": "Instruções de coleta (id do paciente, coletador identificado, descarte seguro)",
+        "categoria": "Pré-analítico",
+        "bloco": "E",
+        "mapeamentoRDC": "978:6.5.3",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.4.5",
+        "descricao": "Procedimento de transporte (prazo de entrega, T°, integridade, segurança do transportador)",
+        "categoria": "Pré-analítico",
+        "bloco": "E",
+        "mapeamentoRDC": "978:6.5.4",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.4.6",
+        "descricao": "Critérios de aceitação/rejeição de amostra + laudo indica restrições (hemólise, lipemia, etc)",
+        "categoria": "Pré-analítico",
+        "bloco": "E",
+        "mapeamentoRDC": "978:6.5.5",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.4.7",
+        "descricao": "Manuseio/preparação/armazenagem pré-analítica + prazo para exames adicionais",
+        "categoria": "Pré-analítico",
+        "bloco": "E",
+        "mapeamentoRDC": "978:6.5.5",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.5.1.1",
+        "descricao": "Procedimentos validados para uso pretendido + identificação de quem executou (LogicalSignature)",
+        "categoria": "Processos Analíticos",
+        "bloco": "F",
+        "mapeamentoRDC": "978:6.6.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.5.1.2",
+        "descricao": "Verificação independente antes da rotina + análise crítica registrada (controle inicial)",
+        "categoria": "Processos Analíticos",
+        "bloco": "F",
+        "mapeamentoRDC": "978:6.6.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.5.1.3",
+        "descricao": "Validação de métodos não padronizados / in house (recuperação, especificidade, sensibilidade)",
+        "categoria": "Processos Analíticos",
+        "bloco": "F",
+        "mapeamentoRDC": "978:6.6.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.5.1.4",
+        "descricao": "Incerteza de medição definida + disponível mediante solicitação (rastreabilidade metrológica)",
+        "categoria": "Processos Analíticos",
+        "bloco": "F",
+        "mapeamentoRDC": "978:6.6.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.5.2",
+        "descricao": "Intervalos de referência biológica / valores de decisão clínica documentados e comunicados",
+        "categoria": "Processos Analíticos",
+        "bloco": "F",
+        "mapeamentoRDC": "978:6.6.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.5.3",
+        "descricao": "Documentação completa do procedimento (20 itens: finalidade, princípio, características, amostra, preparo, equipamento, calibração, etapas, CIQ, interferentes, intervalos, fontes de variação, referências, etc)",
+        "categoria": "Processos Analíticos",
+        "bloco": "F",
+        "mapeamentoRDC": "978:6.6",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.6.1",
+        "descricao": "Garantia da qualidade implementada (pré + analítico + pós) — plano com indicadores e metas",
+        "categoria": "Garantia da Qualidade",
+        "bloco": "G",
+        "mapeamentoRDC": "978:6.7.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.6.2.1",
+        "descricao": "Procedimento de CIQ abrangente a todos os analitos testados",
+        "categoria": "Garantia da Qualidade",
+        "bloco": "G",
+        "mapeamentoRDC": "978:6.7.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.6.2.2",
+        "descricao": "Materiais de controle examinados periodicamente (periodicidade documentada)",
+        "categoria": "Garantia da Qualidade",
+        "bloco": "G",
+        "mapeamentoRDC": "978:6.7.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.6.2.3",
+        "descricao": "Dados de CIQ (forma, frequência, limites, avaliação, liberação/rejeição, registros, gráficos Westgard)",
+        "categoria": "Garantia da Qualidade",
+        "bloco": "G",
+        "mapeamentoRDC": "978:6.7.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.6.3.1",
+        "descricao": "Participação em CEQ/EP para todos os analitos (programa externo de proficiência)",
+        "categoria": "Garantia da Qualidade",
+        "bloco": "G",
+        "mapeamentoRDC": "978:6.7.3",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.6.3.2",
+        "descricao": "Abordagens alternativas quando não há provedor de CEQ disponível (split samples, método alternativo)",
+        "categoria": "Garantia da Qualidade",
+        "bloco": "G",
+        "mapeamentoRDC": "978:6.7.3",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.6.3.3",
+        "descricao": "CEQ analisado pelos mesmos processos da rotina (mesmos reagentes, equipamento, operador)",
+        "categoria": "Garantia da Qualidade",
+        "bloco": "G",
+        "mapeamentoRDC": "978:6.7.3",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.6.3.4",
+        "descricao": "Avaliação periódica dos resultados de CEQ + ações corretivas para inaceitáveis",
+        "categoria": "Garantia da Qualidade",
+        "bloco": "G",
+        "mapeamentoRDC": "978:6.7.3",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.6.4",
+        "descricao": "Comparabilidade entre equipamentos/métodos/locais (validação de diferenças, concordância)",
+        "categoria": "Garantia da Qualidade",
+        "bloco": "G",
+        "mapeamentoRDC": "978:6.7.4",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.7.1",
+        "descricao": "Análise crítica dos resultados antes da liberação (manual ou automática com critérios documentados)",
+        "categoria": "Pós-analítico",
+        "bloco": "H",
+        "mapeamentoRDC": "978:6.8.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.7.2",
+        "descricao": "Valores críticos definidos + registro de transmissão (data, hora, comunicador, receptor, compreensão)",
+        "categoria": "Pós-analítico",
+        "bloco": "H",
+        "mapeamentoRDC": "978:6.8.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.7.3",
+        "descricao": "Notificação compulsória (Portaria 204 MS) para doenças de notificação obrigatória",
+        "categoria": "Pós-analítico",
+        "bloco": "H",
+        "mapeamentoRDC": "978:6.8.2",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.7.4",
+        "descricao": "Retenção/descarte de amostras + PGRSS conforme RDC 222/18 (segregação, comprovante)",
+        "categoria": "Pós-analítico",
+        "bloco": "H",
+        "mapeamentoRDC": "978:6.8.3",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.8.1",
+        "descricao": "Procedimento de emissão/reemissão/retificação (rotina, plantão, emergência, assinatura RT)",
+        "categoria": "Emissão de Laudos",
+        "bloco": "H",
+        "mapeamentoRDC": "978:6.8.4",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.8.2",
+        "descricao": "Comentários de qualidade da amostra + adequação + valores críticos + interpretativos",
+        "categoria": "Emissão de Laudos",
+        "bloco": "H",
+        "mapeamentoRDC": "978:6.8.4",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.8.3",
+        "descricao": "Conteúdo mínimo do laudo (16 itens): lab, paciente, amostra, solicitante, exame, método, resultado, unidade, intervalo, observações, interpretação, conclusão, lab apoio, assinatura",
+        "categoria": "Emissão de Laudos",
+        "bloco": "H",
+        "mapeamentoRDC": "978:6.8.4",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.9.1",
+        "descricao": "Procedimento de liberação (quem libera, condições, qualidade de amostra indicada, valores críticos comunicados)",
+        "categoria": "Liberação de Resultados",
+        "bloco": "H",
+        "mapeamentoRDC": "978:6.8.5",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.9.2",
+        "descricao": "Liberação automatizada — critérios validados, identificação de exames automáticos, data/hora",
+        "categoria": "Liberação de Resultados",
+        "bloco": "H",
+        "mapeamentoRDC": "978:6.8.5",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.9.3",
+        "descricao": "Laudos revisados — identificação clara da revisão + histórico imutável (audit chain, rastreabilidade)",
+        "categoria": "Liberação de Resultados",
+        "bloco": "H",
+        "mapeamentoRDC": "978:6.8.5",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.10.1",
+        "descricao": "Procedimento de confidencialidade (rules strict, auditoria de acesso, restrição por papel)",
+        "categoria": "Gestão da Informação Laboratorial",
+        "bloco": "J",
+        "mapeamentoRDC": "978:6.9.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.10.2",
+        "descricao": "Autoridades e responsabilidades para gerenciamento do sistema de informação (SGSI, backup, recuperação)",
+        "categoria": "Gestão da Informação Laboratorial",
+        "bloco": "J",
+        "mapeamentoRDC": "978:6.9.1",
+        "isApplicable": true
+      },
+      {
+        "numeroDICQ": "5.10.3",
+        "descricao": "Plano de Recuperação de Desastres documentado, testado, comunicado, revisado periodicamente",
+        "categoria": "Gestão da Informação Laboratorial",
+        "bloco": "J",
+        "mapeamentoRDC": "978:6.9.2",
+        "isApplicable": true
+      }
+    ]
+  }
+}

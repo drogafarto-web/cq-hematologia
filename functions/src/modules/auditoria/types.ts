@@ -1,17 +1,28 @@
 import type { Timestamp } from 'firebase-admin/firestore';
 
-export type SeveridadeAchado = 'critica' | 'grave' | 'moderada' | 'leve' | 'observacao';
+export type SeveridadeAchado = 'crítica' | 'grave' | 'moderada' | 'leve' | 'observação';
 export type PlanoAcaoStatus = 'nao_iniciado' | 'em_execucao' | 'fechado' | 'vencido';
+
+export interface LogicalSignature {
+  hash: string;
+  operatorId: string;
+  ts: Timestamp;
+}
 
 export interface Achado {
   id: string;
+  sessaoId: string;
+  labId: string;
+  checklistItemId: string;
   descricao: string;
+  evidencia: string;
   severidade: SeveridadeAchado;
-  criterio: string;
-  evidencias?: string[];
-  ncGerada?: string;
-  readonly registradoEm: Timestamp;
-  readonly registradoPor: string;
+  statusNC: 'pendente' | 'criada' | 'fechada';
+  ncId?: string;
+  assinatura: LogicalSignature;
+  readonly criadoEm: Timestamp;
+  readonly criadoPor: string;
+  deletadoEm: Timestamp | null;
 }
 
 export interface PlanoAcao {
@@ -30,32 +41,45 @@ export interface PlanoAcao {
 export interface Auditoria {
   readonly id: string;
   readonly labId: string;
-
-  codigo: string;
-  titulo: string;
-  tipo: 'interna' | 'externa' | 'auditoria_cliente';
-  escopo: string;
-
-  checklist?: {
-    totalItens: number;
-    itensConforme: number;
-    itensNaoConforme: number;
-    itensNA: number;
-  };
-
-  achados: Achado[];
-  planosAcao: PlanoAcao[];
-
-  readonly agendadaPara: Timestamp;
-  readonly realizadaEm?: Timestamp;
-  readonly realizadaPor?: string;
-  readonly realizadaPorName?: string;
-  prazoClosure?: Timestamp;
-
-  status: 'planejada' | 'em_execucao' | 'finalizada' | 'fechada';
-  observacoes?: string;
-
+  ano: number;
+  frequencia: 'anual' | 'semestral' | 'trimestral' | 'mensal';
+  responsavelTecnico: string;
+  proximaAuditoriaPlanejada: Timestamp;
+  status: 'planejada' | 'em_execução' | 'finalizada';
   readonly criadoEm: Timestamp;
   readonly criadoPor: string;
-  deletadoEm: null | Timestamp;
+  deletadoEm: Timestamp | null;
+}
+
+export interface Sessao {
+  readonly id: string;
+  readonly auditoriaId: string;
+  readonly labId: string;
+  auditor: string;
+  dataInicio: Timestamp;
+  dataFim: Timestamp | null;
+  status: 'planejada' | 'em-execução' | 'finalizada';
+  totalItens: number;
+  itensConforme: number;
+  itensNãoConforme: number;
+  itensNA: number;
+  readonly criadoEm: Timestamp;
+  readonly criadoPor: string;
+  deletadoEm: Timestamp | null;
+}
+
+export interface ChecklistItem {
+  readonly id: string;
+  readonly sessaoId: string;
+  readonly labId: string;
+  readonly numeroDICQ: string;
+  readonly descricao: string;
+  readonly categoria: string;
+  readonly bloco: string;
+  isApplicable: boolean;
+  resposta: 'conforme' | 'não-conforme' | 'N/A' | null;
+  severidade: SeveridadeAchado | null;
+  observacoes: string;
+  readonly criadoEm: Timestamp;
+  readonly criadoPor: string;
 }

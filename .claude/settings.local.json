@@ -72,10 +72,25 @@
       "Bash(git -C \"C:\\\\hc quality\" diff --stat)",
       "Bash(git *)",
       "Bash(node -e \"const m = require\\('firebase-admin/firestore'\\); console.log\\(Object.keys\\(m\\).filter\\(k => k.toLowerCase\\(\\).includes\\('timestamp'\\) || k.toLowerCase\\(\\).includes\\('field'\\)\\)\\)\")",
-      "PowerShell(New-Item *)"
+      "PowerShell(New-Item *)",
+      "Bash(firebase functions:secrets:set SMTP_HOST --project hmatologia2)",
+      "Bash(firebase functions:secrets:set SMTP_PORT --project hmatologia2)",
+      "Bash(firebase functions:secrets:set SMTP_USER --project hmatologia2)",
+      "Bash(firebase functions:secrets:set SMTP_PASS --project hmatologia2)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://hmatologia2.web.app)",
+      "Bash(tee \"C:\\\\Users\\\\labcl\\\\.claude\\\\projects\\\\C--hc-quality\\\\5faa8770-88e9-46c4-a989-2de0e2b72583\\\\tool-results\\\\redeploy.txt\")",
+      "Bash(firebase functions:delete exportWorker --region southamerica-east1 --project hmatologia2 --force)",
+      "Bash(tee \"C:\\\\Users\\\\labcl\\\\.claude\\\\projects\\\\C--hc-quality\\\\5faa8770-88e9-46c4-a989-2de0e2b72583\\\\tool-results\\\\redeploy2.txt\")",
+      "Bash(firebase functions:delete backgroundWorker --region southamerica-east1 --project hmatologia2 --force)",
+      "Bash(tee \"C:\\\\Users\\\\labcl\\\\.claude\\\\projects\\\\C--hc-quality\\\\5faa8770-88e9-46c4-a989-2de0e2b72583\\\\tool-results\\\\redeploy3.txt\")",
+      "Bash(firebase firestore:rules:get --project hmatologia2)",
+      "Bash(node scripts/seed-analytics-mock.mjs --dry-run)",
+      "Bash(node scripts/seed-analytics-mock.mjs)",
+      "Bash(gsd-sdk --version)"
     ]
   },
   "enabledMcpjsonServers": [
     "firebase"
-  ]
+  ],
+  "model": "haiku"
 }
