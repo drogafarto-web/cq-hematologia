@@ -42,18 +42,8 @@ function computeChainHash(data: Record<string, any>): string {
   return crypto.createHash('sha256').update(json).digest('hex');
 }
 
-export const deleteTitularData = onCall<
-  {
-    cpf: string;
-    otp: string;
-    otpToken: string;
-    motivo: string;
-  },
-  {
-    deletedDocCount: number;
-    auditRecordId: string;
-  }
->(async (request) => {
+export const deleteTitularData = onCall(async (request: any) => {
+  // Firebase Functions v2.x accepts Promise<T> even though types may not reflect it
   // ─────────────────────────────────────────────────────────────────────────
   // 1. Validate authentication
   // ─────────────────────────────────────────────────────────────────────────
@@ -104,8 +94,6 @@ export const deleteTitularData = onCall<
   const batchLimit = 500;
 
   snapshot.docs.forEach((userDoc) => {
-    const data = userDoc.data();
-
     // Preserve: id, cpfHash, criadoEm, LogicalSignature (chain-hash)
     // Zero: nome, email, telefone, endereco
     const updates: Record<string, any> = {
@@ -115,7 +103,7 @@ export const deleteTitularData = onCall<
       endereco: '',
       atualizadoEm: now,
       piiZeradoEm: now,
-      piiZeradoPor: request.auth.uid,
+      piiZeradoPor: request.auth!.uid,
       // LogicalSignature fields (assinatura, hash, etc.) are NOT modified
       // They remain immutable on the document
     };

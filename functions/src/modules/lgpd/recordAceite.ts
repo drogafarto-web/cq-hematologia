@@ -10,19 +10,7 @@ import * as admin from 'firebase-admin';
 
 const db = admin.firestore();
 
-export const recordPrivacyAceite = onCall<
-  {
-    userId: string;
-    labId: string;
-    policyVersionId: string;
-    policyVersao: string;
-    ipAddr: string;
-    userAgent: string;
-  },
-  {
-    aceitesId: string;
-  }
->(async (request) => {
+export const recordPrivacyAceite = onCall(async (request: any) => {
   const { userId, labId, policyVersionId, policyVersao, ipAddr, userAgent } = request.data;
 
   // ─────────────────────────────────────────────────────────────────────────
