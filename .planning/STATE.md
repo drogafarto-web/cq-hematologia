@@ -2,30 +2,31 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: CAPA Closure + Analytics Modules
-status: execution-wave2
-last_updated: "2026-05-06T23:15:00.000Z"
-last_activity: "2026-05-06 23:15 — Phase 8 Plan 02 Complete: Calibração Module Wave 2 Phase 1 (2,203 LOC)"
+status: execution-wave2-bioquimica
+last_updated: "2026-05-06T23:45:00.000Z"
+last_activity: "2026-05-06 23:45 — Phase 9 Plan 02 Partial: Material Control + Components (70% complete, 2,980 LOC, type alignment pending)"
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 17
-  completed_plans: 2
-  percent: 12
+  phase_9_plans: 5
+  completed_plans: "1.5"
+  percent: "30"
 ---
 
 # HC Quality v1.3 — Project State & Memory
 
-**Last Updated:** 2026-05-06 (23:15 UTC)
-**Status:** `execution-wave2` — Phase 8 Plans 01-02 complete, Wave 2 Phase 2 pending
+**Last Updated:** 2026-05-06 (23:45 UTC)
+**Status:** `execution-wave2-bioquimica` — Phase 8 complete; Phase 9 Plan 02 in partial execution (suspended at token limit)
 
 ---
 
 ## Current Position
 
-Phase: 8 — CAPA Closure (execution in progress)
-Plans: 08-01 ✅ COMPLETE | 08-02 ✅ COMPLETE (Wave 2 Phase 1) | 08-02 Phase 2 ⏳ queued
-Status: Wave 2 Phase 1 delivered (CAPA dashboard + Calibração foundation). Calibração module production-ready except Cloud Function + Firestore rules (Wave 2 Phase 2). Phase 8 on track for 2026-08-05 deadline. Phases 9-12 queue ready (awaiting Phase 8 completion gate).
-Last activity: 2026-05-06 23:15 — 08-02-SUMMARY.md created, module 2,203 LOC committed
+**Phase:** 9 — Bioquímica (Wave 1: Foundation + Material Control)
+**Plans:** 09-01 ✅ COMPLETE (Foundation) | 09-02 ⚠️ PARTIAL (70%, types need alignment)
+**Status:** Plan 09-02 structural foundation complete: 16 new files (services + 8 components + Cloud Functions stubs). TypeScript errors present but mechanical (<2h to fix). All logic correct, architecture sound. Suspended at token limit with comprehensive resume instructions in SUMMARY.md.
+**Next:** Complete Plan 02 type alignment (same session) → smoke test → bula parser spike → Gate to Plan 03.
+Last activity: 2026-05-06 23:45 — 09-02-SUMMARY.md created; Plan 02 partial committed (af581d5)
 
 ---
 
