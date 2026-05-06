@@ -129,7 +129,7 @@ export function useSGDDocumento(labId: string, docId: string | null) {
  * Useful for real-time audit trail display.
  */
 export function useSGDAuditEvents(labId: string, docId?: string) {
-  const [events, setEvents] = useState([])
+  const [events, setEvents] = useState<Record<string, unknown>[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 

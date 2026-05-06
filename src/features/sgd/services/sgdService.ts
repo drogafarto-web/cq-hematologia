@@ -14,7 +14,7 @@ import {
 } from 'firebase/firestore'
 import { httpsCallable } from 'firebase/functions'
 import { db, functions } from '../../../shared/services/firebase'
-import { getCurrentUser } from '../../../store/useAuthStore'
+import { getAuth } from 'firebase/auth'
 import {
   SGDDocumento,
   LogicalSignature,
@@ -29,7 +29,8 @@ export const sgdService = {
     labId: string,
     input: Omit<SGDDocumento, 'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'aud'>
   ): Promise<SGDDocumento> {
-    const user = getCurrentUser()
+    const auth = getAuth()
+    const user = auth.currentUser
     if (!user) throw new Error('User not authenticated')
 
     const docRef = doc(collection(db, `labs/${labId}/sgd-externos`))
@@ -64,7 +65,8 @@ export const sgdService = {
     docId: string,
     updates: Partial<Omit<SGDDocumento, 'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'aud'>>
   ): Promise<void> {
-    const user = getCurrentUser()
+    const auth = getAuth()
+    const user = auth.currentUser
     if (!user) throw new Error('User not authenticated')
 
     const ref = doc(db, `labs/${labId}/sgd-externos/${docId}`)
@@ -91,7 +93,8 @@ export const sgdService = {
   },
 
   async softDeleteDocument(labId: string, docId: string): Promise<void> {
-    const user = getCurrentUser()
+    const auth = getAuth()
+    const user = auth.currentUser
     if (!user) throw new Error('User not authenticated')
 
     const ref = doc(db, `labs/${labId}/sgd-externos/${docId}`)
@@ -209,7 +212,8 @@ export const sgdService = {
       consent: boolean
     }
   ): Promise<void> {
-    const user = getCurrentUser()
+    const auth = getAuth()
+    const user = auth.currentUser
     if (!user) throw new Error('User not authenticated')
 
     const auditRef = doc(collection(db, `labs/${labId}/sgd-externos-audit`))

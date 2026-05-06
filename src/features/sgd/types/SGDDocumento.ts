@@ -18,6 +18,7 @@ export interface LinkSuggestion {
 export interface ModuleLink {
   targetModule: string
   targetId: string
+  targetNome: string
   confirmedAt: Timestamp
   confirmedBy: string
 }
