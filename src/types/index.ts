@@ -428,7 +428,8 @@ export type View =
   | 'exports'
   | 'ceq'
   | 'auditoria-interna'
-  | 'capa-tracking';
+  | 'capa-tracking'
+  | 'calibracao';
 
 // ─── Traceability ─────────────────────────────────────────────────────────────
 

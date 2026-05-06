@@ -10,23 +10,35 @@
 
 import {
   db,
+  Timestamp,
   getBytes,
   getDownloadURL,
   putBytes,
   ref as storageRef,
   storage,
+  serverTimestamp,
   updateDoc,
   doc,
   type StorageReference,
 } from '../../../shared/services/firebase';
 import type { CertificateUpload } from '../types/index';
-import { v4 as uuidv4 } from 'uuid';
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
 const MIME_TYPES_ALLOWED = ['application/pdf', 'image/jpeg', 'image/png'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 const STORAGE_BUCKET_PATH = 'calibracao';
+
+/**
+ * Generate UUID v4 using crypto.randomUUID (available in modern browsers)
+ */
+function generateUUID(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // Fallback for older environments
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
 
 // ─── Validation ─────────────────────────────────────────────────────────────────
 
@@ -110,7 +122,7 @@ export async function uploadCertificate(
   validateFile(file);
 
   // Generate unique ID
-  const certId = uuidv4();
+  const certId = generateUUID();
   const now = Date.now();
 
   // Convert File to ArrayBuffer for hash computation
@@ -138,6 +150,7 @@ export async function uploadCertificate(
   const downloadUrl = await getDownloadURL(fileRef);
 
   // Return metadata
+  const timestamp = Timestamp.fromMillis(now);
   return {
     id: certId,
     calibracaoId: equipId,
@@ -147,11 +160,11 @@ export async function uploadCertificate(
     fileSize: file.size,
     hash: chainHashValue,
     operatorId,
-    uploadedAt: new (require('firebase/firestore').Timestamp)().now(),
+    uploadedAt: timestamp,
     chainHash: {
       hash: chainHashValue,
       operatorId,
-      ts: new (require('firebase/firestore').Timestamp)().fromMillis(now),
+      ts: timestamp,
     },
   };
 }
