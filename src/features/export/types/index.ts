@@ -4,9 +4,18 @@
  */
 
 /**
- * Export format options (Phase 3.1: XLSX only)
+ * Export format options.
+ * Legacy values ('xlsx', 'pdf', 'csv') kept for backward compatibility with existing jobs.
+ * Phase 3.3 specific values processed by backgroundWorker.
  */
-export type ExportFormat = 'xlsx' | 'pdf' | 'csv'; // csv + pdf are Phase 3.2
+export type ExportFormat =
+  | 'xlsx'            // legacy generic XLSX
+  | 'pdf'             // legacy generic PDF
+  | 'csv'             // legacy generic CSV
+  | 'xlsx-ciq'        // CIQ runs with conditional formatting (SheetJS)
+  | 'xlsx-nc'         // Non-conformity records
+  | 'pdf-compliance'  // Compliance report (pdf-lib compressed)
+  | 'csv-audit';      // Audit log (RFC 4180, UTF-8 BOM)
 
 /**
  * Export job status lifecycle

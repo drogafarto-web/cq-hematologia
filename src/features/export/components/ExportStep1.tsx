@@ -15,18 +15,34 @@ interface FormatCard {
 
 const FORMATS: FormatCard[] = [
   {
-    format: 'xlsx',
-    title: 'XLSX — CIQ Completo',
+    format: 'xlsx-ciq',
+    title: 'XLSX — Corridas CIQ',
     description:
-      'Exporta todas as corridas de controle interno de qualidade com gráficos Levey-Jennings e estatísticas por lote.',
+      'Corridas de controle interno de qualidade com formatação condicional por status (conforme/não conforme/pendente). Compatível com Excel 365 e Google Sheets.',
     accent: 'violet',
     badge: 'Recomendado',
   },
   {
-    format: 'csv',
+    format: 'xlsx-nc',
+    title: 'XLSX — Não-Conformidades',
+    description:
+      'Registro completo de NCs abertas e fechadas no período — título, módulo, severidade, status, operador e datas de abertura e fechamento.',
+    accent: 'violet',
+    badge: 'Qualidade',
+  },
+  {
+    format: 'pdf-compliance',
+    title: 'PDF — Relatório de Conformidade',
+    description:
+      'Relatório PDF comprimido com resumo de conformidade do período — adequado para auditorias RDC 978 §5.3 e envio a órgãos regulatórios.',
+    accent: 'emerald',
+    badge: 'Regulatório',
+  },
+  {
+    format: 'csv-audit',
     title: 'CSV — Trilha de Auditoria',
     description:
-      'Exporta a trilha de auditoria em formato CSV — operações registradas no período, conforme RDC 978 §5.3. Compatível com Excel, LibreOffice e sistemas de análise.',
+      'Log de auditoria em formato CSV (RFC 4180, UTF-8 BOM) com todas as operações registradas no período. Compatível com Excel, LibreOffice e sistemas de análise.',
     accent: 'emerald',
     badge: 'Compliance',
   },
@@ -134,9 +150,8 @@ export function ExportStep1({ selectedFormat, onSelect }: ExportStep1Props) {
         })}
       </div>
 
-      {/* PDF deferred notice */}
       <p className="mt-1 text-xs text-white/25 text-center">
-        Exportação em PDF disponível na Fase 3.3
+        Arquivo disponível para download por 7 dias após geração.
       </p>
     </div>
   );
