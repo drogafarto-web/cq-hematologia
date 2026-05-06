@@ -139,6 +139,8 @@ export const registerAchado = onCall(
       throw new HttpsError('unauthenticated', 'Auth token required');
     }
 
+    const operatorId = request.auth.uid;
+
     // Validate input
     let input: RegisterAchadoInputType;
     try {
@@ -148,7 +150,7 @@ export const registerAchado = onCall(
     }
 
     // Check lab membership
-    const isMember = await isActiveMemberOfLab(input.labId, request.auth.uid);
+    const isMember = await isActiveMemberOfLab(input.labId, operatorId);
     if (!isMember) {
       throw new HttpsError('permission-denied', 'Not a lab member');
     }
@@ -175,7 +177,7 @@ export const registerAchado = onCall(
 
       const assinatura: LogicalSignature = {
         hash,
-        operatorId: request.auth.uid,
+        operatorId,
         ts: admin.firestore.Timestamp.now(),
       };
 
@@ -197,7 +199,7 @@ export const registerAchado = onCall(
         statusNC: 'pendente',
         assinatura,
         criadoEm: assinatura.ts,
-        criadoPor: request.auth.uid,
+        criadoPor: operatorId,
         deletadoEm: null,
       };
 
@@ -209,7 +211,6 @@ export const registerAchado = onCall(
       let ncCreated = false;
       let ncId: string | undefined;
       if (input.severidade === 'crítica' || input.severidade === 'grave') {
-        const operatorId = request.auth?.uid || '';
         const { ncId: newNcId } = await createNCFromAchado(
           input.labId,
           achado,
