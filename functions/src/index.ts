@@ -200,10 +200,17 @@ export {
 // ─── bioquimica module (Phase 9 — CIQ Quantitativo) ─────────────────────────
 // parseBulaBioquimica: Gemini 2.5 Flash multimodal PDF parsing for control material
 // applyBulaToLot: atomic application of parsed bula data to ControlMaterial
-// Both use rate limiting, Zod validation, server-side auth (isActiveMemberOfLab).
+// recordRunBioquimica (Plan 09-04): Callable that records CIQ runs server-side
+//   - Validates membership, executes Westgard CLSI, calculates chainHash
+//   - Returns violations + metadata for UI re-render
+// onRunCreated: Firestore trigger that records append-only traceability events
+// generateMonthlyReportBioquimica: Scheduled function (1st of month) generating FR-001 reports
 export {
   parseBulaBioquimica,
   applyBulaToLot,
+  recordRunBioquimica,
+  onRunCreated,
+  generateMonthlyReportBioquimica,
 } from './bioquimica/index';
 
 // ─── auditoria module (ADR 0004 — Internal Audit + Findings → NC Auto-gen) ────
