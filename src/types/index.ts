@@ -436,6 +436,8 @@ export type View =
   | 'bioquimica'
   | 'liberacao'
   | 'criticos'
+  | 'reclamacoes'
+  | 'sugestoes'
   | 'portal-medico';
 
 // ─── Traceability ─────────────────────────────────────────────────────────────
