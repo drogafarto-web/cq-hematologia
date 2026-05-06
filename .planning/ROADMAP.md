@@ -138,7 +138,8 @@ Phase 7 (3-5 dias):   Dry-Run ───────────────┴�
 - Phase 4 (CLEAN-01 rules tightening) deve estar terminado antes de DR test (não restaurar dados em staging com rules abertas)
 
 **Plans:**
-- [ ] TBD (planning pending)
+- [ ] `06-01-PLAN.md` — LGPD operational (DPIA, exclusão titular, privacidade policy) (planning pending)
+- [x] `06-02-PLAN.md` — Disaster Recovery plan + automated scripts + restore test ✅ COMPLETE (executed 2026-05-06)
 
 **Skills GSD:**
 - `/gsd-discuss-phase 6` — clarificar fluxo OTP exclusão, janela de manutenção do restore
