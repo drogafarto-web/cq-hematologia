@@ -150,7 +150,9 @@ describe('statsHelpers', () => {
 
       expect(merged.n).toBe(20);
       expect(merged.mean).toBe(100);
-      expect(merged.sd).toBeCloseTo(5, 5);
+      // Due to Bessel correction, merged SD will be slightly lower than individual SDs
+      // Expected: sqrt((9*25 + 9*25)/19) ≈ 4.867
+      expect(merged.sd).toBeCloseTo(4.867, 2);
     });
 
     it('should handle groups with different variances', () => {

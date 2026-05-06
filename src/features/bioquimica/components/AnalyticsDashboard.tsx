@@ -121,7 +121,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ labId })
           >
             {equipamentos.map((e) => (
               <option key={e.id} value={e.id}>
-                {e.nome}
+                {e.name}
               </option>
             ))}
           </select>

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { query, collection, where, orderBy, Timestamp, onSnapshot } from 'firebase/firestore';
-import { db } from '@/shared/services/firebase';
+import { query, collection, where, orderBy, Timestamp, onSnapshot, getFirestore } from 'firebase/firestore';
 import { Run } from '../types';
 
 interface UseRunsFilter {
@@ -25,6 +24,7 @@ export function useRuns(labId: string, filters?: UseRunsFilter): UseRunsResult {
   cutoffDate.setDate(cutoffDate.getDate() - days);
 
   useEffect(() => {
+    const db = getFirestore();
     const constraints = [
       where('labId', '==', labId),
       where('criadoEm', '>=', Timestamp.fromDate(cutoffDate)),

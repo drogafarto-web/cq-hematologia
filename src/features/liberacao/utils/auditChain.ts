@@ -1,5 +1,3 @@
-import { createHash } from 'crypto';
-
 /**
  * Audit chain helper — segue padrão ADR 0001
  * Client-side calcula chainHash; server-side dupla check (não confia no client)
@@ -22,11 +20,15 @@ export function canonicalizePayload(obj: any): string {
 }
 
 /**
- * Calcula SHA-256 de um input
- * Node.js crypto
+ * Calcula SHA-256 de um input usando Web Crypto API
+ * Browser compatible (não usa Node.js crypto)
  */
-export function sha256(input: string): string {
-  return createHash('sha256').update(input, 'utf-8').digest('hex');
+export async function sha256(input: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const buf = await crypto.subtle.digest('SHA-256', encoder.encode(input));
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
 }
 
 /**
@@ -35,12 +37,12 @@ export function sha256(input: string): string {
  *
  * @param prevChainHash Hash anterior na sequência
  * @param payload Dados a hashear
- * @returns SHA-256 de 64 caracteres hexadecimais
+ * @returns Promise<SHA-256 de 64 caracteres hexadecimais>
  */
-export function calculateChainHash(
+export async function calculateChainHash(
   prevChainHash: string,
   payload: any
-): string {
+): Promise<string> {
   const canonical = canonicalizePayload(payload);
   const combined = prevChainHash + canonical;
   return sha256(combined);

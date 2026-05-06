@@ -25,7 +25,7 @@ export function useInternalStats(
       (run) =>
         run.equipmentId === equipmentId &&
         run.aproveitamento === 'oficial' &&
-        run.resultados?.[analitoId]?.[nivelId]?.value !== undefined
+        run.resultados?.[analitoId]?.[nivelId] !== undefined
     );
 
     if (relevantRuns.length === 0) {
@@ -40,7 +40,7 @@ export function useInternalStats(
     // Extract values in chronological order (oldest first) and take last N=20
     const values = relevantRuns
       .slice(-INTERNAL_STATS_THRESHOLD)
-      .map((run) => run.resultados[analitoId][nivelId])
+      .map((run) => run.resultados[analitoId][nivelId] as number)
       .filter((v): v is number => typeof v === 'number');
 
     const result = calcMeanSdBessel(values);

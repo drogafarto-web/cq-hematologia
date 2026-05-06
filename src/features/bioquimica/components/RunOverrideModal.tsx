@@ -1,6 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { createHash } from 'crypto';
-import { useUser } from '@/store/useAuthStore';
+import React, { useState, useEffect } from 'react';
+import { useUser } from '../../../store/useAuthStore';
 import { Run, Analito } from '../types';
 
 interface RunOverrideModalProps {
@@ -9,6 +8,14 @@ interface RunOverrideModalProps {
   onOverride: (reason: string, hash: string) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
+}
+
+async function sha256Hex(input: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const buf = await crypto.subtle.digest('SHA-256', encoder.encode(input));
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
 }
 
 export const RunOverrideModal: React.FC<RunOverrideModalProps> = ({
@@ -20,10 +27,15 @@ export const RunOverrideModal: React.FC<RunOverrideModalProps> = ({
 }) => {
   const [reason, setReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [hash, setHash] = useState('');
   const user = useUser();
 
-  const hash = useMemo(() => {
-    if (!reason || !user?.uid) return '';
+  useEffect(() => {
+    if (!reason || !user?.uid) {
+      setHash('');
+      return;
+    }
+
     const payload = {
       runId: run.id,
       reason,
@@ -31,7 +43,7 @@ export const RunOverrideModal: React.FC<RunOverrideModalProps> = ({
       ts: Date.now(),
     };
     const canonical = JSON.stringify(payload, Object.keys(payload).sort());
-    return createHash('sha256').update(canonical).digest('hex');
+    sha256Hex(canonical).then(setHash).catch(() => setHash(''));
   }, [reason, user?.uid, run.id]);
 
   const isValid = reason.length >= 20 && reason.length <= 500 && hash.length === 64;
