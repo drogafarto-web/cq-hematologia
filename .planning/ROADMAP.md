@@ -1,309 +1,221 @@
-# HC Quality Roadmap — Phases 1-2
+# HC Quality Roadmap — Milestone v1.2 (Audit Readiness)
 
-**Project:** HC Quality — Sistema CIQ Laboratorial RDC 978  
-**Updated:** 2026-05-02  
+**Milestone:** v1.2 — Audit Readiness
+**Period:** 2026-05-06 → 2026-06-05 (30 dias)
+**Updated:** 2026-05-06
 **Owner:** CTO
 
+> **Histórico:** Roadmaps anteriores (v1.0 Phase 1-2, v1.1 Phase 3.x) arquivados em `.planning/phases/` + `MILESTONES.md`.
+
 ---
 
-## 🎯 High-Level Timeline
+## High-Level Timeline
 
 ```
-Phase 1: Compliance Hardening (ADRs 0005-0007)
-├─ Weeks 1-2:   ADR 0005 (crypto helper)
-├─ Weeks 3-5:   ADR 0002 (Lote↔NF) + ADR 0006 (Pessoa completa) [parallel]
-├─ Weeks 6-8:   ADR 0003 (NC global) + ADR 0004 (POP) [parallel]
-└─ Weeks 9-10:  ADR 0007 (Equipamento) + validation
+v1.2 Audit Readiness (30 dias)
 
-         ↓ GATE: 100% spines integrity + LGPD verified
-
-Phase 2: Construção de Módulos (13 módulos)
-├─ Modules Batch 1: POPs + NC + Auditoria (3-4 meses)
-├─ Modules Batch 2: KPIs + Treinamentos + Biossegurança (2-3 meses)
-└─ Modules Batch 3: Pós-analítico + Pré-analítico + CEQ (2-3 meses)
+Phase 4 (3-4 dias):  Cleanup v1.1 ────────┐
+                                          │  (paralelo possível com P5 a partir do dia 3)
+Phase 5 (10-12 dias): Auditoria Interna ──┼──┐
+                                          │  │
+Phase 6 (5-7 dias):   LGPD + DR ──────────┴──┼──┐
+                                             │  │
+Phase 7 (3-5 dias):   Dry-Run ───────────────┴──┴──→ EXIT GATE: relatório RT
 ```
 
+**Entregue:** sistema endurecido + módulo Auditoria Interna em prod + LGPD operacional + DR formal + 1 sessão de auditoria interna real documentada.
+
 ---
 
-## Phase 1: Compliance Hardening
+## Phase 4 — Cleanup v1.1 (Days 1-3)
 
-**Gate Condition:** Todas 13 violações RDC 978 resolvidas + spine integrity verified (0% divergência)
+**Goal:** Fechar resíduos não-bloqueantes do v1.1 antes de auditor olhar o sistema.
 
-### ADR 0005 — Helper cryptoAudit (Weeks 1-2)
+**Duration:** 3-4 dias
 
-**Violações fechadas:** V-009  
-**Bloqueador de:** 0002, 0003  
+**Requirements coberto:** CLEAN-01, CLEAN-02, CLEAN-03, CLEAN-04
 
 **Deliverables:**
-- ✓ Helper `functions/src/modules/audit/cryptoAudit.ts`
-- ✓ HMAC-SHA256 chain-hash centralizado
-- ✓ `chainHashValidator` com scheduled validation
-- ✓ Backfill dados legados
-- ✓ Tests >90% coverage
-- ✓ ADR 0005 finalized + CTO approved
+- Firestore rules sem `// TEMP-IMPLANTACAO` em coleções analytics + export-jobs (membership real, testes verde)
+- `docs/PERFORMANCE_PATTERNS.md` escrito com padrões de bundle, listeners, polling, Web Vitals
+- Firebase Performance Monitoring com budget alerts configurados (LCP <2.5s, INP <200ms, CLS <0.1)
+- `docs/PERFORMANCE_BASELINE_2026-05.md` com Lighthouse runtime das 3 rotas críticas
 
-**Acceptance:** Smoke test: cria entry, valida chain, sem erros
+**Success criteria:**
+1. Auditor revisando `firestore.rules` não vê regra `isAuthenticated()` sem membership em coleção sensível
+2. `.claude/rules/performance.md` aponta para doc real (não-quebrado)
+3. Alertas Firebase Perf disparam em ambiente de teste quando budget é violado
+4. Baseline Lighthouse documentado e CI alerta regressão >10%
 
 **Skills GSD:**
-- `/gsd-spec-phase` — detalhar ADR 0005
-- `/gsd-execute-phase` — implementar
-- `/gsd-validate-phase` — testar chain integrity
-- `/gsd-ship` — deploy com gate
+- `/gsd-discuss-phase 4` — clarificar membership rules (qual claim/role usar?)
+- `/gsd-plan-phase 4`
+- `/gsd-execute-phase 4`
+- `/gsd-validate-phase 4`
 
 ---
 
-### ADR 0002 — Lote ↔ NF Obrigatório (Weeks 3-5)
+## Phase 5 — Módulo Auditoria Interna (Days 3-14)
 
-**Violações fechadas:** V-003, V-006, V-012  
-**Bloqueador de:** Rastreabilidade fiscal  
-**Dependência:** ✓ ADR 0005 completo
+**Goal:** Construir o módulo `auditoria-interna` (DICQ 1.3) e fazer deploy em produção.
+
+**Duration:** 10-12 dias
+
+**Requirements coberto:** AUDI-01, AUDI-02, AUDI-03, AUDI-04, AUDI-05, AUDI-06
 
 **Deliverables:**
-- ✓ Schema `Fornecedor` completo (status, evidências, requalificação)
-- ✓ Schema `NotaFiscal` com `itens[]` estruturado
-- ✓ Schema `Insumo.notaFiscalId` + `fornecedorId` **obrigatórios** (novo)
-- ✓ Backfill NFs legadas (data migração)
-- ✓ Conferência no recebimento (gate: Fornecedor qualificado?)
-- ✓ Geração automática Lote a partir item NF
-- ✓ ADR 0002 finalized
+- `src/features/auditoria-interna/` completo (types, service, hooks, components, tests)
+- Firestore rules + indices + Cloud Functions (`generateAuditReportPDF`, `installChecklistTemplate`, `mapAchadoToNC`)
+- Template `dicq-4-3-rdc-978-v1` com ~115 itens carregados a partir do checklist Obsidian
+- UI dark-first com modo tablet ergonômico para auditor in-loco (foto evidence, checkboxes grandes, offline-friendly)
+- Integração bidirecional com NC global (achado maior → cria NC automaticamente)
+- Tile no `/hub` exposto para `auditor` e `responsavelTecnico`
 
-**Acceptance:** Cria NF → cria Insumo com FK válido → Lote rastreado até origem
+**Success criteria:**
+1. Auditor consegue criar plano anual + sessão + executar 115 itens em iPad sem fricção
+2. Achado classificado "maior" gera NC global em <2s (E2E test verde)
+3. PDF de relatório gerado <10MB com assinatura RT registrada (logical signature)
+4. Smoke test manual: criar auditoria → executar → fechar → exportar PDF → arquivar
+
+**Dependências:**
+- Phase 4 não bloqueia início (pode rodar em paralelo a partir do dia 3)
+- Consome spines existentes: `/users` (Pessoa), `/pops` (POP), `/naoConformidades` (NC)
 
 **Skills GSD:**
-- `/gsd-spec-phase` — detalhar schema + backfill strategy
-- `/gsd-execute-phase` — implementar
-- `/gsd-validate-phase` — testar rastreabilidade
-- `/gsd-ship` — deploy com migration validation
+- `/gsd-discuss-phase 5` — clarificar UX tablet, modo offline, severity mapping
+- `/gsd-ui-phase 5` — design contract do módulo (frontend novo, dark-first)
+- `/gsd-plan-phase 5`
+- `/gsd-execute-phase 5`
+- `/gsd-secure-phase 5` — rules + audit trail revisados antes de deploy
 
 ---
 
-### ADR 0006 — Pessoa Completa (Weeks 3-5, paralelo com 0002)
+## Phase 6 — Compliance Operacional (Days 10-20)
 
-**Violações fechadas:** V-002, V-005  
-**Bloqueador de:** Validação habilitação operador  
-**Dependência:** ✓ ADR 0005 completo
+**Goal:** Endurecer LGPD + formalizar Disaster Recovery. Pré-requisitos não-bloqueantes para auditoria.
+
+**Duration:** 5-7 dias
+
+**Requirements coberto:** LGPD-01, LGPD-02, LGPD-03, DR-01, DR-02
 
 **Deliverables:**
-- ✓ Schema `/qualificacoes` novo (tipo, módulos liberados, validade, hmac)
-- ✓ Schema `Member` com `cpfHash` (LGPD), `cargo`, `conselhoProfissional`
-- ✓ `responsavelTecnico` **único por lab** (invariante + CF rule)
-- ✓ Validação: toda ação técnica carrega `operadorId` + valida `qualificacoes` ativa
-- ✓ Cloud Function: bloqueia operação se `qualificacoes` expirada ou não cobre módulo
-- ✓ UI: bloqueia preventivamente
-- ✓ Backfill membros existentes com role → cargo + cpfHash hashed
-- ✓ ADR 0006 finalized
+- DPIA preenchida em `/labs/{labId}/lgpd/dpia` com versionamento; UI admin renderiza
+- Fluxo `/exclusao-titular` E2E: CPF → OTP/email → CF `deleteTitularData` (zera PII, mantém audit chain-hash)
+- Página `/privacidade` com versionamento + registro de aceite por usuário
+- `docs/DR_PLAN.md` cobrindo 4 cenários (corruption, outage, credentials, ransomware)
+- `docs/DR_RESTORE_TEST_2026-05.md` documentando restore real em staging com verificação de integridade
 
-**Acceptance:** Operador X acessa módulo Y → valida qualificação ativa (testes unitário + E2E)
+**Success criteria:**
+1. Admin pode imprimir DPIA como PDF (auditor pede)
+2. Titular consegue solicitar exclusão; CF zera PII e mantém chain-hash íntegro (teste E2E verde)
+3. Política de privacidade tem registro de aceite armazenado por usuário
+4. Plano de DR existe e é executável (referenciado em SGQ)
+5. Restore real comprovado: snapshot prod restaurado em staging, integridade verificada
+
+**Dependências:**
+- Pode rodar em paralelo com Phase 5 (independências)
+- Phase 4 (CLEAN-01 rules tightening) deve estar terminado antes de DR test (não restaurar dados em staging com rules abertas)
 
 **Skills GSD:**
-- `/gsd-spec-phase` — detalhar spine Pessoa
-- `/gsd-execute-phase` — implementar
-- `/gsd-validate-phase` — testar validação habilitação
-- `/gsd-ship` — deploy com zero falsos-positivos
+- `/gsd-discuss-phase 6` — clarificar fluxo OTP exclusão, janela de manutenção do restore
+- `/gsd-plan-phase 6`
+- `/gsd-execute-phase 6`
+- `/gsd-secure-phase 6` — revisar deleteTitularData (chain-hash não pode quebrar)
 
 ---
 
-### ADR 0003 — Spine NC Global (Weeks 6-8)
+## Phase 7 — Audit Dry-Run (Days 20-25)
 
-**Violações fechadas:** V-001  
-**Bloqueador de:** Ponto único tratamento desvios  
-**Dependência:** ✓ ADR 0002, 0005, 0006
+**Goal:** Executar auditoria interna real usando o sistema construído. Output é evidência viva.
+
+**Duration:** 3-5 dias
+
+**Requirements coberto:** DRYRUN-01, DRYRUN-02, DRYRUN-03, DRYRUN-04
 
 **Deliverables:**
-- ✓ Schema `NaoConformidade` canônico (descrição, severidade, status, ações)
-- ✓ `NaoConformidadeTemp` em CT refatorada → referência a NC global
-- ✓ Toda módulo pode abrir NC (gate: severidade crítica bloqueia operação)
-- ✓ CAPA (Ação Corretiva): investigação → ação → eficácia
-- ✓ Rastreabilidade: quem abriu, quando, categoria, origem
-- ✓ ADR 0003 finalized
+- Sessão de auditoria criada e executada contra os ~115 itens do template DICQ + RDC 978
+- Achados documentados como NCs reais no sistema (não em planilha externa)
+- CAPA preenchido para cada NC crítica
+- Plano de remediação consolidado em PDF
+- Relatório final assinado RT armazenado em Storage
 
-**Acceptance:** Abre NC em CT → aparece em Qualidade com FK correto → bloqueia se crítica
+**Success criteria:**
+1. 100% dos itens do checklist respondidos (conforme/não-conforme/N.A.)
+2. Todos os achados "maior" geraram NC com CAPA iniciado
+3. Plano de remediação tem prazo + responsável + critério de eficácia para cada NC crítica
+4. PDF final assinado pelo RT está em Storage com link compartilhável (preparado para auditor externo no futuro)
 
-**Skills GSD:**
-- `/gsd-spec-phase` — detalhar NC spine + CAPA workflow
-- `/gsd-execute-phase` — implementar
-- `/gsd-validate-phase` — testar abertura + bloqueio
-- `/gsd-ship` — deploy
-
----
-
-### ADR 0004 — POP / Documento Vigente (Weeks 6-8, paralelo com 0003)
-
-**Violações fechadas:** V-004, V-011  
-**Bloqueador de:** Rastreabilidade procedimento  
-**Dependência:** ✓ ADR 0006 (Pessoa/RT aprovador)
-
-**Deliverables:**
-- ✓ Schema `POP` (versão, vigência, hash conteúdo, assinatura RT)
-- ✓ Coleção `/labs/{labId}/pops` novo
-- ✓ Versionamento automático (v1.0, v1.1, etc)
-- ✓ Data próxima revisão
-- ✓ Cloud Function: grava `popId` + `popVersaoId` em toda run CIQ
-- ✓ Treinamento atrelado a versão POP (gate: operador treino em POP X antes usar)
-- ✓ ADR 0004 finalized
-
-**Acceptance:** Cria run CIQ → grava popId + versão → rastreável até procedimento original
+**Dependências:**
+- Phase 5 (módulo) DEVE estar em produção
+- Phase 6 não bloqueia (mas auditoria vai gerar achados sobre LGPD/DR, então melhor ter prontas)
 
 **Skills GSD:**
-- `/gsd-spec-phase` — detalhar POP spine
-- `/gsd-execute-phase` — implementar + Wire em CIQ modules
-- `/gsd-validate-phase` — testar retroativamente (popId em runs existentes?)
-- `/gsd-ship` — deploy
+- `/gsd-discuss-phase 7` — quem conduz, qual data, RT disponível
+- `/gsd-plan-phase 7` — checklist de execução da auditoria real
+- `/gsd-execute-phase 7` — execução acompanhada
+- `/gsd-validate-phase 7` — verificar que evidências geradas são auditáveis
 
 ---
 
-### ADR 0007 — Equipamento Completo (Weeks 9-10)
+## Exit Gate (Fim do Milestone v1.2)
 
-**Violações fechadas:** V-008, V-010  
-**Bloqueador de:** Rastreabilidade laudo (equipId)  
-**Dependência:** ✓ ADR 0002 (Fornecedor/provedor calibração), 0006 (Pessoa operador)
+Antes de fechar v1.2 e iniciar v1.3:
 
-**Deliverables:**
-- ✓ Schema `Equipamento` (qualificação inicial, próxima calibração, próxima manutenção)
-- ✓ Coleção `/labs/{labId}/equipamentos` + `/equipamentos-audit` novo
-- ✓ Refatorar calibração de CT → módulo próprio (consome Fornecedor + Equipamento + NC)
-- ✓ Cloud Function: grava `equipamentoId` em toda run CIQ
-- ✓ Gate: calibração atrasada → bloqueia novo resultado
-- ✓ ADR 0007 finalized
-
-**Acceptance:** Cria run CIQ → grava equipId + validação calibração → bloqueia se atrasada
-
-**Skills GSD:**
-- `/gsd-spec-phase` — detalhar Equipamento spine
-- `/gsd-execute-phase` — implementar + refatorar CT
-- `/gsd-validate-phase` — testar gate calibração
-- `/gsd-ship` — deploy
+- [ ] Phase 4: Resíduos do v1.1 fechados
+- [ ] Phase 5: Módulo Auditoria Interna em produção, smoke test verde
+- [ ] Phase 6: DPIA + exclusão titular + DR plan + restore test todos comprovados
+- [ ] Phase 7: 1 auditoria interna real executada e documentada
+- [ ] CTO sign-off: "v1.2 done, ready for v1.3 planning"
+- [ ] `/gsd-complete-milestone` — arquivar phases + atualizar MILESTONES.md
 
 ---
 
-### Phase 1 Validation Gate (Week 10)
+## Risk Register
 
-**Before Phase 2 can start:**
-
-- [ ] ADRs 0005-0007 todos deployados
-- [ ] Spine integrity report: 0% violações V-001 até V-013
-- [ ] Chain-hash validation pass (scheduled CF rodou 1x sem erros)
-- [ ] LGPD compliance: `/qualificacoes`, `/ciq-audit` com HMAC + assinatura
-- [ ] Smoke test suite: todos CIQ modules gravando popId + equipId + operadorId
-- [ ] CTO sign-off: "Phase 1 ready"
-
----
-
-## Phase 2: Construção de Módulos (13 Modules)
-
-**Gate Condition (Start):** Phase 1 100% ✓ + Spine integrity verified
-
-**Duration:** ~6-8 meses (batches paralelas)
-
-### Batch 1: Sistema de Qualidade (Weeks 11-22, ~12 semanas)
-
-**3 módulos críticos — base pra tudo depois**
-
-#### 1.1 POPs (Gestão de Documentos)
-- Dependência: ADR 0004 ✓
-- Escopo: versionamento, vigência, hash, treinamento atrelado
-- Acceptance: POP v1.2 aprovado RT → treinamento criado → operador habilitado
-
-#### 1.2 Não-conformidades + CAPA
-- Dependência: ADR 0003 ✓
-- Escopo: abertura, investigação, ação, eficácia, bloqueio crítica
-- Acceptance: Abre NC → fluxo CAPA → fechamento rastreável
-
-#### 1.3 Auditoria Interna
-- Dependência: 1.1 + 1.2 ✓
-- Escopo: checklist, achados → NCs, plano anual
-- Acceptance: Auditoria criada → achados registrados → NCs abertas
-
-### Batch 2: RH + Infraestrutura (Weeks 11-22, paralelo com Batch 1)
-
-**5 módulos: Treinamentos, Biossegurança, PGRSS, KPIs, LGPDPolicy**
-
-#### 2.1 Treinamentos + Reciclagem
-- Dependência: 1.1 (POPs) + ADR 0006 ✓
-- Escopo: registro por versão POP, evidência, validade, alerta
-
-#### 2.2 Mapeamento Áreas + Biossegurança
-- Dependência: ADR 0007 (Equipamento) ✓
-- Escopo: sala, fluxo, NB, EPIs, check
-
-#### 2.3 PGRSS
-- Dependência: ADR 0007 (Equipamento) ✓
-- Escopo: registro geração, segregação, coleta, comprovantes
-
-#### 2.4 Indicadores KPI
-- Dependência: Batch 1 ✓ (dados críticos disponíveis)
-- Escopo: dashboard KPIs (retrabalho, tempo liberação, NC origem, etc)
-
-#### 2.5 LGPD Policy + Exclusão de Dados
-- Dependência: ADR 0006 ✓
-- Escopo: política exposta, processo exclusão titular, DPIA
-
-### Batch 3: Analítico + Pós-Analítico (Weeks 23-34, ~12 semanas)
-
-**5 módulos: CIQ Bioquímica, CEQ, Validação Métodos, Liberação, Comunicação Críticos**
-
-#### 3.1 CIQ Bioquímica
-- Dependência: ADR 0004 (POPs) + ADR 0007 (Equipamento) ✓
-- Escopo: padrão Hematologia (quantitativo)
-- Acceptance: Rodas criadas, resultados gravados, popId + equipId + operadorId
-
-#### 3.2 CEQ (Ensaio Proficiência)
-- Dependência: 3.1 ✓
-- Escopo: programa externo, envio, recebimento, análise Z-score, NC automática
-
-#### 3.3 Validação de Métodos
-- Dependência: 3.1 ✓
-- Escopo: linearidade, precisão, exatidão, comparação, intervalo referência
-
-#### 3.4 Liberação de Laudos
-- Dependência: 1.2 (NC) + ADR 0006 (Pessoa habilitada) ✓
-- Escopo: dupla checagem críticos, fluxo aprovação, retenção 5a
-
-#### 3.5 Comunicação Resultados Críticos
-- Dependência: 3.4 ✓
-- Escopo: lista critérios, registro comunicação, rastreamento
-
-### Batch 4: Pós + Pré-Analítico (Weeks 35-42, ~8 semanas)
-
-**4 módulos: Arquivo + Biorrepositório, Coleta + Transporte, Reclamações, DR + Restore**
+| Risk | Severity | Likelihood | Mitigation |
+|------|----------|------------|-----------|
+| Phase 5 sub-estimado (módulo + 115 itens checklist) | 🔴 | Médio | Template carregado via callable (não manual); reusar `auditoria-trail` como base de service |
+| Phase 6 LGPD trava em aprovação jurídica DPIA | 🟠 | Médio | Começar Phase 6 em paralelo com Phase 5 desde dia 10 |
+| Restore test corrompe staging | 🟠 | Baixo | Snapshot dedicado, projeto staging isolado, dry-run antes do test real |
+| Auditoria dry-run gera muito achado crítico | 🟠 | Alto | Esperado — propósito é descobrir gaps. Plano de remediação vai pra v1.3. |
+| Dia 30 chega com Phase 7 incompleta | 🟠 | Médio | Phase 7 pode ser executada com checklist parcial (blocos prioritários A-E primeiro); resto vira primeiro plano de v1.3 |
 
 ---
 
-## Success Metrics
+## Cross-Phase Parallelization
 
-### Phase 1
-- ✓ 100% violações RDC 978 resolvidas (V-001 até V-013)
-- ✓ Spine integrity: 0% divergência entre módulos
-- ✓ HMAC chain validation: 100% pass
-- ✓ CTO approval: "compliant"
+| Day | P4 | P5 | P6 | P7 |
+|-----|----|----|----|-----|
+| 1-3 | ████ | | | |
+| 3-10 | █ (overlap) | ████ | | |
+| 10-14 | | ████ | ████ | |
+| 14-20 | | █ (validate) | ████ | |
+| 20-25 | | | █ (validate) | ████ |
+| 25-30 | | | | █ (buffer/remediation) |
 
-### Phase 2 (on Phase 1 completion)
-- ✓ 26 módulos em produção (vs. 7 hoje)
-- ✓ Coverage: Sistema da Qualidade, RH, Infra, Pós-analítico, CEQ
-- ✓ Audit 2026-Q4: zero findings (vs. 13 hoje)
-
----
-
-## Risks & Mitigations
-
-| Risco | Sev | Mitigation |
-|-------|-----|-----------|
-| ADR 0002 backfill NF legadas incompleto | 🟠 | Audit legados antes → whitelist NFs com data range |
-| Spine refactor em prod quebra referências | 🔴 | Todas mudanças com FK validação + scheduled verifier |
-| Phase 1 extends beyond semana 10 | 🟠 | Critical path: 0005 → (0002 + 0006 paralelo) → rest. Escalate ADRs se delay |
-| Equipe ausente (vacation/illness) | 🟠 | 2-person minimum per ADR; Cross-training documentado |
+**Critical path:** P4 → P5 deploy → P7 dry-run.
+**Parallel slack:** P6 pode atrasar 5 dias sem afetar P7.
 
 ---
 
-## Next: Start Phase 1
+## Success Metrics (v1.2)
 
-**CTO review:**
-- [ ] REQUIREMENTS.md para ADR 0005 — aprovado?
-- [ ] Timeline realista (6-8 dias ADR 0005)?
-- [ ] Pronto pra `/gsd-plan-phase 1`?
-
-**Upon approval:** `/gsd-plan-phase 1` inicia planejamento detalhado de ADR 0005.
+| Metric | Baseline (v1.1 end) | Target (v1.2 end) |
+|--------|---------------------|-------------------|
+| Módulos em produção | 24 | 25 (+ auditoria-interna) |
+| TEMP-IMPLANTACAO em rules | 2 (analytics + export-jobs) | 0 |
+| LGPD operacional | 🟡 parcial | ✅ DPIA + exclusão + política |
+| DR formal | ✅ parcial (logs + backups) | ✅ plan + restore test comprovado |
+| Auditoria interna executada | 0 | 1 (dry-run, evidência arquivada) |
+| Cobertura DICQ 4.3 / RDC 978 | ~85% (estimativa) | 100% mapeada (achados documentados, não 100% conforme — esse é o ponto) |
+| Tests | 738/738 ✓ | 738+N ✓ (módulo novo cobrindo) |
 
 ---
 
-**Tracking:** `.planning/STATE.md`
+## Tracking
+
+`.planning/STATE.md` é a fonte de verdade do status atual. Phase artifacts vão pra `.planning/phases/04-cleanup/`, `05-auditoria-interna/`, `06-compliance/`, `07-dry-run/`.
+
+---
+
+**Next:** `/gsd-discuss-phase 4` — começar Phase 4 (Cleanup v1.1).
