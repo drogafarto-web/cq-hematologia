@@ -26,6 +26,7 @@ import { ExportQueueView } from '../export/components/ExportQueueView';
 import { ExportWizard } from '../export/components/ExportWizard';
 import { CEQDashboard } from '../ceq/components/CEQDashboard';
 import { AuditoriaView } from '../auditoria-interna/components/AuditoriaView';
+import { CAPADashboard } from '../capa-tracking/components/CAPADashboard';
 import { useBrowserHistorySync } from '../../shared/hooks/useBrowserHistorySync';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
@@ -164,6 +165,8 @@ function AppRouter() {
     view = <CEQDashboard />;
   } else if (currentView === 'auditoria-interna') {
     view = <AuditoriaView />;
+  } else if (currentView === 'capa-tracking') {
+    view = <CAPADashboard />;
   } else {
     view = <AnalyzerView />;
   }

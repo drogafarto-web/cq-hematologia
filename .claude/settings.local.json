@@ -86,11 +86,15 @@
       "Bash(firebase firestore:rules:get --project hmatologia2)",
       "Bash(node scripts/seed-analytics-mock.mjs --dry-run)",
       "Bash(node scripts/seed-analytics-mock.mjs)",
-      "Bash(gsd-sdk --version)"
+      "Bash(gsd-sdk --version)",
+      "Skill(gsd-complete-milestone)",
+      "Skill(gsd-new-milestone)",
+      "Bash(ls -la src/core/)",
+      "Bash(find src *)"
     ]
   },
+  "model": "haiku",
   "enabledMcpjsonServers": [
     "firebase"
-  ],
-  "model": "haiku"
+  ]
 }
