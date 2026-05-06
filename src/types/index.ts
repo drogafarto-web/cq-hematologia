@@ -431,7 +431,8 @@ export type View =
   | 'capa-tracking'
   | 'calibracao'
   | 'personnel'
-  | 'management-review';
+  | 'management-review'
+  | 'bioquimica';
 
 // ─── Traceability ─────────────────────────────────────────────────────────────
 
