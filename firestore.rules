@@ -1156,6 +1156,14 @@ service cloud.firestore {
         allow create: if false;  // Via callable only (Wave 4)
         allow update: if false;  // Via callable only (Wave 4)
         allow delete: if false;  // Soft-delete only
+
+        // CAPA Tracking (Phase 8) — subdocument updates via Cloud Function callable only
+        match /capaPlano/{capaId} {
+          allow read: if isSuperAdmin() ||
+                         (isActiveMemberOfLab(labId) && hasModuleAccess('sgq'));
+          allow create, update: if false;  // Via Cloud Function `updateCAPAStatus` callable only
+          allow delete: if false;  // Soft-delete only
+        }
       }
 
       // ── ADR 0004 — Auditorias Internas ───────────────────────────────

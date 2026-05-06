@@ -427,7 +427,8 @@ export type View =
   | 'analytics'
   | 'exports'
   | 'ceq'
-  | 'auditoria-interna';
+  | 'auditoria-interna'
+  | 'capa-tracking';
 
 // ─── Traceability ─────────────────────────────────────────────────────────────
 
