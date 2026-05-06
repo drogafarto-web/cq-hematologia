@@ -1,6 +1,18 @@
 # HC Quality — Current State
 
-**Last updated**: 2026-05-04 (Session 2026-05-04 — Phase 2 Complete)
+**Last updated**: 2026-05-06 (Session 2026-05-06 — Wave 3 Audit PDF Export Complete)
+
+---
+
+## PHASE 5 — WAVE 3 COMPLETE ✅
+
+**Status**: Audit PDF export live. Ready for production deploy.
+
+**What's complete**:
+- ✅ `generateAuditReportPDF` Cloud Function (Puppeteer server-side, ~115 DICQ items, achados with severity, NC links, RT signature)
+- ✅ `useAuditReportExport` hook + UI button (frontend export integration)
+- ✅ E2E test: create audit → register achado → generate PDF → verify <10MB
+- ✅ File wired in functions index + frontend hooks exported
 
 ---
 

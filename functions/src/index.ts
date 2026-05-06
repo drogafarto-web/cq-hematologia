@@ -204,6 +204,7 @@ export {
 // closeAuditoria: mark audit as fechada
 // installChecklistTemplate: load DICQ template (~115 items) into audit session
 // updateChecklistResponses: batch-sync offline checklist responses
+// generateAuditReportPDF: Puppeteer server-side PDF generation (Wave 3) with ~115 items, achados, severity, NC links, RT signature
 export {
   createAuditoria,
   registerAchado,
@@ -211,6 +212,7 @@ export {
   closeAuditoria,
   installChecklistTemplate,
   updateChecklistResponses,
+  generateAuditReportPDF,
 } from './modules/auditoria/index';
 
 // ─── equipamentos module (ADR 0007 — Equipment Calibration Gate) ──────────────

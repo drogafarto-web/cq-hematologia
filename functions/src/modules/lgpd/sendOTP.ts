@@ -9,15 +9,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { generateOTP, storeOTP } from '../../helpers/otp';
 
-export const sendOTP = onCall<
-  {
-    email: string;
-    labName: string;
-  },
-  {
-    otpToken: string;
-  }
->(async (request) => {
+export const sendOTP = onCall(async (request: any) => {
   const { email, labName } = request.data;
 
   // ─────────────────────────────────────────────────────────────────────────
