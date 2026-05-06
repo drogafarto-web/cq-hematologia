@@ -30,4 +30,5 @@ export const MODULO_RUN_CONFIG: Record<InsumoModulo, ModuloRunConfig> = {
   coagulacao: { label: 'Coagulação', minReagentes: 1 },
   uroanalise: { label: 'Uroanálise', minReagentes: 1 },
   imunologia: { label: 'Imunologia', minReagentes: 0 },
+  bioquimica: { label: 'Bioquímica', minReagentes: 1 },
 };

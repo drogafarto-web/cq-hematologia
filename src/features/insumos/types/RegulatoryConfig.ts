@@ -28,6 +28,7 @@ export const DEFAULT_REGULATORY_REFERENCES: Record<InsumoModulo, string[]> = {
   coagulacao: ['RDC 786/2023', 'RDC 302/2005'],
   uroanalise: ['RDC 786/2023', 'CLSI GP16-A3'],
   imunologia: ['RDC 786/2023', 'RDC 978/2025'],
+  bioquimica: ['RDC 786/2023', 'RDC 302/2005', 'CLSI EP31'],
 };
 
 /**

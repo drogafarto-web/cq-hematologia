@@ -140,7 +140,7 @@ export function NovaCorridaForm() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs text-white/40 mb-1">Lote ativo</p>
-                  <p className="text-sm font-medium text-white/90">{activeLot.lotNumber}</p>
+                  <p className="text-sm font-medium text-white/90">{activeLot.lote}</p>
                 </div>
                 <button
                   onClick={() => setSwitchingLot(activeLot.id)}

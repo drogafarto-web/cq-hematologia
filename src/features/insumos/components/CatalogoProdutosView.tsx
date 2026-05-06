@@ -31,6 +31,7 @@ const MODULO_LABEL: Record<InsumoModulo, string> = {
   coagulacao: 'Coagulação',
   uroanalise: 'Uroanálise',
   imunologia: 'Imunologia',
+  bioquimica: 'Bioquímica',
 };
 
 const TIPO_LABEL: Record<InsumoTipo, string> = {

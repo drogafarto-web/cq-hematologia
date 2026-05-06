@@ -6,7 +6,7 @@
  * RN-06: soft-delete only (never hard-delete)
  */
 
-import type { Unsubscribe } from 'firebase/firestore';
+import type { Unsubscribe, Timestamp } from 'firebase/firestore';
 import {
   collection,
   doc,
@@ -24,25 +24,19 @@ import type { ControlMaterial, ControlMaterialInput } from '../types';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface CreateLotAvulsoInput {
-  lotNumber: string;
-  validade: Date;
+  lote: string;
+  validade: Date | Timestamp;
   fornecedor: string;
   equipmentIds: string[];
   niveis: Array<{
     level: 1 | 2 | 3;
-    manufacturerStats: Record<
-      string,
-      {
-        mean: number;
-        sd: number;
-      }
-    >;
+    manufacturerStats: Record<string, Record<string, { mean: number; sd: number }>>;
   }>;
 }
 
 export interface CreateLotSemBulaInput {
-  lotNumber: string;
-  validade: Date;
+  lote: string;
+  validade: Date | Timestamp;
   fornecedor: string;
   equipmentIds: string[];
 }
@@ -118,27 +112,35 @@ export async function createLotAvulso(
   input: CreateLotAvulsoInput,
 ): Promise<string> {
   const lotId = doc(getLotsRef(labId)).id;
+
+  // Flatten niveis.manufacturerStats into analitoId -> nivelId -> stats
+  const manufacturerStats: any = {};
+  input.niveis.forEach((nivel) => {
+    const nivelId = `nivel${nivel.level}`;
+    Object.entries(nivel.manufacturerStats).forEach(([analitoId, stats]) => {
+      if (!manufacturerStats[analitoId]) {
+        manufacturerStats[analitoId] = {};
+      }
+      manufacturerStats[analitoId][nivelId] = stats;
+    });
+  });
+
   const lotDoc: ControlMaterial = {
     id: lotId,
     labId,
-    lotNumber: input.lotNumber,
-    validade: input.validade,
+    lote: input.lote,
+    validade: input.validade as any,
     fornecedor: input.fornecedor,
     equipmentIds: input.equipmentIds,
     origem: 'avulso',
     bulaPendente: false,
-    manufacturerStats: (() => {
-      const stats: Record<string, Record<string, Record<string, { mean: number; sd: number }>>> = {};
-      input.niveis.forEach((nivel) => {
-        const levelKey = `nivel${nivel.level}`;
-        stats[levelKey] = nivel.manufacturerStats;
-      });
-      return stats;
-    })(),
-    emUso: true,
+    manufacturerStats,
+    niveis: input.niveis.map((n) => ({
+      id: `nivel${n.level}`,
+      nome: `Nível ${n.level}`,
+    })),
     criadoEm: serverTimestamp() as any,
     deletadoEm: null,
-    atualizadoEm: serverTimestamp() as any,
   };
 
   await setDoc(getLotDocRef(labId, lotId), lotDoc);
@@ -153,24 +155,22 @@ export async function createLotSemBula(
   input: CreateLotSemBulaInput,
 ): Promise<string> {
   const lotId = doc(getLotsRef(labId)).id;
-  const now = new Date();
-  const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
   const lotDoc: ControlMaterial = {
     id: lotId,
     labId,
-    lotNumber: input.lotNumber,
-    validade: input.validade,
+    lote: input.lote,
+    validade: input.validade as any, // will be passed through
     fornecedor: input.fornecedor,
     equipmentIds: input.equipmentIds,
     origem: 'sem-bula-7d',
     bulaPendente: true,
-    bulaPendentesAte: expiresAt,
-    manufacturerStats: {},
-    emUso: true,
+    manufacturerStats: null,
+    niveis: [
+      { id: 'nivel1', nome: 'Nível 1' },
+    ],
     criadoEm: serverTimestamp() as any,
     deletadoEm: null,
-    atualizadoEm: serverTimestamp() as any,
   };
 
   await setDoc(getLotDocRef(labId, lotId), lotDoc);
@@ -180,8 +180,8 @@ export async function createLotSemBula(
 // ─── Update ───────────────────────────────────────────────────────────────────
 
 /**
- * Set lot as active/in-use for specific equipment
- * Typically used when switching lots
+ * Audit-only: log lot switch for equipmentId
+ * Actual switch happens via Cloud Function in Plan 09-04
  */
 export async function setLotEmUso(
   labId: string,
@@ -189,18 +189,12 @@ export async function setLotEmUso(
   equipmentId: string,
   operatorId: string,
 ): Promise<void> {
-  const lotRef = getLotDocRef(labId, lotId);
-
-  // TODO: Add audit log entry in Plan 09-04
-  await updateDoc(lotRef, {
-    emUso: true,
-    atualizadoEm: serverTimestamp(),
-    ultimoOperadorSwitch: operatorId,
-  });
+  // TODO: Call Cloud Function recordTraceabilityEvent in Plan 09-04
+  console.log(`[TODO] Log lot switch: ${lotId} for ${equipmentId} by ${operatorId}`);
 }
 
 /**
- * Mark lot as inactive/available (not in use)
+ * Mark lot as archived (end of life, replaced by newer lot)
  */
 export async function setLotDisponivel(
   labId: string,
@@ -208,8 +202,7 @@ export async function setLotDisponivel(
 ): Promise<void> {
   const lotRef = getLotDocRef(labId, lotId);
   await updateDoc(lotRef, {
-    emUso: false,
-    atualizadoEm: serverTimestamp(),
+    archivedAt: serverTimestamp(),
   });
 }
 
@@ -226,8 +219,6 @@ export async function softDeleteLot(
   const lotRef = getLotDocRef(labId, lotId);
   await updateDoc(lotRef, {
     deletadoEm: serverTimestamp(),
-    emUso: false,
-    atualizadoEm: serverTimestamp(),
   });
 }
 
@@ -241,7 +232,6 @@ export async function restoreLot(
   const lotRef = getLotDocRef(labId, lotId);
   await updateDoc(lotRef, {
     deletadoEm: null,
-    atualizadoEm: serverTimestamp(),
   });
 }
 
@@ -254,7 +244,7 @@ export async function restoreLot(
 export async function applyBulaToLotBatch(
   labId: string,
   lotId: string,
-  manufacturerStats: Record<string, Record<string, Record<string, { mean: number; sd: number }>>>,
+  manufacturerStats: Record<string, Record<string, { mean: number; sd: number }>>,
 ): Promise<void> {
   const lotRef = getLotDocRef(labId, lotId);
   const batch = writeBatch(db);
@@ -262,7 +252,6 @@ export async function applyBulaToLotBatch(
   batch.update(lotRef, {
     manufacturerStats,
     bulaPendente: false,
-    atualizadoEm: serverTimestamp(),
   });
 
   await batch.commit();

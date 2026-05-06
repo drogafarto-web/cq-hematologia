@@ -30,6 +30,7 @@ const MODULE_LABEL: Record<InsumoModulo, string> = {
   coagulacao: 'Coagulação',
   uroanalise: 'Uroanálise',
   imunologia: 'Imunologia',
+  bioquimica: 'Bioquímica',
 };
 
 interface EquipamentoFormModalProps {

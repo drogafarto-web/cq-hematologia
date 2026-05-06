@@ -27,7 +27,7 @@ import type { Timestamp } from 'firebase/firestore';
  */
 export type InsumoStatus = 'ativo' | 'fechado' | 'vencido' | 'descartado' | 'segregado';
 export type InsumoTipo = 'controle' | 'reagente' | 'tira-uro';
-export type InsumoModulo = 'hematologia' | 'coagulacao' | 'uroanalise' | 'imunologia';
+export type InsumoModulo = 'hematologia' | 'coagulacao' | 'uroanalise' | 'imunologia' | 'bioquimica';
 
 /**
  * Nível/polaridade do controle.

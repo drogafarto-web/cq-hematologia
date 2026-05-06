@@ -19,6 +19,7 @@ const MODULE_LABEL: Record<InsumoModulo, string> = {
   coagulacao: 'Coagulação',
   uroanalise: 'Uroanálise',
   imunologia: 'Imunologia',
+  bioquimica: 'Bioquímica',
 };
 
 const MODULE_SUBTITLE: Record<InsumoModulo, string> = {
@@ -26,6 +27,7 @@ const MODULE_SUBTITLE: Record<InsumoModulo, string> = {
   coagulacao: 'TP/TTPA · CIQ quantitativo',
   uroanalise: 'Tiras reagentes · CIQ híbrido',
   imunologia: 'Imunoensaios R/NR · CIQ qualitativo',
+  bioquimica: 'Glicose, ureia, etc · CIQ quantitativo',
 };
 
 interface ModuleEquipamentosPanelProps {

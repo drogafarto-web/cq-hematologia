@@ -35,29 +35,31 @@ export function useLotes() {
 }
 
 /**
- * Selector: lotes in use
+ * Selector: active lotes (not deleted, not expired, not archived)
  */
 export function useLotesEmUso(): ControlMaterial[] {
-  const { lotes } = useLotes();
-  return lotes.filter((l) => l.emUso === true);
-}
-
-/**
- * Selector: available lotes (not in use, not deleted, not expired)
- */
-export function useLotesDisponiveis(): ControlMaterial[] {
   const { lotes } = useLotes();
   const now = new Date();
 
   return lotes.filter(
     (l) =>
-      l.emUso !== true &&
-      (!l.validade || new Date(l.validade) > now),
+      l.deletadoEm === null &&
+      (!l.archivedAt) &&
+      l.validade &&
+      (l.validade instanceof Date ? l.validade : l.validade.toDate?.()) > now,
   );
 }
 
 /**
- * Selector: historical lotes (deleted or expired)
+ * Selector: archived or expired lotes
+ */
+export function useLotesDisponiveis(): ControlMaterial[] {
+  const { lotes } = useLotes();
+  return lotes.filter((l) => l.deletadoEm === null && !l.archivedAt);
+}
+
+/**
+ * Selector: historical lotes (deleted or archived or expired)
  */
 export function useLotesHistorico(): ControlMaterial[] {
   const { lotes } = useLotes();
@@ -66,21 +68,25 @@ export function useLotesHistorico(): ControlMaterial[] {
   return lotes.filter(
     (l) =>
       l.deletadoEm !== null ||
-      (l.validade && new Date(l.validade) <= now),
+      l.archivedAt !== undefined,
   );
 }
 
 /**
- * Get active lot for specific equipment
+ * Get first available lot for specific equipment
  */
 export function useActiveLotForEquipment(equipmentId: string): ControlMaterial | null {
   const { lotes } = useLotes();
+  const now = new Date();
 
   return (
     lotes.find(
       (l) =>
-        l.emUso === true &&
-        l.equipmentIds?.includes(equipmentId),
+        l.deletadoEm === null &&
+        !l.archivedAt &&
+        l.equipmentIds?.includes(equipmentId) &&
+        l.validade &&
+        (l.validade instanceof Date ? l.validade : l.validade.toDate?.()) > now,
     ) || null
   );
 }
