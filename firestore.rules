@@ -1466,6 +1466,87 @@ service cloud.firestore {
         allow delete: if false;  // Soft-delete only (RN-06)
       }
 
+      // ── /labs/{labId}/bioquimica/** — Phase 9 (CIQ Bioquímica Foundation) ──
+      // CIQ quantitativo bioquímico — 17 analitos seed + lotes multi-instrumento +
+      // runs com Westgard CLSI (1-2s, 1-3s, 2-2s, R-4s) + traceability append-only.
+      // RDC 978/2025 Arts. 179, 180, 181, 167, 183 + DICQ 4.3 Bloco F compliance.
+      //
+      // Path layout: /labs/{labId}/bioquimica/root/{subcol}/{docId}
+      //   root/                    — âncora doc ({labId, module, seededAt?, seededBy?})
+      //   root/analitos/           — 17 seed + custom (CRUD client-direct até Plan 09-04)
+      //   root/lotes/              — ControlMaterial multi-instrumento
+      //   root/runs/               — Run callable-only (Threat T5: Westgard server-side)
+      //   root/traceability-events — append-only event log (callable-only)
+      //   root/audit/              — append-only audit trail (callable-only)
+      //   root/config/             — singleton de configuração do módulo
+      //
+      // Defesa em profundidade: rules validam labId no path E no payload.
+
+      match /bioquimica/root {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                              && request.resource.data.labId == labId
+                              && request.resource.data.module == 'bioquimica';
+        allow delete: if false;
+      }
+
+      match /bioquimica/root/analitos/{analitoId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && request.resource.data.labId == labId
+                      && request.resource.data.deletadoEm == null
+                      && request.resource.data.nome is string
+                      && request.resource.data.nome.size() > 0
+                      && request.resource.data.unidade is string
+                      && request.resource.data.unidade.size() > 0
+                      && request.resource.data.rangeBiologico.min is number
+                      && request.resource.data.rangeBiologico.max is number
+                      && request.resource.data.ativo is bool;
+        allow update: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && request.resource.data.labId == resource.data.labId
+                      && request.resource.data.criadoEm == resource.data.criadoEm;
+        allow delete: if false;  // Soft-delete only (RN-06)
+      }
+
+      match /bioquimica/root/lotes/{lotId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && request.resource.data.labId == labId
+                      && request.resource.data.deletadoEm == null
+                      && request.resource.data.equipmentIds is list
+                      && request.resource.data.equipmentIds.size() > 0
+                      && request.resource.data.lote is string
+                      && request.resource.data.validade is timestamp
+                      && request.resource.data.origem in ['bula', 'sem-bula-7d', 'avulso'];
+        allow update: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && request.resource.data.labId == resource.data.labId
+                      && request.resource.data.criadoEm == resource.data.criadoEm;
+        allow delete: if false;
+      }
+
+      match /bioquimica/root/runs/{runId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if false;  // Via recordRunBioquimica callable (Plan 09-04)
+        allow delete: if false;
+      }
+
+      match /bioquimica/root/traceability-events/{eventId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update, delete: if false;
+      }
+
+      match /bioquimica/root/audit/{logId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update, delete: if false;
+      }
+
+      match /bioquimica/root/config/{singleton} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                              && request.resource.data.labId == labId;
+        allow delete: if false;
+      }
+
       // ── /labs/{labId}/management-reviews/** — Phase 8 (DICQ 4.15) ────────────
       // Annual Direction Critical Analysis (Análise Crítica pela Direção).
       // 15 mandatory sections with pre-populated data aggregation.

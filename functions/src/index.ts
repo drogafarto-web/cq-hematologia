@@ -231,6 +231,13 @@ export {
 // signDesignacao: sign-and-write designacao atomically with chain-hash
 export { signDesignacao } from './modules/personnel/signDesignacao';
 
+// ─── bioquimica module (Phase 9 — CIQ Bioquímica Foundation) ────────────────
+// CIQ quantitativo bioquímica · 17 analitos seed · multi-instrumento ·
+// Westgard CLSI subset (1-2s, 1-3s, 2-2s, R-4s).
+// seedBioquimicaDefaults: idempotent seed of 17 default analitos for a lab.
+// RDC 978/2025 Art. 179, 180, 181 + DICQ 4.3 Bloco F compliance.
+export { seedBioquimicaDefaults } from './modules/bioquimica/seedBioquimicaDefaults';
+
 // ─── management-review module (Phase 8 — DICQ 4.15 Annual Direction Analysis) ──
 // Management review system with 15 mandatory sections, data aggregation, and signatures.
 // generateReviewTemplate: pre-populate review form with live data from 7 collections

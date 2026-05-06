@@ -64,6 +64,9 @@ export default defineConfig(({ mode }) => {
           if (id.includes('src/features/bulaparser')) {
             return 'module-bulaparser';
           }
+          if (id.includes('src/features/bioquimica')) {
+            return 'module-bioquimica';
+          }
 
           // Shared services (low-churn, referenced by multiple modules)
           if (
