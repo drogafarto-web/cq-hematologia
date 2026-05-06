@@ -283,7 +283,7 @@ export const validarSegregacao = onCall(
  */
 export const gerarRelatorioMensal = onSchedule(
   {
-    schedule: 'every month 1 0:00', // First day of month at 00:00 UTC
+    schedule: '0 0 1 * *', // 00:00 UTC on day 1 of every month (standard cron)
     region: 'southamerica-east1',
     timeoutSeconds: 300,
   },
