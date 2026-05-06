@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuthStore } from '../../../stores/useAuthStore';
+import { useActiveLabId } from '../../../store/useAuthStore';
 import { generateReviewTemplate } from '../services/reviewTemplateService';
 import { ReviewTemplate, createEmptyReviewTemplate } from '../types';
 
@@ -20,7 +20,7 @@ interface UseReviewTemplateResult {
  * If a data source is unavailable, returns empty but continues with warnings
  */
 export function useReviewTemplate(year: number): UseReviewTemplateResult {
-  const { labId } = useAuthStore();
+  const labId = useActiveLabId();
   const [template, setTemplate] = useState<ReviewTemplate>(createEmptyReviewTemplate(year));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

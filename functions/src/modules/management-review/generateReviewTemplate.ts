@@ -1,7 +1,6 @@
-import { onCall, HttpsCallableOptions } from 'firebase-functions/v2/https';
-import { initializeApp } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-import { ReviewTemplate } from '../../../../../../src/features/management-review/types';
+import { onCall, CallableOptions } from 'firebase-functions/v2/https';
+import { getFirestore, Timestamp } from 'firebase-admin/firestore';
+import { ReviewTemplate } from './types';
 
 /**
  * Cloud Function: generateReviewTemplate
@@ -32,13 +31,13 @@ interface GenerateReviewTemplateResponse {
   error?: string;
 }
 
-const options: HttpsCallableOptions = {
-  memory: '256MB',
+const options: CallableOptions = {
+  memory: '256MiB',
   timeoutSeconds: 60,
   region: 'southamerica-east1'
 };
 
-export const generateReviewTemplate = onCall<GenerateReviewTemplateRequest, GenerateReviewTemplateResponse>(
+export const generateReviewTemplate = onCall<GenerateReviewTemplateRequest>(
   options,
   async (request): Promise<GenerateReviewTemplateResponse> => {
     try {
@@ -52,7 +51,7 @@ export const generateReviewTemplate = onCall<GenerateReviewTemplateRequest, Gene
       // Permission check: user must be lab member
       const labRef = db.collection('labs').doc(labId);
       const labDoc = await labRef.get();
-      if (!labDoc.exists()) {
+      if (!labDoc.exists) {
         throw new Error('Lab not found');
       }
 
@@ -136,7 +135,7 @@ export const generateReviewTemplate = onCall<GenerateReviewTemplateRequest, Gene
       const template: ReviewTemplate = {
         year,
         entries: sections as any,
-        sourceDataTimestamp: new Date(),
+        sourceDataTimestamp: Timestamp.now(),
         warnings: []
       };
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuthStore } from '../../../stores/useAuthStore';
+import { useActiveLabId } from '../../../store/useAuthStore';
 import {
   watchManagementReviews,
   getManagementReview,
@@ -25,7 +25,7 @@ interface UseManagementReviewResult {
  * Auto-unsubscribes on unmount
  */
 export function useManagementReview(): UseManagementReviewResult {
-  const { labId } = useAuthStore();
+  const labId = useActiveLabId();
   const [reviews, setReviews] = useState<ManagementReview[]>([]);
   const [latest, setLatest] = useState<ManagementReview | null>(null);
   const [loading, setLoading] = useState(true);
@@ -98,7 +98,7 @@ export function useManagementReview(): UseManagementReviewResult {
  * Useful for detail views
  */
 export function useFetchManagementReview(reviewId: string | null) {
-  const { labId } = useAuthStore();
+  const labId = useActiveLabId();
   const [review, setReview] = useState<ManagementReview | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

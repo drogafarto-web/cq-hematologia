@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuthStore } from '../../../stores/useAuthStore';
+import { useActiveLabId } from '../../../store/useAuthStore';
 import { watchAtas, watchAtasForReview } from '../services/ataService';
 import { Ata } from '../types';
 
@@ -17,7 +17,7 @@ interface UseAtasResult {
  * Auto-unsubscribes on unmount
  */
 export function useAtas(): UseAtasResult {
-  const { labId } = useAuthStore();
+  const labId = useActiveLabId();
   const [atas, setAtas] = useState<Ata[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -67,7 +67,7 @@ export function useAtas(): UseAtasResult {
  * Useful in review detail/edit views to show related minutes
  */
 export function useAtasForReview(managementReviewId: string | null): UseAtasResult {
-  const { labId } = useAuthStore();
+  const labId = useActiveLabId();
   const [atas, setAtas] = useState<Ata[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

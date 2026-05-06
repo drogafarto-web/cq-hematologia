@@ -11,7 +11,7 @@ import {
   CollectionReference,
   Unsubscribe
 } from 'firebase/firestore';
-import { db } from '../../../services/firebase';
+import { db } from '../../../shared/services/firebase';
 import { ManagementReview, ReviewStatus } from '../types';
 
 /**

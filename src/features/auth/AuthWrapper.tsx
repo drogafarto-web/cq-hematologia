@@ -29,7 +29,7 @@ import { AuditoriaView } from '../auditoria-interna/components/AuditoriaView';
 import { CAPADashboard } from '../capa-tracking/components/CAPADashboard';
 import CalibracaoDashboard from '../calibracao/components/CalibracaoDashboard';
 import PersonnelDashboard from '../personnel/components/PersonnelDashboard';
-import { ManagementReviewDashboard } from '../management-review/components/ManagementReviewDashboard';
+import ManagementReviewDashboard from '../management-review/components/ManagementReviewDashboard';
 import { useBrowserHistorySync } from '../../shared/hooks/useBrowserHistorySync';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
