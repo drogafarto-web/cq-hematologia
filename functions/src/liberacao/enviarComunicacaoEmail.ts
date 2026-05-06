@@ -83,7 +83,7 @@ export const enviarComunicacaoEmail = onCall<unknown, Promise<EnviarEmailResult>
         : 'critico-baixa'
       : 'rotina';
 
-    const subject = subjectTemplate({
+    const _subject = subjectTemplate({
       tipo: tipo as any,
       paciente_nome: laudo.paciente.nome,
       paciente_iniciais: laudo.paciente.nome
@@ -95,7 +95,7 @@ export const enviarComunicacaoEmail = onCall<unknown, Promise<EnviarEmailResult>
       laudoUrl: `https://hmatologia2.web.app/portal-medico/laudos/${laudoId}`,
     });
 
-    const body = bodyTemplate({
+    const _body = bodyTemplate({
       tipo: tipo as any,
       paciente_nome: laudo.paciente.nome,
       paciente_iniciais: laudo.paciente.nome
@@ -107,6 +107,8 @@ export const enviarComunicacaoEmail = onCall<unknown, Promise<EnviarEmailResult>
       criticos: laudo.criticoDetalhes || [],
       laudoUrl: `https://hmatologia2.web.app/portal-medico/laudos/${laudoId}`,
     });
+    void _subject;
+    void _body;
 
     // 4. Envia email (MVP: placeholder)
     // TODO: Integrar com Resend SDK

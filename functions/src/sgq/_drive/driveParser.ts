@@ -8,7 +8,6 @@
  */
 
 import { drive_v3 } from 'googleapis';
-import { OAuth2Client } from 'google-auth-library';
 
 export interface DriveFileMetadata {
   driveFileId: string;
@@ -58,7 +57,7 @@ export async function listFilesForCodigo(
     mimeType: file.mimeType || 'application/octet-stream',
     size: file.size ? Number(file.size) : 0,
     lastModified: file.modifiedTime ? new Date(file.modifiedTime) : new Date(),
-    webViewLink: file.webViewLink,
+    webViewLink: file.webViewLink ?? undefined,
   }));
 }
 

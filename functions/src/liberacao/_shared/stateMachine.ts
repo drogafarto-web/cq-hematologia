@@ -8,7 +8,8 @@
  * Auto-Liberado ──────────────────────────┘
  */
 
-export type ReleaseState = 'Pendente' | 'Em Revisão' | 'Liberado' | 'Auto-Liberado' | 'Comunicado' | 'Superado';
+import type { ReleaseState } from './types';
+export type { ReleaseState };
 
 interface Transition {
   from: ReleaseState;
