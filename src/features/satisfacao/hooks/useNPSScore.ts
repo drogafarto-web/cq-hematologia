@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
-import type { LabId } from '../../../types';
+import type { LabId } from '../types';
 import SatisfacaoService, { type NPSResposta } from '../services/satisfacaoService';
 
 interface NPSScore {

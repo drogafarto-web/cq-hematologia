@@ -1,6 +1,29 @@
 # HC Quality — Current State
 
-**Last updated**: 2026-05-06 (Session 2026-05-06 — Wave 3 Audit PDF Export Complete)
+**Last updated**: 2026-05-06 (Session 2026-05-06 — Phase 12 Plan 03 Complete)
+
+---
+
+## PHASE 12 — SGD + Drive Importer (v1.3 Riopomba Migration) ✅
+
+**Status**: Plans 01–03 COMPLETE. Plans 04–06 ready for execution (staging + production + deploy).
+
+**Phase 12 Completion Status**:
+- ✅ Plan 12-01: SGQ schema extension (15 types, LD, hierarchy, multi-tenant)
+- ✅ Plan 12-02: UI components (LM-01, hierarquia tree, distribuição matrix, transição vigência)
+- ✅ Plan 12-03: Drive Importer (OAuth + 5 callables + 5-step wizard)
+- ⏳ Plan 12-04: Riopomba pilot (30 docs staging) — execution ready
+- ⏳ Plan 12-05: Production migration (80 docs) — execution ready
+- ⏳ Plan 12-06: Polish + deploy + ADR 0012 — execution ready
+
+**What's complete**:
+- OAuth2 client (google-auth-library) with token refresh
+- LM-01 parser (15 document types, 17 sectors)
+- Drive API wrapper (list, preview, download)
+- 5 Cloud Functions: oauthCallbackDrive, listarDocsDrive, previewDocDrive, classificarDocAuto, aprovarBatchImport
+- 5-step ImporterWizard (consent → list → preview → mapping → confirm)
+- Idempotent batch import with chainHash deduplication
+- TypeScript clean, audit-logged, multi-tenant ready
 
 ---
 

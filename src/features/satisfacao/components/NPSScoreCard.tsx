@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNPSScore } from '../hooks/useNPSScore';
-import type { LabId } from '../../../types';
+import type { LabId } from '../types';
 
 interface NPSScoreCardProps {
   labId: LabId;

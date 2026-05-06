@@ -7,10 +7,9 @@ import {
   orderBy,
   limit,
   QueryConstraint,
-  FieldValue,
 } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
-import type { LabId, UserId } from '../../../types';
+import type { LabId, UserId } from '../types';
 
 export interface NPSResposta {
   id: string;
