@@ -37,6 +37,7 @@
 import * as functions from 'firebase-functions/v2';
 import * as admin from 'firebase-admin';
 import { createHmac } from 'crypto';
+import { enforcePublicRateLimit } from '../../shared/rateLimit';
 
 type LabId = string;
 
@@ -113,10 +114,34 @@ export const parseEmailReclamacao = functions.https.onRequest(
     timeoutSeconds: 30,
   },
   async (req, res): Promise<void> => {
+    // Security headers (SECURITY_AUDIT.md #19)
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+
     try {
       // 1. Validate request method
       if (req.method !== 'POST') {
         res.status(405).json({ error: 'Method not allowed' });
+        return;
+      }
+
+      // 1b. Rate limit per IP (SECURITY_AUDIT.md #18) — webhook spec: 100/hour
+      const clientIp =
+        (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+        req.ip ||
+        'unknown';
+      const rl = await enforcePublicRateLimit({
+        bucketKey: `parseEmailReclamacao:${clientIp}`,
+        maxRequests: 100,
+        windowMs: 60 * 60 * 1000, // 1 hour
+      });
+      if (!rl.allowed) {
+        res.setHeader('Retry-After', String(Math.ceil(rl.retryAfterMs / 1000)));
+        res.status(429).json({
+          error: 'rate_limited',
+          retryAfterSeconds: Math.ceil(rl.retryAfterMs / 1000),
+        });
         return;
       }
 
