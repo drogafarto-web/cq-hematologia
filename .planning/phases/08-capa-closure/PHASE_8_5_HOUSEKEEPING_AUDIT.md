@@ -1,7 +1,61 @@
 # Phase 8.5 — Housekeeping Audit Report
 **Date:** 2026-05-06  
-**Status:** IN PROGRESS — Context limit reached, handoff prepared  
+**Status:** FIXED — 121 → 0 TypeScript errors. `npm run build` passes.
 **Scope:** Latent bugs audit + spine cleanup
+
+---
+
+## Resolution (2026-05-06)
+
+All 121 TypeScript errors resolved in single session. Final state:
+
+```
+$ cd functions && npx tsc --noEmit
+(no errors)
+
+$ cd functions && npm run build
+> build
+> tsc
+(success)
+```
+
+**Changes applied:**
+
+1. **New shared modules** (Batch 2 — module resolution):
+   - `functions/src/shared/firebase.ts` — `db` + `admin` singletons
+   - `functions/src/shared/auth.ts` — `isActiveMemberOfLab`, `hasLabRole`
+   - `functions/src/shared/signature.ts` — `generateChainHash`, `verifyChainHash`, `canonicalize`
+   - `functions/src/shared/tokenUtils.ts` — `generateNPSToken`, `verifyNPSToken` (HMAC-SHA256, stateless)
+   - `functions/src/shared/recaptcha.ts` — `verifyRecaptcha` (Google v3 siteverify, fail-permissive in emulator)
+
+2. **Dependencies added to `functions/package.json`:**
+   - `googleapis@^144.0.0` (Drive + Sheets API for SGQ)
+   - `@google/generative-ai` re-resolved on `npm install`
+
+3. **Firebase Functions v1 → v2 migration** (Batch 1):
+   - `src/sgq/aprovarBatchImport.ts` — `(input, context)` → `(request)`, `functions.https.onCall` → `onCall<T, Promise<R>>`
+   - `src/sgq/classificarDocAuto.ts` — same pattern
+   - `src/sgq/listarDocsDrive.ts` — same + `googleapis` OAuth2 client (drop deprecated `access_token` literal)
+   - `src/sgq/previewDocDrive.ts` — same + OAuth2 client fix
+   - `src/sgq/transitarVigencia.ts` — `.region().https.onCall` → `onCall({region}, ...)`, `CallableContext` → `CallableRequest`
+   - `src/modules/satisfacao/dispararNPSPosResolucao.ts` — `onDocumentUpdated` v1 `(change, context)` → v2 `(event)` with options object
+   - `src/modules/satisfacao/dispararNPSRecurring.ts` — `functions.pubsub.topic().onPublish()` → `onMessagePublished` v2; `(context)` → `(_event)` for `onSchedule`
+   - `src/modules/satisfacao/anonimizarRespostas.ts` — `(context)` → `(_event)`
+
+4. **Cleanup** (Batch 3):
+   - `src/bioquimica/applyBulaToLot.ts` — wrong imports from `firebase-admin/firestore` (`serverTimestamp`, `writeBatch` aren't exports of admin SDK); replaced with `db.batch()` + `FieldValue.serverTimestamp()`. Generic typed as `Promise<R>`.
+   - `src/bioquimica/parseBulaBioquimica.ts` — `defineSecret` moved from `firebase-functions/system` (doesn't exist) to `firebase-functions/params`.
+   - `src/liberacao/_shared/{stateMachine,exameClassifier}.ts` — duplicate `ReleaseState`, `ExamClassification`, `ExameConfig` exports removed; both now re-export from `./types`.
+   - `src/liberacao/_shared/exameClassifier.ts` — added server-side `detectAllCriticos` mirroring web `criticoDetector` (without cross-importing from `src/`).
+   - `src/liberacao/criarLaudo.ts` — removed unused vars (`z`, `LabId`, `UserId`, `runIds`, `medico`, `criticosMap`, `isRevisaoRt`, `isBloqueio`).
+   - `src/liberacao/enviarComunicacaoEmail.ts` — `subject`/`body` → `_subject`/`_body` (TODO: Resend integration pending).
+   - `src/liberacao/liberarLaudo.ts` — removed unused `LabId`, `UserId`; `signaturePayload` → `_signaturePayload`.
+   - `src/sgq/_drive/driveParser.ts` — removed unused `OAuth2Client`; coalesced `webViewLink: null | undefined` → `webViewLink ?? undefined`.
+   - `src/sgq/_drive/lm01Parser.ts` — removed bad `import { Zod as z }` → `import { z }`; removed unused `sheets_v4`.
+   - `src/sgq/transitarVigencia.ts` — removed unused `verifyLogicalSignature`.
+   - Resend `response.id` → `response.data?.id` (latest SDK shape).
+
+**Smoke tests (deferred):** Build passes; emulator smoke tests can be run before next deploy. No callable signature changes are runtime-breaking; clients still send `{ data: ... }` over the wire.
 
 ---
 
