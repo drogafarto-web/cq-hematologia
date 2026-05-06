@@ -1,153 +1,187 @@
-# ADR 0005 — Helper cryptoAudit Compartilhado
+# HC Quality — Milestone v1.2 Requirements (Audit Readiness)
 
-**Fase 1 — Semana 1-2**  
-**Status:** `in planning`  
-**Sponsor:** CTO  
-**ADR:** [ADR 0005](../../docs/adr/0005-helper-cryptoaudit.md) (a criar)
-
----
-
-## Problema
-
-**Violação V-009:** HMAC + chainHash **duplicado** em 2 arquivos:
-- `functions/src/modules/insumos/chainHash.ts`
-- `functions/src/modules/ciqAudit/writer.ts`
-
-**Risco:** Duas implementações divergentes = bugs de rastreabilidade + falha na auditoria.  
-**Impacto:** Bloqueia ADR 0002 (Lote↔NF) + ADR 0003 (NC global) — sem crypto helper unificado, nova spine viola compliance.
+**Milestone:** v1.2 — Audit Readiness
+**Created:** 2026-05-06
+**Deadline:** 2026-06-05 (30 dias)
+**Owner:** CTO
 
 ---
 
-## Solução
+## Goal
 
-Criar **helper `cryptoAudit`** centralizado (Cloud Function + SDK):
-
-```
-functions/src/modules/audit/cryptoAudit.ts
-  ├── hmacChainHash(data, secret, previousHash?) → string (HMAC-SHA256)
-  ├── verifyChainHash(data, hmac, secret, previousHash?) → boolean
-  └── signAuditEntry(docRef, operadorId, operation) → { hash, hmac, timestamp }
-
-functions/src/modules/audit/chainHashValidator.ts
-  └── validateChainIntegrity(coleção) → { valid, violations[] }
-```
-
-**Amostra de uso:**
-```typescript
-// Antes (duplicado):
-import chainHash from '../insumos/chainHash';  // Cópia 1
-import writer from '../ciqAudit/writer';       // Cópia 2 — divergente?
-
-// Depois (centralizado):
-import { cryptoAudit } from '../audit/cryptoAudit';
-
-const entry = await cryptoAudit.signAuditEntry(
-  docRef,
-  operadorId,
-  'insumo.recebido'  // operation type
-);
-// → { hash, hmac, timestamp, chainPreviousHash }
-```
+Sistema pronto para sofrer auditoria interna (DICQ 4.3 + RDC 978/2025) em 30 dias, e usar HC Quality como ferramenta para conduzi-la.
 
 ---
 
-## Requisitos Técnicos
+## v1.2 Active Requirements
 
-### 1. Algoritmo criptográfico
-- ✓ **HMAC-SHA256** (NIST FIPS 198-1 approved)
-- ✓ **Chain-hash linear** — cada entrada refencia hash anterior
-- ✓ **Secret management** — via `process.env.HCQ_SIGNATURE_HMAC_KEY` (Firebase secret)
-- ✓ **Timestamp server** — `serverTimestamp()` canonicalizado (não client time)
+### CLEAN — Cleanup do v1.1
 
-### 2. Schema de audit entry
-```typescript
-type AuditEntry = {
-  id: string;                    // doc id
-  timestamp: Timestamp;          // server-generated
-  operadorId: string;            // FK users
-  operation: string;             // 'insumo.recebido', 'laudo.liberado', etc
-  payload: Record<string, any>;  // o que foi modificado
-  hmac: string;                  // HMAC-SHA256 do entry
-  previousHash: string;          // hash do entry anterior na coleção
-  hash: string;                  // SHA-256(entire entry) — para next
-};
-```
+Resíduos não-bloqueantes do milestone anterior. Tornam-se débito técnico se não fechados antes de auditoria.
 
-### 3. Validação de integridade
-- ✓ Toda escrita em `/ciq-audit`, `/labs/{labId}/audit-log` passa por `cryptoAudit.sign()`
-- ✓ Validação periódica: `chainHashValidator.validateChainIntegrity()` (rodado em scheduled Cloud Function)
-- ✓ Alert se chain quebrada: abrir NC automática (severidade crítica)
+- [ ] **CLEAN-01:** Substituir `// TEMP-IMPLANTACAO` em `firestore.rules` por membership real para coleções `analytics` e `export-jobs`
+  - **Acceptance:** auditor revisando rules não vê regra `isAuthenticated()` em coleção sensível; testes de rules cobrem deny para non-member
+  - **Mapeamento DICQ:** 4.4 (controle de acesso)
 
-### 4. Integração com firestore.rules
-```
-match /ciq-audit/{auditId} {
-  allow create: if request.auth.uid != null 
-             && request.resource.data.hmac != null
-             && request.resource.data.hash != null
-             && request.resource.data.timestamp == request.time;
-  // (impedir escrita direta, só via Cloud Function)
-}
-```
+- [ ] **CLEAN-02:** Escrever `docs/PERFORMANCE_PATTERNS.md` cobrindo os padrões já referenciados em `.claude/rules/performance.md` (bundle, listeners, polling, Web Vitals)
+  - **Acceptance:** doc existe; referência cruzada com `.claude/rules/performance.md` funcional; cada padrão tem exemplo + anti-pattern
+  - **Mapeamento DICQ:** 4.3 (documentação)
 
-### 5. Migração de dados existentes
-- Importar chain-hash existentes de `/insumo-movimentacoes`
-- Re-computar HMAC para dados legados (uma vez)
-- Criar audit entry retroativo com timestamp original
+- [ ] **CLEAN-03:** Configurar Firebase Performance Monitoring budget alerts (LCP <2.5s, INP <200ms, CLS <0.1) no console
+  - **Acceptance:** alertas disparam em ambiente de testes quando budget é violado; print/screenshot anexada como evidência
+  - **Mapeamento DICQ:** N/A (qualidade interna)
+
+- [ ] **CLEAN-04:** Capturar baseline Lighthouse runtime contra produção (3 rotas críticas: Hub, CIQ Run, Analytics)
+  - **Acceptance:** baseline scores documentados em `docs/PERFORMANCE_BASELINE_2026-05.md`; CI alerta regressão >10%
+  - **Mapeamento DICQ:** N/A (qualidade interna)
 
 ---
 
-## Critério de Aceitação
+### AUDI — Módulo Auditoria Interna (DICQ 1.3)
 
-- [ ] Helper `cryptoAudit.ts` criado em `functions/src/modules/audit/`
-- [ ] Testes unitários: `cryptoAudit.test.ts` (>90% coverage)
-  - [ ] Sign entry com previousHash válido
-  - [ ] Verify falha se HMAC modificado
-  - [ ] Verify falha se previousHash quebrado
-- [ ] `chainHash.ts` e `ciqAudit/writer.ts` **refatorados** pra consumir helper (não deletar, apenas delegate)
-- [ ] Cloud Function `validateChainIntegrity()` deployada
-- [ ] `firestore.rules` exigindo HMAC + hash (gate write)
-- [ ] Backfill dados legados em `/insumo-movimentacoes` (100% reconhecido)
-- [ ] ADR 0005 escrita + aprovada (CTO)
-- [ ] Smoke test: audit entry criado, chain validada, sem erros
+Módulo novo. Consome spines `/users` (Pessoa), `/pops` (POP), `/naoConformidades` (NC). Não cria spine nova.
 
----
+- [ ] **AUDI-01:** Schema `/labs/{labId}/auditorias-internas` com entidades `Auditoria`, `Sessao`, `ChecklistItem`, `Achado`
+  - **Acceptance:** TypeScript types em `src/features/auditoria-interna/types/`; Firestore rules deny por padrão; service layer com CRUD soft-delete
+  - **Mapeamento DICQ:** 1.3 / RDC 978 5.4
 
-## Dependências
+- [ ] **AUDI-02:** Carregar checklist DICQ 4.3 + RDC 978 como template (seed via `Obsidian/HC_Quality_Checklist_Auditoria.md`, ~115 itens)
+  - **Acceptance:** template `dicq-4-3-rdc-978-v1` instalável via callable; itens organizados por bloco DICQ (A-J); referência cruzada com requisito normativo
+  - **Mapeamento DICQ:** 1.3 + cobertura total
 
-- `crypto` Node.js built-in (HMAC-SHA256)
-- `firebase-admin` (serverTimestamp)
-- `process.env.HCQ_SIGNATURE_HMAC_KEY` disponível
-- Cloud Functions Node 22+ (já migrado 2026-04-24)
+- [ ] **AUDI-03:** Achado de auditoria abre NC global automaticamente (severity-mapped: maior/menor/observação)
+  - **Acceptance:** quando achado é classificado como "não conforme maior", CF cria NC com `origem: "auditoria-interna"` e link bidirecional; teste E2E coberto
+  - **Mapeamento DICQ:** 1.2 + 1.3 (ponto único de tratamento)
 
----
+- [ ] **AUDI-04:** Plano anual de auditoria — frequência, áreas, responsáveis, calendário
+  - **Acceptance:** UI para criar plano anual; alertas de auditoria próxima (30d, 7d); calendário visual
+  - **Mapeamento DICQ:** 1.3 (planejamento)
 
-## Estimativa
+- [ ] **AUDI-05:** Relatório PDF da sessão de auditoria (Cloud Function `generateAuditReportPDF`)
+  - **Acceptance:** PDF gerado com cabeçalho lab + checklist completo + achados + assinatura RT (logical signature); compressão <10MB; armazenado em Storage 5 anos
+  - **Mapeamento DICQ:** 1.3 (evidência)
 
-- **Design:** 1 dia (ADR 0005 draft)
-- **Implementação:** 3-4 dias (helper + Cloud Function + testes)
-- **Backfill:** 1-2 dias (dados legados)
-- **Review + Deploy:** 1 dia
-
-**Total:** ~6-8 dias (semana 1-2)
+- [ ] **AUDI-06:** UI dark-first compatível com tablet (auditor in-loco)
+  - **Acceptance:** smoke teste em iPad/Android tablet 10"; checkboxes ergonômicos; foto evidence (camera ou upload); modo offline-friendly
+  - **Mapeamento DICQ:** N/A (UX)
 
 ---
 
-## Risk Analysis
+### LGPD — Compliance Operacional LGPD
 
-| Risco | Severidade | Mitigação |
-|-------|-----------|-----------|
-| Secret key leak | 🔴 crítica | Usar Firebase Secrets Manager, never log |
-| Performance (chain validate em massa) | 🟠 média | Batch validate em scheduled function, incremental validation |
-| Backfill incomplete | 🟠 média | Audit trail pré-ADR 0005 fica sem HMAC (aceitável, novo padrão daqui em diante) |
+Endurecimento da operação LGPD. Spines existentes (cpfHash, audit log) já estão prontas.
+
+- [ ] **LGPD-01:** DPIA (Data Protection Impact Assessment) preenchida no sistema, exposta a admin
+  - **Acceptance:** Documento DPIA em `/labs/{labId}/lgpd/dpia` com versionamento; UI admin renderiza completo; print/PDF exportável
+  - **Mapeamento:** LGPD Art. 38
+
+- [ ] **LGPD-02:** Fluxo de exclusão por solicitação do titular — E2E testado
+  - **Acceptance:** rota `/exclusao-titular` aceita CPF, valida via OTP/email, dispara CF `deleteTitularData` que zera campos PII e mantém audit; teste E2E coberto
+  - **Mapeamento:** LGPD Art. 18 (direitos do titular)
+
+- [ ] **LGPD-03:** Política de privacidade exposta no UI (rodapé + página dedicada)
+  - **Acceptance:** rota `/privacidade` renderiza versão atual; versionamento (v1.0, v1.1...); registro de aceite por usuário
+  - **Mapeamento:** LGPD Art. 9 (transparência)
 
 ---
 
-## Next: ADR 0005 Draft
+### DR — Disaster Recovery Formal
 
-CTO to review requirements + approve ADR scope before `/gsd-execute-phase`.
+Plano formal + comprovação de teste. RDC 978 exige.
 
-**Após approval:** `/gsd-execute-phase` inicia implementação.
+- [ ] **DR-01:** Plano de DR documentado em `docs/DR_PLAN.md` (RTO, RPO, runbooks, escalation, dependências)
+  - **Acceptance:** doc cobre cenários: corruption Firestore, outage GCP, perda credenciais, ataque ransomware; referenciado em SGQ
+  - **Mapeamento:** RDC 978 5.6 (continuidade)
+
+- [ ] **DR-02:** Teste de restore comprovado (1 execução em ambiente staging)
+  - **Acceptance:** snapshot real de produção restaurado em projeto staging; verificação de integridade (chain-hash, contagens); relatório anexado a `docs/DR_RESTORE_TEST_2026-05.md`
+  - **Mapeamento:** RDC 978 5.6
 
 ---
 
-**Tracking:** `.planning/STATE.md`
+### DRYRUN — Audit Dry-Run
+
+Aplicação real do módulo construído. Output é evidência viva para auditoria futura.
+
+- [ ] **DRYRUN-01:** Conduzir auditoria interna usando módulo (Phase 5) contra checklist DICQ + RDC 978 — cobrir todos os blocos A-J
+  - **Acceptance:** sessão de auditoria criada, ~115 itens respondidos, evidências anexadas
+  - **Mapeamento DICQ:** 1.3 (execução)
+
+- [ ] **DRYRUN-02:** Achados documentados como NCs no sistema (não em planilha externa)
+  - **Acceptance:** todos os achados "maior" geraram NC automaticamente; achados "menor" registrados; observações documentadas
+  - **Mapeamento DICQ:** 1.2 + 1.3
+
+- [ ] **DRYRUN-03:** Plano de ação de remediação para achados críticos (com prazo, responsável, eficácia)
+  - **Acceptance:** cada NC crítica tem CAPA preenchido; plano consolidado em relatório
+  - **Mapeamento DICQ:** 1.2 (CAPA)
+
+- [ ] **DRYRUN-04:** Relatório final assinado RT — output que vai para auditoria externa eventual
+  - **Acceptance:** PDF gerado via AUDI-05; assinatura lógica RT registrada; armazenado em Storage 5 anos; link compartilhável com auditor externo
+  - **Mapeamento DICQ:** 1.3 (registro)
+
+---
+
+## Future Requirements (deferred — v1.3)
+
+Módulos analíticos restantes do mapa `modules-roadmap.md`. Auditor pode citar como gap, mas não bloqueia dry-run interno.
+
+- **CIQ Bioquímica** (7.5) — padrão hematologia, ~3 semanas
+- **Validação de métodos** (7.7) — linearidade, precisão, exatidão, intervalo referência
+- **Liberação de laudos** (8.1) — dupla checagem críticos, retenção 5a
+- **Comunicação resultados críticos** (8.2) — lista limites + registro
+- **Arquivo + biorrepositório** (8.3) — retenção amostras
+- **Coleta + transporte** (6.2) — fluxo pré-analítico
+- **Reclamações + satisfação** (9.1) — abre NC quando aplicável
+- **Multi-site** — 1 grupo gerenciando N labs
+- **Integrações LIS** — eletrônica com analisadores
+
+---
+
+## Out of Scope (v1.2)
+
+Explicitly excluded with reasoning.
+
+- **Auditoria externa formal** — v1.2 é dry-run preparatório; auditoria externa formal pode ser agendada após v1.3
+  - *Reason:* timeline 30d não permite passar por revisão externa.
+- **Cadastro de paciente / requisição** (6.1) — fora do escopo do CIQ
+  - *Reason:* possível integração com LIS terceiro; decisão arquitetural não tomada.
+- **Multi-tenant onboarding self-service** — sistema continua sendo provisionado manualmente
+  - *Reason:* não é requisito de auditoria; vira feature comercial v2.x.
+- **Mobile native polish além do v1.1** — Detox E2E está suficiente
+  - *Reason:* mobile não é foco da auditoria.
+- **Refatoração de módulos antigos** — CIQ existentes ficam como estão
+  - *Reason:* funcionam, são auditáveis, não vale risco.
+
+---
+
+## Traceability
+
+Mapeamento REQ-ID → Phase preenchido após roadmap aprovado.
+
+| REQ-ID | Phase | Plan | Status |
+|--------|-------|------|--------|
+| CLEAN-01 | Phase 4 | TBD | pending |
+| CLEAN-02 | Phase 4 | TBD | pending |
+| CLEAN-03 | Phase 4 | TBD | pending |
+| CLEAN-04 | Phase 4 | TBD | pending |
+| AUDI-01 | Phase 5 | TBD | pending |
+| AUDI-02 | Phase 5 | TBD | pending |
+| AUDI-03 | Phase 5 | TBD | pending |
+| AUDI-04 | Phase 5 | TBD | pending |
+| AUDI-05 | Phase 5 | TBD | pending |
+| AUDI-06 | Phase 5 | TBD | pending |
+| LGPD-01 | Phase 6 | TBD | pending |
+| LGPD-02 | Phase 6 | TBD | pending |
+| LGPD-03 | Phase 6 | TBD | pending |
+| DR-01 | Phase 6 | TBD | pending |
+| DR-02 | Phase 6 | TBD | pending |
+| DRYRUN-01 | Phase 7 | TBD | pending |
+| DRYRUN-02 | Phase 7 | TBD | pending |
+| DRYRUN-03 | Phase 7 | TBD | pending |
+| DRYRUN-04 | Phase 7 | TBD | pending |
+
+---
+
+**Total:** 19 requirements ativos · 9 deferred · 5 out-of-scope
+
+**Categorias:** CLEAN (4) · AUDI (6) · LGPD (3) · DR (2) · DRYRUN (4)
