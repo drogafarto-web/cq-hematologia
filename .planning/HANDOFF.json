@@ -1,50 +1,56 @@
 {
   "version": "1.0",
-  "timestamp": "2026-05-05T00:00:00.000Z",
-  "phase": "milestone-v1.1",
-  "phase_name": "Phase 3.3 Polish — COMPLETE",
-  "phase_dir": ".planning/phases/03.3-polish",
+  "timestamp": "2026-05-06T00:00:00Z",
+  "context": "planning",
+  "milestone": "v1.2",
+  "milestone_name": "Audit Readiness",
+  "phase": null,
+  "phase_name": null,
   "plan": null,
   "task": null,
-  "total_tasks": 11,
+  "total_tasks": null,
   "status": "paused",
-  "completed_tasks": [
-    {"id": 1, "name": "Phase 1 — ADRs 0002+0005+0006+0003+0004+0007", "status": "done", "commit": "deployed"},
-    {"id": 2, "name": "Phase 2 — 20/20 modules in production, 347/347 tests", "status": "done", "commit": "deployed"},
-    {"id": 3, "name": "Phase 3.1 — Foundation (mobile scaffold, analytics CF, export Pub/Sub)", "status": "done", "commit": "deployed"},
-    {"id": 4, "name": "Phase 3.2 — Core features (4 dashboards + ExportWizard + Detox E2E gates)", "status": "done", "commit": "deployed"},
-    {"id": 5, "name": "Phase 3.3-01 — Mobile Detox E2E (5 critical flows)", "status": "done", "commit": "deployed"},
-    {"id": 6, "name": "Phase 3.3-02 — Analytics polish (polling/filters/PDF/tablet responsive)", "status": "done", "commit": "05fba32"},
-    {"id": 7, "name": "Phase 3.3-03 — Export polish (XLSX CF/PDF compression/email/batch+scheduled)", "status": "done", "commit": "05fba32"}
-  ],
-  "remaining_tasks": [],
-  "blockers": [],
-  "human_actions_pending": [
+  "completed": {
+    "planning_workflow": true,
+    "project_updated": true,
+    "milestones_created": true,
+    "state_reset": true,
+    "requirements_generated": true,
+    "roadmap_generated": true,
+    "commits": 3
+  },
+  "requirements_generated": {
+    "total": 19,
+    "active": 19,
+    "deferred": 9,
+    "out_of_scope": 5,
+    "categories": ["CLEAN", "AUDI", "LGPD", "DR", "DRYRUN"]
+  },
+  "roadmap": {
+    "phases": 4,
+    "phase_numbers": [4, 5, 6, 7],
+    "critical_path": "P4 → P5 (deploy) → P7 (audit uses module)",
+    "slack": "P6 has 5d slack vs critical path",
+    "parallelization": "P4 independent; P5 blocks P7; P6 parallel with P5",
+    "deadline": "2026-06-05",
+    "days_available": 30
+  },
+  "decisions": [
     {
-      "action": "Commit .claude/settings.local.json (permission allowlist changes)",
-      "context": "Only uncommitted file in working tree. Covers Bash/tool permission additions from Phase 3.3 sessions.",
-      "blocking": false
+      "decision": "Norma alvo: DICQ 4.3 + RDC 978/2025",
+      "rationale": "Cobertura dual legal + operacional."
     },
     {
-      "action": "Create docs/PERFORMANCE_PATTERNS.md (Stream C gap)",
-      "context": "Stream C PARTIAL — Lighthouse CI infra is done but PERFORMANCE_PATTERNS.md was never written. Referenced by .claude/rules/performance.md.",
-      "blocking": false
+      "decision": "v1.1 cleanup entra como Phase 4",
+      "rationale": "Prevenir tech debt pré-auditoria."
     },
     {
-      "action": "Wire Firebase Performance Monitoring dashboards + alerting (Stream C gap)",
-      "context": "perf.web.app() is initialized but no alerts or budget thresholds are configured in Firebase console.",
-      "blocking": false
+      "decision": "Módulos analíticos novos → v1.3",
+      "rationale": "30d insuficiente para novo módulo + validação + dry-run."
     }
   ],
-  "decisions": [
-    {"decision": "Stream C Lighthouse CI infra done; runtime audit deferred", "rationale": "Runtime profiling requires human-run Lighthouse session against prod; blocked on manual execution", "phase": "3.3"},
-    {"decision": "docs/PERFORMANCE_PATTERNS.md not yet created", "rationale": "Stream C partial — planned but not executed in Phase 3.3 sprint", "phase": "3.3"},
-    {"decision": "Phase 4 remains in backlog", "rationale": "Advanced compliance + multi-site + integrations — not scoped for milestone v1.1", "phase": "planning"},
-    {"decision": "isAuthenticated rules for analytics + export-jobs (TEMP-IMPLANTACAO)", "rationale": "Rollout period: broad access to allow demo without membership checks. Must be tightened pre-GA.", "phase": "3.3"}
-  ],
-  "uncommitted_files": [
-    ".claude/settings.local.json"
-  ],
-  "next_action": "Choose: (A) write docs/PERFORMANCE_PATTERNS.md + wire Firebase Perf alerts to close Stream C, or (B) /gsd-new-milestone for Phase 4.",
-  "context_notes": "This session was a progress check only — no code written. Milestone v1.1 is 100% complete per STATE.md. 738/738 tests green. Web + Functions TSC clean. Production live at hmatologia2.web.app. The only loose threads are Stream C (perf docs + monitoring alerts) and the TEMP-IMPLANTACAO auth rules that should be tightened before GA."
+  "blockers": [],
+  "human_actions_pending": [],
+  "uncommitted_files": [],
+  "next_action": "Execute Phase 4: /gsd-discuss-phase 4 ou /gsd-plan-phase 4"
 }
