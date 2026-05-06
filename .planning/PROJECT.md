@@ -1,7 +1,7 @@
 # HC Quality — Sistema CIQ Laboratorial RDC 978
 
 **Project ID:** HC-QUALITY-GSD  
-**Status:** `Phase 2 Complete, Phase 3 Planning` (2026-05-04)  
+**Status:** `Milestone v1.2 — Audit Readiness` (2026-05-06)  
 **Owner:** CTO (usuário principal)  
 **Stack:** React 19 + Vite 6 + Firebase + Cloud Functions Node 22
 
@@ -13,25 +13,44 @@ Implementar HC Quality como sistema world-class de gestão de qualidade laborato
 
 ---
 
-## Current State (2026-05-04)
+## Current Milestone: v1.2 Audit Readiness
 
-- **✅ Phase 1 Complete** — All compliance violations blocked (13/13 RDC 978)
-- **✅ Phase 2 Complete** — All 20 core + regulatory modules in production
-  - Batch 1: auditoria + pops + nc-gates (ADR-0001, 0003, 0004)
-  - Batch 2: controle-temperatura + educacao-continuada completion
-- **🔵 Phase 3 Planning** — Analytics + Data Export + Mobile (6-8 weeks)
-- **Metrics:** 347/347 tests ✓, 59 callables live, 0 new violations
+**Goal:** Sistema pronto para sofrer auditoria interna (DICQ 4.3 + RDC 978/2025) em 30 dias e usar o próprio HC Quality como ferramenta para conduzi-la.
+
+**Deadline:** 2026-06-05 (30 dias a partir de 2026-05-06)
+
+**Target features:**
+- Cleanup do v1.1 (TEMP-IMPLANTACAO rules + Stream C performance docs)
+- Módulo Auditoria Interna (DICQ 1.3 + checklist DICQ 4.3 / RDC 978)
+- LGPD operacional (DPIA, exclusão titular, política exposta)
+- DR formal (plano + teste de restore comprovado)
+- Audit dry-run (auditoria interna real usando o próprio sistema)
+
+**Key context:**
+- Auditor virá contra DICQ 4.3 (SBPC/ML) + RDC 978/2025 (ANVISA) combinados
+- Checklist seed disponível em `Obsidian_Brain/01_Projetos/HC_Quality_Checklist_Auditoria.md` (~115 itens)
+- Não é GA pra clientes pagantes — é audit dry-run interno preparatório
 
 ---
 
-## Phase Timeline
+## Current State (2026-05-06)
 
-| Phase | Status | Deliverables | Duration | ADRs |
-|-------|--------|-------------|----------|------|
-| **Phase 1** | ✅ Complete | Compliance hardening, spine integrity, HMAC chain | 2026-04 | 0002-0007 |
-| **Phase 2** | ✅ Complete | 20 core modules, auditoria, pops, nc, ct, ec | 2026-05-04 | 0001, 0003, 0004 |
-| **Phase 3** | 🔵 Planning | Analytics, Data Export, Mobile (React Native / Expo) | 2026-05 to 2026-07 | 0008-0010 |
-| **Phase 4** | 📋 Backlog | Advanced compliance, multi-site, integrations | Q3-Q4 2026 | 0011+ |
+- **✅ Phase 1 Complete** — All compliance violations blocked (13/13 RDC 978)
+- **✅ Phase 2 Complete** — All 20 core + regulatory modules in production
+- **✅ Milestone v1.1 Complete** — Analytics + Export + Mobile (3 phases, 11/11 plans, 738/738 tests)
+- **🔵 Milestone v1.2 Planning** — Audit Readiness (4 phases, ~30 dias)
+- **Metrics:** 738/738 tests ✓, 59 callables live, 0 RDC violations
+
+---
+
+## Milestone Timeline
+
+| Milestone | Status | Scope | Period |
+|-----------|--------|-------|--------|
+| **v1.0** | ✅ Complete | Compliance hardening (Phase 1) + 20 core modules (Phase 2) | 2026-04 → 2026-05-04 |
+| **v1.1** | ✅ Complete | Analytics + Export + Mobile (Phase 3.1 → 3.3) | 2026-05-04 → 2026-05-05 |
+| **v1.2** | 🔵 Planning | Audit Readiness (DICQ 4.3 + RDC 978) — 4 phases | 2026-05-06 → 2026-06-05 |
+| **v1.3** | 📋 Backlog | Módulos analíticos restantes (Bioquímica, Liberação laudos, Críticos, Reclamações) + multi-site | Q3 2026 |
 
 ---
 
@@ -50,18 +69,19 @@ Implementar HC Quality como sistema world-class de gestão de qualidade laborato
 
 ---
 
-## Phase 3 Planning (Current)
+## Milestone v1.2 — Audit Readiness (Current)
 
-**Documents created:**
-- ✅ `.planning/PHASE3_REQUIREMENTS.md` — 3 independent modules (Mobile, Analytics, Export)
-- ✅ `.planning/PHASE3_ROADMAP.md` — 8-week timeline, 4 phases, 58 person-weeks
+**Documents:**
+- 🔵 `.planning/REQUIREMENTS.md` — escopo v1.2 (a gerar)
+- 🔵 `.planning/ROADMAP.md` — 4 phases (a gerar)
 
-**Key Decisions Pending:**
-1. Mobile: React Native (Expo) vs PWA?
-2. Analytics: Real-time vs scheduled aggregation?
-3. Export: Server-side (job queue) vs client-side?
+**Key decisions made:**
+1. Norma alvo: **DICQ 4.3 + RDC 978/2025** combinados
+2. v1.1 cleanup entra como Phase 1 (TEMP-IMPLANTACAO + Stream C)
+3. Módulos analíticos novos (Bioquímica, Liberação, Críticos) ficam fora — vão pra v1.3
+4. Audit é interno/dry-run, não auditoria externa formal
 
-**Next step:** CTO review PHASE3_REQUIREMENTS.md + approve architecture decisions
+**Próximo passo:** `/gsd-plan-phase [N]` após roadmap aprovado
 
 ---
 
@@ -77,15 +97,35 @@ Implementar HC Quality como sistema world-class de gestão de qualidade laborato
 
 ## Key References
 
-- Phase 2 Memory: `C:\Users\labcl\.claude\projects\C--hc-quality\memory\session_2026-05-04_phase2_complete.md`
-- Requirements: `.planning/PHASE3_REQUIREMENTS.md`
-- Roadmap: `.planning/PHASE3_ROADMAP.md`
-- ADRs: `docs/adr/` (0001-0010 planned)
-- Obsidian: `Obsidian_Brain/01_Projetos/HC_Quality_*.md` (multiple docs)
+- v1.1 closure: `.planning/.continue-here.md` (handoff completo)
+- v1.0 phases archive: `.planning/phases/02-construction/` + `.planning/phases/03.{1,2,3}-*/`
+- Modules map: `docs/playbooks/modules-roadmap.md` (status ✅/🟡/🔵/⚪ por bloco DICQ)
+- Compliance spines: `docs/playbooks/compliance-spines.md`
+- ADRs: `docs/adr/` (0001-0007 deployed)
+- Obsidian — checklist auditoria: `Obsidian_Brain/01_Projetos/HC_Quality_Checklist_Auditoria.md`
+- Obsidian — mapa DICQ: `Obsidian_Brain/01_Projetos/HC_Quality_Compliance_DICQ.md`
+- Obsidian — RDC 978 resumo: `Obsidian_Brain/01_Projetos/HC_Quality_RDC_978_2025_Resumo.md`
 
 ---
 
-**Next:** 
-1. CTO review Phase 3 documents
-2. `/gsd-plan-phase 3.1` para iniciar Phase 3 Foundation
-3. Team staffing (6-7 engineers)
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
+---
+
+**Last updated:** 2026-05-06 — Milestone v1.2 Audit Readiness initialized
+**Next:** `/gsd-discuss-phase 4` (após roadmapper)
