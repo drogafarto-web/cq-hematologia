@@ -18,7 +18,12 @@ export {
   updateExameConfig,
   softDeleteExameConfig,
 } from './services/exameConfigService';
-export { useLaudos, useExameConfigs, useExameConfigByCode, useLaudoVersions } from './hooks';
+export { useLaudos, useExameConfigs, useExameConfigByCode, useLaudoVersions, usePDFUrl } from './hooks';
+export {
+  generateLaudoPDF as generateLaudoPDFViaCallable,
+  downloadLaudoPDF,
+} from './services/pdfService';
+export type { GenerateLaudoPDFInput, GenerateLaudoPDFResult } from './services/pdfService';
 export {
   validateTransition,
   nextStates,

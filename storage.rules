@@ -253,5 +253,35 @@ service firebase.storage {
 
       allow delete: if isSuperAdmin() || (hasEcModuleClaim() && isActiveMember());
     }
+
+    // ── Laudo PDFs (Phase 10-04) ──────────────────────────────────────────────
+    // Path: laudos/{labId}/{laudoId}/v{version}.pdf
+    // Writes are server-only (generateLaudoPDF callable via Admin SDK signed URL).
+    // Reads: active members of the lab (via Firestore membership) OR signed URL.
+    // The signed URL flow (returned by the callable) bypasses these rules and
+    // is the canonical access path for clients; this rule covers direct
+    // SDK-based reads (e.g., LaudoPDFPreview iframe loaded via gs://).
+    match /laudos/{labId}/{laudoId}/{filename} {
+
+      function isAuth() {
+        return request.auth != null;
+      }
+
+      function isSuperAdmin() {
+        return isAuth() &&
+          firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
+          firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isSuperAdmin == true;
+      }
+
+      function isActiveMember() {
+        let memberPath = /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid);
+        return isAuth() &&
+          firestore.exists(memberPath) &&
+          firestore.get(memberPath).data.active == true;
+      }
+
+      allow read:   if isSuperAdmin() || isActiveMember();
+      allow write:  if false;  // Server-only via Admin SDK
+    }
   }
 }
