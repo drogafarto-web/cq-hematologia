@@ -432,7 +432,10 @@ export type View =
   | 'calibracao'
   | 'personnel'
   | 'management-review'
-  | 'bioquimica';
+  | 'bioquimica'
+  | 'liberacao'
+  | 'criticos'
+  | 'portal-medico';
 
 // ─── Traceability ─────────────────────────────────────────────────────────────
 

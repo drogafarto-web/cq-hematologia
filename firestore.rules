@@ -1571,11 +1571,107 @@ service cloud.firestore {
         allow delete: if false;  // Soft-delete only (RN-06)
       }
 
+      // ── /labs/{labId}/laudos/** — Phase 10 (Liberação de Laudos) ──────────────
+      // RDC 978 Art. 167: 14 mandatory fields per laudo
+      // RDC 978 Art. 184-191: critical value communication + audit trail
+      // DICQ 5.7-5.9: release workflow + immutable history
+      // State: Pendente → Em Revisão → Liberado → Comunicado → Superado
+      // Soft-delete only (RN-06); writes via Cloud Function callables
+      match /laudos/{laudoId} {
+        function validLaudoPayload(d) {
+          return d.labId == labId
+              && d.id is string
+              && d.cnes is string
+              && d.labName is string
+              && d.rtNome is string
+              && d.rtRegistro is string
+              && d.paciente is map
+              && d.paciente.id is string
+              && d.paciente.nome is string
+              && d.exames is list
+              && d.status in ['Pendente', 'Em Revisão', 'Liberado', 'Auto-Liberado', 'Comunicado', 'Superado']
+              && d.criticoFlag is bool
+              && d.criadoEm is timestamp
+              && d.deletadoEm == null || d.deletadoEm is timestamp;
+        }
+
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if false;  // Via criarLaudo callable only
+        allow update: if false;  // Via liberarLaudo/retificar callables only
+        allow delete: if false;  // Soft-delete only (RN-06)
+      }
+
+      // ── /labs/{labId}/laudo-versions/** — Phase 10 (Immutable Versions) ──────
+      // Snapshot imutável do laudo em cada ponto no tempo.
+      // Cada versão tem LogicalSignature SHA-256 + chainHash sequencial.
+      // Retificação cria v2/v3 imutável; v1 marcada "Superado".
+      // RDC 978 Art. 167 + DICQ 5.9.3 compliance.
+      match /laudo-versions/{versionId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if false;  // Via Cloud Function only
+        allow update: if false;  // Immutable after creation
+        allow delete: if false;  // Hard delete never
+      }
+
+      // ── /labs/{labId}/comunicacoes/** — Phase 10 (Critical Value Log) ────────
+      // Registro imutável de comunicação de valor crítico.
+      // RDC 978 Art. 184-191: crítico precisa ser comunicado + registrado.
+      // Canal: email (MVP), verbal (registrado manualmente), SMS/WhatsApp (v1.4).
+      match /comunicacoes/{comunicacaoId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if false;  // Via enviarComunicacao callable only
+        allow update: if false;  // Immutable after creation
+        allow delete: if false;  // Hard delete never
+      }
+
+      // ── /labs/{labId}/criticos-thresholds/** — Phase 10 (Critical Ranges) ────
+      // Configuração de limiares críticos por analito.
+      // Lab admin define ranges; detectCriticalValue compara resultados.
+      // Soft-delete only.
+      match /criticos-thresholds/{thresholdId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() ||
+                               (isActiveMemberOfLab(labId) && isAdminOrOwner(labId)) &&
+                               request.resource.data.labId == labId;
+        allow delete: if false;  // Soft-delete only
+      }
+
+      // ── /labs/{labId}/exames-config/** — Phase 10 (Exam Classification) ──────
+      // Classificação de exame: rotina / revisao-rt / bloqueio-critico.
+      // Determina se auto-libera ou requer RT review.
+      // Lab admin configura; audit log todas as mudanças.
+      match /exames-config/{exameId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() ||
+                               (isActiveMemberOfLab(labId) && isAdminOrOwner(labId)) &&
+                               request.resource.data.labId == labId;
+        allow delete: if false;  // Soft-delete only
+      }
+
+      // ── /labs/{labId}/medicos-solicitantes/** — Phase 10 (Requesting Doctors) ─
+      // Cache local de médicos solicitantes (read-only sync from Worklab LIS).
+      // Used for portal-medico + laudo metadata.
+      // Writes via Cloud Function syncMedicosWorklab only.
+      match /medicos-solicitantes/{medicoId} {
+        allow read: if isSuperAdmin() ||
+                    isActiveMemberOfLab(labId) ||
+                    (request.auth.token.medicoSolicitante == true && resource.data.id == request.auth.uid);
+        allow write: if false;  // Via syncMedicosWorklab callable only
+      }
+
       // ── /users/{userId}/privacyAceites — Privacy Policy Acceptance Tracking ──
       // User acceptance records per policy version. Scoped to /users/{userId}
       // (not under /labs/) because acceptance is personal, not lab-specific.
       // Users can only read/write their own acceptance records.
     }
+  }
+
+  // ── /global-portal-medico/** — Phase 10 (Médico Portal Auth) ─────────────────
+  // Portal externo para médicos solicitantes (portal-medico branch).
+  // Auth flow: médico convida → cadastra senha → acessa apenas seus laudos.
+  // Coleção global (não multi-tenant per-se) mas linkada a labs via medicoId.
+  match /global-portal-medico/{doc=**} {
+    allow read, write: if false;  // Placeholder for Portal Phase 10-05
   }
 
   // User-level privacy acceptance records
