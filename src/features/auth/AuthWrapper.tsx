@@ -28,6 +28,8 @@ import { CEQDashboard } from '../ceq/components/CEQDashboard';
 import { AuditoriaView } from '../auditoria-interna/components/AuditoriaView';
 import { CAPADashboard } from '../capa-tracking/components/CAPADashboard';
 import CalibracaoDashboard from '../calibracao/components/CalibracaoDashboard';
+import PersonnelDashboard from '../personnel/components/PersonnelDashboard';
+import { ManagementReviewDashboard } from '../management-review/components/ManagementReviewDashboard';
 import { useBrowserHistorySync } from '../../shared/hooks/useBrowserHistorySync';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
@@ -170,6 +172,10 @@ function AppRouter() {
     view = <CAPADashboard />;
   } else if (currentView === 'calibracao') {
     view = <CalibracaoDashboard />;
+  } else if (currentView === 'personnel') {
+    view = <PersonnelDashboard />;
+  } else if (currentView === 'management-review') {
+    view = <ManagementReviewDashboard />;
   } else {
     view = <AnalyzerView />;
   }

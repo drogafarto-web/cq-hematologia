@@ -225,6 +225,21 @@ export {
   registrarCalibracacao,
 } from './modules/equipamentos/index';
 
+// ─── personnel module (Phase 8 — Cargos + Designações) ────────────────────────
+// Job descriptions (Cargos) + organizational designations (GQ/RT/Diretor) with
+// LogicalSignature audit trail. DICQ 5.1.3 + 4.1.2.7 compliance.
+// signDesignacao: sign-and-write designacao atomically with chain-hash
+export { signDesignacao } from './modules/personnel/signDesignacao';
+
+// ─── management-review module (Phase 8 — DICQ 4.15 Annual Direction Analysis) ──
+// Management review system with 15 mandatory sections, data aggregation, and signatures.
+// generateReviewTemplate: pre-populate review form with live data from 7 collections
+// submitReview: validate 15 sections and create signed review
+export {
+  generateReviewTemplate,
+  submitReview,
+} from './modules/management-review/index';
+
 // ─── treinamentos module (Phase 2 Batch 2 — Training Registry) ──────────────
 // criarTreinamento: schedule training linked to POP + instructor + participants
 // registrarPresenca: attendance tracking with signatures
