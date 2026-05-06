@@ -12,7 +12,6 @@
 
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
-import { z } from 'zod';
 
 import { assertLiberacaoAccess, CriarLaudoInputSchema } from './validators';
 import {
@@ -20,13 +19,11 @@ import {
   LaudoVersion,
   ExameLaudo,
   ReleaseState,
-  LabId,
-  UserId,
   labId as makeLabId,
   userId as makeUserId,
   LogicalSignature,
 } from './_shared/types';
-import { shouldAutoRelease, AutoReleaseContext } from './_shared/exameClassifier';
+import { AutoReleaseContext } from './_shared/exameClassifier';
 import { calculateChainHash, GENESIS_CHAIN_HASH } from './_shared/auditChain';
 
 interface CriarLaudoInput {
@@ -56,11 +53,23 @@ export const criarLaudo = onCall<unknown, Promise<CriarLaudoResult>>(
     }
 
     const input = parsed.data as CriarLaudoInput;
-    const { labId, runIds, pacienteId, medicoSolicitanteId, exames } = input;
+    const { labId, pacienteId, medicoSolicitanteId, exames } = input;
 
     // 1. Auth check
     await assertLiberacaoAccess(request.auth, labId);
     const uid = request.auth!.uid;
+
+    // 1b. Rate limit per uid (SECURITY_AUDIT.md #18): 100/min for authenticated.
+    const { enforceAuthenticatedRateLimit } = await import(
+      '../shared/rateLimit'
+    );
+    const rl = await enforceAuthenticatedRateLimit(uid, 'criarLaudo', 100);
+    if (!rl.allowed) {
+      throw new HttpsError(
+        'resource-exhausted',
+        `Muitas requisições. Tente novamente em ${Math.ceil(rl.retryAfterMs / 1000)}s.`,
+      );
+    }
 
     const db = admin.firestore();
 
@@ -81,7 +90,8 @@ export const criarLaudo = onCall<unknown, Promise<CriarLaudoResult>>(
         'Médico solicitante não encontrado no cache. Sincronize com Worklab.',
       );
     }
-    const medico = medicoSnap.data()!;
+    void medicoSnap.data();
+    void medicoSolicitanteId;
 
     // 4. Lê RT do lab (principal responsável técnico)
     const rtSnap = await db
@@ -121,7 +131,7 @@ export const criarLaudo = onCall<unknown, Promise<CriarLaudoResult>>(
       .where('ativo', '==', true)
       .where('deletadoEm', '==', null)
       .get();
-    const criticosMap = new Map(criticosSnap.docs.map((doc) => [doc.id, doc.data()]));
+    void criticosSnap;
 
     // 8. Constrói LaudoVersion snapshot
     // NOTA: No MVP, exames vem do payload. Em v1.4, vir de runs aprovadas do Worklab
@@ -151,24 +161,21 @@ export const criarLaudo = onCall<unknown, Promise<CriarLaudoResult>>(
     // 10. Classifica laudo
     // Para MVP: assume rotina se a maioria dos exames for rotina
     let isRotina = true;
-    let isRevisaoRt = false;
-    let isBloqueio = false;
 
     for (const exame of exames) {
       const config = examesConfigMap.get(exame.id || exame.examCode);
       if (!config) continue;
 
-      if (config.classification === 'revisao-rt') isRevisaoRt = true;
-      if (config.classification === 'bloqueio-critico') isBloqueio = true;
       if (config.classification !== 'rotina') isRotina = false;
     }
 
     // 11. Determina auto-release
-    const context: AutoReleaseContext = {
+    const _context: AutoReleaseContext = {
       hasWestgardReject: false, // Placeholder
       hasCritico: criticoFlag,
       hasMaterialRestrito: false, // Placeholder
     };
+    void _context;
 
     // Para MVP: se é rotina e sem crítico, auto-libera
     const autoReleaseDecision = isRotina

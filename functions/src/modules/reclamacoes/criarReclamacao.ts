@@ -233,6 +233,26 @@ export const criarReclamacao = functions.https.onCall(
         );
       }
 
+      // 1b. Rate limit (SECURITY_AUDIT.md #18) — 60/min for authenticated users.
+      // Channel may be public-facing (web-publico, email) but the callable still
+      // requires Firebase auth (anonymous or signed-in). Key by uid to prevent
+      // abuse from single account.
+      const { enforceAuthenticatedRateLimit } = await import(
+        '../../shared/rateLimit'
+      );
+      const rl = await enforceAuthenticatedRateLimit(
+        request.auth.uid,
+        'criarReclamacao',
+        60,
+      );
+      if (!rl.allowed) {
+        throw new functions.https.HttpsError(
+          'resource-exhausted',
+          `Muitas requisições. Tente novamente em ${Math.ceil(rl.retryAfterMs / 1000)}s.`,
+          { retryAfterSeconds: Math.ceil(rl.retryAfterMs / 1000) },
+        );
+      }
+
       // 2. Parse and validate input
       const data = CreateReclamacaoCallableInput.parse(request.data);
       const { labId, canalEntrada, descricao, reclamante, consentimentoLgpd, origemDados, recaptchaToken, anexos } = data;

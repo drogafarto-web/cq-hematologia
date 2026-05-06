@@ -3,6 +3,7 @@ import { onCall } from 'firebase-functions/https';
 import { db, admin } from '../../shared/firebase';
 import { z } from 'zod';
 import { verifyNPSToken } from '../../shared/tokenUtils';
+import { enforcePublicRateLimit } from '../../shared/rateLimit';
 
 // Per SECURITY_AUDIT.md #3 + #14: strict schema, all string fields capped,
 // .strict() on objects rejects unknown keys.
@@ -36,6 +37,28 @@ export const submitNPSResposta = onCall<NPSRespostaInput>(
   { enforceAppCheck: false, cors: true },
   async (request) => {
     try {
+      // Rate limit per IP (SECURITY_AUDIT.md #18): 10/min for public endpoints.
+      // NPS is anonymous-via-token, so IP is the only stable identifier.
+      const clientIp =
+        (request.rawRequest?.headers?.['x-forwarded-for'] as string)
+          ?.split(',')[0]
+          ?.trim() ||
+        request.rawRequest?.ip ||
+        'unknown';
+
+      const rl = await enforcePublicRateLimit({
+        bucketKey: `submitNPSResposta:${clientIp}`,
+        maxRequests: 10,
+        windowMs: 60 * 1000,
+      });
+      if (!rl.allowed) {
+        throw new functions.https.HttpsError(
+          'resource-exhausted',
+          `Muitas requisições. Tente novamente em ${Math.ceil(rl.retryAfterMs / 1000)}s.`,
+          { retryAfterSeconds: Math.ceil(rl.retryAfterMs / 1000) },
+        );
+      }
+
       // Parse & validate input
       const input = NPSRespostaInputSchema.parse(request.data);
 
@@ -91,6 +114,11 @@ export const submitNPSResposta = onCall<NPSRespostaInput>(
       };
     } catch (error) {
       console.error('[submitNPSResposta] Error:', error);
+
+      // Re-throw HttpsError (e.g., from rate limiter) without re-wrapping
+      if (error instanceof functions.https.HttpsError) {
+        throw error;
+      }
 
       if (error instanceof z.ZodError) {
         throw new functions.https.HttpsError('invalid-argument', error.errors[0].message);
