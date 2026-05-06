@@ -13,6 +13,8 @@
 import React, { useMemo } from 'react';
 import { useAnalyticsAggregate, useAnalyticsLoading, useAnalyticsError } from '../hooks/useAnalyticsCache';
 import { TRAINING_STATUS_COLORS } from '../services/chartColorMap';
+import { FilterUnavailableBanner } from './FilterUnavailableBanner';
+import { shouldShowPartialFilterNotice, filterCapabilities } from '../utils/aggregateFilters';
 import type { CertificationStatus } from '../types/Analytics';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -159,11 +161,24 @@ interface TrainingMatrixDashProps {
 
 export const TrainingMatrixDash = React.memo(function TrainingMatrixDash({
   className = '',
-  activeFilters: _activeFilters,
+  activeFilters,
 }: TrainingMatrixDashProps) {
   const aggregate = useAnalyticsAggregate();
   const loading = useAnalyticsLoading();
   const error = useAnalyticsError();
+
+  const equipmentIds = activeFilters?.equipmentIds ?? new Set<string>();
+  const operatorIds = activeFilters?.operatorIds ?? new Set<string>();
+
+  const showPartialNotice = shouldShowPartialFilterNotice('training', equipmentIds, operatorIds);
+  const partialReason = filterCapabilities('training').reason;
+
+  const activeFilterLabel = useMemo(() => {
+    const parts: string[] = [];
+    if (equipmentIds.size > 0) parts.push(`${equipmentIds.size} equipamento${equipmentIds.size > 1 ? 's' : ''}`);
+    if (operatorIds.size > 0) parts.push(`${operatorIds.size} operador${operatorIds.size > 1 ? 'es' : ''}`);
+    return parts.join(', ');
+  }, [equipmentIds, operatorIds]);
 
   const rows = useMemo((): TrainingSummaryRow[] => {
     if (!aggregate) return [];
@@ -227,6 +242,14 @@ export const TrainingMatrixDash = React.memo(function TrainingMatrixDash({
           </div>
         )}
       </div>
+
+      {/* Partial filter notice — aggregate has no per-equipment training breakdown */}
+      {showPartialNotice && (
+        <FilterUnavailableBanner
+          reason={partialReason}
+          activeFilterLabel={activeFilterLabel}
+        />
+      )}
 
       {/* Table */}
       {rows.length > 0 ? (
