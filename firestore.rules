@@ -1433,6 +1433,59 @@ service cloud.firestore {
           }
         }
       }
+
+      // ── /labs/{labId}/lgpd/** — Phase 6 (LGPD Compliance) ──────────────────
+      // DPIA (Data Protection Impact Assessment), Privacy Policy versioning,
+      // PII deletion requests. All writes via Cloud Function callables (Fase 0b pattern).
+      // Soft-delete only (RN-06): deletadoEm field, never hard-delete.
+      // Chain-hash preservation: LogicalSignature fields immutable during updates.
+      match /lgpd/{document=**} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if false;  // All writes via callables
+        allow update: if false;  // All updates via callables
+        allow delete: if false;  // Soft-delete only (RN-06)
+      }
+
+      // ── /users/{userId}/privacyAceites — Privacy Policy Acceptance Tracking ──
+      // User acceptance records per policy version. Scoped to /users/{userId}
+      // (not under /labs/) because acceptance is personal, not lab-specific.
+      // Users can only read/write their own acceptance records.
     }
+  }
+
+  // User-level privacy acceptance records
+  match /users/{userId} {
+    match /privacyAceites/{docId} {
+      function aceitesHasValidRecord(d) {
+        return d.labId is string
+            && d.userId == userId
+            && d.policyVersionId is string
+            && d.aceiteEm is timestamp
+            && d.ipAddr is string
+            && d.userAgent is string;
+      }
+
+      allow read: if request.auth.uid == userId || isSuperAdmin();
+      allow create: if false;  // Via recordAceite callable only
+      allow update: if false;  // Immutable after creation
+      allow delete: if false;  // Soft-delete only
+    }
+  }
+
+  // OTP records (temporary, 10-minute TTL)
+  match /otps/{otpToken} {
+    function otpHasValidRecord(d) {
+      return d.contacto is string
+          && d.codigo is string
+          && d.expirasEm is timestamp
+          && d.tentativas is number
+          && d.tentativasMaximas is number;
+    }
+
+    // Cloud Functions (deleteTitularData) need to read and delete OTPs
+    allow read: if false;   // Only Cloud Functions read via Admin SDK
+    allow create: if false; // Via sendOTP callable only
+    allow update: if false;
+    allow delete: if false; // Cloud Functions delete via Admin SDK
   }
 }

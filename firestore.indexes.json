@@ -360,6 +360,30 @@
         { "fieldPath": "statusNC", "order": "ASCENDING" },
         { "fieldPath": "severidade", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "lgpd",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "criadoEm", "order": "DESCENDING" },
+        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "politicas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "criadoEm", "order": "DESCENDING" },
+        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "privacyAceites",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "policyVersionId", "order": "ASCENDING" },
+        { "fieldPath": "aceiteEm", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
