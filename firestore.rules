@@ -1389,6 +1389,50 @@ service cloud.firestore {
           isActiveMemberOfLab(labId);
         allow delete: if false;  // Disable via enabled:false, never hard delete
       }
+
+      // ── /labs/{labId}/auditorias-internas — Phase 5 (Auditoria Interna / DICQ 1.3) ──
+      // Auditoria interna: plano anual + sessões + checklist + achados
+      // Schema: auditorias-internas/{auditoriaId}/sessoes/{sessaoId}/checklist-items/{itemId}
+      //                                                  /sessoes/{sessaoId}/achados/{achadoId}
+      //
+      // Soft-delete only (RN-06): nunca hard delete — auditor exige trilha completa.
+      // Writes via Cloud Function callables (Fase 0b pattern): client é somente-leitura.
+      // Read: qualquer membro ativo do lab. Achados com LogicalSignature imutável.
+      match /auditorias-internas/{auditoriaId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if false;  // Via createAuditoria callable only
+        allow update: if false;  // Via updateAuditoria callable only
+        allow delete: if false;  // Soft-delete only (RN-06)
+
+        match /sessoes/{sessaoId} {
+          allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow create: if false;  // Via createSessao callable only
+          allow update: if false;  // Via updateSessao callable only
+          allow delete: if false;  // Soft-delete only
+
+          match /checklist-items/{itemId} {
+            allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+            allow create: if false;  // Via installChecklistTemplate callable only
+            allow update: if false;  // Immutable after creation (resposta via achado)
+            allow delete: if false;  // Never delete — audit trail
+          }
+
+          match /achados/{achadoId} {
+            function achadoHasValidSignature(d) {
+              return d.assinatura is map
+                  && d.assinatura.hash is string
+                  && d.assinatura.hash.size() == 64
+                  && d.assinatura.operatorId == request.auth.uid
+                  && d.assinatura.ts is timestamp;
+            }
+
+            allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+            allow create: if false;  // Via registerAchado callable only (validates signature server-side)
+            allow update: if false;  // Immutable after creation (soft-delete only)
+            allow delete: if false;  // Soft-delete only (RN-06)
+          }
+        }
+      }
     }
   }
 }

@@ -304,6 +304,62 @@
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "deletadoEm", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "auditorias-internas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "auditorias-internas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ano", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "auditorias-internas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "deletadoEm", "order": "ASCENDING" },
+        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "sessoes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "dataInicio", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "sessoes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "deletadoEm", "order": "ASCENDING" },
+        { "fieldPath": "criadoEm", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "achados",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "severidade", "order": "ASCENDING" },
+        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "achados",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "statusNC", "order": "ASCENDING" },
+        { "fieldPath": "severidade", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
