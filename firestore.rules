@@ -1358,23 +1358,22 @@ service cloud.firestore {
       // Sem soft-delete: jobs usam campo `status` como ciclo de vida — hard
       // delete proibido (trilha de auditoria de exportações).
       match /export-jobs/{jobId} {
-        allow read: if isSuperAdmin() ||
-          (isAuthenticated() && request.auth.token.labId == labId);
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow create: if false;  // Via callable initiateExport only
         allow update: if false;  // Via exportWorker Cloud Function only
         allow delete: if false;  // Never delete export job records
       }
 
-      // ── /labs/{labId}/analytics/cache — Phase 3.1 (Analytics Cache) ─────────
-      // Cache de agregações gerado exclusivamente pela scheduled Cloud Function
-      // `aggregateDaily` (Admin SDK bypassa rules). Client é somente-leitura.
-      // Wildcard `{document=**}` cobre doc raiz + todos os sub-documentos do cache.
-      match /analytics/cache/{document=**} {
-        allow read: if isSuperAdmin() ||
-          (isAuthenticated() && request.auth.token.labId == labId);
-        allow create: if false;  // Via aggregateDaily scheduled function only
-        allow update: if false;  // Via aggregateDaily scheduled function only
-        allow delete: if false;  // Cache lifecycle managed by Cloud Function only
+      // ── /labs/{labId}/analytics/** — Phase 3.1+3.3 (Analytics Cache + Meta) ─
+      // Cache de agregações + metadata (lastRefreshAt, isCached, staleness)
+      // gerados exclusivamente pelas Cloud Functions schedule (Admin SDK bypassa
+      // rules). Client é somente-leitura. Cobre /analytics/meta e
+      // /analytics/cache/** num único match para evitar gaps.
+      match /analytics/{document=**} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if false;  // Via scheduled Cloud Functions only
+        allow update: if false;  // Via scheduled Cloud Functions only
+        allow delete: if false;  // Cache lifecycle managed by Cloud Functions only
       }
 
       // ── /labs/{labId}/exportSchedule — Phase 3.3 (Scheduled Export Config) ──
