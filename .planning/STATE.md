@@ -5,7 +5,7 @@ milestone_name: Audit Readiness
 status: planning
 last_updated: "2026-05-06T00:00:00.000Z"
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
