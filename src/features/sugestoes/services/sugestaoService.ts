@@ -4,11 +4,13 @@ import {
   where,
   orderBy,
   getDocs,
+  doc,
+  getDoc,
   QueryConstraint,
   DocumentData,
 } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
-import type { LabId } from '../../../types';
+import type { LabId } from '../types';
 
 export interface Sugestao extends DocumentData {
   id: string;
@@ -84,7 +86,7 @@ class SugestaoService {
    * Get single sugestao
    */
   static async getSugestao(labId: LabId, sugestaoId: string): Promise<Sugestao | null> {
-    const docSnap = await db.doc(`labs/${labId}/sugestoes/${sugestaoId}`).get();
+    const docSnap = await getDoc(doc(db, `labs/${labId}/sugestoes/${sugestaoId}`));
     if (!docSnap.exists()) return null;
 
     return {

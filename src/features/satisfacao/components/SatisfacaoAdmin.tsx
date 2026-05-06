@@ -3,7 +3,7 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
 import { useActiveLabId } from '../../../store/useAuthStore';
 import { NPSScoreCard } from './NPSScoreCard';
-import type { LabId } from '../../../types';
+import type { LabId } from '../types';
 
 interface CampanhaData {
   id: string;

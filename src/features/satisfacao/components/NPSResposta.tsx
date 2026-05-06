@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../../../shared/services/firebase';
-import type { LabId } from '../../../types';
+import type { LabId } from '../types';
 
 interface NPSRespostaProps {
   npsToken: string;

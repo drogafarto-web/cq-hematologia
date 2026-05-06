@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSugestoes } from '../hooks/useSugestoes';
 import { useActiveLabId } from '../../../store/useAuthStore';
 import { SugestaoDetail } from './SugestaoDetail';
-import type { LabId } from '../../../types';
+import type { LabId } from '../types';
 import type { Sugestao } from '../services/sugestaoService';
 
 export const SugestaoDashboard: React.FC = () => {
