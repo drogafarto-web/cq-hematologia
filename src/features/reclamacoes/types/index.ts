@@ -4,6 +4,10 @@
  * Central export barrel for all complaint, suggestion, satisfaction, and LGPD types.
  */
 
+// ─── Identity & Multi-tenant ───────────────────────────────────────────────────
+export type LabId = string;
+export type UserId = string;
+
 // ─── Complaint Domain ──────────────────────────────────────────────────────────
 export type {
   LogicalSignature,

@@ -8,3 +8,4 @@ export { criarReclamacao } from './criarReclamacao';
 export { classificarReclamacaoIA } from './classificarReclamacaoIA';
 export { parseEmailReclamacao } from './parseEmailReclamacao';
 export { criarNCDraft } from './criarNCDraft';
+export { transitarReclamacao } from './transitarReclamacao';

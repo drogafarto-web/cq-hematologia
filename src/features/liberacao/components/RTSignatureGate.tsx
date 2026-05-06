@@ -7,8 +7,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { httpsCallable } from 'firebase/functions';
-import { functions } from '@shared/firebase';
+import { httpsCallable, functions } from '../../../shared/services/firebase';
 
 interface RTSignatureGateProps {
   laudoId: string;
