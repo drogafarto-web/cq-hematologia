@@ -14,7 +14,7 @@
  *   - sizeKB: file size in KB
  */
 
-import * as functions from 'firebase-functions';
+import { onCall, HttpsError, type CallableRequest } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { google } from 'googleapis';
 import { getAccessToken } from './_drive/oauthClient';
@@ -32,26 +32,28 @@ export interface PreviewDocDriveOutput {
   sizeKB: number;
 }
 
-export const previewDocDrive = functions.https.onCall(
-  async (input: PreviewDocDriveInput, context) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+export const previewDocDrive = onCall<PreviewDocDriveInput, Promise<PreviewDocDriveOutput>>(
+  async (request: CallableRequest<PreviewDocDriveInput>) => {
+    if (!request.auth) {
+      throw new HttpsError(
         'unauthenticated',
         'User must be authenticated',
       );
     }
 
-    const { labId, driveFileId, mimeType } = input;
-    const userId = context.auth.uid;
+    const { labId, driveFileId, mimeType } = request.data;
+    const userId = request.auth.uid;
 
     try {
       // Get stored access token
       const accessToken = await getAccessToken(labId, userId);
 
+      // OAuth2 client with the user's access token
+      const oauth2Client = new google.auth.OAuth2();
+      oauth2Client.setCredentials({ access_token: accessToken });
+
       // Get Drive API client
-      const drive = google.drive({ version: 'v3', auth: new google.auth.GoogleAuth({
-        credentials: { access_token: accessToken },
-      }) });
+      const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
       // Download and parse content
       const result = await downloadDocumentContent(drive, driveFileId, mimeType);
@@ -75,7 +77,7 @@ export const previewDocDrive = functions.https.onCall(
       return result as PreviewDocDriveOutput;
     } catch (error) {
       console.error('[previewDocDrive] error:', error);
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'internal',
         error instanceof Error ? error.message : 'Failed to preview document',
       );

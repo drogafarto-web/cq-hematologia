@@ -15,7 +15,7 @@
  * Also suggests lista de distribuição based on LM-01 entry.
  */
 
-import * as functions from 'firebase-functions';
+import { onCall, HttpsError, type CallableRequest } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { TipoDocumentoType } from './_drive/lm01Parser';
 
@@ -108,17 +108,17 @@ function refineITClassification(titulo: string, preview?: string): {
   return { tipo: 'IT', confidence: 0.7 };
 }
 
-export const classificarDocAuto = functions.https.onCall(
-  async (input: ClassificarDocAutoInput, context) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+export const classificarDocAuto = onCall<ClassificarDocAutoInput, Promise<ClassificarDocAutoOutput>>(
+  async (request: CallableRequest<ClassificarDocAutoInput>) => {
+    if (!request.auth) {
+      throw new HttpsError(
         'unauthenticated',
         'User must be authenticated',
       );
     }
 
-    const { labId, codigo, titulo, preview, lm01SetoresLD } = input;
-    const userId = context.auth.uid;
+    const { labId, codigo, titulo, preview, lm01SetoresLD } = request.data;
+    const userId = request.auth.uid;
 
     try {
       let classification = classificaFromCodigo(codigo);
@@ -153,7 +153,7 @@ export const classificarDocAuto = functions.https.onCall(
       } as ClassificarDocAutoOutput;
     } catch (error) {
       console.error('[classificarDocAuto] error:', error);
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'internal',
         error instanceof Error ? error.message : 'Classification failed',
       );

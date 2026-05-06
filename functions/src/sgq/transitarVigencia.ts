@@ -6,9 +6,9 @@
  * Requires RT claim.
  */
 
-import * as functions from 'firebase-functions';
+import { onCall, HttpsError, type CallableRequest } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
-import { verifyLogicalSignature, generateLogicalSignature } from '../shared/auditHash';
+import { generateLogicalSignature } from '../shared/auditHash';
 
 const db = admin.firestore();
 
@@ -51,7 +51,7 @@ function validateTransition(from: StatusVigencia, to: StatusVigencia): boolean {
  * In production: compare against stored PIN hash
  * For MVP: placeholder validation
  */
-function verifyRTSignature(pin: string, context: functions.https.CallableContext): boolean {
+function verifyRTSignature(pin: string, request: CallableRequest<TransitionPayload>): boolean {
   // TODO: Store PIN hash in user record + verify here
   // For now: basic length check
   if (!pin || pin.length !== 4 || !/^\d+$/.test(pin)) {
@@ -59,7 +59,7 @@ function verifyRTSignature(pin: string, context: functions.https.CallableContext
   }
 
   // Verify RT claim
-  const claims = context.auth?.token as any;
+  const claims = request.auth?.token as any;
   if (!claims?.['rt-member'] && !claims?.['admin']) {
     throw new Error('Apenas Responsáveis Técnicos podem aprovar transições');
   }
@@ -67,32 +67,33 @@ function verifyRTSignature(pin: string, context: functions.https.CallableContext
   return true;
 }
 
-export const transitarVigencia = functions
-  .region('southamerica-east1')
-  .https.onCall(async (data: TransitionPayload, context) => {
+export const transitarVigencia = onCall<TransitionPayload>(
+  { region: 'southamerica-east1' },
+  async (request) => {
+    const data = request.data;
     // 1. Authentication
-    if (!context.auth?.uid) {
-      throw new functions.https.HttpsError('unauthenticated', 'Usuário não autenticado');
+    if (!request.auth?.uid) {
+      throw new HttpsError('unauthenticated', 'Usuário não autenticado');
     }
 
-    const userId = context.auth.uid;
+    const userId = request.auth.uid;
 
     // 2. Authorization (RT claim)
-    const claims = context.auth.token as any;
+    const claims = request.auth.token as any;
     if (!claims?.['rt-member'] && !claims?.['admin']) {
-      throw new functions.https.HttpsError('permission-denied', 'Apenas RT pode transitar documentos');
+      throw new HttpsError('permission-denied', 'Apenas RT pode transitar documentos');
     }
 
     // 3. Validate lab membership
     if (!claims?.['labs']?.includes(data.labId)) {
-      throw new functions.https.HttpsError('permission-denied', `Acesso negado ao lab ${data.labId}`);
+      throw new HttpsError('permission-denied', `Acesso negado ao lab ${data.labId}`);
     }
 
     // 4. Verify PIN
     try {
-      verifyRTSignature(data.pin, context);
+      verifyRTSignature(data.pin, request);
     } catch (err) {
-      throw new functions.https.HttpsError('invalid-argument', (err as Error).message);
+      throw new HttpsError('invalid-argument', (err as Error).message);
     }
 
     // 5. Fetch document
@@ -100,7 +101,7 @@ export const transitarVigencia = functions
     const docSnap = await docRef.get();
 
     if (!docSnap.exists) {
-      throw new functions.https.HttpsError('not-found', 'Documento não encontrado');
+      throw new HttpsError('not-found', 'Documento não encontrado');
     }
 
     const doc = docSnap.data() as any;
@@ -108,7 +109,7 @@ export const transitarVigencia = functions
 
     // 6. Validate state machine
     if (!validateTransition(currentStatus, data.novoStatus)) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'invalid-argument',
         `Transição inválida: ${currentStatus} → ${data.novoStatus}`
       );
@@ -177,4 +178,5 @@ export const transitarVigencia = functions
       statusNovo: data.novoStatus,
       ts: now.toDate().toISOString(),
     };
-  });
+  },
+);

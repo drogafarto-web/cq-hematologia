@@ -1,4 +1,3 @@
-import * as functions from 'firebase-functions';
 import { onSchedule } from 'firebase-functions/scheduler';
 import { db, admin } from '../../shared/firebase';
 
@@ -11,7 +10,7 @@ import { db, admin } from '../../shared/firebase';
  */
 export const anonimizarRespostas = onSchedule(
   { schedule: '0 6 * * *', timeZone: 'America/Sao_Paulo' },
-  async (context) => {
+  async (_event) => {
     try {
       // Calculate date 90 days ago
       const ninetyDaysAgo = new Date();
