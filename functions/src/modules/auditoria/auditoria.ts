@@ -159,7 +159,7 @@ export const registerAchado = onCall(
       // Check for blocking NCs
       const ncCheck = await checkNCs(input.labId, 'auditoria');
       if (ncCheck.blocked) {
-        throw new HttpsError('failed-precondition', ncCheck.message);
+        throw new HttpsError('failed-precondition', ncCheck.message || 'Blocking NC prevents operation');
       }
 
       // Generate logical signature
