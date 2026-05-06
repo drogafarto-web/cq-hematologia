@@ -10,7 +10,7 @@
 
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { initializeApp } from 'firebase-admin/app';
-import { getFirestore, FieldValue, serverTimestamp, writeBatch } from 'firebase-admin/firestore';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 
 initializeApp();
 const db = getFirestore();
@@ -36,14 +36,14 @@ interface ApplyBulaResponse {
 
 // ─── Auth helpers ─────────────────────────────────────────────────────────────
 
-function isActiveMemberOfLab(labId: string, uid: string): boolean {
+function isActiveMemberOfLab(_labId: string, uid: string): boolean {
   // TODO: implement actual member check from /labs/{labId}/members
   return !!uid;
 }
 
 // ─── Main function ────────────────────────────────────────────────────────────
 
-export const applyBulaToLot = onCall<ApplyBulaPayload, ApplyBulaResponse>(
+export const applyBulaToLot = onCall<ApplyBulaPayload, Promise<ApplyBulaResponse>>(
   {
     region: 'southamerica-east1',
     memory: '512MB' as any,
@@ -81,12 +81,12 @@ export const applyBulaToLot = onCall<ApplyBulaPayload, ApplyBulaResponse>(
     }
 
     // Atomic update
-    const batch = writeBatch(db);
+    const batch = db.batch();
 
     batch.update(lotRef, {
       manufacturerStats: parseResult.manufacturerStats,
       bulaPendente: false,
-      atualizadoEm: serverTimestamp(),
+      atualizadoEm: FieldValue.serverTimestamp(),
       // TODO: Add audit log in Plan 09-04
       // bulaPdfUrl: if uploaded to Storage
     });

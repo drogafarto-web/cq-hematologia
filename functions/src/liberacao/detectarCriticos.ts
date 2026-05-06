@@ -9,7 +9,7 @@
 
 import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import * as admin from 'firebase-admin';
-import { detectAllCriticos } from './_shared/exameClassifier';
+import { detectAllCriticos, type CriticoMatch } from './_shared/exameClassifier';
 
 const REGION = 'southamerica-east1';
 
@@ -64,7 +64,7 @@ export const detectarCriticos = onDocumentCreated(
       const laudoRef = db.doc(`labs/${labId}/laudos/${laudoId}`);
       batch.update(laudoRef, {
         criticoFlag: true,
-        criticoDetalhes: detectionResult.criticos.map((c) => ({
+        criticoDetalhes: detectionResult.criticos.map((c: CriticoMatch) => ({
           exameId: c.exameId,
           analitoNome: c.threshold.analitoNome,
           valor: c.valor,

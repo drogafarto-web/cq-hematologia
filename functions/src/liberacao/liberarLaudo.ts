@@ -19,8 +19,6 @@ import {
   Laudo,
   LaudoVersion,
   LogicalSignature,
-  LabId,
-  UserId,
   labId as makeLabId,
   userId as makeUserId,
 } from './_shared/types';
@@ -57,7 +55,8 @@ export const liberarLaudo = onCall<unknown, Promise<LiberarLaudoResult>>(
     }
 
     const input = parsed.data as LiberarLaudoInput;
-    const { labId, laudoId, signaturePayload, observacao } = input;
+    const { labId, laudoId, signaturePayload: _signaturePayload, observacao } = input;
+    void _signaturePayload;
 
     // 1. Auth: RT ou RT-Substituto
     const uid = await assertRTAccess(request.auth, labId);

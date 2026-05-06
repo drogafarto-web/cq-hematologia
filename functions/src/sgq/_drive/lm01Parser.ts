@@ -10,8 +10,7 @@
  * Columns: código | tipo | título | versão | setores (pipe-separated) | parent | observações
  */
 
-import { sheets_v4 } from 'googleapis';
-import { Zod as z } from 'zod';
+import { z } from 'zod';
 
 // Document types — extended from Phase 12-01 schema
 export const TipoDocumento = z.enum([
