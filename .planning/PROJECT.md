@@ -1,7 +1,7 @@
 # HC Quality — Sistema CIQ Laboratorial RDC 978
 
 **Project ID:** HC-QUALITY-GSD  
-**Status:** `Milestone v1.2 — Audit Readiness` (2026-05-06)  
+**Status:** `Milestone v1.3 — CAPA Closure + Analytics` (2026-05-06)  
 **Owner:** CTO (usuário principal)  
 **Stack:** React 19 + Vite 6 + Firebase + Cloud Functions Node 22
 
@@ -13,23 +13,24 @@ Implementar HC Quality como sistema world-class de gestão de qualidade laborato
 
 ---
 
-## Current Milestone: v1.2 Audit Readiness
+## Current Milestone: v1.3 CAPA Closure + Analytics Modules
 
-**Goal:** Sistema pronto para sofrer auditoria interna (DICQ 4.3 + RDC 978/2025) em 30 dias e usar o próprio HC Quality como ferramenta para conduzi-la.
+**Goal:** Fechar 12 CAPAs da auditoria interna (Phase 7) + entregar 4 módulos analíticos (Bioquímica, Liberação, Críticos, Reclamações) em paralelo. Atingir ≥90% conformance e preparar para auditoria externa em 2026-08-31.
 
-**Deadline:** 2026-06-05 (30 dias a partir de 2026-05-06)
+**Deadline:** 2026-08-31 (14 semanas) — CAPA closure obrigatório por 2026-08-05
 
-**Target features:**
-- Cleanup do v1.1 (TEMP-IMPLANTACAO rules + Stream C performance docs)
-- Módulo Auditoria Interna (DICQ 1.3 + checklist DICQ 4.3 / RDC 978)
-- LGPD operacional (DPIA, exclusão titular, política exposta)
-- DR formal (plano + teste de restore comprovado)
-- Audit dry-run (auditoria interna real usando o próprio sistema)
+**Target phases:**
+- **Phase 8:** CAPA Closure (12 findings → auditor sign-off)
+- **Phase 9:** Bioquímica (QC quantitativa + Levey-Jennings)
+- **Phase 10:** Liberação (release workflow + RT signature)
+- **Phase 11:** Críticos (critical value escalation + SMS)
+- **Phase 12:** Reclamações (complaint intake + RCA)
 
 **Key context:**
-- Auditor virá contra DICQ 4.3 (SBPC/ML) + RDC 978/2025 (ANVISA) combinados
-- Checklist seed disponível em `Obsidian_Brain/01_Projetos/HC_Quality_Checklist_Auditoria.md` (~115 itens)
-- Não é GA pra clientes pagantes — é audit dry-run interno preparatório
+- Execução paralela: Phase 8 sequencial (CAPA); Phases 9–12 independentes
+- CAPA timeline: 2 Critical (5/30) → 6 High (6/30) → 3 Medium (7/5) → 1 Extended (8/5)
+- Conformance baseline atual: 71.3% → Target: 90%+
+- Auditor externo agendado pós-CAPA (2026-08-31 recomendado)
 
 ---
 
@@ -38,8 +39,9 @@ Implementar HC Quality como sistema world-class de gestão de qualidade laborato
 - **✅ Phase 1 Complete** — All compliance violations blocked (13/13 RDC 978)
 - **✅ Phase 2 Complete** — All 20 core + regulatory modules in production
 - **✅ Milestone v1.1 Complete** — Analytics + Export + Mobile (3 phases, 11/11 plans, 738/738 tests)
-- **🔵 Milestone v1.2 Planning** — Audit Readiness (4 phases, ~30 dias)
-- **Metrics:** 738/738 tests ✓, 59 callables live, 0 RDC violations
+- **✅ Milestone v1.2 Complete** — Audit Readiness (4 phases, 22/24 plans, 71.3% baseline, 12 CAPAs generated)
+- **🔵 Milestone v1.3 Planning** — CAPA Closure + 4 Analytics modules (Phase 8-12)
+- **Metrics:** 800+/800+ tests ✓, 78 callables live, 0 RDC violations, 12 CAPAs awaiting closure
 
 ---
 
@@ -49,8 +51,8 @@ Implementar HC Quality como sistema world-class de gestão de qualidade laborato
 |-----------|--------|-------|--------|
 | **v1.0** | ✅ Complete | Compliance hardening (Phase 1) + 20 core modules (Phase 2) | 2026-04 → 2026-05-04 |
 | **v1.1** | ✅ Complete | Analytics + Export + Mobile (Phase 3.1 → 3.3) | 2026-05-04 → 2026-05-05 |
-| **v1.2** | 🔵 Planning | Audit Readiness (DICQ 4.3 + RDC 978) — 4 phases | 2026-05-06 → 2026-06-05 |
-| **v1.3** | 📋 Backlog | Módulos analíticos restantes (Bioquímica, Liberação laudos, Críticos, Reclamações) + multi-site | Q3 2026 |
+| **v1.2** | ✅ Complete | Audit Readiness (DICQ 4.3 + RDC 978) — 4 phases, 71.3% baseline | 2026-05-06 → 2026-05-06 |
+| **v1.3** | 🔵 Active | CAPA Closure (12 findings) + 4 Analytics modules (parallel) | 2026-05-06 → 2026-08-31 |
 
 ---
 
