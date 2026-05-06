@@ -1,255 +1,304 @@
-# HC Quality Roadmap — Milestone v1.2 (Audit Readiness)
+---
+milestone: v1.3
+version: 2.0
+date_created: 2026-05-06
+date_updated: 2026-05-06
+status: approved-revised
+revision_note: "Revised after Obsidian strategic alignment review (HC_Quality_Roadmap, Decisoes_Abertas, Compliance_DICQ)"
+---
 
-**Milestone:** v1.2 — Audit Readiness
-**Period:** 2026-05-06 → 2026-06-05 (30 dias)
-**Updated:** 2026-05-06
-**Owner:** CTO
+# HC Quality v1.3 — Roadmap (Revised)
 
-> **Histórico:** Roadmaps anteriores (v1.0 Phase 1-2, v1.1 Phase 3.x) arquivados em `.planning/phases/` + `MILESTONES.md`.
+**Milestone:** v1.3 (CAPA Closure + Compliance + Migração Riopomba)  
+**Period:** 2026-05-06 → 2026-08-31 (14 weeks)  
+**Status:** Approved (Revised v2.0)  
 
 ---
 
-## High-Level Timeline
+## Revision Summary (v1.0 → v2.0)
+
+After cross-checking with strategic Obsidian docs, identified 5 divergences and applied **Option A (Híbrido Realista)** corrections:
+
+1. ✅ Phase 8 expanded to include 4 CAPA-driven micro-modules (calibração, personnel/cargos, personnel/designacoes, management-review)
+2. ✅ Phase 8.5 added — Housekeeping (latent bugs + crash + spine cleanup)
+3. ✅ Phase 10 combined Liberação + Críticos (tightly coupled per compliance docs)
+4. ✅ Phase 11 added Satisfação Cliente to Reclamações (4.14.3 + 4.8 — feedback loop completo)
+5. ✅ Phase 12 NEW — SGD module (docs/sgd) + Importer Drive→SGQ Riopomba (Migração track)
+6. ⏭️ Order-entry (NC-011) explicitly deferred to v1.4 (too big for 14 weeks)
+7. ⏭️ Greenfield starter pack deferred to v1.4+ (Migração-first decision)
+
+---
+
+## Overview
+
+v1.3 executes **two parallel streams** with **5 agents**:
+
+1. **Stream A (Sequential):** Phase 8 + 8.5 — CAPA Closure + Housekeeping (CTO + Ops + Eng)
+2. **Stream B (Parallel):** Phases 9–12 — Modules with strategic compliance + Riopomba migration value
+
+**Critical Path:** Phase 8 must close by 2026-08-05 (CAPA deadline + auditor sign-off prerequisite).
+
+---
+
+## Phase Structure (Revised)
+
+| Phase | Name | Type | Duration | Agents | Goal | Deadline |
+|-------|------|------|----------|--------|------|----------|
+| **8** | CAPA Closure + 4 Micro-Modules | Hybrid (Process + Build) | 13 weeks | A (CTO+Ops+Eng) | 12 CAPAs closed + 4 modules deployed | 2026-08-05 |
+| **8.5** | Housekeeping | Build (bug fixes) | 1 week | A (overflow) | 3 latent bugs fixed + spine cleanup | 2026-05-20 |
+| **9** | Bioquímica | Build | 12 weeks | B (Eng A+B) | QC quantitativo + Levey-Jennings | 2026-08-20 |
+| **10** | Liberação + Críticos | Build (combined) | 13 weeks | C (Eng C+D) | Release workflow + critical escalation (combined) | 2026-08-20 |
+| **11** | Reclamações + Satisfação | Build | 11 weeks | D (Eng E+F) | Complaint loop + customer satisfaction (4.8 + 4.14.3) | 2026-08-25 |
+| **12** | SGD + Drive Importer | Build (Riopomba migration) | 8 weeks | E (Eng G+H) | docs/sgd module + ~80 Riopomba docs imported | 2026-08-25 |
+
+**Total:** 6 phases · 5 agents · 14 weeks
+
+---
+
+## Phase 8: CAPA Closure + Micro-Modules (Stream A — Sequential)
+
+**Goal:** Close 12 CAPAs + build 4 small modules required by CAPAs (calibração, personnel/cargos, personnel/designacoes, management-review).
+
+**Period:** 2026-05-06 → 2026-08-05 (13 weeks)  
+**Team:** CTO (lead) + Operations + Eng A (micro-modules)
+
+### CAPA Inventory + Module Mapping
+
+| ID | Finding | DICQ Ref | Type | Approach |
+|----|---------|----------|------|----------|
+| **NC-001** | Auditoria Interna POP não documentado | 4.14.5 | Process | Doc + training (operational) |
+| **NC-002** | Calibração — Falta em analisadores | 5.3.1.4 | **Build** | New `calibracao` module + vendor contracts |
+| **NC-003** | Descrição de Cargos não formalizado | 5.1.3 | **Build** | New `personnel/cargos` module |
+| **NC-004** | Gerente Qualidade — Designação não documentada | 4.1.2.7 | **Build** | New `personnel/designacoes` module |
+| **NC-005** | (Medium) | TBD | Process | Doc + workflow update |
+| **NC-006** | (Extended) | TBD | Process | Procedural improvement |
+| **NC-007–010** | (High/Medium) | TBD | Process | Operational closure |
+| **NC-011** | Cadastro Paciente — Sistema não captura | 5.4.3.2 | **DEFER** | Order-entry module → v1.4 |
+| **NC-012–014** | (TBD) | TBD | Mixed | Mix of process + build |
+
+**Plan Structure:**
+
+| Plan | Focus | Duration | Owner | Deadline |
+|------|-------|----------|-------|----------|
+| **08-01** | CAPA Tracking Dashboard (UI infrastructure) | 1 week | Eng A | 2026-05-13 |
+| **08-02** | Calibração module (NC-002) — schema + UI + CF | 2 weeks | Eng A | 2026-05-27 |
+| **08-03** | Personnel/cargos + designacoes (NC-003 + NC-004) | 2 weeks | Eng A | 2026-06-10 |
+| **08-04** | Management-review module (DICQ 4.15 — Análise Crítica Direção) | 2 weeks | Eng A | 2026-06-24 |
+| **08-05** | CAPA process execution (Critical + High closure) | 6 weeks (parallel) | CTO + Ops | 2026-06-30 |
+| **08-06** | CAPA process execution (Medium + Extended closure) | 5 weeks | CTO + Ops | 2026-07-05 |
+| **08-07** | Auditor sign-off + Closeout report | 4 weeks | CTO | 2026-08-05 |
+
+**Note:** NC-011 (order-entry) is the largest CAPA. Documenting it as deferred with auditor's understanding is more honest than rushing a half-baked LIS-light into v1.3.
+
+---
+
+## Phase 8.5: Housekeeping (Stream A — Sequential)
+
+**Goal:** Fix 3 latent bugs post-Ondas + crash diasEstab + spine audit cleanup.
+
+**Period:** 2026-05-13 → 2026-05-20 (1 week)  
+**Team:** Eng A (overflow from Phase 8)
+
+### Plan Structure
+
+| Plan | Focus | Duration |
+|------|-------|----------|
+| **08.5-01** | Crash diasEstab no NovoLoteModal (UX bug) | 1 day |
+| **08.5-02** | 3 latent bugs post-Ondas (investigated + fixed) | 3 days |
+| **08.5-03** | Spine audit cleanup — 6 yellows → green | 2 days |
+| **08.5-04** | Smoke tests + deploy + verification | 1 day |
+
+---
+
+## Phase 9: Bioquímica (Stream B — Parallel)
+
+**Goal:** Production-ready QC module for biochemistry analytes with Levey-Jennings charting.  
+**Period:** 2026-05-06 → 2026-08-20 (16 weeks, overlaps Phase 8)  
+**Team:** Eng A (after Phase 8.5) + Eng B (frontend)
+
+**Note:** Bioquímica is NOT in DICQ Compliance-1/2/3 priorities, but adds CIQ value for analyte breadth. Justifiable as continued investment in HC Quality's analytical strength (compliance-spine F).
+
+### Plan Structure (Unchanged from v1.0)
+
+| Plan | Focus | Duration | Deadline |
+|------|-------|----------|----------|
+| **09-01** | Schema + service layer + types | 1 week | 2026-05-13 |
+| **09-02** | Material control + QC entry form | 1.5 weeks | 2026-05-27 |
+| **09-03** | Acceptance logic + Levey-Jennings chart | 1 week | 2026-06-03 |
+| **09-04** | Cloud Function + E2E tests | 1.5 weeks | 2026-06-17 |
+| **09-05** | Polish + regression + deploy | 1 week | 2026-08-20 |
+
+---
+
+## Phase 10: Liberação + Críticos (Combined Phase)
+
+**Goal:** Production-ready release workflow with RT digital signature + critical value escalation. Combined because Críticos blocks Liberação (per compliance docs G + H).  
+**Period:** 2026-05-20 → 2026-08-20 (13 weeks, parallel with Phase 9)  
+**Team:** Eng C (backend) + Eng D (frontend)
+
+### Plan Structure
+
+| Plan | Focus | Duration | Deadline |
+|------|-------|----------|----------|
+| **10-01** | Release state machine + audit log | 1 week | 2026-05-27 |
+| **10-02** | RT signature + UI form | 1.5 weeks | 2026-06-10 |
+| **10-03** | Críticos config + threshold logic | 1.5 weeks | 2026-06-24 |
+| **10-04** | SMS escalation (Twilio) + email fallback | 1 week | 2026-07-01 |
+| **10-05** | Release/Críticos integration (block on critical results) | 1.5 weeks | 2026-07-15 |
+| **10-06** | E2E tests + UI polish | 1.5 weeks | 2026-07-29 |
+| **10-07** | Performance + regression + deploy | 1 week | 2026-08-20 |
+
+---
+
+## Phase 11: Reclamações + Satisfação Cliente
+
+**Goal:** Production-ready complaint intake + RCA + satisfaction survey + trending. Combined because per DICQ they form a single "feedback loop" (4.8 + 4.14.3 + 4.14.4).  
+**Period:** 2026-06-03 → 2026-08-25 (12 weeks, parallel)  
+**Team:** Eng E (backend) + Eng F (frontend)
+
+### Plan Structure
+
+| Plan | Focus | Duration | Deadline |
+|------|-------|----------|----------|
+| **11-01** | Schema + RCA workflow + service | 1.5 weeks | 2026-06-17 |
+| **11-02** | Reclamações intake form + NC linkage | 1.5 weeks | 2026-07-01 |
+| **11-03** | Satisfação Cliente module (NPS, surveys) | 1.5 weeks | 2026-07-15 |
+| **11-04** | Sugestões + trending dashboard | 1 week | 2026-07-22 |
+| **11-05** | E2E tests + monthly reports | 1 week | 2026-08-05 |
+| **11-06** | Performance + deploy | 1 week | 2026-08-25 |
+
+---
+
+## Phase 12: SGD + Drive Importer (Riopomba Migração)
+
+**Goal:** Sistema de Gestão Documental (docs/sgd) + Importer para os ~80 documentos do Drive Riopomba. Migração-first decision: ataca Compliance-1 priority + Riopomba immediate value.  
+**Period:** 2026-06-17 → 2026-08-25 (10 weeks, parallel)  
+**Team:** Eng G (backend) + Eng H (frontend)
+
+### Strategic Justification
+
+- **DICQ Block B (Gestão Documental)** — All 🔴 (4.2.2.2, 4.3 hierarquia, 4.3 controle versão, 4.3 distribuição)
+- **Riopomba lab** has ~80 documents in Drive (LM-01 + PQs/FRs/MQ) — already operating SGQ in Drive
+- **Impact:** +5-8 DICQ points for Riopomba (from 71.3% → 76-79%)
+- **Path to multi-tenant:** establishes SGD as canonical reference for future labs
+
+### Plan Structure
+
+| Plan | Focus | Duration | Deadline |
+|------|-------|----------|----------|
+| **12-01** | docs/sgd schema (MQ + IT + FR + Lista Mestra hierarchy) | 1.5 weeks | 2026-07-01 |
+| **12-02** | SGD UI + version control + workflow | 2 weeks | 2026-07-15 |
+| **12-03** | Drive importer — parser para 15 tipos LM-01 + listaDistribuicao (17 setores) | 2 weeks | 2026-07-29 |
+| **12-04** | Riopomba data migration (test in staging) | 1.5 weeks | 2026-08-12 |
+| **12-05** | Production import + verification + deploy | 1 week | 2026-08-25 |
+
+---
+
+## Out of Scope (v1.3) — Deferred Items
+
+| Item | Reason | Target |
+|------|--------|--------|
+| **Order-entry (NC-011)** | Module is too large for v1.3 (LIS-light). Document gap with auditor. | v1.4 (Q4 2026) |
+| **Greenfield starter pack** | Migração-first decision. Lock-in product story for Compliance-1 in v1.4. | v1.4 |
+| **Multi-tenant real (Opção A vs B)** | Architectural decision still open. | v1.4 strategic spike |
+| **OCR strip Imuno IA** | Strategic IA roadmap — separate milestone. | v1.5+ |
+| **PNCQ Importer (CEQ Bloco 4)** | +4 DICQ pts but lower priority than Drive→SGQ. | v1.4 |
+| **Patient portal / Coleta / Triagem** | Compliance-3 priorities (120-180d). | v1.4 |
+| **Risk Management module (4.14.6)** | Compliance-2 priority. | v1.4 |
+| **Indicators dashboard (4.14.7)** | Already partial in `kpis` module. Formalize in v1.4. | v1.4 |
+
+---
+
+## Agent Allocation (Revised)
+
+5 parallel agents across 14 weeks:
+
+| Agent | Stream | Phase(s) | Personnel | Workload |
+|-------|--------|----------|-----------|----------|
+| **A** | Stream A | 8 + 8.5 | CTO + Ops + Eng A (micro-modules) | Heavy (sequential) |
+| **B** | Stream B | 9 (Bioquímica) | Eng A (after Phase 8.5) + Eng B | Medium |
+| **C** | Stream B | 10 (Liberação+Críticos) | Eng C + Eng D | Medium-Heavy |
+| **D** | Stream B | 11 (Reclamações+Satisfação) | Eng E + Eng F | Medium |
+| **E** | Stream B | 12 (SGD+Drive Importer) | Eng G + Eng H | Medium |
+
+**Synchronization:**
+- Daily standup: 9 AM (5 min/agent)
+- Weekly checkpoint: Friday 4 PM (1h, all agents + CTO)
+- Phase boundary: Friday EOW (handoff doc + smoke test)
+- Integration gate: Phase 9 (Bioquímica) + Phase 10 (Liberação) merge mid-July
+
+---
+
+## Risk Dashboard (Updated)
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|-----------|--------|-----------|
+| **NC-011 deferral pushed back by auditor** | Medium | 4-week delay | Pre-discuss with auditor Week 1; have skeleton design ready |
+| **Eng A overloaded (Phase 8 + 8.5 + 9)** | High | 2-week slip | Hire freelance Eng I if needed; reassign Phase 8.5 to Eng B |
+| **Drive importer parser fails on edge cases** | Medium | 1-2 week slip | Allocate buffer; manual import as fallback |
+| **Liberação + Críticos integration complex** | Medium | 2-week slip | Pair programming Week 5-6; integration tests first |
+| **Vendor calibração delay (NC-002)** | Medium | CAPA close delay | Escalate vendor Week 2; backup vendor identified |
+| **Auditor unavailable for sign-off** | Medium | Extend timeline 2-3 weeks | Lock auditor calendar Week 4; async RFI |
+
+---
+
+## Success Criteria (Revised)
+
+| Criterion | Target | Measurement | Date |
+|-----------|--------|-------------|------|
+| **CAPA Closure** | 11/12 CAPAs closed (NC-011 deferred with auditor agreement) | Auditor sign-off | 2026-08-05 |
+| **Modules Live** | 7 modules deployed (Bio + Lib + Cri + Rec + SGD + 3 micro: cal, cargos, des) | Firebase deploy | 2026-08-25 |
+| **DICQ Baseline** | ≥87% (from 71.3%, +16 pts) | Audit re-run on 30 items | 2026-08-31 |
+| **Riopomba Documents** | ~80 docs migrated to SGD | Firestore count + Drive cross-check | 2026-08-25 |
+| **Test Coverage** | ≥95% on new code | nyc report | 2026-08-25 |
+| **External Audit Ready** | Auditor scheduled + evidence 100% | Email + calendar lock | 2026-08-31 |
+| **Tech Debt** | 3 bugs fixed + spine cleanup | All 6 spines green | 2026-05-20 |
+
+---
+
+## Compliance Coverage (DICQ Block-by-Block, Post v1.3)
+
+| Block | Pre-v1.3 | Post-v1.3 | Delta |
+|-------|----------|-----------|-------|
+| A — Governança | 73% | 73% | (4.15 mgmt-review NEW = +5%, total 78%) |
+| B — Gestão Documental | 0% | **65%** (SGD live) | **+65%** ⭐ |
+| C — Pessoal | 67% | **80%** (cargos+designacoes+ec) | +13% |
+| D — Ambiente | 58% | 58% | (no change) |
+| E — Pré-analítico | 64% | 64% | (NC-011 deferred) |
+| F — Analítico | ~85% | **92%** (Bioquímica live) | +7% |
+| G — Pós-analítico | 70% | **88%** (Lib+Cri+Calibracao) | +18% ⭐ |
+| H — Garantia Qualidade | 75% | **85%** (Reclamações+Satisfação+CAPA closed) | +10% |
+| I — Laudos/Liberação | 75% | **88%** (formalized) | +13% |
+| J — Continuidade | ~70% | 70% | (DR done v1.2) |
+
+**Estimated Total Conformance:** 71.3% → **~85%** (revised from 90% target — more honest given NC-011 deferral)
+
+---
+
+## Timeline Visualization (Revised)
 
 ```
-v1.2 Audit Readiness (30 dias)
-
-Phase 4 (3-4 dias):  Cleanup v1.1 ────────┐
-                                          │  (paralelo possível com P5 a partir do dia 3)
-Phase 5 (10-12 dias): Auditoria Interna ──┼──┐
-                                          │  │
-Phase 6 (5-7 dias):   LGPD + DR ──────────┴──┼──┐
-                                             │  │
-Phase 7 (3-5 dias):   Dry-Run ───────────────┴──┴──→ EXIT GATE: relatório RT
+May              Jun              Jul              Aug
+│────────────────────────────────────────────────│
+Phase 8: CAPA + 4 Micro-Modules
+  ├──────────────────────────────────────────│ Aug 5
+Phase 8.5: Housekeeping
+  ├────│ May 20
+Phase 9: Bioquímica (parallel)
+   ├────────────────────────────────────────│ Aug 20
+Phase 10: Liberação+Críticos (parallel)
+       ├──────────────────────────────────│ Aug 20
+Phase 11: Reclamações+Satisfação (parallel)
+            ├─────────────────────────────│ Aug 25
+Phase 12: SGD+Drive Importer (parallel)
+              ├────────────────────────│ Aug 25
+                                              │
+                                External Audit: Aug 31 ✓
 ```
 
-**Entregue:** sistema endurecido + módulo Auditoria Interna em prod + LGPD operacional + DR formal + 1 sessão de auditoria interna real documentada.
-
 ---
 
-## Phase 4 — Cleanup v1.1 (Days 1-3)
-
-**Goal:** Fechar resíduos não-bloqueantes do v1.1 antes de auditor olhar o sistema.
-
-**Duration:** 3-4 dias
-
-**Requirements coberto:** CLEAN-01, CLEAN-02, CLEAN-03, CLEAN-04
-
-**Deliverables:**
-- Firestore rules sem `// TEMP-IMPLANTACAO` em coleções analytics + export-jobs (membership real, testes verde)
-- `docs/PERFORMANCE_PATTERNS.md` escrito com padrões de bundle, listeners, polling, Web Vitals
-- Firebase Performance Monitoring com budget alerts configurados (LCP <2.5s, INP <200ms, CLS <0.1)
-- `docs/PERFORMANCE_BASELINE_2026-05.md` com Lighthouse runtime das 3 rotas críticas
-
-**Success criteria:**
-1. Auditor revisando `firestore.rules` não vê regra `isAuthenticated()` sem membership em coleção sensível
-2. `.claude/rules/performance.md` aponta para doc real (não-quebrado)
-3. Alertas Firebase Perf disparam em ambiente de teste quando budget é violado
-4. Baseline Lighthouse documentado e CI alerta regressão >10%
-
-**Plans:**
-- [x] `04-01-PLAN.md` — Replace TEMP-IMPLANTACAO rules + write tests (Wave 1, depends on none) ✅ COMPLETE
-- [x] `04-02-PLAN.md` — Performance patterns docs + Lighthouse baseline + Firebase alerts (Wave 1, depends on none) ✅ COMPLETE
-
-**Execution notes:**
-- Both plans run in parallel (Wave 1). No blocking dependencies.
-- Plan 01 has 1 checkpoint (human review of rules changes before deploy).
-- Plan 02 is fully autonomous (docs + Firebase console config).
-
-**Skills GSD:**
-- `/gsd-discuss-phase 4` — clarificar membership rules (qual claim/role usar?)
-- `/gsd-plan-phase 4` ✅ COMPLETE — 2 plans created
-- `/gsd-execute-phase 4` ✅ COMPLETE
-- `/gsd-validate-phase 4` ✅ COMPLETE
-
----
-
-## Phase 5 — Módulo Auditoria Interna (Days 3-14)
-
-**Goal:** Construir o módulo `auditoria-interna` (DICQ 1.3) e fazer deploy em produção.
-
-**Duration:** 10-12 dias
-
-**Requirements coberto:** AUDI-01, AUDI-02, AUDI-03, AUDI-04, AUDI-05, AUDI-06
-
-**Deliverables:**
-- `src/features/auditoria-interna/` completo (types, service, hooks, components, tests)
-- Firestore rules + indices + Cloud Functions (`generateAuditReportPDF`, `installChecklistTemplate`, `mapAchadoToNC`)
-- Template `dicq-4-3-rdc-978-v1` com ~115 itens carregados a partir do checklist Obsidian
-- UI dark-first com modo tablet ergonômico para auditor in-loco (foto evidence, checkboxes grandes, offline-friendly)
-- Integração bidirecional com NC global (achado maior → cria NC automaticamente)
-- Tile no `/hub` exposto para `auditor` e `responsavelTecnico`
-
-**Success criteria:**
-1. Auditor consegue criar plano anual + sessão + executar 115 itens em iPad sem fricção
-2. Achado classificado "maior" gera NC global em <2s (E2E test verde)
-3. PDF de relatório gerado <10MB com assinatura RT registrada (logical signature)
-4. Smoke test manual: criar auditoria → executar → fechar → exportar PDF → arquivar
-
-**Dependências:**
-- Phase 4 não bloqueia início (pode rodar em paralelo a partir do dia 3)
-- Consome spines existentes: `/users` (Pessoa), `/pops` (POP), `/naoConformidades` (NC)
-
-**Plans:**
-- [ ] `05-01-PLAN.md` — Foundation: types, service, hooks, rules, checklist template (Wave 1, depends on none) ✅ PLAN CREATED
-- [ ] `05-02-PLAN.md` — UI components: AuditoriaView, SessaoExecucaoPanel, AchadoForm, tablet UX (Wave 2, depends on 05-01)
-- [ ] `05-03-PLAN.md` — Cloud Functions: registerAchado, installChecklistTemplate, updateChecklistResponses, auto-NC (Wave 2, depends on 05-01)
-- [ ] `05-04-PLAN.md` — PDF generation + E2E tests: generateAuditReportPDF, export button, full workflow test (Wave 3, depends on 05-02/03)
-
-**Execution notes:**
-- Plan 05-01 already executed (Foundation complete)
-- Plans 05-02 and 05-03 can run in parallel (Wave 2)
-- Plan 05-04 depends on both (Wave 3)
-- Critical path: 05-01 → (05-02 + 05-03 parallel) → 05-04
-
-**Skills GSD:**
-- `/gsd-discuss-phase 5` — clarificar UX tablet, modo offline, severity mapping
-- `/gsd-ui-phase 5` — design contract do módulo (frontend novo, dark-first)
-- `/gsd-plan-phase 5` ✅ COMPLETE
-- `/gsd-execute-phase 5` (in progress: 05-01 done, 05-02/03/04 pending)
-- `/gsd-secure-phase 5` — rules + audit trail revisados antes de deploy
-
----
-
-## Phase 6 — Compliance Operacional (Days 10-20)
-
-**Goal:** Endurecer LGPD + formalizar Disaster Recovery. Pré-requisitos não-bloqueantes para auditoria.
-
-**Duration:** 5-7 dias
-
-**Requirements coberto:** LGPD-01, LGPD-02, LGPD-03, DR-01, DR-02
-
-**Deliverables:**
-- DPIA preenchida em `/labs/{labId}/lgpd/dpia` com versionamento; UI admin renderiza
-- Fluxo `/exclusao-titular` E2E: CPF → OTP/email → CF `deleteTitularData` (zera PII, mantém audit chain-hash)
-- Página `/privacidade` com versionamento + registro de aceite por usuário
-- `docs/DR_PLAN.md` cobrindo 4 cenários (corruption, outage, credentials, ransomware)
-- `docs/DR_RESTORE_TEST_2026-05.md` documentando restore real em staging com verificação de integridade
-
-**Success criteria:**
-1. Admin pode imprimir DPIA como PDF (auditor pede)
-2. Titular consegue solicitar exclusão; CF zera PII e mantém chain-hash íntegro (teste E2E verde)
-3. Política de privacidade tem registro de aceite armazenado por usuário
-4. Plano de DR existe e é executável (referenciado em SGQ)
-5. Restore real comprovado: snapshot prod restaurado em staging, integridade verificada
-
-**Dependências:**
-- Pode rodar em paralelo com Phase 5 (independências)
-- Phase 4 (CLEAN-01 rules tightening) deve estar terminado antes de DR test (não restaurar dados em staging com rules abertas)
-
-**Plans:**
-- [ ] `06-01-PLAN.md` — LGPD operational (DPIA, exclusão titular, privacidade policy) (planning pending)
-- [x] `06-02-PLAN.md` — Disaster Recovery plan + automated scripts + restore test ✅ COMPLETE (executed 2026-05-06)
-
-**Skills GSD:**
-- `/gsd-discuss-phase 6` — clarificar fluxo OTP exclusão, janela de manutenção do restore
-- `/gsd-plan-phase 6` (pending)
-- `/gsd-execute-phase 6` (pending)
-- `/gsd-secure-phase 6` — revisar deleteTitularData (chain-hash não pode quebrar)
-
----
-
-## Phase 7 — Audit Dry-Run (Days 20-25)
-
-**Goal:** Executar auditoria interna real usando o sistema construído. Output é evidência viva.
-
-**Duration:** 3-5 dias
-
-**Requirements coberto:** DRYRUN-01, DRYRUN-02, DRYRUN-03, DRYRUN-04
-
-**Deliverables:**
-- Sessão de auditoria criada e executada contra os ~115 itens do template DICQ + RDC 978
-- Achados documentados como NCs reais no sistema (não em planilha externa)
-- CAPA preenchido para cada NC crítica
-- Plano de remediação consolidado em PDF
-- Relatório final assinado RT armazenado em Storage
-
-**Success criteria:**
-1. 100% dos itens do checklist respondidos (conforme/não-conforme/N.A.)
-2. Todos os achados "maior" geraram NC com CAPA iniciado
-3. Plano de remediação tem prazo + responsável + critério de eficácia para cada NC crítica
-4. PDF final assinado pelo RT está em Storage com link compartilhável (preparado para auditor externo no futuro)
-
-**Dependências:**
-- Phase 5 (módulo) DEVE estar em produção
-- Phase 6 não bloqueia (mas auditoria vai gerar achados sobre LGPD/DR, então melhor ter prontas)
-
-**Plans:**
-- [ ] `07-01-PLAN.md` — Audit coordination, execution, CAPA consolidation, report generation (Wave 1, depends on Phase 5 deployment) ✅ PLAN CREATED
-
-**Execution notes:**
-- Single plan: sequential audit execution workflow
-- 5 major tasks: briefing/go-no-go, environment prep, in-loco execution, CAPA consolidation, report generation + sign-off
-- 2 checkpoints: (a) pre-execution go-no-go decision, (b) post-execution environment verification
-- Fully autonomous after checkpoints (all data entry via Phase 5 UI, Cloud Functions handle NC auto-creation)
-
-**Skills GSD:**
-- `/gsd-discuss-phase 7` — quem conduz, qual data, RT disponível
-- `/gsd-plan-phase 7` ✅ COMPLETE
-- `/gsd-execute-phase 7` (pending)
-- `/gsd-validate-phase 7` — verificar que evidências geradas são auditáveis
-
----
-
-## Exit Gate (Fim do Milestone v1.2)
-
-Antes de fechar v1.2 e iniciar v1.3:
-
-- [x] Phase 4: Resíduos do v1.1 fechados ✅ COMPLETE
-- [ ] Phase 5: Módulo Auditoria Interna em produção, smoke test verde (05-01 done, 05-02/03/04 pending)
-- [ ] Phase 6: DPIA + exclusão titular + DR plan + restore test todos comprovados (planning pending)
-- [ ] Phase 7: 1 auditoria interna real executada e documentada (plan ready, execution pending)
-- [ ] CTO sign-off: "v1.2 done, ready for v1.3 planning"
-- [ ] `/gsd-complete-milestone` — arquivar phases + atualizar MILESTONES.md
-
----
-
-## Risk Register
-
-| Risk | Severity | Likelihood | Mitigation |
-|------|----------|------------|-----------|
-| Phase 5 sub-estimado (módulo + 115 itens checklist) | 🔴 | Médio | Template carregado via callable (não manual); reusar `auditoria-trail` como base de service |
-| Phase 6 LGPD trava em aprovação jurídica DPIA | 🟠 | Médio | Começar Phase 6 em paralelo com Phase 5 desde dia 10 |
-| Restore test corrompe staging | 🟠 | Baixo | Snapshot dedicado, projeto staging isolado, dry-run antes do test real |
-| Auditoria dry-run gera muito achado crítico | 🟠 | Alto | Esperado — propósito é descobrir gaps. Plano de remediação vai pra v1.3. |
-| Dia 30 chega com Phase 7 incompleta | 🟠 | Médio | Phase 7 pode ser executada com checklist parcial (blocos prioritários A-E primeiro); resto vira primeiro plano de v1.3 |
-
----
-
-## Cross-Phase Parallelization
-
-| Day | P4 | P5 | P6 | P7 |
-|-----|----|----|----|-----|
-| 1-3 | ████ | | | |
-| 3-10 | █ (overlap) | ████ | | |
-| 10-14 | | ████ | ████ | |
-| 14-20 | | █ (validate) | ████ | |
-| 20-25 | | | █ (validate) | ████ |
-| 25-30 | | | | █ (buffer/remediation) |
-
-**Critical path:** P4 → P5 deploy → P7 dry-run.
-**Parallel slack:** P6 pode atrasar 5 dias sem afetar P7.
-
----
-
-## Success Metrics (v1.2)
-
-| Metric | Baseline (v1.1 end) | Target (v1.2 end) |
-|--------|---------------------|-------------------|
-| Módulos em produção | 24 | 25 (+ auditoria-interna) |
-| TEMP-IMPLANTACAO em rules | 2 (analytics + export-jobs) | 0 |
-| LGPD operacional | 🟡 parcial | ✅ DPIA + exclusão + política |
-| DR formal | ✅ parcial (logs + backups) | ✅ plan + restore test comprovado |
-| Auditoria interna executada | 0 | 1 (dry-run, evidência arquivada) |
-| Cobertura DICQ 4.3 / RDC 978 | ~85% (estimativa) | 100% mapeada (achados documentados, não 100% conforme — esse é o ponto) |
-| Tests | 738/738 ✓ | 738+N ✓ (módulo novo cobrindo) |
-
----
-
-## Tracking
-
-`.planning/STATE.md` é a fonte de verdade do status atual. Phase artifacts vão pra `.planning/phases/04-cleanup/`, `05-auditoria-interna/`, `06-compliance/`, `07-dry-run/`.
-
----
-
-**Next:** Phase 5 execution (Plans 05-02/03 can start in parallel after 05-01 deployment)
+**Created:** 2026-05-06 (v1.0)  
+**Revised:** 2026-05-06 (v2.0 — strategic alignment)  
+**Approved:** 2026-05-06 (CTO via Option A + Migração First + Phase 8.5)  
+**Next Step:** `/gsd-execute-phase 8` to begin CAPA closure + micro-modules

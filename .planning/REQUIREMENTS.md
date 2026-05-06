@@ -1,187 +1,300 @@
-# HC Quality — Milestone v1.2 Requirements (Audit Readiness)
+---
+milestone: v1.3
+phase: planning
+version: 1.0
+date_created: 2026-05-06
+status: approved
+---
 
-**Milestone:** v1.2 — Audit Readiness
-**Created:** 2026-05-06
-**Deadline:** 2026-06-05 (30 dias)
-**Owner:** CTO
+# HC Quality v1.3 — Requirements
+
+**Milestone:** v1.3 (CAPA Closure + Módulos Analíticos)  
+**Period:** 2026-05-06 → 2026-08-31  
+**Status:** Approved  
+**Owner:** CTO + Engineering
 
 ---
 
-## Goal
+## Core Goals
 
-Sistema pronto para sofrer auditoria interna (DICQ 4.3 + RDC 978/2025) em 30 dias, e usar HC Quality como ferramenta para conduzi-la.
-
----
-
-## v1.2 Active Requirements
-
-### CLEAN — Cleanup do v1.1
-
-Resíduos não-bloqueantes do milestone anterior. Tornam-se débito técnico se não fechados antes de auditoria.
-
-- [ ] **CLEAN-01:** Substituir `// TEMP-IMPLANTACAO` em `firestore.rules` por membership real para coleções `analytics` e `export-jobs`
-  - **Acceptance:** auditor revisando rules não vê regra `isAuthenticated()` em coleção sensível; testes de rules cobrem deny para non-member
-  - **Mapeamento DICQ:** 4.4 (controle de acesso)
-
-- [ ] **CLEAN-02:** Escrever `docs/PERFORMANCE_PATTERNS.md` cobrindo os padrões já referenciados em `.claude/rules/performance.md` (bundle, listeners, polling, Web Vitals)
-  - **Acceptance:** doc existe; referência cruzada com `.claude/rules/performance.md` funcional; cada padrão tem exemplo + anti-pattern
-  - **Mapeamento DICQ:** 4.3 (documentação)
-
-- [ ] **CLEAN-03:** Configurar Firebase Performance Monitoring budget alerts (LCP <2.5s, INP <200ms, CLS <0.1) no console
-  - **Acceptance:** alertas disparam em ambiente de testes quando budget é violado; print/screenshot anexada como evidência
-  - **Mapeamento DICQ:** N/A (qualidade interna)
-
-- [ ] **CLEAN-04:** Capturar baseline Lighthouse runtime contra produção (3 rotas críticas: Hub, CIQ Run, Analytics)
-  - **Acceptance:** baseline scores documentados em `docs/PERFORMANCE_BASELINE_2026-05.md`; CI alerta regressão >10%
-  - **Mapeamento DICQ:** N/A (qualidade interna)
+1. **Close 12 CAPAs** from Phase 7 audit dry-run (RFI resolution, evidence upload, auditor sign-off by 2026-08-05)
+2. **Deliver 4 independent analytics modules** (Bioquímica, Liberação, Críticos, Reclamações) in parallel
+3. **Achieve 90%+ compliance baseline** (from 71.3%) and prepare for external audit (target: 2026-08-31)
 
 ---
 
-### AUDI — Módulo Auditoria Interna (DICQ 1.3)
+## Compliance Context
 
-Módulo novo. Consome spines `/users` (Pessoa), `/pops` (POP), `/naoConformidades` (NC). Não cria spine nova.
+**Audit Findings (Phase 7 Dry-Run):**
+- 12 Critical Findings (NCM) requiring CAPA
+- 18 Minor Findings (NCm)
+- 3 N.A. items
+- **Current Baseline:** 71.3% conformance (82/115 items)
 
-- [ ] **AUDI-01:** Schema `/labs/{labId}/auditorias-internas` com entidades `Auditoria`, `Sessao`, `ChecklistItem`, `Achado`
-  - **Acceptance:** TypeScript types em `src/features/auditoria-interna/types/`; Firestore rules deny por padrão; service layer com CRUD soft-delete
-  - **Mapeamento DICQ:** 1.3 / RDC 978 5.4
+**CAPA Closure Timeline:**
+| Priority | Count | Deadline | Owner | Phase |
+|----------|-------|----------|-------|-------|
+| Critical | 2 | 2026-05-30 | CTO + Ops | Phase 8 (Week 1) |
+| High | 6 | 2026-06-30 | Team | Phase 8 (Week 4) |
+| Medium | 3 | 2026-07-05 | Team | Phase 8 (Week 5) |
+| Extended | 1 | 2026-08-05 | Team | Phase 8 (Week 13) |
 
-- [ ] **AUDI-02:** Carregar checklist DICQ 4.3 + RDC 978 como template (seed via `Obsidian/HC_Quality_Checklist_Auditoria.md`, ~115 itens)
-  - **Acceptance:** template `dicq-4-3-rdc-978-v1` instalável via callable; itens organizados por bloco DICQ (A-J); referência cruzada com requisito normativo
-  - **Mapeamento DICQ:** 1.3 + cobertura total
-
-- [ ] **AUDI-03:** Achado de auditoria abre NC global automaticamente (severity-mapped: maior/menor/observação)
-  - **Acceptance:** quando achado é classificado como "não conforme maior", CF cria NC com `origem: "auditoria-interna"` e link bidirecional; teste E2E coberto
-  - **Mapeamento DICQ:** 1.2 + 1.3 (ponto único de tratamento)
-
-- [ ] **AUDI-04:** Plano anual de auditoria — frequência, áreas, responsáveis, calendário
-  - **Acceptance:** UI para criar plano anual; alertas de auditoria próxima (30d, 7d); calendário visual
-  - **Mapeamento DICQ:** 1.3 (planejamento)
-
-- [ ] **AUDI-05:** Relatório PDF da sessão de auditoria (Cloud Function `generateAuditReportPDF`)
-  - **Acceptance:** PDF gerado com cabeçalho lab + checklist completo + achados + assinatura RT (logical signature); compressão <10MB; armazenado em Storage 5 anos
-  - **Mapeamento DICQ:** 1.3 (evidência)
-
-- [ ] **AUDI-06:** UI dark-first compatível com tablet (auditor in-loco)
-  - **Acceptance:** smoke teste em iPad/Android tablet 10"; checkboxes ergonômicos; foto evidence (camera ou upload); modo offline-friendly
-  - **Mapeamento DICQ:** N/A (UX)
+**External Audit Readiness:** 2026-08-31 (post-CAPA closure with 2-week buffer)
 
 ---
 
-### LGPD — Compliance Operacional LGPD
+## Phase 8: CAPA Closure & Auditor Engagement
 
-Endurecimento da operação LGPD. Spines existentes (cpfHash, audit log) já estão prontas.
+### Requirements
 
-- [ ] **LGPD-01:** DPIA (Data Protection Impact Assessment) preenchida no sistema, exposta a admin
-  - **Acceptance:** Documento DPIA em `/labs/{labId}/lgpd/dpia` com versionamento; UI admin renderiza completo; print/PDF exportável
-  - **Mapeamento:** LGPD Art. 38
+**CAPA-01: RFI Processing** (Auditor Request for Information)
+- [ ] Auditor sends formal RFI letter (email or video call)
+- [ ] Evidence gathering per NC (photos, certificates, policies, logs)
+- [ ] Response document compilation (max 10 business days per RFI)
+- [ ] Acceptance: All 12 RFIs tracked in Firestore, evidence complete, zero missing items
 
-- [ ] **LGPD-02:** Fluxo de exclusão por solicitação do titular — E2E testado
-  - **Acceptance:** rota `/exclusao-titular` aceita CPF, valida via OTP/email, dispara CF `deleteTitularData` que zera campos PII e mantém audit; teste E2E coberto
-  - **Mapeamento:** LGPD Art. 18 (direitos do titular)
+**CAPA-02: Evidence Upload & Chain-Hash**
+- [ ] Photos/documents uploaded to Cloud Storage `/labs/{labId}/auditoria-evidencia/capa-{ncId}/`
+- [ ] Firestore records linked with immutable signatures (LogicalSignature)
+- [ ] Archive retention: 5 years minimum (RDC 978 5.6)
+- [ ] Acceptance: 100% chain-hash validation pass, audit trail complete
 
-- [ ] **LGPD-03:** Política de privacidade exposta no UI (rodapé + página dedicada)
-  - **Acceptance:** rota `/privacidade` renderiza versão atual; versionamento (v1.0, v1.1...); registro de aceite por usuário
-  - **Mapeamento:** LGPD Art. 9 (transparência)
+**CAPA-03: Status Tracking UI**
+- [ ] Dashboard showing all 12 CAPAs with status (Open → In Progress → Evidence Submitted → Auditor Reviewing → Closed)
+- [ ] Deadline indicators (on-track, at-risk, overdue)
+- [ ] Evidence count per NC (photos, files, sign-offs)
+- [ ] Acceptance: UI deployed, real-time updates from Firestore, zero stale data
 
----
-
-### DR — Disaster Recovery Formal
-
-Plano formal + comprovação de teste. RDC 978 exige.
-
-- [ ] **DR-01:** Plano de DR documentado em `docs/DR_PLAN.md` (RTO, RPO, runbooks, escalation, dependências)
-  - **Acceptance:** doc cobre cenários: corruption Firestore, outage GCP, perda credenciais, ataque ransomware; referenciado em SGQ
-  - **Mapeamento:** RDC 978 5.6 (continuidade)
-
-- [ ] **DR-02:** Teste de restore comprovado (1 execução em ambiente staging)
-  - **Acceptance:** snapshot real de produção restaurado em projeto staging; verificação de integridade (chain-hash, contagens); relatório anexado a `docs/DR_RESTORE_TEST_2026-05.md`
-  - **Mapeamento:** RDC 978 5.6
+**CAPA-04: Auditor Sign-Off & Closeout**
+- [ ] Virtual or on-site auditor review of evidence (1 meeting)
+- [ ] Sign-off via email or digital signature (LogicalSignature)
+- [ ] Closeout report: baseline before/after, compliance % gain, process improvements logged
+- [ ] Acceptance: All 12 CAPAs signed off, closeout report archived
 
 ---
 
-### DRYRUN — Audit Dry-Run
+## Phases 9–12: Analytics Modules (Independent, Parallelizable)
 
-Aplicação real do módulo construído. Output é evidência viva para auditoria futura.
+**Execution Strategy:** 4 phases run in parallel (separate agents/sprints). Each phase ~2-3 weeks.
 
-- [ ] **DRYRUN-01:** Conduzir auditoria interna usando módulo (Phase 5) contra checklist DICQ + RDC 978 — cobrir todos os blocos A-J
-  - **Acceptance:** sessão de auditoria criada, ~115 itens respondidos, evidências anexadas
-  - **Mapeamento DICQ:** 1.3 (execução)
+### Phase 9: Bioquímica (Quantitative QC)
 
-- [ ] **DRYRUN-02:** Achados documentados como NCs no sistema (não em planilha externa)
-  - **Acceptance:** todos os achados "maior" geraram NC automaticamente; achados "menor" registrados; observações documentadas
-  - **Mapeamento DICQ:** 1.2 + 1.3
+**BIO-01: Data Model & Firestore Schema**
+- [ ] Collections: `/labs/{labId}/bioquimica/{runId}`, `/labs/{labId}/bioquimica-materiais`
+- [ ] Types: `BioquimicaRun`, `BioquimicaMaterial`, `BioquimicaQCValue`, `BioquimicaAcceptance`
+- [ ] Acceptance: TypeScript types validated, Firestore rules deny-by-default, soft-delete only
 
-- [ ] **DRYRUN-03:** Plano de ação de remediação para achados críticos (com prazo, responsável, eficácia)
-  - **Acceptance:** cada NC crítica tem CAPA preenchido; plano consolidado em relatório
-  - **Mapeamento DICQ:** 1.2 (CAPA)
+**BIO-02: Analyte Management**
+- [ ] Predefined analytes (glucose, AST, albumin, etc.) with normal ranges
+- [ ] Control material tracking (lot, expiration, supplier)
+- [ ] QC value acceptance rules (mean ± 2SD, trend limits)
+- [ ] Acceptance: Rules E2E tested, trend analysis correct
 
-- [ ] **DRYRUN-04:** Relatório final assinado RT — output que vai para auditoria externa eventual
-  - **Acceptance:** PDF gerado via AUDI-05; assinatura lógica RT registrada; armazenado em Storage 5 anos; link compartilhável com auditor externo
-  - **Mapeamento DICQ:** 1.3 (registro)
+**BIO-03: Levey-Jennings Chart Integration**
+- [ ] Extend existing `chart` module with Bioquímica QC data
+- [ ] Chart rendering (mean line, ±1/±2/±3SD bands, out-of-control rules)
+- [ ] Drill-down: click point → run details → remediation history
+- [ ] Acceptance: Chart renders correctly, drill-down functional, <2s load time
 
----
+**BIO-04: Cloud Function for Acceptance**
+- [ ] Callable `bioquimicaAcceptance(runId)` validates QC rules
+- [ ] Returns acceptance status + rule violated (if any)
+- [ ] Updates NC if needed (automatic escalation)
+- [ ] Acceptance: Function tested, integration with NC module verified
 
-## Future Requirements (deferred — v1.3)
-
-Módulos analíticos restantes do mapa `modules-roadmap.md`. Auditor pode citar como gap, mas não bloqueia dry-run interno.
-
-- **CIQ Bioquímica** (7.5) — padrão hematologia, ~3 semanas
-- **Validação de métodos** (7.7) — linearidade, precisão, exatidão, intervalo referência
-- **Liberação de laudos** (8.1) — dupla checagem críticos, retenção 5a
-- **Comunicação resultados críticos** (8.2) — lista limites + registro
-- **Arquivo + biorrepositório** (8.3) — retenção amostras
-- **Coleta + transporte** (6.2) — fluxo pré-analítico
-- **Reclamações + satisfação** (9.1) — abre NC quando aplicável
-- **Multi-site** — 1 grupo gerenciando N labs
-- **Integrações LIS** — eletrônica com analisadores
-
----
-
-## Out of Scope (v1.2)
-
-Explicitly excluded with reasoning.
-
-- **Auditoria externa formal** — v1.2 é dry-run preparatório; auditoria externa formal pode ser agendada após v1.3
-  - *Reason:* timeline 30d não permite passar por revisão externa.
-- **Cadastro de paciente / requisição** (6.1) — fora do escopo do CIQ
-  - *Reason:* possível integração com LIS terceiro; decisão arquitetural não tomada.
-- **Multi-tenant onboarding self-service** — sistema continua sendo provisionado manualmente
-  - *Reason:* não é requisito de auditoria; vira feature comercial v2.x.
-- **Mobile native polish além do v1.1** — Detox E2E está suficiente
-  - *Reason:* mobile não é foco da auditoria.
-- **Refatoração de módulos antigos** — CIQ existentes ficam como estão
-  - *Reason:* funcionam, são auditáveis, não vale risco.
+**BIO-05: UI & E2E Tests**
+- [ ] Dark-first form for QC entry (analyte, material, value, operator, date)
+- [ ] Accept/Reject button with confirmation modal
+- [ ] Rejection auto-opens NC modal for comments
+- [ ] E2E: 5+ critical flows (accept, reject, trending, drill-down, operator switch)
+- [ ] Acceptance: UI pixel-perfect vs design tokens, 95% E2E pass rate
 
 ---
 
-## Traceability
+### Phase 10: Liberação (Report Release Workflow)
 
-Mapeamento REQ-ID → Phase preenchido após roadmap aprovado.
+**LIB-01: Release Workflow State Machine**
+- [ ] States: Draft → QC Approved → RT Reviewed → Released
+- [ ] Transition guards (QC checklist ✓, RT signature required)
+- [ ] Rollback: RT can uncertify + recalibrate if error found post-release
+- [ ] Acceptance: State transitions audited, no orphaned states
 
-| REQ-ID | Phase | Plan | Status |
-|--------|-------|------|--------|
-| CLEAN-01 | Phase 4 | TBD | pending |
-| CLEAN-02 | Phase 4 | TBD | pending |
-| CLEAN-03 | Phase 4 | TBD | pending |
-| CLEAN-04 | Phase 4 | TBD | pending |
-| AUDI-01 | Phase 5 | TBD | pending |
-| AUDI-02 | Phase 5 | TBD | pending |
-| AUDI-03 | Phase 5 | TBD | pending |
-| AUDI-04 | Phase 5 | TBD | pending |
-| AUDI-05 | Phase 5 | TBD | pending |
-| AUDI-06 | Phase 5 | TBD | pending |
-| LGPD-01 | Phase 6 | TBD | pending |
-| LGPD-02 | Phase 6 | TBD | pending |
-| LGPD-03 | Phase 6 | TBD | pending |
-| DR-01 | Phase 6 | TBD | pending |
-| DR-02 | Phase 6 | TBD | pending |
-| DRYRUN-01 | Phase 7 | TBD | pending |
-| DRYRUN-02 | Phase 7 | TBD | pending |
-| DRYRUN-03 | Phase 7 | TBD | pending |
-| DRYRUN-04 | Phase 7 | TBD | pending |
+**LIB-02: Authorization & Digital Signature**
+- [ ] RT checks report completeness, accuracy, critical values
+- [ ] RT signs with digital signature (LogicalSignature)
+- [ ] Signature includes timestamp, authorizer identity (UID), hash of report content
+- [ ] Acceptance: Signature validates in audit trail, non-repudiation confirmed
+
+**LIB-03: Release Audit Log**
+- [ ] Entry per release: operator, RT, timestamp, who/when
+- [ ] Correction workflow: if error found, RT initiates correction, marks released version void
+- [ ] Retention: 5 years in Cloud Storage + Firestore audit log
+- [ ] Acceptance: Corrections logged, void version archived, recovery possible
+
+**LIB-04: Integration with Críticos (Dependency)**
+- [ ] Critical results block release until RT manually acknowledges (via phone/SMS + system confirmation)
+- [ ] Non-critical results release normally
+- [ ] Acceptance: Block/allow logic correct, E2E tested with mock SMS
+
+**LIB-05: UI & E2E Tests**
+- [ ] Release dashboard: list of pending reports, checklists, signature modal
+- [ ] Dark-first, responsive (tablet + desktop)
+- [ ] E2E: approve, reject, correct, critical-result-block, bulk-release (if allowed)
+- [ ] Acceptance: 95% E2E pass rate, <2s load for typical worklist (50 reports)
 
 ---
 
-**Total:** 19 requirements ativos · 9 deferred · 5 out-of-scope
+### Phase 11: Críticos (Critical Result Escalation)
 
-**Categorias:** CLEAN (4) · AUDI (6) · LGPD (3) · DR (2) · DRYRUN (4)
+**CRI-01: Critical Value Configuration**
+- [ ] Analyte + critical thresholds (low/high)
+- [ ] Configurable per lab (some labs may use different thresholds)
+- [ ] Default thresholds from SBAC/DICQ guidelines
+- [ ] Acceptance: Config stored in `/labs/{labId}/criticos-config`, rules validate non-empty
+
+**CRI-02: Auto-Escalation Logic**
+- [ ] When QC or patient result crosses critical threshold:
+  - [ ] Create Crítico record in Firestore
+  - [ ] Trigger Cloud Function `escalateCriticoSMS`
+  - [ ] Attempt SMS to RT (Twilio integration)
+  - [ ] Fallback: Email + dashboard alert if SMS fails
+  - [ ] RT must acknowledge within 5 minutes (configurable)
+- [ ] Acceptance: Escalation happens <10s after result entry, SMS/email logs captured
+
+**CRI-03: Escalation Audit Trail**
+- [ ] Record: timestamp, analyte, value, threshold, attempt (SMS/email), status (delivered/failed), RT acknowledgment time
+- [ ] Chain-hash signature on all events
+- [ ] Retention: 5 years
+- [ ] Acceptance: Audit trail immutable, no gaps in chain
+
+**CRI-04: Dashboard & Alerts**
+- [ ] Críticos dashboard: pending escalations, acknowledgment status, history
+- [ ] Real-time alerts (toast notifications + email)
+- [ ] Trending: % of critical results per analyte/operator/period
+- [ ] Acceptance: Alerts arrive <5s after event, trending accurate, no stale data
+
+**CRI-05: E2E Tests**
+- [ ] Trigger: result crosses critical threshold → SMS sent → RT acknowledges
+- [ ] Fallback: SMS fails → email sent
+- [ ] Rejection: RT rejects escalation (escalates to supervisor)
+- [ ] Trending: query analytics correct
+- [ ] Acceptance: 4+ critical E2E flows, 95% pass rate
+
+---
+
+### Phase 12: Reclamações (Complaint Tracking & RCA)
+
+**REC-01: Complaint Intake**
+- [ ] Form: complaint date, operator, analyte, issue type (methodology, result accuracy, reagent, communication)
+- [ ] Investigation urgency: immediate (if patient safety), routine (within 7d)
+- [ ] Auto-opens NC if severity is high
+- [ ] Acceptance: Form fields validated, NC linkage correct
+
+**REC-02: RCA Workflow**
+- [ ] Root Cause Analysis: identify root cause (training gap, procedure deviation, equipment failure, reagent issue)
+- [ ] Action plan: what will be done, who, when
+- [ ] Effectiveness check: how will we verify closure?
+- [ ] Acceptance: RCA form structured, all fields required
+
+**REC-03: Closure & Evidence**
+- [ ] Close complaint: mark resolved, attach evidence (training certificate, calibration report, procedure update)
+- [ ] Follow-up: confirm resolution with operator/patient if needed
+- [ ] Archive: complaint + RCA + evidence in Storage 5 years
+- [ ] Acceptance: Closure audited, no incomplete complaints >30d old
+
+**REC-04: Trending & Analytics**
+- [ ] Dashboard: complaints per analyte, operator, issue type, period
+- [ ] Trend detection: if same issue >2x → escalate to management
+- [ ] Reports: monthly summary, high-complaint analytes, repeat issues
+- [ ] Acceptance: Queries correct, reports generated <5s
+
+**REC-05: E2E Tests & UI**
+- [ ] E2E: intake, RCA, closure, trending query
+- [ ] UI: dark-first form, RCA modal, trending chart
+- [ ] Acceptance: 4+ flows, 95% pass rate, <2s load time for typical complaint list (100 items)
+
+---
+
+## Non-Negotiable Guardrails
+
+✅ **Compliance First**
+- All modules comply with RDC 978/2025 + DICQ 4.3
+- CAPA closure: 100% evidence completeness before external audit
+
+✅ **Chain-Hash Integrity**
+- All audit events (release, escalation, complaint) signed with HMAC-SHA256
+- Firestore audit trail immutable (soft-delete only)
+
+✅ **Multi-Tenant Isolation**
+- No cross-lab data leakage
+- RLS rules on all sensitive collections
+
+✅ **Performance & Accessibility**
+- LCP <2.5s, CLS <0.1, INP <200ms (per `.claude/rules/performance.md`)
+- WCAG AA contrast ratio 4.5:1
+- Dark-first UI with proper color tokens
+
+✅ **E2E Coverage**
+- Minimum 80% on critical user flows
+- Target: 95% on all new code
+
+✅ **Type Safety**
+- TypeScript strict mode
+- No `any` in new code
+
+---
+
+## Success Criteria (Milestone Exit)
+
+| Criterion | Target | Measurement |
+|-----------|--------|-------------|
+| **CAPA Closure** | 12/12 CAPAs closed with 100% evidence | Firestore audit trail + auditor sign-off |
+| **Modules Live** | 4/4 modules (Bio, Lib, Cri, Rec) in production | Firebase deploy success + E2E tests pass |
+| **Test Coverage** | ≥95% on new code | `npm run coverage` |
+| **Compliance Baseline** | ≥90% (from 71.3%) | Projected post-CAPA audit re-run (optional) |
+| **Performance** | LCP <2.5s on all routes | Lighthouse CI passing |
+| **External Audit Ready** | Auditor signs off on CAPA evidence + schedule date | Email confirmation + calendar hold |
+
+---
+
+## Open Questions (Resolved via Discuss/Plan Phases)
+
+- [ ] **Bioquímica analytes in scope:** All CIQ analytes or subset? (Chemistry analyzer vs hematology)
+- [ ] **Críticos thresholds:** Auto-escalation via SMS or manual RT check first?
+- [ ] **Críticos SMS provider:** Twilio contract in place? Fallback email cost acceptable?
+- [ ] **Reclamações trending:** Quarterly reports or weekly dashboard?
+- [ ] **External auditor:** Same auditor as dry-run? Estimated cost + timeline?
+- [ ] **Release rollback:** Can RT uncertify and re-release same report version, or must create amended report?
+
+---
+
+## Out of Scope (v1.3)
+
+- Multi-site management (deferred to post-audit)
+- Mobile app enhancements (separate milestone)
+- Third-party lab integration / CEQ Phase 2 (separate spike)
+- Data migration / legacy LIS integration (separate project)
+- Patient-facing portal (separate phase)
+
+---
+
+## Timeline at a Glance
+
+```
+2026-05-06 ──────────────────────── 2026-08-05 ────────────── 2026-08-31
+v1.3 Start                          CAPA Closure Deadline     External Audit Readiness
+         │                                  │                         │
+         ├─ Week 1-4: Phase 8 Critical     │                         │
+         ├─ Week 1-4: Phases 9-12 Start (parallel)                   │
+         ├─ Week 4-8: Phase 8 High/Medium  │                         │
+         ├─ Week 4-8: Phases 9-12 Execution (parallel)               │
+         ├─ Week 9-13: Phase 8 Extended    │                         │
+         ├─ Week 9-13: Phases 9-12 Polish/E2E                        │
+         └─ Week 13: Final CAPA & Module QA ────────────────────────→ Launch
+```
+
+---
+
+**Total Requirements:** 24 (4 CAPA + 5×BIO + 5×LIB + 5×CRI + 5×REC)  
+**Approval Status:** ✅ Approved (2026-05-06)  
+**Next Step:** `/gsd-plan-phase 8` after roadmap review
