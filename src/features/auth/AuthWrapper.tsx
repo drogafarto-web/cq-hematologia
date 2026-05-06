@@ -35,6 +35,12 @@ import ManagementReviewDashboard from '../management-review/components/Managemen
 // (`module-bioquimica` em vite.config.ts). Plans 09-02+ ainda vão crescer
 // esse bundle — manter lazy desde o início evita regressão de LCP.
 const BioquimicaView = React.lazy(() => import('../bioquimica'));
+
+// Phase 10: Liberação + Críticos (lazy-loaded)
+const LiberacaoView = React.lazy(() => import('../liberacao'));
+const CriticosView = React.lazy(() => import('../criticos'));
+const PortalMedicoView = React.lazy(() => import('../portal-medico'));
+
 import { useBrowserHistorySync } from '../../shared/hooks/useBrowserHistorySync';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
@@ -185,6 +191,24 @@ function AppRouter() {
     view = (
       <React.Suspense fallback={<FullScreenLoader />}>
         <BioquimicaView />
+      </React.Suspense>
+    );
+  } else if (currentView === 'liberacao') {
+    view = (
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <LiberacaoView />
+      </React.Suspense>
+    );
+  } else if (currentView === 'criticos') {
+    view = (
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <CriticosView />
+      </React.Suspense>
+    );
+  } else if (currentView === 'portal-medico') {
+    view = (
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <PortalMedicoView />
       </React.Suspense>
     );
   } else {

@@ -67,6 +67,15 @@ export default defineConfig(({ mode }) => {
           if (id.includes('src/features/bioquimica')) {
             return 'module-bioquimica';
           }
+          if (id.includes('src/features/liberacao')) {
+            return 'module-liberacao';
+          }
+          if (id.includes('src/features/criticos')) {
+            return 'module-criticos';
+          }
+          if (id.includes('src/features/portal-medico')) {
+            return 'module-portal-medico';
+          }
 
           // Shared services (low-churn, referenced by multiple modules)
           if (
