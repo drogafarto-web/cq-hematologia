@@ -4,7 +4,6 @@ import * as crypto from 'crypto';
 import { z } from 'zod';
 import type { Auditoria, Achado, Sessao, ChecklistItem, LogicalSignature } from './types';
 import { checkNCs } from '../qualidade/naoConformidade';
-import { createNCFromAchado } from './achadoToNC';
 
 // Load checklist templates from seed data
 const CHECKLIST_TEMPLATES = require('../../seeds/checklistTemplates.json');
@@ -18,9 +17,16 @@ const RegisterAchadoInput = z.object({
   auditoriaId: z.string().min(1, 'auditoriaId é obrigatório'),
   sessaoId: z.string().min(1, 'sessaoId é obrigatório'),
   checklistItemId: z.string().min(1, 'checklistItemId é obrigatório'),
-  descricao: z.string().min(10, 'Descrição deve ter pelo menos 10 caracteres'),
+  descricao: z
+    .string()
+    .min(20, 'Descrição deve ter pelo menos 20 caracteres')
+    .max(500, 'Descrição não pode exceder 500 caracteres')
+    .regex(/^[\w\s\p{L}\p{P}]+$/u, 'Descrição contém caracteres inválidos'),
   severidade: z.enum(['crítica', 'grave', 'moderada', 'leve', 'observação']),
-  evidencia: z.string().optional(),
+  evidencia: z
+    .string()
+    .max(2000, 'Evidência não pode exceder 2000 caracteres')
+    .optional(),
 });
 
 type RegisterAchadoInputType = z.infer<typeof RegisterAchadoInput>;
@@ -108,7 +114,7 @@ export const createAuditoria = onCall(
           new Date(proximaAuditoriaPlanejada)
         ),
         status: 'planejada',
-        criadoEm: admin.firestore.FieldValue.serverTimestamp() as any,
+        criadoEm: admin.firestore.Timestamp.now(),
         criadoPor: request.auth.uid,
         deletadoEm: null,
       };
@@ -162,17 +168,24 @@ export const registerAchado = onCall(
         throw new HttpsError('failed-precondition', ncCheck.message || 'Blocking NC prevents operation');
       }
 
-      // Generate logical signature
+      // Generate logical signature with deterministic canonical JSON
       const canonicalPayload = {
         auditoriaId: input.auditoriaId,
-        sessaoId: input.sessaoId,
         checklistItemId: input.checklistItemId,
         descricao: input.descricao,
+        sessaoId: input.sessaoId,
         severidade: input.severidade,
       };
+      const sortedKeys = Object.keys(canonicalPayload).sort();
+      const canonicalJson =
+        '{' +
+        sortedKeys
+          .map((k) => `"${k}":${JSON.stringify((canonicalPayload as any)[k])}`)
+          .join(',') +
+        '}';
       const hash = crypto
         .createHash('sha256')
-        .update(JSON.stringify(canonicalPayload, Object.keys(canonicalPayload).sort()))
+        .update(canonicalJson)
         .digest('hex');
 
       const assinatura: LogicalSignature = {
@@ -203,33 +216,77 @@ export const registerAchado = onCall(
         deletadoEm: null,
       };
 
-      // Start batch write
-      const batch = db.batch();
-      batch.set(achadoRef, achado);
-
-      // If severity >= grave, auto-create NC
+      // Use transaction for atomic achado + NC creation
       let ncCreated = false;
       let ncId: string | undefined;
-      if (input.severidade === 'crítica' || input.severidade === 'grave') {
-        const { ncId: newNcId } = await createNCFromAchado(
-          input.labId,
-          achado,
-          input.auditoriaId,
-          input.sessaoId,
-          operatorId
-        );
 
-        ncId = newNcId;
-        ncCreated = true;
+      const result = await db.runTransaction(async (tx) => {
+        // Always write achado
+        tx.set(achadoRef, achado);
 
-        // Update achado to link NC
-        batch.update(achadoRef, {
-          ncId,
-          statusNC: 'criada',
-        });
-      }
+        // If severity >= grave, auto-create NC in same transaction
+        if (input.severidade === 'crítica' || input.severidade === 'grave') {
+          const ncRef = db
+            .collection(`labs/${input.labId}/naoConformidades`)
+            .doc();
 
-      await batch.commit();
+          // Prepare NC data with deterministic signature
+          const ncCanonical = {
+            achadoId: achadoRef.id,
+            auditoriaId: input.auditoriaId,
+            descricao: input.descricao,
+            origem: 'auditoria-interna',
+            severidade: input.severidade,
+          };
+          const ncSortedKeys = Object.keys(ncCanonical).sort();
+          const ncCanonicalJson =
+            '{' +
+            ncSortedKeys
+              .map((k) => `"${k}":${JSON.stringify((ncCanonical as any)[k])}`)
+              .join(',') +
+            '}';
+          const ncHash = crypto
+            .createHash('sha256')
+            .update(ncCanonicalJson)
+            .digest('hex');
+
+          const ncAssinatura: LogicalSignature = {
+            hash: ncHash,
+            operatorId,
+            ts: admin.firestore.Timestamp.now(),
+          };
+
+          const nc = {
+            labId: input.labId,
+            titulo: `Achado auditoria: ${input.descricao.substring(0, 60)}`,
+            descricao: input.descricao,
+            origem: 'auditoria-interna',
+            achadoId: achadoRef.id,
+            auditoriaId: input.auditoriaId,
+            severidade: input.severidade,
+            status: 'aberta',
+            assinatura: ncAssinatura,
+            criadoEm: admin.firestore.Timestamp.now(),
+            criadoPor: operatorId,
+            deletadoEm: null,
+          };
+
+          tx.set(ncRef, nc);
+
+          // Update achado with NC link in same transaction
+          tx.update(achadoRef, {
+            ncId: ncRef.id,
+            statusNC: 'criada',
+          });
+
+          return { ncId: ncRef.id, ncCreated: true };
+        }
+
+        return { ncId: undefined, ncCreated: false };
+      });
+
+      ncId = result.ncId;
+      ncCreated = result.ncCreated;
 
       return {
         success: true,
@@ -269,10 +326,21 @@ export const installChecklistTemplate = onCall(
     }
 
     try {
-      // Get template from seed data
+      // Get template from seed data with validation
       const template = (CHECKLIST_TEMPLATES as Record<string, any>)[input.templateId];
       if (!template) {
         throw new HttpsError('not-found', `Template ${input.templateId} not found`);
+      }
+      if (!template.itens || template.itens.length === 0) {
+        throw new HttpsError(
+          'failed-precondition',
+          `Template has no items. Expected ~115 DICQ items.`
+        );
+      }
+      if (template.itens.length < 110) {
+        console.warn(
+          `Template item count (${template.itens.length}) below expected ~115. Proceeding.`
+        );
       }
 
       // Create sessão document
@@ -292,7 +360,7 @@ export const installChecklistTemplate = onCall(
         itensConforme: 0,
         itensNãoConforme: 0,
         itensNA: 0,
-        criadoEm: admin.firestore.FieldValue.serverTimestamp() as any,
+        criadoEm: admin.firestore.Timestamp.now(),
         criadoPor: request.auth.uid,
         deletadoEm: null,
       };
@@ -322,15 +390,29 @@ export const installChecklistTemplate = onCall(
         batch.set(itemRef, item);
         itemsCount++;
 
-        // Commit every 400 items (safe margin below 500 limit)
-        if (itemsCount % 400 === 0) {
-          await batch.commit();
+        // Commit every 450 items (safe margin below 500 limit)
+        if (itemsCount % 450 === 0) {
+          try {
+            await batch.commit();
+          } catch (err: any) {
+            throw new HttpsError(
+              'internal',
+              `Batch commit failed at item ${itemsCount}: ${err.message}. Partial load possible — restart.`
+            );
+          }
           batch = db.batch();
         }
       }
 
-      // Final commit
-      await batch.commit();
+      // Final commit with error handling
+      try {
+        await batch.commit();
+      } catch (err: any) {
+        throw new HttpsError(
+          'internal',
+          `Final batch commit failed at item ${itemsCount}: ${err.message}`
+        );
+      }
 
       return {
         success: true,
@@ -487,6 +569,7 @@ export const closeAuditoria = onCall(
       const audRef = db.collection(`labs/${labId}/auditorias-internas`).doc(auditoriaId);
       await audRef.update({
         status: 'finalizada',
+        deletadoEm: admin.firestore.FieldValue.serverTimestamp(),
       });
 
       return {

@@ -35,13 +35,20 @@ export async function createNCFromAchado(
   sessaoId: string,
   operatorId: string
 ): Promise<{ ncId: string }> {
+  // CRITICAL: Cross-tenant validation
+  if (achado.labId !== labId) {
+    throw new Error(
+      `Cross-tenant violation: achado.labId=${achado.labId} does not match labId=${labId}`
+    );
+  }
+
   const ncRef = db.collection(`labs/${labId}/naoConformidades`).doc();
   const ncId = ncRef.id;
 
   // Map severidade to NC severity
   const prioridade = SEVERIDADE_MAP[achado.severidade] || 'moderada';
 
-  // Canonical payload for signature (deterministic field order)
+  // Canonical payload for signature with deterministic field ordering
   const canonicalPayload = {
     achadoId: achado.id,
     auditoriaId,
@@ -50,9 +57,17 @@ export async function createNCFromAchado(
     severidade: prioridade,
   };
 
+  const sortedKeys = Object.keys(canonicalPayload).sort();
+  const canonicalJson =
+    '{' +
+    sortedKeys
+      .map((k) => `"${k}":${JSON.stringify((canonicalPayload as any)[k])}`)
+      .join(',') +
+    '}';
+
   const hash = crypto
     .createHash('sha256')
-    .update(JSON.stringify(canonicalPayload, Object.keys(canonicalPayload).sort()))
+    .update(canonicalJson)
     .digest('hex');
 
   const assinatura: LogicalSignature = {
