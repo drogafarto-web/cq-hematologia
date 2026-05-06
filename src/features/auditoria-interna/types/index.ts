@@ -129,7 +129,7 @@ export interface Achado {
 
 export type AchadoInput = Omit<
   Achado,
-  'id' | 'sessaoId' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm'
+  'id' | 'sessaoId' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm' | 'statusNC' | 'ncId' | 'assinatura'
 >;
 
 /**

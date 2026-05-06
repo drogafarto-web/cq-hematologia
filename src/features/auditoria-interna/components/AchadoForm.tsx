@@ -44,7 +44,6 @@ export function AchadoForm({ itemId, severity, onSave }: AchadoFormProps) {
         descricao,
         severidade: severity as any,
         evidencia: evidencias[0] || '',
-        statusNC: 'pendente',
       });
       onSave();
     } catch (err) {

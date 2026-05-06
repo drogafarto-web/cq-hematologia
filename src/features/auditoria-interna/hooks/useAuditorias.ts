@@ -261,6 +261,7 @@ export function useAchadoMutation(): UseAchadoMutationResult {
       setError(null);
 
       try {
+        const labId = input.labId;
         const callable = httpsCallable(functions, 'registerAchado');
         const result = await callable({
           ...input,
