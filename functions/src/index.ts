@@ -213,6 +213,28 @@ export {
   generateMonthlyReportBioquimica,
 } from './bioquimica/index';
 
+// ─── liberacao module (Phase 10 — Report Release + Critical Values) ───────────
+// criarLaudo: Callable that creates report + runs auto-release engine
+//   - Validates membership, detects critical values, classifies exam type
+//   - Auto-liberates routine exams without blockers (Westgard, critical, restricted)
+//   - Creates LaudoVersion v1 with system signature if auto-released
+// liberarLaudo: Callable that releases report manually (RT only)
+//   - Validates RT claim, recalculates chainHash server-side
+//   - Creates LaudoVersion v(N+1) with RT signature
+//   - Transitions status: Pendente/Em Revisão → Liberado
+// detectarCriticos: Firestore trigger onCreate on laudos
+//   - Detects critical values against configurable thresholds
+//   - Flags laudo + dispatches email notification
+// enviarComunicacaoEmail: Callable that sends email via Resend
+//   - Constructs HTML email with critical results
+//   - Creates Comunicacao doc with delivery status
+export {
+  criarLaudo,
+  liberarLaudo,
+  detectarCriticos,
+  enviarComunicacaoEmail,
+} from './liberacao/index';
+
 // ─── auditoria module (ADR 0004 — Internal Audit + Findings → NC Auto-gen) ────
 // createAuditoria: create internal audit with scope and scheduled date
 // registerAchado: record audit findings (grave/critica trigger NC auto-gen dialog)
@@ -327,6 +349,17 @@ export { exportWorker } from './modules/export/exportWorker';
 export { backgroundWorker } from './modules/export/backgroundWorker';
 export { batchExport } from './modules/export/batchExport';
 export { scheduledWeeklyExport } from './modules/export/scheduledExport';
+
+// ─── reclamacoes module (Phase 11 — Feedback Loop / DICQ 4.8) ─────────────────
+// Multi-channel complaint intake (6 channels), Gemini AI auto-classification,
+// 5-Whys RCA workflow, NPS post-resolution, suggestions module.
+// RDC 978 Art. 86 + LGPD compliance.
+export {
+  criarReclamacao,
+  classificarReclamacaoIA,
+  parseEmailReclamacao,
+  criarNCDraft,
+} from './modules/reclamacoes/index';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

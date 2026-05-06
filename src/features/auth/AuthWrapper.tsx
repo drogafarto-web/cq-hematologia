@@ -20,6 +20,7 @@ import { InsumosView } from '../insumos/InsumosView';
 import { EducacaoContinuadaView } from '../educacao-continuada/EducacaoContinuadaView';
 import { ControlTemperaturaView } from '../controle-temperatura/ControlTemperaturaView';
 import { SGQView } from '../sgq/SGQView';
+import { ListaMestraView } from '../sgq/ListaMestraView';
 import { RastreabilidadeView } from '../traceability/RastreabilidadeView';
 import { AnalyticsHub } from '../analytics/components/AnalyticsHub';
 import { ExportQueueView } from '../export/components/ExportQueueView';
@@ -169,6 +170,8 @@ function AppRouter() {
     view = <ControlTemperaturaView />;
   } else if (currentView === 'sgq-documentos') {
     view = <SGQView />;
+  } else if (currentView === 'sgq-lista-mestra') {
+    view = <ListaMestraView />;
   } else if (currentView === 'rastreabilidade') {
     view = <RastreabilidadeView />;
   } else if (currentView === 'analytics') {
