@@ -56,7 +56,7 @@ export function AddLotModal({ onClose, onLotCreated }: AddLotModalProps) {
   const [error, setError] = useState<string | null>(null);
 
   // Common fields
-  const [lotNumber, setLotNumber] = useState('');
+  const [lote, setLote] = useState('');
   const [validade, setValidade] = useState('');
   const [fornecedor, setFornecedor] = useState('');
   const [equipmentIds, setEquipmentIds] = useState<string[]>([]);
@@ -76,7 +76,7 @@ export function AddLotModal({ onClose, onLotCreated }: AddLotModalProps) {
   if (!labId) return null;
 
   // Validation
-  const commonValid = lotNumber.trim() && validade && fornecedor.trim() && equipmentIds.length > 0;
+  const commonValid = lote.trim() && validade && fornecedor.trim() && equipmentIds.length > 0;
   const validDate = validade && !isNaN(new Date(validade).getTime());
   const canSubmit = commonValid && validDate;
 
@@ -97,17 +97,11 @@ export function AddLotModal({ onClose, onLotCreated }: AddLotModalProps) {
 
       const nivelData = selectedNiveis.map((n) => ({
         level: n.level as 1 | 2 | 3,
-        manufacturerStats: Object.keys(stats).reduce(
-          (acc, analito) => {
-            acc[analito] = stats[analito];
-            return acc;
-          },
-          {} as Record<string, { mean: number; sd: number }>,
-        ),
+        manufacturerStats: {}, // Avulso entry starts with empty stats
       }));
 
       const lotId = await createLotAvulso(labId, {
-        lotNumber,
+        lote,
         validade: new Date(validade),
         fornecedor,
         equipmentIds,
@@ -131,7 +125,7 @@ export function AddLotModal({ onClose, onLotCreated }: AddLotModalProps) {
 
     try {
       const lotId = await createLotSemBula(labId, {
-        lotNumber,
+        lote,
         validade: new Date(validade),
         fornecedor,
         equipmentIds,
@@ -213,8 +207,8 @@ export function AddLotModal({ onClose, onLotCreated }: AddLotModalProps) {
                 <input
                   id="lot-num-sem-bula"
                   type="text"
-                  value={lotNumber}
-                  onChange={(e) => setLotNumber(e.target.value)}
+                  value={lote}
+                  onChange={(e) => setLote(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.06] border border-white/[0.09] text-white/90 placeholder-white/20 text-sm focus:outline-none focus:border-violet-500/50 transition-all"
                   placeholder="ex: 1234567"
                 />
@@ -298,8 +292,8 @@ export function AddLotModal({ onClose, onLotCreated }: AddLotModalProps) {
                 <input
                   id="lot-num-avulso"
                   type="text"
-                  value={lotNumber}
-                  onChange={(e) => setLotNumber(e.target.value)}
+                  value={lote}
+                  onChange={(e) => setLote(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.06] border border-white/[0.09] text-white/90 placeholder-white/20 text-sm focus:outline-none focus:border-violet-500/50 transition-all"
                   placeholder="ex: 1234567"
                 />

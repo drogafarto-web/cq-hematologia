@@ -420,6 +420,7 @@ export function EquipmentSetupPanel({ canMutate }: EquipmentSetupPanelProps) {
     coagulacao: coagSetup,
     uroanalise: uroSetup,
     imunologia: imunoSetup,
+    bioquimica: null,
   };
 
   return (

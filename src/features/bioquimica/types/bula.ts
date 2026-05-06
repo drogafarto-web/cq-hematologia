@@ -5,7 +5,7 @@
 export interface BulaParseResult {
   niveis: Array<{
     level: '1' | '2' | '3';
-    lotNumber?: string;
+    lote?: string;
   }>;
   manufacturerStats: Record<
     string, // 'nivel1', 'nivel2', etc

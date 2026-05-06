@@ -58,18 +58,18 @@ export function PreFlightCheck({ equipmentId, analitoIds }: PreFlightCheckProps)
   const equip = equipamentos.find((e) => e.id === equipmentId);
   const checks = [
     {
-      ok: equip?.ativo === true,
+      ok: equip?.status === 'ativo',
       label: 'Equipamento ativo',
       icon: CheckCircleIcon,
     },
     {
-      ok: activeLot !== null && activeLot.emUso === true,
-      label: 'Lote em uso',
+      ok: activeLot !== null,
+      label: 'Lote disponível',
       icon: CheckCircleIcon,
     },
     {
-      ok: !activeLot?.bulaPendente || (activeLot.bulaPendentesAte && new Date(activeLot.bulaPendentesAte) > new Date()),
-      label: 'Bula vigente',
+      ok: !activeLot?.bulaPendente,
+      label: 'Bula vigente (ou avulso)',
       icon: CheckCircleIcon,
     },
     {

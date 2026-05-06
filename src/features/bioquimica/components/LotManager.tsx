@@ -143,7 +143,7 @@ export function LotManager({ onLotCreated }: LotManagerProps) {
               <div key={lot.id} className="rounded-lg border border-white/[0.09] bg-white/[0.02] p-3.5">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-white/90 font-medium">{lot.lotNumber}</p>
+                    <p className="text-sm text-white/90 font-medium">{lot.lote}</p>
                     <p className="text-xs text-white/40 mt-1">
                       Fornecedor: {lot.fornecedor}
                     </p>
@@ -172,7 +172,7 @@ export function LotManager({ onLotCreated }: LotManagerProps) {
               <div key={lot.id} className="rounded-lg border border-white/[0.09] bg-white/[0.02] p-3.5 opacity-60">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-white/60">{lot.lotNumber}</p>
+                    <p className="text-sm text-white/60">{lot.lote}</p>
                     <p className="text-xs text-white/30 mt-1">
                       {lot.deletadoEm ? 'Deletado' : 'Vencido'}
                     </p>
@@ -213,7 +213,8 @@ interface LotCardProps {
 
 function LotCard({ lot, onDelete, loading }: LotCardProps) {
   const today = new Date();
-  const expiresIn = Math.ceil((new Date(lot.validade).getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const validadeDate = lot.validade instanceof Date ? lot.validade : lot.validade.toDate?.();
+  const expiresIn = validadeDate ? Math.ceil((validadeDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) : 0;
   const isExpiringSoon = expiresIn <= 7 && expiresIn > 0;
   const isExpired = expiresIn <= 0;
 
@@ -221,7 +222,7 @@ function LotCard({ lot, onDelete, loading }: LotCardProps) {
     <div className="rounded-lg border border-white/[0.09] bg-white/[0.02] p-3.5">
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="flex-1 min-w-0">
-          <p className="text-sm text-white/90 font-medium">{lot.lotNumber}</p>
+          <p className="text-sm text-white/90 font-medium">{lot.lote}</p>
           <p className="text-xs text-white/40 mt-1">
             {lot.fornecedor} • {lot.origem}
           </p>
@@ -235,7 +236,7 @@ function LotCard({ lot, onDelete, loading }: LotCardProps) {
 
       <div className="flex items-center justify-between text-xs text-white/40">
         <span>
-          Válido até {new Date(lot.validade).toLocaleDateString('pt-BR')}
+          Válido até {validadeDate?.toLocaleDateString('pt-BR')}
           {isExpiringSoon && ` (${expiresIn}d)`}
           {isExpired && ' (VENCIDO)'}
         </span>

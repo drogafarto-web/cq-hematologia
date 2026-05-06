@@ -94,7 +94,7 @@ export function LotSwitcher({ lotId, onClose, onSwitch }: LotSwitcherProps) {
         <div className="px-5 py-5 space-y-4">
           <div className="rounded-lg bg-white/[0.03] border border-white/[0.07] p-3.5">
             <p className="text-xs text-white/40 mb-2">Lote selecionado</p>
-            <p className="text-sm font-medium text-white/90">{targetLot.lotNumber}</p>
+            <p className="text-sm font-medium text-white/90">{targetLot.lote}</p>
             <p className="text-xs text-white/50 mt-1">{targetLot.fornecedor}</p>
           </div>
 

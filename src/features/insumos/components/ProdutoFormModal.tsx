@@ -92,9 +92,10 @@ const MODULO_LABEL: Record<InsumoModulo, string> = {
   coagulacao: 'Coagulação',
   uroanalise: 'Uroanálise',
   imunologia: 'Imunologia',
+  bioquimica: 'Bioquímica',
 };
 
-const MODULOS: InsumoModulo[] = ['hematologia', 'coagulacao', 'uroanalise', 'imunologia'];
+const MODULOS: InsumoModulo[] = ['hematologia', 'coagulacao', 'uroanalise', 'imunologia', 'bioquimica'];
 
 // ─── Componentes Auxiliares ───────────────────────────────────────────────────
 

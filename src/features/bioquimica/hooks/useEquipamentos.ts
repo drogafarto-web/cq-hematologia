@@ -36,8 +36,8 @@ export function useEquipamentos() {
       const items: Equipamento[] = [];
       snap.forEach((doc) => {
         const equip = doc.data() as Equipamento;
-        // Filter by module: allow if not explicitly disabled
-        if (equip.analytics?.bioquimica !== false) {
+        // Filter by module: include if module is bioquimica
+        if (equip.module === 'bioquimica') {
           items.push(equip);
         }
       });
