@@ -1,2 +1,3 @@
-// Component exports for liberacao module (to be built in Plans 10-02+)
-// Placeholder for routing setup
+export { ReviewLaudoModal } from './ReviewLaudoModal';
+export { RTSignatureGate } from './RTSignatureGate';
+export { LaudoStatusBadge } from './LaudoStatusBadge';

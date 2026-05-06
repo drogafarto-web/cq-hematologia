@@ -1547,6 +1547,156 @@ service cloud.firestore {
         allow delete: if false;
       }
 
+      // ── /labs/{labId}/reclamacoes/** — Phase 11 (Feedback Loop / DICQ 4.8) ─────
+      // Complaint management workflow: Nova → Analisando → RCA → Resolvida →
+      // Comunicada → Fechada. Multi-channel intake (web, email, phone, QR, deep-link).
+      // Gemini AI auto-classification + 5-Whys RCA + NC auto-trigger on severity alta.
+      // RDC 978 Art. 86 + LGPD compliance: PII consent capture + 5-year retention.
+      // Soft-delete only (RN-06); writes via Cloud Function callables (Fase 0b).
+      //
+      // Path layout: /labs/{labId}/
+      //   reclamacoes/                  — master complaint entity
+      //   reclamacoes-versions/         — immutable versions (retification audit)
+      //   satisfacao-respostas/         — NPS survey responses (post-resolution + recurring)
+      //   satisfacao-campanhas/         — NPS campaign metadata (quarterly trigger)
+      //   sugestoes/                    — improvement suggestions (internal + public)
+      //   comunicacoes-cliente/         — immutable email log (Resend delivery tracking)
+      //   lgpd-requests/                — LGPD access/deletion requests
+      //   lgpd-audit/                   — PII access audit trail (RDC 978 5.3)
+      //   feedback-classificacao-auto/  — Gemini classification audit log
+
+      match /reclamacoes/{reclamacaoId} {
+        function validReclamacaoPayload(d) {
+          return d.labId == labId
+              && d.id is string
+              && d.reclamante is map
+              && d.reclamante.nome is string
+              && d.reclamante.nome.size() > 0
+              && d.reclamante.cpf is string
+              && d.reclamante.cpf.size() == 11
+              && d.reclamante.consentimentoLgpd is map
+              && d.reclamante.consentimentoLgpd.aceito is bool
+              && d.reclamante.consentimentoLgpd.em is timestamp
+              && d.canalEntrada in ['web-interno', 'web-publico', 'email', 'telefone', 'qr-laudo', 'worklab-deep-link']
+              && d.descricao is string
+              && d.descricao.size() > 0
+              && d.status in ['Nova', 'Analisando', 'RCA', 'Resolvida', 'Comunicada', 'Fechada']
+              && d.slaPrazo is timestamp
+              && d.criadoEm is timestamp
+              && d.deletadoEm == null || d.deletadoEm is timestamp
+              && d.signature is map
+              && d.signature.hash is string
+              && d.signature.hash.size() == 64
+              && d.signature.operatorId == request.auth.uid
+              && d.signature.ts is timestamp
+              && d.chainHash is string
+              && d.chainHash.size() == 64;
+        }
+
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if false;  // Via criarReclamacao callable only
+        allow update: if false;  // Via transitarReclamacao callable only
+        allow delete: if false;  // Soft-delete only (RN-06)
+
+        // Immutable version history (retification audit trail)
+        match /versions/{versionId} {
+          allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow create, update, delete: if false;  // Server-side only
+        }
+      }
+
+      // Immutable version snapshots (Retification Pattern — Plan 10-02)
+      match /reclamacoes-versions/{versionId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update, delete: if false;  // Cloud Function audit trail only
+      }
+
+      // NPS responses (post-resolution + recurring campaigns)
+      // Anonymous after 90 days (LGPD Art. 7 legitimate interest + anonimização)
+      match /satisfacao-respostas/{respostaId} {
+        function validNPSResposta(d) {
+          return d.labId == labId
+              && d.origem in ['pos-resolucao', 'recurring-trimestral']
+              && d.nota is number
+              && d.nota >= 0 && d.nota <= 10
+              && d.categoria in ['detrator', 'neutro', 'promotor']
+              && d.respondidoEm is timestamp
+              && d.ipHash is string
+              && d.criadoEm is timestamp
+              && (d.pacienteId is string || d.pacienteId == null)
+              && (d.anonimizadoEm == null || d.anonimizadoEm is timestamp)
+              && d.deletadoEm == null || d.deletadoEm is timestamp;
+        }
+
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if false;  // Via submitNPSResposta callable only
+        allow update: if false;  // Via anonimizar cron only
+        allow delete: if false;  // Soft-delete only (RN-06)
+      }
+
+      // NPS campaign metadata (quarterly template + scheduled send)
+      match /satisfacao-campanhas/{campanhaId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update: if isSuperAdmin() || isAdminOrOwner(labId);
+        allow delete: if false;
+      }
+
+      // Improvement suggestions (internal + public submission)
+      match /sugestoes/{sugestaoId} {
+        function validSugestao(d) {
+          return d.labId == labId
+              && d.titulo is string
+              && d.titulo.size() > 0
+              && d.descricao is string
+              && d.descricao.size() > 0
+              && d.status in ['aberta', 'analisada', 'implementada', 'rejeitada']
+              && d.categoria in ['produto', 'processo', 'ambiente', 'atendimento', 'outro']
+              && d.criadoEm is timestamp
+              && d.deletadoEm == null || d.deletadoEm is timestamp;
+        }
+
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if false;  // Via criarSugestao callable only
+        allow update: if false;  // Via transitarSugestao callable only
+        allow delete: if false;  // Soft-delete only (RN-06)
+      }
+
+      // Immutable email log (Resend delivery tracking + bounce/complaint handling)
+      match /comunicacoes-cliente/{comunicacaoId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update, delete: if false;  // Cloud Function event listener only
+      }
+
+      // LGPD requests (access, deletion, opt-out)
+      match /lgpd-requests/{requestId} {
+        function validLgpdRequest(d) {
+          return d.labId == labId
+              && d.requestType in ['access', 'deletion', 'opt-out']
+              && d.pacienteId is string
+              && d.status in ['pending', 'in-progress', 'completed', 'denied']
+              && d.solicitadoEm is timestamp
+              && d.criadoEm is timestamp
+              && d.deletadoEm == null || d.deletadoEm is timestamp;
+        }
+
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if false;  // Via solicitarExclusaoLgpd callable only
+        allow update: if false;  // Via processarLgpdRequest callable only
+        allow delete: if false;  // Soft-delete only (RN-06)
+      }
+
+      // LGPD audit trail (PII access compliance — RDC 978 5.3)
+      match /lgpd-audit/{logId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update, delete: if false;  // Cloud Function appended only
+      }
+
+      // Gemini classification audit log (IA transparency + confidence tracking)
+      match /feedback-classificacao-auto/{logId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update, delete: if false;  // Cloud Function logged only
+      }
+
       // ── /labs/{labId}/management-reviews/** — Phase 8 (DICQ 4.15) ────────────
       // Annual Direction Critical Analysis (Análise Crítica pela Direção).
       // 15 mandatory sections with pre-populated data aggregation.

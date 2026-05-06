@@ -423,6 +423,7 @@ export type View =
   | 'educacao-continuada'
   | 'controle-temperatura'
   | 'sgq-documentos'
+  | 'sgq-lista-mestra'
   | 'rastreabilidade'
   | 'analytics'
   | 'exports'
