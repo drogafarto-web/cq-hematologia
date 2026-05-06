@@ -1,110 +1,50 @@
 {
   "version": "1.0",
-  "timestamp": "2026-05-04T11:35:00Z",
-  "context": "adr-driven-batch",
-  "batch": "Phase 2 Batch 1",
-  "adrs": [0004, 0003, 0001],
+  "timestamp": "2026-05-05T00:00:00.000Z",
+  "phase": "milestone-v1.1",
+  "phase_name": "Phase 3.3 Polish — COMPLETE",
+  "phase_dir": ".planning/phases/03.3-polish",
+  "plan": null,
+  "task": null,
+  "total_tasks": 11,
   "status": "paused",
-  "reason": "Context limit 98%",
   "completed_tasks": [
-    {
-      "id": 1,
-      "name": "ADR 0004 Wave 3: POPs UI + Smoke Test",
-      "status": "done",
-      "commit": "be35a40",
-      "hours": 2
-    },
-    {
-      "id": 2,
-      "name": "ADR 0003 Wave 4: NC Rules Callable-Only",
-      "status": "done",
-      "commit": "799ac90",
-      "hours": 1
-    },
-    {
-      "id": 3,
-      "name": "ADR 0001 Wave 1: Audit Trail Skeleton",
-      "status": "done",
-      "commit": "c963e4b",
-      "hours": 0.5,
-      "note": "Skeleton only — Wave 2 critical"
-    }
+    {"id": 1, "name": "Phase 1 — ADRs 0002+0005+0006+0003+0004+0007", "status": "done", "commit": "deployed"},
+    {"id": 2, "name": "Phase 2 — 20/20 modules in production, 347/347 tests", "status": "done", "commit": "deployed"},
+    {"id": 3, "name": "Phase 3.1 — Foundation (mobile scaffold, analytics CF, export Pub/Sub)", "status": "done", "commit": "deployed"},
+    {"id": 4, "name": "Phase 3.2 — Core features (4 dashboards + ExportWizard + Detox E2E gates)", "status": "done", "commit": "deployed"},
+    {"id": 5, "name": "Phase 3.3-01 — Mobile Detox E2E (5 critical flows)", "status": "done", "commit": "deployed"},
+    {"id": 6, "name": "Phase 3.3-02 — Analytics polish (polling/filters/PDF/tablet responsive)", "status": "done", "commit": "05fba32"},
+    {"id": 7, "name": "Phase 3.3-03 — Export polish (XLSX CF/PDF compression/email/batch+scheduled)", "status": "done", "commit": "05fba32"}
   ],
-  "remaining_tasks": [
+  "remaining_tasks": [],
+  "blockers": [],
+  "human_actions_pending": [
     {
-      "id": 4,
-      "name": "ADR 0003 Wave 5: E2E Blocking Gate Tests",
-      "status": "not_started",
-      "estimated_hours": 1
+      "action": "Commit .claude/settings.local.json (permission allowlist changes)",
+      "context": "Only uncommitted file in working tree. Covers Bash/tool permission additions from Phase 3.3 sessions.",
+      "blocking": false
     },
     {
-      "id": 5,
-      "name": "ADR 0001 Wave 2: Complete Audit Trail Callable",
-      "status": "not_started",
-      "estimated_hours": 2,
-      "blocking": true
+      "action": "Create docs/PERFORMANCE_PATTERNS.md (Stream C gap)",
+      "context": "Stream C PARTIAL — Lighthouse CI infra is done but PERFORMANCE_PATTERNS.md was never written. Referenced by .claude/rules/performance.md.",
+      "blocking": false
     },
     {
-      "id": 6,
-      "name": "Phase 2 Batch 2: ADRs 0002/0006/0007",
-      "status": "not_started",
-      "estimated_hours": 8
-    }
-  ],
-  "blockers": [
-    {
-      "description": "ADR 0001 Wave 1 is skeleton — previousHash chain not implemented",
-      "type": "technical",
-      "severity": "high",
-      "workaround": "Wave 2 mandatory before production audit"
-    }
-  ],
-  "anti_patterns": [
-    {
-      "pattern": "Context fatigue",
-      "description": "Attempted 3 large tasks (7h) in 1 session → 98% context",
-      "severity": "blocking",
-      "prevention": "Max 2-3 waves per session. Use /clear between sessions."
-    },
-    {
-      "pattern": "Skeleton-only commits",
-      "description": "ADR 0001 Wave 1 callable incomplete — production risk if deployed",
-      "severity": "blocking",
-      "prevention": "Verify Wave 2 complete before compliance audit"
-    },
-    {
-      "pattern": "E2E tests not executed",
-      "description": "ADR 0003 W4 rules verified static, behavior untested",
-      "severity": "advisory",
-      "prevention": "Run ncBlockingGates.test.ts before production"
+      "action": "Wire Firebase Performance Monitoring dashboards + alerting (Stream C gap)",
+      "context": "perf.web.app() is initialized but no alerts or budget thresholds are configured in Firebase console.",
+      "blocking": false
     }
   ],
   "decisions": [
-    {
-      "decision": "ADR 0003 W4: callable-only pattern",
-      "rationale": "Fail-safe prevents accidental direct writes",
-      "adr": 0003
-    },
-    {
-      "decision": "ADR 0001 W1 scope: skeleton only",
-      "rationale": "Context limit 98% — HMAC chain deferred to Wave 2",
-      "adr": 0001
-    },
-    {
-      "decision": "Smoke test manual via browser",
-      "rationale": "Validated POPs workflow end-to-end via UI",
-      "adr": 0004
-    }
+    {"decision": "Stream C Lighthouse CI infra done; runtime audit deferred", "rationale": "Runtime profiling requires human-run Lighthouse session against prod; blocked on manual execution", "phase": "3.3"},
+    {"decision": "docs/PERFORMANCE_PATTERNS.md not yet created", "rationale": "Stream C partial — planned but not executed in Phase 3.3 sprint", "phase": "3.3"},
+    {"decision": "Phase 4 remains in backlog", "rationale": "Advanced compliance + multi-site + integrations — not scoped for milestone v1.1", "phase": "planning"},
+    {"decision": "isAuthenticated rules for analytics + export-jobs (TEMP-IMPLANTACAO)", "rationale": "Rollout period: broad access to allow demo without membership checks. Must be tightened pre-GA.", "phase": "3.3"}
   ],
-  "git_state": {
-    "branch": "main",
-    "commits_ahead": 67,
-    "latest_commits": [
-      "c963e4b ADR 0001 Wave 1",
-      "799ac90 ADR 0003 Wave 4",
-      "be35a40 ADR 0004 Wave 3"
-    ]
-  },
-  "next_action": "/clear → /gsd-resume-work → ADR 0003 W5 + ADR 0001 W2",
-  "context_notes": "Wave-based work should not exceed 2-3 waves per session. This session: completed 2.5 waves (POPs W3 + NC W4 + Auditoria W1 skeleton). Discovered: attempted too much given context limit. Mitigation: next session start fresh with /clear."
+  "uncommitted_files": [
+    ".claude/settings.local.json"
+  ],
+  "next_action": "Choose: (A) write docs/PERFORMANCE_PATTERNS.md + wire Firebase Perf alerts to close Stream C, or (B) /gsd-new-milestone for Phase 4.",
+  "context_notes": "This session was a progress check only — no code written. Milestone v1.1 is 100% complete per STATE.md. 738/738 tests green. Web + Functions TSC clean. Production live at hmatologia2.web.app. The only loose threads are Stream C (perf docs + monitoring alerts) and the TEMP-IMPLANTACAO auth rules that should be tightened before GA."
 }
