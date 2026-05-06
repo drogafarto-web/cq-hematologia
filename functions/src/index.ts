@@ -228,11 +228,21 @@ export {
 // enviarComunicacaoEmail: Callable that sends email via Resend
 //   - Constructs HTML email with critical results
 //   - Creates Comunicacao doc with delivery status
+// generateLaudoPDF: Puppeteer-based PDF rendering for liberated laudo versions
+//   - 14 RDC 978 Art. 167 fields, QR validation in footer, watermark
+//   - Uploads to Cloud Storage + returns signed URL (1h default expiration)
+//   - Updates LaudoVersion with pdfUrl + pdfHash
+// validarLaudoPublico: HTTPS public endpoint for QR-coded validation
+//   - Returns metadata-only (no PII) — hash, RT, version, isCurrent, lab
+//   - Rate-limited 60 req/h/IP (Firestore counter)
+//   - HTML default + JSON for Accept: application/json
 export {
   criarLaudo,
   liberarLaudo,
   detectarCriticos,
   enviarComunicacaoEmail,
+  generateLaudoPDF,
+  validarLaudoPublico,
 } from './liberacao/index';
 
 // ─── auditoria module (ADR 0004 — Internal Audit + Findings → NC Auto-gen) ────
