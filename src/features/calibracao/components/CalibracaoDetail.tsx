@@ -9,7 +9,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { downloadCertificate } from '../services/certificateUploadService';
+import { getDownloadUrl } from '../services/certificateUploadService';
 import type { CalibracaoRecord } from '../types/index';
 
 interface CalibracaoDetailProps {
@@ -85,15 +85,13 @@ function CalibracaoTimeline({ record }: { record: CalibracaoRecord }) {
               <button
                 onClick={async () => {
                   try {
-                    const blob = await downloadCertificate(cert);
-                    const url = URL.createObjectURL(blob);
+                    const downloadUrl = await getDownloadUrl(cert);
                     const a = document.createElement('a');
-                    a.href = url;
+                    a.href = downloadUrl;
                     a.download = cert.filename;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
                   } catch (err) {
                     console.error('Erro ao fazer download:', err);
                     alert('Erro ao fazer download do certificado');

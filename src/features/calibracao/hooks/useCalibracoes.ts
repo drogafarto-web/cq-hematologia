@@ -9,7 +9,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useAuthStore } from '../../../store/useAuthStore';
+import { useActiveLabId } from '../../../store/useAuthStore';
 import { watchCalibraces } from '../services/calibracaoService';
 import type { CalibracaoRecord } from '../types/index';
 
@@ -20,7 +20,7 @@ export interface UseCalibracoesResult {
 }
 
 export function useCalibracoes(): UseCalibracoesResult {
-  const labId = useAuthStore((s) => s.activeLabId);
+  const labId = useActiveLabId();
   const [calibracoes, setCalibracoes] = useState<CalibracaoRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);

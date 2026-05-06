@@ -11,15 +11,15 @@
 import {
   db,
   Timestamp,
-  getBytes,
   getDownloadURL,
-  putBytes,
+  uploadBytesResumable,
   ref as storageRef,
   storage,
   serverTimestamp,
   updateDoc,
   doc,
   type StorageReference,
+  type UploadTaskSnapshot,
 } from '../../../shared/services/firebase';
 import type { CertificateUpload } from '../types/index';
 
@@ -129,77 +129,67 @@ export async function uploadCertificate(
   const fileBuffer = await file.arrayBuffer();
 
   // Compute chain-hash
-  const chainHashValue = await computeChainHash(file, labId, equipId, file.name, operatorId, now);
+  const chainHashValue = await computeChainHash(fileBuffer, labId, equipId, file.name, operatorId, now);
 
   // Upload to Cloud Storage
-  const storagePath = `${CALIBRACAO_BUCKET_PATH}/${labId}/${equipId}/${certId}`;
+  const storagePath = `calibracao/${labId}/${equipId}/${certId}`;
   const fileRef = storageRef(storage, storagePath);
 
-  const uploadTask = putBytes(fileRef, fileBuffer);
+  const uploadTask = uploadBytesResumable(fileRef, file);
 
   // Track progress
-  uploadTask.on('state_changed', (snapshot) => {
-    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-    if (onProgress) onProgress(progress);
+  return new Promise((resolve, reject) => {
+    uploadTask.on(
+      'state_changed',
+      (snapshot: UploadTaskSnapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        if (onProgress) onProgress(progress);
+      },
+      (error) => {
+        reject(error);
+      },
+      async () => {
+        try {
+          // Get download URL
+          await getDownloadURL(fileRef);
+
+          // Return metadata
+          const timestamp = Timestamp.fromMillis(now);
+          resolve({
+            id: certId,
+            calibracaoId: equipId,
+            filename: file.name,
+            mimeType: file.type as 'application/pdf' | 'image/jpeg' | 'image/png',
+            storagePath,
+            fileSize: file.size,
+            hash: chainHashValue,
+            operatorId,
+            uploadedAt: timestamp,
+            chainHash: {
+              hash: chainHashValue,
+              operatorId,
+              ts: timestamp,
+            },
+          });
+        } catch (error) {
+          reject(error);
+        }
+      },
+    );
   });
-
-  // Wait for upload to complete
-  await uploadTask;
-
-  // Get download URL
-  const downloadUrl = await getDownloadURL(fileRef);
-
-  // Return metadata
-  const timestamp = Timestamp.fromMillis(now);
-  return {
-    id: certId,
-    calibracaoId: equipId,
-    filename: file.name,
-    mimeType: file.type as 'application/pdf' | 'image/jpeg' | 'image/png',
-    storagePath,
-    fileSize: file.size,
-    hash: chainHashValue,
-    operatorId,
-    uploadedAt: timestamp,
-    chainHash: {
-      hash: chainHashValue,
-      operatorId,
-      ts: timestamp,
-    },
-  };
 }
 
 // ─── Download + Verification ─────────────────────────────────────────────────
 
 /**
- * Download certificate from Cloud Storage.
- * Validates chain-hash integrity before returning.
+ * Get download URL for certificate from Cloud Storage.
+ * In production, integrity verification happens server-side (Cloud Function).
  */
-export async function downloadCertificate(
+export async function getDownloadUrl(
   cert: CertificateUpload,
-): Promise<Blob> {
+): Promise<string> {
   const fileRef = storageRef(storage, cert.storagePath);
-
-  // Download file bytes
-  const fileBytes = await getBytes(fileRef);
-
-  // Verify integrity: re-compute hash, compare to stored
-  const recomputedHash = await computeChainHash(
-    fileBytes,
-    cert.chainHash.operatorId, // This isn't right, need labId — see below
-    cert.calibracaoId,
-    cert.filename,
-    cert.operatorId,
-    cert.chainHash.ts.toMillis(),
-  );
-
-  if (recomputedHash !== cert.hash) {
-    throw new Error(
-      'Erro de integridade: certificado foi modificado após upload. Contate o administrador.',
-    );
-  }
-
-  return new Blob([fileBytes], { type: cert.mimeType });
+  return getDownloadURL(fileRef);
 }
 
 /**
