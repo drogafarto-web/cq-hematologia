@@ -12,6 +12,15 @@ import { DICABloco, SGDDocumento } from './types/SGDDocumento'
  */
 export const SGDView: React.FC = () => {
   const labId = useActiveLabId()
+
+  if (!labId) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0c] text-white flex items-center justify-center">
+        <p className="text-white/60">Laboratório não selecionado</p>
+      </div>
+    )
+  }
+
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null)
   const [showImporter, setShowImporter] = useState(false)
   const [categoria, setCategoria] = useState<DICABloco | undefined>(undefined)
