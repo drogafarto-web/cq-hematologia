@@ -12,7 +12,7 @@
  */
 
 import React, { useRef, useState } from 'react';
-import { useAuthStore } from '../../../store/useAuthStore';
+import { useActiveLabId, useUser } from '../../../store/useAuthStore';
 import { useCertificateUpload } from '../hooks/useCertificateUpload';
 import { addCertificateToCalibracao } from '../services/calibracaoService';
 import type { CalibracaoRecord } from '../types/index';
@@ -33,8 +33,9 @@ export default function CertificateUploadModal({
   onClose,
   onSuccess,
 }: CertificateUploadModalProps) {
-  const labId = useAuthStore((s) => s.activeLabId);
-  const userId = useAuthStore((s) => s.user?.uid);
+  const labId = useActiveLabId();
+  const user = useUser();
+  const userId = user?.uid;
   const { file, progress, error, upload, clear } = useCertificateUpload();
   const [state, setState] = useState<ModalState>('idle');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
