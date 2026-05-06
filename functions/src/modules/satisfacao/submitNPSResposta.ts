@@ -4,16 +4,22 @@ import { db, admin } from '../../shared/firebase';
 import { z } from 'zod';
 import { verifyNPSToken } from '../../shared/tokenUtils';
 
-const NPSRespostaInputSchema = z.object({
-  npsToken: z.string().min(20),
-  nota: z.number().int().min(0).max(10),
-  comentario: z.string().max(1000).optional(),
-  consentimentoLgpd: z.object({
-    aceito: z.boolean(),
-    ipAddress: z.string(),
-    userAgent: z.string(),
-  }),
-});
+// Per SECURITY_AUDIT.md #3 + #14: strict schema, all string fields capped,
+// .strict() on objects rejects unknown keys.
+const NPSRespostaInputSchema = z
+  .object({
+    npsToken: z.string().min(20).max(2048),
+    nota: z.number().int().min(0).max(10),
+    comentario: z.string().max(1000).optional(),
+    consentimentoLgpd: z
+      .object({
+        aceito: z.boolean(),
+        ipAddress: z.string().max(45),
+        userAgent: z.string().max(1000),
+      })
+      .strict(),
+  })
+  .strict();
 
 type NPSRespostaInput = z.infer<typeof NPSRespostaInputSchema>;
 

@@ -90,8 +90,12 @@ const logger = functions.logger;
 // Input Validation (Zod)
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Per SECURITY_AUDIT.md #3: replaced z.record(z.any()) with z.record(z.unknown())
+// (caller still has to cast to use it server-side, no implicit any) and added
+// length caps + .strict() on all object schemas to reject unknown keys.
+// Also caps ipAddress (45 = max for IPv6 + zone) and userAgent (#14).
 const CreateReclamacaoCallableInput = z.object({
-  labId: z.string().min(1),
+  labId: z.string().min(1).max(100),
   canalEntrada: z.enum([
     'web-interno',
     'web-publico',
@@ -100,34 +104,44 @@ const CreateReclamacaoCallableInput = z.object({
     'qr-laudo',
     'worklab-deep-link',
   ]),
-  descricao: z.string().min(10, 'Descrição mínima 10 caracteres'),
-  reclamante: z.object({
-    nome: z.string().min(3),
-    cpf: z.string().regex(/^\d{11}$/, 'CPF deve ter 11 dígitos'),
-    email: z.string().email().optional(),
-    telefone: z.string().regex(/^\d{10,11}$/).optional(),
-  }),
-  consentimentoLgpd: z.object({
-    aceito: z.literal(true, { errorMap: () => ({ message: 'Consentimento LGPD obrigatório' }) }),
-    ipAddress: z.string(),
-    userAgent: z.string(),
-  }),
-  origemDados: z.object({
-    source: z.string(),
-    metadata: z.record(z.any()).optional(),
-  }),
-  recaptchaToken: z.string().optional(),  // web-publico only
+  descricao: z.string().min(10, 'Descrição mínima 10 caracteres').max(10000),
+  reclamante: z
+    .object({
+      nome: z.string().min(3).max(200),
+      cpf: z.string().regex(/^\d{11}$/, 'CPF deve ter 11 dígitos'),
+      email: z.string().email().max(255).optional(),
+      telefone: z.string().regex(/^\d{10,11}$/).optional(),
+    })
+    .strict(),
+  consentimentoLgpd: z
+    .object({
+      aceito: z.literal(true, { errorMap: () => ({ message: 'Consentimento LGPD obrigatório' }) }),
+      ipAddress: z.string().max(45),
+      userAgent: z.string().max(1000),
+    })
+    .strict(),
+  origemDados: z
+    .object({
+      source: z.string().min(1).max(100),
+      // metadata: server consumers must validate before use. z.unknown() forces
+      // explicit casts at the call site instead of silent any propagation.
+      metadata: z.record(z.unknown()).optional(),
+    })
+    .strict(),
+  recaptchaToken: z.string().max(2048).optional(),  // web-publico only
   anexos: z
     .array(
-      z.object({
-        storageUrl: z.string(),
-        mimeType: z.string(),
-        size: z.number(),
-      })
+      z
+        .object({
+          storageUrl: z.string().url().max(2048),
+          mimeType: z.string().max(255),
+          size: z.number().int().nonnegative().max(50 * 1024 * 1024), // 50 MB cap
+        })
+        .strict()
     )
     .max(5)
     .optional(),
-});
+}).strict();
 
 // ─────────────────────────────────────────────────────────────────────────────
 // reCAPTCHA Validation
