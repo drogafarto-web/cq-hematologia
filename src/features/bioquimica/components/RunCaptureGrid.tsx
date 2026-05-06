@@ -71,7 +71,7 @@ export function RunCaptureGrid({
   return (
     <div className="rounded-xl border border-white/[0.09] overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-sm font-mono text-white/80">
+        <table className="w-full text-sm font-mono text-white/80" role="grid" aria-label="Grade de captura de resultados de analitos">
           <thead>
             <tr className="bg-white/[0.03] border-b border-white/[0.09]">
               <th className="px-4 py-2.5 text-left text-xs font-semibold text-white/40">Analito</th>
@@ -79,6 +79,7 @@ export function RunCaptureGrid({
                 <th
                   key={nivel}
                   className="px-3 py-2.5 text-right text-xs font-semibold text-white/40 min-w-20"
+                  scope="col"
                 >
                   Nível {nivel}
                 </th>
@@ -88,7 +89,7 @@ export function RunCaptureGrid({
           <tbody className="divide-y divide-white/[0.05]">
             {analitoIds.map((analitoId) => (
               <tr key={analitoId} className="hover:bg-white/[0.02]">
-                <td className="px-4 py-3 text-white/70">{analitoId}</td>
+                <th scope="row" className="px-4 py-3 text-white/70 text-left font-mono">{analitoId}</th>
                 {niveis.map((_, nivelIdx) => (
                   <td key={nivelIdx} className="px-3 py-3">
                     <input
@@ -97,9 +98,10 @@ export function RunCaptureGrid({
                       value={results[analitoId]?.[nivelIdx] || ''}
                       onChange={(e) => handleCellChange(analitoId, nivelIdx, e.target.value)}
                       onPaste={handlePaste}
-                      className="w-full bg-transparent text-right border border-white/[0.09] rounded px-2 py-1 text-white/80
-                        focus:outline-none focus:border-violet-500/50 transition-colors"
+                      className="w-full bg-transparent text-right border border-white/[0.09] rounded px-2 py-2 text-white/80
+                        focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:ring-offset-2 focus:ring-offset-[#141417] transition-colors"
                       placeholder="0.00"
+                      aria-label={`Resultado do analito ${analitoId} nível ${niveis[nivelIdx]}`}
                     />
                   </td>
                 ))}
@@ -108,8 +110,8 @@ export function RunCaptureGrid({
           </tbody>
         </table>
       </div>
-      <p className="text-xs text-white/30 px-4 py-2 border-t border-white/[0.09]">
-        Dica: Cole valores Excel (tab-separated)
+      <p className="text-xs text-white/40 px-4 py-2 border-t border-white/[0.09]">
+        💡 Cole valores Excel (tab-separated) para preencher múltiplos resultados
       </p>
     </div>
   );

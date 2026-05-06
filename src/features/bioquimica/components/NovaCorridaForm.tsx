@@ -22,7 +22,7 @@ import { LotSwitcher } from './LotSwitcher';
 
 function SwapIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
       <path
         d="M2 7a5 5 0 0110 0M12 7V4h-3"
         stroke="currentColor"
@@ -36,7 +36,7 @@ function SwapIcon() {
 
 function SaveIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
       <path
         d="M2 2h6v3h4v6a1 1 0 01-1 1H3a1 1 0 01-1-1V2z"
         stroke="currentColor"
@@ -121,7 +121,8 @@ export function NovaCorridaForm() {
           id="equip-select"
           value={selectedEquipmentId}
           onChange={(e) => setSelectedEquipmentId(e.target.value)}
-          className="w-full px-3 py-2 rounded-lg bg-white/[0.06] border border-white/[0.09] text-white/90 text-sm focus:outline-none focus:border-violet-500/50 transition-colors"
+          className="w-full px-3 py-2.5 rounded-lg bg-white/[0.06] border border-white/[0.09] text-white/90 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:ring-offset-2 focus:ring-offset-[#141417] transition-colors"
+          aria-label="Selecionar equipamento para captura"
         >
           <option value="">Selecionar equipamento...</option>
           {equipamentos.map((e) => (
@@ -144,7 +145,8 @@ export function NovaCorridaForm() {
                 </div>
                 <button
                   onClick={() => setSwitchingLot(activeLot.id)}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 text-xs font-medium transition-colors"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 active:bg-blue-500/40 border border-blue-500/30 text-blue-300 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-[#141417]"
+                  aria-label="Trocar lote de controle"
                 >
                   <SwapIcon />
                   Trocar
@@ -222,8 +224,9 @@ export function NovaCorridaForm() {
           <button
             onClick={handleSubmit}
             disabled={submitting || !activeLot}
-            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 disabled:opacity-50
-              border border-emerald-500/30 text-emerald-300 font-medium transition-colors"
+            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 active:bg-emerald-500/40 disabled:opacity-50 disabled:cursor-not-allowed
+              border border-emerald-500/30 text-emerald-300 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:ring-offset-2 focus:ring-offset-[#141417]"
+            aria-busy={submitting}
           >
             <SaveIcon />
             {submitting ? 'Salvando...' : 'Salvar Corrida'}

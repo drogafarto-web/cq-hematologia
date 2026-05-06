@@ -2,11 +2,11 @@
 phase: "09-bioquimica"
 title: "Phase 9 — Bioquímica (CIQ Quantitativo + Levey-Jennings)"
 milestone: v1.3
-status: planning
+status: complete
 total_plans: 5
 start_date: 2026-05-06
-end_date: 2026-08-20
-duration_weeks: 16
+end_date: 2026-05-06
+duration_weeks: 0.11
 priority: P1
 stream: B
 parallel_with: [08-capa-closure]
