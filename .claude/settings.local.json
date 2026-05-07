@@ -101,7 +101,8 @@
       "Bash(echo \"EXIT: $?\")",
       "Bash(npm run *)",
       "Bash(echo \"BUILD EXIT: $?\")",
-      "Bash(echo \"WEB TSC EXIT: $?\")"
+      "Bash(echo \"WEB TSC EXIT: $?\")",
+      "Bash(where gsd-sdk *)"
     ]
   },
   "enabledMcpjsonServers": [

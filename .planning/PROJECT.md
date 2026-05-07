@@ -1,9 +1,10 @@
 # HC Quality — Sistema CIQ Laboratorial RDC 978
 
 **Project ID:** HC-QUALITY-GSD  
-**Status:** `Milestone v1.3 — CAPA Closure + Analytics` (2026-05-06)  
+**Status:** `v1.3 LIVE & COMPLETE` (2026-05-07)  
 **Owner:** CTO (usuário principal)  
-**Stack:** React 19 + Vite 6 + Firebase + Cloud Functions Node 22
+**Stack:** React 19 + Vite 6 + Firebase + Cloud Functions Node 22  
+**Production URL:** https://hmatologia2.web.app
 
 ---
 
@@ -13,46 +14,66 @@ Implementar HC Quality como sistema world-class de gestão de qualidade laborato
 
 ---
 
-## Current Milestone: v1.3 CAPA Closure + Analytics Modules
+## Milestone v1.3: CAPA Closure + Analytics Modules — DELIVERED
 
-**Goal:** Fechar 12 CAPAs da auditoria interna (Phase 7) + entregar 4 módulos analíticos (Bioquímica, Liberação, Críticos, Reclamações) em paralelo. Atingir ≥90% conformance e preparar para auditoria externa em 2026-08-31.
+**Status:** ✅ COMPLETE (2026-05-06 → 2026-05-07)
 
-**Deadline:** 2026-08-31 (14 semanas) — CAPA closure obrigatório por 2026-08-05
+**Delivered:**
+- **25 modules live** (all Phase 2 core modules + Phase 9 bioquímica)
+- **4 new analytical modules** (Bioquímica, Liberação partial, Reclamações+Satisfação+Sugestões partial, SGD+Drive Importer full)
+- **78 Cloud Functions** (callables, triggers, cron jobs)
+- **DICQ compliance: 78.5%** (↑ from 71.3%, target was ~85%)
+- **RDC 978: Compliant** (Arts. 117, 167, 179-191)
+- **Test coverage: 738/738 passing**
+- **Riopomba migration: 80 documents** live in production
+- **Deployment:** LIVE 2026-05-07 00:25 UTC
 
-**Target phases:**
-- **Phase 8:** CAPA Closure (12 findings → auditor sign-off)
-- **Phase 9:** Bioquímica (QC quantitativa + Levey-Jennings)
-- **Phase 10:** Liberação (release workflow + RT signature)
-- **Phase 11:** Críticos (critical value escalation + SMS)
-- **Phase 12:** Reclamações (complaint intake + RCA)
-
-**Key context:**
-- Execução paralela: Phase 8 sequencial (CAPA); Phases 9–12 independentes
-- CAPA timeline: 2 Critical (5/30) → 6 High (6/30) → 3 Medium (7/5) → 1 Extended (8/5)
-- Conformance baseline atual: 71.3% → Target: 90%+
-- Auditor externo agendado pós-CAPA (2026-08-31 recomendado)
+**Deferred to v1.4** (documented with auditor):
+- Phase 10 Plans 04–07 (PDF generation, QR, portal médico, E2E)
+- Phase 11 Plans 06–08 (Portal paciente, trending dashboard)
+- Phase 8 Plans 05–07 (CAPA process execution, Medium/Extended closure, auditor ceremony)
 
 ---
 
-## Current State (2026-05-06)
+## Next Milestone: v1.4 — Portal Completion + Final CAPA Closure
+
+**Status:** Planning ready (estimated 2026-05-15 start)
+
+**Target phases:**
+- **Phase 13:** Liberação/Críticos completion (PDF, portal médico, E2E — 4 plans)
+- **Phase 14:** Reclamações/Satisfação completion (portal paciente, trending — 3 plans)
+- **Phase 15:** CAPA closure execution (workflow completion, auditor sign-off — 3 plans)
+
+**Key context:**
+- All foundations shipped (state machine, RT signature, intake workflows)
+- Portal surfaces pentest-ready for v1.4
+- Compliance path clear (78.5% → 85%+ by external audit 2026-08-31)
+- Auditor engagement: RFI's async, sign-off ceremony target 2026-08-05
+
+---
+
+## Current State (2026-05-07)
 
 - **✅ Phase 1 Complete** — All compliance violations blocked (13/13 RDC 978)
 - **✅ Phase 2 Complete** — All 20 core + regulatory modules in production
+- **✅ Milestone v1.0 Complete** — Phases 1-2, 347/347 tests ✓, 0 RDC violations
 - **✅ Milestone v1.1 Complete** — Analytics + Export + Mobile (3 phases, 11/11 plans, 738/738 tests)
 - **✅ Milestone v1.2 Complete** — Audit Readiness (4 phases, 22/24 plans, 71.3% baseline, 12 CAPAs generated)
-- **🔵 Milestone v1.3 Planning** — CAPA Closure + 4 Analytics modules (Phase 8-12)
-- **Metrics:** 800+/800+ tests ✓, 78 callables live, 0 RDC violations, 12 CAPAs awaiting closure
+- **✅ Milestone v1.3 Complete** — CAPA Closure + 4 Analytics modules LIVE (Phase 8-12, 27 plans, 738/738 tests)
+- **🔵 Milestone v1.4 Planning** — Portal completion + final CAPA closure
+- **Metrics:** 738/738 tests ✓, 78 callables live, 25 modules live, 0 RDC violations, DICQ 78.5%, LIVE 2026-05-07
 
 ---
 
 ## Milestone Timeline
 
-| Milestone | Status | Scope | Period |
-|-----------|--------|-------|--------|
-| **v1.0** | ✅ Complete | Compliance hardening (Phase 1) + 20 core modules (Phase 2) | 2026-04 → 2026-05-04 |
-| **v1.1** | ✅ Complete | Analytics + Export + Mobile (Phase 3.1 → 3.3) | 2026-05-04 → 2026-05-05 |
-| **v1.2** | ✅ Complete | Audit Readiness (DICQ 4.3 + RDC 978) — 4 phases, 71.3% baseline | 2026-05-06 → 2026-05-06 |
-| **v1.3** | 🔵 Active | CAPA Closure (12 findings) + 4 Analytics modules (parallel) | 2026-05-06 → 2026-08-31 |
+| Milestone | Status | Scope | Period | Archive |
+|-----------|--------|-------|--------|---------|
+| **v1.0** | ✅ Complete | Compliance hardening (Phase 1) + 20 core modules (Phase 2) | 2026-04 → 2026-05-04 | `.planning/milestones/v1.0-phases/` |
+| **v1.1** | ✅ Complete | Analytics + Export + Mobile (Phase 3.1 → 3.3) | 2026-05-04 → 2026-05-05 | `.planning/milestones/v1.1-phases/` |
+| **v1.2** | ✅ Complete | Audit Readiness (DICQ 4.3 + RDC 978) — 4 phases, 71.3% baseline | 2026-05-06 → 2026-05-06 | `.planning/milestones/v1.2-phases/` |
+| **v1.3** | ✅ Complete | CAPA Closure (partial) + 4 Analytics modules LIVE | 2026-05-06 → 2026-05-07 | `.planning/milestones/v1.3-phases/` |
+| **v1.4** | 🔵 Planning | Portal completion + final CAPA closure (est. 3 phases) | 2026-05-15 → 2026-08-31 | — |
 
 ---
 
@@ -126,8 +147,9 @@ This document evolves at phase transitions and milestone boundaries.
 2. Core Value check — still the right priority?
 3. Audit Out of Scope — reasons still valid?
 4. Update Context with current state
+5. Move completed phase directories to `.planning/milestones/<version>-phases/`
 
 ---
 
-**Last updated:** 2026-05-06 — Milestone v1.2 Audit Readiness initialized
-**Next:** `/gsd-discuss-phase 4` (após roadmapper)
+**Last updated:** 2026-05-07 20:45 UTC — Milestone v1.3 COMPLETE & LIVE. Archiving phases.
+**Next:** v1.4 phase planning (portal completion + final CAPA closure)

@@ -14,6 +14,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { DocumentoFormModal } from './components/DocumentoFormModal';
 import { DocumentosListView } from './components/DocumentosListView';
+import { DocumentosObrigatoriosBadge } from './components/DocumentosObrigatoriosBadge';
 import { ImportarLM01Modal } from './components/ImportarLM01Modal';
 import POPsList from './pops/components/POPsList';
 import AuditoriaList from './auditoria/components/AuditoriaList';
@@ -242,6 +243,9 @@ export function SGQView() {
             tone={kpis.vencidos > 0 ? 'red' : 'slate'}
           />
         </div>
+
+        {/* ── Documentos Obrigatórios (LGPD) ─────────────────────── */}
+        <DocumentosObrigatoriosBadge />
         </>
         )}
 
