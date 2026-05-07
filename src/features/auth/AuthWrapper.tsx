@@ -49,6 +49,11 @@ const TurnosView = React.lazy(() =>
   import('../turnos/components/TurnosView').then((m) => ({ default: m.TurnosView })),
 );
 
+// Phase 0: Risks (lazy-loaded)
+const RisksView = React.lazy(() =>
+  import('../risks/components/RisksView').then((m) => ({ default: m.RisksView })),
+);
+
 import { useBrowserHistorySync } from '../../shared/hooks/useBrowserHistorySync';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
@@ -229,6 +234,12 @@ function AppRouter() {
     view = (
       <React.Suspense fallback={<FullScreenLoader />}>
         <TurnosView />
+      </React.Suspense>
+    );
+  } else if (currentView === 'risks') {
+    view = (
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <RisksView />
       </React.Suspense>
     );
   } else {

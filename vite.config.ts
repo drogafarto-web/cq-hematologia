@@ -79,6 +79,9 @@ export default defineConfig(({ mode }) => {
           if (id.includes('src/features/turnos')) {
             return 'module-turnos';
           }
+          if (id.includes('src/features/risks')) {
+            return 'module-risks';
+          }
 
           // Shared services (low-churn, referenced by multiple modules)
           if (
