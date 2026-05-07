@@ -8,11 +8,11 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import { httpsCallable, HttpsCallableError } from 'firebase/functions';
+import { httpsCallable } from 'firebase/functions';
 import { functions } from '../../../shared/services/firebase';
 import { useActiveLabId, useUser } from '../../../store/useAuthStore';
 import { subscribeContratos, unwrapCallableError, type LabId } from '../services/labApoioService';
-import type { Contrato, ContratoInput, ContratoUpdateInput, AvaliacaoPeriodica } from '../types/LabApoio';
+import type { Contrato, ContratoInput, ContratoUpdateInput, AvaliacaoPeriodica, UserId } from '../types/LabApoio';
 
 interface UseLabApoioOptions {
   somenteAtivos?: boolean;
@@ -67,7 +67,7 @@ export function useLabApoio(options: UseLabApoioOptions = {}) {
         const result = await callable({ labId, ...input });
         return { id: result.data.contratoId };
       } catch (err) {
-        throw unwrapCallableError(err as HttpsCallableError);
+        throw unwrapCallableError(err);
       }
     },
     [labId, user],
@@ -83,7 +83,7 @@ export function useLabApoio(options: UseLabApoioOptions = {}) {
         );
         await callable({ labId, contratoId, ...input });
       } catch (err) {
-        throw unwrapCallableError(err as HttpsCallableError);
+        throw unwrapCallableError(err);
       }
     },
     [labId, user],
@@ -99,7 +99,7 @@ export function useLabApoio(options: UseLabApoioOptions = {}) {
         );
         await callable({ labId, contratoId, motivo });
       } catch (err) {
-        throw unwrapCallableError(err as HttpsCallableError);
+        throw unwrapCallableError(err);
       }
     },
     [labId, user],
@@ -115,7 +115,7 @@ export function useLabApoio(options: UseLabApoioOptions = {}) {
         );
         await callable({ labId, contratoId, avaliacao });
       } catch (err) {
-        throw unwrapCallableError(err as HttpsCallableError);
+        throw unwrapCallableError(err);
       }
     },
     [labId, user],
@@ -141,7 +141,7 @@ export function useLabApoio(options: UseLabApoioOptions = {}) {
         });
         return { url: result.data.url };
       } catch (err) {
-        throw unwrapCallableError(err as HttpsCallableError);
+        throw unwrapCallableError(err);
       }
     },
     [labId, user],

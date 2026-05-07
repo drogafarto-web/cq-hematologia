@@ -1,5 +1,7 @@
 import type { LabId, UserId, Timestamp } from './shared_refs';
 
+export type { LabId, UserId, Timestamp };
+
 // ─── Enumerations ────────────────────────────────────────────────────────────
 
 export type Criticidade = 'baixa' | 'media' | 'alta';

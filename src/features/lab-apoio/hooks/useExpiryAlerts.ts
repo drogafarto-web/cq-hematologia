@@ -47,7 +47,7 @@ export function useExpiryAlerts(contratos: Contrato[]): ExpiryBin {
 
     // Sort each bin by vigenciaFim ASC
     Object.values(bins).forEach((bin) => {
-      bin.sort((a, b) => a.vigenciaFim.localeCompare(b.vigenciaFim));
+      bin.sort((a: Contrato, b: Contrato) => a.vigenciaFim.localeCompare(b.vigenciaFim));
     });
 
     return bins;
