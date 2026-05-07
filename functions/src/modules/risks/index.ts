@@ -12,7 +12,7 @@ export { risks_updateRisk } from './updateRisk';
 export { risks_softDeleteRisk } from './softDeleteRisk';
 export { risks_registrarRevisao } from './registrarRevisao';
 export { onRiskEventCreated } from './onRiskEventCreated';
+export { scheduledReview } from './scheduledReview';
 
 // Later tasks will add:
 //   - risks_seedFromCsv (stretch, T5 optional)
-//   - scheduledReview (cron, T6)
