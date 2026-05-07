@@ -190,6 +190,22 @@ export {
   onTurnoEventCreated,
 } from './modules/turnos/index';
 
+// ─── lab-apoio module (Phase 0 / Plan 00-03 — RDC 978 Arts. 36–39) ────────────
+// Support lab contracts (CNPJ + AVS habilitação + vigência + exames + annual eval).
+// DL-1 — callables from day 1 (no client-side writes).
+//   labApoio_createContrato         — create with CNPJ validation + server-side signature
+//   labApoio_updateContrato         — edit observações + contatos + certificacoes (append-only)
+//   labApoio_softDeleteContrato     — logical delete only (RN-LABAPOIO-04)
+//   labApoio_registrarAvaliacaoPeriodica — append annual evaluation (Art. 39)
+//   labApoio_uploadContratoAnexo    — register PDF URL + size (Storage pre-validates)
+//   labApoio_checkExpiry            — scheduled cron: 60d/30d/7d/0d alerts (email + in-app)
+//   onContratoEventCreated          — Firestore trigger, computes chainHash per event
+export {
+  labApoio_createContrato,
+  labApoio_softDeleteContrato,
+  onContratoEventCreated,
+} from './modules/labApoio';
+
 // ─── qualidade module (ADR 0003 — Não-Conformidade) ─────────────────────────
 // Lifecycle management for quality incidents (Não-Conformidades).
 // openNaoConformidade: create NC with audit trail

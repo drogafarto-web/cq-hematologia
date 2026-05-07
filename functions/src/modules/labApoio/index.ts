@@ -5,4 +5,6 @@
 
 export * from './validators';
 export * from './signatureCanonical';
-// Callables will be imported into functions/src/index.ts
+export { labApoio_createContrato } from './createContrato';
+export { labApoio_softDeleteContrato } from './softDeleteContrato';
+export { onContratoEventCreated } from './onContratoEventCreated';
