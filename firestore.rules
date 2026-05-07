@@ -56,6 +56,43 @@ service cloud.firestore {
       return request.auth.token.get('modules', {})[module] == true;
     }
 
+    // ── Phase 3.2 Helpers (v1.4 Rules Extensions) ────────────────────────────
+    // isServer: Cloud Functions requests (via Admin SDK or callable context)
+    // Admin SDK calls present with request.auth == null; trusted callables carry
+    // a custom `server: true` claim. Previous form used `A || B && C` where the
+    // second branch required `request.auth.uid == null` AND a specific `aud`
+    // claim — but Admin SDK has no `request.auth` at all, making that branch
+    // unreachable in practice (Wave 2 diff analysis 2026-05-07).
+    function isServer() {
+      return request.auth == null || request.auth.token.server == true;
+    }
+
+    // isPatient: User with patient role in the lab (for patient portal access)
+    function isPatient(labId) {
+      return isActiveMemberOfLab(labId) && getMemberRole(labId) == 'patient';
+    }
+
+    // isAdminOrRT: Admin or RT (Responsável Técnico) — both can manage data
+    function isAdminOrRT(labId) {
+      let role = getMemberRole(labId);
+      return role == 'admin' || role == 'owner' || role == 'rt';
+    }
+
+    // validateNotivisaPayload: Validate NOTIVISA event structure (RDC 978 Art. 6º)
+    function validateNotivisaPayload(payload) {
+      return payload.laudo_id != null
+        && payload.patient_cpf != null
+        && payload.payload != null
+        && payload.status in ['PENDING', 'SENT', 'FAILED', 'DELIVERED'];
+    }
+
+    // validateDraftLock: Pessimistic lock validation for draft edits
+    // Allows write if locked_until_ts > now, or locked_by == current user
+    function validateDraftLock(d) {
+      return (d.locked_until_ts != null && d.locked_until_ts > request.time)
+        || (d.locked_by != null && d.locked_by == request.auth.uid);
+    }
+
     // ── /users ────────────────────────────────────────────────────────────────
 
     match /users/{userId} {
@@ -1896,6 +1933,59 @@ service cloud.firestore {
           allow update: if false;  // Immutable after creation
           allow delete: if false;  // Append-only trail
         }
+      }
+
+      // ── /labs/{labId}/portal-configuracao/** — Phase 4 (Patient Portal Config) ──
+      // Portal branding + localization per lab (colors, labels, terms).
+      // Patient: read lab portal config (for branding in portal)
+      // RT/Admin: write config (rebranding)
+      match /portal-configuracao/{docId} {
+        allow read: if isPatient(labId) || isActiveMemberOfLab(labId);
+        allow write: if isAdminOrRT(labId) && request.resource.data.updatedBy == request.auth.uid;
+      }
+
+      // ── /labs/{labId}/notivisa-outbox/** — Phase 4 (NOTIVISA Regulatory Queue) ─
+      // Queue and audit trail for NOTIVISA notifications (RDC 978 Art. 6º §1).
+      // Admin/RT: create events (trigger NOTIVISA send)
+      // Server only: read and update status (polling, retry)
+      // Members: read for audit trail
+      match /notivisa-outbox/{docId} {
+        allow create: if isAdminOrRT(labId) && validateNotivisaPayload(request.resource.data);
+        allow read: if isServer() || isActiveMemberOfLab(labId);
+        allow update: if isServer();
+        allow delete: if false;  // Immutable audit trail
+      }
+
+      // ── /labs/{labId}/criticos-escalacoes/** — Phase 4 (Critical Escalation) ──
+      // Escalation tracking for critical result flagging (ISO 15189 5.8.7).
+      // Admin/RT: create escalation events
+      // Member: read (for trending dashboard)
+      // Admin/RT: update resolution
+      match /criticos-escalacoes/{docId} {
+        allow create: if isAdminOrRT(labId);
+        allow read: if isActiveMemberOfLab(labId);
+        allow update: if isAdminOrRT(labId) && request.resource.data.resolved_at != null;
+        allow delete: if false;  // Immutable escalation history
+      }
+
+      // ── /labs/{labId}/imuno-ias-dev/** — Phase 9 (IA Training Dataset) ──────────
+      // IA strip classification training data (server/admin only).
+      // Server/Admin: all access (IA training pipeline)
+      // Patients/Members: no access (development dataset)
+      match /imuno-ias-dev/{docId} {
+        allow read, write: if isServer() || isAdminOrRT(labId);
+        allow delete: if false;  // Training data immutable
+      }
+
+      // ── /labs/{labId}/laudos-draft/** — Phase 4 (Laudo Draft Management) ──────
+      // Draft storage + edit locks (pessimistic concurrency control).
+      // Admin/RT: create, edit (with lock validation)
+      // Members: read drafts
+      // Patient: read draft status
+      match /laudos-draft/{docId} {
+        allow create, write: if isAdminOrRT(labId) && validateDraftLock(request.resource.data);
+        allow read: if isActiveMemberOfLab(labId) || isPatient(labId);
+        allow delete: if false;  // Draft lifecycle managed by status, not hard delete
       }
 
       // ── /labs/{labId}/medicos-solicitantes/** — Phase 10 (Requesting Doctors) ─
