@@ -5,7 +5,9 @@
     "build:watch": "tsc --watch",
     "deploy": "firebase deploy --only functions",
     "pretest": "tsc",
-    "test": "node --test \"test/**/*.test.mjs\"",
+    "test": "jest --rootDir src",
+    "test:notivisa": "jest --testPathPattern=notivisa/__tests__",
+    "test:coverage": "jest --rootDir src --coverage",
     "preview:backup-pdf": "node scripts/preview-backup-pdf.mjs"
   },
   "engines": {
@@ -32,8 +34,13 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.11",
+    "@types/node": "^22.0.0",
     "@types/pdfkit": "^0.13.9",
+    "jest": "^29.7.0",
     "puppeteer": "^22.15.0",
+    "ts-jest": "^29.1.1",
     "typescript": "^5.9.3"
   },
   "private": true
