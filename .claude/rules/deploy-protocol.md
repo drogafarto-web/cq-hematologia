@@ -26,11 +26,28 @@ npx tsc --noEmit
 # 2. Build
 npm run build
 
-# 3. Deploy partes — nunca `firebase deploy` sozinho sem flag --only
+# 3. Pre-deploy gate: secret-status check (obrigatório antes de functions)
+bash scripts/preflight-secrets-check.sh
+
+# 4. Deploy partes — nunca `firebase deploy` sozinho sem flag --only
 firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2
 firebase deploy --only functions:<specific> --project hmatologia2
 firebase deploy --only hosting --project hmatologia2
 ```
+
+## Pre-deploy gate: secret-status check
+
+**Obrigatório antes de qualquer `firebase deploy --only functions`.** Bloqueia deploys onde algum `defineSecret('NAME')` em `functions/src/` resolve para um placeholder `PENDING_SET_*` ou valor vazio — a falha que motivou ADR-0017 (15 dias de assinaturas HMAC corrompidas).
+
+```bash
+bash scripts/preflight-secrets-check.sh
+```
+
+- Saída `0` (verde): seguro deployar functions.
+- Saída `1` (vermelho): pelo menos um secret declarado não foi provisionado. O output lista os nomes + o comando `firebase functions:secrets:set ...` exato para corrigir cada um.
+- Override de emergência: `bash scripts/preflight-secrets-check.sh --allow-pending-secrets` — só em incidente ativo. Logar no deploy notes e revisar em 24h.
+
+Referência: `docs/adr/ADR-0018-deploy-gate-secret-status-check.md` · `docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md`.
 
 ## Autorização de deploy
 
