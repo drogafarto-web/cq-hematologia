@@ -15,7 +15,7 @@ const ACCOUNT_SID = defineSecret('TWILIO_ACCOUNT_SID');
 const AUTH_TOKEN = defineSecret('TWILIO_AUTH_TOKEN');
 const PHONE_NUMBER = defineSecret('TWILIO_PHONE_NUMBER');
 
-let cachedClient: ReturnType<typeof twilio> | null = null;
+let cachedClient: any = null;
 
 export function createTwilioClient() {
   if (cachedClient) return cachedClient;

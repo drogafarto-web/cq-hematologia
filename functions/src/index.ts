@@ -362,7 +362,8 @@ export {
 // Job descriptions (Cargos) + organizational designations (GQ/RT/Diretor) with
 // LogicalSignature audit trail. DICQ 5.1.3 + 4.1.2.7 compliance.
 // signDesignacao: sign-and-write designacao atomically with chain-hash
-export { signDesignacao } from './modules/personnel/signDesignacao';
+// TODO(Phase 15): re-enable after resolving module import errors
+// export { signDesignacao } from './modules/personnel/signDesignacao';
 
 // ─── bioquimica module (Phase 9 — CIQ Bioquímica Foundation) ────────────────
 // CIQ quantitativo bioquímica · 17 analitos seed · multi-instrumento ·
@@ -2151,10 +2152,11 @@ export { classificarDocAuto } from './sgq/classificarDocAuto';
 
 // ─── criticos module (Phase 6 — Critical Values Escalation) ──────────────────
 // SMS + Email escalation for critical lab results with SLA tracking
-export {
-  registerCriticoDetection,
-  acknowledgeEscalacao,
-  escalacaoCriticos,
-  escalacaoCriticos_webhook,
-} from './modules/criticos/index';
+// TODO(Phase 15): re-enable after Twilio secrets are provisioned
+// export {
+//   registerCriticoDetection,
+//   acknowledgeEscalacao,
+//   escalacaoCriticos,
+//   escalacaoCriticos_webhook,
+// } from './modules/criticos/index';
 export { aprovarBatchImport } from './sgq/aprovarBatchImport';

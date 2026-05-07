@@ -175,7 +175,10 @@
       "Bash(awk '{print $9, \"\\(\" $5 \"\\)\"}')",
       "Bash(awk '{print $9, \"—\", $5}')",
       "Bash(awk '{printf \"%-50s %8s\\\\n\", $9, $5}')",
-      "Bash(sort -k2)"
+      "Bash(sort -k2)",
+      "Bash(Select-Object -ExpandProperty Name)",
+      "Bash(Sort-Object)",
+      "Bash([ -d \"C:/hc quality/src/features/$dir\" ])"
     ]
   },
   "model": "haiku",

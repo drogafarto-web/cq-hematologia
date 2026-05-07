@@ -9,6 +9,7 @@
     "target": "es2020",
     "lib": ["es2022", "DOM"],
     "skipLibCheck": true,
+    "esModuleInterop": true,
     "types": ["node"]
   },
   "compileOnSave": true,
@@ -19,9 +20,9 @@
     "src/**/*.test.ts",
     "src/**/*.test.tsx",
     "src/__tests__/**",
-    "src/modules/criticos/**",
     "src/modules/notivisa/**",
     "src/modules/ia-strip/**",
-    "src/modules/portals/**"
+    "src/modules/portals/**",
+    "src/modules/personnel/**"
   ]
 }

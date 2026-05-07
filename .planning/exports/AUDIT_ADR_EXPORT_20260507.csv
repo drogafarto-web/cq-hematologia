@@ -1,0 +1,26 @@
+ADR ID,Title,Date,RDC 978 Articles,DICQ Blocks,Threat Count,Status
+0001,"Arquitetura de espinhas (spines) para rastreabilidade RDC 978",2026-04-25,"Art. 117, Art. 6º, Art. 5.3","Blocks A-C, DICQ 4.3-4.4",4,Accepted
+0002,"Lote ↔ NF Obrigatório + Backfill",2026-05-02,"Art. 117, Art. 6º","Blocks A-B, DICQ 4.3",3,In Progress
+0003,"Non-Conformidade Global Spine + CAPA Workflow",2026-05-02,"Art. 117, Art. 86, Art. 122","Blocks A-C, DICQ 4.1.2.4, 4.4",5,Implemented
+0004,"POP Versionado / Documento Vigente",2026-05-02,"Art. 117, Art. 8.5.5, Art. 8.5.6","Blocks B-C, DICQ 4.3",4,Design Phase
+0005,"Helper cryptoAudit Centralizado",2026-05-02,"Art. 5.3, Art. 117","Blocks A-C, DICQ 4.4",6,Proposed
+0006,"Pessoa Completa (Qualificações + LGPD)",2026-05-02,"Art. 117, Lei 13.787","Blocks B-C, DICQ 4.2-4.3",3,Implementation
+0007,"Equipment Calibration + Maintenance Gating",2026-05-03,"Art. 5.3.1","Blocks A-B, DICQ 4.3",2,Accepted
+0009,"React 19 + TypeScript 5.8 — Version Lock Strategy",2026-05-07,"Art. 5.3 (auditability)","Blocks A, DICQ 4.4 (records integrity)",2,Accepted
+0010,"Gemini Vision API as IA Baseline for v1.4",2026-05-07,"Art. 5.3, Art. XLVI (validation)","Blocks F, DICQ 4.3",3,Accepted
+0011,"Single-Lab Deployment Model (v1.4) — Multi-Tenant Deferred to v1.5+",2026-05-07,"Art. 117 (multi-tenant prep)","Blocks A, DICQ 4.3",2,Accepted
+0012,"RDC 978 Audit Trail via LogicalSignature — HMAC + SHA-256 + Immutable Events",2026-05-07,"Art. 6º, Art. 5.3, Art. 86, Art. 122","Blocks A-C, DICQ 4.4",5,Accepted
+0013,"DICQ 85% Target Sequencing — Phases 1-2 Mandatory, Phase 3 Stretch, Phase 4+ Polish",2026-05-07,"Art. 6º, Art. 86","Blocks A-J, DICQ all",8,Accepted
+0014,"NOTIVISA Integration via Sandbox → Production Pathway (Phase 8 Sandbox, Phase 12+ Production)",2026-05-07,"Art. 66, Portaria 204/2016","Blocks G-I, DICQ 4.3, 4.4",4,Accepted
+0015,"Patient Portal LIS Integration Deferral — Email-Link Auth v1.4, LIS Sync v1.4.1+",2026-05-07,"Art. 166-180","Blocks G, DICQ 4.2-4.3",3,Accepted
+0016,"FMEA-Lite Risk Methodology — Phase 0 MVP",2026-05-07,"Art. 86, ISO 13849","Blocks D, DICQ 4.14.6",4,Accepted
+0017,"HMAC Signature Baseline Reset (2026-05-07)",2026-05-07,"Art. 21 (RDC 786), Art. 5.3 (RDC 978), Art. 86, Art. 122, Lei 13.787","Blocks A-C, DICQ 4.4",6,Accepted
+0018,"Deploy Gate: Secret-Status Check (2026-05-07)",2026-05-07,"Art. 5.3 (RDC 978), Art. 21 (RDC 786)","Blocks A, DICQ 4.4",3,Accepted
+0019,"Phase 3 Schema Design: 5 New Collections + Indices",2026-05-07,"Art. 117, Art. 5.3","Blocks A-B, DICQ 4.3, 4.4",3,Accepted
+0020,"Pessimistic Locking for Concurrent Laudo Draft Editing",2026-05-07,"Art. 5.3, DICQ 4.4","Blocks A, DICQ 4.4",3,Accepted
+0021,"NOTIVISA Queue & Retry Pattern",2026-05-07,"Art. 66, RDC 286 § 6","Blocks G-I, DICQ 4.4",4,Accepted
+0022,"CAPA Closure Workflow: 5-State Machine (Phase 8)",2026-05-07,"Art. 147 § 5.1, Art. 117","Blocks A-B, DICQ 4.1.2.4, 4.4",5,Proposed
+0023,"Critical Values Escalation: 4-State Machine + Twilio SMS/Email (Phases 5–6)",2026-05-07,"Art. 184-191, Portaria 204/2016","Blocks G-I, DICQ 4.4",5,Proposed
+0024,"Patient Portal Authentication: HMAC-Signed Email-Link Tokens (Phase 4, v1.4)",2026-05-07,"Art. 38 (LGPD), Art. 166-180 (RDC 978)","Blocks G, DICQ 4.2-4.3",3,Proposed
+0025,"IA Strip Classification: Gemini 2.5 Flash Vision API (Phase 11)",2026-05-07,"Art. 5.3, Art. XLVI (IA validation)","Blocks F, DICQ 4.3",4,Proposed
+0026,"NOTIVISA Queue Processing: Async Append-Only Outbox Pattern (Phase 4+)",2026-05-07,"Art. 66, RDC 286 § 6, Art. 5.3","Blocks G-I, DICQ 4.4",4,Proposed

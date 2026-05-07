@@ -5,7 +5,7 @@
  * Used by all regulatory writes (NOTIVISA, liberacao, etc.)
  */
 
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 
 export interface LogicalSignature {
   hash: string; // SHA-256 hex (64 chars)

@@ -5,7 +5,7 @@
  * Updates queue status, retries failures with exponential backoff,
  * alerts operator on acknowledgment/rejection.
  *
- * Schedule: every 5 minutes (0 */5 * * * *)
+ * Schedule: every 5 minutes
  * Timeout: 120s
  */
 

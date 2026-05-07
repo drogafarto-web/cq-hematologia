@@ -1,0 +1,63 @@
+﻿AUDIT TRAIL EXPORT — PHASE EXECUTION PLANS
+Generated: 2026-05-07 15:04:13
+Project: HC Quality (hmatologia2.web.app)
+
+=== GLOBAL STATISTICS ===
+Total Phases: 34
+Total Plan Files: 205
+Total Lines of Documentation: 111705
+Average Lines per File: 545
+
+=== PHASE BREAKDOWN ===
+[33%] 00-rdc-blockers: 27 files, 7910 LOC
+[44%] 02-construction: 9 files, 2688 LOC
+[26%] 03.1-foundation: 19 files, 10530 LOC
+[38%] 03.2-core-features: 8 files, 7934 LOC
+[43%] 03.3-polish: 7 files, 2674 LOC
+[31%] 03-schema-extensions: 29 files, 10438 LOC
+[0%] 04-capa-closure: 3 files, 2901 LOC
+[50%] 04-cleanup: 4 files, 1956 LOC
+[14%] 04-portal-notivisa: 7 files, 4769 LOC
+[38%] 05-auditoria-interna: 8 files, 4314 LOC
+[0%] 05-criticos-ia: 5 files, 2282 LOC
+[12%] 05-criticos-ia-strip: 8 files, 3078 LOC
+[0%] 05-portals: 1 files, 777 LOC
+[33%] 06: 6 files, 3807 LOC
+[50%] 06-compliance: 4 files, 2700 LOC
+[50%] 07-dry-run: 2 files, 1338 LOC
+[0%] 07-export-polish: 3 files, 1281 LOC
+[20%] 07-feedback-portal: 5 files, 3035 LOC
+[0%] 08: 1 files, 687 LOC
+[0%] 08-capa-closure: 3 files, 3261 LOC
+[0%] 08-notivisa: 3 files, 2561 LOC
+[0%] 09-bioquimica-phase2: 4 files, 3459 LOC
+[0%] 09-documentation-hardening: 2 files, 2238 LOC
+[0%] 09-mobile-refinement: 7 files, 4030 LOC
+[0%] 10-analytes: 4 files, 1910 LOC
+[0%] 10-bioquimica-expansion: 2 files, 3106 LOC
+[0%] 10-critical-values: 2 files, 2690 LOC
+[0%] 11-feedback-loop: 1 files, 858 LOC
+[0%] 11-patient-portal-phase2: 3 files, 2601 LOC
+[0%] 12: 1 files, 680 LOC
+[0%] 12-performance-audit: 2 files, 1172 LOC
+[33%] 13-dicq-audit: 6 files, 3330 LOC
+[25%] 14-pre-launch-security-stability: 4 files, 2109 LOC
+[20%] 15-launch-monitoring: 5 files, 2601 LOC
+=== EXPORT FILES ===
+CSV: AUDIT_PHASE_PLANS_EXPORT_20260507.csv
+Summary: AUDIT_PHASE_PLANS_SUMMARY_20260507.txt
+Location: C:\hc quality\.planning\exports\
+
+=== TOP 10 LARGEST PLAN FILES (by LOC) ===
+  2340 LOC - 10-bioquimica-expansion / PHASE_10_DETAILED_PLAN.md
+  2227 LOC - 03.2-core-features / 03.2-01-PLAN.md
+  2095 LOC - 04-capa-closure / PHASE_4_DETAILED_PLAN.md
+  2047 LOC - 09-documentation-hardening / PHASE_9_DETAILED_PLAN.md
+  1948 LOC - 09-bioquimica-phase2 / 09-02-PLAN.md
+  1567 LOC - 08-capa-closure / 08-01-PLAN.md
+  1543 LOC - 06 / PHASE_6_DETAILED_PLAN.md
+  1522 LOC - 03.1-foundation / WAVE2-INTEGRATION-CHECKLIST.md
+  1467 LOC - 08-notivisa / PHASE_8_DETAILED_PLAN.md
+  1442 LOC - 10-critical-values / 10-01-PLAN.md
+=== COMPLETION SUMMARY ===
+Total Complete Files: 50 / 205 (24%)
