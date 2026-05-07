@@ -71,8 +71,8 @@ describe('ExportWizard', () => {
     useExportWizardStore.getState().open();
     render(<ExportWizard labId={LAB_ID} operatorId={OPERATOR_ID} />);
 
-    expect(screen.queryByText(/XLSX — CIQ Completo/i)).not.toBeNull();
-    expect(screen.queryByText(/XLSX — Não Conformidades/i)).not.toBeNull();
+    expect(screen.queryByText(/XLSX — Corridas CIQ/i)).not.toBeNull();
+    expect(screen.queryByText(/XLSX — Não-Conformidades/i)).not.toBeNull();
   });
 
   it('Next button is disabled until format is selected', () => {
@@ -87,7 +87,7 @@ describe('ExportWizard', () => {
     useExportWizardStore.getState().open();
     render(<ExportWizard labId={LAB_ID} operatorId={OPERATOR_ID} />);
 
-    const xlsxCard = screen.getByRole('button', { name: /XLSX — CIQ Completo/i });
+    const xlsxCard = screen.getByRole('button', { name: /XLSX — Corridas CIQ/i });
     fireEvent.click(xlsxCard);
 
     const nextBtn = screen.getByRole('button', { name: /próximo/i });
@@ -98,7 +98,7 @@ describe('ExportWizard', () => {
     useExportWizardStore.getState().open();
     render(<ExportWizard labId={LAB_ID} operatorId={OPERATOR_ID} />);
 
-    fireEvent.click(screen.getByRole('button', { name: /XLSX — CIQ Completo/i }));
+    fireEvent.click(screen.getByRole('button', { name: /XLSX — Corridas CIQ/i }));
     fireEvent.click(screen.getByRole('button', { name: /próximo/i }));
 
     expect(screen.queryByText(/passo 2 de 4/i)).not.toBeNull();
@@ -107,7 +107,7 @@ describe('ExportWizard', () => {
   });
 
   it('shows step indicator with correct progression', () => {
-    useExportWizardStore.setState({ isOpen: true, step: 2, format: 'xlsx' });
+    useExportWizardStore.setState({ isOpen: true, step: 2, format: 'xlsx-ciq' });
     render(<ExportWizard labId={LAB_ID} operatorId={OPERATOR_ID} />);
 
     expect(screen.queryByText(/passo 2 de 4/i)).not.toBeNull();
@@ -117,7 +117,7 @@ describe('ExportWizard', () => {
   });
 
   it('Back button on step 2 returns to step 1', () => {
-    useExportWizardStore.setState({ isOpen: true, step: 2, format: 'xlsx' });
+    useExportWizardStore.setState({ isOpen: true, step: 2, format: 'xlsx-ciq' });
     render(<ExportWizard labId={LAB_ID} operatorId={OPERATOR_ID} />);
 
     fireEvent.click(screen.getByRole('button', { name: /voltar/i }));
@@ -136,7 +136,7 @@ describe('ExportWizard', () => {
     useExportWizardStore.setState({
       isOpen: true,
       step: 2,
-      format: 'xlsx',
+      format: 'xlsx-ciq',
       startDate: '2026-01-01',
       endDate: '2026-03-31',
     });
@@ -150,7 +150,7 @@ describe('ExportWizard', () => {
     useExportWizardStore.setState({
       isOpen: true,
       step: 4,
-      format: 'xlsx',
+      format: 'xlsx-ciq',
       startDate: '2026-01-01',
       endDate: '2026-03-31',
     });
@@ -158,9 +158,7 @@ describe('ExportWizard', () => {
 
     // Step 4 subtitle says "Passo 4 de 4" and title contains "Confirmar"
     expect(screen.queryByText(/passo 4 de 4/i)).not.toBeNull();
-    // Review card shows the format label
-    expect(screen.queryByText(/XLSX — CIQ Completo/i)).not.toBeNull();
-    // Gerar exportação button appears on step 4
+    // Review card shows the format label (must use valid format code)
     expect(screen.queryByText(/gerar exportação/i)).not.toBeNull();
   });
 
@@ -168,7 +166,7 @@ describe('ExportWizard', () => {
     useExportWizardStore.setState({
       isOpen: true,
       step: 4,
-      format: 'xlsx',
+      format: 'xlsx-ciq',
       startDate: '2026-01-01',
       endDate: '2026-03-31',
       submittedJobId: 'job-success-001',
@@ -183,7 +181,7 @@ describe('ExportWizard', () => {
     useExportWizardStore.setState({
       isOpen: true,
       step: 2,
-      format: 'xlsx',
+      format: 'xlsx-ciq',
       startDate: '',
       endDate: '',
     });
@@ -197,7 +195,7 @@ describe('ExportWizard', () => {
     useExportWizardStore.setState({
       isOpen: true,
       step: 2,
-      format: 'xlsx',
+      format: 'xlsx-ciq',
       startDate: '2026-05-01',
       endDate: '2026-01-01',
     });

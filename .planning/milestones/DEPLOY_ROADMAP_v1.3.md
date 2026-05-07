@@ -18,15 +18,15 @@ End-to-end deploy plan for milestone v1.3. **CTO authorization required at each 
 |-------|--------|
 | Web TypeScript | ✅ Clean (`tsc --noEmit` 0 errors) |
 | Web Build | ✅ Succeeds (28.46s, 0 warnings) |
-| Functions TypeScript | 🔴 **121 errors — BLOCKER** |
-| Functions Build | 🔴 Blocked by TSC |
+| Functions TypeScript | ✅ Clean (`tsc --noEmit` 0 errors) |
+| Functions Build | ✅ Succeeds (compiles to `functions/lib/`) |
 | Firestore Rules | 🟡 Drafted per module — emulator smoke pending |
 | Firestore Indexes | 🟡 ~25 new composite indexes — not yet deployed |
 | Tests (web) | 🟡 42 unit (bioquimica) + scaffolds — full regression pending |
 | Bundle Sizes | ✅ All within budget |
-| Phase 8.5 Audit | ✅ Done · fixes pending |
+| Phase 8.5 Housekeeping | ✅ Complete (4 batches, 0 errors) |
 
-**Deploy is BLOCKED until Phase 8.5 functions TSC reaches 0 errors.**
+**Deploy unblocked.** Pre-deploy checklist (Section 1) is the next gate.
 
 ---
 
@@ -34,9 +34,9 @@ End-to-end deploy plan for milestone v1.3. **CTO authorization required at each 
 
 ### 1.1 Code Quality Gates
 
-- [ ] `npx tsc --noEmit` (web root) — **0 errors**
-- [ ] `cd functions && npx tsc --noEmit` — **0 errors** (currently 121 🔴)
-- [ ] `cd functions && npm run build` — clean compilation
+- [x] `npx tsc --noEmit` (web root) — **0 errors** ✅ (verified 2026-05-06)
+- [x] `cd functions && npx tsc --noEmit` — **0 errors** ✅ (verified 2026-05-06)
+- [x] `cd functions && npm run build` — clean compilation ✅ (verified 2026-05-06)
 - [ ] `npm run build` (web) — clean, 0 warnings
 - [ ] `npm run lint` — baseline maintained (88 pre-existing warnings ok; new = block)
 - [ ] No `console.log` / `console.warn` in v1.3 modules
@@ -44,9 +44,9 @@ End-to-end deploy plan for milestone v1.3. **CTO authorization required at each 
 
 ### 1.2 Security Blockers (MUST resolve before deploy)
 
-- [ ] **B-01** Functions TSC errors fixed (Phase 8.5 Batch 1–4)
-- [ ] **B-02** Firebase Functions v2 API migration complete (~15 callables)
-- [ ] **B-03** `functions/package.json` deps complete (`googleapis`, etc.)
+- [x] **B-01** Functions TSC errors fixed (Phase 8.5 Batch 1–4) ✅
+- [x] **B-02** Firebase Functions v2 API migration complete ✅
+- [x] **B-03** `functions/package.json` deps complete ✅
 - [ ] **B-04** Phase 10 partial scope confirmed with auditor (PDF/portal deferred)
 
 ### 1.3 Tests

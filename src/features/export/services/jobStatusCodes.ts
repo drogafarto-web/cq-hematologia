@@ -57,9 +57,15 @@ export const FORMAT_LABELS: Record<string, string> = {
 
 /** Format variant names used in the wizard */
 export const FORMAT_VARIANT_LABELS: Record<string, string> = {
+  // Legacy format names (backward compatibility)
   xlsx: 'XLSX — CIQ Completo',
   pdf: 'PDF — Relatório NC',
   csv: 'CSV — Dados Brutos',
+  // Phase 3.3 specific format names (SheetJS/PDF-lib)
+  'xlsx-ciq': 'XLSX — Corridas CIQ',
+  'xlsx-nc': 'XLSX — Não-Conformidades',
+  'pdf-compliance': 'PDF — Relatório de Conformidade',
+  'csv-audit': 'CSV — Trilha de Auditoria',
 };
 
 /** Estimated processing time per format (rough UX hint) */
