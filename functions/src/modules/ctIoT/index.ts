@@ -342,7 +342,7 @@ export const scheduledGenerateLeiturasPrevistas = onSchedule(
 // ─── Scheduled: marcar leituras perdidas (RN-04) ─────────────────────────────
 
 export const scheduledMarcarLeiturasPerdidas = onSchedule(
-  { region: REGION, schedule: 'every 30 minutes', timeZone: 'America/Sao_Paulo', memory: '256MiB' },
+  { region: REGION, schedule: 'every 30 minutes', timeZone: 'America/Sao_Paulo', memory: '512MiB' },
   async () => {
     const db = admin.firestore();
     const agora = admin.firestore.Timestamp.now();

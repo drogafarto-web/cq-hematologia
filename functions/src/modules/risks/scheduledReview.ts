@@ -13,6 +13,7 @@ export const scheduledReview = onSchedule(
   {
     schedule: '0 7 * * *', // Daily at 07:00 UTC (14:00 BRT, UTC-7 in May)
     region: 'southamerica-east1',
+    memory: '512MiB',
     timeoutSeconds: 300,
   },
   async () => {
