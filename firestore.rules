@@ -1923,4 +1923,62 @@ service cloud.firestore {
     allow update: if false;
     allow delete: if false; // Cloud Functions delete via Admin SDK
   }
+
+  // ── /laudos — Global Patient Laudo Directory (Phase 4) ─────────────────────────
+  // Patient portal: patients read own laudos, RT/admin read lab laudos.
+  // Indexed by patientId for efficient portal queries.
+  // Collection global by design (not /labs/{labId}/laudos) to enable cross-lab
+  // queries (e.g., patient accessing multiple labs via single portal session).
+  // RDC 978 Art. 184 (critical value communication), Art. 191 (laudo storage).
+  match /laudos/{laudoId} {
+    allow read: if (request.auth.token.portal == true &&
+                     request.auth.uid == resource.data.patientId) ||
+                (isActiveMemberOfLab(resource.data.labId) &&
+                 (getMemberRole(resource.data.labId) in ['rt', 'admin', 'owner']));
+    allow create: if false;  // Via Cloud Function callables only
+    allow update: if false;  // Via liberarLaudo/retificar callables only
+    allow delete: if false;  // Soft-delete only (RN-06)
+  }
+
+  // ── /labs/{labId}/patients — Patient Directory (Phase 4) ────────────────────────
+  // Directory of patients associated with a lab (for RT listing, scheduling).
+  // Minimal PII exposure: name, DOB, contact phone only.
+  // Full PII (CPF, etc) lives in patient-auth-sessions only (encrypted).
+  // RDC 978 Art. 164 (pacient info access control).
+  match /labs/{labId}/patients/{patientId} {
+    allow read: if isActiveMemberOfLab(labId) &&
+                (getMemberRole(labId) in ['rt', 'admin', 'owner']);
+    allow create: if false;  // Via Cloud Function callable only
+    allow update: if false;  // Never update patient directory from client
+    allow delete: if false;  // Soft-delete only via callable
+  }
+
+  // ── /patient-auth-sessions/{sessionId} — Patient Portal Sessions (Phase 4) ───────
+  // Immutable session tracking for patient portal access.
+  // Created on patient email/OTP verification, read-only after creation.
+  // Contains encrypted CPF, session token, expiry.
+  // Cloud Function (verifyPatientOTP) creates; no client write.
+  // RDC 978 Art. 165 (acesso restrito de dados pessoais).
+  // RDC 786 Art. 59 (autenticação auditada).
+  match /patient-auth-sessions/{sessionId} {
+    allow read: if request.auth.uid == resource.data.patientId;
+    allow create: if false;  // Via verifyPatientOTP callable only
+    allow update: if false;  // Immutable after creation
+    allow delete: if false;  // Expire via TTL, never hard delete
+  }
+
+  // ── /patient-nps-feedback/{feedbackId} — Patient NPS Survey Responses (Phase 11) ─
+  // Patient satisfaction surveys (NPS scale 0-10).
+  // Submitted by authenticated portal patients; auditors export for KPI dashboards.
+  // Immutable after submission; soft-deleted if patient requests privacidade.
+  // RDC 978 Art. 191 (patient feedback as laudo support artifact).
+  // LGPD: patient can request erasure → soft-delete + audit trail.
+  match /patient-nps-feedback/{feedbackId} {
+    allow read: if isActiveMemberOfLab(resource.data.labId) &&
+                getMemberRole(resource.data.labId) == 'auditor';
+    allow create: if request.auth.token.portal == true;
+    allow update: if false;  // Immutable after submission
+    allow delete: if false;  // Soft-delete only for LGPD
+  }
+
 }
