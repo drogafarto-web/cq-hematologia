@@ -73,7 +73,7 @@ Use: `bash scripts/monitor-cloud-logs.sh 24 30` (or `.ps1` equiv.) imediatamente
 | `auth` | Em prod · autenticação/onboarding | — |
 | `admin` | Em prod · superadmin | — |
 | `educacao-continuada` | Em prod · ISO 15189 + XLSX + callables server-side | 2026-04-24 |
-| `sgq` | Em prod · Documentos da Qualidade (DICQ 4.3) — MQ/PQ/IT/FR/POL + versionamento + audit | 2026-04-26 |
+| `sgq` | Em prod · Documentos da Qualidade (DICQ 4.3) — MQ/PQ/IT/FR/POL + versionamento + audit + POL-LGPD-001 + IT-LGPD-DPIA-001 (Phase 0) | 2026-05-07 |
 
 | `pops` | Em prod · Procedimentos Operacionais Padrão (DICQ 4.3) — versionamento + treinamento + assinatura RT | 2026-05-03 |
 | `auditoria` | Em prod · Trilha de audit (write intent + read consent) — RDC 978 5.3 + DICQ 4.4 | 2026-05-03 |

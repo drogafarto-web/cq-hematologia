@@ -174,6 +174,22 @@ export {
   ec_softDeleteExecucaoCascade,
 } from './modules/educacaoContinuada/index';
 
+// ─── turnos module (Phase 0 / Plan 00-01 — RDC 978 Art. 122) ─────────────────
+// Supervisor shift registry (manhã / tarde / noite / plantão) with chainHash-validated
+// audit trail. DL-1 — callables from day 1 (no client-side writes).
+//   turnos_createTurno              — create with server-side signature + supervisor snapshot
+//   turnos_updateTurno              — edit observações + supervisorName (post-backfill)
+//   turnos_softDeleteTurno          — logical delete only (RN-TURNO-04)
+//   turnos_backfill90Days           — admin-only backfill for last 90d × 4 periodos
+//   onTurnoEventCreated             — Firestore trigger, computes chainHash per event
+export {
+  turnos_createTurno,
+  turnos_updateTurno,
+  turnos_softDeleteTurno,
+  turnos_backfill90Days,
+  onTurnoEventCreated,
+} from './modules/turnos/index';
+
 // ─── qualidade module (ADR 0003 — Não-Conformidade) ─────────────────────────
 // Lifecycle management for quality incidents (Não-Conformidades).
 // openNaoConformidade: create NC with audit trail
@@ -389,6 +405,12 @@ export {
   transitarSugestao,
   upvoteSugestao,
 } from './modules/sugestoes/index';
+
+// ─── lgpd module (Phase 0 — LGPD Compliance) ────────────────────────────────────
+// lgpd_scheduledAnnualReview: Scheduled function (07:00 America/Sao_Paulo) that checks
+// for mandatory LGPD documents (POL-LGPD-001, IT-LGPD-DPIA-001) where proximaRevisao <= hoje.
+// Creates notifications for upcoming reviews. Idempotent via idempotencyKey.
+export { lgpd_scheduledAnnualReview } from './modules/lgpd/scheduledAnnualReview';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

@@ -5,3 +5,6 @@ export { criarSolicitacao, processarExclusao, gerarDPIA, scheduledProcessarSolic
 export { deleteTitularData } from './deleteTitularData';
 export { sendOTP } from './sendOTP';
 export { recordPrivacyAceite } from './recordAceite';
+
+// Phase 0 — LGPD Document Compliance (POL-LGPD-001 + IT-LGPD-DPIA-001 annual review scheduler)
+export { lgpd_scheduledAnnualReview } from './scheduledAnnualReview';
