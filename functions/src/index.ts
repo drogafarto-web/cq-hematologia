@@ -202,7 +202,11 @@ export {
 //   onContratoEventCreated          — Firestore trigger, computes chainHash per event
 export {
   labApoio_createContrato,
+  labApoio_updateContrato,
   labApoio_softDeleteContrato,
+  labApoio_registrarAvaliacaoPeriodica,
+  labApoio_uploadContratoAnexo,
+  labApoio_checkExpiry,
   onContratoEventCreated,
 } from './modules/labApoio';
 
