@@ -591,6 +591,19 @@ service cloud.firestore {
         allow read: if isActiveMemberOfLab(labId);
         allow create, update, delete: if false;  // Via turnos_* callables only
       }
+
+      // ── risks (Phase 0 / Plan 00-04 — DICQ 4.14.6 + RDC 978 Art. 86) ────────
+      // Living risk register with FMEA-lite scoring (P × S × D, NPR 1–125).
+      // DL-1: all writes via Cloud Function callables (risks_createRisk, etc.).
+      match /risks/{riskId} {
+        match /events/{eventId} {
+          allow read: if isActiveMemberOfLab(labId);
+          allow create, update, delete: if false;  // Via onRiskEventCreated trigger only
+        }
+
+        allow read: if isActiveMemberOfLab(labId);
+        allow create, update, delete: if false;  // Via risks_* callables only
+      }
     }
 
     // ── Raiz — inalterados ──────────────────────────────────────────────────

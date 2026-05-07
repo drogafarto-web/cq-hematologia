@@ -609,6 +609,25 @@
         { "fieldPath": "criticidade", "order": "ASCENDING" },
         { "fieldPath": "vigenciaFim", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "risks",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "deletadoEm", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "npr", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "risks",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "deletadoEm", "order": "ASCENDING" },
+        { "fieldPath": "reviewDate", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
