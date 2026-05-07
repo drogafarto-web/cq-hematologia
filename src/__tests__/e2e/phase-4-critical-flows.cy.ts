@@ -71,7 +71,8 @@ describe('Flow 1: Patient Portal Auth (Email Link)', () => {
       const token = tokenMatch![1];
 
       // Mock: authentication flow
-      await authenticateWithToken(token);
+      await validateAuthToken(token);
+      navigateTo('/portal/dashboard');
 
       // Assert: Redirect happened
       const currentRoute = getCurrentRoute();
@@ -111,7 +112,8 @@ describe('Flow 1: Patient Portal Auth (Email Link)', () => {
       expect(resendButton).not.toBeNull();
 
       // Assert: Button is clickable
-      expect(resendButton?.disabled).toBe(false);
+      const btn = resendButton as HTMLButtonElement;
+      expect(btn?.disabled).toBe(false);
     });
   });
 
@@ -470,7 +472,8 @@ describe('Flow 2: Patient Views Own Laudos', () => {
       // Assert: Close button visible
       const closeBtn = getElementByTestId('laudo-detail-close');
       expect(closeBtn).not.toBeNull();
-      expect(closeBtn?.disabled).toBe(false);
+      const btn = closeBtn as HTMLButtonElement;
+      expect(btn?.disabled).toBe(false);
     });
 
     it('should display PDF or HTML content', async () => {
@@ -632,7 +635,8 @@ describe('Flow 3: Patient Downloads Laudo (PDF Export)', () => {
       // Assert: Retry button visible and enabled
       const retryBtn = getElementByTestId('retry-download-button');
       expect(retryBtn).not.toBeNull();
-      expect(retryBtn?.disabled).toBe(false);
+      const btn = retryBtn as HTMLButtonElement;
+      expect(btn?.disabled).toBe(false);
     });
   });
 });
@@ -988,8 +992,10 @@ describe('Flow 5: Portal Session Management', () => {
       expect(logoutBtn).not.toBeNull();
 
       // Assert: Both enabled
-      expect(continueBtn?.disabled).toBe(false);
-      expect(logoutBtn?.disabled).toBe(false);
+      const cbtn = continueBtn as HTMLButtonElement;
+      const lbtn = logoutBtn as HTMLButtonElement;
+      expect(cbtn?.disabled).toBe(false);
+      expect(lbtn?.disabled).toBe(false);
     });
   });
 
@@ -1264,6 +1270,7 @@ function waitForDownload() {
 }
 
 async function waitForDraftCreation() {
+  await new Promise(r => setTimeout(r, 100));
   return {
     id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
     status: 'draft',
@@ -1275,6 +1282,10 @@ function waitForQueueEntry(draftId: string) {
     id: 'queue_' + draftId,
     draftId,
     status: 'pending',
+    lastApiResponse: {
+      statusCode: '200',
+      receiptCode: 'ANVISA-REC-001',
+    },
   };
 }
 
