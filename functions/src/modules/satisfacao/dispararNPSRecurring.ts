@@ -2,22 +2,10 @@ import { onSchedule } from 'firebase-functions/scheduler';
 import { onMessagePublished } from 'firebase-functions/v2/pubsub';
 import { db, admin } from '../../shared/firebase';
 import { PubSub } from '@google-cloud/pubsub';
-import { Resend } from 'resend';
+import { sendEmail, ALL_SMTP_SECRETS } from '../../shared/email/smtpClient';
 import { generateNPSToken } from '../../shared/tokenUtils';
 
 const pubsub = new PubSub();
-let resend: Resend | null = null;
-
-function getResendClient() {
-  if (!resend) {
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) {
-      throw new Error('RESEND_API_KEY environment variable is not set');
-    }
-    resend = new Resend(apiKey);
-  }
-  return resend;
-}
 
 /**
  * Cron: Every 3 months on the 15th at 09:00 BRT (12:00 UTC)
@@ -93,7 +81,7 @@ export const dispararNPSRecurring = onSchedule(
  * Sends NPS survey emails with rate limiting (max 1000/hour = 1/3.6s)
  */
 export const npsEmailQueueHandler = onMessagePublished(
-  'nps-email-queue',
+  { topic: 'nps-email-queue', secrets: [...ALL_SMTP_SECRETS] },
   async (event) => {
     try {
       const messageData = event.data.message.data
@@ -113,23 +101,20 @@ export const npsEmailQueueHandler = onMessagePublished(
         <p>Esta pesquisa leva apenas 1 minuto.</p>
       `;
 
-      const client = getResendClient();
-      const response = await client.emails.send({
-        from: 'satisfacao@hmatologia2.web.app',
+      await sendEmail({
         to: email,
         subject: `Sua opinião sobre nosso laboratório (${tipo === 'trimestral' ? 'Pesquisa trimestral' : 'Avaliação pós-resolução'})`,
         html: htmlBody,
       });
 
       // Log delivery
-      const resendId = response.data?.id ?? null;
       await db.collection('comunicacoes-cliente').add({
         labId,
         pacienteId,
         tipo: `nps-${tipo}`,
         destinatario: email,
-        status: resendId ? 'enviado' : 'erro',
-        resendId,
+        status: 'enviado',
+        transport: 'smtp',
         criadoEm: admin.firestore.FieldValue.serverTimestamp(),
       });
 

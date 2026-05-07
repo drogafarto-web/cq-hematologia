@@ -4,20 +4,7 @@ import { db, admin } from '../../shared/firebase';
 import { z } from 'zod';
 import { isActiveMemberOfLab } from '../../shared/auth';
 import { generateChainHash } from '../../shared/signature';
-import { Resend } from 'resend';
-
-let resend: Resend | null = null;
-
-function getResendClient() {
-  if (!resend) {
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) {
-      throw new Error('RESEND_API_KEY environment variable is not set');
-    }
-    resend = new Resend(apiKey);
-  }
-  return resend;
-}
+import { sendEmail, ALL_SMTP_SECRETS } from '../../shared/email/smtpClient';
 
 const TransitarReclamacaoInputSchema = z.object({
   labId: z.string(),
@@ -40,7 +27,7 @@ const transicoes: Record<string, string[]> = {
  * Cloud Function: Transition complaint status (RT/Qualidade role required)
  */
 export const transitarReclamacao = onCall<TransitarReclamacaoInput>(
-  { enforceAppCheck: false, cors: true },
+  { enforceAppCheck: false, cors: true, secrets: [...ALL_SMTP_SECRETS] },
   async (request) => {
     try {
       const input = TransitarReclamacaoInputSchema.parse(request.data);
@@ -127,9 +114,7 @@ export const transitarReclamacao = onCall<TransitarReclamacaoInput>(
             ${input.descricaoTransicao ? `<p><strong>Detalhes:</strong> ${input.descricaoTransicao}</p>` : ''}
           `;
 
-          const client = getResendClient();
-          await client.emails.send({
-            from: 'reclamacoes@hmatologia2.web.app',
+          await sendEmail({
             to: reclamacao.reclamante.email,
             subject: 'Sua reclamação foi respondida',
             html: htmlBody,

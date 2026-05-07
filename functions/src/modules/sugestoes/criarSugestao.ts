@@ -5,20 +5,7 @@ import { z } from 'zod';
 import { isActiveMemberOfLab } from '../../shared/auth';
 import { verifyRecaptcha } from '../../shared/recaptcha';
 import { generateChainHash } from '../../shared/signature';
-import { Resend } from 'resend';
-
-let resend: Resend | null = null;
-
-function getResendClient() {
-  if (!resend) {
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) {
-      throw new Error('RESEND_API_KEY environment variable is not set');
-    }
-    resend = new Resend(apiKey);
-  }
-  return resend;
-}
+import { sendEmail, ALL_SMTP_SECRETS } from '../../shared/email/smtpClient';
 
 const CriarSugestaoInputSchema = z.object({
   labId: z.string(),
@@ -39,7 +26,7 @@ type CriarSugestaoInput = z.infer<typeof CriarSugestaoInputSchema>;
  * Cloud Function: Create suggestion (internal auth or public reCAPTCHA)
  */
 export const criarSugestao = onCall<CriarSugestaoInput>(
-  { enforceAppCheck: false, cors: true },
+  { enforceAppCheck: false, cors: true, secrets: [...ALL_SMTP_SECRETS] },
   async (request) => {
     try {
       const input = CriarSugestaoInputSchema.parse(request.data);
@@ -129,9 +116,7 @@ export const criarSugestao = onCall<CriarSugestaoInput>(
           const userData = userDoc.data();
 
           if (userData?.email) {
-            const client = getResendClient();
-            await client.emails.send({
-              from: 'qualidade@hmatologia2.web.app',
+            await sendEmail({
               to: userData.email,
               subject: 'Sua sugestão foi recebida',
               html: `
