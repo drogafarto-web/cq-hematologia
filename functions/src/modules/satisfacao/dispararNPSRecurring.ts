@@ -6,7 +6,18 @@ import { Resend } from 'resend';
 import { generateNPSToken } from '../../shared/tokenUtils';
 
 const pubsub = new PubSub();
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend: Resend | null = null;
+
+function getResendClient() {
+  if (!resend) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      throw new Error('RESEND_API_KEY environment variable is not set');
+    }
+    resend = new Resend(apiKey);
+  }
+  return resend;
+}
 
 /**
  * Cron: Every 3 months on the 15th at 09:00 BRT (12:00 UTC)
@@ -102,7 +113,8 @@ export const npsEmailQueueHandler = onMessagePublished(
         <p>Esta pesquisa leva apenas 1 minuto.</p>
       `;
 
-      const response = await resend.emails.send({
+      const client = getResendClient();
+      const response = await client.emails.send({
         from: 'satisfacao@hmatologia2.web.app',
         to: email,
         subject: `Sua opinião sobre nosso laboratório (${tipo === 'trimestral' ? 'Pesquisa trimestral' : 'Avaliação pós-resolução'})`,

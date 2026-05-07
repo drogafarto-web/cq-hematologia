@@ -2,21 +2,24 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: CAPA Closure + Analytics Modules + SGD Migration
-status: phase-12-complete
-last_updated: "2026-05-06T23:45:00.000Z"
-last_activity: "2026-05-06 23:45 — Phase 12 COMPLETE: SGD Foundation + UI + Drive Importer all deployed. Riopomba pilot (30 docs) + production (80 docs) migration complete. DICQ Block B +7.2 points. Ready for production polish & deploy."
+status: v1.3-deploying
+last_updated: "2026-05-07T14:00:00Z"
+last_activity: "Step 1+3 LIVE ✅ (Rules, Hosting). Step 2 (Functions): 27 exports wiring in progress. Step 4 (smoke tests) pending."
 progress:
   total_phases: 12
   completed_phases: 12
   phase_12_plans: 6
   completed_plans: "6"
   percent: "100"
+  deployment_steps: 4
+  deployment_steps_complete: 2
+  deployment_percent: "50"
 ---
 
 # HC Quality v1.3 — Project State & Memory
 
-**Last Updated:** 2026-05-06 (23:45 UTC)
-**Status:** `phase-12-complete` — Phase 12 SGD + Drive Importer delivered in full. Riopomba 80-doc migration complete.
+**Last Updated:** 2026-05-07 (14:00 UTC)
+**Status:** `v1.3-deploying` — Phase 12 complete. Deployment in progress (Step 2 of 4: Functions wiring). Step 1+3 LIVE.
 
 ---
 
@@ -24,9 +27,9 @@ progress:
 
 **Phase:** 12 — SGD + Drive Importer ✅ COMPLETE (All 6 plans delivered)
 **Plans:** 12-01 ✅ | 12-02 ✅ | 12-03 ✅ | 12-04 ✅ | 12-05 ✅ | 12-06 ✅
-**Status:** All deliverables complete. Drive importer (5 Cloud Functions + wizard) deployed. Riopomba pilot (staging, 30 docs) ✓. Production migration (80 docs) ✓. DICQ Block B +7.2 points (71.3% → 78.5%). Ready for final production polish & deploy.
-**Next:** None — Phase 12 final milestone closure in progress.
-Last activity: 2026-05-06 23:45 — Phase 12 Plans 04-06 execution complete (migration logs + completion summary created); PHASE_VERIFICATION.md pending final sign-off
+**Deployment:** Step 1 ✅ LIVE (Rules+Indexes) | Step 2 🔄 IN PROGRESS (Functions: 27 exports wiring) | Step 3 ✅ LIVE (Hosting) | Step 4 ⏳ QUEUED (Smoke Tests)
+**Next:** Complete Function exports wiring (Batch 4), then run smoke tests + cloud logs verification
+Last activity: 2026-05-07 14:00 — Step 2 in progress (function module wiring). Step 1+3 deployed successfully.
 
 ---
 
@@ -70,9 +73,34 @@ Last activity: 2026-05-06 23:45 — Phase 12 Plans 04-06 execution complete (mig
 
 ---
 
+## Deployment Progress (v1.3)
+
+**Timeline:** 2026-05-07
+
+| Step | Status | Task | Time | Owner |
+|------|--------|------|------|-------|
+| Step 1 (Rules+Indexes) | ✅ LIVE | Firestore Rules deployment + index creation | 00:32:25Z | Firebase Console |
+| Step 2 (Functions) | 🔄 IN PROGRESS | Export wiring (27 modules) — Batch 4 pending | — | Agente 1 (wiring) |
+| Step 3 (Hosting) | ✅ LIVE | Web app + PWA deployment | 02:15:00Z | Firebase Hosting |
+| Step 4 (Smoke Tests) | ⏳ QUEUED | Manual execution + cloud logs verification | — | QA / Manual testing |
+
+**Blockers Resolved:**
+- ✅ 27 function exports missing (wiring batch 1-3 complete, batch 4 in progress)
+- ✅ All TypeScript errors fixed (Phase 8.5 complete)
+- ✅ Security audit passed (GREEN status)
+- ✅ Compliance ready (82% DICQ audit-ready)
+
+**Sign-Off Docs Generated:**
+- ✅ SMOKE_TESTS_TEST_DATA_GUIDE.md (427 lines)
+- ✅ POST_DEPLOY_CHECKLIST_v1.3.md (220 lines)
+- ✅ SECURITY_SIGN_OFF_v1.3.md (215 lines — GREEN)
+- ✅ COMPLIANCE_SUMMARY_v1.3.md (360 lines — 82% audit-ready)
+
+---
+
 ## Blockers
 
-None blocking. Ready for Phase 8 execution planning.
+None blocking Step 2 completion. Ready for Step 4 (smoke tests) after function exports finalized.
 
 ---
 
@@ -105,4 +133,4 @@ None blocking. Ready for Phase 8 execution planning.
 
 ---
 
-**Last edit:** 2026-05-06 16:45 UTC — Milestone v1.3 planning complete and approved.
+**Last edit:** 2026-05-07 14:00 UTC — v1.3 Deployment Step 2 in progress. Steps 1+3 live. Smoke tests queued.

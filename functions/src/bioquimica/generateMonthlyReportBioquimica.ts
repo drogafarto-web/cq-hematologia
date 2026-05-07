@@ -27,7 +27,7 @@ import { logger } from 'firebase-functions';
  */
 export const generateMonthlyReportBioquimica = onSchedule(
   {
-    schedule: 'cron(0 8 1 * *)', // 08:00 UTC
+    schedule: '0 8 1 * *', // 08:00, 1st day of month
     timeZone: 'America/Sao_Paulo', // São Paulo is UTC-3
     memory: '512MiB' as any,
   },
