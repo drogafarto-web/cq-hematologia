@@ -42,6 +42,8 @@ const ALL_MODULES = [
   'pgrss',
   'kpis',
   'lgpd',
+  'lab-apoio',
+  'risks',
 ] as const;
 
 type ModuleKey = (typeof ALL_MODULES)[number];
@@ -60,6 +62,8 @@ function fullAccess(): ModulesClaim {
     pgrss: true,
     kpis: true,
     lgpd: true,
+    'lab-apoio': true,
+    risks: true,
   };
 }
 
@@ -76,6 +80,8 @@ function noAccess(): ModulesClaim {
     pgrss: false,
     kpis: false,
     lgpd: false,
+    'lab-apoio': false,
+    risks: false,
   };
 }
 
