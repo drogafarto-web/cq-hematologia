@@ -11,6 +11,8 @@ import type {
   SoftDeleteRiskInput,
 } from '../types/Risk';
 import { DEFAULT_NPR_THRESHOLDS } from '../types/Risk';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../../../shared/services/firebase';
 
 // ─── NPR Computation & Nivel Derivation ────────────────────────────────────
 
@@ -48,6 +50,8 @@ export function deriveNivel(
   if (npr <= thresholds.critico - 1) return 'alto';
   return 'critico';
 }
+
+export { DEFAULT_NPR_THRESHOLDS };
 
 // ─── Firestore Read Operations ─────────────────────────────────────────────
 
@@ -193,9 +197,6 @@ export async function callCreateRisk(
   labId: string,
   payload: Omit<RiskInput, 'labId'>
 ): Promise<Risk> {
-  const { httpsCallable } = require('firebase/functions');
-  const { functions } = require('../../shared/services/firebase');
-
   const fn = httpsCallable<any, any>(functions, 'risks_createRisk');
   try {
     const result = await fn({ labId, ...payload });
@@ -210,9 +211,6 @@ export async function callUpdateRisk(
   riskId: string,
   payload: Partial<RiskInput>
 ): Promise<Risk> {
-  const { httpsCallable } = require('firebase/functions');
-  const { functions } = require('../../shared/services/firebase');
-
   const fn = httpsCallable<any, any>(functions, 'risks_updateRisk');
   try {
     const result = await fn({ labId, riskId, ...payload });
@@ -226,9 +224,6 @@ export async function callSoftDeleteRisk(
   labId: string,
   input: SoftDeleteRiskInput
 ): Promise<void> {
-  const { httpsCallable } = require('firebase/functions');
-  const { functions } = require('../../shared/services/firebase');
-
   const fn = httpsCallable<any, void>(functions, 'risks_softDeleteRisk');
   try {
     await fn({ labId, ...input });
@@ -241,9 +236,6 @@ export async function callRegistrarRevisao(
   labId: string,
   input: RegistrarRevisaoInput
 ): Promise<Risk> {
-  const { httpsCallable } = require('firebase/functions');
-  const { functions } = require('../../shared/services/firebase');
-
   const fn = httpsCallable<any, any>(functions, 'risks_registrarRevisao');
   try {
     const result = await fn({ labId, ...input });
@@ -260,9 +252,6 @@ export async function callSeedFromCsv(
   labId: string,
   rows: RiskInput[]
 ): Promise<{ created: number; skipped: number }> {
-  const { httpsCallable } = require('firebase/functions');
-  const { functions } = require('../../shared/services/firebase');
-
   const fn = httpsCallable<any, any>(functions, 'risks_seedFromCsv');
   try {
     const result = await fn({ labId, rows });
