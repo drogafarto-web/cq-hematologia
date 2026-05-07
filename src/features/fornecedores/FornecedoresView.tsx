@@ -24,11 +24,14 @@ import {
   deleteNotaFiscal,
   countInsumosByNota,
 } from './services/notaFiscalService';
+import { callConfirmarRecebimento } from './services/notaFiscalCallables';
 import { FornecedorFormModal } from './components/FornecedorFormModal';
 import { NotaFiscalFormModal } from './components/NotaFiscalFormModal';
 import { formatCnpj } from './types/Fornecedor';
 import type { Fornecedor } from './types/Fornecedor';
 import type { NotaFiscal } from './types/NotaFiscal';
+import { toast } from '../../shared/store/useToastStore';
+import type { LabId } from './types/shared_refs';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -50,6 +53,134 @@ function formatDate(ts: { toDate: () => Date } | Date | string | null | undefine
 function formatBRL(value: number | undefined): string {
   if (typeof value !== 'number') return '—';
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return 'Erro desconhecido';
+}
+
+// ─── ConferirRecebimentoModal ────────────────────────────────────────────────
+
+interface ConferirRecebimentoModalProps {
+  open: boolean;
+  nfId: string;
+  labId: LabId;
+  onClose: () => void;
+  onConfirmed: (lotesGerados: string[]) => void;
+}
+
+function ConferirRecebimentoModal({
+  open,
+  nfId,
+  labId,
+  onClose,
+  onConfirmed,
+}: ConferirRecebimentoModalProps) {
+  const [desvios, setDesvios] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      const result = await callConfirmarRecebimento({
+        labId,
+        nfId,
+        desviosObservados: desvios || undefined,
+      });
+      toast.success(
+        `${result.lotesGerados.length} lote(s) criado(s) com sucesso`
+      );
+      onConfirmed(result.lotesGerados);
+      onClose();
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+      onKeyDown={(e) => e.key === 'Escape' && onClose()}
+      role="presentation"
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="conferir-modal-title"
+        className="w-full max-w-lg bg-white dark:bg-[#0F1318] border border-slate-200 dark:border-white/[0.08] rounded-2xl shadow-2xl"
+      >
+        <div className="px-6 py-5 border-b border-slate-200 dark:border-white/[0.06] flex items-center justify-between sticky top-0 bg-white dark:bg-[#0F1318] z-10">
+          <div>
+            <h2
+              id="conferir-modal-title"
+              className="text-base font-semibold text-slate-900 dark:text-white/90"
+            >
+              Confirmar Recebimento
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-white/45 mt-0.5">
+              Registre o recebimento da nota e crie lotes associados.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={loading}
+            aria-label="Fechar"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-white/40 dark:hover:text-white/80 hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-all disabled:opacity-50"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+              <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="p-6 space-y-4">
+          <div>
+            <label
+              htmlFor="desvios"
+              className="block text-xs font-medium text-slate-500 dark:text-white/45 mb-1.5 ml-0.5"
+            >
+              Desvios observados (opcional)
+            </label>
+            <textarea
+              id="desvios"
+              placeholder="Descreva qualquer desvio encontrado no recebimento…"
+              value={desvios}
+              onChange={(e) => setDesvios(e.target.value)}
+              disabled={loading}
+              rows={4}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.09] text-slate-900 dark:text-white/90 placeholder-slate-400 dark:placeholder-white/20 text-sm focus:outline-none focus:border-violet-500/50 focus:bg-white dark:focus:bg-white/[0.08] disabled:opacity-40 transition-all resize-none"
+            />
+          </div>
+        </div>
+
+        <div className="px-6 py-4 border-t border-slate-200 dark:border-white/[0.06] flex items-center justify-end gap-3 bg-slate-50 dark:bg-white/[0.02]">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={loading}
+            className="px-4 h-9 rounded-lg text-sm font-medium text-slate-700 dark:text-white/75 hover:bg-slate-200 dark:hover:bg-white/[0.1] transition-all disabled:opacity-50"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={loading}
+            className="px-4 h-9 rounded-lg text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 disabled:bg-violet-600/50 transition-all"
+          >
+            {loading ? 'Processando…' : 'Confirmar Recebimento'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // ─── View ────────────────────────────────────────────────────────────────────
@@ -442,6 +573,7 @@ function NotasSection({ labId, canMutate }: { labId: string; canMutate: boolean 
   const [search, setSearch] = useState('');
   const [showNovo, setShowNovo] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [selectedNFForConferencia, setSelectedNFForConferencia] = useState<string | null>(null);
 
   const filters = useMemo(
     () => ({ query: search.trim() || undefined }),
@@ -596,6 +728,24 @@ function NotasSection({ labId, canMutate }: { labId: string; canMutate: boolean 
                       <div className="flex items-center gap-1 border-l border-slate-200 dark:border-white/[0.08] pl-2 ml-1">
                         <button
                           type="button"
+                          onClick={() => setSelectedNFForConferencia(n.id)}
+                          aria-label={`Confirmar recebimento da nota ${n.numero}`}
+                          title="Confirmar recebimento e gerar lotes"
+                          className="inline-flex items-center gap-1 px-2 h-7 rounded-md text-[11px] font-medium text-slate-600 dark:text-white/60 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+                        >
+                          <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden>
+                            <path
+                              d="M2.5 7l3 3 6-6"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                          Conferir nota
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => handleDelete(n)}
                           aria-label={`Excluir nota ${n.numero}`}
                           title="Excluir (só se não tiver lotes)"
@@ -625,6 +775,16 @@ function NotasSection({ labId, canMutate }: { labId: string; canMutate: boolean 
       {showNovo && (
         <NotaFiscalFormModal labId={labId} onClose={() => setShowNovo(false)} />
       )}
+
+      <ConferirRecebimentoModal
+        open={!!selectedNFForConferencia}
+        nfId={selectedNFForConferencia || ''}
+        labId={labId as LabId}
+        onClose={() => setSelectedNFForConferencia(null)}
+        onConfirmed={() => {
+          setSelectedNFForConferencia(null);
+        }}
+      />
     </div>
   );
 }
