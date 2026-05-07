@@ -9,6 +9,7 @@ import {
   QueryConstraint
 } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
+import { callGenerateComplianceReport } from '../../qualidade/services/auditCallables';
 import {
   ReviewTemplate,
   createEmptyReviewTemplate,
@@ -58,6 +59,10 @@ export async function generateReviewTemplate(
   const warnings: string[] = [];
 
   try {
+    // Compute date range for the given year
+    const yearStart = new Date(year, 0, 1).getTime();
+    const yearEnd = new Date(year, 11, 31, 23, 59, 59).getTime();
+
     // Parallel data pulls
     const [
       auditResults,
@@ -68,8 +73,8 @@ export async function generateReviewTemplate(
       infrastructure,
       supplierPerformance
     ] = await Promise.all([
-      pullAuditResults(labId).catch((e) => {
-        warnings.push('Auditoria Interna collection not accessible');
+      pullAuditResults(labId, yearStart, yearEnd).catch((e) => {
+        warnings.push('Auditoria Interna (Compliance Report) not accessible');
         return {};
       }),
       pullNCCapaStatus(labId).catch((e) => {
@@ -120,44 +125,34 @@ export async function generateReviewTemplate(
 }
 
 /**
- * Pull Section 1: Audit results summary
+ * Pull Section 1: Audit results summary via generateComplianceReport callable
+ * This replaces direct auditoria-interna collection query with server-side aggregation
  */
-async function pullAuditResults(labId: string): Promise<Record<string, any>> {
-  const path = collection(db, 'labs', labId, 'auditoria-interna');
-  const q = query(path, where('deletedAt', '==', null));
-  const snapshot = await getDocs(q);
-
-  const audits: Array<{
-    id: string;
-    dataAuditoria: Date | null;
-    tipo: any;
-    escopo: any;
-    findingsCount: number;
-  }> = [];
-  let totalFindings = 0;
-  let totalClosed = 0;
-
-  snapshot.forEach((doc) => {
-    const audit = doc.data();
-    audits.push({
-      id: doc.id,
-      dataAuditoria: audit.dataAuditoria?.toDate?.() || null,
-      tipo: audit.tipo,
-      escopo: audit.escopo,
-      findingsCount: audit.findings?.length || 0
-    });
-    totalFindings += audit.findings?.length || 0;
-    if (audit.status === 'closed') totalClosed++;
+async function pullAuditResults(
+  labId: string,
+  yearStart: number,
+  yearEnd: number
+): Promise<Record<string, any>> {
+  const result = await callGenerateComplianceReport({
+    labId,
+    dataInicio: yearStart,
+    dataFim: yearEnd
   });
 
+  if (!result.success) {
+    throw new Error('Failed to generate compliance report');
+  }
+
+  // Map compliance report stats to review section format
   return {
-    totalAudits: audits.length,
-    totalFindings,
-    totalClosed,
-    mostRecent: audits.sort(
-      (a, b) => (b.dataAuditoria?.getTime() || 0) - (a.dataAuditoria?.getTime() || 0)
-    )[0] || null,
-    byType: aggregateBy(audits, 'tipo')
+    totalOperadores: result.operadores,
+    modulos: result.modulos,
+    sucessos: result.stats.sucessos,
+    falhas: result.stats.falhas,
+    avisos: result.stats.avisos,
+    validaChain: result.validaChain,
+    chainViolationCount: result.chainViolations?.length || 0,
+    chainViolations: result.chainViolations || []
   };
 }
 

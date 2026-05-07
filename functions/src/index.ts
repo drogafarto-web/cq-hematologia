@@ -334,8 +334,8 @@ export {
 // ─── qualidade module — audit trail + CAPA workflow (ADR-0017 residual) ───────
 // auditTrail: tamper-evident audit log (RDC 978 5.3 + DICQ 4.4)
 // capaWorkflow: NC investigation → corrective action → effectiveness verification
+// logAction: internal helper (not a public callable) — use writeAuditEntry instead
 export {
-  logAction,
   getAuditTrail,
   validateChain,
   generateComplianceReport,

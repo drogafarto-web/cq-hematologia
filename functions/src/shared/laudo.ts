@@ -83,7 +83,7 @@ export class LaudoDraftManager {
         laudoId,
         lockedBy: rtUid,
         lockedUntil: lockUntil,
-        version: (snapshot.data() as Partial<DraftLock>)?.version ?? 0 + 1,
+        version: ((snapshot.data() as Partial<DraftLock>)?.version ?? 0) + 1,
         status: 'EDITING',
         createdAt: now
       };

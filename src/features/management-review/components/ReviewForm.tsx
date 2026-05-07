@@ -330,11 +330,41 @@ export default function ReviewForm({
               Dados Pré-Populados
             </p>
             <div className="text-sm text-white/70 space-y-1">
-              {Object.entries(currentEntry.sourceData).map(([key, value]) => (
-                <div key={key} className="flex justify-between">
-                  <span>{key}:</span>
-                  <span className="font-mono font-semibold text-white">
-                    {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+              {Object.entries(currentEntry.sourceData).map(([key, value]) => {
+                // Skip chainViolations from display, show as warning instead
+                if (key === 'chainViolations' || key === 'chainViolationCount') {
+                  return null;
+                }
+                return (
+                  <div key={key} className="flex justify-between">
+                    <span>{key}:</span>
+                    <span className="font-mono font-semibold text-white">
+                      {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Chain Integrity Violations Alert (Section 1 only) */}
+        {currentSection.number === 1 &&
+          currentEntry?.sourceData?.chainViolations &&
+          currentEntry.sourceData.chainViolations.length > 0 && (
+          <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-md">
+            <p className="text-xs uppercase font-semibold text-red-400 mb-2">
+              Violações de Integridade Detectadas
+            </p>
+            <p className="text-sm text-red-300 mb-3">
+              {currentEntry.sourceData.chainViolations.length} item(ns) com hash inválido detectado(s) no período
+            </p>
+            <div className="space-y-1 text-xs text-red-200">
+              {currentEntry.sourceData.chainViolations.map((violation: any, idx: number) => (
+                <div key={idx} className="flex gap-2">
+                  <span className="text-red-400">•</span>
+                  <span>
+                    <span className="font-mono">{violation.entryId}</span>: {violation.reason}
                   </span>
                 </div>
               ))}
