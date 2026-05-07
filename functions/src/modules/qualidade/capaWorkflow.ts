@@ -2,11 +2,12 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { NaoConformidade } from './types';
 import { signAuditEntry } from '../audit/cryptoAudit';
+import { HCQ_SIGNATURE_HMAC_KEY } from '../signatures/verifier';
 
 const db = admin.firestore();
 
 export const investigarNC = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
   async (request: any) => {
     if (!request.auth?.token.responsavelTecnico && !request.auth?.token.admin) {
       throw new HttpsError('permission-denied', 'Apenas RT pode investigar NC');
@@ -19,7 +20,7 @@ export const investigarNC = onCall(
     }
 
     try {
-      const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
+      const secret = HCQ_SIGNATURE_HMAC_KEY.value();
       if (!secret) throw new Error('HCQ_SIGNATURE_HMAC_KEY not set');
 
       const ncRef = db.collection(`labs/${labId}/naoConformidades`).doc(ncId);
@@ -67,7 +68,7 @@ export const investigarNC = onCall(
 );
 
 export const executarAcaoCorretiva = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
   async (request: any) => {
     if (!request.auth?.token.responsavelTecnico && !request.auth?.token.admin) {
       throw new HttpsError('permission-denied', 'Apenas RT pode executar ação corretiva');
@@ -80,7 +81,7 @@ export const executarAcaoCorretiva = onCall(
     }
 
     try {
-      const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
+      const secret = HCQ_SIGNATURE_HMAC_KEY.value();
       if (!secret) throw new Error('HCQ_SIGNATURE_HMAC_KEY not set');
 
       const ncRef = db.collection(`labs/${labId}/naoConformidades`).doc(ncId);
@@ -128,7 +129,7 @@ export const executarAcaoCorretiva = onCall(
 );
 
 export const verificarEficacia = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
   async (request: any) => {
     if (!request.auth?.token.responsavelTecnico && !request.auth?.token.admin) {
       throw new HttpsError('permission-denied', 'Apenas RT pode verificar eficacia');
@@ -145,7 +146,7 @@ export const verificarEficacia = onCall(
     }
 
     try {
-      const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
+      const secret = HCQ_SIGNATURE_HMAC_KEY.value();
       if (!secret) throw new Error('HCQ_SIGNATURE_HMAC_KEY not set');
 
       const ncRef = db.collection(`labs/${labId}/naoConformidades`).doc(ncId);

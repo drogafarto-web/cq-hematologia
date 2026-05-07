@@ -3,10 +3,13 @@ import * as admin from 'firebase-admin';
 import * as crypto from 'crypto';
 import { Qualificacao } from './types';
 import { checkNCs } from '../qualidade/naoConformidade';
+import { HCQ_SIGNATURE_HMAC_KEY } from '../signatures/verifier';
 
 const db = admin.firestore();
 
-export const criarQualificacao = functions.onCall(async (request) => {
+export const criarQualificacao = functions.onCall(
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
+  async (request) => {
   if (!request.auth) throw new functions.HttpsError('unauthenticated', 'Auth required');
 
   const { labId, uid, tipo, modulosLiberados, validoDe, validoAte } = request.data;
@@ -29,7 +32,10 @@ export const criarQualificacao = functions.onCall(async (request) => {
     );
   }
 
-  const secret = process.env.HCQ_SIGNATURE_HMAC_KEY || 'dev-key';
+  const secret = HCQ_SIGNATURE_HMAC_KEY.value();
+  if (!secret) {
+    throw new functions.HttpsError('internal', 'HCQ_SIGNATURE_HMAC_KEY not configured');
+  }
   const qualData = { uid, tipo, modulosLiberados, validoDe, validoAte };
   const hmac = crypto.createHmac('sha256', secret)
     .update(JSON.stringify(qualData, Object.keys(qualData).sort()), 'utf-8')

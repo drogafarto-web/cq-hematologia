@@ -2,6 +2,7 @@ import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { validateChainIntegrity } from './cryptoAudit';
+import { HCQ_SIGNATURE_HMAC_KEY } from '../signatures/verifier';
 
 const db = admin.firestore();
 
@@ -10,11 +11,16 @@ const db = admin.firestore();
  * Runs every 12 hours
  */
 export const validateChainIntegrityScheduled = onSchedule(
-  { schedule: 'every 12 hours', timeZone: 'America/Sao_Paulo', region: 'southamerica-east1' },
+  {
+    schedule: 'every 12 hours',
+    timeZone: 'America/Sao_Paulo',
+    region: 'southamerica-east1',
+    secrets: [HCQ_SIGNATURE_HMAC_KEY],
+  },
   async (context: any) => {
-    const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
+    const secret = HCQ_SIGNATURE_HMAC_KEY.value();
     if (!secret) {
-      throw new Error('HCQ_SIGNATURE_HMAC_KEY environment variable not set');
+      throw new Error('HCQ_SIGNATURE_HMAC_KEY secret not bound to function');
     }
 
     try {
@@ -58,7 +64,10 @@ export const validateChainIntegrityScheduled = onSchedule(
  * For debugging / on-demand verification
  */
 export const validateChainIntegrityOnDemand = onCall(
-  { region: 'southamerica-east1' },
+  {
+    region: 'southamerica-east1',
+    secrets: [HCQ_SIGNATURE_HMAC_KEY],
+  },
   async (request: any) => {
     // Require authentication
     if (!request.auth) {
@@ -77,7 +86,7 @@ export const validateChainIntegrityOnDemand = onCall(
       );
     }
 
-    const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
+    const secret = HCQ_SIGNATURE_HMAC_KEY.value();
     if (!secret) {
       throw new HttpsError(
         'internal',

@@ -3,11 +3,12 @@ import * as admin from 'firebase-admin';
 import { Equipamento, Calibracao, Manutencao } from './types';
 import { signAuditEntry } from '../audit/cryptoAudit';
 import { checkNCs } from '../qualidade/naoConformidade';
+import { HCQ_SIGNATURE_HMAC_KEY } from '../signatures/verifier';
 
 const db = admin.firestore();
 
 export const criarEquipamento = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
   async (request: any) => {
     if (!request.auth?.token.admin && !request.auth?.token.responsavelTecnico) {
       throw new HttpsError('permission-denied', 'Apenas admin/RT podem criar equipamentos');
@@ -38,7 +39,7 @@ export const criarEquipamento = onCall(
         );
       }
 
-      const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
+      const secret = HCQ_SIGNATURE_HMAC_KEY.value();
       const now = admin.firestore.Timestamp.now();
 
       const eq: Partial<Equipamento> = {
@@ -90,7 +91,7 @@ export const criarEquipamento = onCall(
 );
 
 export const registrarCalibracacao = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
   async (request: any) => {
     if (!request.auth?.uid) {
       throw new HttpsError('unauthenticated', 'Usuário deve estar autenticado');
@@ -107,7 +108,7 @@ export const registrarCalibracacao = onCall(
     }
 
     try {
-      const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
+      const secret = HCQ_SIGNATURE_HMAC_KEY.value();
       const now = admin.firestore.Timestamp.now();
 
       const calibracao: Partial<Calibracao> = {
@@ -160,7 +161,7 @@ export const registrarCalibracacao = onCall(
 );
 
 export const registrarManutencao = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
   async (request: any) => {
     if (!request.auth?.uid) {
       throw new HttpsError('unauthenticated', 'Usuário deve estar autenticado');
@@ -177,7 +178,7 @@ export const registrarManutencao = onCall(
     }
 
     try {
-      const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
+      const secret = HCQ_SIGNATURE_HMAC_KEY.value();
       const now = admin.firestore.Timestamp.now();
 
       const manutencao: Partial<Manutencao> = {
