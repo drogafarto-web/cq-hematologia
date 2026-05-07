@@ -13,8 +13,8 @@
  */
 
 import { onRequest } from 'firebase-functions/v2/https';
+import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import * as functions from 'firebase-functions/v2/https';
 import crypto from 'crypto';
 import { z } from 'zod';
 
@@ -70,7 +70,7 @@ export const notivisaWebhookHandler = onRequest(
     // Phase 12: add ANVISA_WEBHOOK_SECRET to secrets array
     // secrets: ['ANVISA_WEBHOOK_SECRET'],
   },
-  async (req, res): Promise<void> => {
+  async (req: any, res: any): Promise<void> => {
     try {
       // 1. Verify HTTP method
       if (req.method !== 'POST') {
