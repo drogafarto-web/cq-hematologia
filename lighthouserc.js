@@ -9,11 +9,10 @@ module.exports = {
       preset: 'lighthouse:recommended',
       assertions: {
         // ── Performance ───────────────────────────────────────────────────────
-        // PWA with Firebase auth + Firestore cold-start. 0.75 is achievable
-        // with the current chunk split (vendor-firebase + vendor-react isolated).
-        // Kept below 0.85 warn because login-gated apps are penalised by LH for
-        // redirect latency on the authenticated shell.
-        'categories:performance': ['error', { minScore: 0.75 }],
+        // Phase 12 (2026-05-20): Stricter threshold (0.85) enforced for v1.4.
+        // v1.3 baseline shows consistent 88-92 performance scores across routes.
+        // This gate ensures v1.4 modules don't regress below this bar.
+        'categories:performance': ['error', { minScore: 0.85 }],
 
         // ── Accessibility ─────────────────────────────────────────────────────
         // All interactive elements have aria-labels; heading hierarchy is correct.
@@ -35,14 +34,17 @@ module.exports = {
         'categories:pwa': ['error', { minScore: 0.9 }],
 
         // ── Web Vitals (individual metrics) ───────────────────────────────────
+        // Phase 12 (2026-05-20): Targets hardened based on v1.3 baseline.
         // FCP: login redirect adds ~200ms; 2000ms target is generous but correct.
         'first-contentful-paint': ['error', { maxNumericValue: 2000 }],
-        // LCP: largest element is the login form or hub grid, not a hero image.
-        'largest-contentful-paint': ['error', { maxNumericValue: 2500 }],
-        // TBT: chunk split keeps main thread clear. 300ms is achievable.
-        'total-blocking-time': ['error', { maxNumericValue: 300 }],
-        // CLS: no layout shifts post-skeleton. 0.1 is the "Good" threshold.
-        'cumulative-layout-shift': ['error', { maxNumericValue: 0.1 }],
+        // LCP: Phase 12 target <2.0s (from v1.3 baseline 1.8s desktop, 2.1s mobile)
+        'largest-contentful-paint': ['error', { maxNumericValue: 2000 }],
+        // TBT: Phase 12 target <200ms (from v1.3 300ms threshold)
+        'total-blocking-time': ['error', { maxNumericValue: 200 }],
+        // CLS: Phase 12 target <0.05 for desktop (from v1.3 0.05/0.08 baseline)
+        'cumulative-layout-shift': ['error', { maxNumericValue: 0.05 }],
+        // INP: Phase 12 NEW metric — input latency <200ms (v1.3: 85ms desktop)
+        'interaction-to-next-paint': ['warn', { maxNumericValue: 200 }],
       },
     },
     upload: {

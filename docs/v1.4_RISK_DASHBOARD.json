@@ -1,0 +1,589 @@
+{
+  "v1_4_risk_dashboard": {
+    "metadata": {
+      "document": "v1.4_RISK_DASHBOARD.json",
+      "version": "1.0",
+      "generated": "2026-05-09T18:45:00Z",
+      "last_updated": "2026-05-09T18:45:00Z",
+      "review_cadence": "Weekly (Mondays, 09:30 BRT)",
+      "owner": "CTO",
+      "total_risks": 20,
+      "total_risk_score": 66,
+      "baseline_score": 96,
+      "risk_reduction_percent": 31
+    },
+    "risk_summary": {
+      "by_severity": {
+        "critical": {
+          "count": 0,
+          "score_range": "7–9",
+          "examples": [],
+          "auto_escalate": true
+        },
+        "high": {
+          "count": 11,
+          "score_range": "4–6",
+          "examples": [
+            "RISK-402 (Auditor bottleneck)",
+            "RISK-406 (Schema migration)",
+            "RISK-407 (Evidence gaps)",
+            "RISK-408 (Context switching)",
+            "RISK-411 (Gemini accuracy)",
+            "RISK-416 (Scope creep)",
+            "RISK-418 (Cost overrun)"
+          ],
+          "auto_escalate": false,
+          "weekly_review": true
+        },
+        "low": {
+          "count": 9,
+          "score_range": "1–3",
+          "examples": [
+            "RISK-405 (Interpretation conflict)",
+            "RISK-409 (Regression - mitigated)",
+            "RISK-410 (NOTIVISA downtime)",
+            "RISK-414 (Compliance gaps)",
+            "RISK-415 (Security finding)",
+            "RISK-417 (Consultant unavailable)",
+            "RISK-419 (SMS delivery)"
+          ],
+          "auto_escalate": false,
+          "weekly_review": true
+        }
+      },
+      "by_status": {
+        "active": 18,
+        "mitigated": 2,
+        "materialized": 0,
+        "closed": 0
+      },
+      "by_phase": {
+        "phase_0": {
+          "risks": ["RISK-403"],
+          "status": "COMPLETE"
+        },
+        "phase_1": {
+          "risks": ["RISK-401", "RISK-404", "RISK-408"],
+          "status": "ACTIVE"
+        },
+        "phase_3": {
+          "risks": ["RISK-406"],
+          "status": "ACTIVE"
+        },
+        "phase_4": {
+          "risks": ["RISK-402", "RISK-407", "RISK-408"],
+          "status": "ACTIVE"
+        },
+        "phase_5": {
+          "risks": ["RISK-412", "RISK-418"],
+          "status": "ACTIVE"
+        },
+        "phase_6": {
+          "risks": ["RISK-419"],
+          "status": "ACTIVE"
+        },
+        "phase_8": {
+          "risks": ["RISK-410"],
+          "status": "ACTIVE"
+        },
+        "phase_11": {
+          "risks": ["RISK-411"],
+          "status": "ACTIVE"
+        },
+        "phase_12": {
+          "risks": ["RISK-413"],
+          "status": "ACTIVE"
+        },
+        "phase_13": {
+          "risks": ["RISK-405", "RISK-414", "RISK-415", "RISK-417"],
+          "status": "ACTIVE"
+        },
+        "phase_1_to_15": {
+          "risks": ["RISK-416"],
+          "status": "ACTIVE"
+        }
+      }
+    },
+    "top_10_risks": [
+      {
+        "rank": 1,
+        "id": "RISK-402",
+        "title": "Auditor Availability Bottleneck",
+        "score": 6,
+        "probability": 2,
+        "impact": 3,
+        "owner": "QA Lead",
+        "phase": 4,
+        "status": "Active",
+        "mitigation_status": "IN_PROGRESS",
+        "critical_action": "Confirm pre-alignment call by 2026-05-13",
+        "escalation_threshold": "RFI delay >5 business days"
+      },
+      {
+        "rank": 2,
+        "id": "RISK-406",
+        "title": "Phase 3 Schema Migration Flaws",
+        "score": 6,
+        "probability": 2,
+        "impact": 3,
+        "owner": "Stream D + Stream A",
+        "phase": 3,
+        "status": "Active",
+        "mitigation_status": "READY",
+        "critical_action": "Execute Phase 3 schema review (Day 1 kickoff)",
+        "escalation_threshold": "Rules test failure OR schema bug"
+      },
+      {
+        "rank": 3,
+        "id": "RISK-407",
+        "title": "CAPA Evidence Gathering Incomplete",
+        "score": 6,
+        "probability": 2,
+        "impact": 3,
+        "owner": "Stream A",
+        "phase": 4,
+        "status": "Active",
+        "mitigation_status": "READY",
+        "critical_action": "Weekly evidence checklist tracking (template ready)",
+        "escalation_threshold": "≥2 CAPAs missing evidence"
+      },
+      {
+        "rank": 4,
+        "id": "RISK-411",
+        "title": "Gemini Vision Model Drift",
+        "score": 6,
+        "probability": 2,
+        "impact": 3,
+        "owner": "Stream C",
+        "phase": 11,
+        "status": "Active",
+        "mitigation_status": "READY",
+        "critical_action": "Confidence threshold guardrail in code before Phase 11",
+        "escalation_threshold": "Accuracy <85% OR false negative on critical disease"
+      },
+      {
+        "rank": 5,
+        "id": "RISK-416",
+        "title": "Multi-Lab Scope Creep",
+        "score": 6,
+        "probability": 2,
+        "impact": 3,
+        "owner": "CTO + Sales Lead",
+        "phase": "1–15",
+        "status": "Active",
+        "mitigation_status": "COMMS",
+        "critical_action": "Publish stakeholder memo + sales playbook (Week 1)",
+        "escalation_threshold": "Customer escalation OR lost deal >$50K"
+      },
+      {
+        "rank": 6,
+        "id": "RISK-408",
+        "title": "Multi-Stream Context Switching",
+        "score": 4,
+        "probability": 2,
+        "impact": 2,
+        "owner": "CTO + Tech Lead",
+        "phase": "1–4",
+        "status": "Active",
+        "mitigation_status": "PLANNED",
+        "critical_action": "Publish STREAM-ALLOCATION.md (due 2026-05-10)",
+        "escalation_threshold": "Bug rate >3/phase OR >25% context-switch overhead"
+      },
+      {
+        "rank": 7,
+        "id": "RISK-404",
+        "title": "13 Orphaned DICQ Blocks",
+        "score": 4,
+        "probability": 2,
+        "impact": 2,
+        "owner": "QA Lead",
+        "phase": "1–3",
+        "status": "Active",
+        "mitigation_status": "PLANNED",
+        "critical_action": "Publish DICQ-COVERAGE-MATRIX.md (due 2026-05-10)",
+        "escalation_threshold": "Orphan count >5 at Wave 2 end"
+      },
+      {
+        "rank": 8,
+        "id": "RISK-412",
+        "title": "Patient Portal Auth Scope Creep",
+        "score": 4,
+        "probability": 2,
+        "impact": 2,
+        "owner": "Stream B",
+        "phase": 5,
+        "status": "Active",
+        "mitigation_status": "LOCKED",
+        "critical_action": "Email-link auth scope confirmed (no LIS in v1.4)",
+        "escalation_threshold": "Customer requests LIS sync"
+      },
+      {
+        "rank": 9,
+        "id": "RISK-413",
+        "title": "Performance Regression (Web Vitals)",
+        "score": 4,
+        "probability": 2,
+        "impact": 2,
+        "owner": "Stream D",
+        "phase": 12,
+        "status": "Active",
+        "mitigation_status": "ASSIGNED",
+        "critical_action": "Capture Week 1 baseline (LCP, INP, CLS, TTI)",
+        "escalation_threshold": "Lighthouse CI fails OR metric regresses >10%"
+      },
+      {
+        "rank": 10,
+        "id": "RISK-418",
+        "title": "Cloud Cost Overrun",
+        "score": 4,
+        "probability": 2,
+        "impact": 2,
+        "owner": "Stream D",
+        "phase": "5–11",
+        "status": "Active",
+        "mitigation_status": "BUDGETS_SET",
+        "critical_action": "Configure GCP quota alerts (due 2026-05-13)",
+        "escalation_threshold": "Any service >80% monthly cap"
+      }
+    ],
+    "mitigation_status_summary": {
+      "complete": {
+        "count": 2,
+        "risks": ["RISK-401", "RISK-403"],
+        "completion_percent": 10
+      },
+      "in_progress": {
+        "count": 2,
+        "risks": ["RISK-402", "RISK-408"],
+        "completion_percent": 10
+      },
+      "ready": {
+        "count": 10,
+        "risks": [
+          "RISK-405", "RISK-406", "RISK-407", "RISK-410", "RISK-411",
+          "RISK-414", "RISK-415", "RISK-417", "RISK-419", "RISK-409"
+        ],
+        "completion_percent": 50
+      },
+      "planned": {
+        "count": 4,
+        "risks": ["RISK-404", "RISK-408", "RISK-412", "RISK-413", "RISK-418"],
+        "completion_percent": 20
+      },
+      "comms": {
+        "count": 2,
+        "risks": ["RISK-416", "RISK-412"],
+        "completion_percent": 10
+      }
+    },
+    "weekly_tracking_data": {
+      "week": 1,
+      "phase": 1,
+      "review_date": "2026-05-13",
+      "attendees": ["CTO", "QA Lead", "Stream A Lead", "Stream B Lead", "Stream C Lead", "Stream D Lead"],
+      "status_update_due": "2026-05-12 EOD",
+      "escalation_decisions_deadline": "Within 4h post-review",
+      "action_items": [
+        {
+          "id": "ACTION-001",
+          "risk": "RISK-402",
+          "item": "Confirm auditor pre-alignment call attendance",
+          "due": "2026-05-13",
+          "owner": "QA Lead",
+          "priority": "P0"
+        },
+        {
+          "id": "ACTION-002",
+          "risk": "RISK-404",
+          "item": "Publish v1.4-DICQ-COVERAGE-MATRIX.md",
+          "due": "2026-05-10",
+          "owner": "QA Lead",
+          "priority": "P0"
+        },
+        {
+          "id": "ACTION-003",
+          "risk": "RISK-408",
+          "item": "Publish v1.4-STREAM-ALLOCATION.md",
+          "due": "2026-05-10",
+          "owner": "CTO",
+          "priority": "P0"
+        },
+        {
+          "id": "ACTION-004",
+          "risk": "RISK-416",
+          "item": "Publish stakeholder communication memo (multi-lab, v1.5 commitment)",
+          "due": "2026-05-10",
+          "owner": "CTO",
+          "priority": "P0"
+        },
+        {
+          "id": "ACTION-005",
+          "risk": "RISK-416",
+          "item": "Publish sales playbook with v1.5 messaging",
+          "due": "2026-05-15",
+          "owner": "Sales Lead",
+          "priority": "P1"
+        },
+        {
+          "id": "ACTION-006",
+          "risk": "RISK-413",
+          "item": "Capture v1.4 Week 1 Web Vitals baseline",
+          "due": "2026-05-13",
+          "owner": "Stream D",
+          "priority": "P0"
+        },
+        {
+          "id": "ACTION-007",
+          "risk": "RISK-418",
+          "item": "Configure GCP quota alerts (50%, 80%, 100%)",
+          "due": "2026-05-13",
+          "owner": "Stream D",
+          "priority": "P0"
+        }
+      ]
+    },
+    "contingency_triggers": {
+      "critical_auto_escalate": {
+        "condition": "Risk score 7–9 OR patient safety incident OR data exposure",
+        "immediate_actions": [
+          "CTO Slack DM + email",
+          "Emergency war room <4h",
+          "Daily standup (until score ≤6)"
+        ],
+        "example_risks": "None (RISK-401, RISK-403 mitigated from 9→low)"
+      },
+      "medium_escalate_48h": {
+        "condition": "Risk score 4–6 + trigger fires",
+        "actions": [
+          "QA Lead notification",
+          "Owner remediation plan (48h)",
+          "Weekly escalation tracking"
+        ],
+        "example_risks": [
+          "RISK-402 (auditor RFI >5 days)",
+          "RISK-406 (rules test failure)",
+          "RISK-407 (CAPA evidence missing)"
+        ]
+      },
+      "by_risk": {
+        "RISK-402": {
+          "trigger": "RFI cycle >5 business days",
+          "escalation_path": "QA Lead → CTO",
+          "contingency": "Parallel CAPA gathering; extend Phase 4 Week 8"
+        },
+        "RISK-406": {
+          "trigger": "Rules test failure OR schema bug",
+          "escalation_path": "Tech Lead → CTO",
+          "contingency": "Hot-patch (additive) OR rollback + re-plan"
+        },
+        "RISK-407": {
+          "trigger": "≥2 CAPAs missing evidence",
+          "escalation_path": "CAPA Lead → CTO",
+          "contingency": "Phase 4 Week 8 buffer; reassign if ≥3 incomplete Week 7"
+        },
+        "RISK-408": {
+          "trigger": "Bug rate >3/phase OR >25% context-switch",
+          "escalation_path": "Tech Lead → CTO",
+          "contingency": "Reduce streams 4→2; reallocate to critical path"
+        },
+        "RISK-411": {
+          "trigger": "Accuracy <85% OR false negative on critical disease",
+          "escalation_path": "Stream C → CTO",
+          "contingency": "Disable Gemini; revert to manual RT; investigate bias"
+        },
+        "RISK-416": {
+          "trigger": "Customer escalates multi-tenant OR lost deal >$50K",
+          "escalation_path": "Sales/CTO",
+          "contingency": "CTO scope decision; no change without re-planning"
+        },
+        "RISK-418": {
+          "trigger": "Any service >80% monthly cap",
+          "escalation_path": "Stream D → CTO",
+          "contingency": "Throttle at hard cap; CTO approval for >$200 overage"
+        }
+      }
+    },
+    "escalation_authority": {
+      "cto": {
+        "name": "drogafarto",
+        "email": "drogafarto@gmail.com",
+        "authority": "Final decision on all P0/P1 risks, scope changes, budget overages",
+        "escalation_criteria": [
+          "Risk score ≥7",
+          "Patient safety incident",
+          "Data exposure confirmed",
+          "RDC/DICQ compliance breach",
+          "Phase delay ≥5 days",
+          "Budget overage ≥$200",
+          "Scope creep request"
+        ]
+      },
+      "qa_lead": {
+        "name": "[TBD]",
+        "email": "[TBD]",
+        "authority": "Auditor liaison, CAPA closure, DICQ tracking",
+        "escalation_criteria": [
+          "Risk score 4–6 + trigger fires",
+          "DICQ orphan count increases",
+          "CAPA evidence gaps ≥2"
+        ]
+      },
+      "stream_leads": {
+        "stream_a": {
+          "name": "[CAPA/Compliance]",
+          "authority": "Audit trail, compliance, CAPA evidence"
+        },
+        "stream_b": {
+          "name": "[Portal/Críticos]",
+          "authority": "Portal auth scope, SMS delivery"
+        },
+        "stream_c": {
+          "name": "[IA]",
+          "authority": "Gemini accuracy, model drift"
+        },
+        "stream_d": {
+          "name": "[DevOps]",
+          "authority": "Schema, performance, cloud costs"
+        }
+      }
+    },
+    "phase_impact_analysis": {
+      "phase_0": {
+        "status": "COMPLETE",
+        "critical_risks": ["RISK-403"],
+        "mitigation_completion": "100%",
+        "phase_outcome": "✅ All 4 RDC blockers deployed (turnos, LGPD, lab-apoio, risks)"
+      },
+      "phase_1": {
+        "status": "UPCOMING (2026-05-13)",
+        "critical_risks": ["RISK-401", "RISK-404"],
+        "medium_risks": ["RISK-408"],
+        "action_items": [
+          "Publish REQ-PHASE-MATRIX",
+          "Publish DICQ-COVERAGE-MATRIX",
+          "Publish STREAM-ALLOCATION"
+        ],
+        "risk_clearance_target": "All 3 documentation items by end of Week 1"
+      },
+      "phase_3": {
+        "status": "UPCOMING (2026-05-20)",
+        "critical_risks": ["RISK-406"],
+        "pre_requisite": "Schema review audit + rules emulator test baseline",
+        "risk_clearance_target": "Rules 42/42 PASS; joint sign-off before Phase 3 code merge"
+      },
+      "phase_4": {
+        "status": "CRITICAL PATH (2026-05-27 – 2026-06-24)",
+        "critical_risks": ["RISK-402", "RISK-407"],
+        "medium_risks": ["RISK-408"],
+        "capa_count": 12,
+        "evidence_artifacts": 60,
+        "risk_clearance_target": "Pre-alignment call Week 1; evidence complete by Week 7 (before Phase 4 deadline)"
+      },
+      "phase_5": {
+        "status": "UPCOMING (2026-06-25)",
+        "critical_risks": ["RISK-412"],
+        "medium_risks": ["RISK-418"],
+        "scope_decision": "Email-link auth only (LIS deferred to v1.4.1)",
+        "risk_clearance_target": "Stakeholder memo published Week 4 (confirm scope)"
+      },
+      "phase_6": {
+        "status": "UPCOMING (2026-07-02)",
+        "critical_risks": ["RISK-419"],
+        "sla": "Critical value notification <5 min (dual-channel SMS + email)",
+        "risk_clearance_target": "Dual-channel delivery tested; SLA dashboard active"
+      },
+      "phase_8": {
+        "status": "UPCOMING",
+        "critical_risks": ["RISK-410"],
+        "integration": "NOTIVISA API + retry queue + email fallback",
+        "risk_clearance_target": "Sandbox testing before production; retry logic verified"
+      },
+      "phase_11": {
+        "status": "UPCOMING",
+        "critical_risks": ["RISK-411"],
+        "dataset_target": "500+ labeled images",
+        "accuracy_target": "≥85%",
+        "risk_clearance_target": "Monthly accuracy check shows ≥85%; zero false negatives on critical diseases"
+      },
+      "phase_12": {
+        "status": "UPCOMING",
+        "critical_risks": ["RISK-413"],
+        "web_vitals_targets": {
+          "lcp": "<2.5s",
+          "inp": "<200ms",
+          "cls": "<0.1",
+          "bundle": "<400KB gzip"
+        },
+        "risk_clearance_target": "Week 1 baseline established; weekly Lighthouse report active; no regression >10%"
+      },
+      "phase_13": {
+        "status": "UPCOMING (FINAL AUDIT)",
+        "critical_risks": ["RISK-405", "RISK-414", "RISK-415", "RISK-417"],
+        "audit_scope": "DICQ compliance + RDC 978 + security audit",
+        "risk_clearance_target": "Pre-audit dry run Week 17; <5 P0 gaps at Week 1 Phase 13"
+      }
+    },
+    "cost_tracking": {
+      "total_monthly_budget": 1500,
+      "currency": "USD",
+      "services": {
+        "gemini_vision": {
+          "monthly_cap": 500,
+          "alert_threshold": 400,
+          "hard_limit_action": "Throttle (reduce batch size, confidence threshold)",
+          "current_month_cost": 0,
+          "forecast": "TBD (Phase 11 start)"
+        },
+        "twilio_sms": {
+          "monthly_cap": 200,
+          "alert_threshold": 150,
+          "hard_limit_action": "Email fallback",
+          "current_month_cost": 0,
+          "forecast": "TBD (Phase 6 start)"
+        },
+        "firebase_functions": {
+          "monthly_cap": 300,
+          "alert_threshold": 250,
+          "hard_limit_action": "Cold-start throttle",
+          "current_month_cost": 0,
+          "forecast": "TBD (Phase 3+ operations)"
+        },
+        "other_services": {
+          "monthly_budget": 500,
+          "description": "GCP infrastructure, Cloud Logs, backups, etc.",
+          "current_month_cost": 0
+        }
+      },
+      "monitoring": {
+        "frequency": "Weekly (Fridays, Stream D report)",
+        "alerts": "GCP Console quota (50%, 80%, 100%)",
+        "escalation_threshold": "Any service >80% mid-month"
+      }
+    },
+    "historical_evolution": {
+      "pre_phase_0": {
+        "date": "2026-05-07 morning",
+        "total_risk_score": 96,
+        "critical_count": 2,
+        "high_count": 9,
+        "low_count": 8
+      },
+      "post_phase_0": {
+        "date": "2026-05-07 EOD",
+        "total_risk_score": 66,
+        "critical_count": 0,
+        "high_count": 11,
+        "low_count": 9,
+        "improvement": "31% risk reduction"
+      },
+      "post_validator": {
+        "date": "2026-05-09",
+        "remediation_actions": [
+          "RISK-416: Added stakeholder memo + sales playbook",
+          "RISK-418: Added explicit budget caps + GCP alerts"
+        ],
+        "confidence_improvement": "Weak mitigations strengthened; no score change"
+      }
+    }
+  }
+}

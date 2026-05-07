@@ -703,6 +703,40 @@
         { "fieldPath": "labId", "order": "ASCENDING" },
         { "fieldPath": "locked_until_ts", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "criticos-thresholds",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "analitoId", "order": "ASCENDING" },
+        { "fieldPath": "ativo", "order": "DESCENDING" },
+        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "criticos-escalacoes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "laudoId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "criticos-escalacoes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "sla_status", "order": "ASCENDING" },
+        { "fieldPath": "reconhecido_em", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "criticos-log-eventos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "escalacaoId", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

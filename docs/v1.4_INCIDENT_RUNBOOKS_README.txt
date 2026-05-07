@@ -1,0 +1,219 @@
+================================================================================
+                        v1.4 INCIDENT RUNBOOKS — README
+================================================================================
+
+You have 4 documents. Here's what to use when:
+
+SCENARIO: I need to prepare for v1.4 launch (72h before)
+→ Open: v1.4_PRE_LAUNCH_INCIDENT_READINESS.md
+  Complete all checklists. CTO signs off. No launch without green light.
+
+SCENARIO: v1.4 just deployed. I'm monitoring for 48h.
+→ Print & tape: v1.4_INCIDENT_QUICK_CARD.txt
+  Reference this when something goes wrong. Guides you to the right action.
+
+SCENARIO: Active incident. I need detailed procedures.
+→ Read: v1.4_POST_LAUNCH_INCIDENT_RUNBOOK.md
+  Pick your scenario (1-8). Follow decision tree + mitigation steps.
+
+SCENARIO: I'm overwhelmed. What do I read first?
+→ Start with: v1.4_INCIDENT_RESPONSE_SYSTEM.md
+  This is the master index. Links to everything. Explains the whole system.
+
+================================================================================
+                              4 DOCUMENTS
+================================================================================
+
+1. v1.4_INCIDENT_RESPONSE_SYSTEM.md
+   Purpose: Master index + system overview
+   Audience: Everyone (CTO, on-call eng, QA)
+   When: Anytime you need orientation
+   Size: ~400 lines
+   TL;DR: "Here are all the incident tools. Here's how they fit together."
+
+2. v1.4_PRE_LAUNCH_INCIDENT_READINESS.md
+   Purpose: Deployment gate checklist
+   Audience: QA Lead, SRE, CTO
+   When: 72h before v1.4 go-live
+   Size: ~600 lines (mostly checkboxes)
+   TL;DR: "Before we launch, verify infrastructure + team + code ready."
+   Gate: All sections checked = deployment approved
+
+3. v1.4_POST_LAUNCH_INCIDENT_RUNBOOK.md
+   Purpose: Detailed incident procedures
+   Audience: On-call engineer (+ CTO for P0s)
+   When: During 48h monitoring window OR active incident
+   Size: ~1400 lines
+   TL;DR: "Here's what to do for each of 8 possible failures."
+   Sections:
+     - Scenario 1: Rules deny users (RDC lockout)
+     - Scenario 2: Cloud Functions 5xx (crash)
+     - Scenario 3: Firestore quota breach (spike)
+     - Scenario 4: NOTIVISA API timeout (gov down)
+     - Scenario 5: Gemini Vision API cost spike (IA hot)
+     - Scenario 6: SMS delivery failure (Twilio down)
+     - Scenario 7: Critical data loss (delete incident)
+     - Scenario 8: Cascading failure (multiple systems)
+     Plus: Full rollback procedure + RCA template
+
+4. v1.4_INCIDENT_QUICK_CARD.txt
+   Purpose: 1-2 page printable reference
+   Audience: On-call engineer (ONLY)
+   When: Taped next to monitor during 48h window
+   Size: ~200 lines
+   TL;DR: "Quick lookup for 8 scenarios + copy-paste commands."
+   Print: 2-3 copies (one per monitor + spare)
+
+================================================================================
+                         DEPLOYMENT TIMELINE
+================================================================================
+
+T-72h: Complete v1.4_PRE_LAUNCH_INCIDENT_READINESS.md
+       All checkboxes green = go ahead with launch
+
+T-0h:  Deploy v1.4 (rules → functions → hosting)
+       Start monitoring
+
+T+0 to T+48h: Active monitoring window
+              Quick card at desk. Reference runbook if incident occurs.
+              Automated script in background.
+
+T+48h: Review monitoring report. CTO signs off.
+       Less than 5 incidents (P0+P1) = stable, move to Phase 2
+       5 or more incidents = extend monitoring to T+72h, investigate
+
+================================================================================
+                            DURING AN INCIDENT
+================================================================================
+
+STEP 1: Stay calm. Grab quick card (printed, at monitor).
+STEP 2: Find your scenario in quick card (takes less than 10 sec).
+STEP 3: Follow "Action" column — immediate first step.
+STEP 4: If action says "See runbook", open runbook at that scenario.
+STEP 5: Follow decision tree + mitigation steps in runbook.
+STEP 6: Update CTO + RT every 5 min.
+STEP 7: After resolved, start RCA (within 24h).
+
+Example incident:
+  - Cloud Logs shows "Permission denied" errors
+  - Grab quick card
+  - Scenario 1: "Rules deny users"
+  - Action: Check who's affected, then rollback or fix
+  - Open runbook Scenario 1
+  - Follow decision tree
+  - Get approval from CTO if P0
+  - Execute fix or rollback
+  - Monitor for 5 min
+  - Declare incident resolved
+
+================================================================================
+                            KEY CONTACTS
+================================================================================
+
+Add these to your phone and contacts NOW (before launch):
+
+CTO:
+  Phone: _____________________
+  Slack: drogafarto
+
+On-call Engineer (you?):
+  Phone: _____________________
+
+RT (técnico responsável):
+  Slack: _____________________
+
+Auditor (if RDC impact):
+  Email: _____________________
+  Phone: _____________________
+
+================================================================================
+                          QUICK REFERENCE
+================================================================================
+
+INCIDENT DECLARED?
+  Slack: #ops-incidents + message "🚨 P[0|1] INCIDENT: [name] - ETA: [time]"
+
+MONITOR ERROR RATE:
+  gcloud logging read 'severity >= ERROR' --project=hmatologia2 --follow
+
+FIND FAILING FUNCTION:
+  gcloud logging read 'resource.type="cloud_function" AND severity="ERROR"' \
+    --project=hmatologia2 --limit=50 --format='table(labels.function_name,jsonPayload.message)'
+
+ROLLBACK ONE FUNCTION:
+  git checkout HEAD~1 -- functions/src/<module>/<function>.ts
+  firebase deploy --only functions:<functionName> --project=hmatologia2
+
+FULL ROLLBACK (EMERGENCY):
+  COMMIT=$(git log --oneline --grep="v1.3" | head -1 | awk '{print $1}')
+  git checkout $COMMIT -- firestore.rules functions/ src/
+  firebase deploy --only firestore:rules,functions,hosting --project=hmatologia2
+
+CHECK SECRETS:
+  bash scripts/preflight-secrets-check.sh
+
+START AUTO-MONITORING:
+  bash scripts/monitor-cloud-logs.sh 48 10
+
+================================================================================
+                        BEFORE YOU PANIC
+================================================================================
+
+Most incidents are NOT emergencies:
+  - SMS failed? Fallback to email (user still gets notification)
+  - NOTIVISA down? Queue submissions for retry (gov issue, expected occasionally)
+  - Cost spike? Disable feature, optimize code (not blocking lab operations)
+
+Only P0 scenarios need emergency rollback:
+  - Rules block ALL users (RDC lockout)
+  - Functions erroring greater than 20% (availability risk)
+  - Data loss (restore from backup)
+  - Cascading (multiple systems failing simultaneously)
+
+Everything else: P1 (urgent but not emergency) or P2 (normal response time)
+
+================================================================================
+                            FINAL CHECKLIST
+================================================================================
+
+Before v1.4 deployment:
+
+[ ] Printed 2-3 copies of v1.4_INCIDENT_QUICK_CARD.txt
+    Location: _________________ (taped next to monitor)
+
+[ ] Read v1.4_PRE_LAUNCH_INCIDENT_READINESS.md
+    All checkboxes filled? [ ] Yes
+
+[ ] Stored bookmarks (digital):
+    [ ] v1.4_INCIDENT_RESPONSE_SYSTEM.md
+    [ ] v1.4_POST_LAUNCH_INCIDENT_RUNBOOK.md
+    [ ] CLOUD_LOGS_MONITORING_GUIDE.md
+
+[ ] Added contacts to phone:
+    [ ] CTO: _______________
+    [ ] Auditor: _______________
+
+[ ] Tested command:
+    [ ] gcloud logging read (can execute successfully)
+    [ ] bash scripts/monitor-cloud-logs.sh (runs without error)
+
+[ ] Communicated with team:
+    [ ] CTO briefed on 48h intensive monitoring
+    [ ] On-call engineer briefed on this system
+    [ ] RT knows how to reach on-call engineer
+    [ ] Auditor aware of go-live date
+
+[ ] Ready light: ALL CHECKS GREEN → Deploy approved ✅
+
+================================================================================
+
+Questions? See v1.4_INCIDENT_RESPONSE_SYSTEM.md or contact CTO.
+
+Good luck. You've got this.
+
+================================================================================
+                          DOCUMENT CONTROL
+                     Created: 2026-05-XX
+                     Version: 1.0
+                     Owner: CTO
+================================================================================

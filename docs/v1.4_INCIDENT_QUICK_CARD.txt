@@ -1,0 +1,193 @@
+================================================================================
+                  HC QUALITY v1.4 — POST-LAUNCH INCIDENT CARD
+                     48-HOUR INTENSIVE MONITORING WINDOW
+================================================================================
+
+PRINT THIS. TAPE TO MONITOR. REFERENCE DURING INCIDENTS.
+
+KEY CONTACTS
+─────────────────────────────────────────────────────────────────────────────
+CTO:                    @drogafarto (Slack) — escalate P0/P1
+On-call Engineer:       [Your name] — this card is your responsibility
+Auditor:                [Name + phone] — notify if RDC 978 impact
+RT (técnico resp):      [Name + Slack] — communication point for ops
+
+SEVERITY DEFINITIONS
+─────────────────────────────────────────────────────────────────────────────
+P0 (EMERGENCY):         >10% error rate OR rules deny all users → ROLLBACK
+P1 (URGENT):            >5% error rate OR quota breach → MITIGATION in <15 min
+P2 (NORMAL):            <5% error rate OR cost issue → FIX within 1h
+
+7 CRITICAL SCENARIOS — IN ORDER OF APPEARANCE
+─────────────────────────────────────────────────────────────────────────────
+
+[1] RULES DENY USERS (RDC Lockout)
+    Detection:  "Permission denied" errors in Cloud Logs (>10 in 15 min)
+    Decision:   All users blocked? → ROLLBACK. Subset? → FIX & MONITOR.
+    Action:     Run: gcloud logging read 'text contains "Permission denied"' \
+                     --project=hmatologia2 --limit=50
+    Fix:        See firestore.rules, deploy: firebase deploy --only firestore:rules
+    Rollback:   git checkout HEAD~1 -- firestore.rules && firebase deploy --only firestore:rules
+
+[2] CLOUD FUNCTIONS 5xx (Function Crash)
+    Detection:  httpStatus=500+ in Cloud Logs (>50 errors in 10 min)
+    Decision:   Single function or all? Check function name in logs.
+    Action:     Rollback single: firebase deploy --only functions:<name>
+                Rollback all:    firebase deploy --only functions
+    Verify:     Tail logs for 5 min: gcloud logging read 'severity >= ERROR' --follow
+
+[3] FIRESTORE QUOTA BREACH (Read/Write Spike)
+    Detection:  "Request rate exceeded" OR quota >95% in GCP Console
+    Decision:   Expected spike? → Disable feature. Unexpected? → FIX CODE.
+    Action:     Identify culprit: grep -r "onSnapshot\|polling" src/features/<MODULE>
+                Check polling interval >=30s, query has .limit()
+    Fix:        Reduce interval, add rate limiting, redeploy: firebase deploy --only hosting
+
+[4] NOTIVISA API TIMEOUT (Gov Endpoint Down)
+    Detection:  "NOTIVISA" in Cloud Logs + "deadline exceeded"
+    Decision:   ANVISA down? → QUEUE for retry. Code issue? → FIX.
+    Action:     Check: https://notivisa.anvisa.gov.br/status
+                Queue: gcloud tasks queues create notivisa-retry-queue
+    Note:       This is NOT a blocker — notifications will retry automatically.
+
+[5] GEMINI VISION API COST SPIKE (Phase 11 IA)
+    Detection:  Gemini tokens >10x baseline in logs, daily cost >$100
+    Decision:   This is a P2 cost issue, not availability.
+    Action:     Reduce confidence threshold in analyzer, redeploy functions
+                If critical: DISABLE_PHASE_11_IA = false in code
+
+[6] SMS DELIVERY FAILURE (Twilio Down)
+    Detection:  "Twilio" + "ERROR" in Cloud Logs (>10 failures in 15 min)
+    Decision:   Twilio down? → FALLBACK to email. Code issue? → FIX.
+    Action:     Check: https://status.twilio.com
+                Fallback: Add email notification in sendNotification function
+    Note:       Lab notifications will work via email — not a data blocker.
+
+[7] CRITICAL DATA LOSS (Accidental Delete)
+    Detection:  RT reports: "Document was deleted accidentally"
+    Decision:   EMERGENCY. Restore from backup immediately.
+    Action:     Identify when: gcloud firestore query (check audit trail)
+                Restore: gcloud firestore restore --backup-id=<ID>
+    Verify:     Query restored doc: gcloud firestore documents get /path/{id}
+
+[8] CASCADING FAILURE (Multiple Systems Down) — FULL ROLLBACK
+    Detection:  >2 scenarios simultaneous OR >1% of requests 5xx
+    Decision:   DECLARE INCIDENT. Full rollback to v1.3.
+    Action:     git checkout <v1.3-commit> -- firestore.rules functions/ src/
+                firebase deploy --only firestore:rules,functions,hosting
+    Verify:     Tail logs for 5 min — should be clean
+
+QUICK COMMANDS (Paste & Run)
+─────────────────────────────────────────────────────────────────────────────
+
+REAL-TIME ERROR MONITOR:
+  gcloud logging read 'severity >= ERROR' --project=hmatologia2 --follow
+
+ERROR COUNT IN LAST 15 MIN:
+  gcloud logging read 'severity >= ERROR' --project=hmatologia2 \
+    --limit=1000 --filter='timestamp >= now - 15m' | wc -l
+
+ERRORS BY FUNCTION:
+  gcloud logging read 'resource.type="cloud_function" AND severity="ERROR"' \
+    --project=hmatologia2 --limit=50 --format='table(labels.function_name,jsonPayload.message)'
+
+PERMISSION DENIED ERRORS:
+  gcloud logging read 'text contains "Permission denied"' \
+    --project=hmatologia2 --limit=20
+
+QUOTA WARNINGS:
+  gcloud logging read 'text contains ("quota" OR "rate exceeded")' \
+    --project=hmatologia2 --limit=20
+
+ROLLBACK TO V1.3 (Complete):
+  COMMIT=$(git log --oneline --grep="v1.3" | head -1 | awk '{print $1}')
+  git checkout $COMMIT -- firestore.rules functions/ src/
+  firebase deploy --only firestore:rules,functions,hosting --project=hmatologia2
+
+SECRET STATUS CHECK:
+  bash scripts/preflight-secrets-check.sh
+
+DEPLOY (After Fix):
+  npx tsc --noEmit && npm run build && \
+  firebase deploy --only [firestore:rules | functions | hosting] --project=hmatologia2
+
+POST-INCIDENT RCA (Within 24h):
+  1. Document in: .planning/v1.4-INCIDENT-RCA-2026-05-XX-NNN.md
+  2. Fill template: [See v1.4_POST_LAUNCH_INCIDENT_RUNBOOK.md]
+  3. Escalate to CTO if compliance impact detected
+  4. Update this runbook if procedure unclear
+
+COMMUNICATION TEMPLATES
+─────────────────────────────────────────────────────────────────────────────
+
+TO SLACK #ops-incidents (DECLARE IMMEDIATELY):
+  🚨 P[0|1|2] INCIDENT: [Scenario name]
+  Status: [Detected/Investigating/Mitigating/Resolved]
+  Impact: [Users/modules affected]
+  ETA: [Recovery time estimate]
+
+TO RT (Every 5 min during incident):
+  [Scenario] occurring. Root cause: [brief]. Action: [mitigation].
+  Recovery ETA: [time]. Will update in 5 min.
+
+TO AUDITOR (After Resolved):
+  Incident: [name]. Root cause: [description]. Mitigation: [actions].
+  Impact: [duration + scope]. Audit trail: preserved in Cloud Logs + auditoria.
+  RDC 978 impact: [Yes/No]. Follow-up RCA: 24h.
+
+POST-INCIDENT CHECKLIST
+─────────────────────────────────────────────────────────────────────────────
+[ ] Incident declared in Slack + timeline started
+[ ] Root cause identified (within 10 min for P0, 15 min for P1)
+[ ] Mitigation executed (rollback or fix deployed)
+[ ] Error rate back to baseline (<0.1% for P0, <1% for P1)
+[ ] RT + CTO notified of resolution
+[ ] RCA document created (within 24h)
+[ ] Follow-up action items assigned
+[ ] Auditor informed if RDC 978 impact
+
+MONITORING DURING 48h WINDOW
+─────────────────────────────────────────────────────────────────────────────
+Start: immediately after v1.4 deploy
+Duration: 48h continuous OR spot-check every 15 min
+Auto-script (recommended): bash scripts/monitor-cloud-logs.sh 48 10
+Alert threshold: >5 ERROR logs in 10 min window
+
+If >5 incidents (P0/P1) in 48h → extend window to T+72h (another 24h cycle)
+
+REFERENCES
+─────────────────────────────────────────────────────────────────────────────
+Full runbook:           C:/hc quality/docs/v1.4_POST_LAUNCH_INCIDENT_RUNBOOK.md
+Deploy protocol:        C:/hc quality/.claude/rules/deploy-protocol.md
+Cloud Logs guide:       C:/hc quality/docs/CLOUD_LOGS_MONITORING_GUIDE.md
+Performance targets:    C:/hc quality/docs/PERFORMANCE_PATTERNS.md
+Firestore rules test:   npm run test:firestore-rules
+Module docs:            C:/hc quality/src/features/<MODULE>/CLAUDE.md
+
+ESCALATION DECISION TREE
+─────────────────────────────────────────────────────────────────────────────
+
+Is error rate >1% AND sustained >10 min?
+  → P0: Call CTO immediately (phone + Slack)
+
+Is error rate >5% but <1%?
+  → P1: Slack CTO, start mitigation, call if unresolved in 15 min
+
+Is error rate <0.1%?
+  → P2: Log, monitor, fix within 1h, RCA within 24h
+
+Is it a data loss incident?
+  → P0 EMERGENCY: Declare incident, page CTO, attempt restore
+
+Is it an audit/compliance issue?
+  → Add to communication template, notify auditor after resolved
+
+================================================================================
+                              GOOD LUCK!
+    Remember: In 48h of monitoring, if you don't see an incident, that's a win.
+            Steady hands, clear thinking, documented actions = success.
+================================================================================
+
+Last Updated: 2026-05-XX
+Printed by: [Engineer name + date]
+Review: Before every deploy cycle

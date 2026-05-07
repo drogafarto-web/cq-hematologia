@@ -10,6 +10,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import { usePrivacyPolicy } from '../hooks/usePrivacyPolicy';
 import { getAllPolicyVersions, getUserCurrentAcceptance, recordAceite } from '../services/lgpdService';
 import type { PolicyVersion, PrivacyAceite } from '../types';
@@ -20,35 +21,58 @@ interface PrivacyPageProps {
 }
 
 /**
- * Simple markdown-to-HTML renderer (basic support for bold, italic, links, lists)
+ * Sanitize and escape user-provided content before rendering
+ * Prevents XSS attacks via HTML/script injection
+ */
+function escapeHtml(text: string): string {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+/**
+ * Simple markdown-to-HTML renderer with XSS protection (bold, italic, links, headers)
+ * All user input is escaped before being converted to HTML
  */
 function renderMarkdown(markdown: string): string {
-  return markdown
+  const html = markdown
     .split('\n')
     .map((line) => {
-      // Bold
-      line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      // Escape the line first to prevent injection
+      let escaped = escapeHtml(line);
+
+      // Bold (safe: only affects already-escaped content)
+      escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
       // Italic
-      line = line.replace(/\*(.*?)\*/g, '<em>$1</em>');
-      // Links
-      line = line.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">$1</a>');
-      // Headers
+      escaped = escaped.replace(/\*(.*?)\*/g, '<em>$1</em>');
+      // Links (only allow http/https/mailto)
+      escaped = escaped.replace(/\[(.*?)\]\((https?:\/\/.*?|mailto:.*?)\)/g,
+        '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">$1</a>');
+
+      // Headers (safe: content already escaped)
       if (line.startsWith('### ')) {
-        return `<h3 class="text-lg font-semibold mt-4 mb-2">${line.substring(4)}</h3>`;
+        return `<h3 class="text-lg font-semibold mt-4 mb-2">${escaped.substring(4)}</h3>`;
       }
       if (line.startsWith('## ')) {
-        return `<h2 class="text-xl font-semibold mt-6 mb-3">${line.substring(3)}</h2>`;
+        return `<h2 class="text-xl font-semibold mt-6 mb-3">${escaped.substring(3)}</h2>`;
       }
       if (line.startsWith('# ')) {
-        return `<h1 class="text-2xl font-bold mt-8 mb-4">${line.substring(2)}</h1>`;
+        return `<h1 class="text-2xl font-bold mt-8 mb-4">${escaped.substring(2)}</h1>`;
       }
       // List items
       if (line.startsWith('- ')) {
-        return `<li class="ml-6 mb-1">${line.substring(2)}</li>`;
+        return `<li class="ml-6 mb-1">${escaped.substring(2)}</li>`;
       }
-      return line;
+      return escaped;
     })
     .join('\n');
+
+  // Final sanitization with DOMPurify to remove any remaining vectors
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: ['h1', 'h2', 'h3', 'strong', 'em', 'a', 'li', 'ul', 'ol', 'p', 'br'],
+    ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+    ALLOW_DATA_ATTR: false,
+  });
 }
 
 export function PrivacyPage({ labId, userId }: PrivacyPageProps) {

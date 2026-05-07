@@ -68,6 +68,10 @@ Use: `bash scripts/monitor-cloud-logs.sh 24 30` (or `.ps1` equiv.) imediatamente
 - Phase 0–3 already complete (2026-05-07)
 - **Phase 4 Task 04-03 (NOTIVISA Integration):** [`v1.4_NOTIVISA_SANDBOX_SETUP.md`](docs/v1.4_NOTIVISA_SANDBOX_SETUP.md) — Government API sandbox onboarding, payload validation, workflow testing, audit trail setup. Start immediately (gov provisioning 3–5 days). Linked with ADR-0014 + ADR-0021.
 
+**v1.4 Production Readiness (Pre-Deployment):**
+
+- **Incident Response:** [`.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md`](.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md) — Severity matrix (Green/Yellow/Red/Black), on-call rotation template (4-week cycle), incident commander decision authority, runbook links, contact tree, communication templates, post-mortem framework. **MUST fill contact details before 2026-05-20 launch.** Includes quick-reference cards (laminate & post at desks).
+
 ---
 
 ## Módulos em produção

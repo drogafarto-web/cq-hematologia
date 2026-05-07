@@ -1,0 +1,362 @@
+{
+  "displayName": "HC Quality — SLO Tracking",
+  "mosaicLayout": {
+    "columns": 12,
+    "tiles": [
+      {
+        "width": 12,
+        "height": 2,
+        "widget": {
+          "title": "SLO Tracking Dashboard — HC Quality v1.3+",
+          "xyChart": null
+        }
+      },
+      {
+        "xPos": 0,
+        "yPos": 2,
+        "width": 3,
+        "height": 3,
+        "widget": {
+          "title": "Availability SLO",
+          "xyChart": {
+            "dataSets": [
+              {
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "resource.type=\"uptime_url\" AND resource.labels.display_name=\"hmatologia2.web.app\"",
+                    "aggregation": {
+                      "alignmentPeriod": "86400s",
+                      "perSeriesAligner": "ALIGN_MEAN",
+                      "crossSeriesReducer": "REDUCE_SUM"
+                    }
+                  }
+                },
+                "plotType": "LINE",
+                "targetAxis": "Y1"
+              }
+            ],
+            "timeshiftDuration": "0s",
+            "yAxis": {
+              "label": "Uptime %",
+              "scale": "LINEAR"
+            },
+            "y2Axis": {
+              "label": "",
+              "scale": "LINEAR"
+            },
+            "chartOptions": {
+              "mode": "COLOR"
+            }
+          }
+        }
+      },
+      {
+        "xPos": 3,
+        "yPos": 2,
+        "width": 3,
+        "height": 3,
+        "widget": {
+          "title": "Performance: P99 Latency (ms)",
+          "xyChart": {
+            "dataSets": [
+              {
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "resource.type=\"cloud_function\" AND metric.type=\"cloudfunctions.googleapis.com/function/execution_times\"",
+                    "aggregation": {
+                      "alignmentPeriod": "300s",
+                      "perSeriesAligner": "ALIGN_PERCENTILE_95",
+                      "crossSeriesReducer": "REDUCE_PERCENTILE_95",
+                      "groupByFields": [
+                        "resource.labels.function_name"
+                      ]
+                    }
+                  }
+                },
+                "plotType": "LINE",
+                "targetAxis": "Y1"
+              }
+            ],
+            "yAxis": {
+              "label": "P99 Latency (ms)",
+              "scale": "LINEAR"
+            },
+            "thresholds": [
+              {
+                "value": 3000,
+                "label": "SLO Target: 3s",
+                "direction": "ABOVE"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "xPos": 6,
+        "yPos": 2,
+        "width": 3,
+        "height": 3,
+        "widget": {
+          "title": "Error Rate %",
+          "xyChart": {
+            "dataSets": [
+              {
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "resource.type=\"cloud_function\" AND severity=\"ERROR\"",
+                    "aggregation": {
+                      "alignmentPeriod": "300s",
+                      "perSeriesAligner": "ALIGN_RATE",
+                      "crossSeriesReducer": "REDUCE_SUM"
+                    }
+                  }
+                },
+                "plotType": "LINE",
+                "targetAxis": "Y1"
+              }
+            ],
+            "yAxis": {
+              "label": "Errors/min",
+              "scale": "LINEAR"
+            },
+            "thresholds": [
+              {
+                "value": 0.001,
+                "label": "SLO Target: <0.1%",
+                "direction": "ABOVE"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "xPos": 9,
+        "yPos": 2,
+        "width": 3,
+        "height": 3,
+        "widget": {
+          "title": "Audit Trail Capture %",
+          "scorecard": {
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "resource.type=\"cloud_firestore\" AND resource.database=\"(default)\" AND resource.namespace=\"audit-trail\"",
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "perSeriesAligner": "ALIGN_RATE",
+                  "crossSeriesReducer": "REDUCE_SUM"
+                }
+              }
+            },
+            "sparkChartType": "SPARK_BAR",
+            "thresholds": [
+              {
+                "value": 0.99,
+                "color": "RED",
+                "direction": "BELOW"
+              },
+              {
+                "value": 0.995,
+                "color": "YELLOW",
+                "direction": "BELOW"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "xPos": 0,
+        "yPos": 5,
+        "width": 12,
+        "height": 3,
+        "widget": {
+          "title": "Error Budget Burndown (Monthly)",
+          "xyChart": {
+            "dataSets": [
+              {
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "resource.type=\"cloud_function\" AND metric.type=\"logging.googleapis.com/user_defined_metric/error_rate_percent\"",
+                    "aggregation": {
+                      "alignmentPeriod": "86400s",
+                      "perSeriesAligner": "ALIGN_MEAN"
+                    }
+                  }
+                },
+                "plotType": "STACKED_AREA",
+                "targetAxis": "Y1"
+              }
+            ],
+            "yAxis": {
+              "label": "Error Budget Consumed (%)",
+              "scale": "LINEAR"
+            },
+            "chartOptions": {
+              "mode": "COLOR"
+            }
+          }
+        }
+      },
+      {
+        "xPos": 0,
+        "yPos": 8,
+        "width": 6,
+        "height": 3,
+        "widget": {
+          "title": "Uptime Timeline (7 days)",
+          "xyChart": {
+            "dataSets": [
+              {
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "resource.type=\"cloud_run\" AND metric.type=\"run.googleapis.com/request_count\"",
+                    "aggregation": {
+                      "alignmentPeriod": "86400s",
+                      "perSeriesAligner": "ALIGN_RATE",
+                      "crossSeriesReducer": "REDUCE_SUM"
+                    }
+                  }
+                },
+                "plotType": "STACKED_BAR",
+                "targetAxis": "Y1"
+              }
+            ],
+            "yAxis": {
+              "label": "Requests/day",
+              "scale": "LINEAR"
+            }
+          }
+        }
+      },
+      {
+        "xPos": 6,
+        "yPos": 8,
+        "width": 6,
+        "height": 3,
+        "widget": {
+          "title": "Error Rate by Module (24h Heatmap)",
+          "xyChart": {
+            "dataSets": [
+              {
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "resource.type=\"cloud_function\" AND severity=\"ERROR\"",
+                    "aggregation": {
+                      "alignmentPeriod": "3600s",
+                      "perSeriesAligner": "ALIGN_RATE",
+                      "crossSeriesReducer": "REDUCE_SUM",
+                      "groupByFields": [
+                        "resource.labels.function_name"
+                      ]
+                    }
+                  }
+                },
+                "plotType": "HEATMAP",
+                "targetAxis": "Y1"
+              }
+            ],
+            "yAxis": {
+              "label": "Module",
+              "scale": "LINEAR"
+            }
+          }
+        }
+      },
+      {
+        "xPos": 0,
+        "yPos": 11,
+        "width": 4,
+        "height": 2,
+        "widget": {
+          "title": "Firebase Status",
+          "scorecard": {
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "resource.type=\"cloud_firestore\" AND metric.type=\"firestore.googleapis.com/api/request_count\"",
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "perSeriesAligner": "ALIGN_RATE"
+                }
+              }
+            },
+            "sparkChartType": "SPARK_LINE",
+            "thresholds": [
+              {
+                "value": 0.005,
+                "color": "RED",
+                "direction": "ABOVE"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "xPos": 4,
+        "yPos": 11,
+        "width": 4,
+        "height": 2,
+        "widget": {
+          "title": "Functions Status",
+          "scorecard": {
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "resource.type=\"cloud_function\" AND metric.type=\"cloudfunctions.googleapis.com/function/execution_count\"",
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "perSeriesAligner": "ALIGN_RATE"
+                }
+              }
+            },
+            "sparkChartType": "SPARK_LINE",
+            "thresholds": [
+              {
+                "value": 0.005,
+                "color": "RED",
+                "direction": "ABOVE"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "xPos": 8,
+        "yPos": 11,
+        "width": 4,
+        "height": 2,
+        "widget": {
+          "title": "Hosting Status",
+          "scorecard": {
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "resource.type=\"cloud_run\" AND metric.type=\"run.googleapis.com/request_count\"",
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "perSeriesAligner": "ALIGN_RATE"
+                }
+              }
+            },
+            "sparkChartType": "SPARK_LINE",
+            "thresholds": [
+              {
+                "value": 0.005,
+                "color": "RED",
+                "direction": "ABOVE"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "xPos": 0,
+        "yPos": 13,
+        "width": 12,
+        "height": 2,
+        "widget": {
+          "title": "Key Metrics Summary",
+          "text": {
+            "content": "**Availability Target:** 99.5% (4.32h budget/month) | **Performance Target:** P99 <3s | **Error Rate Target:** <0.1% | **Audit Trail:** 100% capture required\n\nNext Review: Mondays 09:00 UTC | Contact: #observability on Slack"
+          }
+        }
+      }
+    ]
+  }
+}

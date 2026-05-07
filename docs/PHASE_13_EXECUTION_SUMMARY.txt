@@ -1,0 +1,234 @@
+================================================================================
+  PHASE 13 — DICQ FINAL AUDIT & COMPLIANCE CLOSURE
+  Detailed Execution Plan — Created 2026-05-07
+================================================================================
+
+DOCUMENT LOCATION
+  C:\hc quality\docs\PHASE_13_DETAILED_PLAN.md (Main artifact — 2,800+ lines)
+
+OVERVIEW
+  Timeline: 10 working days (1.5 weeks)
+  Objective: Close DICQ compliance gaps, achieve ≥88% (vs. v1.3 baseline 78.5%)
+  Audit target: 2026-10-15 (external DICQ/SBAC auditor visit)
+
+SUCCESS CRITERIA
+  ✓ Block-by-block DICQ audit complete (A–J, 10 blocks)
+  ✓ ≥88% conformance verified
+  ✓ RDC 978 mandatory articles 100% addressed (15/15)
+  ✓ Evidence package ready (PDFs + JSON + CSV + screenshots)
+  ✓ Remediation plan finalized (P0 immediate, P1 deferred to v1.4.1)
+  ✓ Auditor briefing materials complete
+  ✓ Pre-approval call preparation done
+
+KEY DELIVERABLES CREATED IN THIS PLAN
+  1. BLOCK-BY-BLOCK AUDIT CHECKLIST
+     - All 10 DICQ blocks (A–J) with detailed audit steps
+     - Expected evidence artifacts per block
+     - Pass/fail criteria for each requirement
+     - Spot-check methodology (sample 3–5 records per module)
+
+  2. EVIDENCE COLLECTION FRAMEWORK
+     - Standardized evidence directory structure (by block)
+     - Format specifications (PDF, JSON, CSV, PNG)
+     - Metadata requirements (export date, owner, any PII redactions)
+     - Verification checklist (file integrity, completeness)
+
+  3. RDC 978 COMPLIANCE MAPPING
+     - All 15 applicable RDC articles mapped to v1.4 modules
+     - Cross-reference to DICQ blocks
+     - Coverage confirmation: 100% (15/15 articles)
+     - Critical-path RDC blockers: Arts. 36–39 (lab-apoio), 77 (LGPD), 122 (supervisor)
+
+  4. COMPLIANCE SNAPSHOT JSON TEMPLATE
+     - Structured metrics for dashboard feed
+     - Block-level scores (v1.3, v1.4 target, projected)
+     - Module readiness status
+     - Phase 13 audit progress tracker
+     - Auditor readiness assessment
+
+  5. REMEDIATION DECISION TREE
+     - Severity assessment (critical/major/minor)
+     - P0 vs. P1 assignment logic
+     - Owner + timeline per remediation item
+     - Example items (personnel efficacy, management review, risk assessment)
+
+  6. AUDITOR BRIEFING OUTLINE
+     - What changed v1.3 → v1.4 (phase summary)
+     - Module-to-RDC/DICQ compliance map
+     - Known gaps + mitigation strategies
+     - Decision framework (why coleta phase 6, why patient portal phase 5, etc.)
+
+  7. PRE-APPROVAL CALL PREPARATION
+     - 30-min agenda (block summary, gaps, Q&A talking points)
+     - Pre-call checklist
+     - Sign-off decision framework
+
+  8. EXECUTION TIMELINE
+     - Week 1: Blocks A–H audit (Monday–Friday)
+     - Week 2: Blocks I–J + remediation + evidence packaging (Monday–Friday)
+     - Friday deliverables (evidence package ready, pre-call scheduled)
+
+AUDIT CHECKLIST SCOPE (10 Blocks, 40+ Items)
+  Block A: Governance & Direction (78% → 92%, +14 pts)
+    A.1 Pessoa jurídica (CNES, Alvará, Conselho) — legal-docs module
+    A.2 Norteadores + Código Ética — governance docs in SGD
+    A.3 Designações formais — org chart + substitutes
+    A.4 Análise Crítica Direção — management review auto-aggregation
+
+  Block B: Gestão Documental (65% → 92%, +27 pts) ⭐ HIGHEST JUMP
+    B.1 Manual da Qualidade (ISO 15189 template)
+    B.2 Lista Mestra hierárquica (all docs with version control)
+    B.3 Controle eletrônico (PDF sealing, download audit log)
+
+  Block C: Pessoal (80% → 92%, +12 pts)
+    C.1 Dossiê unificado (CRITICAL PATH — data migration)
+    C.2 Política de Pessoal
+    C.3 Designações + Cargos
+    C.4 Avaliação competência + desempenho
+
+  Block D: Qualidade & Compliance (60% → 85%, +25 pts) ⭐ SECOND HIGHEST
+    D.1 FMEA-Lite Riscos
+    D.2 Auditoria Interna (NEW-D1)
+    D.3 Indicadores (15+ KPIs)
+    D.4 NC/CAPA
+
+  Block E: Pré-Analítico (64% → 75%, +11 pts)
+    E.1 Coleta (mobile form, barcode, photo proof)
+    E.2 Transporte (SLA, temperature monitoring)
+
+  Block F: Analítico (92% → 95%, +3 pts) ✓ Already strong
+    F.1 Validação Métodos
+    F.2 Incerteza Medição
+    F.3 CEQ Annual Review
+
+  Block G: Pós-Analítico (70% → 92%, +22 pts) ⭐ THIRD HIGHEST
+    G.1 Patient Portal (OAuth + download audit)
+    G.2 Valores Críticos (SMS/email alert <15 min)
+    G.3 NOTIVISA (gov API integration)
+
+  Block H: Recursos (75% → 88%, +13 pts)
+    H.1 Lab Apoio (6-clause contract) — RDC CRITICAL BLOCKER
+    H.2 Calibração (certificates, expiry alerts)
+    H.3 Manutenção (PM schedule, CM log)
+
+  Block I: Acomodações & Ambiente (64% → 80%, +16 pts)
+    I.1 Monitoramento Ambiental (T°, humidity, particle count)
+    I.2 Programa Infecções (POP, cleaning checklist)
+
+  Block J: Continuidade & Confidencialidade (70% → 78%, +8 pts)
+    J.1 LGPD Policy (data processing, patient rights)
+    J.2 DR Plan (RTO/RPO, annual testing)
+
+PHASE 13 TEAM ALLOCATION
+  Compliance Lead: 15 hours/week (orchestration, audits, evidence, briefing)
+  QA Lead: 20 hours/week (test execution, screenshots, spot-checks)
+  Module Leads (10 people): 10 hours each (block support)
+  IT/DevOps: 5 hours/week (log/audit exports)
+  RT (Responsável Técnico): 3 hours/week (review, sign-off)
+  TOTAL: 68 hours over 1.5 weeks
+
+EVIDENCE PACKAGE STRUCTURE
+  docs/PHASE_13_EVIDENCE/
+    DICQ_AUDIT_RESULTS.json (master scores + gaps)
+    A_Governanca/ (4 artifacts: legal docs, governance, org chart, mgmt review)
+    B_SGD/ (4 artifacts: manual, lista mestra, PDF sealing, download audit)
+    C_Pessoal/ (7 artifacts: dossiê, policy, cargos, competency, performance)
+    D_Qualidade/ (7 artifacts: FMEA, audit, indicators, NC trending)
+    E_Pre-Analitico/ (4 artifacts: coleta form, transport log, temperature)
+    F_Analitico/ (5 artifacts: validation, uncertainty, CEQ)
+    G_Pos-Analitico/ (8 artifacts: portal, critical values, NOTIVISA)
+    H_Recursos/ (6 artifacts: contracts, calibration, maintenance)
+    I_Ambiente/ (4 artifacts: temperature/humidity, infection prevention)
+    J_Continuidade/ (5 artifacts: LGPD policy, DR plan, backup log)
+
+RDC 978 ARTICLE COVERAGE
+  Mapped to DICQ blocks (100% of 15 applicable articles):
+    Arts. 36–39 — Lab apoio (H.1) ⭐ RDC BLOCKER
+    Art. 49 — Quality policy (A.2)
+    Art. 50 — Management review (A.4)
+    Art. 77 — LGPD confidentiality (J.1) ⭐ RDC BLOCKER
+    Art. 105 — Records control (B.2, B.3)
+    Art. 108 — Patient rights (J.1)
+    Arts. 113–114 — Specimen ID + transport (E.1, E.2)
+    Art. 115 — 5-yr retention (B.2)
+    Art. 119 — Equipment calibration (H.2, H.3)
+    Art. 120 — Environmental conditions (I.1)
+    Art. 122 — On-site supervisor (A.3) ⭐ RDC BLOCKER
+    Art. 124 — Disaster recovery (J.2)
+    Art. 167 — Critical values notification (G.2)
+    Art. 176 — CEQ participation (F.3)
+    Art. 204/Portaria 204 — NOTIVISA (G.3)
+
+COMPLIANCE PROJECTION
+  Baseline (v1.3): 78.5%
+  Target (v1.4): 88.0%
+  Confidence: 75% (medium)
+  Range: 86–92%
+    Lower bound: 86% (if Phase 4 CAPA auditor RFI delays)
+    Upper bound: 92% (if all on-time + stretch goals)
+
+KEY RISKS + MITIGATIONS
+  Risk 1: Phase 9 scope creep (50+ governance docs)
+    Mitigation: Lock scope day 1; pre-review templates before Phase 9
+
+  Risk 2: Personnel dossiê data migration (records scattered v1.3)
+    Mitigation: Phase 1 backfill job + completeness audit Phase 9
+
+  Risk 3: Phase 4 CAPA auditor RFI timing unpredictable
+    Mitigation: Async email gate + weekly calls + parallel Phase 5 work
+
+  Risk 4: Phase 0 RDC blockers (lab-apoio, turnos, LGPD, risks in 7 days)
+    Mitigation: 2-day pre-phase buffer + pre-draft templates
+
+REMEDIATION LOGIC (P0 vs. P1)
+  Critical (affects audit/safety): P0 fix in Phase 13 (<2 days)
+  Major (affects compliance %ile): P0 if <1 day; P1 if >1 day
+  Minor (documentation gap): P1 deferred to v1.4.1 with commitment
+
+AUDITOR BRIEFING SCOPE
+  - What changed v1.3 → v1.4 (phase summary + modules launched)
+  - Module → RDC/DICQ binding (which module covers which article/block)
+  - Known gaps + P0/P1 remediation strategy
+  - Decision framework (why coleta phase 6, why patient portal phase 5, etc.)
+
+PRE-APPROVAL CALL (30 min)
+  Attendees: CTO, RT, Compliance Lead
+  Agenda:
+    10 min: Block-by-block summary (✓/!/✗?)
+    5 min: Known gaps + P0 closure status
+    10 min: Auditor Q&A talking points + anticipated objections
+    5 min: Go/No-Go decision + next steps
+
+EXECUTION TIMELINE
+  Week 1 (Mon–Fri): Blocks A–H audit, evidence collection
+  Week 2 (Mon–Fri): Blocks I–J audit, remediation, evidence packaging
+  Friday Week 2: Evidence package ready, pre-call scheduled
+
+NEXT STEPS AFTER PLAN
+  1. CTO review + approval of plan (2 hrs)
+  2. Compliance lead Gantt chart (Phase 13 detailed schedule) (1 hr)
+  3. QA lead test case design + screenshot SOP (2 hrs)
+  4. Module leads data pre-stage + access setup (2 hrs each)
+  5. Phase 13 kickoff meeting + team alignment (1 hr)
+
+DOCUMENT NAVIGATION
+  Search "#### Block [Letter]" for audit checklists (A–J)
+  Section 2: Evidence Collection Summary (directory structure)
+  Section 3: RDC 978 Mandatory Articles Mapping (15 articles)
+  Section 4: Compliance Snapshot JSON template
+  Section 5: Remediation Planning (decision tree)
+  Section 6: Auditor Briefing Materials (outline)
+  Section 7: Pre-Approval Call Preparation
+  Section 8: Phase 13 Execution Timeline (week-by-week)
+
+================================================================================
+MAIN ARTIFACT
+  File: C:\hc quality\docs\PHASE_13_DETAILED_PLAN.md
+  Size: 2,800+ lines
+  Sections: 8 (audit checklist + evidence framework + RDC mapping + JSON +
+           remediation + auditor briefing + pre-call prep + timeline)
+  Format: Markdown (readable + auditor-friendly)
+
+Created: 2026-05-07
+Status: Ready for Phase 13 kickoff (week of 2026-05-13)
+================================================================================
