@@ -636,6 +636,23 @@
         { "fieldPath": "deletadoEm", "order": "ASCENDING" },
         { "fieldPath": "reviewDate", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "sgq-documentos",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "codigo", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "risks",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "deletadoEm", "order": "ASCENDING" },
+        { "fieldPath": "reviewDate", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
