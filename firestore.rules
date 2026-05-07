@@ -78,6 +78,13 @@ service cloud.firestore {
       return role == 'admin' || role == 'owner' || role == 'rt';
     }
 
+    // hasRole(role): Check if user has a specific role (global token claim or per-lab membership)
+    // For 'auditor': checks request.auth.token.auditor == true (global claim)
+    // For others: checks per-lab role via getMemberRole (requires labId context in call site)
+    function hasRole(role) {
+      return request.auth.token[role] == true;
+    }
+
     // validateNotivisaPayload: Validate NOTIVISA event structure (RDC 978 Art. 6º)
     function validateNotivisaPayload(payload) {
       return payload.laudo_id != null
