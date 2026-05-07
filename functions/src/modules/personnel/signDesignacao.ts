@@ -1,170 +1,119 @@
 /**
- * personnel/signDesignacao.ts
+ * functions/src/modules/personnel/signDesignacao.ts
  *
- * Cloud Function callable para assinar designação com LogicalSignature.
- * Operação atômica: valida payload + gera assinatura server-side + cria Designacao.
+ * Cloud Function callable: Sign a Designação (appointment) with LogicalSignature.
+ * Server-side hash generation + atomic Firestore write.
  *
- * DICQ 4.1.2.7 compliance: designação de GQ/RT/Diretor marcada com operador + timestamp + hash.
+ * DICQ 4.1.2.7 · RDC 978 Art. 122 · LGPD Art. 18
  */
 
-import { onCall } from 'firebase-functions/v2/https';
-import { getFirestore, Timestamp } from 'firebase-admin/firestore';
-import { z } from 'zod';
-import { createHash } from 'node:crypto';
+import { https } from 'firebase-functions';
+import { admin, db } from '../../firebase';
+import { createHash } from 'crypto';
+import type { SignDesignacaoPayload, SignDesignacaoResult, LogicalSignature } from '../../../src/features/personnel/types';
 
-const db = getFirestore();
+/**
+ * Generate LogicalSignature (SHA-256 hash + operatorId + timestamp).
+ */
+function generateLogicalSignature(
+  payload: SignDesignacaoPayload,
+  operatorId: string,
+  ts: number
+): LogicalSignature {
+  const input = `${payload.labId}|${payload.cargoId}|${payload.pessoaId}|${payload.pessoaNome}|${operatorId}|${ts}`;
+  const hash = createHash('sha256').update(input).digest('hex');
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-interface SignDesignacaoPayload {
-  labId: string;
-  cargoId: string;
-  pessoaId: string;
-  pessoaNome: string;
-  dataInicio: number; // milliseconds
-  dataFim?: number | null;
-  descricaoAutoridade: string;
-  successorId?: string;
+  return {
+    hash,
+    operatorId,
+    ts: admin.firestore.Timestamp.fromMillis(ts),
+  };
 }
 
-// ─── Validation ────────────────────────────────────────────────────────────────
+export const signDesignacao = https.onCall(async (data: unknown, context) => {
+  if (!context.auth) {
+    throw new https.HttpsError('unauthenticated', 'User not authenticated');
+  }
 
-const SignDesignacaoSchema = z.object({
-  labId: z.string().min(1),
-  cargoId: z.string().min(1),
-  pessoaId: z.string().min(1),
-  pessoaNome: z.string().min(1),
-  dataInicio: z.number().int().positive(),
-  dataFim: z.number().int().positive().nullable().optional(),
-  descricaoAutoridade: z.string().min(1),
-  successorId: z.string().optional(),
+  const operatorId = context.auth.uid;
+  const payload = data as SignDesignacaoPayload;
+
+  if (!payload.labId || !payload.cargoId || !payload.pessoaId || !payload.pessoaNome) {
+    throw new https.HttpsError('invalid-argument', 'Missing required fields');
+  }
+
+  if (payload.dataInicio <= 0) {
+    throw new https.HttpsError('invalid-argument', 'Invalid dataInicio');
+  }
+
+  if (!payload.descricaoAutoridade || payload.descricaoAutoridade.trim().length === 0) {
+    throw new https.HttpsError('invalid-argument', 'descricaoAutoridade cannot be empty');
+  }
+
+  const memberRef = db.collection('labs').doc(payload.labId).collection('members').doc(operatorId);
+  const memberSnap = await memberRef.get();
+
+  if (!memberSnap.exists || memberSnap.data()?.active !== true) {
+    throw new https.HttpsError('permission-denied', 'User is not an active member of this lab');
+  }
+
+  const userCustomClaims = context.auth.token as any;
+  const moduleAccess = userCustomClaims.modules?.personnel === true;
+  const roleCheck = ['admin', 'owner', 'rt'].includes(memberSnap.data()?.role);
+
+  if (!moduleAccess && !roleCheck) {
+    throw new https.HttpsError('permission-denied', 'User does not have permission to sign designações');
+  }
+
+  const now = Date.now();
+  const signature = generateLogicalSignature(payload, operatorId, now);
+
+  const designacaoId = db.collection('personnel').doc(payload.labId).collection('designacoes').doc().id;
+  const designacaoRef = db
+    .collection('personnel')
+    .doc(payload.labId)
+    .collection('designacoes')
+    .doc(designacaoId);
+
+  const designacaoDoc = {
+    labId: payload.labId,
+    cargoId: payload.cargoId,
+    pessoaId: payload.pessoaId,
+    pessoaNome: payload.pessoaNome,
+    dataInicio: admin.firestore.Timestamp.fromMillis(payload.dataInicio),
+    dataFim: payload.dataFim
+      ? admin.firestore.Timestamp.fromMillis(payload.dataFim)
+      : null,
+    descricaoAutoridade: payload.descricaoAutoridade,
+    successorId: payload.successorId || null,
+    chainHash: {
+      hash: signature.hash,
+      operatorId: signature.operatorId,
+      ts: signature.ts,
+    },
+    certificadoUrl: null,
+    criadoEm: admin.firestore.Timestamp.now(),
+    updatedAt: admin.firestore.Timestamp.now(),
+    deletadoEm: null,
+  };
+
+  await designacaoRef.set(designacaoDoc);
+
+  const auditRef = designacaoRef.collection('auditLog').doc();
+  await auditRef.set({
+    action: 'created',
+    operatorId,
+    ts: admin.firestore.Timestamp.now(),
+    designacaoId,
+    pessoaNome: payload.pessoaNome,
+    cargoId: payload.cargoId,
+  });
+
+  const result: SignDesignacaoResult = {
+    designacaoId,
+    signature,
+    success: true,
+  };
+
+  return result;
 });
-
-const EC_ACCESS_DENIED_MSG = 'Sem permissão para este módulo — contate o administrador.';
-
-/**
- * Asserta que o usuário tem acesso ao módulo personnel neste lab.
- */
-async function assertPersonnelAccess(auth: any, labId: string): Promise<void> {
-  if (!auth) {
-    throw new Error(EC_ACCESS_DENIED_MSG);
-  }
-
-  // Verifica claim de módulo + membership
-  const userDoc = await db.collection('users').doc(auth.uid).get();
-  if (!userDoc.exists) {
-    throw new Error(EC_ACCESS_DENIED_MSG);
-  }
-
-  const userData = userDoc.data();
-  const modules = userData?.modules || {};
-  const personnelAccess = modules['personnel'] || false;
-
-  if (!personnelAccess) {
-    throw new Error(EC_ACCESS_DENIED_MSG);
-  }
-
-  // Verifica se é membro ativo do lab
-  const memberDoc = await db
-    .collection('labs')
-    .doc(labId)
-    .collection('members')
-    .doc(auth.uid)
-    .get();
-
-  if (!memberDoc.exists) {
-    throw new Error(EC_ACCESS_DENIED_MSG);
-  }
-
-  const memberData = memberDoc.data();
-  if (!memberData?.ativo) {
-    throw new Error(EC_ACCESS_DENIED_MSG);
-  }
-}
-
-/**
- * Calcula o hash canônico da designação.
- * Algoritmo: SHA256(labId + cargoId + pessoaId + dataInicio + descricaoAutoridade)
- */
-function computeDesignacaoHash(payload: SignDesignacaoPayload, operatorId: string, ts: number): string {
-  const canonical = `${payload.labId}|${payload.cargoId}|${payload.pessoaId}|${payload.dataInicio}|${payload.descricaoAutoridade}|${operatorId}|${ts}`;
-  return createHash('sha256').update(canonical).digest('hex');
-}
-
-/**
- * Cloud Function: sign-and-write designação atômica.
- */
-export const signDesignacao = onCall<SignDesignacaoPayload>(
-  {
-    region: 'southamerica-east1',
-    memory: '256MiB',
-  },
-  async (request) => {
-    // 1. Autenticação obrigatória
-    if (!request.auth) {
-      throw new Error('Autenticação necessária.');
-    }
-
-    const { uid } = request.auth;
-    const payload = request.data;
-
-    // 2. Validação do payload
-    try {
-      SignDesignacaoSchema.parse(payload);
-    } catch (err) {
-      throw new Error(`Payload inválido: ${(err as any).message}`);
-    }
-
-    // 3. Permissão (módulo + membership)
-    try {
-      await assertPersonnelAccess(request.auth, payload.labId);
-    } catch (err) {
-      console.error('[PERSONNEL_ACCESS_DENIED]', uid, payload.labId);
-      throw err;
-    }
-
-    // 4. Timestamp do servidor
-    const now = Date.now();
-    const ts = Timestamp.fromMillis(now);
-
-    // 5. Gera assinatura
-    const hash = computeDesignacaoHash(payload, uid, now);
-
-    // 6. Cria documento atomicamente
-    const designacaoRef = db
-      .collection('personnel')
-      .doc(payload.labId)
-      .collection('designacoes')
-      .doc();
-
-    await designacaoRef.set({
-      labId: payload.labId,
-      cargoId: payload.cargoId,
-      pessoaId: payload.pessoaId,
-      pessoaNome: payload.pessoaNome,
-      dataInicio: Timestamp.fromMillis(payload.dataInicio),
-      dataFim: payload.dataFim ? Timestamp.fromMillis(payload.dataFim) : null,
-      descricaoAutoridade: payload.descricaoAutoridade,
-      successorId: payload.successorId ?? null,
-      chainHash: {
-        hash,
-        operatorId: uid,
-        ts,
-      },
-      certificadoUrl: null,
-      criadoEm: ts,
-      updatedAt: ts,
-      deletadoEm: null,
-    });
-
-    return {
-      designacaoId: designacaoRef.id,
-      signature: {
-        hash,
-        operatorId: uid,
-        ts: now,
-      },
-      success: true,
-    };
-  },
-);

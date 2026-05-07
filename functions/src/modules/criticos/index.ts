@@ -17,9 +17,7 @@ import {
   getSMSTemplate,
 } from '../../shared/sms/twilioClient';
 import type {
-  RegisterCriticoDetectionRequest,
   RegisterCriticoDetectionResponse,
-  AcknowledgeEscalacaoRequest,
   AcknowledgeEscalacaoResponse,
   EscalacaoCriticosResponse,
   CriticosEscalacao,
@@ -398,9 +396,9 @@ export const escalacaoCriticos = onSchedule(
     schedule: 'every 5 minutes',
     region: 'southamerica-east1',
     timeoutSeconds: 300,
-    memory: '512MB',
+    memory: '512MiB',
   },
-  async (context): Promise<EscalacaoCriticosResponse> => {
+  async (): Promise<void> => {
     try {
       const response: EscalacaoCriticosResponse = {
         labsScanned: 0,
@@ -504,7 +502,6 @@ export const escalacaoCriticos = onSchedule(
       }
 
       console.log('escalacaoCriticos cron result:', response);
-      return response;
     } catch (error: any) {
       console.error('escalacaoCriticos cron error:', error);
       throw error;
@@ -567,12 +564,20 @@ export const escalacaoCriticos_webhook = onRequest(
           .collection('criticos-log-eventos')
           .doc();
 
+        // Map Twilio status to event type
+        let eventoTipo: 'sms_entregue' | 'sms_falha' = 'sms_falha';
+        if (MessageStatus === 'delivered') {
+          eventoTipo = 'sms_entregue';
+        } else if (MessageStatus === 'failed' || MessageStatus === 'undelivered') {
+          eventoTipo = 'sms_falha';
+        }
+
         await eventoRef.set({
           id: eventoRef.id,
           labId,
           escalacaoId: escalacaoDoc.id,
           laudoId: escalacao.laudoId,
-          tipo: `sms_${MessageStatus}`,
+          tipo: eventoTipo,
           detalhes: {
             twilio_sid: MessageSid,
             status: MessageStatus,
