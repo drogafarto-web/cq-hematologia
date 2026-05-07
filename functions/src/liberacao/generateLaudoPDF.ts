@@ -18,7 +18,7 @@
  */
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
-import * as puppeteer from 'puppeteer';
+import type { Browser } from 'puppeteer';
 import { createHash } from 'crypto';
 import { z } from 'zod';
 
@@ -110,7 +110,9 @@ async function fetchLaudoAndVersion(
 }
 
 async function renderPdfWithPuppeteer(html: string): Promise<Buffer> {
-  let browser: puppeteer.Browser | null = null;
+  // Lazy-load puppeteer to keep cold start cheap for callables that never render PDFs.
+  const { default: puppeteer } = await import('puppeteer');
+  let browser: Browser | null = null;
   try {
     browser = await puppeteer.launch({
       headless: true,
