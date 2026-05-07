@@ -26,7 +26,8 @@ export const aggregateAnalytics = onSchedule(
     schedule: 'every 1 hours',
     region: 'southamerica-east1',
     timeoutSeconds: 300,
-    maxInstances: 1, // Prevent parallel runs
+    maxInstances: 1,
+    memory: '512MiB',
   },
   async () => {
     const startTime = Date.now();
