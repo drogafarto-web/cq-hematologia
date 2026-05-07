@@ -219,8 +219,7 @@ service cloud.firestore {
       match /ciq-coagulacao/{lotId} {
         allow read: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && hasModuleAccess('coagulacao'));
-        allow write: if isSuperAdmin() ||
-          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow write: if isSuperAdmin() || isActiveMemberOfLab(labId);
 
         match /runs/{runId} {
           allow read: if isSuperAdmin() ||
@@ -247,8 +246,7 @@ service cloud.firestore {
       match /ciq-coagulacao-config/{docId} {
         allow read: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && hasModuleAccess('coagulacao'));
-        allow write: if isSuperAdmin() ||
-          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow write: if isSuperAdmin() || isActiveMemberOfLab(labId);
       }
 
       match /ciq-coagulacao-audit/{docId} {
