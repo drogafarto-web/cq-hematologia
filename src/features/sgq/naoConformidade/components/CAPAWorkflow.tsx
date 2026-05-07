@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import type { NaoConformidade, CAPAStatus } from '../../types/NaoConformidade';
 import { CAPA_STATUS_LABEL, getProximoStatusCAPAValido } from '../../types/NaoConformidade';
-import { updateCAPAStatus } from '../ncService';
+import {
+  callInvestigarNC,
+  callExecutarAcaoCorretiva,
+  callVerificarEficacia,
+} from '../services/capaCallables';
 import { useActiveLabId } from '../../../../store/useAuthStore';
 
 interface CAPAWorkflowProps {
@@ -21,7 +25,13 @@ export default function CAPAWorkflow({ nc, onUpdate }: CAPAWorkflowProps) {
   const labId = useActiveLabId();
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({ descricao: '' });
+  const [formData, setFormData] = useState({
+    descricao: '',
+    achados: '',
+    dataPrevista: undefined as Date | undefined,
+    resultado: undefined as 'eficaz' | 'ineficaz' | 'nao_concluida' | undefined,
+    evidencia: '',
+  });
 
   const nextStatuses = getProximoStatusCAPAValido(nc.capaStatus);
   const currentIndex = WORKFLOW_ORDER.indexOf(nc.capaStatus);
@@ -31,12 +41,52 @@ export default function CAPAWorkflow({ nc, onUpdate }: CAPAWorkflowProps) {
 
     setLoading(true);
     try {
-      await updateCAPAStatus(labId, nc.id, novoStatus, formData.descricao);
+      // Route to appropriate callable based on target status
+      if (novoStatus === 'investigacao') {
+        await callInvestigarNC({
+          labId,
+          ncId: nc.id,
+          descricao: formData.descricao,
+          achados: formData.achados || undefined,
+        });
+      } else if (novoStatus === 'acao') {
+        if (!formData.dataPrevista) {
+          throw new Error('Data prevista é obrigatória.');
+        }
+        await callExecutarAcaoCorretiva({
+          labId,
+          ncId: nc.id,
+          descricao: formData.descricao,
+          dataPrevista: formData.dataPrevista.getTime(),
+        });
+      } else if (novoStatus === 'eficacia' || novoStatus === 'fechada') {
+        if (!formData.resultado) {
+          throw new Error('Resultado da verificação é obrigatório.');
+        }
+        await callVerificarEficacia({
+          labId,
+          ncId: nc.id,
+          resultado: formData.resultado,
+          evidencia: formData.evidencia || undefined,
+        });
+      }
+
       onUpdate?.();
       setShowForm(false);
-      setFormData({ descricao: '' });
+      setFormData({
+        descricao: '',
+        achados: '',
+        dataPrevista: undefined,
+        resultado: undefined,
+        evidencia: '',
+      });
     } catch (err) {
       console.error('Erro ao atualizar CAPA:', err);
+      alert(
+        err instanceof Error
+          ? err.message
+          : 'Erro ao processar ação. Tente novamente.',
+      );
     } finally {
       setLoading(false);
     }
@@ -110,11 +160,100 @@ export default function CAPAWorkflow({ nc, onUpdate }: CAPAWorkflowProps) {
                     <div className="mt-4 p-3 bg-black/20 rounded-lg space-y-3">
                       <textarea
                         value={formData.descricao}
-                        onChange={(e) => setFormData({ descricao: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({ ...formData, descricao: e.target.value })
+                        }
                         placeholder="Descreva a ação..."
                         rows={3}
                         className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-xs text-white placeholder-white/40 focus:outline-none focus:border-violet-500/50"
                       />
+
+                      {/* Additional fields based on next status */}
+                      {nextStatuses.includes('investigacao') && (
+                        <textarea
+                          value={formData.achados}
+                          onChange={(e) =>
+                            setFormData({ ...formData, achados: e.target.value })
+                          }
+                          placeholder="Achados da investigação (opcional)"
+                          rows={2}
+                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-xs text-white placeholder-white/40 focus:outline-none focus:border-violet-500/50"
+                        />
+                      )}
+
+                      {nextStatuses.some((s) => s === 'acao') && (
+                        <input
+                          type="date"
+                          value={
+                            formData.dataPrevista
+                              ? formData.dataPrevista.toISOString().split('T')[0]
+                              : ''
+                          }
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              dataPrevista: e.target.value
+                                ? new Date(e.target.value)
+                                : undefined,
+                            })
+                          }
+                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-xs text-white focus:outline-none focus:border-violet-500/50"
+                          required
+                        />
+                      )}
+
+                      {nextStatuses.some((s) => s === 'eficacia' || s === 'fechada') && (
+                        <>
+                          <div className="space-y-2">
+                            <label className="text-xs text-white/70">
+                              Resultado da verificação
+                            </label>
+                            <div className="flex gap-3">
+                              {(
+                                ['eficaz', 'ineficaz', 'nao_concluida'] as const
+                              ).map((res) => (
+                                <label
+                                  key={res}
+                                  className="flex items-center gap-2 cursor-pointer"
+                                >
+                                  <input
+                                    type="radio"
+                                    name="resultado"
+                                    value={res}
+                                    checked={formData.resultado === res}
+                                    onChange={(e) =>
+                                      setFormData({
+                                        ...formData,
+                                        resultado: e.target
+                                          .value as typeof formData.resultado,
+                                      })
+                                    }
+                                    className="w-4 h-4"
+                                  />
+                                  <span className="text-xs text-white/70">
+                                    {res === 'eficaz'
+                                      ? 'Eficaz'
+                                      : res === 'ineficaz'
+                                        ? 'Ineficaz'
+                                        : 'Não concluída'}
+                                  </span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+
+                          <textarea
+                            value={formData.evidencia}
+                            onChange={(e) =>
+                              setFormData({ ...formData, evidencia: e.target.value })
+                            }
+                            placeholder="Evidência de eficácia (opcional)"
+                            rows={2}
+                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-xs text-white placeholder-white/40 focus:outline-none focus:border-violet-500/50"
+                          />
+                        </>
+                      )}
+
                       <div className="flex gap-2">
                         {nextStatuses.map((status) => (
                           <button

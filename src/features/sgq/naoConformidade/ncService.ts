@@ -101,6 +101,10 @@ export async function getNCsByModulo(
 
 // ─── Update CAPA Status ────────────────────────────────────────────────────
 
+/**
+ * @deprecated Use capaCallables.callInvestigarNC, callExecutarAcaoCorretiva, or callVerificarEficacia instead.
+ * This function bypasses HMAC signing and RT claim validation. Will be removed in v1.5.
+ */
 export async function updateCAPAStatus(
   labId: string,
   ncId: string,
