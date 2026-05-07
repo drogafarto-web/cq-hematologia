@@ -228,6 +228,7 @@ export {
   risks_softDeleteRisk,
   risks_registrarRevisao,
   onRiskEventCreated,
+  scheduledReview,
 } from './modules/risks/index';
 
 // ─── qualidade module (ADR 0003 — Não-Conformidade) ─────────────────────────
