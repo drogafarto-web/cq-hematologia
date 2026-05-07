@@ -215,16 +215,16 @@ service cloud.firestore {
         allow update, delete: if false;
       }
 
-      // ── /ciq-coagulacao — STRICT ─────────────────────────────────────────
+      // ── /ciq-coagulacao — MVP OPEN ACCESS ────────────────────────────────
       match /ciq-coagulacao/{lotId} {
         allow read: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && hasModuleAccess('coagulacao'));
-        allow write: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow write: if true;
 
         match /runs/{runId} {
           allow read: if isSuperAdmin() ||
             (isActiveMemberOfLab(labId) && hasModuleAccess('coagulacao'));
-          allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow create, update: if true;
           allow delete: if isSuperAdmin() ||
             (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
         }
@@ -232,7 +232,7 @@ service cloud.firestore {
         match /audit/{auditId} {
           allow read: if isSuperAdmin() ||
             (isActiveMemberOfLab(labId) && hasModuleAccess('coagulacao'));
-          allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow create: if true;
           allow update, delete: if false;
         }
       }
@@ -240,19 +240,19 @@ service cloud.firestore {
       match /ciq-coagulacao-meta/{docId} {
         allow read: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && hasModuleAccess('coagulacao'));
-        allow write: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow write: if true;
       }
 
       match /ciq-coagulacao-config/{docId} {
         allow read: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && hasModuleAccess('coagulacao'));
-        allow write: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow write: if true;
       }
 
       match /ciq-coagulacao-audit/{docId} {
         allow read: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
-        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if true;
         allow update, delete: if false;
       }
 
