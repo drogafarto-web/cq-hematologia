@@ -66,6 +66,7 @@ Use: `bash scripts/monitor-cloud-logs.sh 24 30` (or `.ps1` equiv.) imediatamente
 
 - Roadmap: [`.planning/milestones/v1.4-KICKOFF-SUMMARY.md`](.planning/milestones/v1.4-KICKOFF-SUMMARY.md) — Phase 4 (2026-05-20) through Phase 15 (2026-11-30)
 - Phase 0–3 already complete (2026-05-07)
+- **Phase 4 Task 04-03 (NOTIVISA Integration):** [`v1.4_NOTIVISA_SANDBOX_SETUP.md`](docs/v1.4_NOTIVISA_SANDBOX_SETUP.md) — Government API sandbox onboarding, payload validation, workflow testing, audit trail setup. Start immediately (gov provisioning 3–5 days). Linked with ADR-0014 + ADR-0021.
 
 ---
 
