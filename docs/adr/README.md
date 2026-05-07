@@ -44,3 +44,4 @@ Seções obrigatórias:
 - [ADR-0013 — DICQ 85% Target Sequencing](ADR-0013-dicq-85-percent-target-sequencing.md)
 - [ADR-0014 — NOTIVISA Integration Sandbox → Production](ADR-0014-notivisa-integration-sandbox-to-production.md)
 - [ADR-0015 — Patient Portal Email-Link Auth (LIS Deferred)](ADR-0015-patient-portal-email-link-auth-v1-4.md)
+- [ADR-0016 — FMEA-Lite Risk Methodology (Phase 0 MVP)](ADR-0016-fmea-lite-risk-methodology-phase-0.md)
