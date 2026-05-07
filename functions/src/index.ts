@@ -174,6 +174,12 @@ export {
   ec_softDeleteExecucaoCascade,
 } from './modules/educacaoContinuada/index';
 
+// ─── controle-interno module (Phase 8 — CAPA Digital Designações) ───────────
+// Personnel management: cargo definitions + digital designações with HMAC seals.
+// DL-1 — callables from day 1 (no client-side writes to designacoes collection).
+//   ci_signDesignacao               — sign and write immutable designação with audit trail
+export { ci_signDesignacao } from './modules/controle-interno/index';
+
 // ─── turnos module (Phase 0 / Plan 00-01 — RDC 978 Art. 122) ─────────────────
 // Supervisor shift registry (manhã / tarde / noite / plantão) with chainHash-validated
 // audit trail. DL-1 — callables from day 1 (no client-side writes).
@@ -380,6 +386,19 @@ export {
   generateReviewTemplate,
   submitReview,
 } from './modules/management-review/index';
+
+// ─── notivisa module (Phase 4+/8+ — NOTIVISA RDC 978 Art. 66) ──────────────────
+// NOTIVISA queue processor for disease notification (Anvisa integration).
+// ADR-0026: append-only outbox + exponential backoff + idempotent submissions.
+// Phase 4 uses mock submitter; Phase 12+ integrates real Anvisa SOAP API.
+// notivisaQueueProcessor: scheduled (5-min interval) processor with exponential backoff
+// notivisaWebhookHandler: HTTP endpoint for Anvisa acknowledgment callbacks (Phase 12+)
+// notivisaExportArchive: auditor-only export of past 90 days (CSV + JSON)
+// notivisaSoftDelete: soft-delete NOTIVISA entry (RN-06 compliance, audit trail)
+export { notivisaQueueProcessor } from './modules/notivisa/crons/notivisaQueueProcessor';
+export { notivisaWebhookHandler } from './modules/notivisa/callables/notivisaWebhookHandler';
+export { notivisaExportArchive } from './modules/notivisa/callables/notivisaExportArchive';
+export { notivisaSoftDelete } from './modules/notivisa/callables/notivisaSoftDelete';
 
 // ─── treinamentos module (Phase 2 Batch 2 — Training Registry) ──────────────
 // criarTreinamento: schedule training linked to POP + instructor + participants
