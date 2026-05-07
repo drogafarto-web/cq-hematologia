@@ -13,7 +13,7 @@
 
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import * as admin from 'firebase-admin';
-import * as functions from 'firebase-functions/v2/https';
+import * as functions from 'firebase-functions';
 
 interface NotivisaOutboxEntry {
   id: string;

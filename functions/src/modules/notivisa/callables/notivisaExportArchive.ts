@@ -12,7 +12,8 @@
  * Output: { ok, archiveId, exportedAt, recordCount, formats }
  */
 
-import * as functions from 'firebase-functions/v2/https';
+import { onCall, HttpsError } from 'firebase-functions/v2/https';
+import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import { z } from 'zod';
 
@@ -124,14 +125,13 @@ function generateJSON(entries: NotivisaOutboxEntry[]): string {
 /**
  * Export archive callable
  */
-export const notivisaExportArchive = functions
-  .region('southamerica-east1')
-  .onCall<z.infer<typeof notivisaExportArchiveInputSchema>, NotivisaExportArchiveOutput | NotivisaExportArchiveError>(
+export const notivisaExportArchive = onCall(
+  { region: 'southamerica-east1' },
   async (request): Promise<NotivisaExportArchiveOutput | NotivisaExportArchiveError> => {
     try {
       // ========== 1. Validate request ==========
       if (!request.auth) {
-        throw new functions.HttpsError(
+        throw new HttpsError(
           'unauthenticated',
           'User must be authenticated'
         );
@@ -289,7 +289,7 @@ export const notivisaExportArchive = functions
         };
       }
 
-      if (error instanceof functions.HttpsError) {
+      if (error instanceof HttpsError) {
         throw error;
       }
 

@@ -12,7 +12,8 @@
  * Output: { ok, entryId, deletedAt, deletedBy }
  */
 
-import * as functions from 'firebase-functions/v2/https';
+import { onCall, HttpsError } from 'firebase-functions/v2/https';
+import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import { z } from 'zod';
 
@@ -55,14 +56,13 @@ type NotivisaSoftDeleteError = z.infer<typeof notivisaSoftDeleteErrorSchema>;
 /**
  * Soft delete callable
  */
-export const notivisaSoftDelete = functions
-  .region('southamerica-east1')
-  .onCall<z.infer<typeof notivisaSoftDeleteInputSchema>, NotivisaSoftDeleteOutput | NotivisaSoftDeleteError>(
+export const notivisaSoftDelete = onCall(
+  { region: 'southamerica-east1' },
   async (request): Promise<NotivisaSoftDeleteOutput | NotivisaSoftDeleteError> => {
     try {
       // ========== 1. Validate request ==========
       if (!request.auth) {
-        throw new functions.HttpsError(
+        throw new HttpsError(
           'unauthenticated',
           'User must be authenticated'
         );
@@ -205,7 +205,7 @@ export const notivisaSoftDelete = functions
         };
       }
 
-      if (error instanceof functions.HttpsError) {
+      if (error instanceof HttpsError) {
         throw error;
       }
 
