@@ -37,6 +37,10 @@ Regras com escopo mais estreito vivem em `.claude/rules/`:
 - [`firestore-security.md`](.claude/rules/firestore-security.md) — rules + services + callables (triggers: `firestore.rules`, `**/*Service.ts`, `functions/**`)
 - [`deploy-protocol.md`](.claude/rules/deploy-protocol.md) — ordem de deploy + PWA SW (triggers: `firebase.json`, `functions/**`, etc)
 
+**Onboarding for new engineers (Phase 3+):**
+
+- [`PHASE_3_TRAINING.md`](docs/PHASE_3_TRAINING.md) — 1-day hands-on onboarding for engineers joining Phase 3 work. 5-step path (emulator + rules + helpers + functions + deploy), module deep-dives, copy-paste task templates, troubleshooting FAQ. Start here for any new teammate.
+
 **Post-Deployment Monitoring (v1.3+):**
 
 - [`CLOUD_LOGS_MONITORING_GUIDE.md`](docs/CLOUD_LOGS_MONITORING_GUIDE.md) — 24h Cloud Logs setup após Step 2 (Functions deploy). Includes filters, red flags, sign-off template.

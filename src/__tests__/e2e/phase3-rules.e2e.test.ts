@@ -19,7 +19,7 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as admin from 'firebase-admin';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 
 // Initialize Firebase Admin SDK if not already initialized
 if (!admin.apps.length) {
@@ -149,7 +149,7 @@ describe('Phase 3 Firestore Rules (03-02)', () => {
     };
 
     const eventRef = db.doc(
-      `labs/${testLabId}/notivisa-outbox/events/${eventId}`
+      `labs/${testLabId}/notivisa-outbox/${eventId}`
     );
 
     // ─── Test 1: Valid payload passes ──────────────────────────────────────
@@ -234,7 +234,7 @@ describe('Phase 3 Firestore Rules (03-02)', () => {
     };
 
     const escalacaoRef = db.doc(
-      `labs/${testLabId}/criticos-escalacoes/escalacoes/${escalacaoId}`
+      `labs/${testLabId}/criticos-escalacoes/${escalacaoId}`
     );
 
     // ─── Test 1: RT can create escalation ──────────────────────────────────
@@ -294,7 +294,7 @@ describe('Phase 3 Firestore Rules (03-02)', () => {
       createdAt: Timestamp.now(),
     };
 
-    const imageRef = db.doc(`labs/${testLabId}/imuno-ias-dev/images/${imageId}`);
+    const imageRef = db.doc(`labs/${testLabId}/imuno-ias-dev/${imageId}`);
 
     // ─── Test 1: Server can write ──────────────────────────────────────────
     // In real test with rules, this would be checked via isServer()
@@ -339,7 +339,7 @@ describe('Phase 3 Firestore Rules (03-02)', () => {
     const lockExpiry = Timestamp.fromDate(new Date(Date.now() + 3600000)); // 1 hour
 
     const draftRef = db.doc(
-      `labs/${testLabId}/laudos-draft/rascunhos/${draftId}`
+      `labs/${testLabId}/laudos-draft/${draftId}`
     );
 
     const initialDraft = {
@@ -425,10 +425,10 @@ describe('Phase 3 Firestore Rules (03-02)', () => {
   afterEach(async () => {
     const testCollections = [
       `labs/${testLabId}/laudos`,
-      `labs/${testLabId}/notivisa-outbox/events`,
-      `labs/${testLabId}/criticos-escalacoes/escalacoes`,
-      `labs/${testLabId}/imuno-ias-dev/images`,
-      `labs/${testLabId}/laudos-draft/rascunhos`,
+      `labs/${testLabId}/notivisa-outbox`,
+      `labs/${testLabId}/criticos-escalacoes`,
+      `labs/${testLabId}/imuno-ias-dev`,
+      `labs/${testLabId}/laudos-draft`,
     ];
 
     for (const colPath of testCollections) {
