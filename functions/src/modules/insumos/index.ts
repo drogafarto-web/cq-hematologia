@@ -140,7 +140,7 @@ export const scheduledExpireInsumos = onSchedule(
     schedule: 'every day 03:15',
     timeZone: 'America/Sao_Paulo',
     region: 'southamerica-east1',
-    memory: '256MiB',
+    memory: '512MiB',
     timeoutSeconds: 540,
   },
   async () => {

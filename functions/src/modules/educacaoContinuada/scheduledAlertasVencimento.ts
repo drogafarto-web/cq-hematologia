@@ -29,6 +29,7 @@ export const ec_scheduledAlertasVencimento = onSchedule(
   {
     schedule: '0 8 * * *',
     timeZone: 'America/Sao_Paulo',
+    memory: '512MiB',
     secrets: [resendApiKey],
     retryCount: 2,
   },

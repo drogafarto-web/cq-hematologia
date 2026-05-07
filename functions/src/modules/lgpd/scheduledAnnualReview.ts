@@ -24,6 +24,7 @@ export const lgpd_scheduledAnnualReview = onSchedule(
   {
     schedule: '0 7 * * *',
     timeZone: 'America/Sao_Paulo',
+    memory: '512MiB',
     retryCount: 2,
   },
   async () => {

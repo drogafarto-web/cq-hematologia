@@ -9,7 +9,7 @@ import { db, admin } from '../../shared/firebase';
  * This allows trending analysis while protecting patient privacy
  */
 export const anonimizarRespostas = onSchedule(
-  { schedule: '0 6 * * *', timeZone: 'America/Sao_Paulo' },
+  { schedule: '0 6 * * *', timeZone: 'America/Sao_Paulo', memory: '512MiB' },
   async (_event) => {
     try {
       // Calculate date 90 days ago

@@ -28,6 +28,7 @@ export const labApoio_checkExpiry = onSchedule(
     schedule: '0 6 * * *', // 06:00 UTC = 03:00 BRT (summer); 02:00 BRT (winter)
     timeZone: 'America/Sao_Paulo',
     region: 'southamerica-east1',
+    memory: '512MiB',
   },
   async (event) => {
     const db = admin.firestore();
