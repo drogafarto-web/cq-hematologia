@@ -31,6 +31,8 @@ import { CAPADashboard } from '../capa-tracking/components/CAPADashboard';
 import CalibracaoDashboard from '../calibracao/components/CalibracaoDashboard';
 import PersonnelDashboard from '../personnel/components/PersonnelDashboard';
 import ManagementReviewDashboard from '../management-review/components/ManagementReviewDashboard';
+import { ReclamacoesView } from '../reclamacoes';
+import { SugestaoDashboard } from '../sugestoes';
 
 // Lazy: bioquimica é o primeiro módulo lazy-loaded por chunk dedicado
 // (`module-bioquimica` em vite.config.ts). Plans 09-02+ ainda vão crescer
@@ -190,6 +192,10 @@ function AppRouter() {
     view = <PersonnelDashboard />;
   } else if (currentView === 'management-review') {
     view = <ManagementReviewDashboard />;
+  } else if (currentView === 'reclamacoes') {
+    view = <ReclamacoesView />;
+  } else if (currentView === 'sugestoes') {
+    view = <SugestaoDashboard />;
   } else if (currentView === 'bioquimica') {
     view = (
       <React.Suspense fallback={<FullScreenLoader />}>
