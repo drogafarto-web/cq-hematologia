@@ -28,7 +28,10 @@ import {
   buildBackupFilename,
   buildOperacionalFilename,
   sendBackupEmail,
-  RESEND_API_KEY,
+  SMTP_HOST,
+  SMTP_USER,
+  SMTP_PASS,
+  SMTP_PORT,
 } from './services/emailService';
 import { assembleOperacionalReport, hasOperacionalContent } from './operacional/assembler';
 import { generateOperacionalPdf } from './operacional/pdf/operacionalPdfService';
@@ -227,7 +230,7 @@ export const scheduledDailyBackup = onSchedule(
     region: 'southamerica-east1',
     memory: '512MiB',
     timeoutSeconds: 540,
-    secrets: [RESEND_API_KEY],
+    secrets: [SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_PORT],
   },
   async () => {
     const db = admin.firestore();
@@ -307,7 +310,7 @@ export const triggerLabBackup = onCall(
   {
     region: 'southamerica-east1',
     memory: '512MiB',
-    secrets: [RESEND_API_KEY],
+    secrets: [SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_PORT],
   },
   async (request) => {
     if (!request.auth) {

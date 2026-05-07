@@ -4,21 +4,23 @@
  * Varre `configAlertas` via collectionGroup — cada lab com configuração ativa.
  * Para cada lab: encontra alertas de vencimento que entram na janela (pendente
  * OR notificado) e cujo vencimento está a ≤ diasAntecedenciaVencimento dias.
- * Dispara email via Resend (wrapper minimal) para responsáveis e/ou
+ * Dispara email via SMTP (shared helper) para responsáveis e/ou
  * colaboradores conforme config. Marca alerta como `notificado` para evitar
  * re-envio diário.
  *
- * Se `RESEND_API_KEY` não estiver disponível em runtime, a CF loga o alerta
- * em `auditLogs` (action `EC_ALERTA_EMAIL_SKIPPED`) e não bloqueia. Permite
- * que scheduled continue rodando sem quebrar caso secret tenha sido revogado.
+ * Falhas individuais de envio são registradas em `auditLogs` e não bloqueiam
+ * o processamento dos demais alertas.
  */
 
 import { onSchedule } from 'firebase-functions/v2/scheduler';
-import { defineSecret } from 'firebase-functions/params';
 import * as admin from 'firebase-admin';
-import { Resend } from 'resend';
-
-const resendApiKey = defineSecret('RESEND_API_KEY');
+import {
+  SMTP_HOST,
+  SMTP_USER,
+  SMTP_PASS,
+  SMTP_PORT,
+  sendEmail,
+} from '../../shared/email/smtpClient';
 
 const FROM_EMAIL = 'alertas@app.labclinmg.com.br';
 const FROM_NAME = 'HC Quality — Educação Continuada';
@@ -30,20 +32,12 @@ export const ec_scheduledAlertasVencimento = onSchedule(
     schedule: '0 8 * * *',
     timeZone: 'America/Sao_Paulo',
     memory: '512MiB',
-    secrets: [resendApiKey],
+    secrets: [SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_PORT],
     retryCount: 2,
   },
   async () => {
     const db = admin.firestore();
     const now = Date.now();
-
-    let apiKey: string | null = null;
-    try {
-      apiKey = resendApiKey.value();
-    } catch {
-      apiKey = null;
-    }
-    const resend = apiKey ? new Resend(apiKey) : null;
 
     // Itera labs com config ativa via collectionGroup
     const configsSnap = await db.collectionGroup('configAlertas').get();
@@ -96,17 +90,17 @@ export const ec_scheduledAlertasVencimento = onSchedule(
         }
         const recipientsUnicos = Array.from(new Set(recipients));
 
-        if (recipientsUnicos.length === 0 || !resend) {
-          // Sem destinatários ou sem Resend — loga e pula
+        if (recipientsUnicos.length === 0) {
+          // Sem destinatários — loga e pula
           db.collection('auditLogs')
             .add({
-              action: resend ? 'EC_ALERTA_EMAIL_NO_RECIPIENT' : 'EC_ALERTA_EMAIL_SKIPPED',
+              action: 'EC_ALERTA_EMAIL_NO_RECIPIENT',
               labId,
               payload: {
                 alertaId: alertaDoc.id,
                 treinamentoId,
                 diasRestantes,
-                motivo: resend ? 'sem destinatários configurados' : 'RESEND_API_KEY não disponível',
+                motivo: 'sem destinatários configurados',
               },
               timestamp: admin.firestore.FieldValue.serverTimestamp(),
             })
@@ -115,7 +109,7 @@ export const ec_scheduledAlertasVencimento = onSchedule(
         }
 
         try {
-          await resend.emails.send({
+          await sendEmail({
             from: `${FROM_NAME} <${FROM_EMAIL}>`,
             to: recipientsUnicos,
             subject,

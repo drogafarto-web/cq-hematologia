@@ -282,7 +282,7 @@ export {
 // detectarCriticos: Firestore trigger onCreate on laudos
 //   - Detects critical values against configurable thresholds
 //   - Flags laudo + dispatches email notification
-// enviarComunicacaoEmail: Callable that sends email via Resend
+// enviarComunicacaoEmail: Callable that sends email via SMTP
 //   - Constructs HTML email with critical results
 //   - Creates Comunicacao doc with delivery status
 // generateLaudoPDF: Puppeteer-based PDF rendering for liberated laudo versions

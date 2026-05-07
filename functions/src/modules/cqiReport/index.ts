@@ -9,11 +9,22 @@ import * as admin from 'firebase-admin';
 import { z } from 'zod';
 
 import { generateAndSendCQIReport, getActiveLabs } from './generator';
+import {
+  SMTP_HOST,
+  SMTP_USER,
+  SMTP_PASS,
+  SMTP_PORT,
+} from '../../shared/email/smtpClient';
 
 // ─── Scheduled: daily at 23:00 BRT ───────────────────────────────────────────
 
 export const scheduledDailyCQIReport = onSchedule(
-  { schedule: '0 2 * * *', timeZone: 'UTC', region: 'southamerica-east1' }, // 02:00 UTC = 23:00 BRT
+  {
+    schedule: '0 2 * * *',
+    timeZone: 'UTC',
+    region: 'southamerica-east1',
+    secrets: [SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_PORT],
+  }, // 02:00 UTC = 23:00 BRT
   async () => {
     const db = admin.firestore();
     const labs = await getActiveLabs(db);
@@ -35,7 +46,10 @@ const TriggerSchema = z.object({
 });
 
 export const triggerCQIReport = onCall(
-  { secrets: ['RESEND_API_KEY'], region: 'southamerica-east1' },
+  {
+    secrets: [SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_PORT],
+    region: 'southamerica-east1',
+  },
   async (request) => {
     // Auth guard — mirrors triggerLabBackup pattern
     if (!request.auth) {

@@ -1,14 +1,9 @@
 // ─── CQI Email Template ───────────────────────────────────────────────────────
-// Adjustment 2 (gap resolution): sendBackupEmail builds its own subject via
-// buildSubject() — it cannot produce [CQI][SETOR] subjects. This module calls
-// Resend directly, reusing RESEND_API_KEY declared via defineSecret (Firebase
-// deduplicates secrets with the same name at deploy time, so declaring it here
-// is safe and independent of emailService.ts).
+// sendBackupEmail builds its own subject via buildSubject() — it cannot
+// produce [CQI][SETOR] subjects. This module sends directly via the shared
+// SMTP helper so it can produce the [CQI][SETOR] subject format.
 
-import { Resend } from 'resend';
-import { defineSecret } from 'firebase-functions/params';
-
-const RESEND_API_KEY = defineSecret('RESEND_API_KEY');
+import { sendEmail } from '../../../shared/email/smtpClient';
 
 const TZ = 'America/Sao_Paulo';
 
@@ -155,19 +150,18 @@ function buildFilename(opts: CQIEmailOptions): string {
 // ─── Send ─────────────────────────────────────────────────────────────────────
 
 /**
- * Sends the daily CQI report email with a sector-specific subject and PDF attachment.
- * Uses Resend directly so it can produce the [CQI][SETOR] subject format that
- * sendBackupEmail cannot (it always builds its own subject internally).
+ * Sends the daily CQI report email with a sector-specific subject and PDF
+ * attachment. Uses the shared SMTP helper so it can produce the [CQI][SETOR]
+ * subject format that sendBackupEmail cannot (it always builds its own
+ * subject internally).
  */
 export async function sendCQIEmail(opts: CQIEmailOptions): Promise<void> {
-  const resend = new Resend(RESEND_API_KEY.value());
-
   const recipients = Array.isArray(opts.to) ? opts.to : [opts.to];
   if (recipients.length === 0) {
     throw new Error('[sendCQIEmail] recipients list is empty');
   }
 
-  const { error } = await resend.emails.send({
+  await sendEmail({
     from: 'HC Quality CQI <cqi@app.labclinmg.com.br>',
     to: recipients,
     subject: buildSubject(opts),
@@ -179,8 +173,4 @@ export async function sendCQIEmail(opts: CQIEmailOptions): Promise<void> {
       },
     ],
   });
-
-  if (error) {
-    throw new Error(`[sendCQIEmail] Resend API error: ${JSON.stringify(error)}`);
-  }
 }
