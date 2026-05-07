@@ -6,7 +6,18 @@ import { isActiveMemberOfLab } from '../../shared/auth';
 import { generateChainHash } from '../../shared/signature';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend: Resend | null = null;
+
+function getResendClient() {
+  if (!resend) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      throw new Error('RESEND_API_KEY environment variable is not set');
+    }
+    resend = new Resend(apiKey);
+  }
+  return resend;
+}
 
 const TransitarSugestaoInputSchema = z.object({
   labId: z.string(),
@@ -106,7 +117,8 @@ export const transitarSugestao = onCall<TransitarSugestaoInput>(
               ${input.motivo ? `<p><strong>Motivo:</strong> ${input.motivo}</p>` : ''}
             `;
 
-            await resend.emails.send({
+            const client = getResendClient();
+            await client.emails.send({
               from: 'qualidade@hmatologia2.web.app',
               to: userData.email,
               subject: subject,

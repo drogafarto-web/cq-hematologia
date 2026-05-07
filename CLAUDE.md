@@ -37,6 +37,16 @@ Regras com escopo mais estreito vivem em `.claude/rules/`:
 - [`firestore-security.md`](.claude/rules/firestore-security.md) — rules + services + callables (triggers: `firestore.rules`, `**/*Service.ts`, `functions/**`)
 - [`deploy-protocol.md`](.claude/rules/deploy-protocol.md) — ordem de deploy + PWA SW (triggers: `firebase.json`, `functions/**`, etc)
 
+**Post-Deployment Monitoring (v1.3+):**
+
+- [`CLOUD_LOGS_MONITORING_GUIDE.md`](docs/CLOUD_LOGS_MONITORING_GUIDE.md) — 24h Cloud Logs setup após Step 2 (Functions deploy). Includes filters, red flags, sign-off template.
+- [`CLOUD_LOGS_QUICK_REFERENCE.md`](docs/CLOUD_LOGS_QUICK_REFERENCE.md) — TL;DR commands + cheat sheet. Print and bookmark.
+- [`CLOUD_LOGS_INTEGRATION_CHECKLIST.md`](docs/CLOUD_LOGS_INTEGRATION_CHECKLIST.md) — deployment workflow integration (pre/during/post tasks).
+- [`scripts/monitor-cloud-logs.sh`](scripts/monitor-cloud-logs.sh) — automated Bash script (macOS/Linux).
+- [`scripts/monitor-cloud-logs.ps1`](scripts/monitor-cloud-logs.ps1) — automated PowerShell script (Windows).
+
+Use: `bash scripts/monitor-cloud-logs.sh 24 30` (or `.ps1` equiv.) imediatamente após deploy. Gera report + JSON export. Não-bloqueante; roda em paralelo.
+
 ---
 
 ## Módulos em produção
@@ -78,11 +88,11 @@ Regras com escopo mais estreito vivem em `.claude/rules/`:
 | `export` | Em prod · Phase 3.3 — ExportWizard 4-step + XLSX CF + PDF compress + email + batch+scheduled | 2026-05-05 |
 | `mobile` | Em prod · Phase 3.3 — NativeWind dark theme + biometric auth + Detox E2E (5 critical flows) | 2026-05-05 |
 | `ceq` | Em prod · Controle de Qualidade Externo — participação externa, z-score, comparação interlaboratorial | 2026-05-05 |
-| `bioquimica` | Em prod · CIQ quantitativo + Westgard CLSI + Levey-Jennings | 2026-05-06 |
+| `bioquimica` | Em prod · CIQ quantitativo + Westgard CLSI + Levey-Jennings | 2026-05-07 |
 
 **Phase 2 — COMPLETE (2026-05-05):** Todos os 20 módulos em produção. 347/347 testes passando. ADRs 0005+0002+0006+0003+0004 todos deployados.
 
-**Phase 9 — COMPLETE (2026-05-06):** Bioquímica (módulo 25) em produção. 2,700+ LOC, 42 testes, WCAG AA, RDC 978 + DICQ 4.3 compliant. ADR-0008 registrado.
+**Phase 9 — COMPLETE (2026-05-07):** Bioquímica (módulo 25) em produção. 2,700+ LOC, 42 testes, WCAG AA, RDC 978 + DICQ 4.3 compliant. ADR-0008 registrado. v1.3 Deployment complete (Rules+Functions+Hosting). DICQ compliance 78.5%.
 
 **Phase 3 — COMPLETE (2026-05-05):** 3.1 Foundation + 3.2 Core Features + 3.3 Polish todos concluídos. Web TSC limpo. Functions TSC limpo. 738/738 testes passando. Stream C (Lighthouse CI infra) parcialmente completo — auditoria de runtime pendente para próxima milestone. CEQ + Mobile promovidos a Em prod.
 

@@ -1,4 +1,4 @@
-export * from './dispararNPSPosResolucao';
-export * from './dispararNPSRecurring';
-export * from './submitNPSResposta';
-export * from './anonimizarRespostas';
+export { dispararNPSPosResolucao } from './dispararNPSPosResolucao';
+export { dispararNPSRecurring, npsEmailQueueHandler } from './dispararNPSRecurring';
+export { submitNPSResposta } from './submitNPSResposta';
+export { anonimizarRespostas } from './anonimizarRespostas';
