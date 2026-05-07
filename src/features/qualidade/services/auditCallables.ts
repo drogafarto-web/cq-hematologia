@@ -30,8 +30,10 @@ export interface AuditEntry {
   id: string;
   modulo: string;
   operadorId: string;
+  operacao: string;
   resultado: 'sucesso' | 'falha' | 'aviso';
   timestamp: number;
+  hash: string;
   detalhes?: string;
 }
 
@@ -84,6 +86,28 @@ export interface ValidateChainPayload {
   labId: LabId;
 }
 
+export interface ExportAuditTrailPayload {
+  labId: LabId;
+  formato: 'csv' | 'pdf';
+  dataInicio?: number;
+  dataFim?: number;
+  modulo?: string;
+  operadorId?: string;
+  resultado?: 'sucesso' | 'falha' | 'aviso';
+}
+
+export interface LogicalSignature {
+  hash: string;
+  operatorId: string;
+  ts: number;
+}
+
+export interface CallExportAuditTrailResult {
+  success: true;
+  downloadUrl: string;
+  signature: LogicalSignature;
+}
+
 // ─── Lazy-loaded callables ──────────────────────────────────────────────────
 
 let _callGenerateComplianceReport: HttpsCallable<
@@ -94,6 +118,10 @@ let _callGetAuditTrail: HttpsCallable<GetAuditTrailPayload, CallGetAuditTrailRes
   null;
 let _callValidateChain: HttpsCallable<ValidateChainPayload, CallValidateChainResult> | null =
   null;
+let _callExportAuditTrail: HttpsCallable<
+  ExportAuditTrailPayload,
+  CallExportAuditTrailResult
+> | null = null;
 
 function getCallGenerateComplianceReport(): HttpsCallable<
   GenerateComplianceReportPayload,
@@ -120,6 +148,16 @@ function getCallValidateChain(): HttpsCallable<ValidateChainPayload, CallValidat
     _callValidateChain = httpsCallable(functions, 'qualidade_validateChain');
   }
   return _callValidateChain;
+}
+
+function getCallExportAuditTrail(): HttpsCallable<
+  ExportAuditTrailPayload,
+  CallExportAuditTrailResult
+> {
+  if (!_callExportAuditTrail) {
+    _callExportAuditTrail = httpsCallable(functions, 'qualidade_exportAuditTrail');
+  }
+  return _callExportAuditTrail;
 }
 
 // ─── Public API ──────────────────────────────────────────────────────────────
@@ -170,6 +208,24 @@ export async function callValidateChain(
 ): Promise<CallValidateChainResult> {
   try {
     const result = await getCallValidateChain()(payload);
+    return result.data;
+  } catch (error) {
+    throw translateError(error);
+  }
+}
+
+/**
+ * Export audit trail as signed CSV or PDF file.
+ * Generates a time-stamped, HMAC-signed export matching RDC 978 Art. 5.3 compliance.
+ *
+ * Returns downloadUrl and signature for verification.
+ * Throws Error if labId is not active, format is invalid, or export fails.
+ */
+export async function callExportAuditTrail(
+  payload: ExportAuditTrailPayload
+): Promise<CallExportAuditTrailResult> {
+  try {
+    const result = await getCallExportAuditTrail()(payload);
     return result.data;
   } catch (error) {
     throw translateError(error);

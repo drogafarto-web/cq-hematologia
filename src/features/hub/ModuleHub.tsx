@@ -239,6 +239,18 @@ const RiskIcon = () => (
   </Svg>
 );
 
+const ShieldCheckIcon = () => (
+  <Svg size={20}>
+    <path
+      d="M10 2.5L3.5 5v5.5c0 3.5 2.7 6.5 6.5 7.5 3.8-1 6.5-4 6.5-7.5V5L10 2.5z"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinejoin="round"
+    />
+    <path d="M7.5 10.5l2 2 3-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </Svg>
+);
+
 const PrePosIcon = () => (
   <Svg size={20}>
     <path
@@ -522,6 +534,19 @@ const MODULES: ModuleDef[] = [
     status: 'active',
     category: 'sgq',
     view: 'auditoria-interna' as View,
+  },
+  {
+    id: 'auditoria-trail',
+    name: 'Auditoria — Trilha de Eventos',
+    tagline: 'RDC 978 5.3 · DICQ 4.4 · Eventos com assinatura criptográfica',
+    bullets: ['ChainHash + LogicalSignature', 'Filtros por módulo/operador', 'Verificação de integridade'],
+    icon: <ShieldCheckIcon />,
+    bloco: 'Bloco 4',
+    iconBg: 'bg-emerald-500/15',
+    iconColor: 'text-emerald-400',
+    status: 'active',
+    category: 'sgq',
+    view: 'auditoria-trail' as View,
   },
   {
     id: 'nao-conformidades',

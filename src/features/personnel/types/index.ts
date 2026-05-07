@@ -101,6 +101,23 @@ export interface SignDesignacaoResult {
   success: boolean;
 }
 
+// ─── Qualificacao (Operator certification/qualification) ──────────────────
+
+export interface Qualificacao {
+  readonly id: string; // UUID
+  readonly labId: string;
+  readonly uid: string; // FK to operator (from educacao-continuada)
+  readonly tipo: 'Treinamento' | 'Capacitação' | 'Reciclagem'; // qualification type
+  readonly modulosLiberados: readonly string[]; // modules where operator is authorized
+  readonly validoDe: Timestamp;
+  readonly validoAte: Timestamp | null; // NULL = indefinite
+  readonly criadoEm: Timestamp;
+  readonly deletadoEm: Timestamp | null; // RN-06: soft-delete only
+}
+
+export type QualificacaoInput = Omit<Qualificacao, 'id' | 'labId' | 'criadoEm' | 'deletadoEm'>;
+
 // ─── Re-exports ───────────────────────────────────────────────────────────────
 
 export type LabId = string;
+export type UserId = string;
