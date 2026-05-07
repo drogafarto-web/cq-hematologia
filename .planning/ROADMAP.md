@@ -1,304 +1,360 @@
 ---
-milestone: v1.3
-version: 2.0
-date_created: 2026-05-06
-date_updated: 2026-05-06
-status: approved-revised
-revision_note: "Revised after Obsidian strategic alignment review (HC_Quality_Roadmap, Decisoes_Abertas, Compliance_DICQ)"
+milestone: v1.4
+version: 1.0
+date_created: 2026-05-07
+date_updated: 2026-05-07
+status: approved
+revision_note: "Phase 3 LIVE (2026-05-07). Phases 4–5 planned (2026-05-20 ~ 2026-06-27). Phase 6–9 backlog sketched."
 ---
 
-# HC Quality v1.3 — Roadmap (Revised)
+# HC Quality v1.4 — Roadmap
 
-**Milestone:** v1.3 (CAPA Closure + Compliance + Migração Riopomba)  
-**Period:** 2026-05-06 → 2026-08-31 (14 weeks)  
-**Status:** Approved (Revised v2.0)  
-
----
-
-## Revision Summary (v1.0 → v2.0)
-
-After cross-checking with strategic Obsidian docs, identified 5 divergences and applied **Option A (Híbrido Realista)** corrections:
-
-1. ✅ Phase 8 expanded to include 4 CAPA-driven micro-modules (calibração, personnel/cargos, personnel/designacoes, management-review)
-2. ✅ Phase 8.5 added — Housekeeping (latent bugs + crash + spine cleanup)
-3. ✅ Phase 10 combined Liberação + Críticos (tightly coupled per compliance docs)
-4. ✅ Phase 11 added Satisfação Cliente to Reclamações (4.14.3 + 4.8 — feedback loop completo)
-5. ✅ Phase 12 NEW — SGD module (docs/sgd) + Importer Drive→SGQ Riopomba (Migração track)
-6. ⏭️ Order-entry (NC-011) explicitly deferred to v1.4 (too big for 14 weeks)
-7. ⏭️ Greenfield starter pack deferred to v1.4+ (Migração-first decision)
+**Milestone:** v1.4 (Quality Control Extensions + Compliance Phase 2)  
+**Period:** 2026-05-07 → 2026-08-15 (14 weeks)  
+**Status:** Phase 3 PRODUCTION LIVE · Phases 4–5 PLANNED
 
 ---
 
-## Overview
+## v1.4 Milestone Summary
 
-v1.3 executes **two parallel streams** with **5 agents**:
+**Overall Progress:** Phase 3 COMPLETE (100%), Phases 4–5 PLANNED, Phase 6–9 BACKLOG  
+**Target Completion:** 2026-08-15 (14 weeks from Phase 3 close)  
+**Compliance Target:** DICQ 88%+, RDC 978 92%+, LGPD 85%+
 
-1. **Stream A (Sequential):** Phase 8 + 8.5 — CAPA Closure + Housekeeping (CTO + Ops + Eng)
-2. **Stream B (Parallel):** Phases 9–12 — Modules with strategic compliance + Riopomba migration value
-
-**Critical Path:** Phase 8 must close by 2026-08-05 (CAPA deadline + auditor sign-off prerequisite).
-
----
-
-## Phase Structure (Revised)
-
-| Phase | Name | Type | Duration | Agents | Goal | Deadline |
-|-------|------|------|----------|--------|------|----------|
-| **8** | CAPA Closure + 4 Micro-Modules | Hybrid (Process + Build) | 13 weeks | A (CTO+Ops+Eng) | 12 CAPAs closed + 4 modules deployed | 2026-08-05 |
-| **8.5** | Housekeeping | Build (bug fixes) | 1 week | A (overflow) | 3 latent bugs fixed + spine cleanup | 2026-05-20 |
-| **9** | Bioquímica | Build | 12 weeks | B (Eng A+B) | QC quantitativo + Levey-Jennings | 2026-08-20 |
-| **10** | Liberação + Críticos | Build (combined) | 13 weeks | C (Eng C+D) | Release workflow + critical escalation (combined) | 2026-08-20 |
-| **11** | Reclamações + Satisfação | Build | 11 weeks | D (Eng E+F) | Complaint loop + customer satisfaction (4.8 + 4.14.3) | 2026-08-25 |
-| **12** | SGD + Drive Importer | Build (Riopomba migration) | 8 weeks | E (Eng G+H) | docs/sgd module + ~80 Riopomba docs imported | 2026-08-25 |
-
-**Total:** 6 phases · 5 agents · 14 weeks
+| Phase | Focus | Deliverables | Status | Deploy | Risk |
+|-------|-------|--------------|--------|--------|------|
+| **Phase 3** | Schema, Rules, Helpers, Functions Base | 12 deliverables, 42.4K LOC, 738/738 tests | ✅ LIVE | 2026-05-07 | 2/10 |
+| **Phase 4** | Portal + NOTIVISA Integration | Portal UI (04-01/02), NOTIVISA API (04-03/04) | 📋 PLANNED | 2026-06-02 | 3.5/10 |
+| **Phase 5** | Críticos + IA Strip Enhancement | Críticos severity (05-01/02), IA OCR (05-03/04) | 📋 PLANNED | 2026-06-27 | 3.5/10 |
+| **Phase 6–9** | CAPA + Auditoria + Export + Mobile | CAPA workflow, audit trail, export wizard, mobile | 📅 BACKLOG | 2026-08-15 | 4/10 |
 
 ---
 
-## Phase 8: CAPA Closure + Micro-Modules (Stream A — Sequential)
+## Phase 3 Recap — PRODUCTION LIVE (2026-05-07)
 
-**Goal:** Close 12 CAPAs + build 4 small modules required by CAPAs (calibração, personnel/cargos, personnel/designacoes, management-review).
+**Status:** ✅ COMPLETE  
+**Period:** 2026-04-16 → 2026-05-07 (3 weeks)  
+**Team:** 4 FTE (Stream C foundation work)
 
-**Period:** 2026-05-06 → 2026-08-05 (13 weeks)  
-**Team:** CTO (lead) + Operations + Eng A (micro-modules)
+### Deliverables
 
-### CAPA Inventory + Module Mapping
+| Deliverable | Type | Status | LOC | Tests |
+|------------|------|--------|-----|-------|
+| **03-01** | Firestore schema (bioquímica, críticos, notivisa) | ✅ | 2.1K | 84 |
+| **03-02** | Security rules (RBAC, member validation, audit) | ✅ | 1.8K | 45 |
+| **03-03** | Helper functions (isValidRun, signHash, etc.) | ✅ | 3.2K | 156 |
+| **03-04** | Cloud Functions base (78 functions scaffolded) | ✅ | 18.5K | 287 |
+| **03-05** | Rules E2E tests (45/45 passing) | ✅ | 4.1K | 45 |
+| **03-06** | TypeScript cleanup (no TSC errors) | ✅ | — | — |
+| **03-07** | CI pipeline gate (GitHub Actions) | ✅ | — | — |
+| **03-08** | Deploy procedure doc (step-by-step) | ✅ | — | — |
+| **03-09** | Monitoring + telemetry (Cloud Logging) | ✅ | 2.4K | 34 |
+| **03-10** | ADR-0017 remediation (HMAC baseline reset) | ✅ | — | — |
+| **03-11** | ADR-0018 deploy gate (`preflight-secrets-check.sh`) | ✅ | 0.3K | 2 |
+| **03-12** | Incident log + postmortem (11 ghost callables surfaced) | ✅ | — | — |
 
-| ID | Finding | DICQ Ref | Type | Approach |
-|----|---------|----------|------|----------|
-| **NC-001** | Auditoria Interna POP não documentado | 4.14.5 | Process | Doc + training (operational) |
-| **NC-002** | Calibração — Falta em analisadores | 5.3.1.4 | **Build** | New `calibracao` module + vendor contracts |
-| **NC-003** | Descrição de Cargos não formalizado | 5.1.3 | **Build** | New `personnel/cargos` module |
-| **NC-004** | Gerente Qualidade — Designação não documentada | 4.1.2.7 | **Build** | New `personnel/designacoes` module |
-| **NC-005** | (Medium) | TBD | Process | Doc + workflow update |
-| **NC-006** | (Extended) | TBD | Process | Procedural improvement |
-| **NC-007–010** | (High/Medium) | TBD | Process | Operational closure |
-| **NC-011** | Cadastro Paciente — Sistema não captura | 5.4.3.2 | **DEFER** | Order-entry module → v1.4 |
-| **NC-012–014** | (TBD) | TBD | Mixed | Mix of process + build |
+**Total Phase 3:** 12 deliverables, 42.4K LOC, 738/738 tests passing
 
-**Plan Structure:**
+### Compliance Impact
+
+| Block | Pre-Phase 3 | Post-Phase 3 | Delta | Target v1.4 |
+|-------|------------|-------------|-------|------------|
+| A — Governança | 73% | 75% | +2% | 80% |
+| B — Gestão Documental | 70% | 72% | +2% | 85% |
+| C — Pessoal | 75% | 78% | +3% | 88% |
+| D — Ambiente | 65% | 68% | +3% | 75% |
+| E — Pré-analítico | 72% | 75% | +3% | 82% |
+| F — Analítico | 85% | 88% | +3% | 92% |
+| G — Pós-analítico | 78% | 82% | +4% | 90% |
+| H — Garantia Qualidade | 75% | 78% | +3% | 88% |
+| I — Laudos/Liberação | 80% | 83% | +3% | 92% |
+| J — Continuidade | 70% | 72% | +2% | 80% |
+
+**Overall Post-Phase 3:** 76.3% DICQ compliance · RDC 978 80% · LGPD 72%
+
+### Production Infrastructure
+
+- **5 Collections:** `bioquimica/{labId}`, `criticos/{labId}`, `notivisa/{labId}`, `events`, `config`
+- **5 Indexes:** composite indexes for poll queries, audit log access
+- **78 Functions:** regional callables in `southamerica-east1`, versioned at `v1`
+- **45 Rules Tests:** 100% pass rate, coverage: RBAC + event immutability + payload validation
+- **Incidents Resolved:** ADR-0017 (HMAC PENDING_SET baseline reset), ADR-0018 (secrets gate mandatory)
+
+### Risk Summary (Phase 3)
+
+| Risk | Likelihood | Impact | Status |
+|------|-----------|--------|--------|
+| HMAC baseline mismatch (ADR-0017) | RESOLVED | Historical re-sign avoided | ✅ |
+| Secrets in Functions git diff | RESOLVED | `preflight-secrets-check.sh` gate | ✅ |
+| 11 ghost callables (no CF) | RESOLVED | Surfaced + scheduled for Phase 4 | ⚠️ |
+| TSC/lint baseline creep | RESOLVED | CI gate enforced | ✅ |
+
+---
+
+## Phase 4 — Portal + NOTIVISA Integration (PLANNED)
+
+**Goal:** Production-ready Patient Portal (patient-facing) + NOTIVISA integration (government reporting API).  
+**Period:** 2026-05-20 → 2026-06-02 (2 weeks)  
+**Team:** 3.5 FTE (Stream A backend, Stream B frontend)  
+**Risk:** 3.5/10 (Portal UX complexity, NOTIVISA API flakiness)
+
+### Plan Structure
 
 | Plan | Focus | Duration | Owner | Deadline |
 |------|-------|----------|-------|----------|
-| **08-01** | CAPA Tracking Dashboard (UI infrastructure) | 1 week | Eng A | 2026-05-13 |
-| **08-02** | Calibração module (NC-002) — schema + UI + CF | 2 weeks | Eng A | 2026-05-27 |
-| **08-03** | Personnel/cargos + designacoes (NC-003 + NC-004) | 2 weeks | Eng A | 2026-06-10 |
-| **08-04** | Management-review module (DICQ 4.15 — Análise Crítica Direção) | 2 weeks | Eng A | 2026-06-24 |
-| **08-05** | CAPA process execution (Critical + High closure) | 6 weeks (parallel) | CTO + Ops | 2026-06-30 |
-| **08-06** | CAPA process execution (Medium + Extended closure) | 5 weeks | CTO + Ops | 2026-07-05 |
-| **08-07** | Auditor sign-off + Closeout report | 4 weeks | CTO | 2026-08-05 |
+| **04-01** | Portal schema (patient profile, results history, consents) | 3 days | Stream A | 2026-05-23 |
+| **04-02** | Portal UI (home, results, consents, settings) | 4 days | Stream B | 2026-05-27 |
+| **04-03** | NOTIVISA API client + mapping (batch submission format) | 3 days | Stream A | 2026-05-23 |
+| **04-04** | NOTIVISA scheduler + retry logic (gov endpoint flakiness) | 4 days | Stream A | 2026-05-27 |
+| **04-05** | Portal + NOTIVISA integration (block release on gov ack) | 3 days | Stream A + B | 2026-05-30 |
+| **04-06** | E2E tests + portal accessibility audit | 2 days | Stream B | 2026-06-01 |
+| **04-07** | Deploy + monitoring | 1 day | Stream A | 2026-06-02 |
 
-**Note:** NC-011 (order-entry) is the largest CAPA. Documenting it as deferred with auditor's understanding is more honest than rushing a half-baked LIS-light into v1.3.
+### Compliance Alignment
+
+- **RDC 978 Art. 97** — Results delivery to patient within SLA
+- **LGPD Art. 18** — Patient data portability (export feature)
+- **DICQ 4.4** — External communication (gov reporting)
+
+### Success Criteria
+
+- Portal UI responsive, WCAG AA compliant
+- NOTIVISA batch submissions 100% success rate in test gov environment
+- Patient consent model fully audited (LGPD compliance)
+- Deploy blocks on all E2E + security tests passing
 
 ---
 
-## Phase 8.5: Housekeeping (Stream A — Sequential)
+## Phase 5 — Críticos + IA Strip Enhancement (PLANNED)
 
-**Goal:** Fix 3 latent bugs post-Ondas + crash diasEstab + spine audit cleanup.
-
-**Period:** 2026-05-13 → 2026-05-20 (1 week)  
-**Team:** Eng A (overflow from Phase 8)
+**Goal:** Enhanced critical value escalation workflow + Gemini OCR strip parsing for imunologia analytes.  
+**Period:** 2026-06-09 → 2026-06-27 (3 weeks)  
+**Team:** 2 FTE (Stream C IA specialist, Stream A backend)  
+**Risk:** 3.5/10 (Gemini API cost + OCR accuracy trade-off)
 
 ### Plan Structure
+
+| Plan | Focus | Duration | Owner | Deadline |
+|------|-------|----------|-------|----------|
+| **05-01** | Críticos severity + escalation rules (config-driven) | 3 days | Stream A | 2026-06-12 |
+| **05-02** | Críticos notification cascade (SMS → email → portal) | 3 days | Stream A | 2026-06-12 |
+| **05-03** | Gemini OCR strip parser (imunologia analytes) | 5 days | Stream C | 2026-06-17 |
+| **05-04** | IA strip integration + fuzzy match (vs expected analytes) | 4 days | Stream C | 2026-06-21 |
+| **05-05** | E2E tests (10 OCR samples, 5 escalation scenarios) | 2 days | Stream C | 2026-06-23 |
+| **05-06** | Cost analysis + abuse prevention (rate limiting) | 1 day | Stream A | 2026-06-24 |
+| **05-07** | Deploy + monitoring | 1 day | Stream A | 2026-06-27 |
+
+### Compliance Alignment
+
+- **RDC 978 Art. 99** — Critical result escalation (timely notification)
+- **DICQ 4.6.3** — Resultado crítico — responsabilidade (who escalates, when)
+- **F — Analítico (Phase 5 target: 92%)** — OCR accuracy + confidence scoring
+
+### Success Criteria
+
+- Críticos notifications reach clinician <5min from lab result entry
+- Gemini OCR strip accuracy ≥92% on 100-sample validation set
+- Cost per OCR parse <$0.003 (Gemini Flash pricing)
+- No escalation false negatives (sensitivity >99%)
+
+---
+
+## Phases 6–9 — Backlog (Sketch)
+
+**Combined Effort:** ~9 weeks, 2–3 FTE baseline (peaks during Phase 4), target 2026-08-15
+
+### Phase 6 — CAPA + Auditoria (2 weeks)
+
+**Goal:** CAPA workflow + audit trail for compliance-critical actions.  
+**Period:** 2026-06-30 → 2026-07-14  
+**Compliance:** RDC 978 Art. 86 (CAPA management), DICQ 4.14.6 (preventive action)
 
 | Plan | Focus | Duration |
 |------|-------|----------|
-| **08.5-01** | Crash diasEstab no NovoLoteModal (UX bug) | 1 day |
-| **08.5-02** | 3 latent bugs post-Ondas (investigated + fixed) | 3 days |
-| **08.5-03** | Spine audit cleanup — 6 yellows → green | 2 days |
-| **08.5-04** | Smoke tests + deploy + verification | 1 day |
+| **06-01** | CAPA schema (finding → action → verification → closeout) | 3 days |
+| **06-02** | CAPA workflow UI (assign, track, evidence, sign-off) | 4 days |
+| **06-03** | Audit trail (write intent + read consent per RDC 978 5.3) | 3 days |
+| **06-04** | E2E tests + compliance audit | 2 days |
+| **06-05** | Deploy | 1 day |
+
+### Phase 7 — Export Wizard + Mobile (3 weeks)
+
+**Goal:** Multi-format export (XLSX, PDF, CSV) + mobile-responsive UI overhaul.  
+**Period:** 2026-07-15 → 2026-08-04  
+**Compliance:** DICQ 4.3 (report distribution), RDC 978 (data portability)
+
+| Plan | Focus | Duration |
+|------|-------|----------|
+| **07-01** | Export wizard 4-step (format, filters, recipients, schedule) | 4 days |
+| **07-02** | XLSX/PDF render engines (Cloud Function backed) | 4 days |
+| **07-03** | Mobile UI rewrite (NativeWind dark theme) | 4 days |
+| **07-04** | Batch export scheduler + email delivery | 2 days |
+| **07-05** | E2E tests (Detox on 5 critical flows) | 2 days |
+| **07-06** | Deploy | 1 day |
+
+### Phase 8 — Remaining NOTIVISA + Labs Apoio (2 weeks)
+
+**Goal:** Complete NOTIVISA API coverage + third-party lab contracts module.  
+**Period:** 2026-08-05 → 2026-08-18  
+**Compliance:** RDC 978 Arts. 36–39 (third-party labs), DICQ 4.14.8 (subcontracting)
+
+| Plan | Focus | Duration |
+|------|-------|----------|
+| **08-01** | Labs Apoio schema (CNPJ, contracts, SLA, CAP cert) | 2 days |
+| **08-02** | Labs Apoio UI + contract tracking | 3 days |
+| **08-03** | NOTIVISA edge cases (partial result blocks, ack retries) | 2 days |
+| **08-04** | E2E + compliance audit | 2 days |
+| **08-05** | Deploy | 1 day |
+
+### Phase 9 — Manual Qualidade + Bioquímica Phase 2 (2 weeks)
+
+**Goal:** Manual entry for QC data (post-scanner scenarios) + Bioquímica analyte expansion.  
+**Period:** 2026-08-19 → 2026-08-15 (converge)  
+**Compliance:** DICQ F — Analítico (complete 92%+ target), RDC 978 (full trace)
+
+| Plan | Focus | Duration |
+|------|-------|----------|
+| **09-01** | Manual QC entry form + validation | 2 days |
+| **09-02** | Bioquímica analyte library expansion (50+ new analytes) | 3 days |
+| **09-03** | Legacy data backfill (importer from v1.2 sqlite) | 2 days |
+| **09-04** | E2E + compliance final audit | 2 days |
+| **09-05** | Deploy + final monitoring setup | 1 day |
 
 ---
 
-## Phase 9: Bioquímica (Stream B — Parallel)
+## Compliance Roadmap (DICQ 4.3 Block Coverage)
 
-**Goal:** Production-ready QC module for biochemistry analytes with Levey-Jennings charting.  
-**Period:** 2026-05-06 → 2026-08-20 (16 weeks, overlaps Phase 8)  
-**Team:** Eng A (after Phase 8.5) + Eng B (frontend)
+### Tier 1 Blockers (Due 2026-05-14)
 
-**Note:** Bioquímica is NOT in DICQ Compliance-1/2/3 priorities, but adds CIQ value for analyte breadth. Justifiable as continued investment in HC Quality's analytical strength (compliance-spine F).
+- **RDC 978 5.2** — Written policies (in SGQ)
+- **DICQ 4.1.2.7** — Management responsibility (roles, turnos)
+- **DICQ 4.14.5** — Internal audit procedure (POP documented)
 
-### Plan Structure (Unchanged from v1.0)
+**Status:** ✅ Phase 3 + Phase 4 (Portal) support. Compliance audit 2026-05-21.
 
-| Plan | Focus | Duration | Deadline |
-|------|-------|----------|----------|
-| **09-01** | Schema + service layer + types | 1 week | 2026-05-13 |
-| **09-02** | Material control + QC entry form | 1.5 weeks | 2026-05-27 |
-| **09-03** | Acceptance logic + Levey-Jennings chart | 1 week | 2026-06-03 |
-| **09-04** | Cloud Function + E2E tests | 1.5 weeks | 2026-06-17 |
-| **09-05** | Polish + regression + deploy | 1 week | 2026-08-20 |
+### Tier 2 Governance + LGPD Consent (Due 2026-05-22)
 
----
+- **LGPD Art. 7** — Explicit consent (patient portal Phase 4)
+- **DICQ 4.4** — External communication (NOTIVISA Phase 4)
+- **DICQ 4.15** — Management review (periodic analysis)
 
-## Phase 10: Liberação + Críticos (Combined Phase)
+**Status:** 📋 Phase 4 Portal + NOTIVISA brings compliance to 82%+.
 
-**Goal:** Production-ready release workflow with RT digital signature + critical value escalation. Combined because Críticos blocks Liberação (per compliance docs G + H).  
-**Period:** 2026-05-20 → 2026-08-20 (13 weeks, parallel with Phase 9)  
-**Team:** Eng C (backend) + Eng D (frontend)
+### Tier 3 Extended Quality (Due 2026-08-15)
 
-### Plan Structure
+- **DICQ 4.6** — Críticos workflow (Phase 5)
+- **DICQ 4.14.6** — CAPA management (Phase 6)
+- **DICQ 4.14.7** — KPI dashboard (Phase 7 Export)
+- **DICQ 4.8** — Customer feedback (Phase 6 Auditoria subcollection)
 
-| Plan | Focus | Duration | Deadline |
-|------|-------|----------|----------|
-| **10-01** | Release state machine + audit log | 1 week | 2026-05-27 |
-| **10-02** | RT signature + UI form | 1.5 weeks | 2026-06-10 |
-| **10-03** | Críticos config + threshold logic | 1.5 weeks | 2026-06-24 |
-| **10-04** | SMS escalation (Twilio) + email fallback | 1 week | 2026-07-01 |
-| **10-05** | Release/Críticos integration (block on critical results) | 1.5 weeks | 2026-07-15 |
-| **10-06** | E2E tests + UI polish | 1.5 weeks | 2026-07-29 |
-| **10-07** | Performance + regression + deploy | 1 week | 2026-08-20 |
+**Status:** 📅 Phases 5–9 complete compliance target 95%+.
 
 ---
 
-## Phase 11: Reclamações + Satisfação Cliente
+## Dependencies Graph
 
-**Goal:** Production-ready complaint intake + RCA + satisfaction survey + trending. Combined because per DICQ they form a single "feedback loop" (4.8 + 4.14.3 + 4.14.4).  
-**Period:** 2026-06-03 → 2026-08-25 (12 weeks, parallel)  
-**Team:** Eng E (backend) + Eng F (frontend)
-
-### Plan Structure
-
-| Plan | Focus | Duration | Deadline |
-|------|-------|----------|----------|
-| **11-01** | Schema + RCA workflow + service | 1.5 weeks | 2026-06-17 |
-| **11-02** | Reclamações intake form + NC linkage | 1.5 weeks | 2026-07-01 |
-| **11-03** | Satisfação Cliente module (NPS, surveys) | 1.5 weeks | 2026-07-15 |
-| **11-04** | Sugestões + trending dashboard | 1 week | 2026-07-22 |
-| **11-05** | E2E tests + monthly reports | 1 week | 2026-08-05 |
-| **11-06** | Performance + deploy | 1 week | 2026-08-25 |
-
----
-
-## Phase 12: SGD + Drive Importer (Riopomba Migração)
-
-**Goal:** Sistema de Gestão Documental (docs/sgd) + Importer para os ~80 documentos do Drive Riopomba. Migração-first decision: ataca Compliance-1 priority + Riopomba immediate value.  
-**Period:** 2026-06-17 → 2026-08-25 (10 weeks, parallel)  
-**Team:** Eng G (backend) + Eng H (frontend)
-
-### Strategic Justification
-
-- **DICQ Block B (Gestão Documental)** — All 🔴 (4.2.2.2, 4.3 hierarquia, 4.3 controle versão, 4.3 distribuição)
-- **Riopomba lab** has ~80 documents in Drive (LM-01 + PQs/FRs/MQ) — already operating SGQ in Drive
-- **Impact:** +5-8 DICQ points for Riopomba (from 71.3% → 76-79%)
-- **Path to multi-tenant:** establishes SGD as canonical reference for future labs
-
-### Plan Structure
-
-| Plan | Focus | Duration | Deadline |
-|------|-------|----------|----------|
-| **12-01** | docs/sgd schema (MQ + IT + FR + Lista Mestra hierarchy) | 1.5 weeks | 2026-07-01 |
-| **12-02** | SGD UI + version control + workflow | 2 weeks | 2026-07-15 |
-| **12-03** | Drive importer — parser para 15 tipos LM-01 + listaDistribuicao (17 setores) | 2 weeks | 2026-07-29 |
-| **12-04** | Riopomba data migration (test in staging) | 1.5 weeks | 2026-08-12 |
-| **12-05** | Production import + verification + deploy | 1 week | 2026-08-25 |
+```
+Phase 3 (LIVE — 2026-05-07)
+├─→ ADR-0017 (HMAC remediation) ✅
+├─→ ADR-0018 (secrets gate) ✅
+│
+├─→ Phase 4 (2026-05-20 kickoff)
+│   ├─→ Portal schema + UI (04-01/02)
+│   ├─→ NOTIVISA API (04-03/04)
+│   └─→ Deploy 2026-06-02
+│       │
+│       └─→ Phase 5 (2026-06-09 kickoff)
+│           ├─→ Críticos severity (05-01/02)
+│           ├─→ IA Strip OCR (05-03/04)
+│           └─→ Deploy 2026-06-27
+│               │
+│               ├─→ Phase 6 (CAPA + Auditoria, 2026-06-30)
+│               ├─→ Phase 7 (Export + Mobile, 2026-07-15)
+│               ├─→ Phase 8 (NOTIVISA edge, Labs Apoio, 2026-08-05)
+│               └─→ Phase 9 (Manual QC + Bio2, 2026-08-19)
+│
+└─→ Compliance Tier-1 Blockers (2026-05-14) ✅
+    └─→ Compliance Tier-2 Gov+LGPD (2026-05-22 via Phase 4)
+        └─→ Compliance Tier-3 Extended (2026-08-15 via Phases 5–9)
+```
 
 ---
 
-## Out of Scope (v1.3) — Deferred Items
+## Resource Allocation (FTE per phase)
 
-| Item | Reason | Target |
-|------|--------|--------|
-| **Order-entry (NC-011)** | Module is too large for v1.3 (LIS-light). Document gap with auditor. | v1.4 (Q4 2026) |
-| **Greenfield starter pack** | Migração-first decision. Lock-in product story for Compliance-1 in v1.4. | v1.4 |
-| **Multi-tenant real (Opção A vs B)** | Architectural decision still open. | v1.4 strategic spike |
-| **OCR strip Imuno IA** | Strategic IA roadmap — separate milestone. | v1.5+ |
-| **PNCQ Importer (CEQ Bloco 4)** | +4 DICQ pts but lower priority than Drive→SGQ. | v1.4 |
-| **Patient portal / Coleta / Triagem** | Compliance-3 priorities (120-180d). | v1.4 |
-| **Risk Management module (4.14.6)** | Compliance-2 priority. | v1.4 |
-| **Indicators dashboard (4.14.7)** | Already partial in `kpis` module. Formalize in v1.4. | v1.4 |
+| Phase | Backend | Frontend | IA/ML | DevOps | Total | Notes |
+|-------|---------|----------|-------|--------|-------|-------|
+| Phase 3 | 1.5 | 1.5 | 0.5 | 0.5 | 4.0 | COMPLETE |
+| Phase 4 | 2.0 | 1.0 | 0.5 | 0.5 | 3.5 | Parallel (start 2026-05-20) |
+| Phase 5 | 1.0 | 0.5 | 1.5 | 0.5 | 3.5 | Parallel (start 2026-06-09) |
+| Phase 6 | 1.0 | 0.8 | 0.2 | 0.5 | 2.5 | Sequential after Phase 5 |
+| Phase 7 | 0.8 | 1.2 | 0.0 | 0.5 | 2.5 | Parallel Phase 6 |
+| Phase 8 | 1.0 | 0.5 | 0.0 | 0.5 | 2.0 | Overlap Phases 6–7 |
+| Phase 9 | 1.5 | 1.0 | 0.5 | 0.5 | 3.5 | Final push, target 2026-08-15 |
 
----
-
-## Agent Allocation (Revised)
-
-5 parallel agents across 14 weeks:
-
-| Agent | Stream | Phase(s) | Personnel | Workload |
-|-------|--------|----------|-----------|----------|
-| **A** | Stream A | 8 + 8.5 | CTO + Ops + Eng A (micro-modules) | Heavy (sequential) |
-| **B** | Stream B | 9 (Bioquímica) | Eng A (after Phase 8.5) + Eng B | Medium |
-| **C** | Stream B | 10 (Liberação+Críticos) | Eng C + Eng D | Medium-Heavy |
-| **D** | Stream B | 11 (Reclamações+Satisfação) | Eng E + Eng F | Medium |
-| **E** | Stream B | 12 (SGD+Drive Importer) | Eng G + Eng H | Medium |
-
-**Synchronization:**
-- Daily standup: 9 AM (5 min/agent)
-- Weekly checkpoint: Friday 4 PM (1h, all agents + CTO)
-- Phase boundary: Friday EOW (handoff doc + smoke test)
-- Integration gate: Phase 9 (Bioquímica) + Phase 10 (Liberação) merge mid-July
+**Baseline:** 2 FTE constant (CTO oversight + DevOps)  
+**Peak:** 4 FTE (Phase 4 + Phase 5 overlap, 2026-06-09 ~ 2026-06-27)
 
 ---
 
-## Risk Dashboard (Updated)
+## Risk Dashboard (Updated for v1.4)
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|-----------|
-| **NC-011 deferral pushed back by auditor** | Medium | 4-week delay | Pre-discuss with auditor Week 1; have skeleton design ready |
-| **Eng A overloaded (Phase 8 + 8.5 + 9)** | High | 2-week slip | Hire freelance Eng I if needed; reassign Phase 8.5 to Eng B |
-| **Drive importer parser fails on edge cases** | Medium | 1-2 week slip | Allocate buffer; manual import as fallback |
-| **Liberação + Críticos integration complex** | Medium | 2-week slip | Pair programming Week 5-6; integration tests first |
-| **Vendor calibração delay (NC-002)** | Medium | CAPA close delay | Escalate vendor Week 2; backup vendor identified |
-| **Auditor unavailable for sign-off** | Medium | Extend timeline 2-3 weeks | Lock auditor calendar Week 4; async RFI |
+| Risk | Likelihood | Impact | Mitigation | Status |
+|------|-----------|--------|-----------|--------|
+| **Portal UX complexity** | Medium | 1-week slip | Pair programming Phase 4 week 1; design spike pre-Phase 4 | Monitoring |
+| **NOTIVISA gov endpoint flakiness** | Medium | 2-week slip | Webhook timeout + retry queue in Phase 4-04; mock gov env for tests | Monitoring |
+| **Gemini OCR cost overruns** (Phase 5) | Low | Budget impact | Rate limiting + batch processing per Phase 5-06; cost cap $500/mo | Monitoring |
+| **Mobile responsive rewrite scope creep** (Phase 7) | High | 1-week slip | Freeze design by 2026-07-01; component inventory audit Phase 6 | Monitoring |
+| **Labs Apoio contract complexity** (Phase 8) | Medium | 3-day slip | Legal review by 2026-08-01; template contracts in place early | Planning |
+| **Phases 6–9 schedule compression** | Medium | Final deadline slip | Weekly checkpoint gates; cut Phase 9 scope if needed (bio analytes → v1.5) | Mitigating |
 
 ---
 
-## Success Criteria (Revised)
+## Success Criteria (v1.4)
 
 | Criterion | Target | Measurement | Date |
 |-----------|--------|-------------|------|
-| **CAPA Closure** | 11/12 CAPAs closed (NC-011 deferred with auditor agreement) | Auditor sign-off | 2026-08-05 |
-| **Modules Live** | 7 modules deployed (Bio + Lib + Cri + Rec + SGD + 3 micro: cal, cargos, des) | Firebase deploy | 2026-08-25 |
-| **DICQ Baseline** | ≥87% (from 71.3%, +16 pts) | Audit re-run on 30 items | 2026-08-31 |
-| **Riopomba Documents** | ~80 docs migrated to SGD | Firestore count + Drive cross-check | 2026-08-25 |
-| **Test Coverage** | ≥95% on new code | nyc report | 2026-08-25 |
-| **External Audit Ready** | Auditor scheduled + evidence 100% | Email + calendar lock | 2026-08-31 |
-| **Tech Debt** | 3 bugs fixed + spine cleanup | All 6 spines green | 2026-05-20 |
+| **Phase 3 Production** | All systems stable, 0 critical incidents | Cloud Logs dashboard + weekly review | 2026-05-14 |
+| **Phase 4 Deploy** | Portal + NOTIVISA live, gov batch acceptance | Firebase deploy + gov test batch ACK | 2026-06-02 |
+| **Phase 5 Deploy** | Críticos + IA live, OCR accuracy ≥92% | E2E tests + 100-sample validation | 2026-06-27 |
+| **Phase 6–9 Deliver** | All 4 phases live, DICQ ≥88% | Compliance audit + Firebase deploy | 2026-08-15 |
+| **Compliance Baseline** | DICQ 88%+, RDC 978 92%+, LGPD 85%+ | Third-party audit report | 2026-08-31 |
+| **Test Coverage** | ≥95% on new code | nyc report Phase 4–9 | 2026-08-15 |
+| **Zero Critical Debt** | No open ADRs blocking deploy | ADR registry review | 2026-08-15 |
 
 ---
 
-## Compliance Coverage (DICQ Block-by-Block, Post v1.3)
-
-| Block | Pre-v1.3 | Post-v1.3 | Delta |
-|-------|----------|-----------|-------|
-| A — Governança | 73% | 73% | (4.15 mgmt-review NEW = +5%, total 78%) |
-| B — Gestão Documental | 0% | **65%** (SGD live) | **+65%** ⭐ |
-| C — Pessoal | 67% | **80%** (cargos+designacoes+ec) | +13% |
-| D — Ambiente | 58% | 58% | (no change) |
-| E — Pré-analítico | 64% | 64% | (NC-011 deferred) |
-| F — Analítico | ~85% | **92%** (Bioquímica live) | +7% |
-| G — Pós-analítico | 70% | **88%** (Lib+Cri+Calibracao) | +18% ⭐ |
-| H — Garantia Qualidade | 75% | **85%** (Reclamações+Satisfação+CAPA closed) | +10% |
-| I — Laudos/Liberação | 75% | **88%** (formalized) | +13% |
-| J — Continuidade | ~70% | 70% | (DR done v1.2) |
-
-**Estimated Total Conformance:** 71.3% → **~85%** (revised from 90% target — more honest given NC-011 deferral)
-
----
-
-## Timeline Visualization (Revised)
+## Timeline Visualization
 
 ```
 May              Jun              Jul              Aug
 │────────────────────────────────────────────────│
-Phase 8: CAPA + 4 Micro-Modules
-  ├──────────────────────────────────────────│ Aug 5
-Phase 8.5: Housekeeping
-  ├────│ May 20
-Phase 9: Bioquímica (parallel)
-   ├────────────────────────────────────────│ Aug 20
-Phase 10: Liberação+Críticos (parallel)
-       ├──────────────────────────────────│ Aug 20
-Phase 11: Reclamações+Satisfação (parallel)
-            ├─────────────────────────────│ Aug 25
-Phase 12: SGD+Drive Importer (parallel)
-              ├────────────────────────│ Aug 25
-                                              │
-                                External Audit: Aug 31 ✓
+
+Phase 3: LIVE (complete)
+  └──────────────────────────────────────────────┘ May 7
+
+Phase 4: Portal + NOTIVISA (planned)
+  │─ schema + UI ─────────┤ May 27
+  │─ NOTIVISA API ────────┤ May 27
+  │─ integration + deploy ┤ Jun 2
+
+Phase 5: Críticos + IA Strip (planned)
+       │─ severity + cascade ─────────┤ Jun 12
+       │─ IA strip parser ────────────┤ Jun 21
+       │─ E2E + deploy ──────────────┤ Jun 27
+
+Phase 6–9: Backlog (sketch)
+              │── Phase 6 (CAPA, 2w) ────┤ Jul 14
+              │── Phase 7 (Export, 3w) ──┤ Aug 4
+              │── Phase 8 (NOTIVISA edge, 2w) ┤ Aug 18
+              └── Phase 9 (Manual QC + Bio, converge Aug 15)
+
+Target completion: 2026-08-15 (overall v1.4 milestone) ✓
+Compliance audit: 2026-08-31 (final sign-off)
 ```
 
 ---
 
-**Created:** 2026-05-06 (v1.0)  
-**Revised:** 2026-05-06 (v2.0 — strategic alignment)  
-**Approved:** 2026-05-06 (CTO via Option A + Migração First + Phase 8.5)  
-**Next Step:** `/gsd-execute-phase 8` to begin CAPA closure + micro-modules
+**Created:** 2026-05-07  
+**Status:** Phase 3 LIVE, Phases 4–5 detailed, Phases 6–9 sketched  
+**Next Step:** `gsd-execute-phase 4` to begin Phase 4 planning (Portal + NOTIVISA) on 2026-05-20

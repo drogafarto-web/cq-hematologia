@@ -12,63 +12,59 @@ const db = admin.firestore();
 
 /**
  * ADR 0001 Wave 2 — Audit Trail Complete Implementation
- * Callables: logAction, getAuditTrail, validateChain, generateComplianceReport
+ * Callables: getAuditTrail, validateChain, generateComplianceReport
+ * Internal helper: writeAuditEntry (not a public callable)
  */
 
-export const logAction = onCall(
-  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
-  async (request: any) => {
-    if (!request.auth?.uid) {
-      throw new HttpsError('unauthenticated', 'Auth required');
-    }
+/**
+ * writeAuditEntry — Internal audit logging helper
+ * Invoked by other callables (investigarNC, executarAcaoCorretiva, etc.)
+ * Not exposed as a public onCall endpoint.
+ */
+export async function writeAuditEntry(
+  labId: string,
+  operatorId: string,
+  operation: string,
+  modulo: string,
+  payload: Record<string, any>,
+  resultado: string = 'sucesso',
+  acao?: string
+): Promise<{ entryId: string; timestamp: admin.firestore.Timestamp }> {
+  const secret = HCQ_SIGNATURE_HMAC_KEY.value();
+  const entry: Partial<QualidadeAuditEntry> = {
+    labId,
+    operation,
+    modulo,
+    acao: acao || operation,
+    resultado,
+    operatorId,
+    payload,
+    timestamp: admin.firestore.FieldValue.serverTimestamp() as any,
+    deletadoEm: null,
+    previousHash: null,
+    hmac: '',
+    hash: '',
+  };
 
-    const { labId, operation, modulo, acao, resultado, payload } = request.data;
-
-    if (!labId || !operation || !modulo) {
-      throw new HttpsError('invalid-argument', 'Missing required fields: labId, operation, modulo');
-    }
-
-    try {
-      const secret = HCQ_SIGNATURE_HMAC_KEY.value();
-      const entry: Partial<QualidadeAuditEntry> = {
-        labId,
-        operation,
-        modulo,
-        acao: acao || operation,
-        resultado: resultado || 'sucesso',
-        operatorId: request.auth.uid,
-        payload: payload || {},
-        timestamp: admin.firestore.FieldValue.serverTimestamp() as any,
-        deletadoEm: null,
-        previousHash: null,
-        hmac: '',
-        hash: '',
-      };
-
-      if (secret) {
-        const sig = await signAuditEntry(
-          `/labs/${labId}/audit-trail`,
-          request.auth.uid,
-          operation,
-          entry,
-          secret
-        );
-        (entry as any).hmac = sig.hmac;
-        (entry as any).hash = sig.hash;
-      }
-
-      const entryRef = await db.collection(`labs/${labId}/audit-trail`).add(entry);
-
-      return {
-        success: true,
-        entryId: entryRef.id,
-        timestamp: admin.firestore.Timestamp.now(),
-      };
-    } catch (error: any) {
-      throw new HttpsError('internal', `Failed to log action: ${error.message}`);
-    }
+  if (secret) {
+    const sig = await signAuditEntry(
+      `/labs/${labId}/audit-trail`,
+      operatorId,
+      operation,
+      entry,
+      secret
+    );
+    (entry as any).hmac = sig.hmac;
+    (entry as any).hash = sig.hash;
   }
-);
+
+  const entryRef = await db.collection(`labs/${labId}/audit-trail`).add(entry);
+
+  return {
+    entryId: entryRef.id,
+    timestamp: admin.firestore.Timestamp.now(),
+  };
+}
 
 export const getAuditTrail = onCall(
   { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },

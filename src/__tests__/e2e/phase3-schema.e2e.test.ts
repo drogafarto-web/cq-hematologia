@@ -87,17 +87,10 @@ describe('Phase 3 Schema Validation (03-01, 03-02, 03-03)', () => {
    * - Multiple NOTIVISA events can be queried efficiently
    * ─────────────────────────────────────────────────────────────────────────────
    */
-  // TODO(infra): unskip once Firestore composite index `(labId, status, createdAt)`
-  // for `notivisa-outbox` finishes building on project `hmatologia2`.
-  // Index is declared in `firestore.indexes.json` (notivisa-outbox block) and was
-  // deployed via `firebase deploy --only firestore:indexes` on 2026-05-07.
-  // Live error from server: "FAILED_PRECONDITION: The query requires an index.
-  // That index is currently building and cannot be used yet." (build typically <30min).
-  // Test code itself is correct — uses 4-segment path, redundant labId field per
-  // codebase convention, matches the declared index shape exactly. Re-enable after
-  // index status reads READY in Firebase Console (no code changes required).
-  // See: .planning/reports/e2e-rules-failure-taxonomy-2026-05-07.md (Cluster D).
-  it.skip('Test 2: NOTIVISA outbox index query succeeds', async () => {
+  // Index `(labId, status, createdAt)` for `notivisa-outbox` is READY as of 2026-05-07.
+  // Verified: gcloud firestore indexes composite list --project=hmatologia2
+  // Status: projects/hmatologia2/databases/(default)/collectionGroups/notivisa-outbox/indexes/CICAgNirk5QK → READY
+  it('Test 2: NOTIVISA outbox index query succeeds', async () => {
     const eventsRef = db.collection(`labs/${testLabId}/notivisa-outbox`);
 
     // ─── Create test events ────────────────────────────────────────────────

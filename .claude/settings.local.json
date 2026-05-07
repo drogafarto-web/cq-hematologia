@@ -148,7 +148,14 @@
       "Bash(tsc)",
       "Bash(echo \"BUILD_STATUS: $?\")",
       "Bash(tee -a deployment.log)",
-      "Bash(tee \".planning/reports/rules-e2e-rerun-2026-05-07.log\")"
+      "Bash(tee \".planning/reports/rules-e2e-rerun-2026-05-07.log\")",
+      "Bash(awk '{print $5, $9}')",
+      "Bash(Get-ChildItem -Path \"C:\\\\hc quality\" -Recurse -Filter \"*PHASE*\" -File)",
+      "Bash(Select-Object -First 20 FullName)",
+      "Bash(awk '{print $9, $5}')",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\hc quality\\\\src\\\\features\\\\qualidade\\\\\" -Recurse -File | Select-Object @{N=\"Path\";E={$_.FullName.Replace\\(\"C:\\\\hc quality\\\\src\\\\features\\\\qualidade\\\\\", \"\"\\)}})",
+      "Bash(node --max-old-space-size=4096 ./node_modules/.bin/tsc)",
+      "Bash(NODE_OPTIONS=\"--max-old-space-size=4096\" npx tsc)"
     ]
   },
   "model": "haiku",

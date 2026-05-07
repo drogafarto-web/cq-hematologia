@@ -1486,14 +1486,6 @@ service cloud.firestore {
           }
 
           match /achados/{achadoId} {
-            function achadoHasValidSignature(d) {
-              return d.assinatura is map
-                  && d.assinatura.hash is string
-                  && d.assinatura.hash.size() == 64
-                  && d.assinatura.operatorId == request.auth.uid
-                  && d.assinatura.ts is timestamp;
-            }
-
             allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
             allow create: if false;  // Via registerAchado callable only (validates signature server-side)
             allow update: if false;  // Immutable after creation (soft-delete only)
@@ -1626,33 +1618,6 @@ service cloud.firestore {
       //   feedback-classificacao-auto/  — Gemini classification audit log
 
       match /reclamacoes/{reclamacaoId} {
-        function validReclamacaoPayload(d) {
-          return d.labId == labId
-              && d.id is string
-              && d.reclamante is map
-              && d.reclamante.nome is string
-              && d.reclamante.nome.size() > 0
-              && d.reclamante.cpf is string
-              && d.reclamante.cpf.size() == 11
-              && d.reclamante.consentimentoLgpd is map
-              && d.reclamante.consentimentoLgpd.aceito is bool
-              && d.reclamante.consentimentoLgpd.em is timestamp
-              && d.canalEntrada in ['web-interno', 'web-publico', 'email', 'telefone', 'qr-laudo', 'worklab-deep-link']
-              && d.descricao is string
-              && d.descricao.size() > 0
-              && d.status in ['Nova', 'Analisando', 'RCA', 'Resolvida', 'Comunicada', 'Fechada']
-              && d.slaPrazo is timestamp
-              && d.criadoEm is timestamp
-              && d.deletadoEm == null || d.deletadoEm is timestamp
-              && d.signature is map
-              && d.signature.hash is string
-              && d.signature.hash.size() == 64
-              && d.signature.operatorId == request.auth.uid
-              && d.signature.ts is timestamp
-              && d.chainHash is string
-              && d.chainHash.size() == 64;
-        }
-
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow create: if false;  // Via criarReclamacao callable only
         allow update: if false;  // Via transitarReclamacao callable only
@@ -1674,20 +1639,6 @@ service cloud.firestore {
       // NPS responses (post-resolution + recurring campaigns)
       // Anonymous after 90 days (LGPD Art. 7 legitimate interest + anonimização)
       match /satisfacao-respostas/{respostaId} {
-        function validNPSResposta(d) {
-          return d.labId == labId
-              && d.origem in ['pos-resolucao', 'recurring-trimestral']
-              && d.nota is number
-              && d.nota >= 0 && d.nota <= 10
-              && d.categoria in ['detrator', 'neutro', 'promotor']
-              && d.respondidoEm is timestamp
-              && d.ipHash is string
-              && d.criadoEm is timestamp
-              && (d.pacienteId is string || d.pacienteId == null)
-              && (d.anonimizadoEm == null || d.anonimizadoEm is timestamp)
-              && d.deletadoEm == null || d.deletadoEm is timestamp;
-        }
-
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow create: if false;  // Via submitNPSResposta callable only
         allow update: if false;  // Via anonimizar cron only
@@ -1703,18 +1654,6 @@ service cloud.firestore {
 
       // Improvement suggestions (internal + public submission)
       match /sugestoes/{sugestaoId} {
-        function validSugestao(d) {
-          return d.labId == labId
-              && d.titulo is string
-              && d.titulo.size() > 0
-              && d.descricao is string
-              && d.descricao.size() > 0
-              && d.status in ['aberta', 'analisada', 'implementada', 'rejeitada']
-              && d.categoria in ['produto', 'processo', 'ambiente', 'atendimento', 'outro']
-              && d.criadoEm is timestamp
-              && d.deletadoEm == null || d.deletadoEm is timestamp;
-        }
-
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow create: if false;  // Via criarSugestao callable only
         allow update: if false;  // Via transitarSugestao callable only
@@ -1729,16 +1668,6 @@ service cloud.firestore {
 
       // LGPD requests (access, deletion, opt-out)
       match /lgpd-requests/{requestId} {
-        function validLgpdRequest(d) {
-          return d.labId == labId
-              && d.requestType in ['access', 'deletion', 'opt-out']
-              && d.pacienteId is string
-              && d.status in ['pending', 'in-progress', 'completed', 'denied']
-              && d.solicitadoEm is timestamp
-              && d.criadoEm is timestamp
-              && d.deletadoEm == null || d.deletadoEm is timestamp;
-        }
-
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow create: if false;  // Via solicitarExclusaoLgpd callable only
         allow update: if false;  // Via processarLgpdRequest callable only
@@ -1788,23 +1717,6 @@ service cloud.firestore {
       // State: Pendente → Em Revisão → Liberado → Comunicado → Superado
       // Soft-delete only (RN-06); writes via Cloud Function callables
       match /laudos/{laudoId} {
-        function validLaudoPayload(d) {
-          return d.labId == labId
-              && d.id is string
-              && d.cnes is string
-              && d.labName is string
-              && d.rtNome is string
-              && d.rtRegistro is string
-              && d.paciente is map
-              && d.paciente.id is string
-              && d.paciente.nome is string
-              && d.exames is list
-              && d.status in ['Pendente', 'Em Revisão', 'Liberado', 'Auto-Liberado', 'Comunicado', 'Superado']
-              && d.criticoFlag is bool
-              && d.criadoEm is timestamp
-              && d.deletadoEm == null || d.deletadoEm is timestamp;
-        }
-
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow create: if false;  // Via criarLaudo callable only
         allow update: if false;  // Via liberarLaudo/retificar callables only
@@ -1863,23 +1775,6 @@ service cloud.firestore {
       // DL-1 applied: client-side writes denied; Admin SDK (callable) only.
       // Audit trail via chainHash continuity in events subcollection.
       match /turnos/{turnoId} {
-        function isValidTurno(d) {
-          return d.labId == labId
-              && d.data is string
-              && d.periodo in ['manha', 'tarde', 'noite', 'plantao']
-              && d.supervisorId is string
-              && d.supervisorId.size() > 0
-              && d.supervisorName is string
-              && d.supervisorCRBM is string
-              && d.certificatesActive is list
-              && d.logicalSignature is map
-              && d.logicalSignature.hash is string
-              && d.logicalSignature.hash.size() == 64
-              && d.logicalSignature.operatorId == request.auth.uid
-              && d.logicalSignature.ts is timestamp
-              && d.inferred == false;
-        }
-
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow create: if false;  // Via turnos_createTurno callable only (DL-1)
         allow update: if false;  // Via turnos_updateTurno callable only (DL-1)
@@ -1899,26 +1794,6 @@ service cloud.firestore {
       // DL-1 applied: client-side writes denied; Admin SDK (callable) only.
       // Audit trail via chainHash continuity in events subcollection.
       match /lab-apoio/{contratoId} {
-        function isValidContrato(d) {
-          return d.labId == labId
-              && d.nome is string
-              && d.cnpj is string
-              && d.cnpj.size() == 14
-              && d.habilitacaoAnvisa is string
-              && d.habilitacaoAnvisa.size() >= 6
-              && d.vigenciaInicio is string
-              && d.vigenciaFim is string
-              && d.criticidade in ['baixa', 'media', 'alta']
-              && d.exames is list
-              && d.endereco is map
-              && d.logicalSignature is map
-              && d.logicalSignature.hash is string
-              && d.logicalSignature.hash.size() == 64
-              && d.logicalSignature.operatorId == request.auth.uid
-              && d.logicalSignature.ts is timestamp
-              && d.ativo is bool;
-        }
-
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow create: if false;  // Via labApoio_createContrato callable only (DL-1)
         allow update: if false;  // Via labApoio_updateContrato callable only (DL-1)
@@ -2015,15 +1890,6 @@ service cloud.firestore {
   // User-level privacy acceptance records
   match /users/{userId} {
     match /privacyAceites/{docId} {
-      function aceitesHasValidRecord(d) {
-        return d.labId is string
-            && d.userId == userId
-            && d.policyVersionId is string
-            && d.aceiteEm is timestamp
-            && d.ipAddr is string
-            && d.userAgent is string;
-      }
-
       allow read: if request.auth.uid == userId || isSuperAdmin();
       allow create: if false;  // Via recordAceite callable only
       allow update: if false;  // Immutable after creation
@@ -2033,14 +1899,6 @@ service cloud.firestore {
 
   // OTP records (temporary, 10-minute TTL)
   match /otps/{otpToken} {
-    function otpHasValidRecord(d) {
-      return d.contacto is string
-          && d.codigo is string
-          && d.expirasEm is timestamp
-          && d.tentativas is number
-          && d.tentativasMaximas is number;
-    }
-
     // Cloud Functions (deleteTitularData) need to read and delete OTPs
     allow read: if false;   // Only Cloud Functions read via Admin SDK
     allow create: if false; // Via sendOTP callable only
