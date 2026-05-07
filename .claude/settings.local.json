@@ -95,11 +95,17 @@
       "Bash(Select-Object FullName)",
       "Skill(gsd-config)",
       "Bash(tsc --noEmit)",
-      "PowerShell(Head *)"
+      "PowerShell(Head *)",
+      "Bash(tee /tmp/tsc-errors.log)",
+      "Bash(npx tsc *)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(npm run *)",
+      "Bash(echo \"BUILD EXIT: $?\")",
+      "Bash(echo \"WEB TSC EXIT: $?\")"
     ]
   },
-  "model": "haiku",
   "enabledMcpjsonServers": [
     "firebase"
-  ]
+  ],
+  "model": "haiku"
 }
