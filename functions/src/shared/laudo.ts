@@ -4,7 +4,10 @@
  * States: EMPTY → EDITING → LOCKED → PUBLISHED → ARCHIVED
  */
 
-import { Firestore, getDoc, setDoc, updateDoc, doc, getFirestore } from 'firebase/firestore';
+import { getFirestore } from 'firebase-admin/firestore';
+import * as admin from 'firebase-admin';
+
+type Firestore = admin.firestore.Firestore;
 
 export type DraftStatus = 'EMPTY' | 'EDITING' | 'LOCKED' | 'PUBLISHED' | 'ARCHIVED';
 
@@ -28,11 +31,11 @@ export interface DraftContent {
  * Manages draft lifecycle and concurrent access control
  */
 export class LaudoDraftManager {
-  private db: Firestore;
+  private db: admin.firestore.Firestore;
   private defaultLockDuration = 3600000; // 1 hour in ms
 
-  constructor(db: Firestore = getFirestore()) {
-    this.db = db;
+  constructor(db?: admin.firestore.Firestore) {
+    this.db = db || getFirestore();
   }
 
   /**
@@ -52,18 +55,16 @@ export class LaudoDraftManager {
     rtUid: string,
     lockDuration: number = this.defaultLockDuration
   ): Promise<DraftLock> {
-    const draftRef = doc(
-      this.db,
-      `labs/${labId}/laudos-draft/rascunhos`,
-      laudoId
+    const draftRef = this.db.doc(
+      `labs/${labId}/laudos-draft/rascunhos/${laudoId}`
     );
 
     try {
-      const snapshot = await getDoc(draftRef);
+      const snapshot = await draftRef.get();
       const now = Date.now();
       const lockUntil = now + lockDuration;
 
-      if (snapshot.exists()) {
+      if (snapshot.exists) {
         const data = snapshot.data() as Partial<DraftLock> | undefined;
         // Check if locked by another user
         if (
@@ -87,7 +88,7 @@ export class LaudoDraftManager {
         createdAt: now
       };
 
-      await setDoc(draftRef, lock);
+      await draftRef.set(lock);
       return lock;
     } catch (error) {
       throw new Error(`Failed to acquire lock: ${error instanceof Error ? error.message : String(error)}`);
@@ -107,15 +108,13 @@ export class LaudoDraftManager {
     laudoId: string,
     rtUid: string
   ): Promise<void> {
-    const draftRef = doc(
-      this.db,
-      `labs/${labId}/laudos-draft/rascunhos`,
-      laudoId
+    const draftRef = this.db.doc(
+      `labs/${labId}/laudos-draft/rascunhos/${laudoId}`
     );
 
     try {
-      const snapshot = await getDoc(draftRef);
-      if (!snapshot.exists()) {
+      const snapshot = await draftRef.get();
+      if (!snapshot.exists) {
         throw new Error('Draft not found');
       }
 
@@ -124,7 +123,7 @@ export class LaudoDraftManager {
         throw new Error('Only lock owner can release');
       }
 
-      await updateDoc(draftRef, {
+      await draftRef.update({
         lockedUntil: null,
         status: 'EMPTY'
       });
@@ -147,21 +146,19 @@ export class LaudoDraftManager {
     rtUid: string,
     content: Record<string, unknown>
   ): Promise<void> {
-    const draftRef = doc(
-      this.db,
-      `labs/${labId}/laudos-draft/rascunhos`,
-      laudoId
+    const draftRef = this.db.doc(
+      `labs/${labId}/laudos-draft/rascunhos/${laudoId}`
     );
 
     try {
-      const snapshot = await getDoc(draftRef);
+      const snapshot = await draftRef.get();
       const data = snapshot.data() as Partial<DraftLock>;
 
       if (data?.lockedBy !== rtUid) {
         throw new Error('You do not own this draft');
       }
 
-      await updateDoc(draftRef, {
+      await draftRef.update({
         contentJson: content,
         editedBy: rtUid,
         editedAt: Date.now()
@@ -185,15 +182,13 @@ export class LaudoDraftManager {
     laudoId: string,
     rtUid: string
   ): Promise<string> {
-    const draftRef = doc(
-      this.db,
-      `labs/${labId}/laudos-draft/rascunhos`,
-      laudoId
+    const draftRef = this.db.doc(
+      `labs/${labId}/laudos-draft/rascunhos/${laudoId}`
     );
 
     try {
-      const snapshot = await getDoc(draftRef);
-      if (!snapshot.exists()) {
+      const snapshot = await draftRef.get();
+      if (!snapshot.exists) {
         throw new Error('Draft not found');
       }
 
@@ -203,7 +198,7 @@ export class LaudoDraftManager {
       }
 
       // Update draft status
-      await updateDoc(draftRef, {
+      await draftRef.update({
         status: 'PUBLISHED',
         publishedAt: Date.now(),
         publishedBy: rtUid
@@ -223,14 +218,12 @@ export class LaudoDraftManager {
    * @param laudoId Laudo identifier
    */
   async archiveDraft(labId: string, laudoId: string): Promise<void> {
-    const draftRef = doc(
-      this.db,
-      `labs/${labId}/laudos-draft/rascunhos`,
-      laudoId
+    const draftRef = this.db.doc(
+      `labs/${labId}/laudos-draft/rascunhos/${laudoId}`
     );
 
     try {
-      await updateDoc(draftRef, {
+      await draftRef.update({
         status: 'ARCHIVED',
         archivedAt: Date.now()
       });
