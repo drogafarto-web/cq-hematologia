@@ -6,6 +6,7 @@ import {
   validateChainIntegrity,
   verifyAuditEntry,
 } from '../audit/cryptoAudit';
+import { HCQ_SIGNATURE_HMAC_KEY } from '../signatures/verifier';
 
 const db = admin.firestore();
 
@@ -15,7 +16,7 @@ const db = admin.firestore();
  */
 
 export const logAction = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
   async (request: any) => {
     if (!request.auth?.uid) {
       throw new HttpsError('unauthenticated', 'Auth required');
@@ -28,7 +29,7 @@ export const logAction = onCall(
     }
 
     try {
-      const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
+      const secret = HCQ_SIGNATURE_HMAC_KEY.value();
       const entry: Partial<QualidadeAuditEntry> = {
         labId,
         operation,
@@ -70,7 +71,7 @@ export const logAction = onCall(
 );
 
 export const getAuditTrail = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
   async (request: any) => {
     if (!request.auth?.uid) {
       throw new HttpsError('unauthenticated', 'Auth required');
@@ -121,7 +122,7 @@ export const getAuditTrail = onCall(
 );
 
 export const validateChain = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
   async (request: any) => {
     if (!request.auth?.uid) {
       throw new HttpsError('unauthenticated', 'Auth required');
@@ -134,7 +135,7 @@ export const validateChain = onCall(
     }
 
     try {
-      const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
+      const secret = HCQ_SIGNATURE_HMAC_KEY.value();
       if (!secret) {
         throw new Error('HMAC key not configured');
       }
@@ -152,7 +153,7 @@ export const validateChain = onCall(
 );
 
 export const generateComplianceReport = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
   async (request: any) => {
     if (!request.auth?.uid) {
       throw new HttpsError('unauthenticated', 'Auth required');
@@ -165,7 +166,7 @@ export const generateComplianceReport = onCall(
     }
 
     try {
-      const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
+      const secret = HCQ_SIGNATURE_HMAC_KEY.value();
 
       // Fetch all entries in date range
       const startDate = new Date(dateStart);

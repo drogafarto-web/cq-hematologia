@@ -2,6 +2,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { NaoConformidade, NCSeveridade, NCOrigem } from './types';
 import { signAuditEntry } from '../audit/cryptoAudit';
+import { HCQ_SIGNATURE_HMAC_KEY } from '../signatures/verifier';
 
 const db = admin.firestore();
 
@@ -52,7 +53,7 @@ export async function checkNCs(
 }
 
 export const openNaoConformidade = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
   async (request: any) => {
     if (!request.auth?.uid) {
       throw new HttpsError('unauthenticated', 'Usuário deve estar autenticado');
@@ -74,7 +75,7 @@ export const openNaoConformidade = onCall(
     }
 
     try {
-      const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
+      const secret = HCQ_SIGNATURE_HMAC_KEY.value();
       const numero = `NC-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
       const nc: Partial<NaoConformidade> = {
@@ -118,7 +119,7 @@ export const openNaoConformidade = onCall(
 );
 
 export const updateNaoConformidade = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
   async (request: any) => {
     if (!request.auth?.uid) {
       throw new HttpsError('unauthenticated', 'Usuário deve estar autenticado');
@@ -163,7 +164,7 @@ export const updateNaoConformidade = onCall(
 );
 
 export const addAcao = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
   async (request: any) => {
     if (!request.auth?.uid) {
       throw new HttpsError('unauthenticated', 'Usuário deve estar autenticado');

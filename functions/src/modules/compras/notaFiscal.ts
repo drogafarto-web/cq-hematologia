@@ -3,6 +3,7 @@ import * as admin from 'firebase-admin';
 import { NotaFiscal, NotaFiscalItem, InsumoLote } from './types';
 import { isFornecedorQualificado } from './fornecedor';
 import { signAuditEntry } from '../audit/cryptoAudit';
+import { HCQ_SIGNATURE_HMAC_KEY } from '../signatures/verifier';
 
 const db = admin.firestore();
 
@@ -10,7 +11,9 @@ const db = admin.firestore();
  * Register NotaFiscal (Invoice)
  * Validates Fornecedor is qualified before accepting
  */
-export const criarNotaFiscal = functions.onCall(async (request) => {
+export const criarNotaFiscal = functions.onCall(
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
+  async (request) => {
   if (!request.auth) {
     throw new functions.HttpsError('unauthenticated', 'Autenticação necessária');
   }
@@ -76,7 +79,10 @@ export const criarNotaFiscal = functions.onCall(async (request) => {
   await nfRef.set(notaFiscal);
 
   // Audit log (non-blocking)
-  const secret = process.env.HCQ_SIGNATURE_HMAC_KEY || 'dev-key';
+  const secret = HCQ_SIGNATURE_HMAC_KEY.value();
+  if (!secret) {
+    throw new functions.HttpsError('internal', 'HCQ_SIGNATURE_HMAC_KEY not configured');
+  }
   signAuditEntry(
     `/labs/${labId}/notas-fiscais`,
     request.auth.uid,
@@ -92,7 +98,9 @@ export const criarNotaFiscal = functions.onCall(async (request) => {
  * Confirm receipt of NotaFiscal (Conferência)
  * Validates all items, checks deviations, creates Lotes
  */
-export const confirmarRecebimento = functions.onCall(async (request) => {
+export const confirmarRecebimento = functions.onCall(
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
+  async (request) => {
   if (!request.auth) {
     throw new functions.HttpsError('unauthenticated', 'Autenticação necessária');
   }
@@ -157,7 +165,10 @@ export const confirmarRecebimento = functions.onCall(async (request) => {
   await batch.commit();
 
   // Audit
-  const secret = process.env.HCQ_SIGNATURE_HMAC_KEY || 'dev-key';
+  const secret = HCQ_SIGNATURE_HMAC_KEY.value();
+  if (!secret) {
+    throw new functions.HttpsError('internal', 'HCQ_SIGNATURE_HMAC_KEY not configured');
+  }
   signAuditEntry(
     `/labs/${labId}/notas-fiscais`,
     request.auth.uid,

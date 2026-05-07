@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { POP, POPVersao } from './types';
 import { computeHmac } from '../audit/cryptoAudit';
 import { checkNCs } from '../qualidade/naoConformidade';
+import { HCQ_SIGNATURE_HMAC_KEY } from '../signatures/verifier';
 
 const db = admin.firestore();
 
@@ -35,7 +36,7 @@ const POPCreationSchema = z.object({
  * Only admin/RT can create.
  */
 export const createPOP = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
   async (request: any) => {
     if (!request.auth?.token.admin && !request.auth?.token.responsavelTecnico) {
       throw new HttpsError('permission-denied', 'Apenas admin/RT podem criar POPs');
@@ -120,7 +121,7 @@ const POPVersionCreationSchema = z.object({
  * Only admin can create versions.
  */
 export const createPOPVersion = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
   async (request: any) => {
     if (!request.auth?.token.admin) {
       throw new HttpsError('permission-denied', 'Apenas admin podem criar versões de POP');
@@ -229,7 +230,7 @@ const POPSignatureSchema = z.object({
  * transitions status em_revisao → ativa, auto-obsoletes old versions.
  */
 export const assinaturaRT = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
   async (request: any) => {
     if (!request.auth?.token.responsavelTecnico) {
       throw new HttpsError('permission-denied', 'Apenas RT pode assinar POPs');
@@ -240,7 +241,7 @@ export const assinaturaRT = onCall(
       const { labId, popId, popVersaoNumero } = payload;
 
       // Get HMAC secret for signing
-      const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
+      const secret = HCQ_SIGNATURE_HMAC_KEY.value();
       if (!secret) {
         throw new HttpsError('internal', 'HCQ_SIGNATURE_HMAC_KEY not configured');
       }
@@ -343,7 +344,7 @@ const POPTrainingSchema = z.object({
  * Valid for 1 year (365 days) from completion date.
  */
 export const recordarTreinamentoPOP = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
   async (request: any) => {
     if (!request.auth?.token.admin && !request.auth?.token.instrutorId) {
       throw new HttpsError('permission-denied', 'Apenas admin/instrutor podem registrar treinamentos');
