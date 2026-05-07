@@ -210,6 +210,24 @@ export {
   onContratoEventCreated,
 } from './modules/labApoio';
 
+// ─── risks module (Phase 0 / Plan 00-04 — DICQ 4.14.6 + RDC 978 Art. 86) ────────
+// Living risk register with FMEA-lite scoring (P × S × D, NPR 1–125), 5×5 heatmap,
+// periodic review automation (annual + monthly top-5), treatment tracking.
+// ADR-0016 documents methodology + escape hatch (ISO 31000 v1.5).
+// DL-1 — callables from day 1 (no client-side writes).
+//   risks_createRisk                — create with server-side NPR + signature
+//   risks_updateRisk                — mutate P/S/D (NPR recomputed server-side)
+//   risks_softDeleteRisk            — logical delete (reject if status=fechado)
+//   risks_registrarRevisao          — append review (reclassificado recomputes NPR)
+//   risks_seedFromCsv               — admin-only bulk import (stretch, optional)
+//   onRiskEventCreated              — Firestore trigger, computes chainHash per event
+//   scheduledReview                 — cron: daily 07:00 BRT (annual) + monthly top-5
+export {
+  risks_createRisk,
+  risks_softDeleteRisk,
+  onRiskEventCreated,
+} from './modules/risks/index';
+
 // ─── qualidade module (ADR 0003 — Não-Conformidade) ─────────────────────────
 // Lifecycle management for quality incidents (Não-Conformidades).
 // openNaoConformidade: create NC with audit trail

@@ -7,13 +7,12 @@
 
 export * from './validators';
 export * from './signatureCanonical';
+export { risks_createRisk } from './createRisk';
+export { risks_softDeleteRisk } from './softDeleteRisk';
+export { onRiskEventCreated } from './onRiskEventCreated';
 
-// Callables are exported in ../index.ts under a // ─── risks module block
-// See ../index.ts for the full list:
-//   - risks_createRisk
+// Later tasks will add:
 //   - risks_updateRisk
-//   - risks_softDeleteRisk
 //   - risks_registrarRevisao
 //   - risks_seedFromCsv (stretch)
-//   - onRiskEventCreated (trigger)
 //   - scheduledReview (cron)
