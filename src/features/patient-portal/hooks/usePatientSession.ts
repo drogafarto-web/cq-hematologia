@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { usePatientAuthStore, usePatientSessionExpiry, usePatientIsExpired } from './usePatientAuthStore';
+import { usePatientAuthStore } from './usePatientAuthStore';
 
 interface UsePatientSessionReturn {
-  expiresAt: number | null;
+  expiresAt: Date | null;
   remainingMs: number;
   remainingSeconds: number;
   formattedTime: string;
@@ -18,31 +18,30 @@ interface UsePatientSessionReturn {
  * Usage:
  *   const { remainingMs, formattedTime, isExpired } = usePatientSession();
  */
-export function usePatientSession(): UsePatientSessionReturn {
-  const expiresAt = usePatientSessionExpiry();
-  const isExpired = usePatientIsExpired();
-  const checkExpiry = usePatientAuthStore((s) => s.checkExpiry);
+export function usePatientSessionCountdown(): UsePatientSessionReturn {
+  const session = usePatientAuthStore((s) => s.session);
+  const isTokenExpired = usePatientAuthStore((s) => s.isTokenExpired);
+  const getTimeRemaining = usePatientAuthStore((s) => s.getTimeRemaining);
 
   const [remainingMs, setRemainingMs] = useState(0);
 
   // Update countdown every 10 seconds
   useEffect(() => {
-    if (!expiresAt) return;
+    if (!session?.expiresAt) return;
 
     const updateCountdown = () => {
-      const now = Date.now();
-      const remaining = Math.max(0, expiresAt - now);
+      const remaining = getTimeRemaining();
       setRemainingMs(remaining);
-      checkExpiry();
     };
 
     updateCountdown(); // Initial check
 
     const interval = setInterval(updateCountdown, 10000); // Every 10s
     return () => clearInterval(interval);
-  }, [expiresAt, checkExpiry]);
+  }, [session?.expiresAt, getTimeRemaining]);
 
   const remainingSeconds = Math.floor(remainingMs / 1000);
+  const isExpired = isTokenExpired();
 
   const formattedTime = (() => {
     if (remainingSeconds <= 0) return 'Expirado';
@@ -61,7 +60,7 @@ export function usePatientSession(): UsePatientSessionReturn {
   })();
 
   return {
-    expiresAt,
+    expiresAt: session?.expiresAt ?? null,
     remainingMs,
     remainingSeconds,
     formattedTime,

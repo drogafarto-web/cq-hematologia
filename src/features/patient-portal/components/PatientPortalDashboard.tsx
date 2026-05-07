@@ -44,7 +44,7 @@ export const PatientPortalDashboard = React.memo(function PatientPortalDashboard
 }: PatientPortalDashboardProps) {
   const patientId = usePatientId();
   const labId = usePatientLabId();
-  const clearAuth = usePatientAuthStore((s) => s.clearAuth);
+  const clearSession = usePatientAuthStore((s) => s.clearSession);
 
   const [viewerOpen, setViewerOpen] = useState(false);
   const [selectedLaudo, setSelectedLaudo] = useState<PatientPortalLaudo | null>(null);
@@ -60,7 +60,7 @@ export const PatientPortalDashboard = React.memo(function PatientPortalDashboard
   };
 
   const handleLogout = () => {
-    clearAuth();
+    clearSession();
     onLogout();
   };
 
