@@ -1,5 +1,5 @@
 /**
- * enviarComunicacaoEmail — Callable que envia email via Resend
+ * enviarComunicacaoEmail — Callable que envia email via SMTP
  *
  * Disparado por:
  * - detectarCriticos trigger (automático)
@@ -8,7 +8,7 @@
  * Pipeline:
  * 1. Lê laudo + médico
  * 2. Gera email HTML
- * 3. Envia via Resend
+ * 3. Envia via SMTP (Plan 10-03 — atualmente placeholder)
  * 4. Cria Comunicacao doc com status
  */
 
@@ -17,10 +17,6 @@ import * as admin from 'firebase-admin';
 import { z } from 'zod';
 import { assertLiberacaoAccess } from './validators';
 import { subjectTemplate, bodyTemplate } from './_email/emailTemplates';
-
-// Resend SDK would be imported here in production
-// For MVP: placeholder that logs
-// import { Resend } from 'resend';
 
 interface EnviarEmailInput {
   labId: string;
@@ -110,19 +106,7 @@ export const enviarComunicacaoEmail = onCall<unknown, Promise<EnviarEmailResult>
     void _subject;
     void _body;
 
-    // 4. Envia email (MVP: placeholder)
-    // TODO: Integrar com Resend SDK
-    // const resend = new Resend(process.env.RESEND_API_KEY);
-    // const result = await resend.emails.send({
-    //   from: 'notificacoes@hmatologia2.web.app',
-    //   to: medico.email,
-    //   subject,
-    //   html: body,
-    //   tags: [
-    //     { name: 'tipo', value: tipo },
-    //     { name: 'labId', value: labId },
-    //   ],
-    // });
+    // 4. Envia email (MVP: placeholder — integração SMTP em Plan 10-03)
 
     const now = admin.firestore.Timestamp.now();
     const comunicacaoId = db.collection(`labs/${labId}/comunicacoes`).doc().id;

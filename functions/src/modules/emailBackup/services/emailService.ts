@@ -1,11 +1,17 @@
-import { Resend } from 'resend';
-import { defineSecret } from 'firebase-functions/params';
+import { sendEmail } from '../../../shared/email/smtpClient';
 import type { BackupReport } from '../types';
 import { formatStalenessAlert } from './stalenessService';
 
-// ─── Secret ───────────────────────────────────────────────────────────────────
-// Set via: firebase secrets:set RESEND_API_KEY
-export const RESEND_API_KEY = defineSecret('RESEND_API_KEY');
+// Re-export the SMTP secrets for callers that wire function options.
+// Backwards-compatible alias: callers previously imported RESEND_API_KEY
+// from this module to bind into `secrets:`. They now bind ALL_SMTP_SECRETS.
+export {
+  SMTP_HOST,
+  SMTP_USER,
+  SMTP_PASS,
+  SMTP_PORT,
+  ALL_SMTP_SECRETS,
+} from '../../../shared/email/smtpClient';
 
 // ─── Email Service ────────────────────────────────────────────────────────────
 
@@ -43,9 +49,9 @@ export interface SendBackupEmailOptions {
 
 /**
  * Sends the daily backup email with the PDF attached.
- * Uses Resend — configure RESEND_API_KEY via Firebase secrets.
+ * Uses the shared SMTP helper (Secret Manager: SMTP_HOST/USER/PASS/PORT).
  *
- * Aceita múltiplos destinatários: Resend envia UM email com N endereços no
+ * Aceita múltiplos destinatários: SMTP envia UM email com N endereços no
  * header `To:` (lab admin + coordenador + RT recebem cópia nominal). Para
  * anonimato entre destinatários (um não vê o outro) usar bcc no futuro.
  */
@@ -61,20 +67,18 @@ export async function sendBackupEmail(opts: SendBackupEmailOptions): Promise<voi
   }
 
   const totalBytes = attachments.reduce((s, a) => s + a.content.byteLength, 0);
-  // Resend cap: ~10MB por email. Falhar cedo e claro.
+  // Conservative 10MB cap — most SMTP providers reject larger attachments.
   if (totalBytes > 10 * 1024 * 1024) {
     throw new Error(
-      `[sendBackupEmail] total attachments size ${totalBytes}B exceeds Resend 10MB limit`,
+      `[sendBackupEmail] total attachments size ${totalBytes}B exceeds 10MB limit`,
     );
   }
-
-  const resend = new Resend(RESEND_API_KEY.value());
 
   const subject = buildSubject(report, elevatedSubject ?? null);
   const html = buildHtmlBody(report, attachments.length, operacionalSummary);
   const text = buildTextBody(report, attachments.length, operacionalSummary);
 
-  const { error } = await resend.emails.send({
+  await sendEmail({
     from: 'HC Quality Backup <backup@app.labclinmg.com.br>',
     to: recipients,
     subject,
@@ -85,10 +89,6 @@ export async function sendBackupEmail(opts: SendBackupEmailOptions): Promise<voi
       content: a.content,
     })),
   });
-
-  if (error) {
-    throw new Error(`Resend API error: ${JSON.stringify(error)}`);
-  }
 }
 
 // ─── Subject Builder ──────────────────────────────────────────────────────────
