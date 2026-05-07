@@ -59,9 +59,12 @@ export const lgpd_scheduledAnnualReview = onSchedule(
       for (const [labId, docs] of docsByLab.entries()) {
         for (const doc of docs) {
           const data = doc.data();
-          const codigo = data['codigo'] as string;
-          const proximaRevisaoTs = data['proximaRevisao'] as Timestamp | undefined;
+          if (!data) continue;
 
+          const codigo = data.codigo as string | undefined;
+          if (!codigo) continue;
+
+          const proximaRevisaoTs = data.proximaRevisao as Timestamp | undefined;
           if (!proximaRevisaoTs) continue;
 
           const proximaRevisaoDate = proximaRevisaoTs.toDate();
@@ -95,13 +98,15 @@ export const lgpd_scheduledAnnualReview = onSchedule(
             ? 'Política de Privacidade (LGPD) vencida — revisão pendente'
             : 'Template DPIA (LGPD) vencido — revisão pendente';
 
+          const versao = data.versao as number | undefined;
+
           await notifRef.set({
             labId,
             tipo: 'lgpd-revisao-vencida',
             titulo,
-            descricao: `Documento ${codigo} v${data['versao']} necessita revisão. Próxima revisão planejada: ${proximaRevisaoDate.toLocaleDateString('pt-BR')}.`,
+            descricao: `Documento ${codigo} v${versao ?? '?'} necessita revisão. Próxima revisão planejada: ${proximaRevisaoDate.toLocaleDateString('pt-BR')}.`,
             codigo,
-            versao: data['versao'] as number,
+            versao: versao ?? 1,
             documentoId: doc.id,
             proximaRevisao: proximaRevisaoTs,
             severity: 'high',

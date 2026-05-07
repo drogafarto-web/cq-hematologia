@@ -5,7 +5,8 @@
  */
 
 import React, { useState } from 'react';
-import type { AvaliacaoPeriodica } from '../types/LabApoio';
+import { Timestamp } from 'firebase/firestore';
+import type { AvaliacaoPeriodica, UserId } from '../types/LabApoio';
 
 interface LabApoioAvaliacaoProps {
   contratoNome: string;
@@ -20,19 +21,28 @@ export function LabApoioAvaliacao({
 }: LabApoioAvaliacaoProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    data: new Date().toISOString().split('T')[0],
+    resultado: 'aprovado' as const,
+    responsavel: '',
+    observacoes: '',
+  });
 
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
     try {
-      if (onSubmit) {
+      if (onSubmit && formData.responsavel) {
+        const dataTs = Timestamp.fromDate(new Date(formData.data));
         await onSubmit({
-          data: new Date(),
-          resultado: 'aprovado',
-          responsavel: 'uid-placeholder',
+          data: dataTs,
+          resultado: formData.resultado as 'aprovado' | 'aprovado_com_ressalva' | 'reprovado',
+          responsavel: formData.responsavel as UserId,
           responsavelNome: 'Auditor',
-          observacoes: 'Avaliação de rotina',
+          observacoes: formData.observacoes || 'Avaliação de rotina',
         });
+      } else if (!formData.responsavel) {
+        setError('Selecione um responsável');
       }
     } catch (err) {
       setError((err as Error).message);
@@ -53,13 +63,18 @@ export function LabApoioAvaliacao({
           <input
             type="date"
             className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white"
-            defaultValue={new Date().toISOString().split('T')[0]}
+            value={formData.data}
+            onChange={(e) => setFormData({ ...formData, data: e.target.value })}
           />
         </div>
 
         <div>
           <label className="block text-sm text-white/70 mb-2">Resultado</label>
-          <select className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
+          <select
+            className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white"
+            value={formData.resultado}
+            onChange={(e) => setFormData({ ...formData, resultado: e.target.value as any })}
+          >
             <option value="aprovado">Aprovado</option>
             <option value="aprovado_com_ressalva">Aprovado com Ressalva</option>
             <option value="reprovado">Reprovado</option>
@@ -68,7 +83,12 @@ export function LabApoioAvaliacao({
 
         <div>
           <label className="block text-sm text-white/70 mb-2">Responsável</label>
-          <select className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white">
+          <select
+            className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white"
+            value={formData.responsavel}
+            onChange={(e) => setFormData({ ...formData, responsavel: e.target.value })}
+          >
+            <option value="">Selecionar...</option>
             <option value="uid-1">Auditor 1</option>
             <option value="uid-2">Auditor 2</option>
           </select>
@@ -80,6 +100,8 @@ export function LabApoioAvaliacao({
             className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white placeholder:text-white/30"
             rows={3}
             placeholder="Anotações da avaliação..."
+            value={formData.observacoes}
+            onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
           />
         </div>
       </div>

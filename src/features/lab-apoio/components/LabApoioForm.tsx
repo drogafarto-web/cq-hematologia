@@ -32,7 +32,7 @@ export function LabApoioForm({ onSubmit, onCancel }: LabApoioFormProps) {
     setError(null);
     try {
       if (onSubmit) {
-        // Stub: pass minimal input
+        // Stub: pass minimal input with all required fields
         await onSubmit({
           nome: 'Laboratório de Apoio',
           razaoSocial: 'Laborat de Apoio LTDA',
@@ -43,6 +43,7 @@ export function LabApoioForm({ onSubmit, onCancel }: LabApoioFormProps) {
             .toISOString()
             .split('T')[0],
           criticidade: 'media',
+          ativo: true,
           exames: [{ codigo: '01001', descricao: 'Glicose', tat: 24 }],
           endereco: {
             logradouro: 'Rua Test',
@@ -52,6 +53,8 @@ export function LabApoioForm({ onSubmit, onCancel }: LabApoioFormProps) {
             estado: 'SP',
             cep: '01234567',
           },
+          certificacoes: [],
+          contatos: [],
         });
       }
     } catch (err) {

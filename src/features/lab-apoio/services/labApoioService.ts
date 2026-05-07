@@ -29,6 +29,8 @@ import {
 import type { Contrato, LabApoioFilters, LabApoioAuditEvent } from '../types/LabApoio';
 import type { LabId } from '../types/shared_refs';
 
+export type { LabId };
+
 // ─── Raiz e caminhos ──────────────────────────────────────────────────────────
 
 const LABAPOIO_ROOT = 'labs';

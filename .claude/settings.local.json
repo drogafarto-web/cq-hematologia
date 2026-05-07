@@ -102,11 +102,14 @@
       "Bash(npm run *)",
       "Bash(echo \"BUILD EXIT: $?\")",
       "Bash(echo \"WEB TSC EXIT: $?\")",
-      "Bash(where gsd-sdk *)"
+      "Bash(where gsd-sdk *)",
+      "Bash(bash scripts/monitor-cloud-logs.sh 24 30)",
+      "Bash(echo \"=== exit code: $? ===\")",
+      "PowerShell(npm list *)"
     ]
   },
+  "model": "haiku",
   "enabledMcpjsonServers": [
     "firebase"
-  ],
-  "model": "haiku"
+  ]
 }
