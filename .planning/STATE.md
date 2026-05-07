@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: milestone
 status: planning
-last_updated: "2026-05-07T01:44:04.729Z"
+last_updated: "2026-05-07T04:30:00.000Z"
 progress:
   total_phases: 6
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  completed_phases: 1
+  total_plans: 4
+  completed_plans: 4
 ---
 
 # HC Quality v1.4 — Planning Complete
@@ -19,6 +19,12 @@ progress:
 ---
 
 ## Current Position
+
+**Milestone:** v1.4 — Phase 0 (RDC Blockers) COMPLETE ✅ (2026-05-07)
+**Phase 0 plans deployed:** 00-01 (turnos) · 00-02 (DPIA + LGPD) · 00-03 (lab-apoio) · 00-04 (risks FMEA-lite) — all GREEN at deploy layer.
+**Pending operator gates (non-blocking):** smoke E2E + 24h Cloud Logs monitor.
+**DICQ delta target:** +3 to +4 points → ~82% (pending Riopomba acceptance smoke).
+**Phase 1 unblock gate:** REACHED.
 
 **Milestone:** v1.3 COMPLETE ✅ (2026-05-06 → 2026-05-07)
 **Phases:** 8–12 all complete (Phase 8.5 housekeeping, Phases 9–12 delivered)
