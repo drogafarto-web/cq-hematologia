@@ -14,7 +14,6 @@
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions/v2/https';
-import crypto from 'crypto';
 
 interface NotivisaOutboxEntry {
   id: string;
@@ -147,8 +146,7 @@ export const notivisaQueueProcessor = onSchedule(
     secrets: [], // Phase 12: add ANVISA_CERT_PATH, ANVISA_WSDL_ENDPOINT
   },
   async (): Promise<void> => {
-    const admin_sdk = admin.initializeApp ? admin : admin;
-    const db = admin_sdk.firestore();
+    const db = admin.firestore();
 
     try {
       functions.logger.info('[NOTIVISA] Queue processor started');

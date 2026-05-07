@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 
 import type { Designacao } from '../types/ControlInterno';
 
@@ -127,7 +127,7 @@ export function DesignacaoCertificate({
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 print:text-slate-600">
             Verificação de Autenticidade
           </p>
-          <QRCode
+          <QRCodeSVG
             value={qrValue}
             size={120}
             level="H"

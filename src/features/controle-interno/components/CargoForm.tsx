@@ -166,7 +166,7 @@ export function CargoForm({ cargo, onSaved, onCancel }: CargoFormProps) {
           onChange={(e) => handleChange('nivel', Number(e.target.value) as 1 | 2 | 3 | 4 | 5)}
           disabled={isSaving}
           aria-label="Nível hierárquico"
-          className={selectClass(Boolean(errors.nivel))}
+          className={selectClass()}
         >
           <option value="1">Nível 1 (Operacional)</option>
           <option value="2">Nível 2 (Supervisão)</option>

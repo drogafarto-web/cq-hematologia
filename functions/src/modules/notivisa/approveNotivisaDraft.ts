@@ -1,0 +1,188 @@
+/**
+ * approveNotivisaDraft — RT/admin approves draft, transitions to approved status
+ *
+ * Implementação Batch 1, ADR-0026 Phase 8.
+ *
+ * Responsabilidades:
+ *   1. Valida claim + membership (assertNotivisaAccess).
+ *   2. Valida signature (hash + operatorId + ts check).
+ *   3. Fetch draft, valida status == 'draft'.
+ *   4. Gera `LogicalSignature` server-side.
+ *   5. Update draft status → 'approved', armazena rtApprovalSignature.
+ *   6. Cria audit log entry.
+ *   7. Retorna draftId + novo status.
+ *
+ * RN-12: escrita via callable; signature obrigatória.
+ */
+
+import { onCall, HttpsError } from 'firebase-functions/v2/https';
+import * as admin from 'firebase-admin';
+
+import {
+  assertNotivisaAccess,
+  ApproveNotivisaDraftInputSchema,
+  notivisaDraftsCol,
+} from './validators';
+import {
+  generateNotivisaSignatureServer,
+  type LogicalSignature,
+  sha256Hex,
+  sortedStringify,
+} from './signatureCanonical';
+
+interface ApproveNotivisaDraftResult {
+  ok: true;
+  draftId: string;
+  status: 'approved';
+  rtApprovalSignature: {
+    hash: string;
+    operatorId: string;
+    ts: number;
+  };
+}
+
+/**
+ * Verifica se a assinatura fornecida é válida:
+ *   - hash matches computedHash (dado operatorId + payload)
+ *   - operatorId matches request.auth.uid
+ *   - ts within 5 minutes of server time
+ */
+function verifySignature(
+  signature: { hash: string; operatorId: string; ts: number },
+  expectedPayload: Record<string, string | number>,
+  uid: string,
+): boolean {
+  // Verify operatorId matches
+  if (signature.operatorId !== uid) {
+    return false;
+  }
+
+  // Verify timestamp is recent (within 5 minutes)
+  const now = Date.now();
+  const sigTime = signature.ts;
+  if (Math.abs(now - sigTime) > 5 * 60 * 1000) {
+    return false;
+  }
+
+  // Verify hash
+  const expectedHash = sha256Hex(
+    JSON.stringify({
+      operatorId: uid,
+      ts: sigTime,
+      data: sortedStringify(expectedPayload),
+    }),
+  );
+
+  return signature.hash === expectedHash;
+}
+
+export const approveNotivisaDraft = onCall<unknown, Promise<ApproveNotivisaDraftResult>>(
+  {},
+  async (request) => {
+    const parsed = ApproveNotivisaDraftInputSchema.safeParse(request.data);
+    if (!parsed.success) {
+      throw new HttpsError('invalid-argument', `Dados inválidos: ${parsed.error.message}`);
+    }
+
+    const input = parsed.data;
+
+    await assertNotivisaAccess(request.auth, input.labId);
+    const uid = request.auth!.uid;
+    const db = admin.firestore();
+
+    // 1. Fetch draft
+    const draftRef = notivisaDraftsCol(db, input.labId).doc(input.draftId);
+    const draftSnap = await draftRef.get();
+
+    if (!draftSnap.exists) {
+      throw new HttpsError('not-found', 'Rascunho não encontrado.');
+    }
+
+    const draftData = draftSnap.data();
+    if (draftData?.['status'] !== 'draft') {
+      throw new HttpsError(
+        'failed-precondition',
+        'Rascunho não está em estado draft.',
+      );
+    }
+
+    if (draftData?.['deletadoEm'] !== null) {
+      throw new HttpsError('not-found', 'Rascunho foi deletado.');
+    }
+
+    // 2. Verify signature
+    const payloadForSig = {
+      draftId: input.draftId,
+      action: 'approve',
+    };
+
+    if (!verifySignature(input.signature, payloadForSig, uid)) {
+      throw new HttpsError(
+        'invalid-argument',
+        'Assinatura inválida — operatorId, hash ou timestamp incorreto.',
+      );
+    }
+
+    // 3. Update draft to approved
+    const nowTs = admin.firestore.Timestamp.now();
+
+    const rtApprovalSig: LogicalSignature = generateNotivisaSignatureServer(
+      uid,
+      {
+        draftId: input.draftId,
+        action: 'approve',
+      },
+      nowTs,
+    );
+
+    const batch = db.batch();
+
+    batch.update(draftRef, {
+      status: 'approved',
+      rtApprovalSignature: {
+        hash: rtApprovalSig.hash,
+        operatorId: rtApprovalSig.operatorId,
+        ts: rtApprovalSig.ts.toMillis(),
+      },
+    });
+
+    // Create audit log entry
+    const auditRef = draftRef.collection('auditLog').doc();
+    batch.set(auditRef, {
+      action: 'APPROVED',
+      operatorId: uid,
+      ts: nowTs,
+      details: {
+        draftId: input.draftId,
+      },
+    });
+
+    await batch.commit();
+
+    // Audit non-blocking
+    admin
+      .firestore()
+      .collection('auditLogs')
+      .add({
+        action: 'NOTIVISA_DRAFT_APPROVE',
+        callerUid: uid,
+        labId: input.labId,
+        payload: {
+          draftId: input.draftId,
+        },
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      })
+      .catch(() => {});
+
+    return {
+      ok: true,
+      draftId: input.draftId,
+      status: 'approved',
+      rtApprovalSignature: {
+        hash: rtApprovalSig.hash,
+        operatorId: rtApprovalSig.operatorId,
+        ts: rtApprovalSig.ts.toMillis(),
+      },
+    };
+  },
+);
