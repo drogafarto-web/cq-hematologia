@@ -328,7 +328,32 @@ export {
 export {
   criarEquipamento,
   registrarCalibracacao,
+  registrarManutencao,
 } from './modules/equipamentos/index';
+
+// ─── qualidade module — audit trail + CAPA workflow (ADR-0017 residual) ───────
+// auditTrail: tamper-evident audit log (RDC 978 5.3 + DICQ 4.4)
+// capaWorkflow: NC investigation → corrective action → effectiveness verification
+export {
+  logAction,
+  getAuditTrail,
+  validateChain,
+  generateComplianceReport,
+} from './modules/qualidade/auditTrail';
+export {
+  investigarNC,
+  executarAcaoCorretiva,
+  verificarEficacia,
+} from './modules/qualidade/capaWorkflow';
+
+// ─── pessoas module — qualificação de pessoal (RDC 978 Art. 122) ──────────────
+export { criarQualificacao } from './modules/pessoas/qualificacao';
+
+// ─── compras module — nota fiscal intake + recebimento ────────────────────────
+export {
+  criarNotaFiscal,
+  confirmarRecebimento,
+} from './modules/compras/notaFiscal';
 
 // ─── personnel module (Phase 8 — Cargos + Designações) ────────────────────────
 // Job descriptions (Cargos) + organizational designations (GQ/RT/Diretor) with
