@@ -11,14 +11,29 @@
  */
 
 import { functions, httpsCallable, type HttpsCallable } from '../../../shared/services/firebase';
-import type {
-  CallCreateTurnoResult,
-  CallUpdateTurnoResult,
-  CallSoftDeleteTurnoResult,
-  CallBackfill90DaysResult,
-  unwrapCallableError,
-} from './turnosService';
 import type { LabId } from '../types/shared_refs';
+
+// ─── Result types ──────────────────────────────────────────────────────────
+
+export interface CallCreateTurnoResult {
+  ok: true;
+  turnoId: string;
+}
+
+export interface CallUpdateTurnoResult {
+  ok: true;
+}
+
+export interface CallSoftDeleteTurnoResult {
+  ok: true;
+}
+
+export interface CallBackfill90DaysResult {
+  ok: true;
+  created: number;
+  skipped: number;
+  dryRun: boolean;
+}
 
 // ─── Payload types ──────────────────────────────────────────────────────────
 
