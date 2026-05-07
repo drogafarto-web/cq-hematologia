@@ -1,5 +1,5 @@
 import React from 'react';
-import { usePatientSession } from '../hooks/usePatientSession';
+import { usePatientSessionCountdown } from '../hooks/usePatientSession';
 
 interface PatientProfileCardProps {
   patientName: string;
@@ -35,7 +35,7 @@ export const PatientProfileCard = React.memo(function PatientProfileCard({
   onLogout,
   onSettings,
 }: PatientProfileCardProps) {
-  const { remainingMs, formattedTime, isExpired } = usePatientSession();
+  const { remainingMs, formattedTime, isExpired } = usePatientSessionCountdown();
 
   const expiryStatusColor = (() => {
     if (isExpired) return 'text-red-400';

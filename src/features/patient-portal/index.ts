@@ -22,15 +22,17 @@ export { StatusBadge } from './components/StatusBadge';
 
 // Hooks
 export { usePatientLaudos } from './hooks/usePatientLaudos';
-export { usePatientSession } from './hooks/usePatientSession';
+export { usePatientSessionCountdown } from './hooks/usePatientSession';
 export {
   usePatientAuthStore,
-  usePatientToken,
+  usePatientSession,
   usePatientId,
   usePatientLabId,
-  usePatientSessionExpiry,
-  usePatientIsExpired,
-  usePatientRemainingMs,
+  usePatientAuthLoading,
+  usePatientAuthError,
+  useIsTokenExpired,
+  usePatientTimeRemaining,
+  initializePatientAuthStore,
 } from './hooks/usePatientAuthStore';
 
 // Services
@@ -45,6 +47,9 @@ export {
 export type {
   PatientPortalLaudo,
   PatientAuthToken,
+  PatientSession,
   PatientSessionState,
+  PatientInfo,
+  PatientLaudo,
   LaudoFilterState,
 } from './types/index';

@@ -3,6 +3,34 @@
  * RDC 978 Arts. 167 + DICQ 5.2, 5.3, 5.7
  */
 
+import { Timestamp } from 'firebase/firestore';
+
+// Canonical form for UI layer
+export interface PatientPortalLaudo {
+  id: string;
+  labId: string;
+  pacienteId: string;
+  nome: string; // Exam name
+  dataColeta: Timestamp;
+  dataResultado: Timestamp;
+  dataEmissao: Timestamp;
+  status: 'FINALIZADO' | 'PENDENTE' | 'CANCELADO' | 'EM_ANALISE';
+  criticoFlag: boolean;
+  exames: Array<{
+    nome: string;
+    valor: string | number;
+    unidade: string;
+    valoresReferencia: string;
+    analito: string;
+  }>;
+  rtNome?: string;
+  labName?: string;
+  medicoSolicitanteName?: string;
+  criadoEm: Timestamp;
+  versionId?: string;
+  signatureHash?: string;
+}
+
 export interface PatientAuthToken {
   patientId: string;
   labId: string;
@@ -18,6 +46,15 @@ export interface PatientSession {
   labId: string;
   email: string;
   expiresAt: Date;
+}
+
+export interface PatientSessionState {
+  token: string | null;
+  patientId: string | null;
+  labId: string | null;
+  expiresAt: number | null;
+  isExpired: boolean;
+  remainingMs: number;
 }
 
 export interface PatientInfo {
@@ -48,6 +85,15 @@ export interface PatientLaudo {
   expiresAt: Date; // 90 days from analysis date
   materialType?: string;
   analyticMethod?: string;
+}
+
+export interface LaudoFilterState {
+  dateRange: 'all' | '30d' | '60d' | '90d' | 'custom';
+  customStartDate?: Date;
+  customEndDate?: Date;
+  sortBy: 'date-newest' | 'date-oldest' | 'exam-name';
+  pageSize: number;
+  currentPage: number;
 }
 
 export interface PatientFeedback {
