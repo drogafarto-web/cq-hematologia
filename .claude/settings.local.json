@@ -145,7 +145,10 @@
       "Bash(awk 'NF{print NR\": len=\"length\\($0\\)}')",
       "Bash(tee \".planning/reports/e2e-rules-test-output-2026-05-07.log\")",
       "Bash(tee -a \".planning/reports/e2e-rules-test-output-2026-05-07.log\")",
-      "Bash(tsc)"
+      "Bash(tsc)",
+      "Bash(echo \"BUILD_STATUS: $?\")",
+      "Bash(tee -a deployment.log)",
+      "Bash(tee \".planning/reports/rules-e2e-rerun-2026-05-07.log\")"
     ]
   },
   "model": "haiku",

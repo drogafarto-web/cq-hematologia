@@ -275,12 +275,19 @@ function mockRascunho(laudoId: string, labId: LabId): Rascunho {
         {
           id: 'exame-glicose',
           nome: 'Glicose',
+          tipoMaterial: 'Soro',
+          metodoAnalitico: 'Hexoquinase',
           resultados: [
             {
               value: 250, // Critical!
               unidade: 'mg/dL',
             },
           ],
+          valoresReferencia: {
+            min: 70,
+            max: 100,
+            descricao: 'Valor normal',
+          },
         },
       ],
     },
@@ -734,7 +741,7 @@ describe('Phase 3 Cross-Module Integration (Laudo → Rascunho → Publicação 
       expect(event.paciente_cpf).toBe(laudo.paciente.cpf);
 
       // ─ Audit ─
-      auditService.logAction(labId, 'CRITICO_DETECTADO', { value: mockUserId() }, {
+      auditService.logAction(labId, 'CRITICO_DETECTADO', mockUserId() as any, {
         laudoId: laudo.id,
         critico: detection.criticos[0],
       });
