@@ -11,7 +11,9 @@
  */
 
 import { functions, httpsCallable, type HttpsCallable } from '../../../shared/services/firebase';
-import type { LabId, UserId } from '../types';
+
+type LabId = string;
+type UserId = string;
 
 // ─── Result types ──────────────────────────────────────────────────────────
 

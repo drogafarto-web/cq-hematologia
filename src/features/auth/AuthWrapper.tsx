@@ -54,6 +54,11 @@ const RisksView = React.lazy(() =>
   import('../risks/components/RisksView').then((m) => ({ default: m.RisksView })),
 );
 
+// Phase 1.4: Auditoria — Trilha de eventos (lazy-loaded)
+const AuditTrailView = React.lazy(() =>
+  import('../auditoria-trail').then((m) => ({ default: m.AuditTrailView })),
+);
+
 import { useBrowserHistorySync } from '../../shared/hooks/useBrowserHistorySync';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
@@ -194,6 +199,12 @@ function AppRouter() {
     view = <CEQDashboard />;
   } else if (currentView === 'auditoria-interna') {
     view = <AuditoriaView />;
+  } else if (currentView === 'auditoria-trail') {
+    view = (
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <AuditTrailView />
+      </React.Suspense>
+    );
   } else if (currentView === 'capa-tracking') {
     view = <CAPADashboard />;
   } else if (currentView === 'calibracao') {

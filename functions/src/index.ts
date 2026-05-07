@@ -333,6 +333,7 @@ export {
 
 // ─── qualidade module — audit trail + CAPA workflow (ADR-0017 residual) ───────
 // auditTrail: tamper-evident audit log (RDC 978 5.3 + DICQ 4.4)
+// exportAuditTrail: signed CSV/PDF export with HMAC-SHA256 signature (Task 1.3)
 // capaWorkflow: NC investigation → corrective action → effectiveness verification
 // logAction: internal helper (not a public callable) — use writeAuditEntry instead
 export {
@@ -340,6 +341,7 @@ export {
   validateChain,
   generateComplianceReport,
 } from './modules/qualidade/auditTrail';
+export { qualidade_exportAuditTrail } from './modules/qualidade/exportAuditTrail';
 export {
   investigarNC,
   executarAcaoCorretiva,
@@ -348,6 +350,7 @@ export {
 
 // ─── pessoas module — qualificação de pessoal (RDC 978 Art. 122) ──────────────
 export { criarQualificacao } from './modules/pessoas/qualificacao';
+export { revogarQualificacao } from './modules/pessoas/revogarQualificacao';
 
 // ─── compras module — nota fiscal intake + recebimento ────────────────────────
 export {

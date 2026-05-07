@@ -11,6 +11,7 @@ export interface Qualificacao {
   liberadoPor: string;
   hmac: string;
   createdAt: Timestamp;
+  deletadoEm?: Timestamp | null;
 }
 
 export interface Member {

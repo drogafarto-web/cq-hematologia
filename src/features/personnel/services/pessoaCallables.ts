@@ -11,12 +11,19 @@
  */
 
 import { functions, httpsCallable, type HttpsCallable } from '../../../shared/services/firebase';
-import type { LabId, UserId } from '../types';
+
+type LabId = string;
+type UserId = string;
 
 // ─── Result types ──────────────────────────────────────────────────────────
 
 export interface CallCriarQualificacaoResult {
   ok: true;
+  qualificacaoId: string;
+}
+
+export interface RevogarQualificacaoResult {
+  success: boolean;
   qualificacaoId: string;
 }
 
@@ -28,7 +35,13 @@ export interface CriarQualificacaoPayload {
   tipo: string;
   modulosLiberados: string[];
   validoDe: number; // Unix timestamp (ms)
-  validoAte: number; // Unix timestamp (ms)
+  validoAte: number | null; // Unix timestamp (ms), null = indefinite
+}
+
+export interface RevogarQualificacaoPayload {
+  labId: LabId;
+  operadorId: UserId;
+  qualificacaoId: string;
 }
 
 // ─── Lazy-loaded callables ──────────────────────────────────────────────────
@@ -48,6 +61,21 @@ function getCallCriarQualificacao(): HttpsCallable<
   return _callCriarQualificacao;
 }
 
+let _callRevogarQualificacao: HttpsCallable<
+  RevogarQualificacaoPayload,
+  RevogarQualificacaoResult
+> | null = null;
+
+function getCallRevogarQualificacao(): HttpsCallable<
+  RevogarQualificacaoPayload,
+  RevogarQualificacaoResult
+> {
+  if (!_callRevogarQualificacao) {
+    _callRevogarQualificacao = httpsCallable(functions, 'personnel_revogarQualificacao');
+  }
+  return _callRevogarQualificacao;
+}
+
 // ─── Public API ──────────────────────────────────────────────────────────────
 
 /**
@@ -63,6 +91,23 @@ export async function callCriarQualificacao(
 ): Promise<CallCriarQualificacaoResult> {
   try {
     const result = await getCallCriarQualificacao()(payload);
+    return result.data;
+  } catch (error) {
+    throw translateError(error);
+  }
+}
+
+/**
+ * Revoke a qualificação (certification/qualification) for an operator.
+ * Marks the qualification as inactive/revoked by the given operator.
+ *
+ * Throws Error if qualificação not found, already revoked, or labId is not active.
+ */
+export async function callRevogarQualificacao(
+  payload: RevogarQualificacaoPayload
+): Promise<RevogarQualificacaoResult> {
+  try {
+    const result = await getCallRevogarQualificacao()(payload);
     return result.data;
   } catch (error) {
     throw translateError(error);

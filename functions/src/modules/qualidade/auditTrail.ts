@@ -27,7 +27,7 @@ export async function writeAuditEntry(
   operation: string,
   modulo: string,
   payload: Record<string, any>,
-  resultado: string = 'sucesso',
+  resultado: 'sucesso' | 'falha' | 'aviso' = 'sucesso',
   acao?: string
 ): Promise<{ entryId: string; timestamp: admin.firestore.Timestamp }> {
   const secret = HCQ_SIGNATURE_HMAC_KEY.value();

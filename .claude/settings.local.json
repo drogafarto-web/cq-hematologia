@@ -155,7 +155,14 @@
       "Bash(awk '{print $9, $5}')",
       "PowerShell(Get-ChildItem -Path \"C:\\\\hc quality\\\\src\\\\features\\\\qualidade\\\\\" -Recurse -File | Select-Object @{N=\"Path\";E={$_.FullName.Replace\\(\"C:\\\\hc quality\\\\src\\\\features\\\\qualidade\\\\\", \"\"\\)}})",
       "Bash(node --max-old-space-size=4096 ./node_modules/.bin/tsc)",
-      "Bash(NODE_OPTIONS=\"--max-old-space-size=4096\" npx tsc)"
+      "Bash(NODE_OPTIONS=\"--max-old-space-size=4096\" npx tsc)",
+      "Bash(NODE_OPTIONS=\"--max-old-space-size=4096\" npx tsc --noEmit)",
+      "Bash(dir C:\\\\hc quality\\\\src\\\\features\\\\qualidade *)",
+      "Bash(Get-ChildItem C:\\\\hc quality\\\\src\\\\features\\\\auditoria-interna *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\hc quality\\\\src\\\\app\\\\\\(dashboard\\)\" -Directory)",
+      "Bash(node -e ' *)",
+      "Bash(node -c \"C:\\\\hc quality\\\\src\\\\features\\\\qualidade\\\\components\\\\AuditTrailList.tsx\")",
+      "Bash(node *)"
     ]
   },
   "model": "haiku",
