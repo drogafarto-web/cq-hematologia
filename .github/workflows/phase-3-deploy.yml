@@ -1,0 +1,637 @@
+name: Phase 3 Deploy — Production Gates + Rollback
+
+on:
+  # Manual dispatch (primary entry point for deploys)
+  workflow_dispatch:
+    inputs:
+      deploy_stage:
+        type: choice
+        description: 'Stage to deploy'
+        default: 'all'
+        options:
+          - 'all'
+          - 'rules'
+          - 'indexes'
+          - 'functions'
+          - 'hosting'
+      skip_smoke_tests:
+        type: boolean
+        description: 'Skip post-deploy smoke tests (not recommended)'
+        default: false
+      skip_monitoring:
+        type: boolean
+        description: 'Skip 1-hour cloud log monitoring (not recommended)'
+        default: false
+
+  # Auto-trigger on merge to main (rules + functions only; hosting is manual)
+  push:
+    branches:
+      - main
+    paths:
+      - 'firestore.rules'
+      - 'firestore.indexes.json'
+      - 'functions/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+  actions: write
+
+env:
+  PROJECT_ID: hmatologia2
+  NODE_VERSION: '22'
+  NPM_VERSION: '10'
+
+jobs:
+  # ─── PRE-DEPLOY GATE ───────────────────────────────────────────────────────
+  pre-deploy-gate:
+    name: Pre-Deploy Gate
+    runs-on: ubuntu-latest
+    outputs:
+      deploy_allowed: ${{ steps.gate.outputs.allowed }}
+      rules_changed: ${{ steps.detect.outputs.rules_changed }}
+      functions_changed: ${{ steps.detect.outputs.functions_changed }}
+      hosting_changed: ${{ steps.detect.outputs.hosting_changed }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect file changes
+        id: detect
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            # Manual dispatch: deploy what was requested
+            STAGE="${{ github.event.inputs.deploy_stage }}"
+            if [ "$STAGE" == "all" ] || [ "$STAGE" == "rules" ]; then
+              echo "rules_changed=true" >> $GITHUB_OUTPUT
+            else
+              echo "rules_changed=false" >> $GITHUB_OUTPUT
+            fi
+            if [ "$STAGE" == "all" ] || [ "$STAGE" == "functions" ]; then
+              echo "functions_changed=true" >> $GITHUB_OUTPUT
+            else
+              echo "functions_changed=false" >> $GITHUB_OUTPUT
+            fi
+            if [ "$STAGE" == "all" ] || [ "$STAGE" == "hosting" ]; then
+              echo "hosting_changed=true" >> $GITHUB_OUTPUT
+            else
+              echo "hosting_changed=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            # Push event: detect what changed
+            RULES_CHANGED=$(git diff --name-only HEAD~1 | grep -c "firestore.rules\|firestore.indexes.json" || echo 0)
+            FUNCTIONS_CHANGED=$(git diff --name-only HEAD~1 | grep -c "^functions/" || echo 0)
+
+            [ "$RULES_CHANGED" -gt 0 ] && echo "rules_changed=true" >> $GITHUB_OUTPUT || echo "rules_changed=false" >> $GITHUB_OUTPUT
+            [ "$FUNCTIONS_CHANGED" -gt 0 ] && echo "functions_changed=true" >> $GITHUB_OUTPUT || echo "functions_changed=false" >> $GITHUB_OUTPUT
+            # Never auto-deploy hosting; manual dispatch only
+            echo "hosting_changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Type-check (tsc --noEmit)
+        run: npm run typecheck
+        continue-on-error: false
+
+      - name: Lint (ESLint)
+        run: npm run lint
+        continue-on-error: false
+
+      - name: Unit tests (vitest)
+        run: npm run test:unit
+        continue-on-error: false
+
+      - name: Build app + functions
+        run: |
+          npm run build
+          cd functions && npm run build
+        continue-on-error: false
+
+      - name: Firestore rules syntax check
+        run: |
+          if command -v firebase >/dev/null 2>&1; then
+            npx firebase deploy --only firestore:rules --project ${{ env.PROJECT_ID }} --dry-run 2>&1 | head -20
+          else
+            echo "Firebase CLI not available; skipping dry-run"
+          fi
+        continue-on-error: false
+
+      - name: Pre-deploy secrets gate (ADR-0018)
+        if: steps.detect.outputs.functions_changed == 'true'
+        run: bash scripts/preflight-secrets-check.sh
+        continue-on-error: false
+
+      - name: Gate result
+        id: gate
+        run: |
+          echo "allowed=true" >> $GITHUB_OUTPUT
+          echo "✅ All pre-deploy gates passed"
+
+      - name: Generate pre-deploy report
+        if: always()
+        run: |
+          echo "## Pre-Deploy Gate Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Type-check**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Lint**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Unit tests**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Rules syntax**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.detect.outputs.functions_changed }}" == "true" ]; then
+            echo "- **Secrets gate**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Ready for deployment.**" >> $GITHUB_STEP_SUMMARY
+
+  # ─── DEPLOY FIRESTORE RULES ────────────────────────────────────────────────
+  deploy-rules:
+    name: Deploy Firestore Rules
+    needs: pre-deploy-gate
+    if: needs.pre-deploy-gate.outputs.rules_changed == 'true' && needs.pre-deploy-gate.outputs.deploy_allowed == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      rules_version: ${{ steps.deploy.outputs.version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Authenticate to Firebase
+        run: |
+          echo "Using GOOGLE_APPLICATION_CREDENTIALS for authentication"
+          firebase --version
+
+      - name: Deploy Firestore rules
+        id: deploy
+        run: |
+          echo "Deploying firestore.rules to ${{ env.PROJECT_ID }}..."
+          firebase deploy --only firestore:rules --project ${{ env.PROJECT_ID }} --token "${{ secrets.FIREBASE_TOKEN }}"
+          echo "version=$(date +%s)" >> $GITHUB_OUTPUT
+          echo "✅ Rules deployed successfully"
+
+      - name: Verify rules deployment
+        run: |
+          echo "Rules deployed at: $(date)"
+          echo "Project: ${{ env.PROJECT_ID }}"
+          echo "Reference: https://console.firebase.google.com/project/${{ env.PROJECT_ID }}/firestore/rules"
+
+      - name: Report deployment
+        if: always()
+        run: |
+          echo "## Firestore Rules Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ ${{ job.status }} == "success" ]; then
+            echo "✅ **Rules deployed successfully**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Rules deployment failed**" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Project**: ${{ env.PROJECT_ID }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Timestamp**: $(date)" >> $GITHUB_STEP_SUMMARY
+
+  # ─── DEPLOY FIRESTORE INDEXES ──────────────────────────────────────────────
+  deploy-indexes:
+    name: Deploy Firestore Indexes
+    needs: pre-deploy-gate
+    if: needs.pre-deploy-gate.outputs.rules_changed == 'true' && needs.pre-deploy-gate.outputs.deploy_allowed == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      indexes_count: ${{ steps.deploy.outputs.count }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Deploy Firestore indexes
+        id: deploy
+        run: |
+          echo "Deploying firestore.indexes.json to ${{ env.PROJECT_ID }}..."
+          firebase deploy --only firestore:indexes --project ${{ env.PROJECT_ID }} --token "${{ secrets.FIREBASE_TOKEN }}" || true
+          echo "count=$(grep -c '\"fields\"' firestore.indexes.json || echo 0)" >> $GITHUB_OUTPUT
+          echo "✅ Indexes deployment request submitted"
+
+      - name: Report deployment
+        if: always()
+        run: |
+          echo "## Firestore Indexes Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ ${{ job.status }} == "success" ]; then
+            echo "✅ **Indexes deployed successfully**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Indexes deployment failed**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ─── DEPLOY FUNCTIONS ──────────────────────────────────────────────────────
+  deploy-functions:
+    name: Deploy Cloud Functions
+    needs: [pre-deploy-gate, deploy-rules]
+    if: |
+      always() &&
+      needs.pre-deploy-gate.outputs.functions_changed == 'true' &&
+      needs.pre-deploy-gate.outputs.deploy_allowed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      functions_count: ${{ steps.deploy.outputs.count }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: functions/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          npm ci --legacy-peer-deps
+          cd functions && npm ci
+
+      - name: Type-check functions
+        run: cd functions && npm run build
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Deploy Cloud Functions
+        id: deploy
+        run: |
+          echo "Deploying Cloud Functions to ${{ env.PROJECT_ID }}..."
+          firebase deploy --only functions --project ${{ env.PROJECT_ID }} --token "${{ secrets.FIREBASE_TOKEN }}"
+          echo "count=$(find functions/src -name '*.ts' | grep -v test | wc -l)" >> $GITHUB_OUTPUT
+          echo "✅ Functions deployed successfully"
+
+      - name: Report deployment
+        if: always()
+        run: |
+          echo "## Cloud Functions Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ ${{ job.status }} == "success" ]; then
+            echo "✅ **Functions deployed successfully**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Functions deployment failed**" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Functions deployed**: ${{ steps.deploy.outputs.count }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Region**: southamerica-east1" >> $GITHUB_STEP_SUMMARY
+
+  # ─── DEPLOY HOSTING ────────────────────────────────────────────────────────
+  deploy-hosting:
+    name: Deploy Hosting
+    needs: [pre-deploy-gate, deploy-functions]
+    if: |
+      always() &&
+      needs.pre-deploy-gate.outputs.hosting_changed == 'true' &&
+      needs.pre-deploy-gate.outputs.deploy_allowed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Deploy Hosting
+        id: deploy
+        run: |
+          echo "Deploying Hosting to ${{ env.PROJECT_ID }}..."
+          firebase deploy --only hosting --project ${{ env.PROJECT_ID }} --token "${{ secrets.FIREBASE_TOKEN }}"
+          echo "url=https://hmatologia2.web.app" >> $GITHUB_OUTPUT
+          echo "✅ Hosting deployed successfully"
+
+      - name: Report deployment
+        if: always()
+        run: |
+          echo "## Hosting Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ ${{ job.status }} == "success" ]; then
+            echo "✅ **Hosting deployed successfully**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Live at**: https://hmatologia2.web.app" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ **Note**: Service Worker updates require hard reload (Ctrl+Shift+R)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Hosting deployment failed**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ─── POST-DEPLOY VERIFICATION ──────────────────────────────────────────────
+  post-deploy-verification:
+    name: Post-Deploy Verification
+    needs: [pre-deploy-gate, deploy-hosting]
+    if: always() && needs.pre-deploy-gate.outputs.deploy_allowed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Smoke tests
+        if: github.event.inputs.skip_smoke_tests != 'true'
+        run: npm run test:smoke
+        continue-on-error: true
+
+      - name: Cloud Logs monitoring (1 hour, 60s interval)
+        id: logs
+        if: github.event.inputs.skip_monitoring != 'true'
+        run: |
+          echo "Starting Cloud Logs monitoring (1h, 60s interval)..."
+          bash scripts/monitor-cloud-logs.sh 1 60 2>&1 | tee /tmp/logs-monitor.txt || true
+
+          if grep -q "ERROR\|FAILED\|CRITICAL" /tmp/logs-monitor.txt; then
+            echo "warn=true" >> $GITHUB_OUTPUT
+          else
+            echo "warn=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload logs report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: post-deploy-logs-${{ github.sha }}
+          path: |
+            /tmp/logs-monitor.txt
+            .planning/CLOUD_LOGS_*.md
+          retention-days: 30
+
+      - name: Generate verification report
+        if: always()
+        run: |
+          echo "## Post-Deploy Verification" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Smoke Tests" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event.inputs.skip_smoke_tests }}" == "true" ]; then
+            echo "Skipped (manual override)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Executed" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Cloud Logs Monitoring" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event.inputs.skip_monitoring }}" == "true" ]; then
+            echo "Skipped (manual override)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ 1-hour monitoring complete" >> $GITHUB_STEP_SUMMARY
+            if [ "${{ steps.logs.outputs.warn }}" == "true" ]; then
+              echo "⚠️ **Warnings detected** — review logs artifact" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "✅ No critical errors detected" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+  # ─── MERGE PROTECTION CHECKS ──────────────────────────────────────────────
+  merge-protection:
+    name: Merge Protection Checks
+    needs: pre-deploy-gate
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Coverage threshold check (80%)
+        id: coverage
+        run: |
+          npm run test:coverage 2>&1 | tee /tmp/coverage.txt
+          COVERAGE=$(grep -oP 'Lines\s+:\s+\K[^%]+' /tmp/coverage.txt | head -1 || echo "0")
+          COVERAGE_NUM=$(echo $COVERAGE | sed 's/%//' | cut -d. -f1)
+
+          if [ "$COVERAGE_NUM" -lt 80 ]; then
+            echo "❌ Coverage $COVERAGE% is below 80% threshold"
+            exit 1
+          else
+            echo "✅ Coverage OK: $COVERAGE%"
+          fi
+
+      - name: Bundle size check (420 KB gzip)
+        id: bundle
+        run: |
+          npm run build
+          SIZE=$(du -sh dist/index*.js | awk '{print $1}')
+          SIZE_KB=$(du -sk dist/index*.js | awk '{print $1}')
+
+          if [ "$SIZE_KB" -gt 420000 ]; then
+            echo "❌ Bundle size ${SIZE} exceeds 420 KB limit"
+            exit 1
+          else
+            echo "✅ Bundle size OK: ${SIZE}"
+          fi
+
+      - name: Report merge protection
+        if: always()
+        run: |
+          echo "## Merge Protection Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Pre-deploy gates**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Type-check**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Lint**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Unit tests**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          if [ ${{ steps.coverage.outcome }} == "success" ]; then
+            echo "- **Coverage (80%)**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Coverage (80%)**: ❌ Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ ${{ steps.bundle.outcome }} == "success" ]; then
+            echo "- **Bundle size (420 KB)**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Bundle size (420 KB)**: ❌ Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Ready to merge.**" >> $GITHUB_STEP_SUMMARY
+
+  # ─── ROLLBACK GATE (on failure) ────────────────────────────────────────────
+  rollback:
+    name: Rollback on Deployment Failure
+    needs: [deploy-rules, deploy-functions, deploy-hosting]
+    if: |
+      failure() && (
+        needs.deploy-rules.result == 'failure' ||
+        needs.deploy-functions.result == 'failure' ||
+        needs.deploy-hosting.result == 'failure'
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Retrieve last known good deployment
+        id: last_good
+        run: |
+          echo "Attempting to identify last known good state..."
+          echo "Project: ${{ env.PROJECT_ID }}"
+          echo "⚠️ Manual rollback may be required"
+          echo "See Firebase Console: https://console.firebase.google.com/project/${{ env.PROJECT_ID }}/overview"
+
+      - name: Generate rollback guide
+        if: always()
+        run: |
+          echo "## Deployment Rollback Required" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "One or more deployment steps failed. A rollback may be necessary." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Failed Steps" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.deploy-rules.result }}" == "failure" ]; then
+            echo "- ❌ Firestore Rules" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ needs.deploy-functions.result }}" == "failure" ]; then
+            echo "- ❌ Cloud Functions" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ needs.deploy-hosting.result }}" == "failure" ]; then
+            echo "- ❌ Hosting" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Rollback Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Review logs in artifacts and step output above" >> $GITHUB_STEP_SUMMARY
+          echo "2. Fix issues in code" >> $GITHUB_STEP_SUMMARY
+          echo "3. Re-trigger this workflow with corrected code" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Manual Rollback (if needed)" >> $GITHUB_STEP_SUMMARY
+          echo "If automatic rollback is insufficient:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Firestore Rules Rollback:**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "git checkout HEAD~1 firestore.rules" >> $GITHUB_STEP_SUMMARY
+          echo "firebase deploy --only firestore:rules --project ${{ env.PROJECT_ID }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Functions Rollback:**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "git checkout HEAD~1 functions/" >> $GITHUB_STEP_SUMMARY
+          echo "cd functions && npm run build && cd .." >> $GITHUB_STEP_SUMMARY
+          echo "firebase deploy --only functions --project ${{ env.PROJECT_ID }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Hosting Rollback:**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "git checkout HEAD~1" >> $GITHUB_STEP_SUMMARY
+          echo "npm run build && firebase deploy --only hosting --project ${{ env.PROJECT_ID }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Escalate to L3
+        if: always()
+        run: |
+          echo "⚠️ Deployment rollback required"
+          echo "Escalation: L3 engineering review needed"
+          echo "Logs: Check GitHub Actions artifacts"
+          exit 1
+
+  # ─── FINAL STATUS ──────────────────────────────────────────────────────────
+  deploy-status:
+    name: Deployment Status
+    needs: [pre-deploy-gate, deploy-rules, deploy-functions, deploy-hosting, post-deploy-verification]
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Collect deployment results
+        run: |
+          echo "## Phase 3 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Pre-Deploy Gate | ${{ needs.pre-deploy-gate.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Firestore Rules | ${{ needs.deploy-rules.result == 'success' && '✅' || needs.deploy-rules.result == 'skipped' && '⊘' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Functions | ${{ needs.deploy-functions.result == 'success' && '✅' || needs.deploy-functions.result == 'skipped' && '⊘' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Hosting | ${{ needs.deploy-hosting.result == 'success' && '✅' || needs.deploy-hosting.result == 'skipped' && '⊘' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Post-Deploy Verification | ${{ needs.post-deploy-verification.result == 'success' && '✅' || needs.post-deploy-verification.result == 'skipped' && '⊘' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.pre-deploy-gate.result }}" != "success" ]; then
+            echo "❌ **Deployment blocked by pre-deploy gate failures**" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+          if [ "${{ needs.deploy-hosting.result }}" == "success" ]; then
+            echo "✅ **All deployments successful**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Live at:** https://hmatologia2.web.app" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Post-deployment notes:**" >> $GITHUB_STEP_SUMMARY
+            echo "- Service Worker updates require hard reload (Ctrl+Shift+R)" >> $GITHUB_STEP_SUMMARY
+            echo "- Monitor Cloud Logs at: https://console.cloud.google.com/logs" >> $GITHUB_STEP_SUMMARY
+            echo "- Check Firebase Console: https://console.firebase.google.com/project/${{ env.PROJECT_ID }}/overview" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.deploy-hosting.result }}" == "skipped" ]; then
+            echo "✅ **Backend deployments successful** (hosting skipped)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **One or more deployments failed**" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi

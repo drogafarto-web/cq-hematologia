@@ -45,3 +45,10 @@ Seções obrigatórias:
 - [ADR-0014 — NOTIVISA Integration Sandbox → Production](ADR-0014-notivisa-integration-sandbox-to-production.md)
 - [ADR-0015 — Patient Portal Email-Link Auth (LIS Deferred)](ADR-0015-patient-portal-email-link-auth-v1-4.md)
 - [ADR-0016 — FMEA-Lite Risk Methodology (Phase 0 MVP)](ADR-0016-fmea-lite-risk-methodology-phase-0.md)
+- [ADR-0017 — HMAC Signature Baseline Reset (Incident Response)](ADR-0017-hmac-baseline-reset-2026-05-07.md)
+- [ADR-0018 — Deploy Gate: Secret-Status Check](ADR-0018-deploy-gate-secret-status-check.md)
+
+### Phase 3 ADRs (2026-05-07, Schema + Architecture)
+- [ADR-0019 — Phase 3 Schema Design: 5 New Collections + Indices](ADR-0019-phase-3-schema-design.md)
+- [ADR-0020 — Pessimistic Locking for Concurrent Draft Editing](ADR-0020-pessimistic-locking-draft-editing.md)
+- [ADR-0021 — NOTIVISA Queue & Retry Pattern](ADR-0021-notivisa-queue-pattern.md)

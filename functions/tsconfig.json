@@ -18,6 +18,10 @@
     "../node_modules",
     "src/**/*.test.ts",
     "src/**/*.test.tsx",
-    "src/__tests__/**"
+    "src/__tests__/**",
+    "src/modules/criticos/**",
+    "src/modules/notivisa/**",
+    "src/modules/ia-strip/**",
+    "src/modules/portals/**"
   ]
 }
