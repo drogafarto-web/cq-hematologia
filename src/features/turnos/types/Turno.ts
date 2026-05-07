@@ -46,21 +46,24 @@ export interface Turno {
 }
 
 /**
- * Input DTO para criar/atualizar turno.
- * Omite campos imutáveis (id, labId, criadoEm, deletadoEm, logicalSignature, inferred).
+ * Input DTO para criar turno.
+ * Omite campos imutáveis + snapshot fields.
  */
-export type TurnoInput = Omit<
-  Turno,
-  | 'id'
-  | 'labId'
-  | 'criadoEm'
-  | 'deletadoEm'
-  | 'logicalSignature'
-  | 'inferred'
-  | 'supervisorName'
-  | 'supervisorCRBM'
-  | 'certificatesActive'
->;
+export type TurnoInput = {
+  data: string;
+  periodo: Periodo;
+  supervisorId: UserId;
+  observacoes?: string | null;
+};
+
+/**
+ * Update DTO para editar turno.
+ * Apenas observacoes e supervisorName (post-backfill correction) são editáveis.
+ */
+export type TurnoUpdateInput = {
+  observacoes?: string | null;
+  supervisorName?: string;
+};
 
 /**
  * Filtros para queries de turnos.
