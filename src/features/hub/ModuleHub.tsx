@@ -445,6 +445,19 @@ const MODULES: ModuleDef[] = [
     category: 'analitico',
     view: 'turnos' as View,
   },
+  {
+    id: 'risks',
+    name: 'Gestão de Riscos',
+    tagline: 'DICQ 4.14.6 · FMEA-Lite (P×S×D, NPR 1–125)',
+    bullets: ['Matriz 5×5 heatmap', 'NPR server-side', 'Revisão periódica (cron)', 'Assinatura + auditoria'],
+    icon: <AlertTriIcon />,
+    bloco: 'Bloco 2',
+    iconBg: 'bg-amber-500/15',
+    iconColor: 'text-amber-400',
+    status: 'active',
+    category: 'analitico',
+    view: 'risks' as View,
+  },
 
   // ── DICQ Sistema de Gestão da Qualidade ──────────────────────────────────
   {

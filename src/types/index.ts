@@ -439,7 +439,8 @@ export type View =
   | 'reclamacoes'
   | 'sugestoes'
   | 'portal-medico'
-  | 'turnos';
+  | 'turnos'
+  | 'risks';
 
 // ─── Traceability ─────────────────────────────────────────────────────────────
 
