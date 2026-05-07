@@ -438,7 +438,8 @@ export type View =
   | 'criticos'
   | 'reclamacoes'
   | 'sugestoes'
-  | 'portal-medico';
+  | 'portal-medico'
+  | 'turnos';
 
 // ─── Traceability ─────────────────────────────────────────────────────────────
 

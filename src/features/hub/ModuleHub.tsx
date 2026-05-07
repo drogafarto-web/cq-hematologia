@@ -96,6 +96,14 @@ const ClockIcon = (p: { size?: number }) => (
   </Svg>
 );
 
+const ShiftIcon = (p: { size?: number }) => (
+  <Svg size={p.size}>
+    <circle cx="10" cy="7" r="2.5" stroke="currentColor" strokeWidth="1.4" />
+    <path d="M10 10v2.5M6 15.5h8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    <path d="M7 13a3 3 0 016 0" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+  </Svg>
+);
+
 const MenuIcon = (p: { size?: number }) => (
   <Svg size={p.size}>
     <path d="M3 6h14M3 10h14M3 14h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
@@ -423,6 +431,19 @@ const MODULES: ModuleDef[] = [
     status: 'active',
     category: 'analitico',
     view: 'educacao-continuada',
+  },
+  {
+    id: 'turnos',
+    name: 'Turnos & Supervisão',
+    tagline: 'RDC 978 Art. 122 · Registro de supervisor por turno',
+    bullets: ['Supervisor presente por turno', 'Cobertura 90 dias', 'Audit trail com chainHash'],
+    icon: <ShiftIcon />,
+    bloco: 'Bloco 2',
+    iconBg: 'bg-teal-500/15',
+    iconColor: 'text-teal-400',
+    status: 'active',
+    category: 'analitico',
+    view: 'turnos' as View,
   },
 
   // ── DICQ Sistema de Gestão da Qualidade ──────────────────────────────────

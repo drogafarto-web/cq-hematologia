@@ -579,6 +579,18 @@ service cloud.firestore {
                       && hasValidInitialChain(request.resource.data);
         allow update, delete: if false;
       }
+
+      // ── turnos (Phase 0 / Plan 00-01 — RDC 978 Art. 122) ──────────────────
+      // Supervisor shift registry. DL-1: all writes via Cloud Function callables.
+      match /turnos/{turnoId} {
+        match /events/{eventId} {
+          allow read: if isActiveMemberOfLab(labId);
+          allow create, update, delete: if false;  // Via onTurnoEventCreated trigger only
+        }
+
+        allow read: if isActiveMemberOfLab(labId);
+        allow create, update, delete: if false;  // Via turnos_* callables only
+      }
     }
 
     // ── Raiz — inalterados ──────────────────────────────────────────────────
@@ -1796,6 +1808,42 @@ service cloud.firestore {
                                (isActiveMemberOfLab(labId) && isAdminOrOwner(labId)) &&
                                request.resource.data.labId == labId;
         allow delete: if false;  // Soft-delete only
+      }
+
+      // ── /turnos — Supervisor Shift Registry (Phase 0 / Plan 00-01) ───────────
+      // RDC 978/2025 Art. 122: supervisor presencial por turno.
+      // DL-1 applied: client-side writes denied; Admin SDK (callable) only.
+      // Audit trail via chainHash continuity in events subcollection.
+      match /turnos/{turnoId} {
+        function isValidTurno(d) {
+          return d.labId == labId
+              && d.data is string
+              && d.periodo in ['manha', 'tarde', 'noite', 'plantao']
+              && d.supervisorId is string
+              && d.supervisorId.size() > 0
+              && d.supervisorName is string
+              && d.supervisorCRBM is string
+              && d.certificatesActive is list
+              && d.logicalSignature is map
+              && d.logicalSignature.hash is string
+              && d.logicalSignature.hash.size() == 64
+              && d.logicalSignature.operatorId == request.auth.uid
+              && d.logicalSignature.ts is timestamp
+              && d.inferred == false;
+        }
+
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if false;  // Via turnos_createTurno callable only (DL-1)
+        allow update: if false;  // Via turnos_updateTurno callable only (DL-1)
+        allow delete: if false;  // Via turnos_softDeleteTurno callable only (DL-1)
+
+        // ── Audit trail (append-only, chainHash continuity) ────────────────────
+        match /events/{eventId} {
+          allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow create: if false;  // Via trigger onTurnoEventCreated only
+          allow update: if false;  // Immutable after creation
+          allow delete: if false;  // Append-only trail
+        }
       }
 
       // ── /labs/{labId}/medicos-solicitantes/** — Phase 10 (Requesting Doctors) ─

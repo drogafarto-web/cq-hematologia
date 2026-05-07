@@ -44,6 +44,11 @@ const LiberacaoView = React.lazy(() => import('../liberacao'));
 const CriticosView = React.lazy(() => import('../criticos'));
 const PortalMedicoView = React.lazy(() => import('../portal-medico'));
 
+// Phase 0: Turnos (lazy-loaded)
+const TurnosView = React.lazy(() =>
+  import('../turnos/components/TurnosView').then((m) => ({ default: m.TurnosView })),
+);
+
 import { useBrowserHistorySync } from '../../shared/hooks/useBrowserHistorySync';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
@@ -218,6 +223,12 @@ function AppRouter() {
     view = (
       <React.Suspense fallback={<FullScreenLoader />}>
         <PortalMedicoView />
+      </React.Suspense>
+    );
+  } else if (currentView === 'turnos') {
+    view = (
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <TurnosView />
       </React.Suspense>
     );
   } else {

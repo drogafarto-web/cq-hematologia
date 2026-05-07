@@ -89,6 +89,7 @@ Use: `bash scripts/monitor-cloud-logs.sh 24 30` (or `.ps1` equiv.) imediatamente
 | `mobile` | Em prod · Phase 3.3 — NativeWind dark theme + biometric auth + Detox E2E (5 critical flows) | 2026-05-05 |
 | `ceq` | Em prod · Controle de Qualidade Externo — participação externa, z-score, comparação interlaboratorial | 2026-05-05 |
 | `bioquimica` | Em prod · CIQ quantitativo + Westgard CLSI + Levey-Jennings | 2026-05-07 |
+| `turnos` | Em prod · Registro de supervisão de turnos (RDC 978 Art. 122 + RDC 786 + DICQ 4.1.2.7) | 2026-05-07 |
 
 **Phase 2 — COMPLETE (2026-05-05):** Todos os 20 módulos em produção. 347/347 testes passando. ADRs 0005+0002+0006+0003+0004 todos deployados.
 

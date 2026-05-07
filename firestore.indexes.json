@@ -570,6 +570,25 @@
         { "fieldPath": "categoria", "order": "ASCENDING" },
         { "fieldPath": "respondidoEm", "order": "DESCENDING" }
       ]
+    },
+
+    {
+      "collectionGroup": "turnos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "data", "order": "DESCENDING" },
+        { "fieldPath": "periodo", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "turnos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "supervisorId", "order": "ASCENDING" },
+        { "fieldPath": "data", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

@@ -76,6 +76,9 @@ export default defineConfig(({ mode }) => {
           if (id.includes('src/features/portal-medico')) {
             return 'module-portal-medico';
           }
+          if (id.includes('src/features/turnos')) {
+            return 'module-turnos';
+          }
 
           // Shared services (low-churn, referenced by multiple modules)
           if (
