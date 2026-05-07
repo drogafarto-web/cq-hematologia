@@ -13,7 +13,7 @@
 
 import { onCall, HttpsError, CallableRequest } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
-import * as puppeteer from 'puppeteer';
+import type { Browser } from 'puppeteer';
 import { Storage } from '@google-cloud/storage';
 import { z } from 'zod';
 import type { Auditoria, Sessao, ChecklistItem, Achado } from './types';
@@ -715,7 +715,7 @@ export const generateAuditReportPDF = onCall(
       throw new HttpsError('permission-denied', 'Not a lab member');
     }
 
-    let browser: puppeteer.Browser | null = null;
+    let browser: Browser | null = null;
 
     try {
       // Fetch audit data
@@ -731,6 +731,9 @@ export const generateAuditReportPDF = onCall(
 
       // Generate HTML
       const html = generateHTML(auditoria, sessao, checklistItems, achados, labName);
+
+      // Lazy-load puppeteer so this 200MB module only loads when generation is invoked.
+      const { default: puppeteer } = await import('puppeteer');
 
       // Launch Puppeteer browser
       browser = await puppeteer.launch({
