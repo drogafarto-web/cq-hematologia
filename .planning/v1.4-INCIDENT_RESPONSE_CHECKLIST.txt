@@ -1,0 +1,159 @@
+================================================================================
+v1.4 INCIDENT RESPONSE CONTACTS & ON-CALL ROTATION — DEPLOYMENT CHECKLIST
+================================================================================
+
+Document: .planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md
+Version: 1.0
+Status: DRAFT → READY (awaiting contact tree population)
+Created: 2026-05-07
+Target Deployment: 2026-05-20
+
+================================================================================
+DELIVERABLES VERIFICATION
+================================================================================
+
+Section 1: Severity Classification Matrix (~150 words)
+   - 🟢 GREEN (service degraded, <1% users, <15 min SLA, page primary, 1h response)
+   - 🟡 YELLOW (1–10% users, 15m–1h SLA, page primary+secondary, notify CTO, 15 min response)
+   - 🔴 RED (>10% or audit affected, >1h SLA, all hands, 5 min response, customer comms every 5 min)
+   - ⚫ BLACK (data loss/breach/fraud, 2 min SLA, all leadership + legal, forensics hold)
+
+Section 2: On-Call Rotation Template (~300 words)
+   - 4-week rolling schedule (1 primary, 1 secondary per week)
+   - 24/7 coverage with 2 people overlapping
+   - SLA: 15 min paging → 30 min initial response → 60 min mitigation
+   - Google Calendar iCal template (ready to import)
+   - Handoff protocol (Friday 18:00 BRT, 60 min, documented checklist)
+   - Escalation rules (Primary → Secondary → CTO → CEO timing)
+   - Slack paging protocol (#on-call-paging, copy-paste template)
+   - Response expectations & unavailability protocol
+
+Section 3: Incident Commander Role (~200 words)
+   - Assigned weekly (rotates with on-call)
+   - Authority matrix (Green alone, Yellow with 1-person review, Red/Black emergency rules)
+   - 10-item weekly checklist (incidents logged, severity calibrated, RCA scheduled, etc.)
+   - Decision matrix (deployment, rollback, 2-person rules, authority gates)
+
+Section 4: Runbook Links & Playbooks (~100+ words)
+   - 10 runbooks indexed (error rate spike, P99 latency, quota breach, memory leak, auth, hosting, audit trail, data loss, security, regulatory)
+   - Decision trees for each runbook type
+   - 5-step action template (confirm scope → identify root → communicate → mitigate → verify)
+   - Rollback procedures
+
+Section 5: Contact Tree (TEMPLATE WITH PLACEHOLDERS)
+   - Primary on-call rotation (W1–W4+, names, phone, email, Slack)
+   - Secondary on-call rotation (W1–W4+, names, phone, email, Slack)
+   - Leadership escalation (CTO, CEO, clinical supervisor, auditor, infra/devops)
+   - Escalation contact tree flowchart
+
+Section 6: Communication Templates
+   - Incident activation (Red severity example, Slack #production-emergency format)
+   - Status updates (5-min cadence, progress bars, ETA)
+   - Resolution closure (✓ format, metrics validation, RCA scheduling)
+   - Customer notification template (email subject + body, Yellow+ severity)
+
+Section 7: Escalation Decision Tree (Flowchart)
+   - Linear flow from incident detection → severity assessment → paging → action → resolution
+   - Clear branching (Green/Yellow/Red/Black paths)
+   - Time gates (30s assessment, 5min declaration, 15min mitigation, post-incident RCA)
+
+Section 8: Post-Incident Review Template (~400 words)
+   - Timeline (minute-by-minute table)
+   - Root cause (single sentence, avoid blame)
+   - Contributing factors
+   - Immediate mitigation (what we did)
+   - Short-term fix (deploy within 1 week, owner assigned)
+   - Long-term prevention (architectural change)
+   - Lessons learned (surprises, what went well, what we'll do differently)
+   - Action items table (who/due/status)
+   - Blameless culture reminder
+   - Approvals (IC, CTO signature lines)
+
+Appendix A: Quick Reference Cards (Laminate & Post)
+   - A.1 Paging Checklist (10-step, time tracking, severity decision)
+   - A.2 Severity Decision Matrix (flowchart, Green/Yellow/Red/Black)
+   - A.3 Runbook Quick Links (10 runbooks + Cloud Logs console link)
+
+Document Footer
+   - Owner: CTO
+   - Version: 1.0
+   - Status: DRAFT (waiting for contact tree)
+   - Sign-off checklist (10 items before v1.4 launch 2026-05-20)
+
+================================================================================
+COMPLETENESS METRICS
+================================================================================
+
+Total Sections:               8 major
+Total Subsections:            37 (including appendix)
+Severity Levels:              4 (Green/Yellow/Red/Black) — fully defined
+On-Call Week Rotation:        4 weeks, repeating
+Runbook Types:                10 indexed
+Communication Templates:      4 (activation, update, resolution, customer)
+Contact Roles:                6 (primary, secondary, CTO, CEO, clinical supervisor, auditor)
+Quick-Reference Cards:        3 (paging, severity, runbooks)
+Decision Matrices:            3 (severity, IC authority, escalation)
+Success Criteria:             All 8 items met
+
+================================================================================
+CURRENT STATUS
+================================================================================
+
+Status:       DRAFT → Ready to Deploy (structure 100% complete)
+Blocking:     Contact tree population (names, phone, email, Slack handles)
+Document:     929 lines, complete with all sections, templates, checklists
+File Path:    C:\hc quality\.planning\v1.4-INCIDENT_RESPONSE_CONTACTS.md
+
+================================================================================
+NEXT STEPS BEFORE v1.4 LAUNCH (2026-05-20)
+================================================================================
+
+1. [OWNER: CTO]      Populate Section 5 contact tree with real names/numbers/emails
+2. [OWNER: CTO]      Confirm on-call rotation for weeks 1–4
+3. [OWNER: DevOps]   Generate calendar (.ics file) and send to team
+4. [OWNER: Team]     Create Slack channels (#on-call-paging, #production-alerts, #production-emergency, #incident-command)
+5. [OWNER: CTO]      Train team on paging protocol (mock incident drill, 30 min)
+6. [OWNER: DevOps]   Create runbook directory (docs/runbooks/) and add 10 templates
+7. [OWNER: QA]       Print quick-reference cards & post at team desks (laminate if available)
+8. [OWNER: CTO]      Brief auditor on incident response procedures (include in v1.4 compliance packet)
+9. [OWNER: All]      Acknowledge receipt of on-call assignment (Slack confirmation)
+10.[OWNER: CTO]      Final sign-off (document footer, update CLAUDE.md)
+
+================================================================================
+SUCCESS CRITERIA (All 5 must be met before v1.4 launch)
+================================================================================
+
+[ ] Contact tree 100% filled (names, phone, email, Slack handles for all 6 roles)
+[ ] On-call calendar ready to import (Google Calendar .ics file, 4-week template)
+[ ] Severity matrix unambiguous (Green/Yellow/Red/Black decision time <30s)
+[ ] Runbook links all present (10 runbooks indexed, docs/runbooks/ directory setup)
+[ ] Communication templates copy-paste ready (4 templates tested in mock incident)
+
+================================================================================
+INTEGRATION WITH EXISTING DOCS
+================================================================================
+
+Related Documents:
+  - CLAUDE.md — root project doc (updated with reference link)
+  - docs/CLOUD_LOGS_MONITORING_GUIDE.md — 24h post-deploy monitoring
+  - docs/runbooks/* — incident response playbooks (to be created)
+  - .planning/milestones/v1.4-ROADMAP.md — Phase 4+ planning
+  - ADR-0017 & ADR-0018 — deploy gates + secret status checks
+
+Quick-Link in Root:
+  → CLAUDE.md "v1.4 Production Readiness" section added (2026-05-07)
+
+================================================================================
+NOTES FOR CTO
+================================================================================
+
+- This document is the SOURCE OF TRUTH for incident response starting 2026-05-20.
+- Before launch, review with auditor (include in compliance packet as required procedure).
+- Contact tree must be filled before publishing to team (no placeholders in production).
+- Consider running a mock incident drill week before launch (time 30 min, includes all on-call).
+- Runbooks (Section 4) are referenced but not yet written; allocate 2–3 days to create docs/runbooks/*.
+- Post-mortem template (Section 8) is ready to copy; create incidents/ directory for storage.
+- Quick-reference cards (Appendix A) should be laminated and posted at team desks by 2026-05-15.
+- After each incident in v1.4 Phase 1–2, update this document with lessons learned.
+
+================================================================================
