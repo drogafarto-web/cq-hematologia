@@ -2,6 +2,7 @@ import { onCall, CallableOptions } from 'firebase-functions/v2/https';
 import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 import * as crypto from 'crypto';
 import { ManagementReview, ReviewEntry, LogicalSignature } from './types';
+import { HCQ_SIGNATURE_HMAC_KEY } from '../signatures/verifier';
 
 /**
  * Cloud Function: submitReview
@@ -46,7 +47,8 @@ interface SubmitReviewResponse {
 const options: CallableOptions = {
   memory: '256MiB',
   timeoutSeconds: 60,
-  region: 'southamerica-east1'
+  region: 'southamerica-east1',
+  secrets: [HCQ_SIGNATURE_HMAC_KEY],
 };
 
 export const submitReview = onCall<SubmitReviewRequest>(
@@ -220,7 +222,10 @@ function generateChainHash(
   ts: Timestamp
 ): string {
   const data = `${labId}|${year}|${operatorId}|${ts.toDate().toISOString()}`;
-  const secret = process.env.CHAIN_HASH_SECRET || 'default-secret';
+  const secret = HCQ_SIGNATURE_HMAC_KEY.value();
+  if (!secret) {
+    throw new Error('HCQ_SIGNATURE_HMAC_KEY not configured — cannot generate chain hash');
+  }
 
   const hash = crypto
     .createHmac('sha256', secret)
