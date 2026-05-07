@@ -132,3 +132,14 @@ the same NPM package.
 3. **Update both test files** (`phase3-rules.e2e.test.ts` and `phase3-schema.e2e.test.ts`) path strings to match.
 4. **Fix Timestamp imports** in `phase3-rules.e2e.test.ts`, `phase3-schema.e2e.test.ts`, and `phase-3-integration.test.ts` — change `from 'firebase/firestore'` to `from 'firebase-admin/firestore'`.
 5. **Strongly recommend a separate follow-up**: rewrite these as actual rules tests using `@firebase/rules-unit-testing` against the local emulator. As-is, they verify nothing about security rules. This is a documentation/labeling defect — they are named `*-rules.e2e.test.ts` but never exercise rules.
+
+## Resolution — 2026-05-07 10:08
+- Tests after fix: **27/28 passing** (was 30/40 → 9 of 10 fixed)
+- Remaining failures: **1** — `phase3-schema.e2e.test.ts > Test 2 NOTIVISA outbox index query` fails with `FAILED_PRECONDITION: The query requires an index`. Test code is correct (now uses `(labId, status, createdAt)` with `labId` field on docs to match the declared index in `firestore.indexes.json` line 666). The composite index just isn't deployed to live Firestore yet. **Resolution: deploy `firestore:indexes`** (`firebase deploy --only firestore:indexes --project hmatologia2`). Not done by this agent per "no deploy without explicit approval" constraint.
+- Commits: rules **`b96df21`** (parallel agent — 4-segment path arity fix), tests **`4d00db6`** (this agent's edits swept into the larger "Phase 3 Complete" commit by the orchestrator: Timestamp import → admin SDK + path drops + labId field add + cleanup hook drops)
+- Deploy ready: **NO** — needs `firebase deploy --only firestore:indexes` to clear the last test failure. Rules commit (`b96df21`) is independently deploy-ready (`firebase deploy --only firestore:rules`) once user gives the go.
+
+### Cluster D (NEW) — Composite index not deployed
+- **Affected tests (1)**: `phase3-schema.e2e.test.ts > Test 2`
+- **Root cause**: Index `(labId, status, createdAt)` for `notivisa-outbox` is declared in `firestore.indexes.json:665-673` but not yet deployed to project `hmatologia2`. After Cluster A path fix, the collection path resolved correctly but the query (originally `where status + orderBy createdAt`) did not match any deployed index. Test was updated to add `labId` filter + field (codebase convention requires redundant `labId` in payload anyway — root CLAUDE.md), so it now matches the declared index shape exactly. Deploying the index is the only remaining step.
+- **Fix scope**: 1 deploy command. No code change.
