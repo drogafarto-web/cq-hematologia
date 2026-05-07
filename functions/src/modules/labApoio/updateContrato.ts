@@ -52,7 +52,7 @@ export const labApoio_updateContrato = onCall<unknown, Promise<UpdateContratoRes
       updateData.contatos = [
         ...existingContatos,
         ...input.contatos.filter(
-          (newCont) => !existingContatos.some((old) => old.id === newCont.id),
+          (newCont) => !existingContatos.some((old: any) => old.id === newCont.id),
         ),
       ];
     }
@@ -62,7 +62,7 @@ export const labApoio_updateContrato = onCall<unknown, Promise<UpdateContratoRes
       updateData.certificacoes = [
         ...existingCerts,
         ...input.certificacoes.filter(
-          (newCert) => !existingCerts.some((old) => old.id === newCert.id),
+          (newCert) => !existingCerts.some((old: any) => old.id === newCert.id),
         ),
       ];
     }
