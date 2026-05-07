@@ -53,6 +53,22 @@ Use: `bash scripts/monitor-cloud-logs.sh 24 30` (or `.ps1` equiv.) imediatamente
 
 ---
 
+## v1.3 Archive & v1.4 Roadmap
+
+**v1.3 Complete & Live (2026-05-07):**
+
+- Archive: [`.planning/milestones/v1.3-ARCHIVE.md`](.planning/milestones/v1.3-ARCHIVE.md) — 1-pager consolidado
+- Completion summary: [`.planning/milestones/v1.3-COMPLETION-SUMMARY.md`](.planning/milestones/v1.3-COMPLETION-SUMMARY.md) — full technical details
+- Compliance summary: [`.planning/milestones/COMPLIANCE_SUMMARY_v1.3.md`](docs/COMPLIANCE_SUMMARY_v1.3.md) — DICQ/RDC/LGPD mapping
+- Deployment roadmap: [`.planning/milestones/DEPLOY_ROADMAP_v1.3.md`](.planning/milestones/DEPLOY_ROADMAP_v1.3.md) — sequence + rollback
+
+**v1.4 Kickoff (Phases 4–15):**
+
+- Roadmap: [`.planning/milestones/v1.4-KICKOFF-SUMMARY.md`](.planning/milestones/v1.4-KICKOFF-SUMMARY.md) — Phase 4 (2026-05-20) through Phase 15 (2026-11-30)
+- Phase 0–3 already complete (2026-05-07)
+
+---
+
 ## Módulos em produção
 
 > **Dever de atualização**: cada módulo mantém sua própria linha aqui. Após milestone no módulo, editar.
@@ -78,11 +94,9 @@ Use: `bash scripts/monitor-cloud-logs.sh 24 30` (or `.ps1` equiv.) imediatamente
 | `admin` | Em prod · superadmin | — |
 | `educacao-continuada` | Em prod · ISO 15189 + XLSX + callables server-side | 2026-04-24 |
 | `sgq` | Em prod · Documentos da Qualidade (DICQ 4.3) — MQ/PQ/IT/FR/POL + versionamento + audit + POL-LGPD-001 + IT-LGPD-DPIA-001 (Phase 0) | 2026-05-07 |
-
 | `pops` | Em prod · Procedimentos Operacionais Padrão (DICQ 4.3) — versionamento + treinamento + assinatura RT | 2026-05-03 |
 | `auditoria` | Em prod · Trilha de audit (write intent + read consent) — RDC 978 5.3 + DICQ 4.4 | 2026-05-03 |
 | `sgd` | Em prod · Sistema de Gestão Documental (DICQ 4.3) — Lista Mestra, hierarquia, distribuição, Drive importer + Riopomba migration (80 docs) | 2026-05-06 |
-
 | `treinamentos` | Em prod · Sistema de registro de treinamentos com vínculo a POPs + certificação + revalidação | 2026-05-05 |
 | `biosseguranca` | Em prod · Gestão de áreas de risco, níveis NB1-NB4, EPE + inspeções com ISO 14644 | 2026-05-05 |
 | `pgrss` | Em prod · Gestão de resíduos (RDC 222/2018) — segregação, coleta, comprovantes | 2026-05-05 |
@@ -102,6 +116,8 @@ Use: `bash scripts/monitor-cloud-logs.sh 24 30` (or `.ps1` equiv.) imediatamente
 **Phase 9 — COMPLETE (2026-05-07):** Bioquímica (módulo 25) em produção. 2,700+ LOC, 42 testes, WCAG AA, RDC 978 + DICQ 4.3 compliant. ADR-0008 registrado. v1.3 Deployment complete (Rules+Functions+Hosting). DICQ compliance 78.5%.
 
 **Phase 3 — COMPLETE (2026-05-05):** 3.1 Foundation + 3.2 Core Features + 3.3 Polish todos concluídos. Web TSC limpo. Functions TSC limpo. 738/738 testes passando. Stream C (Lighthouse CI infra) parcialmente completo — auditoria de runtime pendente para próxima milestone. CEQ + Mobile promovidos a Em prod.
+
+**v1.3 ARCHIVED (2026-05-07):** Todas as 35 modules live. DICQ 78.5%. RDC 978 critical articles 100% covered. Ready for v1.4 Phase 4 execution (2026-05-20).
 
 Módulos com documentação dedicada: `educacao-continuada` (próprio CLAUDE.md), `controle-temperatura` (próprio CLAUDE.md), `sgq` (contém pops + auditoria subdomínios), `treinamentos` (HANDOFF.md em desenvolvimento)
 
