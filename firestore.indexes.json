@@ -589,6 +589,26 @@
         { "fieldPath": "supervisorId", "order": "ASCENDING" },
         { "fieldPath": "data", "order": "DESCENDING" }
       ]
+    },
+
+    {
+      "collectionGroup": "lab-apoio",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "ativo", "order": "ASCENDING" },
+        { "fieldPath": "vigenciaFim", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "lab-apoio",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "ativo", "order": "ASCENDING" },
+        { "fieldPath": "criticidade", "order": "ASCENDING" },
+        { "fieldPath": "vigenciaFim", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

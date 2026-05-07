@@ -1846,6 +1846,45 @@ service cloud.firestore {
         }
       }
 
+      // ── /lab-apoio — Support Lab Contracts (Phase 0 / Plan 00-03) ─────────────
+      // RDC 978/2025 Arts. 36–39: contratos com labs de apoio, vigência, avaliações.
+      // DL-1 applied: client-side writes denied; Admin SDK (callable) only.
+      // Audit trail via chainHash continuity in events subcollection.
+      match /lab-apoio/{contratoId} {
+        function isValidContrato(d) {
+          return d.labId == labId
+              && d.nome is string
+              && d.cnpj is string
+              && d.cnpj.size() == 14
+              && d.habilitacaoAnvisa is string
+              && d.habilitacaoAnvisa.size() >= 6
+              && d.vigenciaInicio is string
+              && d.vigenciaFim is string
+              && d.criticidade in ['baixa', 'media', 'alta']
+              && d.exames is list
+              && d.endereco is map
+              && d.logicalSignature is map
+              && d.logicalSignature.hash is string
+              && d.logicalSignature.hash.size() == 64
+              && d.logicalSignature.operatorId == request.auth.uid
+              && d.logicalSignature.ts is timestamp
+              && d.ativo is bool;
+        }
+
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if false;  // Via labApoio_createContrato callable only (DL-1)
+        allow update: if false;  // Via labApoio_updateContrato callable only (DL-1)
+        allow delete: if false;  // Via labApoio_softDeleteContrato callable only (DL-1)
+
+        // ── Audit trail (append-only, chainHash continuity) ────────────────────
+        match /events/{eventId} {
+          allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow create: if false;  // Via trigger onContratoEventCreated only
+          allow update: if false;  // Immutable after creation
+          allow delete: if false;  // Append-only trail
+        }
+      }
+
       // ── /labs/{labId}/medicos-solicitantes/** — Phase 10 (Requesting Doctors) ─
       // Cache local de médicos solicitantes (read-only sync from Worklab LIS).
       // Used for portal-medico + laudo metadata.

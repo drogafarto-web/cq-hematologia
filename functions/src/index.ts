@@ -224,7 +224,9 @@ export {
 //   scheduledReview                 — cron: daily 07:00 BRT (annual) + monthly top-5
 export {
   risks_createRisk,
+  risks_updateRisk,
   risks_softDeleteRisk,
+  risks_registrarRevisao,
   onRiskEventCreated,
 } from './modules/risks/index';
 
