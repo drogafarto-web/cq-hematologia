@@ -1,0 +1,21 @@
+Phase,Gate_Name,Status,Start_Date,Target_Deploy_Date,% Complete,Primary_Owner,CTO_Signature,Sign_Off_Date,Blockers_Count,Critical_Blockers,Next_Review_Date,Notes
+0,Phase 0: RDC Blockers,PASS,2026-05-07,2026-05-07,100%,CTO,drogafarto,2026-05-07,0,none,2026-05-08,v1.3 Turnos + DPIA + Lab-apoio + Risks
+1,Phase 1: Baseline Verification,PASS,2026-05-07,2026-05-07,100%,CTO,drogafarto,2026-05-07,0,none,2026-05-08,19/19 smoke tests PASS
+2,Phase 2: Planning Deep-Dive,PASS,2026-05-07,2026-05-07,100%,CTO,drogafarto,2026-05-07,0,none,2026-05-08,9 artifacts 8500+ LOC
+3,Phase 3: Schema Extensions,PASS,2026-05-07,2026-05-07,100%,CTO,drogafarto,2026-05-07,0,none,2026-05-20,5 collections + 50 callables + E2E
+4,Phase 4: Portal Auth + NOTIVISA,PENDING,2026-05-20,2026-06-02,0%,Agent 1-4,TBD,TBD,0,none,2026-06-02,RT login + laudo draft + NOTIVISA queue
+5,Phase 5: Critical Escalation + IA,PENDING,2026-06-09,2026-06-30,0%,Agent 5-8,TBD,TBD,0,none,2026-06-30,SMS/email escalation + strip upload dataset
+6,Phase 6: Liberação + Críticos,PENDING,2026-07-01,2026-07-14,0%,Agent 9-10,TBD,TBD,0,none,2026-07-14,PDF gen + QR validation + portal médico
+7,Phase 7: Feedback + Portal Paciente,PENDING,2026-07-08,2026-07-28,0%,Agent 9-10,TBD,TBD,0,none,2026-07-28,Patient portal + trending + NPS
+Wave 1,Wave 1: Portal Foundation,PENDING,2026-06-02,2026-06-02,0%,CTO,TBD,TBD,0,none,2026-06-03,Phases 4-7 PASS + 32/32 E2E
+8,Phase 8: CAPA Closure,PENDING,2026-06-15,2026-08-05,0%,CTO+Eng,TBD,TBD,0,none,2026-08-05,F-01 to F-07 auditor sign-off
+9,Phase 9: KPI Optimization,PENDING,2026-07-22,2026-08-04,0%,Agent TBD,TBD,TBD,0,none,2026-08-04,Multi-period KPI + trending
+10,Phase 10: Penetration Testing,PENDING,2026-06-01,2026-06-21,0%,Ext. Consultant,TBD,TBD,0,none,2026-07-04,Pen-test report + remediation
+11,Phase 11: Auditor Alignment,PENDING,2026-06-01,2026-08-05,0%,CTO+Auditor,TBD,TBD,0,none,2026-08-06,8 weekly meetings + artifact approval
+12,Phase 12: Test Data Refresh,PENDING,2026-07-29,2026-08-02,0%,QA+Eng,TBD,TBD,0,none,2026-08-03,50 labs + 1M records + Riopomba 80 docs
+Wave 2,Wave 2: CAPA + Security,PENDING,2026-08-31,2026-08-31,0%,CTO,TBD,TBD,0,none,2026-09-01,Phases 8-12 PASS + Wave 1 data imported
+13,Phase 13: Multi-Tenant Expansion,PENDING,2026-08-12,2026-09-30,0%,Agent TBD,TBD,TBD,0,none,2026-10-01,Mercês + Tabuleiro labs onboarded
+14,Phase 14: ISO 15189 Prep,PENDING,2026-09-01,2026-10-31,0%,Agent TBD,TBD,TBD,0,none,2026-11-01,120-point audit + <5 minor findings
+15,Phase 15: v2 Planning,PENDING,2026-10-15,2026-11-30,0%,CTO+Tech Lead,TBD,TBD,0,none,2026-12-01,HL7 FHIR + AI autonomy RFC
+Wave 3,Wave 3: Final Polish,PENDING,2026-11-30,2026-11-30,0%,CTO,TBD,TBD,0,none,2026-12-01,Phases 13-15 PASS + DICQ 88%
+Go-Live,Go-Live: Production Ready,PENDING,2026-08-31,2026-08-31,0%,CTO,TBD,TBD,0,none,2026-09-01,19/19 smoke tests + auditor alignment

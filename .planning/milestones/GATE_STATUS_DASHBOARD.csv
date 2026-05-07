@@ -1,0 +1,21 @@
+Phase,Gate_Name,Status,Start_Date,Target_Deploy,% Complete,Blockers_Active,Blocker_Details,Primary_Owner,Last_Updated,Next_Review_ETA,Critical_Path,Notes
+0,Phase 0: RDC Blockers,PASS,2026-05-07,2026-05-07,100%,0,none,CTO,2026-05-07 17:00,2026-05-08 09:00,YES,v1.3 complete; unblocked Phase 1
+1,Phase 1: Baseline Verification,PASS,2026-05-07,2026-05-07,100%,0,none,CTO,2026-05-07 17:30,2026-05-08 09:00,YES,19/19 smoke tests PASS; 0 regressions
+2,Phase 2: Planning Deep-Dive,PASS,2026-05-07,2026-05-07,100%,0,none,CTO,2026-05-07 18:00,2026-05-08 09:00,YES,Roadmap complete; artifact library ready
+3,Phase 3: Schema Extensions,PASS,2026-05-07,2026-05-07,100%,0,none,CTO,2026-05-07 18:30,2026-05-20 09:00,YES,5 collections + 50 callables; ready Phase 4 kickoff
+4,Phase 4: Portal Auth + NOTIVISA,PENDING,2026-05-20,2026-06-02,0%,0,awaiting kickoff,Agent 1-4,TBD,2026-06-02 17:00,YES,Scheduled launch 2026-05-20; 4 executors assigned
+5,Phase 5: Critical Escalation + IA,PENDING,2026-06-09,2026-06-30,0%,1,blocked by Phase 4 PASS,Agent 5-8,TBD,2026-06-30 17:00,YES,Depends Phase 4 completion + SMS/Twilio setup
+6,Phase 6: Liberação Completion,PENDING,2026-07-01,2026-07-14,0%,1,blocked by Phase 4 partial,Agent 9-10,TBD,2026-07-14 17:00,NO,Non-critical path; v1.3 Phase 10 foundation exists
+7,Phase 7: Feedback + Portal Paciente,PENDING,2026-07-08,2026-07-28,0%,1,blocked by Phase 4,Agent 9-10,TBD,2026-07-28 17:00,NO,Depends portal auth + portal framework
+Wave 1,Wave 1 Gate: Portal Foundation,PENDING,2026-06-02,2026-06-02,0%,4,blocked by Phases 4-7,CTO,TBD,2026-06-02 17:00,YES,All 4 phases must PASS + 32/32 E2E
+8,Phase 8: CAPA Closure,PENDING,2026-06-15,2026-08-05,0%,0,awaiting kickoff,CTO+Eng A-D,TBD,2026-08-05 17:00,YES,7 findings (F-01 to F-07); auditor ceremony Week 4
+9,Phase 9: KPI Optimization,PENDING,2026-07-22,2026-08-04,0%,2,blocked by Phase 5 + 8,Agent TBD,TBD,2026-08-04 17:00,YES,Depends critical escalation data + CAPA completion
+10,Phase 10: Penetration Testing,PENDING,2026-06-01,2026-06-21,0%,1,blocked by Phase 4 code ready,Ext. Consultant,TBD,2026-07-04 17:00,NO,Parallel Phase 4-5; remediation due 2026-07-04
+11,Phase 11: Auditor Pre-Alignment,PENDING,2026-06-01,2026-08-05,0%,0,none; weekly cadence,CTO+Auditor,TBD,2026-08-05 17:00,YES,8 meetings (Jun 1 to Aug 5); artifact approval before meetings
+12,Phase 12: Test Data Refresh,PENDING,2026-07-29,2026-08-02,0%,1,blocked by Phase 8,QA+Eng,TBD,2026-08-02 17:00,YES,Depends CAPA finalization; 4-day sprint
+Wave 2,Wave 2 Gate: CAPA + Security,PENDING,2026-08-31,2026-08-31,0%,5,blocked by Phases 8-12,CTO,TBD,2026-08-31 17:00,YES,All 5 phases must PASS; auditor sign-off on CAPA
+13,Phase 13: Multi-Tenant Expansion,PENDING,2026-08-12,2026-09-30,0%,1,blocked by Wave 2 PASS,Agent TBD,TBD,2026-09-30 17:00,YES,Mercês + Tabuleiro labs; sequential after Wave 2
+14,Phase 14: ISO 15189 Certification,PENDING,2026-09-01,2026-10-31,0%,1,blocked by Phase 13,Agent TBD,TBD,2026-10-31 17:00,YES,120-point audit; independent auditor; target 0 major findings
+15,Phase 15: v2 Planning & Roadmap,PENDING,2026-10-15,2026-11-30,0%,1,blocked by Phase 14,CTO+Tech Lead,TBD,2026-11-30 17:00,NO,Design-only; HL7 FHIR + AI autonomy RFC
+Wave 3,Wave 3 Gate: Final Polish,PENDING,2026-11-30,2026-11-30,0%,3,blocked by Phases 13-15,CTO,TBD,2026-11-30 17:00,YES,Phases 13-15 must PASS; DICQ target 88%+
+Go-Live,Go-Live Gate: Production Ready,PENDING,2026-08-31,2026-08-31,0%,3,blocked by Wave 3 + external audit,CTO,TBD,2026-08-31 17:00,YES,19/19 smoke tests + CTO sign-off + auditor alignment
