@@ -1829,16 +1829,27 @@ service cloud.firestore {
         allow delete: if false;  // Immutable audit trail
       }
 
-      // ── /labs/{labId}/criticos-escalacoes/** — Phase 4 (Critical Escalation) ──
+      // ── /labs/{labId}/criticos-escalacoes/** — Phase 6 (Critical Escalation) ──
       // Escalation tracking for critical result flagging (ISO 15189 5.8.7).
-      // Admin/RT: create escalation events
-      // Member: read (for trending dashboard)
-      // Admin/RT: update resolution
+      // Server (callable): create escalations via registerCriticoDetection
+      // RT/Auditor: read SLA metrics, acknowledge
+      // Immutable audit trail per RDC 978 Art. 128
       match /criticos-escalacoes/{docId} {
-        allow create: if isAdminOrRT(labId);
-        allow read: if isActiveMemberOfLab(labId);
-        allow update: if isAdminOrRT(labId) && request.resource.data.resolved_at != null;
+        allow create: if false;  // Cloud Function (Admin SDK) only
+        allow read: if isAdminOrRT(labId) || hasRole('auditor');
+        allow update: if false;  // Cloud Function (Admin SDK) only
         allow delete: if false;  // Immutable escalation history
+      }
+
+      // ── /labs/{labId}/criticos-log-eventos/** — Phase 6 (Critical Audit Trail) ─
+      // Append-only event log for critical value escalations (RDC 978 Art. 128).
+      // Server (Cloud Function): append events
+      // RT/Auditor: read for compliance review
+      match /criticos-log-eventos/{docId} {
+        allow create: if false;  // Cloud Function (Admin SDK) only
+        allow read: if isAdminOrRT(labId) || hasRole('auditor');
+        allow update: if false;  // Immutable after creation
+        allow delete: if false;  // Append-only trail
       }
 
       // ── /labs/{labId}/imuno-ias-dev/** — Phase 9 (IA Training Dataset) ──────────

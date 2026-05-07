@@ -2148,4 +2148,13 @@ export { oauthCallbackDrive } from './sgq/oauthCallbackDrive';
 export { listarDocsDrive } from './sgq/listarDocsDrive';
 export { previewDocDrive } from './sgq/previewDocDrive';
 export { classificarDocAuto } from './sgq/classificarDocAuto';
+
+// ─── criticos module (Phase 6 — Critical Values Escalation) ──────────────────
+// SMS + Email escalation for critical lab results with SLA tracking
+export {
+  registerCriticoDetection,
+  acknowledgeEscalacao,
+  escalacaoCriticos,
+  escalacaoCriticos_webhook,
+} from './modules/criticos/index';
 export { aprovarBatchImport } from './sgq/aprovarBatchImport';

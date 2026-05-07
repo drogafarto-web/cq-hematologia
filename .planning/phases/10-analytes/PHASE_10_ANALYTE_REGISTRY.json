@@ -1,0 +1,1042 @@
+{
+  "registry": {
+    "version": "1.0.0",
+    "phase": "Phase 10",
+    "generated": "2026-05-07",
+    "description": "Complete analyte registry with 30+ biochemistry analytes, Westgard CLSI rules, clinical thresholds, and multi-instrument integration metadata. Seed data for Firestore bioquimica/root/analitos collection.",
+    "documentation": {
+      "loinc": "LOINC codes per Regenstrief Institute (2025 edition). Stable identifiers for interoperability with LIS and external labs.",
+      "westgard": "CLSI subset active in Phase 9: 1-2s (warn), 1-3s (reject), 2-2s (reject), R-4s (reject). Extended rules (4-1s, 10x, 6T, 6X) defined but disabled by default per CTO decision 2026-05-06.",
+      "normalRange": "Biological reference range — healthy adults (weighted average Brazilian commercial bulls 2024–2026: Bioclin, Labtest, Wiener).",
+      "cvAlvo": "Acceptable analytical CV% aligned with PACS-CIQ (BR) + CLSI EP15 clinical decision limits.",
+      "integrationPhase": "Phase 9 base analytes (17 seed default); Phase 11+ imuno-IA with dedicated Westgard by antibody subtype."
+    },
+    "analytes": [
+      {
+        "id": "glic-001",
+        "analyteName": "Glicose",
+        "analyteCode": "2345-9",
+        "sigla": "GLI",
+        "unidade": "mg/dL",
+        "unidadeSI": "mmol/L",
+        "normalRange": {
+          "min": 70,
+          "max": 99
+        },
+        "criticalThresholds": {
+          "hiperglicemiaEmergencia": 400,
+          "hipoglicemiaEmergencia": 40,
+          "description": "RDC 978 Art. 182 — valores críticos disparam notificação imediata ao operador e supervisor"
+        },
+        "metodo": "Hexoquinase (enzyme reference method)",
+        "cvAlvo": 2.5,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": {
+            "enabled": false,
+            "available": ["4-1s", "10x"]
+          },
+          "thresholds": {
+            "1-2s": {
+              "limit": 2.0,
+              "severity": "warn",
+              "description": "1 resultado > 2σ da média — aviso de tendência"
+            },
+            "1-3s": {
+              "limit": 3.0,
+              "severity": "reject",
+              "description": "1 resultado > 3σ — rejeita run"
+            },
+            "2-2s": {
+              "limit": 2.0,
+              "consecutiveRuns": 2,
+              "severity": "reject",
+              "description": "2 runs consecutivas mesmo lado de 2σ — tendência sistemática"
+            },
+            "R-4s": {
+              "limit": 4.0,
+              "consecutiveRuns": 2,
+              "severity": "reject",
+              "description": "Range entre 2 runs > 4σ — perda de precisão"
+            }
+          }
+        },
+        "seedDefault": true,
+        "ativo": true,
+        "integrationPhase": "Phase 9"
+      },
+      {
+        "id": "urea-001",
+        "analyteName": "Ureia",
+        "analyteCode": "3094-0",
+        "sigla": "URE",
+        "unidade": "mg/dL",
+        "unidadeSI": "mmol/L",
+        "normalRange": {
+          "min": 17,
+          "max": 49
+        },
+        "criticalThresholds": {
+          "uremiaCritica": 200,
+          "description": "Clearance renal severo — síndrome urêmica iminente"
+        },
+        "metodo": "Urease UV (IFCC-reference)",
+        "cvAlvo": 3.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": {
+            "enabled": false,
+            "available": ["4-1s"]
+          },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": true,
+        "ativo": true,
+        "integrationPhase": "Phase 9"
+      },
+      {
+        "id": "cret-001",
+        "analyteName": "Creatinina",
+        "analyteCode": "2160-0",
+        "sigla": "CRE",
+        "unidade": "mg/dL",
+        "unidadeSI": "µmol/L",
+        "normalRange": {
+          "min": 0.6,
+          "max": 1.3
+        },
+        "criticalThresholds": {
+          "renavialidadeCritica": 5.0,
+          "description": "Filtração renal < 10 mL/min — risco diálise imediata"
+        },
+        "metodo": "Jaffé cinético (kinetic colorimetric)",
+        "cvAlvo": 4.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": ["10x"] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": true,
+        "ativo": true,
+        "integrationPhase": "Phase 9"
+      },
+      {
+        "id": "tgo-001",
+        "analyteName": "TGO/AST",
+        "analyteCode": "1920-8",
+        "sigla": "TGO",
+        "unidade": "U/L",
+        "unidadeSI": "µkat/L",
+        "normalRange": {
+          "min": 5,
+          "max": 40
+        },
+        "metodo": "IFCC sans pyridoxal-5-phosphate (reference)",
+        "cvAlvo": 5.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": true,
+        "ativo": true,
+        "integrationPhase": "Phase 9"
+      },
+      {
+        "id": "tgp-001",
+        "analyteName": "TGP/ALT",
+        "analyteCode": "1742-6",
+        "sigla": "TGP",
+        "unidade": "U/L",
+        "unidadeSI": "µkat/L",
+        "normalRange": {
+          "min": 5,
+          "max": 41
+        },
+        "metodo": "IFCC sans pyridoxal-5-phosphate (reference)",
+        "cvAlvo": 5.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": true,
+        "ativo": true,
+        "integrationPhase": "Phase 9"
+      },
+      {
+        "id": "fa-001",
+        "analyteName": "Fosfatase Alcalina",
+        "analyteCode": "1925-7",
+        "sigla": "FA",
+        "unidade": "U/L",
+        "unidadeSI": "µkat/L",
+        "normalRange": {
+          "min": 40,
+          "max": 129
+        },
+        "metodo": "IFCC (AMP buffer, 37°C)",
+        "cvAlvo": 4.5,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": true,
+        "ativo": true,
+        "integrationPhase": "Phase 9"
+      },
+      {
+        "id": "ggt-001",
+        "analyteName": "GGT",
+        "analyteCode": "2038-4",
+        "sigla": "GGT",
+        "unidade": "U/L",
+        "unidadeSI": "µkat/L",
+        "normalRange": {
+          "min": 8,
+          "max": 61
+        },
+        "metodo": "Szasz/IFCC (substrate: γ-glutamyl-3-carboxy-4-nitroanilide)",
+        "cvAlvo": 6.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": true,
+        "ativo": true,
+        "integrationPhase": "Phase 9"
+      },
+      {
+        "id": "bd-001",
+        "analyteName": "Bilirrubina Direta",
+        "analyteCode": "1871-5",
+        "sigla": "BD",
+        "unidade": "mg/dL",
+        "unidadeSI": "µmol/L",
+        "normalRange": {
+          "min": 0.0,
+          "max": 0.3
+        },
+        "criticalThresholds": {
+          "kernicterusoRisco": 25,
+          "description": "RN: encefalopatia bilirrubínica; adulto: colestase grave"
+        },
+        "metodo": "Diazo (Sims-Horn, methyl alcohol)",
+        "cvAlvo": 8.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": true,
+        "ativo": true,
+        "integrationPhase": "Phase 9"
+      },
+      {
+        "id": "bi-001",
+        "analyteName": "Bilirrubina Indireta",
+        "analyteCode": "1872-3",
+        "sigla": "BI",
+        "unidade": "mg/dL",
+        "unidadeSI": "µmol/L",
+        "normalRange": {
+          "min": 0.1,
+          "max": 1.0
+        },
+        "metodo": "Calculated (Total − Direct)",
+        "cvAlvo": 8.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": true,
+        "ativo": true,
+        "integrationPhase": "Phase 9"
+      },
+      {
+        "id": "ct-001",
+        "analyteName": "Colesterol Total",
+        "analyteCode": "2093-3",
+        "sigla": "CT",
+        "unidade": "mg/dL",
+        "unidadeSI": "mmol/L",
+        "normalRange": {
+          "min": 0,
+          "max": 199
+        },
+        "criticalThresholds": {
+          "hipercolesterolemia": 500,
+          "description": "Dislipidemia severa — risco cardiovascular agudo"
+        },
+        "metodo": "CHOD-PAP (enzymatic reference)",
+        "cvAlvo": 3.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": ["4-1s"] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": true,
+        "ativo": true,
+        "integrationPhase": "Phase 9"
+      },
+      {
+        "id": "hdl-001",
+        "analyteName": "HDL Colesterol",
+        "analyteCode": "2085-9",
+        "sigla": "HDL",
+        "unidade": "mg/dL",
+        "unidadeSI": "mmol/L",
+        "normalRange": {
+          "min": 40,
+          "max": 999
+        },
+        "metodo": "Direct (homogeneous, enzymatic)",
+        "cvAlvo": 4.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": true,
+        "ativo": true,
+        "integrationPhase": "Phase 9"
+      },
+      {
+        "id": "ldl-001",
+        "analyteName": "LDL Colesterol",
+        "analyteCode": "2089-1",
+        "sigla": "LDL",
+        "unidade": "mg/dL",
+        "unidadeSI": "mmol/L",
+        "normalRange": {
+          "min": 0,
+          "max": 129
+        },
+        "metodo": "Direct / Friedewald calculation (when triglycerides < 400)",
+        "cvAlvo": 4.5,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": true,
+        "ativo": true,
+        "integrationPhase": "Phase 9"
+      },
+      {
+        "id": "tg-001",
+        "analyteName": "Triglicerídeos",
+        "analyteCode": "2571-8",
+        "sigla": "TG",
+        "unidade": "mg/dL",
+        "unidadeSI": "mmol/L",
+        "normalRange": {
+          "min": 0,
+          "max": 150
+        },
+        "criticalThresholds": {
+          "pancreatitisRisco": 500,
+          "description": "Hipertrigliceridemia severa — risco pancreatite aguda"
+        },
+        "metodo": "GPO-PAP (glycerol-3-phosphate oxidase)",
+        "cvAlvo": 4.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": ["4-1s"] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": true,
+        "ativo": true,
+        "integrationPhase": "Phase 9"
+      },
+      {
+        "id": "na-001",
+        "analyteName": "Sódio",
+        "analyteCode": "2951-2",
+        "sigla": "Na",
+        "unidade": "mEq/L",
+        "unidadeSI": "mmol/L",
+        "normalRange": {
+          "min": 136,
+          "max": 145
+        },
+        "criticalThresholds": {
+          "hiponatremiaGrave": 120,
+          "hipernatremiaGrave": 160,
+          "description": "Desequilíbrio eletrolítico severo — risco cerebral agudo"
+        },
+        "metodo": "ISE (Ion-Selective Electrode)",
+        "cvAlvo": 1.5,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": ["10x"] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": true,
+        "ativo": true,
+        "integrationPhase": "Phase 9"
+      },
+      {
+        "id": "k-001",
+        "analyteName": "Potássio",
+        "analyteCode": "2823-3",
+        "sigla": "K",
+        "unidade": "mEq/L",
+        "unidadeSI": "mmol/L",
+        "normalRange": {
+          "min": 3.5,
+          "max": 5.0
+        },
+        "criticalThresholds": {
+          "hipocalemiaGrave": 2.8,
+          "hipercalemiaGrave": 6.5,
+          "description": "Distúrbio cardíaco — arritmia potencialmente letal"
+        },
+        "metodo": "ISE (Ion-Selective Electrode)",
+        "cvAlvo": 2.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": ["10x"] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": true,
+        "ativo": true,
+        "integrationPhase": "Phase 9"
+      },
+      {
+        "id": "cl-001",
+        "analyteName": "Cloro",
+        "analyteCode": "2075-0",
+        "sigla": "Cl",
+        "unidade": "mEq/L",
+        "unidadeSI": "mmol/L",
+        "normalRange": {
+          "min": 98,
+          "max": 107
+        },
+        "metodo": "ISE (Ion-Selective Electrode)",
+        "cvAlvo": 1.5,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": true,
+        "ativo": true,
+        "integrationPhase": "Phase 9"
+      },
+      {
+        "id": "ca-001",
+        "analyteName": "Cálcio Total",
+        "analyteCode": "2000-8",
+        "sigla": "Ca",
+        "unidade": "mg/dL",
+        "unidadeSI": "mmol/L",
+        "normalRange": {
+          "min": 8.6,
+          "max": 10.2
+        },
+        "criticalThresholds": {
+          "hipocalcemia": 6.5,
+          "hipercalcemia": 13.0,
+          "description": "Neuroexcitabilidade / sedação — risco tetania ou coma"
+        },
+        "metodo": "Arsenazo III / OCP (colorimetric)",
+        "cvAlvo": 2.5,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": true,
+        "ativo": true,
+        "integrationPhase": "Phase 9"
+      },
+      {
+        "id": "bt-001",
+        "analyteName": "Bilirrubina Total",
+        "analyteCode": "1975-2",
+        "sigla": "BT",
+        "unidade": "mg/dL",
+        "unidadeSI": "µmol/L",
+        "normalRange": {
+          "min": 0.1,
+          "max": 1.2
+        },
+        "metodo": "Diazo (Total = Direct + Indirect)",
+        "cvAlvo": 6.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": false,
+        "ativo": true,
+        "integrationPhase": "Phase 10"
+      },
+      {
+        "id": "albumina-001",
+        "analyteName": "Albumina",
+        "analyteCode": "1863-2",
+        "sigla": "ALB",
+        "unidade": "g/dL",
+        "unidadeSI": "g/L",
+        "normalRange": {
+          "min": 3.5,
+          "max": 5.5
+        },
+        "metodo": "Bromocresol green (BCG)",
+        "cvAlvo": 3.5,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": false,
+        "ativo": true,
+        "integrationPhase": "Phase 10"
+      },
+      {
+        "id": "proteina-total-001",
+        "analyteName": "Proteína Total",
+        "analyteCode": "2885-2",
+        "sigla": "PT",
+        "unidade": "g/dL",
+        "unidadeSI": "g/L",
+        "normalRange": {
+          "min": 6.0,
+          "max": 8.3
+        },
+        "metodo": "Biuret (chemical colorimetric)",
+        "cvAlvo": 3.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": false,
+        "ativo": true,
+        "integrationPhase": "Phase 10"
+      },
+      {
+        "id": "magnesio-001",
+        "analyteName": "Magnésio",
+        "analyteCode": "2635-3",
+        "sigla": "Mg",
+        "unidade": "mg/dL",
+        "unidadeSI": "mmol/L",
+        "normalRange": {
+          "min": 1.8,
+          "max": 2.4
+        },
+        "metodo": "ISE / Colorimetric (Calmagite)",
+        "cvAlvo": 3.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": false,
+        "ativo": true,
+        "integrationPhase": "Phase 10"
+      },
+      {
+        "id": "fosforo-001",
+        "analyteName": "Fósforo Inorgânico",
+        "analyteCode": "2777-1",
+        "sigla": "P",
+        "unidade": "mg/dL",
+        "unidadeSI": "mmol/L",
+        "normalRange": {
+          "min": 2.5,
+          "max": 4.5
+        },
+        "metodo": "Colorimetric (molybdate-based)",
+        "cvAlvo": 3.5,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": false,
+        "ativo": true,
+        "integrationPhase": "Phase 10"
+      },
+      {
+        "id": "acido-urico-001",
+        "analyteName": "Ácido Úrico",
+        "analyteCode": "3084-1",
+        "sigla": "AU",
+        "unidade": "mg/dL",
+        "unidadeSI": "µmol/L",
+        "normalRange": {
+          "min": 3.5,
+          "max": 7.2
+        },
+        "criticalThresholds": {
+          "hiperuricemia": 10.0,
+          "description": "Risco gota aguda / nefropatia úrica"
+        },
+        "metodo": "Enzymatic (uricase / Trinder)",
+        "cvAlvo": 4.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": false,
+        "ativo": true,
+        "integrationPhase": "Phase 10"
+      },
+      {
+        "id": "cpk-001",
+        "analyteName": "CK Total",
+        "analyteCode": "2157-6",
+        "sigla": "CPK",
+        "unidade": "U/L",
+        "unidadeSI": "µkat/L",
+        "normalRange": {
+          "min": 30,
+          "max": 200
+        },
+        "criticalThresholds": {
+          "rabdomiolise": 10000,
+          "description": "Necrose muscular severa — risco renal agudo"
+        },
+        "metodo": "IFCC (optimal, 37°C, NAC-activated)",
+        "cvAlvo": 5.5,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": ["4-1s"] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": false,
+        "ativo": true,
+        "integrationPhase": "Phase 10"
+      },
+      {
+        "id": "ldh-001",
+        "analyteName": "LDH (Lactato Desidrogenase)",
+        "analyteCode": "2532-8",
+        "sigla": "LDH",
+        "unidade": "U/L",
+        "unidadeSI": "µkat/L",
+        "normalRange": {
+          "min": 135,
+          "max": 214
+        },
+        "metodo": "IFCC (pyruvate forward, 37°C)",
+        "cvAlvo": 4.5,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": false,
+        "ativo": true,
+        "integrationPhase": "Phase 10"
+      },
+      {
+        "id": "hemoglobina-glicada-001",
+        "analyteName": "Hemoglobina Glicada (HbA1c)",
+        "analyteCode": "4548-4",
+        "sigla": "HBA1C",
+        "unidade": "%",
+        "unidadeSI": "mmol/mol",
+        "normalRange": {
+          "min": 4.0,
+          "max": 5.6
+        },
+        "criticalThresholds": {
+          "diabetesMalControlado": 10.0,
+          "description": "Descontrole glicêmico severo"
+        },
+        "metodo": "HPLC / Capillary Electrophoresis (IFCC reference)",
+        "cvAlvo": 2.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": ["4-1s"] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": false,
+        "ativo": true,
+        "integrationPhase": "Phase 11"
+      },
+      {
+        "id": "amilase-001",
+        "analyteName": "Amilase",
+        "analyteCode": "1798-8",
+        "sigla": "AMI",
+        "unidade": "U/L",
+        "unidadeSI": "µkat/L",
+        "normalRange": {
+          "min": 30,
+          "max": 110
+        },
+        "criticalThresholds": {
+          "pancreatiteAguda": 300,
+          "description": "Pancreatite aguda ou complicações graves"
+        },
+        "metodo": "Enzymatic (IFCC approved substrate)",
+        "cvAlvo": 5.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": false,
+        "ativo": true,
+        "integrationPhase": "Phase 10"
+      },
+      {
+        "id": "lipase-001",
+        "analyteName": "Lipase",
+        "analyteCode": "3023-3",
+        "sigla": "LIP",
+        "unidade": "U/L",
+        "unidadeSI": "µkat/L",
+        "normalRange": {
+          "min": 0,
+          "max": 60
+        },
+        "criticalThresholds": {
+          "pancreatiteAguda": 300,
+          "description": "Marcador mais específico de pancreatite que amilase"
+        },
+        "metodo": "Enzymatic (substrate: 1,2-o-dilauryl-rac-glycero-3-glutaryl-(6'-methyl-resorufin)ester)",
+        "cvAlvo": 5.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": false,
+        "ativo": true,
+        "integrationPhase": "Phase 10"
+      },
+      {
+        "id": "ferro-001",
+        "analyteName": "Ferro Sérico",
+        "analyteCode": "2824-1",
+        "sigla": "Fe",
+        "unidade": "µg/dL",
+        "unidadeSI": "µmol/L",
+        "normalRange": {
+          "min": 60,
+          "max": 170
+        },
+        "metodo": "Colorimetric (Ferrozine-based)",
+        "cvAlvo": 5.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": false,
+        "ativo": true,
+        "integrationPhase": "Phase 11"
+      },
+      {
+        "id": "ferritina-001",
+        "analyteName": "Ferritina",
+        "analyteCode": "2276-4",
+        "sigla": "FER",
+        "unidade": "ng/mL",
+        "unidadeSI": "µg/L",
+        "normalRange": {
+          "min": 30,
+          "max": 300
+        },
+        "metodo": "Immunoassay (ECLIA / CLIA)",
+        "cvAlvo": 6.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": false,
+        "ativo": true,
+        "integrationPhase": "Phase 11"
+      },
+      {
+        "id": "psa-001",
+        "analyteName": "PSA Total (Antígeno Prostático Específico)",
+        "analyteCode": "2857-8",
+        "sigla": "PSA",
+        "unidade": "ng/mL",
+        "unidadeSI": "µg/L",
+        "normalRange": {
+          "min": 0,
+          "max": 4.0
+        },
+        "metodo": "Immunoassay (CLIA / ECLIA)",
+        "cvAlvo": 7.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": false,
+        "ativo": true,
+        "integrationPhase": "Phase 11"
+      },
+      {
+        "id": "tsh-001",
+        "analyteName": "TSH (Hormônio Estimulante da Tireoide)",
+        "analyteCode": "3016-2",
+        "sigla": "TSH",
+        "unidade": "µIU/mL",
+        "unidadeSI": "mIU/L",
+        "normalRange": {
+          "min": 0.4,
+          "max": 4.0
+        },
+        "criticalThresholds": {
+          "hipotireoidismoGrave": 20.0,
+          "hipertireoidismoGrave": 0.01,
+          "description": "Desequilíbrio tiroideu severo"
+        },
+        "metodo": "Immunoassay (CLIA / ECLIA)",
+        "cvAlvo": 6.0,
+        "testType": "bioquimica",
+        "requiresLotExpiry": true,
+        "westgardRules": {
+          "active": ["1-2s", "1-3s", "2-2s", "R-4s"],
+          "extended": { "enabled": false, "available": [] },
+          "thresholds": {
+            "1-2s": { "limit": 2.0, "severity": "warn" },
+            "1-3s": { "limit": 3.0, "severity": "reject" },
+            "2-2s": { "limit": 2.0, "consecutiveRuns": 2, "severity": "reject" },
+            "R-4s": { "limit": 4.0, "consecutiveRuns": 2, "severity": "reject" }
+          }
+        },
+        "seedDefault": false,
+        "ativo": true,
+        "integrationPhase": "Phase 11"
+      }
+    ],
+    "summary": {
+      "totalAnalytes": 30,
+      "seedDefaultAnalytes": 17,
+      "phase10AdditionalAnalytes": 9,
+      "phase11ImmunoIAAnalytes": 4,
+      "westgardRulesImplemented": 4,
+      "westgardRulesExtendedAvailable": 4
+    }
+  }
+}

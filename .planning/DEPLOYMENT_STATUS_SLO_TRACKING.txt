@@ -1,0 +1,248 @@
+================================================================================
+HC QUALITY v1.3 — SLO TRACKING SETUP — COMPLETE
+================================================================================
+
+Date: 2026-05-07
+Status: READY FOR IMMEDIATE DEPLOYMENT
+Owner: Observability Engineer
+
+================================================================================
+DELIVERABLES SUMMARY
+================================================================================
+
+Total Artifacts: 9 files (22 pages + JSON dashboard)
+Total Size: ~49 KB
+Deployment Time: 30 minutes
+Maintenance: 5 min/week + 30 min/month
+
+Files Created:
+  ✅ .planning/docs/SLO_TRACKING_INDEX.md
+  ✅ .planning/docs/SLO_TRACKING_QUICKSTART.md
+  ✅ .planning/docs/SLO_TRACKING_SETUP.md
+  ✅ .planning/docs/SLO_ALERT_POLICIES_REFERENCE.md
+  ✅ .planning/docs/SLO_MONTHLY_REPORT_TEMPLATE.md
+  ✅ .planning/docs/OBSERVABILITY_SETUP_SUMMARY.md
+  ✅ .planning/docs/SLO_DEPLOYMENT_CHECKLIST.md
+  ✅ .planning/dashboard-json/SLO_TRACKING_DASHBOARD.json
+  ✅ .planning/SLO_TRACKING_MANIFEST.md
+
+================================================================================
+QUICK START (30 MINUTES)
+================================================================================
+
+1. Open: .planning/docs/SLO_TRACKING_QUICKSTART.md
+2. Follow 5 steps:
+   - Import dashboard (10 min)
+   - Create 4 alert policies (8 min)
+   - Setup custom metrics (5 min)
+   - Schedule weekly review (2 min)
+   - Test alerts (5 min)
+3. Brief team in Slack #observability (post template provided)
+
+================================================================================
+SLO DEFINITIONS
+================================================================================
+
+1. AVAILABILITY: 99.5%
+   - Budget: 4.32 hours downtime/month
+   - Alert: <99.65% (70% budget consumed)
+
+2. PERFORMANCE: P99 <3 seconds
+   - Budget: 1.5% of requests can exceed 3s
+   - Alert: YELLOW 2.5s / RED 3.0s sustained
+
+3. ERROR RATE: <0.1%
+   - Budget: ~50k errors/month in 5M requests
+   - Alert: >0.1% sustained 5 min
+
+4. COMPLIANCE: 100% Audit Trail
+   - Budget: Zero missed events (zero tolerance)
+   - Alert: <100% capture (RDC 978 violation)
+
+================================================================================
+DASHBOARD & ALERTS
+================================================================================
+
+✅ Dashboard JSON: Importable to Cloud Monitoring
+   - 8 tiles covering all 4 SLOs
+   - Burndown chart, uptime timeline, latency trend, error heatmap
+   - Real-time refresh (60s intervals)
+
+✅ 4 Alert Policies:
+   1. Availability Budget (70%) → Slack #observability
+   2. Performance P99 (2.5s/3.0s) → Slack / PagerDuty
+   3. Error Rate (>0.1%) → PagerDuty + Slack #sev-1
+   4. Audit Trail (<100%) → PagerDuty + Slack #compliance
+
+✅ 3 Custom Metrics:
+   1. error_rate_percent
+   2. audit_trail_events_captured
+   3. audit_trail_expected_writes
+
+================================================================================
+MONTHLY OPERATIONS
+================================================================================
+
+Daily (2 min):
+  - Check dashboard (all green?)
+  - Review alert history
+
+Weekly (Mondays 09:00 UTC, 5 min):
+  - Screenshot dashboard
+  - Post to Slack #observability
+  - Note trend (↑ / ↓ / →)
+
+Monthly (last day, 30 min):
+  - Fill SLO_MONTHLY_REPORT_TEMPLATE.md
+  - Export metrics from dashboard
+  - Get sign-offs (DevOps / CTO / Auditor)
+  - Archive in .planning/reports/SLO_REPORT_[YYYY-MM].md
+
+================================================================================
+COMPLIANCE & AUDITOR
+================================================================================
+
+RDC 978 Compliance:
+  ✅ Art. 117 (Audit Trail): 100% capture rate tracked + reported
+  ✅ Art. 122 (Shift Supervision): Handled separately (turnos module)
+  ✅ Art. 179-191 (Technical Records): Handled separately (sgd module)
+
+Auditor Deliverables:
+  ✅ Monthly SLO Report (fillable template provided)
+  ✅ Dashboard access (read-only)
+  ✅ Cloud Logs queryable (for deep dives)
+  ✅ Sign-off documentation (DevOps + CTO)
+
+================================================================================
+ALERT ESCALATION PATH
+================================================================================
+
+Alert fires
+  ↓
+Slack notification (#observability auto)
+  ↓
+  ├─ RED (SLO violation)
+  │  ├→ PagerDuty pages oncall
+  │  ├→ Oncall: Acknowledge 15 min SLA
+  │  ├→ Open incident ticket
+  │  └→ Follow docs/DR_PLAN.md
+  │
+  ├─ ORANGE (80% budget)
+  │  ├→ Team notified in Slack
+  │  ├→ Lead: Schedule 1-hour sync
+  │  └→ Root cause analysis
+  │
+  └─ YELLOW (70% budget)
+     └→ Weekly review will address
+
+================================================================================
+FILE NAVIGATION
+================================================================================
+
+Start Here:
+  .planning/SLO_TRACKING_MANIFEST.md ← You are here (overview)
+
+Deploying Today:
+  .planning/docs/SLO_TRACKING_QUICKSTART.md (5 min read + 25 min execution)
+
+Understanding SLOs:
+  .planning/docs/SLO_TRACKING_SETUP.md (full specification)
+
+Responding to Alerts:
+  .planning/docs/SLO_ALERT_POLICIES_REFERENCE.md (alert config)
+
+Monthly Audit Reports:
+  .planning/docs/SLO_MONTHLY_REPORT_TEMPLATE.md (fillable template)
+
+Dashboard JSON (for import):
+  .planning/dashboard-json/SLO_TRACKING_DASHBOARD.json (copy-paste to Cloud Console)
+
+================================================================================
+DEPLOYMENT CHECKLIST
+================================================================================
+
+Pre-Deployment:
+  ☐ GCP project hmatologia2 accessible
+  ☐ Cloud Monitoring enabled
+  ☐ Slack #observability created (or notification channel)
+  ☐ PagerDuty configured (if using for critical alerts)
+  ☐ Team briefed on SLO concept
+
+Deployment (30 min):
+  ☐ Step 1: Import dashboard (10 min)
+  ☐ Step 2: Create 4 alert policies (8 min)
+  ☐ Step 3: Setup 3 custom metrics (5 min)
+  ☐ Step 4: Test all alerts (5 min)
+  ☐ Step 5: Brief team in Slack (2 min)
+
+Post-Deployment Verification:
+  ☐ Day 1: Dashboard loads without errors
+  ☐ Day 1: All 4 SLO cards show green ✅
+  ☐ Day 1: No spurious alert notifications
+  ☐ Day 7: First weekly review completed
+  ☐ Day 30: First monthly report completed + sign-offs
+
+================================================================================
+SUCCESS CRITERIA (END OF WEEK 1)
+================================================================================
+
+By 2026-05-14:
+  ✅ Dashboard imported + all tiles load
+  ✅ 4 alert policies created + tested
+  ✅ 3 custom metrics reporting data
+  ✅ Team briefed in Slack
+  ✅ Oncall engineer knows escalation path
+  ✅ First weekly review completed (Monday)
+  ✅ Zero false positive complaints
+  ✅ Dashboard bookmarked in team Slack
+
+================================================================================
+REFERENCES
+================================================================================
+
+Cloud Monitoring Console: https://console.cloud.google.com/monitoring
+Cloud Logs Explorer: https://console.cloud.google.com/logs
+Incident Response Playbook: docs/DR_PLAN.md
+Cloud Logs Guide: docs/CLOUD_LOGS_MONITORING_GUIDE.md
+Audit Trail Details: docs/adr/ADR-0012-rdc-978-audit-trail-logical-signature.md
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. TODAY (2026-05-07):
+   ➜ Read .planning/docs/SLO_TRACKING_QUICKSTART.md
+   ➜ Execute 5 deployment steps (30 min)
+   ➜ Post team briefing to Slack
+   ➜ Test all alerts
+
+2. TOMORROW (2026-05-08):
+   ➜ Verify dashboard loads
+   ➜ Check custom metrics populated
+   ➜ Monitor for false positives
+
+3. NEXT WEEK (2026-05-14):
+   ➜ Complete first weekly SLO review
+   ➜ Screenshot + post to Slack
+   ➜ Assess team adoption
+
+4. END OF MONTH (2026-05-31):
+   ➜ Fill SLO_MONTHLY_REPORT_TEMPLATE.md
+   ➜ Get sign-offs (DevOps / CTO / Auditor)
+   ➜ Archive report for auditor
+
+================================================================================
+SIGN-OFF
+================================================================================
+
+Observability Engineer: _________________________ Date: 2026-05-07
+Status: ✅ READY FOR DEPLOYMENT
+
+All artifacts complete.
+No blockers.
+No code changes required.
+Purely observability infrastructure.
+
+Deploy immediately. Monitor for 7 days. Adjust as needed.
+
+================================================================================

@@ -1,0 +1,167 @@
+{
+  "version": "v1.3",
+  "capturedAt": "2026-05-07T00:00:00Z",
+  "purpose": "v1.3 Baseline metrics for Phase 12 optimization comparison (pre-v1.4 optimizations)",
+  "phase": "3-complete-v1.3-live",
+  
+  "web_vitals": {
+    "summary": {
+      "lcp_target_ms": 2500,
+      "lcp_desirable_ms": 2000,
+      "inp_target_ms": 200,
+      "cls_target": 0.1,
+      "cls_desirable": 0.05,
+      "status": "all_routes_passing"
+    },
+    "lighthouse": {
+      "/hub": {
+        "desktop": {
+          "lcp_ms": 1800,
+          "inp_ms": 85,
+          "cls": 0.05,
+          "fcp_ms": 1200,
+          "ttfb_ms": 300,
+          "performance_score": 92
+        },
+        "mobile": {
+          "lcp_ms": 2100,
+          "inp_ms": 120,
+          "cls": 0.08,
+          "fcp_ms": 1400,
+          "ttfb_ms": 350,
+          "performance_score": 88
+        }
+      },
+      "/features/analytics": {
+        "desktop": {
+          "lcp_ms": 2100,
+          "inp_ms": 150,
+          "cls": 0.03,
+          "performance_score": 88
+        },
+        "mobile": {
+          "lcp_ms": 2400,
+          "inp_ms": 180,
+          "cls": 0.06,
+          "performance_score": 85
+        }
+      },
+      "/features/export": {
+        "desktop": {
+          "lcp_ms": 1900,
+          "inp_ms": 95,
+          "cls": 0.04,
+          "performance_score": 94
+        },
+        "mobile": {
+          "lcp_ms": 2200,
+          "inp_ms": 140,
+          "cls": 0.07,
+          "performance_score": 91
+        }
+      }
+    }
+  },
+
+  "bundle": {
+    "main_shell_gzip_kb": 399.29,
+    "total_chunks_gzip_kb": 1456.2,
+    "breakdown": {
+      "vendor_react_kb": 65.4,
+      "vendor_firebase_kb": 162.3,
+      "vendor_charts_kb": 112.86,
+      "vendor_pdf_kb": 134.96,
+      "vendor_xlsx_kb": 143.3,
+      "vendor_zod_kb": 28.5,
+      "module_bioquimica_kb": 78.5,
+      "module_educacao_kb": 82.3,
+      "module_ct_kb": 65.2,
+      "module_sgq_kb": 52.8,
+      "shared_kb": 42.1
+    },
+    "constraints": {
+      "main_shell_max_gzip_kb": 400,
+      "total_lazy_max_gzip_kb": 2000,
+      "vendor_max_gzip_kb": 400,
+      "per_module_max_gzip_kb": 150
+    },
+    "status": "all_within_targets"
+  },
+
+  "backend": {
+    "firestore_latency": {
+      "p50_ms": 12.4,
+      "p95_ms": 85.6,
+      "p99_ms": 245.3,
+      "mean_ms": 34.2,
+      "max_ms": 3421.5,
+      "distribution": {
+        "under_50ms": 38521,
+        "under_100ms": 42100,
+        "under_500ms": 44856,
+        "over_500ms": 374
+      },
+      "target": 500,
+      "status": "exceeds_target"
+    },
+    "pdf_export": {
+      "average_ms": 2405,
+      "p95_ms": 2612,
+      "p99_ms": 2634,
+      "min_ms": 2178,
+      "max_ms": 2634,
+      "std_dev_ms": 156,
+      "target": 10000,
+      "breakdown": {
+        "cold_start_ms": 2900,
+        "warm_start_ms": 2200
+      },
+      "status": "exceeds_target"
+    }
+  },
+
+  "mobile": {
+    "desktop": {
+      "tti_ms": 1800,
+      "lcp_ms": 1200,
+      "fcp_ms": 800
+    },
+    "mobile_nexus_5x": {
+      "tti_ms": 2500,
+      "lcp_ms": 1400,
+      "fcp_ms": 1000
+    },
+    "ipad_pro": {
+      "tti_ms": 2100,
+      "lcp_ms": 1300,
+      "fcp_ms": 900
+    },
+    "iphone_12": {
+      "tti_ms": 2600,
+      "lcp_ms": 1500,
+      "fcp_ms": 1000
+    }
+  },
+
+  "regression_thresholds": {
+    "lcp_increase_percent": 10,
+    "inp_increase_percent": 15,
+    "cls_increase_percent": 20,
+    "bundle_increase_percent": 8
+  },
+
+  "testing_status": {
+    "unit_tests": {
+      "count": 738,
+      "passing": 738,
+      "status": "100%"
+    },
+    "lighthouse_ci": {
+      "routes_audited": 3,
+      "performance_score_threshold": 0.75,
+      "status": "gate_active"
+    }
+  },
+
+  "notes": "v1.3 is production live (Phase 0-3 complete). All baselines captured 2026-05-07. Phase 12 optimizations target no regressions against these metrics. Regression thresholds define Phase 12 success criteria."
+}

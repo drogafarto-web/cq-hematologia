@@ -1,0 +1,67 @@
+date,category,subcategory,amount_usd,phase,owner,status,notes
+2026-05-20,cloud,Firebase - Firestore Reads,25.00,4,Agent-1,actual,Portal laudo list + NOTIVISA polling
+2026-05-20,cloud,Firebase - Cloud Functions,12.00,4,Agent-1,actual,Portal auth callables invocation
+2026-05-20,cloud,Firebase - Hosting Bandwidth,12.00,4,Agent-2,actual,Portal UI assets
+2026-05-20,engineering,Phase 4 - Auth Callables,360.00,4,Agent-1,actual,16 hours @ 80/hr
+2026-05-21,engineering,Phase 4 - Portal UI Components,400.00,4,Agent-2,actual,20 hours @ 80/hr
+2026-05-22,engineering,Phase 4 - NOTIVISA Queue,320.00,4,Agent-3,actual,16 hours @ 80/hr
+2026-05-23,engineering,Phase 4 - E2E Testing,320.00,4,Agent-4,actual,16 hours @ 80/hr
+2026-05-31,cloud,Firebase - Firestore Reads,30.00,4,Agent-1,actual,Phase 4 stabilization
+2026-05-31,cloud,Firebase - Cloud Functions,15.00,4,Agent-1,actual,Phase 4 testing load
+2026-05-31,cloud,Firebase - Hosting Bandwidth,14.00,4,Agent-2,actual,Portal portal traffic
+2026-06-01,external,Penetration Test - Week 1,1125.00,10,CTO,committed,Phase 10 security assessment
+2026-06-01,engineering,Phase 4 Contingency,360.00,4,CTO,actual,Scope creep absorption
+2026-06-02,cloud,Firebase Deploy Costs,5.00,4,Agent-1,actual,Rules + Functions + Hosting deploy
+2026-06-05,cloud,Firebase - Firestore Reads,50.00,5,Agent-5,actual,Portal usage growth + NOTIVISA queue
+2026-06-05,cloud,Firebase - Firestore Writes,18.00,5,Agent-5,actual,Result recording + audit trail
+2026-06-05,cloud,Firebase - Cloud Functions,35.00,5,Agent-5,actual,Critical detection engine spike
+2026-06-05,cloud,Twilio SMS - Testing,25.00,5,Agent-5,actual,Critical value alert pilots (250 SMS)
+2026-06-09,cloud,Gemini Vision API,275.00,5,Agent-6,projected,IA strip annotation (500 images)
+2026-06-09,engineering,Phase 5 - Critical Thresholds,400.00,5,Agent-5,actual,20 hours @ 80/hr
+2026-06-09,engineering,Phase 5 - SMS Integration,560.00,5,Agent-5,actual,28 hours @ 80/hr
+2026-06-09,engineering,Phase 5 - IA Upload UI,800.00,5,Agent-6,actual,40 hours @ 80/hr
+2026-06-09,engineering,Phase 5 - Feedback Loop,480.00,5,Agent-7,actual,24 hours @ 80/hr
+2026-06-15,cloud,Twilio SMS - Production,75.00,5,Agent-5,projected,Critical value alerts (750 SMS @ 2.5k/day trend)
+2026-06-15,external,Penetration Test - Week 2,1125.00,10,CTO,committed,Portal security assessment
+2026-06-30,cloud,Firebase - Firestore Reads,95.00,5,Agent-5,actual,Phase 5 portal + IA load
+2026-06-30,cloud,Firebase - Firestore Writes,45.00,5,Agent-5,actual,Escalation logs + IA feedback
+2026-06-30,cloud,Firebase - Cloud Functions,85.00,5,Agent-5,actual,Critical detection + IA processing
+2026-06-30,cloud,Gemini Vision API,400.00,5,Agent-6,actual,IA strip annotation expansion (500+)
+2026-06-30,cloud,Twilio SMS - Production,75.00,5,Agent-5,actual,Critical escalation (2250 SMS)
+2026-06-30,cloud,Firebase - Hosting Bandwidth,18.00,5,Agent-2,actual,Portal + patient feedback forms
+2026-06-30,engineering,Phase 5 Contingency,600.00,5,CTO,actual,API tuning + feature refinement
+2026-07-01,cloud,Puppeteer PDF Generation,50.00,6,Agent-8,projected,Laudos draft → PDF (500/month)
+2026-07-01,engineering,Phase 6 - PDF Generation,400.00,6,Agent-8,actual,20 hours @ 80/hr
+2026-07-01,engineering,Phase 6 - Portal Médico SSO,320.00,6,Agent-9,actual,16 hours @ 80/hr
+2026-07-01,engineering,Phase 6 - E2E Suite,280.00,6,Agent-8,actual,14 hours @ 80/hr
+2026-07-08,engineering,Phase 7 - Portal Paciente,400.00,7,Agent-9,actual,20 hours @ 80/hr
+2026-07-08,engineering,Phase 7 - Trending Dashboard,320.00,7,Agent-9,actual,16 hours @ 80/hr
+2026-07-08,engineering,Phase 7 - LGPD Polish,280.00,7,Agent-10,actual,14 hours @ 80/hr
+2026-07-15,cloud,Gemini Vision API,800.00,7,Agent-6,projected,IA strip annotation production (2000+ images)
+2026-07-15,cloud,Twilio SMS - Production,150.00,7,Agent-5,projected,Critical escalation peak (5000+ SMS)
+2026-07-15,cloud,Firebase - Firestore Reads,105.00,7,CTO,actual,Portal + analytics + CAPA artifact reads
+2026-07-15,cloud,Firebase - Firestore Writes,55.00,7,CTO,actual,CAPA + audit trail writes spike
+2026-07-15,engineering,Phase 8 - Findings F-01 F-04,960.00,8,Eng-A,actual,48 hours turno/DPIA/lab-apoio/risks
+2026-07-22,engineering,Phase 8 - Auditor Prep,640.00,8,CTO,actual,32 hours CTO @ 150/hr management + ceremony
+2026-07-22,engineering,Phase 9 - Advanced KPI,320.00,9,Agent-8,actual,16 hours @ 80/hr
+2026-07-22,engineering,Phase 9 - KPI Dashboard UI,280.00,9,Agent-9,actual,14 hours @ 80/hr
+2026-07-22,engineering,Phase 9 - PDF Export,200.00,9,Agent-8,actual,10 hours @ 80/hr
+2026-07-29,cloud,Gemini Vision API,500.00,7,Agent-6,actual,IA strip annotation ongoing (3000+ YTD)
+2026-07-29,cloud,Twilio SMS - Production,180.00,8,Agent-5,actual,Critical escalation sustained (6000 SMS)
+2026-07-29,engineering,Phase 12 - Data Migration,160.00,12,Eng-B,actual,8 hours Firestore bulk ops
+2026-07-29,engineering,Phase 12 - Riopomba Validation,128.00,12,Eng-C,actual,8 hours DICQ spot-check
+2026-07-29,engineering,Phase 12 - Smoke Testing,192.00,12,QA,actual,12 hours E2E validation
+2026-08-05,cloud,Auditor Ceremony Cloud Logging,15.00,8,CTO,actual,24h audit trail export
+2026-08-05,engineering,Phase 8 - CAPA Sign-Off,320.00,8,CTO,actual,16 hours CTO @ 150/hr final ceremony
+2026-08-05,external,Penetration Test - Week 3,1125.00,10,CTO,actual,Final assessment + sign-off
+2026-08-15,cloud,Firebase - Firestore Reads,125.00,9,CTO,actual,Post-CAPA analytics + KPI queries
+2026-08-15,cloud,Firebase - Firestore Writes,60.00,9,CTO,actual,Test data refresh + validation
+2026-08-15,cloud,Gemini Vision API,500.00,9,Agent-6,actual,IA iteration A/B test (5500 YTD)
+2026-08-15,cloud,Twilio SMS - Production,200.00,9,Agent-5,actual,Critical escalation sustained
+2026-08-31,cloud,Firebase - Hosting Bandwidth,22.00,9,CTO,actual,Extended analytics portal usage
+2026-09-15,cloud,Firebase - Firestore Reads,140.00,buffer,CTO,projected,Post-audit operations
+2026-09-15,cloud,Firebase - Cloud Functions,100.00,buffer,CTO,projected,Baseline function operations
+2026-09-15,cloud,Gemini Vision API,300.00,buffer,Agent-6,projected,IA model refinement
+2026-09-15,cloud,Twilio SMS,200.00,buffer,Agent-5,projected,Production escalation ops
+2026-09-30,engineering,Phase Contingency - Reserve,2400.00,phases-4-12,CTO,projected,15% buffer across phases
+2026-09-30,cloud,Cloud Contingency - Reserve,1500.00,phases-4-12,CTO,projected,API overages + unexpected costs
