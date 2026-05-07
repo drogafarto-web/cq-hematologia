@@ -446,10 +446,11 @@ export { scheduledWeeklyExport } from './modules/export/scheduledExport';
 // Multi-channel complaint intake (6 channels), Gemini AI auto-classification,
 // 5-Whys RCA workflow, NPS post-resolution, suggestions module.
 // RDC 978 Art. 86 + LGPD compliance.
+// parseEmailReclamacao DISABLED 2026-05-07 — Resend Inbound webhook deprecated
+// (Resend → SMTP migration; SMTP has no inbound equivalent). Source retained.
 export {
   criarReclamacao,
   classificarReclamacaoIA,
-  parseEmailReclamacao,
   criarNCDraft,
   transitarReclamacao,
 } from './modules/reclamacoes/index';

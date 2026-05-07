@@ -1,27 +1,17 @@
 import { onDocumentUpdated } from 'firebase-functions/v2/firestore';
 import { db, admin } from '../../shared/firebase';
-import { Resend } from 'resend';
+import { sendEmail, ALL_SMTP_SECRETS } from '../../shared/email/smtpClient';
 import { generateNPSToken } from '../../shared/tokenUtils';
-
-let resend: Resend | null = null;
-
-function getResendClient() {
-  if (!resend) {
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) {
-      throw new Error('RESEND_API_KEY environment variable is not set');
-    }
-    resend = new Resend(apiKey);
-  }
-  return resend;
-}
 
 /**
  * Trigger: When reclamacao transitions to 'Resolvida'
  * Action: Send NPS survey email to reclamant with unique token (valid 14 days)
  */
 export const dispararNPSPosResolucao = onDocumentUpdated(
-  { document: 'labs/{labId}/reclamacoes/{reclamacaoId}' },
+  {
+    document: 'labs/{labId}/reclamacoes/{reclamacaoId}',
+    secrets: [...ALL_SMTP_SECRETS],
+  },
   async (event) => {
     const { labId, reclamacaoId } = event.params as { labId: string; reclamacaoId: string };
     const before = event.data?.before.data();
@@ -55,24 +45,21 @@ export const dispararNPSPosResolucao = onDocumentUpdated(
         <p>Seu feedback é importante para melhorarmos continuamente.</p>
       `;
 
-      // Send via Resend
-      const client = getResendClient();
-      const response = await client.emails.send({
-        from: 'reclamacoes@hmatologia2.web.app',
+      // Send via SMTP
+      await sendEmail({
         to: reclamante.email,
         subject: `Sua reclamação foi resolvida - Avalie nossa resposta`,
         html: htmlBody,
       });
 
       // Log email delivery
-      const resendId = response.data?.id ?? null;
       await db.collection('comunicacoes-cliente').add({
         labId,
         reclamacaoId,
         tipo: 'nps-pos-resolucao',
         destinatario: reclamante.email,
-        status: resendId ? 'enviado' : 'erro',
-        resendId,
+        status: 'enviado',
+        transport: 'smtp',
         criadoEm: admin.firestore.FieldValue.serverTimestamp(),
       });
 
