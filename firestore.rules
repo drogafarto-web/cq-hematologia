@@ -100,6 +100,19 @@ service cloud.firestore {
         || (d.locked_by != null && d.locked_by == request.auth.uid);
     }
 
+    // hasActiveSupervisor(labId) — RDC 978/2025 Art. 122 enforcement.
+    // Reads /labs/{labId}/supervisor-status/current (server-only cache;
+    // turnos_supervisorCheckin / turnos_supervisorCheckout maintain it).
+    // FAIL-CLOSED: if the cache doc doesn't exist, returns false and blocks
+    // critical CIQ writes. Each lab must bootstrap a supervisor-status doc
+    // before deploy via the one-shot migration script.
+    // SuperAdmin bypass remains for incident response.
+    function hasActiveSupervisor(labId) {
+      let statusPath = /databases/$(database)/documents/labs/$(labId)/supervisor-status/current;
+      return exists(statusPath)
+        && get(statusPath).data.hasActiveSupervisor == true;
+    }
+
     // ── /users ────────────────────────────────────────────────────────────────
 
     match /users/{userId} {
@@ -145,7 +158,9 @@ service cloud.firestore {
         match /runs/{runId} {
           allow read: if isSuperAdmin() ||
             (isActiveMemberOfLab(labId) && hasModuleAccess('hematologia'));
-          allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          // RDC 978 Art. 122: critical run writes require active supervisor presence.
+          allow create, update: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && hasActiveSupervisor(labId));
           allow delete: if isSuperAdmin() || (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
         }
       }
@@ -172,7 +187,9 @@ service cloud.firestore {
         match /runs/{runId} {
           allow read: if isSuperAdmin() ||
             (isActiveMemberOfLab(labId) && hasModuleAccess('imunologia'));
-          allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          // RDC 978 Art. 122: critical run writes require active supervisor presence.
+          allow create, update: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && hasActiveSupervisor(labId));
           allow delete: if isSuperAdmin() ||
             (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
         }
@@ -265,7 +282,9 @@ service cloud.firestore {
         match /runs/{runId} {
           allow read: if isSuperAdmin() ||
             (isActiveMemberOfLab(labId) && hasModuleAccess('uroanalise'));
-          allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          // RDC 978 Art. 122: critical run writes require active supervisor presence.
+          allow create, update: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && hasActiveSupervisor(labId));
           allow delete: if isSuperAdmin() ||
             (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
         }
@@ -384,7 +403,9 @@ service cloud.firestore {
         // operadores criam/atualizam runs; deletes restritos a admins.
         match /runs/{runId} {
           allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
-          allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          // RDC 978 Art. 122: critical run writes require active supervisor presence.
+          allow create, update: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && hasActiveSupervisor(labId));
           allow delete: if isSuperAdmin() ||
             (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
         }
@@ -1842,6 +1863,28 @@ service cloud.firestore {
       match /supervisor-status/{docId} {
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow create, update, delete: if false;  // Callables only (DL-1)
+      }
+
+      // ── Chained-audit failure markers (sibling pattern) ────────────────────
+      // Written by writeChainedAudit when signAuditEntry exhausts retries.
+      // Lives next to chain target collections (notas-fiscais, future labApoio,
+      // future ceq) — never inside the chain — so chain hash continuity is
+      // preserved. Pattern: `<leaf>-auditFailures` (e.g. notas-fiscais-auditFailures).
+      // Read-only by superadmin/RT/admin/owner. Admin SDK writes only.
+      match /{leafAuditFailures}/{eventId} {
+        allow read: if leafAuditFailures.matches('.*-auditFailures')
+                    && (
+                      isSuperAdmin()
+                      || (
+                        isActiveMemberOfLab(labId)
+                        && isAdminOrOwner(labId)
+                      )
+                      || (
+                        exists(/databases/$(database)/documents/labs/$(labId)/members/$(request.auth.uid))
+                        && get(/databases/$(database)/documents/labs/$(labId)/members/$(request.auth.uid)).data.role == 'RT'
+                      )
+                    );
+        allow create, update, delete: if false;  // Admin SDK only
       }
 
       // ── /lab-apoio — Support Lab Contracts (Phase 0 / Plan 00-03) ─────────────
