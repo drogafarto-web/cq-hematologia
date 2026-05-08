@@ -12,7 +12,8 @@ import type {
 } from '../types/Risk';
 import { DEFAULT_NPR_THRESHOLDS } from '../types/Risk';
 import { httpsCallable } from 'firebase/functions';
-import { functions } from '../../../shared/services/firebase';
+import { functions, db } from '../../../shared/services/firebase';
+import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
 
 // ─── NPR Computation & Nivel Derivation ────────────────────────────────────
 
@@ -57,7 +58,6 @@ export { DEFAULT_NPR_THRESHOLDS };
 
 /**
  * Subscribe to risks in a lab (filtered by deletadoEm client-side).
- * Lazy-loads Firebase to avoid import issues in tests.
  */
 export function subscribeRisks(
   labId: string,
@@ -65,9 +65,6 @@ export function subscribeRisks(
   onData?: (risks: Risk[]) => void,
   onError?: (error: Error) => void
 ) {
-  const { collection, query, where, onSnapshot } = require('firebase/firestore');
-  const { db } = require('../../shared/services/firebase');
-
   const constraints: any[] = [where('labId', '==', labId)];
 
   // Filter by status if provided
@@ -144,9 +141,6 @@ export function subscribeRisks(
  * Get a single risk by ID.
  */
 export async function getRisk(labId: string, riskId: string): Promise<Risk | null> {
-  const { doc, getDoc } = require('firebase/firestore');
-  const { db } = require('../../shared/services/firebase');
-
   const docRef = doc(db, 'risks', riskId);
   const docSnap = await getDoc(docRef);
 
