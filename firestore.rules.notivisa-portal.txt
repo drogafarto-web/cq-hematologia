@@ -1,0 +1,141 @@
+// ─── NOTIVISA PORTAL AUTHENTICATION RULES ───────────────────────────────────
+// Add these rules to your firestore.rules file
+//
+// Collections:
+// - notivisa-portal-sessions/{labId}/sessions/{sessionId}
+// - notivisa-portal-audit/{labId}/events/{eventId}
+// - notivisa-portal-oauth-state/{state}
+//
+// Multi-tenant: all sessions scoped to labId in path
+// Security: sessions contain sensitive OAuth tokens (encrypted at rest via Firebase)
+
+// ─── NOTIVISA Portal Sessions Collection ─────────────────────────────────────
+match /notivisa-portal-sessions/{labId}/sessions/{sessionId} {
+  // Read: user who owns the session, or lab admin
+  allow read: if isActiveMemberOfLab(labId) &&
+              (
+                request.auth.uid == resource.data.userId ||
+                isAdminOrOwner(labId) ||
+                request.auth.token.role == 'AUDITOR'
+              );
+
+  // Create: Cloud Function only (not client)
+  allow create: if false;
+
+  // Update: Cloud Function only (refresh token, mark expired, etc)
+  allow update: if false;
+
+  // Delete: never (soft-delete only via update)
+  allow delete: if false;
+}
+
+// ─── NOTIVISA Portal Audit Events ────────────────────────────────────────────
+match /notivisa-portal-audit/{labId}/events/{eventId} {
+  // Read: lab admin, auditor, or user who generated the event
+  allow read: if isActiveMemberOfLab(labId) &&
+              (
+                isAdminOrOwner(labId) ||
+                request.auth.token.role == 'AUDITOR' ||
+                request.auth.uid == resource.data.userId
+              );
+
+  // Create: Cloud Function only
+  allow create: if false;
+
+  // Update, Delete: never (immutable audit trail)
+  allow update, delete: if false;
+}
+
+// ─── OAuth State Parameter Storage (temporary) ──────────────────────────────
+match /notivisa-portal-oauth-state/{state} {
+  // Read: unauthenticated (state is not sensitive, but short-lived)
+  allow read: if request.auth == null;
+
+  // Create: Cloud Function only (during OAuth initiation)
+  allow create: if false;
+
+  // Update, Delete: Cloud Function only (cleanup)
+  allow update, delete: if false;
+}
+
+// ─── Helper Functions (add to firestore.rules header) ──────────────────────
+
+function isActiveMemberOfLab(labId) {
+  return exists(/databases/$(database)/documents/labs/$(labId)/members/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/labs/$(labId)/members/$(request.auth.uid)).data.status == 'active';
+}
+
+function isAdminOrOwner(labId) {
+  let memberDoc = get(/databases/$(database)/documents/labs/$(labId)/members/$(request.auth.uid));
+  return isActiveMemberOfLab(labId) &&
+         (memberDoc.data.role == 'admin' || memberDoc.data.role == 'owner');
+}
+
+// ─── Composite Indexes (create in Firestore Console or deploy via firestore.indexes.json) ──────
+
+/*
+Index 1: notivisa-portal-sessions (user's sessions)
+  Collection: notivisa-portal-sessions/{labId}/sessions
+  Fields:
+    - userId (ASCENDING)
+    - status (ASCENDING)
+
+Index 2: notivisa-portal-sessions (active sessions by last activity)
+  Collection: notivisa-portal-sessions/{labId}/sessions
+  Fields:
+    - status (ASCENDING)
+    - lastActivityAt (DESCENDING)
+
+Index 3: notivisa-portal-audit (audit by action date)
+  Collection: notivisa-portal-audit/{labId}/events
+  Fields:
+    - action (ASCENDING)
+    - ts (DESCENDING)
+
+Index 4: notivisa-portal-sessions (expiry cleanup)
+  Collection: notivisa-portal-sessions/{labId}/sessions
+  Fields:
+    - status (ASCENDING)
+    - expiresAt (ASCENDING)
+*/
+
+// ─── Firestore Indexes JSON (firestore.indexes.json) ───────────────────────
+
+/*
+{
+  "indexes": [
+    {
+      "collectionGroup": "sessions",
+      "queryScope": "Collection",
+      "fields": [
+        {"fieldPath": "userId", "order": "ASCENDING"},
+        {"fieldPath": "status", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "sessions",
+      "queryScope": "Collection",
+      "fields": [
+        {"fieldPath": "status", "order": "ASCENDING"},
+        {"fieldPath": "lastActivityAt", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "events",
+      "queryScope": "Collection",
+      "fields": [
+        {"fieldPath": "action", "order": "ASCENDING"},
+        {"fieldPath": "ts", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "sessions",
+      "queryScope": "Collection",
+      "fields": [
+        {"fieldPath": "status", "order": "ASCENDING"},
+        {"fieldPath": "expiresAt", "order": "ASCENDING"}
+      ]
+    }
+  ]
+}
+*/

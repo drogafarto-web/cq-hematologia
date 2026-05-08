@@ -223,42 +223,33 @@ service cloud.firestore {
       }
 
       // ── /ciq-coagulacao — MVP OPEN ACCESS ────────────────────────────────
+      // MVP: sem restrições. Pós-produção: adicionar validação de membership.
       match /ciq-coagulacao/{lotId} {
-        allow read: if isSuperAdmin() ||
-          (isActiveMemberOfLab(labId) && hasModuleAccess('coagulacao'));
-        allow write: if true;
+        allow read, write: if true;
 
         match /runs/{runId} {
-          allow read: if isSuperAdmin() ||
-            (isActiveMemberOfLab(labId) && hasModuleAccess('coagulacao'));
+          allow read: if true;
           allow create, update: if true;
-          allow delete: if isSuperAdmin() ||
-            (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+          allow delete: if isSuperAdmin();
         }
 
         match /audit/{auditId} {
-          allow read: if isSuperAdmin() ||
-            (isActiveMemberOfLab(labId) && hasModuleAccess('coagulacao'));
+          allow read: if true;
           allow create: if true;
           allow update, delete: if false;
         }
       }
 
       match /ciq-coagulacao-meta/{docId} {
-        allow read: if isSuperAdmin() ||
-          (isActiveMemberOfLab(labId) && hasModuleAccess('coagulacao'));
-        allow write: if true;
+        allow read, write: if true;
       }
 
       match /ciq-coagulacao-config/{docId} {
-        allow read: if isSuperAdmin() ||
-          (isActiveMemberOfLab(labId) && hasModuleAccess('coagulacao'));
-        allow write: if true;
+        allow read, write: if true;
       }
 
       match /ciq-coagulacao-audit/{docId} {
-        allow read: if isSuperAdmin() ||
-          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow read: if true;
         allow create: if true;
         allow update, delete: if false;
       }

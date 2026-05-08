@@ -627,3 +627,15 @@ export interface ReportStats {
   westgardByRule: Record<string, number>;
   byOperator: OperatorStat[];
 }
+
+// ─── Audit Signature ──────────────────────────────────────────────────────────
+
+/**
+ * Wrapper auditável da assinatura lógica — gravada em coleções regulatórias
+ * para rastreabilidade RDC 978/2025.
+ */
+export interface LogicalSignature {
+  hash: string;
+  operatorId: string;
+  ts: import('firebase/firestore').Timestamp;
+}
