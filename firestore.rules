@@ -660,6 +660,40 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // ── /auditLogFailures — Phase 5: writeAuditLog fallback (Agent 8) ──────
+    // Written by Cloud Functions (Admin SDK, rules-bypassed) when the primary
+    // auditLogs/ write exhausts retries. Read-only by superadmin and lab RT/admin/owner.
+    match /auditLogFailures/{labId}/events/{eventId} {
+      allow read: if request.auth != null
+                  && (
+                    request.auth.token.isSuperAdmin == true
+                    || (
+                      exists(/databases/$(database)/documents/labs/$(labId)/members/$(request.auth.uid))
+                      && get(/databases/$(database)/documents/labs/$(labId)/members/$(request.auth.uid)).data.role
+                         in ['owner','admin','RT']
+                    )
+                  );
+      allow create, update, delete: if false;  // Admin SDK only
+    }
+
+    // ── /consents — Phase 5: Patient AI-processing consent (LGPD Art. 9/11) ─
+    // Source of truth for opt-in/opt-out for ia-strip Gemini Vision pipeline.
+    // Reads open to active lab members (operators verify before capture).
+    // Writes server-only via recordPatientConsent callable. Revocation = field
+    // update (`revokedAt = serverTimestamp()`), never delete.
+    match /consents/{labId}/patients/{patientId} {
+      allow read: if isActiveMemberOfLab(labId);
+      allow create, update, delete: if false;  // Callables only (DL-1)
+    }
+
+    // ── /imuno-ia-guardrails — Phase 5: ia-strip guardrail audit trail ──────
+    // Immutable per-capture record that PII redaction + consent gate passed
+    // before egress to generativelanguage.googleapis.com.
+    match /imuno-ia-guardrails/{labId}/events/{eventId} {
+      allow read: if isActiveMemberOfLab(labId);
+      allow create, update, delete: if false;  // Admin SDK only
+    }
+
     match /accessRequests/{reqId} {
       allow list, get, update, delete: if isSuperAdmin();
       allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
@@ -1786,6 +1820,28 @@ service cloud.firestore {
           allow update: if false;  // Immutable after creation
           allow delete: if false;  // Append-only trail
         }
+
+        // ── Phase 5 — Presence enforcement (RDC 978 Art. 122) ──────────────────
+        // Singleton presença/current per turno. Server-only writes via callables
+        // turnos_supervisorCheckin / turnos_supervisorCheckout.
+        match /presenca/{docId} {
+          allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow create, update, delete: if false;  // Callables only (DL-1)
+        }
+
+        // Append-only chain-hashed presence audit trail.
+        match /presenca-events/{eventId} {
+          allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow create, update, delete: if false;  // Callables only (DL-1)
+        }
+      }
+
+      // ── /supervisor-status — Lab-wide active supervisor cache ──────────────
+      // RDC 978/2025 Art. 122: hasActiveSupervisor consumed by runs/laudos rules.
+      // Server-only writes via supervisor check-in/check-out callables.
+      match /supervisor-status/{docId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update, delete: if false;  // Callables only (DL-1)
       }
 
       // ── /lab-apoio — Support Lab Contracts (Phase 0 / Plan 00-03) ─────────────
