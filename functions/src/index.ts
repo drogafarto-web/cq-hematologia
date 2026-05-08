@@ -201,6 +201,17 @@ export {
   onTurnoEventCreated,
 } from './modules/turnos/index';
 
+// ─── rt-presence module (Phase 6 / Wave 3-4 — RDC 978 Art. 22) ───────────────
+// Responsável Técnico (RT) continuous presence during critical QC operations.
+// DL-1 — callables for presence gating (Phase 6+).
+//   rtPresenceCheckin               — RT check-in (starts 8h session, hasActiveRT=true)
+//   rtPresenceCheckout              — RT check-out (ends session, hasActiveRT=false)
+//   Chain-hashed audit trail /rt-presenca-events with integrity validation (RN-PRESENCA-05)
+export {
+  rtPresenceCheckin,
+  rtPresenceCheckout,
+} from './modules/rt-presence/index';
+
 // ─── lab-apoio module (Phase 0 / Plan 00-03 — RDC 978 Arts. 36–39) ────────────
 // Support lab contracts (CNPJ + AVS habilitação + vigência + exames + annual eval).
 // DL-1 — callables from day 1 (no client-side writes).
