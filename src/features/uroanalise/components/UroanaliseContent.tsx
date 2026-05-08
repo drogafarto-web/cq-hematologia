@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useUser, useUserRole, useIsSuperAdmin, useActiveLabId } from '../../../store/useAuthStore';
+import { toast } from '../../../shared/store/useToastStore';
 import { useUroRuns } from '../hooks/useUroRuns';
 import { useSaveUroRun } from '../hooks/useSaveUroRun';
 import { useUroValidator } from '../hooks/useUroValidator';
@@ -339,26 +340,32 @@ export function UroanaliseContent({
       return;
     try {
       await updateUroLotDecision(activeLot.labId, activeLot.id, decision, user.uid);
+      toast.success(`Decisão "${decision}" registrada. Auditada e imutável.`);
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Erro ao registrar decisão.');
+      const msg = err instanceof Error ? err.message : 'Erro ao registrar decisão.';
+      toast.error(msg);
     }
   }
 
   function handleExport() {
     if (!activeLot) return;
     if (runs.length === 0) {
-      alert('Nenhuma corrida para exportar.');
+      toast.warning('Nenhuma corrida para exportar.');
       return;
     }
     exportUroRunsToCSV(runs, `FR036_Uro_Nivel${activeLot.nivel}_${activeLot.loteControle}`);
+    toast.success(`${runs.length} corrida${runs.length !== 1 ? 's' : ''} exportada${runs.length !== 1 ? 's' : ''}.`);
   }
 
   async function handlePin(setupType: 'principal' | 'validacao_paralela') {
     if (!activeLot || !user) return;
     try {
       await vincularUroLot(activeLot.labId, activeLot.id, setupType, user.uid);
+      const label = setupType === 'principal' ? 'Setup Oficial' : 'Em Validação';
+      toast.success(`Lote vinculado como ${label}. Auditado.`);
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Erro ao vincular.');
+      const msg = err instanceof Error ? err.message : 'Erro ao vincular.';
+      toast.error(msg);
     }
   }
 
@@ -367,8 +374,10 @@ export function UroanaliseContent({
     if (!confirm(`Desvincular o lote ${activeLot.loteControle} (Nível ${activeLot.nivel}) da bancada?`)) return;
     try {
       await desvincularUroLot(activeLot.labId, activeLot.id, user.uid);
+      toast.success('Lote desvinculado. Auditado.');
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Erro ao desvincular.');
+      const msg = err instanceof Error ? err.message : 'Erro ao desvincular.';
+      toast.error(msg);
     }
   }
 
@@ -386,10 +395,12 @@ export function UroanaliseContent({
         },
         user.uid,
       );
+      toast.success(`Lote ${activeLot.loteControle} excluído. Auditado em histórico.`);
       setShowDelete(false);
       setActiveLotId(null);
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Erro ao excluir lote.');
+      const msg = err instanceof Error ? err.message : 'Erro ao excluir lote.';
+      toast.error(msg);
     }
   }
 
@@ -636,22 +647,26 @@ export function UroanaliseContent({
                   </button>
                 </>
               )}
-              <button
-                type="button"
-                onClick={() => setShowEdit(true)}
-                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border border-slate-200 dark:border-white/[0.09] text-slate-500 dark:text-white/55 hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all"
-              >
-                <EditIcon /> Editar
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowDelete(true)}
-                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border border-red-300/50 dark:border-red-500/25 text-red-500 dark:text-red-400/90 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
-              >
-                <TrashIcon /> Excluir
-              </button>
             </>
           )}
+          <button
+            type="button"
+            onClick={() => canDecide && setShowEdit(true)}
+            disabled={!canDecide}
+            title={canDecide ? 'Editar datas do lote' : 'Apenas owner/admin podem editar lotes'}
+            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border border-slate-200 dark:border-white/[0.09] text-slate-500 dark:text-white/55 hover:bg-slate-50 dark:hover:bg-white/[0.05] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            <EditIcon /> Editar
+          </button>
+          <button
+            type="button"
+            onClick={() => canDecide && setShowDelete(true)}
+            disabled={!canDecide}
+            title={canDecide ? 'Excluir lote e todas suas corridas' : 'Apenas owner/admin podem excluir lotes'}
+            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border border-red-300/50 dark:border-red-500/25 text-red-500 dark:text-red-400/90 hover:bg-red-50 dark:hover:bg-red-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            <TrashIcon /> Excluir
+          </button>
         </div>
       </div>
 
@@ -694,8 +709,17 @@ export function UroanaliseContent({
             <SpinnerIcon /> Carregando corridas…
           </div>
         ) : runs.length === 0 ? (
-          <div className="py-12 text-center text-sm text-slate-400 dark:text-white/30 rounded-xl border border-dashed border-slate-200 dark:border-white/[0.08]">
-            Nenhuma corrida registrada neste lote.
+          <div className="py-12 text-center rounded-xl border border-dashed border-slate-200 dark:border-white/[0.08]">
+            <p className="text-sm text-slate-500 dark:text-white/40 mb-3">
+              Nenhuma corrida registrada neste lote.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowForm(true)}
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium bg-amber-600 hover:bg-amber-500 text-white transition-all"
+            >
+              <PlusIcon /> Registrar primeira corrida
+            </button>
           </div>
         ) : (
           <RunsTable
