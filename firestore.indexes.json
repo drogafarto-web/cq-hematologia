@@ -672,6 +672,37 @@
       ]
     },
     {
+      "collectionGroup": "notivisa-drafts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "notivisa-drafts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "laudoId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "notivisa-queue",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "nextRetry", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "notivisa-queue",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "criticos-escalacoes",
       "queryScope": "COLLECTION",
       "fields": [
