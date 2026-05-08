@@ -1,75 +1,98 @@
-# NOTIVISA Access Credentials — Audit Trail
+# NOTIVISA Access Credentials — REDACTED
 
-**Document:** NOTIVISA Portal Access Confirmation  
-**Date:** 2026-05-08  
-**Status:** ✅ VERIFIED ACCESS  
-
----
-
-## Credentials Registered
-
-| Field | Value |
-|-------|-------|
-| **Portal** | [NOTIVISA ANVISA](https://notivisa.anvisa.gov.br/frmLogin.asp) |
-| **Email** | gqlabclin@gmail.com |
-| **Password** | pop12qw |
-| **Access Level** | Gestor de Qualidade (Quality Manager) |
-| **Gestor Responsável** | Bruno de Andrade Pires |
-| **Gestor Email** | drogafarto@gmail.com |
-| **Gestor Password** | pop2qw |
+> **SECURITY INCIDENT 2026-05-08:** This document previously contained
+> plaintext NOTIVISA portal passwords. The full credential set has been
+> redacted from the working tree. Historical commits still expose the
+> values until `git filter-repo` is executed (see remediation below).
+> Any password that ever appeared in git history MUST be considered
+> compromised and rotated immediately.
 
 ---
 
-## Access Verification
+## Where credentials live now
 
-- [x] Email login successful
-- [x] Portal dashboard accessible
-- [x] Menu "Integração API" visible
-- [x] Screenshot saved as comprovação
-- [ ] API credentials extracted (Client ID, Secret, Sandbox URL)
-- [ ] API documentation reviewed
-- [ ] Rate limits confirmed: 5 req/min
+| Field | Location |
+|-------|----------|
+| Portal URL | `notivisa-config` Firestore doc (lab-scoped) |
+| Portal email (gestor) | Firebase Secret Manager: `NOTIVISA_PORTAL_EMAIL` |
+| Portal password | Firebase Secret Manager: `NOTIVISA_PORTAL_PASSWORD` |
+| API Client ID | Firebase Secret Manager: `NOTIVISA_CLIENT_ID` |
+| API Client Secret | Firebase Secret Manager: `NOTIVISA_CLIENT_SECRET` |
+| Webhook signing secret | Firebase Secret Manager: `NOTIVISA_WEBHOOK_SECRET` |
 
----
+Provisioning command:
 
-## Rate Limit Configuration
+```bash
+firebase functions:secrets:set NOTIVISA_PORTAL_PASSWORD --project hmatologia2
+# Paste rotated value when prompted; never commit.
+```
 
-- **Quota:** 5 requisições/minuto
-- **Queue Processor Backoff:** 1m → 5m → 15m → 45m → 120m
-- **Max Retries:** 5
-- **Impact:** Within tolerance for Phase 4 deployment
+Access pattern (Cloud Functions only):
 
----
+```ts
+import { defineSecret } from 'firebase-functions/params';
+const NOTIVISA_PORTAL_PASSWORD = defineSecret('NOTIVISA_PORTAL_PASSWORD');
+// Inside callable: NOTIVISA_PORTAL_PASSWORD.value()
+```
 
-## Next Steps
-
-1. **Extract API Credentials** (from portal menu)
-   - Client ID
-   - Client Secret
-   - Sandbox URL
-   - Webhook endpoint format
-
-2. **Register Webhook Endpoint**
-   - URL: `https://hmatologia2.web.app/api/notivisa-webhook`
-   - Method: POST
-   - Auth: Bearer token (if required)
-
-3. **Test Integration** (May 15–20)
-   - Submit test draft
-   - Monitor queue processor
-   - Verify webhook callback
-
-4. **Production Go-Live** (May 20 deploy)
-   - Smoke tests include NOTIVISA integration
-   - Rollback procedure ready
+Reference: `docs/adr/ADR-0018-deploy-gate-secret-status-check.md` and
+`scripts/preflight-secrets-check.sh` enforce non-empty values pre-deploy.
 
 ---
 
-## Audit Notes
+## Required rotation (post-incident)
 
-- Credentials stored securely in Firebase Secret Manager
-- Access verified by: drogafarto@gmail.com (CTO)
-- Scope: Phase 4 deployment (Patient Portal + NOTIVISA Sandbox)
-- Contact: ANVISA Suporte (0800-642-9782) for technical issues
+The following accounts MUST have their password rotated **before the next
+NOTIVISA session**, because the previous values were committed in plaintext:
 
-**Approval:** ✅ Ready for Phase 4 Integration
+- `gqlabclin@gmail.com` — NOTIVISA portal (Gestor de Qualidade)
+- `drogafarto@gmail.com` — Gestor / RT account
+
+Rotation owner: CTO (drogafarto@gmail.com).
+Tracking issue: see PHASE_5_SECURITY_REPORT.md § Remediation.
+
+---
+
+## Git history remediation (PENDING USER APPROVAL)
+
+The credential blob landed in commit `af0be47` (2026-05-08). To purge it:
+
+```bash
+# 1. Mirror clone for safety
+git clone --mirror https://github.com/<org>/<repo> repo-mirror.git
+cd repo-mirror.git
+
+# 2. Use git-filter-repo (NOT filter-branch — deprecated)
+pip install git-filter-repo
+git filter-repo \
+  --path docs/NOTIVISA_CREDENCIAIS_AUDIT.md \
+  --path src/features/notivisa-portal/NOTIVISA_CREDENTIALS.md \
+  --invert-paths
+
+# 3. Force-push rewritten history (DESTRUCTIVE — coordinate with team)
+git push --force --all
+git push --force --tags
+
+# 4. Notify all clones to re-clone:
+#    git fetch + git reset will NOT work; old history remains in reflogs.
+```
+
+**Why we have not run this yet:** force-pushing main rewrites every SHA
+post-`af0be47`, breaks every open PR, and forces every developer to
+re-clone. Requires explicit CTO approval + team coordination window.
+
+**Interim mitigation:** rotate the exposed credentials NOW. Once rotated,
+the historical plaintext is no longer a live secret — the urgency drops
+from P0 to P2 (history hygiene).
+
+---
+
+## Audit trail
+
+- 2026-05-08 11:51 BRT — Credentials committed in plaintext (`af0be47`)
+- 2026-05-08 ~ — Phase 5 security audit identified exposure
+- 2026-05-08 ~ — Working-tree files redacted to this stub (this commit)
+- TBD — Credentials rotated in NOTIVISA portal
+- TBD — `git filter-repo` executed (CTO approval gate)
+
+Contact: drogafarto@gmail.com (CTO)
