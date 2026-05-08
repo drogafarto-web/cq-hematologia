@@ -1959,6 +1959,39 @@ service cloud.firestore {
     allow delete: if false;  // Expire via TTL, never hard delete
   }
 
+  // ── /critical-thresholds/{labId} — RDC 978/2025 Art. 167 (Phase 5 / Plan 05-01) ─
+  //
+  // Critical Values Threshold Configuration. Lab-scoped. RT/admin/owner write
+  // via callables only; any active lab member may read. Documents and audit
+  // events are NEVER hard-deleted (regulatory chain of custody).
+  //
+  // Schema enforced server-side (Zod) — rules here are the second perimeter:
+  //   - lab root anchor: { labId } only
+  //   - items/{thresholdId}: read by any active member; create/update/delete
+  //     all denied at the rules layer (writes go through callables).
+  //   - items/{thresholdId}/events/{eventId}: append-only audit, read-only
+  //     for lab members.
+  match /critical-thresholds/{labId} {
+    allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+    allow create, update: if (isSuperAdmin() ||
+                              (isActiveMemberOfLab(labId) && isAdminOrRT(labId)))
+                          && request.resource.data.keys().hasOnly(['labId'])
+                          && request.resource.data.labId == labId;
+    allow delete: if false;
+
+    match /items/{thresholdId} {
+      allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+      // All writes via criticosConfig_* callables. Direct-client writes
+      // are denied — server is sole authority for signature + audit chain.
+      allow create, update, delete: if false;
+
+      match /events/{eventId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create, update, delete: if false;  // Via callable batch only
+      }
+    }
+  }
+
   // ── /patient-nps-feedback/{feedbackId} — Patient NPS Survey Responses (Phase 11) ─
   // Patient satisfaction surveys (NPS scale 0-10).
   // Submitted by authenticated portal patients; auditors export for KPI dashboards.
