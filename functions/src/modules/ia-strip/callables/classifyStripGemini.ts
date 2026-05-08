@@ -20,6 +20,8 @@ import type {
   TestType,
 } from '../types';
 import { LogicalSignature, generateChainHash } from '../../../shared/signature';
+import { consentGate } from '../guardrails/consentGate';
+import { stripImageMetadata } from '../guardrails/metadataStripper';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -65,14 +67,22 @@ export const classifyStripGemini = onCall<ClassifyStripPayload, ClassifyStripRes
       }
 
       // 2. Parse payload
-      const { base64, mimeType, testType, labId, captureId, operatorId, promptVariant } =
-        request.data as ClassifyStripPayload;
+      const {
+        base64,
+        mimeType,
+        testType,
+        labId,
+        captureId,
+        operatorId,
+        patientId,
+        promptVariant,
+      } = request.data as ClassifyStripPayload;
 
       // 3. Validate required fields
-      if (!base64 || !mimeType || !testType || !labId || !captureId || !operatorId) {
+      if (!base64 || !mimeType || !testType || !labId || !captureId || !operatorId || !patientId) {
         throw new HttpsError(
           'invalid-argument',
-          'Missing required: base64, mimeType, testType, labId, captureId, operatorId'
+          'Missing required: base64, mimeType, testType, labId, captureId, operatorId, patientId'
         );
       }
 
@@ -105,9 +115,45 @@ export const classifyStripGemini = onCall<ClassifyStripPayload, ClassifyStripRes
       // 8. Determine prompt variant (A/B testing allocation)
       const selectedVariant = promptVariant || selectPromptVariant(labConfig as any);
 
-      // 9. Call Gemini Vision API
+      // 8a. PII guardrails (defense-in-depth, BEFORE any external call)
+      //   - consentGate: throws 'failed-precondition' if patient has not opted-in
+      //   - stripImageMetadata: removes EXIF / GPS / device info / comments
+      const consent = await consentGate({ labId, patientId });
+      const stripped = stripImageMetadata({ base64, mimeType });
+
+      // Audit guardrail-check-passed event (fire-and-forget, non-blocking)
+      admin
+        .firestore()
+        .doc(`imuno-ia-guardrails/${labId}/events/${captureId}`)
+        .set({
+          captureId,
+          labId,
+          patientId,
+          operatorId,
+          event: 'guardrail-check-passed',
+          consentVersion: consent.consentVersion,
+          consentedAt: consent.consentedAt,
+          metadataStripped: {
+            originalSize: stripped.originalSize,
+            sizeAfter: stripped.size,
+            segmentsRemoved: stripped.segmentsRemoved,
+            hadMetadata: stripped.hadMetadata,
+            formatRecognized: stripped.formatRecognized,
+          },
+          checkedAt: admin.firestore.Timestamp.now(),
+        })
+        .catch((err) => {
+          console.error('[classifyStripGemini] Guardrail audit write failed:', err);
+        });
+
+      // 9. Call Gemini Vision API (with stripped payload)
       const startTime = Date.now();
-      const geminiResult = await callGeminiVisionAPI(base64, mimeType, testType, selectedVariant);
+      const geminiResult = await callGeminiVisionAPI(
+        stripped.base64,
+        mimeType,
+        testType,
+        selectedVariant
+      );
       const geminiLatencyMs = Date.now() - startTime;
 
       // 10. Validate Gemini response schema
