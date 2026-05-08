@@ -8,7 +8,7 @@ import type { Timestamp } from 'firebase-admin/firestore';
 /** Escalation attempt (immutable array in CriticosEscalacao) */
 export interface CriticosEscalacaoAttempt {
   canalId: string;
-  canal: 'SMS' | 'EMAIL' | 'WEBHOOK';
+  canal: 'SMS' | 'EMAIL' | 'WEBHOOK' | 'PUSH';
   status: 'enviado' | 'entregue' | 'falha' | 'descartado';
   enviado_em: Timestamp;
   entregue_em?: Timestamp;
@@ -16,6 +16,28 @@ export interface CriticosEscalacaoAttempt {
   provider_messageId?: string;
   tentativa_numero: number;
   operador_manual?: string;
+  tier?: 1 | 2 | 3;
+  destinatario?: 'RT' | 'MEDICO' | 'CTO' | 'DIRETOR_MEDICO';
+  destinatario_id?: string;
+}
+
+/**
+ * Per-tier escalation record — Task 05-02
+ * 3-tier SLA: 15min RT → 30min physician → 60min CTO/Diretor.
+ * RDC 978 Art. 5.7.1 requires critical communication <60min.
+ */
+export interface CriticosTierEscalation {
+  tier: 1 | 2 | 3;
+  destinatario: 'RT' | 'MEDICO' | 'CTO' | 'DIRETOR_MEDICO';
+  destinatarioId: string;
+  destinatarioNome: string;
+  activatedAt: Timestamp;
+  slaMinutos: 15 | 30 | 60;
+  acknowledgedAt?: Timestamp;
+  acknowledgedBy?: string;
+  status: 'aberto' | 'reconhecido' | 'expirado';
+  attemptCanalIds: string[];
+  motivoEscalacao?: 'sla_expirado' | 'falha_canal' | 'recusa_destinatario';
 }
 
 /** Master log of critical value escalations */
@@ -50,6 +72,17 @@ export interface CriticosEscalacao {
   sla_status: 'em_prazo' | 'vencido' | 'nao_aplicavel';
   sla_minutos_target: number;
   notivisaDraftId?: string;
+  /** Task 05-02: 3-tier escalation history. */
+  tiers?: CriticosTierEscalation[];
+  tierAtivo?: 1 | 2 | 3 | null;
+  tempoPrimeiroAckMs?: number;
+  outcome?:
+    | 'reconhecido_tier1'
+    | 'reconhecido_tier2'
+    | 'reconhecido_tier3'
+    | 'todos_tiers_expirados'
+    | 'cancelado';
+  acaoClinica?: string;
   criadoEm: Timestamp;
   criadoPor: string;
   atualizadoEm: Timestamp;
@@ -73,7 +106,13 @@ export interface CriticosLogEvento {
     | 'webhook_delivery_confirmed'
     | 'reconhecimento_manual'
     | 'sla_vencido_alerta'
-    | 'escalacao_cancelada';
+    | 'escalacao_cancelada'
+    | 'push_enviado'
+    | 'push_falha'
+    | 'tier_ativado'
+    | 'tier_expirado'
+    | 'tier_reconhecido'
+    | 'acao_clinica_registrada';
   detalhes: Record<string, string | number | boolean>;
   timestamp: Timestamp;
   operadorId: string;
@@ -152,6 +191,23 @@ export interface AcknowledgeEscalacaoResponse {
   status: 'reconhecido';
   tempoSlaMs: number;
   slaStatus: 'em_prazo' | 'vencido';
+}
+
+/** Resolve (acknowledge + clinical action) — Task 05-02 */
+export interface ResolveCriticoRequest {
+  labId: string;
+  escalacaoId: string;
+  acaoClinica: string;
+  tier: 1 | 2 | 3;
+  notas?: string;
+}
+
+export interface ResolveCriticoResponse {
+  success: boolean;
+  escalacaoId: string;
+  tempoSlaMs: number;
+  slaStatus: 'em_prazo' | 'vencido';
+  outcome: 'reconhecido_tier1' | 'reconhecido_tier2' | 'reconhecido_tier3';
 }
 
 /** Cron trigger response */

@@ -38,7 +38,7 @@ export interface CriticosThreshold {
 /** Escalation attempt (immutable array in CriticosEscalacao) */
 export interface CriticosEscalacaoAttempt {
   canalId: string;
-  canal: 'SMS' | 'EMAIL' | 'WEBHOOK';
+  canal: 'SMS' | 'EMAIL' | 'WEBHOOK' | 'PUSH';
   status: 'enviado' | 'entregue' | 'falha' | 'descartado';
   enviado_em: Timestamp;
   entregue_em?: Timestamp;
@@ -46,6 +46,39 @@ export interface CriticosEscalacaoAttempt {
   provider_messageId?: string;
   tentativa_numero: number;
   operador_manual?: string;
+  /** Tier (1, 2, 3) that triggered this attempt — Task 05-02 SLA escalation */
+  tier?: 1 | 2 | 3;
+  /** Recipient role contacted at this tier */
+  destinatario?: 'RT' | 'MEDICO' | 'CTO' | 'DIRETOR_MEDICO';
+  /** Recipient identifier (uid or external email/phone) */
+  destinatario_id?: string;
+}
+
+/**
+ * Per-tier escalation record (Task 05-02)
+ * Tracks the 3-tier SLA escalation lifecycle independent of channel attempts.
+ *
+ * Tier 1: 0–15min   → contact RT (Responsável Técnico)
+ * Tier 2: 15–30min  → contact attending physician
+ * Tier 3: 30–60min  → escalate to CTO / Diretor Médico
+ *
+ * RDC 978 Art. 5.7.1: critical communication mandatory <60 min.
+ */
+export interface CriticosTierEscalation {
+  tier: 1 | 2 | 3;
+  destinatario: 'RT' | 'MEDICO' | 'CTO' | 'DIRETOR_MEDICO';
+  destinatarioId: string;
+  destinatarioNome: string;
+  /** When this tier became active (sla deadline = activatedAt + slaMinutos*60s) */
+  activatedAt: Timestamp;
+  slaMinutos: 15 | 30 | 60;
+  /** Time when contact was acknowledged at this tier (cleared on tier close) */
+  acknowledgedAt?: Timestamp;
+  acknowledgedBy?: string;
+  status: 'aberto' | 'reconhecido' | 'expirado';
+  attemptCanalIds: string[];
+  /** Reason this tier escalated to the next (auto-expired vs. manual override) */
+  motivoEscalacao?: 'sla_expirado' | 'falha_canal' | 'recusa_destinatario';
 }
 
 /** Master log of critical value escalations */
@@ -90,6 +123,26 @@ export interface CriticosEscalacao {
 
   notivisaDraftId?: string;
 
+  /**
+   * Task 05-02: 3-tier SLA escalation history.
+   * Optional for backward compatibility with single-tier docs created
+   * before Task 05-02. Always populated for new escalations.
+   */
+  tiers?: CriticosTierEscalation[];
+  /** Currently active tier (1, 2, 3) — null when resolved or all expired. */
+  tierAtivo?: 1 | 2 | 3 | null;
+  /** Total elapsed since detection until first acknowledgment (any tier). */
+  tempoPrimeiroAckMs?: number;
+  /** Final resolution outcome — for compliance reporting. */
+  outcome?:
+    | 'reconhecido_tier1'
+    | 'reconhecido_tier2'
+    | 'reconhecido_tier3'
+    | 'todos_tiers_expirados'
+    | 'cancelado';
+  /** Clinical action recorded by RT on resolve. */
+  acaoClinica?: string;
+
   criadoEm: Timestamp;
   criadoPor: string;
   atualizadoEm: Timestamp;
@@ -114,7 +167,13 @@ export interface CriticosLogEvento {
     | 'webhook_delivery_confirmed'
     | 'reconhecimento_manual'
     | 'sla_vencido_alerta'
-    | 'escalacao_cancelada';
+    | 'escalacao_cancelada'
+    | 'push_enviado'
+    | 'push_falha'
+    | 'tier_ativado'
+    | 'tier_expirado'
+    | 'tier_reconhecido'
+    | 'acao_clinica_registrada';
 
   detalhes: Record<string, string | number | boolean>;
 
@@ -234,6 +293,30 @@ export interface AcknowledgeEscalacaoResponse {
   status: 'reconhecido';
   tempoSlaMs: number;
   slaStatus: 'em_prazo' | 'vencido';
+}
+
+/**
+ * Resolve (acknowledge + clinical action) request — Task 05-02
+ * RT calls this from CriticosDashboard ResolveModal to close the escalation
+ * with a clinical action recorded for audit.
+ */
+export interface ResolveCriticoRequest {
+  labId: string;
+  escalacaoId: string;
+  acaoClinica: string;
+  tier: 1 | 2 | 3;
+  notas?: string;
+}
+
+export interface ResolveCriticoResponse {
+  success: boolean;
+  escalacaoId: string;
+  tempoSlaMs: number;
+  slaStatus: 'em_prazo' | 'vencido';
+  outcome:
+    | 'reconhecido_tier1'
+    | 'reconhecido_tier2'
+    | 'reconhecido_tier3';
 }
 
 /** Cron trigger response */
