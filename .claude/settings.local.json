@@ -183,7 +183,10 @@
       "Bash(Select-Object -First 20 FullName, LastWriteTime)",
       "Read(//c/hc quality/src/features/patient-portal/**)",
       "Bash(echo \"portal-portal files: $\\(find 'C:\\\\\\\\hc quality\\\\\\\\src\\\\\\\\features\\\\\\\\patient-portal' -type f)",
-      "Bash(cd \"C:\\\\\\\\hc quality\")"
+      "Bash(cd \"C:\\\\\\\\hc quality\")",
+      "PowerShell(& \"C:\\\\hc quality\\\\scripts\\\\send-auditor-email.ps1\")",
+      "Bash(bash *)",
+      "WebFetch(domain:api.anvisa.gov.br)"
     ]
   },
   "model": "haiku",
