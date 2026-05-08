@@ -336,5 +336,24 @@ service firebase.storage {
       allow read:   if isSuperAdmin() || isActiveMember();
       allow write:  if false;  // Server-only via Admin SDK
     }
+
+    // ── Phase 5 — LGPD consent paper trail (signed PDFs) ─────────────────────
+    // Operators upload scanned/signed TCLE forms. Active lab members upload only;
+    // contentType + size guarded. Reads remain governed by the catch-all above
+    // (active members can read all lab assets).
+    match /labs/{labId}/consent-paper-trail/{patientId}/{file=**} {
+      allow write: if request.auth != null
+                   && firestore.exists(/databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid))
+                   && firestore.get(/databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid)).data.active == true
+                   && request.resource.contentType == 'application/pdf'
+                   && request.resource.size < 10 * 1024 * 1024;
+    }
+
+    // ── Consent backfill CSV exports (signed-URL only) ───────────────────────
+    // Outside /labs/ to keep the catch-all from granting reads. Cloud Function
+    // service account writes via Admin SDK; clients access via 24h v4-signed URL.
+    match /exports/{labId}/consent-backfill/{file=**} {
+      allow read, write: if false;
+    }
   }
 }

@@ -2164,4 +2164,32 @@ export {
   criticosConfig_getThresholds,
 } from './modules/criticosConfig/index';
 
+// ─── consents module (Wave 2 Agent 2 — LGPD opt-in for AI processing) ────────
+// Operator captures consent on behalf of patient. Required by `consentGate`
+// (ia-strip guardrail) which refuses Gemini calls without an active consent
+// record. Re-capture merges scopes and clears `revokedAt`. Revocation keeps
+// the document (audit trail) and only sets `revokedAt`.
+export {
+  recordPatientConsent,
+  revokePatientConsent,
+} from './modules/consents/index';
+
+// ─── consents migration (Wave 2 Agent 6 — backfill tooling) ──────────────────
+// Admin-only callables for inventory + bulk consent capture from paper TCLE.
+export {
+  consents_exportPatientList,
+  consents_batchRecordConsent,
+} from './modules/consents/migration/index';
+
+// ─── notivisa test-mode lifecycle (Wave 2 Agent 10 — RDC 978 Art. 6) ─────────
+// Draft → approve → submit → queue → outbox skeleton with TEST MODE responder.
+// Real-API switch happens via NOTIVISA_MODE env (test|sandbox|prod). Coexists
+// with legacy notivisaDraftCreate / approve / submit / reject pending Wave 3
+// reconciliation.
+export { createDraft as notivisaCreateDraft } from './modules/notivisa/createDraft';
+export { approveDraft as notivisaApproveDraft } from './modules/notivisa/approveDraft';
+export { submitDraft as notivisaSubmitDraft } from './modules/notivisa/submitDraft';
+export { exportOutbox as notivisaExportOutbox } from './modules/notivisa/exportOutbox';
+export { processQueue as notivisaProcessQueue } from './modules/notivisa/processQueue';
+
 export { aprovarBatchImport } from './sgq/aprovarBatchImport';
