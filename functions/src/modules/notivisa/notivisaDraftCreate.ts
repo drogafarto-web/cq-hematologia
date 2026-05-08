@@ -25,6 +25,7 @@ import {
   notivisaDraftsCol,
 } from './validators';
 import { generateNotivisaSignatureServer, type LogicalSignature } from './signatureCanonical';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 interface NotivisaDraftCreateResult {
   ok: true;
@@ -144,22 +145,17 @@ export const notivisaDraftCreate = onCall<unknown, Promise<NotivisaDraftCreateRe
 
     await batch.commit();
 
-    // Audit non-blocking
-    admin
-      .firestore()
-      .collection('auditLogs')
-      .add({
-        action: 'NOTIVISA_DRAFT_CREATE',
-        callerUid: uid,
-        labId: input.labId,
-        payload: {
-          draftId: draftRef.id,
-          laudoId: input.laudoId,
-          paciente_cpf_masked: `***${input.payload.paciente_cpf.slice(-4)}`,
-        },
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      })
-      .catch(() => {});
+    // Audit non-blocking — retries + fallback to auditLogFailures/
+    await writeAuditLog({
+      action: 'NOTIVISA_DRAFT_CREATE',
+      callerUid: uid,
+      labId: input.labId,
+      payload: {
+        draftId: draftRef.id,
+        laudoId: input.laudoId,
+        paciente_cpf_masked: `***${input.payload.paciente_cpf.slice(-4)}`,
+      },
+    });
 
     return {
       ok: true,

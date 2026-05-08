@@ -23,6 +23,7 @@ import {
   notivisaDraftsCol,
   notivisaQueueCol,
 } from './validators';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 interface SubmitNotivisaDraftResult {
   ok: true;
@@ -128,22 +129,17 @@ export const submitNotivisaDraft = onCall<unknown, Promise<SubmitNotivisaDraftRe
 
     await batch.commit();
 
-    // Audit non-blocking
-    admin
-      .firestore()
-      .collection('auditLogs')
-      .add({
-        action: 'NOTIVISA_DRAFT_SUBMIT',
-        callerUid: uid,
-        labId: input.labId,
-        payload: {
-          draftId: input.draftId,
-          eventId: eventRef.id,
-          paciente_cpf_masked: `***${pacienteCpf.slice(-4)}`,
-        },
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      })
-      .catch(() => {});
+    // Audit non-blocking — retries + fallback to auditLogFailures/
+    await writeAuditLog({
+      action: 'NOTIVISA_DRAFT_SUBMIT',
+      callerUid: uid,
+      labId: input.labId,
+      payload: {
+        draftId: input.draftId,
+        eventId: eventRef.id,
+        paciente_cpf_masked: `***${pacienteCpf.slice(-4)}`,
+      },
+    });
 
     return {
       ok: true,
