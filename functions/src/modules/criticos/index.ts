@@ -11,12 +11,26 @@ import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { onRequest } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { z } from 'zod';
-import {
-  sendSMS,
-  checkMessageStatus,
-  getSMSTemplate,
-} from '../../shared/sms/twilioClient';
+// NOTE (Wave 2 — Twilio decoupling): twilioClient is imported lazily inside
+// the SMS-emitting handlers below so that this module can be loaded — and
+// the acknowledgeEscalacao callable can run — without Twilio secrets being
+// provisioned. Acknowledgment is a Firestore-only state transition; SMS is
+// only required by registerCriticoDetection / cron / webhook.
 import { generateChainHash } from '../../shared/signature';
+
+/**
+ * Returns true when Twilio creds appear to be provisioned. Wave 2 — until
+ * SMS secrets are deployed, SMS-emitting paths short-circuit cleanly with
+ * a structured error rather than crashing the whole callable.
+ */
+function isTwilioProvisioned(): boolean {
+  const sid = process.env.TWILIO_ACCOUNT_SID;
+  const token = process.env.TWILIO_AUTH_TOKEN;
+  const phone = process.env.TWILIO_PHONE_NUMBER;
+  const placeholder = (v: string | undefined) =>
+    !v || v.length === 0 || v.startsWith('PENDING_SET');
+  return !placeholder(sid) && !placeholder(token) && !placeholder(phone);
+}
 import type {
   RegisterCriticoDetectionResponse,
   AcknowledgeEscalacaoResponse,
@@ -200,16 +214,37 @@ export const registerCriticoDetection = onCall(
         deletadoEm: null,
       };
 
-      // Attempt SMS escalation
-      const smsTemplate = await getSMSTemplate(
-        criticos[0].analitoId,
-        paciente.nome,
-        criticos[0].valor,
-        data.exames[0].unidade,
-        laudoId
-      );
-
-      const smsResult = await sendSMS(medico.telefone, smsTemplate);
+      // Attempt SMS escalation. Twilio is loaded lazily so the module can be
+      // imported without provisioned secrets; if Twilio is not provisioned
+      // we still register the escalacao with the SMS attempt marked as
+      // failed so downstream queue / email fallback runs as designed.
+      let smsResult: {
+        sid: string;
+        status: 'queued' | 'sending' | 'sent' | 'failed';
+        errorCode?: string;
+      };
+      if (isTwilioProvisioned()) {
+        const { sendSMS, getSMSTemplate } = await import(
+          '../../shared/sms/twilioClient'
+        );
+        const smsTemplate = await getSMSTemplate(
+          criticos[0].analitoId,
+          paciente.nome,
+          criticos[0].valor,
+          data.exames[0].unidade,
+          laudoId
+        );
+        smsResult = await sendSMS(medico.telefone, smsTemplate);
+      } else {
+        console.warn(
+          'registerCriticoDetection: Twilio not provisioned — SMS skipped, falling back to EMAIL channel'
+        );
+        smsResult = {
+          sid: '',
+          status: 'failed',
+          errorCode: 'TWILIO_NOT_PROVISIONED',
+        };
+      }
 
       // Add escalacao attempt
       const canalId = `sms-${Date.now()}`;
@@ -510,11 +545,19 @@ export const escalacaoCriticos = onSchedule(
           try {
             const escalacao = escalacaoDoc.data() as CriticosEscalacao;
 
-            // Check SMS delivery status
+            // Check SMS delivery status — Twilio loaded lazily, skipped when
+            // not provisioned (SLA tracking continues regardless).
             const smsAttempt = escalacao.escalacoes.find(
               (e) => e.canal === 'SMS'
             );
-            if (smsAttempt && smsAttempt.provider_messageId) {
+            if (
+              smsAttempt &&
+              smsAttempt.provider_messageId &&
+              isTwilioProvisioned()
+            ) {
+              const { checkMessageStatus } = await import(
+                '../../shared/sms/twilioClient'
+              );
               const status = await checkMessageStatus(
                 smsAttempt.provider_messageId
               );
