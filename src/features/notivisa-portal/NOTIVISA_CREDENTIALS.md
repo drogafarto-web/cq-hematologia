@@ -1,126 +1,76 @@
-# NOTIVISA Portal — Credentials & Access Guide
+# NOTIVISA Portal — Credentials & Access Guide (REDACTED)
 
-**Module:** `src/features/notivisa-portal`  
-**Environment:** Sandbox (Phase 4)  
-**Status:** Ready for integration testing  
-
----
-
-## Portal Access Credentials
-
-### NOTIVISA ANVISA Portal
-- **URL:** https://notivisa.anvisa.gov.br/frmLogin.asp
-- **Email:** gqlabclin@gmail.com
-- **Password:** pop12qw
-- **Access Level:** Gestor de Qualidade (Quality Manager)
-
-### Gestor de Qualidade (Quality Manager)
-- **Name:** Bruno de Andrade Pires
-- **Email:** drogafarto@gmail.com
-- **Password:** pop2qw
-- **Role:** CTO / HC Quality
+> **SECURITY INCIDENT 2026-05-08:** This file previously contained
+> plaintext NOTIVISA portal passwords and was committed to git in
+> commit `af0be47`. Working-tree contents have been redacted. Git
+> history still exposes the original values until `git filter-repo`
+> is executed under CTO approval — see
+> `docs/NOTIVISA_CREDENCIAIS_AUDIT.md` for the full remediation log.
 
 ---
 
-## Portal Navigation
+## How to get credentials at runtime
 
-### To Access API Credentials:
-1. Login to [NOTIVISA Portal](https://notivisa.anvisa.gov.br/frmLogin.asp)
-   - Email: `gqlabclin@gmail.com`
-   - Password: `pop12qw`
+All NOTIVISA credentials are stored in **Firebase Secret Manager** and
+accessed only from Cloud Functions via `defineSecret()`. They are
+**never** committed to source control.
 
-2. Navigate to:
-   - Menu → "Integração API" **OR**
-   - Menu → "Desenvolvedores" **OR**
-   - Settings → "API Credentials"
+| Secret | Purpose |
+|--------|---------|
+| `NOTIVISA_PORTAL_EMAIL` | Gestor email for portal automation |
+| `NOTIVISA_PORTAL_PASSWORD` | Gestor password for portal automation |
+| `NOTIVISA_CLIENT_ID` | OAuth client ID for the SOAP/REST API |
+| `NOTIVISA_CLIENT_SECRET` | OAuth client secret |
+| `NOTIVISA_WEBHOOK_SECRET` | HMAC signing secret for inbound webhooks |
 
-3. Generate/View credentials:
-   - **Client ID:** `[To be extracted from portal]`
-   - **Client Secret:** `[To be extracted from portal]`
-   - **Sandbox URL:** `https://sandbox.notivisa.gov.br/api/v1`
-   - **Webhook Format:** [To be confirmed with ANVISA]
+To provision:
 
----
-
-## If Menu Not Visible
-
-**Option A — Manual Request:**
-- Call ANVISA: **0800-642-9782** (Mon-Fri, 7:30am–7:30pm)
-- Say: "Preciso de credenciais API NOTIVISA sandbox para integração com laboratório. Email: gqlabclin@gmail.com"
-- They will email Client ID + Secret within 1-2 hours
-
-**Option B — Support Email:**
-- Email: cadastro.sistemas@anvisa.gov.br
-- Subject: "Solicitação de Credenciais API NOTIVISA"
-- Body: "CNPJ do laboratório: [XXX]; Email: gqlabclin@gmail.com"
-
----
-
-## Configuration Steps (After Receiving Credentials)
-
-### 1. Firebase Secret Manager
 ```bash
-gcloud secrets create notivisa-client-id --data="<CLIENT_ID>"
-gcloud secrets create notivisa-client-secret --data="<CLIENT_SECRET>"
+firebase functions:secrets:set NOTIVISA_CLIENT_SECRET --project hmatologia2
 ```
 
-### 2. Firestore Configuration
-Save to `/labs/{labId}/notivisa-config/sandbox`:
-```json
-{
-  "clientId": "<CLIENT_ID>",
-  "clientSecret": "<CLIENT_SECRET>",
-  "sandboxUrl": "https://sandbox.notivisa.gov.br/api/v1",
-  "rateLimit": 5,
-  "maxRetries": 5,
-  "backoffSchedule": [1, 5, 15, 45, 120],
-  "webhookUrl": "https://hmatologia2.web.app/api/notivisa-webhook",
-  "createdAt": "2026-05-08",
-  "status": "configured"
-}
-```
-
-### 3. Test Integration
-```bash
-npm run test -- notivisa-integration.test.ts
-```
+The deploy gate `scripts/preflight-secrets-check.sh` (ADR-0018) blocks
+any `firebase deploy --only functions` if any of these resolve to a
+`PENDING_SET_*` placeholder.
 
 ---
 
-## Rate Limits & Backoff
+## Where to find docs (non-sensitive)
 
-- **Quota:** 5 requisições/minuto
-- **Backoff Schedule:** 1m → 5m → 15m → 45m → 120m
-- **Max Retries:** 5
-- **Idempotency:** SHA-256 hash of payload
-
----
-
-## Audit Trail
-
-- **Portal Access Verified:** 2026-05-08 ✅
-- **Credentials Status:** Pending extraction
-- **Integration Target:** May 20 Phase 4 deployment
-- **Contact:** drogafarto@gmail.com (CTO)
+- Sandbox URL pattern, rate-limit defaults, retry backoff schedule:
+  `functions/src/modules/notivisa/` (source of truth — code).
+- Webhook endpoint contract:
+  `functions/src/modules/notivisa/callables/notivisaWebhookHandler.ts`.
+- Lab-scoped configuration (clientId reference, NOT the secret value):
+  `/labs/{labId}/notivisa-config/sandbox` Firestore doc.
+- ANVISA support: `0800-642-9782` (seg–sex 7:30–19:30) /
+  `cadastro.sistemas@anvisa.gov.br`.
 
 ---
 
-## NOTIVISA Contact Information
+## Credential rotation (post-incident)
 
-| Channel | Details |
-|---------|---------|
-| **Telefone** | 0800-642-9782 (seg-sex 7:30am–7:30pm) |
-| **Email** | cadastro.sistemas@anvisa.gov.br |
-| **Portal** | https://notivisa.anvisa.gov.br/ |
-| **e-NOTIVISA** | https://enotivisa.anvisa.gov.br/login-empresa |
+Following the 2026-05-08 exposure, these credentials MUST be rotated
+before the next NOTIVISA session:
+
+- Portal account `gqlabclin@gmail.com` — rotate password directly in
+  the NOTIVISA portal, then `firebase functions:secrets:set
+  NOTIVISA_PORTAL_PASSWORD`.
+- Gestor account `drogafarto@gmail.com` — same procedure.
+- API Client Secret — request a new pair from ANVISA via
+  `cadastro.sistemas@anvisa.gov.br`, then update
+  `NOTIVISA_CLIENT_SECRET`.
+
+Rotation owner: CTO. Tracking: `PHASE_5_SECURITY_REPORT.md`.
 
 ---
 
-## Next Steps
+## Why this file exists at all
 
-1. ✅ Extract Client ID, Client Secret, Sandbox URL from portal
-2. ⏳ Configure Firebase secrets (pending credentials)
-3. ⏳ Test integration (pending configuration)
-4. ⏳ Deploy Phase 4 (May 20)
+The `notivisa-portal` feature directory ships to git, so every engineer
+working on portal integration sees this README. It must contain zero
+secrets; instead it tells engineers exactly which secret-name to look
+up in Firebase Secret Manager and how to provision a fresh one.
 
-**Approval:** Ready for Phase 4 integration testing
+If you find yourself about to paste a password into any `.md`, `.ts`,
+or `.json` file under `src/` or `docs/` — **stop**. Use Secret Manager.

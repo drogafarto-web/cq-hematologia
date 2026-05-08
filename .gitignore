@@ -92,6 +92,22 @@ service-account*.json
 *.pem
 *.p12
 
+# Defense-in-depth pós-incidente 2026-05-08 (NOTIVISA plaintext leak):
+# qualquer arquivo cuja namesake sugira credenciais é bloqueado por padrão.
+# Stubs explicitamente versionados (sem segredos) são reintroduzidos
+# pela exceção mais abaixo.
+**/*CREDENTIALS*.md
+**/*CREDENCIAIS*.md
+**/*PASSWORD*.md
+**/*SECRET*.md
+**/*credentials*.json
+**/*secrets*.json
+# Exceção: stubs de documentação que apontam para Secret Manager.
+# Esses arquivos NÃO podem conter segredos; revisar no PR.
+!docs/NOTIVISA_CREDENCIAIS_AUDIT.md
+!src/features/notivisa-portal/NOTIVISA_CREDENTIALS.md
+!docs/NOTIVISA_CREDENTIAL_ROTATION_PROCEDURES.md
+
 # Ops scripts ad-hoc na raiz de functions/ — usam Admin SDK + service account
 # pra rodar uma vez. Não vão pro repo. Scripts versionados ficam em
 # functions/scripts/ (allowlisted abaixo).
