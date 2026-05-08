@@ -1,0 +1,35 @@
+{
+  "displayName": "A4 — HMAC chain break (ADR-0017 — tamper-evident audit)",
+  "documentation": {
+    "content": "Triggered when [generateChainHash] previous hash mismatch or [verifyChainHash] mismatch appears in any function log. Single occurrence is a P0 incident: indicates either tampering, secret rotation without baseline reset, or a verification bug. CTO + RT must be paged immediately. Compliance: RDC 978 Art. 128, ADR-0017. Runbook: docs/observability/RUNBOOK.md#a4-hmac-chain-break",
+    "mimeType": "text/markdown"
+  },
+  "userLabels": {
+    "alert_id": "a4",
+    "severity": "critical",
+    "compliance": "rdc-978-art-128",
+    "owner": "cto",
+    "regulatory_clock": "72h"
+  },
+  "conditions": [
+    {
+      "displayName": "HMAC chain mismatch occurrences >= 1 in 1min",
+      "conditionMatchedLog": {
+        "filter": "resource.type=\"cloud_function\" AND severity=\"ERROR\" AND (textPayload:\"[generateChainHash] previous hash mismatch\" OR textPayload:\"[verifyChainHash] mismatch\" OR textPayload:\"chain-hash-mismatch\")"
+      }
+    }
+  ],
+  "alertStrategy": {
+    "notificationRateLimit": {
+      "period": "60s"
+    },
+    "autoClose": "604800s"
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "notificationChannels": [
+    "projects/hmatologia2/notificationChannels/PLACEHOLDER_CTO",
+    "projects/hmatologia2/notificationChannels/PLACEHOLDER_RT_CLINICAL"
+  ],
+  "severity": "CRITICAL"
+}

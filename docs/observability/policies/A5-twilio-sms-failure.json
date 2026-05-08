@@ -1,0 +1,53 @@
+{
+  "displayName": "A5 — Twilio SMS failure rate > 10% in 5min",
+  "documentation": {
+    "content": "Triggered when criticos SMS dispatch failure ratio (failures / attempts) exceeds 10% over a 5-min rolling window with at least 10 attempts. Compliance: RDC 978 Art. 5.7.1 (delivery channel for críticos). Runbook: docs/observability/RUNBOOK.md#a5-twilio-sms-failure-rate. STATUS: DRAFT — requires log-based metrics twilio_sms_attempts + twilio_sms_failures to be defined first (see runbook).",
+    "mimeType": "text/markdown"
+  },
+  "userLabels": {
+    "alert_id": "a5",
+    "severity": "warning",
+    "compliance": "rdc-978-art-5-7-1",
+    "owner": "oncall-eng",
+    "status": "draft"
+  },
+  "conditions": [
+    {
+      "displayName": "Twilio SMS failure rate > 10%",
+      "conditionThreshold": {
+        "filter": "metric.type=\"logging.googleapis.com/user/twilio_sms_failures\" AND resource.type=\"cloud_function\"",
+        "aggregations": [
+          {
+            "alignmentPeriod": "300s",
+            "perSeriesAligner": "ALIGN_RATE"
+          }
+        ],
+        "denominatorFilter": "metric.type=\"logging.googleapis.com/user/twilio_sms_attempts\" AND resource.type=\"cloud_function\"",
+        "denominatorAggregations": [
+          {
+            "alignmentPeriod": "300s",
+            "perSeriesAligner": "ALIGN_RATE"
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 0.1,
+        "duration": "300s",
+        "trigger": {
+          "count": 1
+        }
+      }
+    }
+  ],
+  "alertStrategy": {
+    "notificationRateLimit": {
+      "period": "1800s"
+    },
+    "autoClose": "3600s"
+  },
+  "combiner": "OR",
+  "enabled": false,
+  "notificationChannels": [
+    "projects/hmatologia2/notificationChannels/PLACEHOLDER_ONCALL_ENG"
+  ],
+  "severity": "WARNING"
+}

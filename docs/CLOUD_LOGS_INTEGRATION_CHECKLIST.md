@@ -6,6 +6,26 @@
 
 ---
 
+## v1.4 Update — Alert Rules Now Defined
+
+Passive log monitoring (this checklist) is **not enough** for v1.4. Six structured alert rules are specified at:
+
+- **[`docs/observability/ALERT_RULES_v1.4.md`](observability/ALERT_RULES_v1.4.md)** — full alert spec (A1–A6) with queries, thresholds, severity, escalation.
+- **[`docs/observability/RUNBOOK.md`](observability/RUNBOOK.md)** — response procedures per alert.
+- **[`docs/observability/policies/`](observability/policies/)** — one JSON template per alert; provision via `gcloud alpha monitoring policies create --policy-from-file=...`.
+
+**Required before v1.4 launch (2026-05-20):**
+
+- [ ] Notification channels created in Cloud Console (`oncall-eng`, `rt-clinical`, `dpo`, `cto`) — replace `PLACEHOLDER_*` IDs in JSON templates.
+- [ ] A1, A3, A4 policies provisioned (READY today; no code dependencies).
+- [ ] A5 log-based metrics (`twilio_sms_attempts`, `twilio_sms_failures`) defined; then A5 policy provisioned.
+- [ ] A2 + A6 unblocked by Wave 3 (deploy `criticosSlaProbe` + `geminiEgressAudit`); then policies provisioned.
+- [ ] Quarterly alert review scheduled.
+
+This 24h passive monitoring guide remains useful for **post-deploy spot-checks**, but the alert policies are the production-grade signal.
+
+---
+
 ## Pre-Deployment (Before Step 2)
 
 - [ ] **Read guides**
