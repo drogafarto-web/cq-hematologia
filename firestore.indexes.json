@@ -803,6 +803,23 @@
         { "fieldPath": "labId", "order": "ASCENDING" },
         { "fieldPath": "criadoEm", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "extractions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "extractedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "rt-presenca",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "lastUpdated", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

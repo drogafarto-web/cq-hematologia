@@ -1,0 +1,120 @@
+# Promptfoo Evaluation Suite — Laudo OCR via Gemini 2.5 Vision
+# Phase 6: RDC 978 Art. 167 extraction quality assurance
+#
+# Scenarios tested:
+# 1. Normal laudo (clear signatures, good resolution)
+# 2. Signature blur/faint (edge case for confidence scoring)
+# 3. Missing observações field (edge case handling)
+
+description: 'Laudo OCR Extraction Quality — Gemini 2.5 Vision'
+
+providers:
+  - id: gemini-vision
+    type: gemini
+    config:
+      model: 'gemini-2.5-flash'
+      temperature: 0.1
+      maxOutputTokens: 2048
+
+tests:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Scenario 1: Good Extraction (clear signatures, high confidence)
+  # ─────────────────────────────────────────────────────────────────────────
+
+  - description: 'Good extraction — clear field10, both signatures detected'
+    vars:
+      fixture: 'fixtures/good_laudo_1.json'
+    expected:
+      type: 'json'
+      value:
+        field10:
+          text: !regex '/Paciente.*normal/'
+          confidence: 'high'
+        field11:
+          detected: true
+          confidence: 'high'
+        field12:
+          detected: true
+          confidence: 'high'
+
+  - description: 'Good extraction — observações + both signatures with date'
+    vars:
+      fixture: 'fixtures/good_laudo_2.json'
+    expected:
+      type: 'json'
+      value:
+        field10:
+          text: !not-empty
+          confidence: !not-null
+        field11:
+          detected: true
+        field12:
+          detected: true
+          dateText: !regex '/^\d{4}-\d{2}-\d{2}/'
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Scenario 2: Poor Signature Detection (faint, blurred)
+  # ─────────────────────────────────────────────────────────────────────────
+
+  - description: 'Poor signature — faint RT sig (medium/low confidence)'
+    vars:
+      fixture: 'fixtures/poor_sig_rt.json'
+    expected:
+      type: 'json'
+      value:
+        field10:
+          text: !not-empty
+          confidence: !not-null
+        field11:
+          detected: true
+          confidence: !regex '/(medium|low)/'
+
+  - description: 'Poor signature — blur/smudge on director sig'
+    vars:
+      fixture: 'fixtures/poor_sig_director.json'
+    expected:
+      type: 'json'
+      value:
+        field10:
+          text: !not-empty
+        field12:
+          detected: true
+          confidence: !regex '/(medium|low)/'
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Scenario 3: Missing Fields (edge case)
+  # ─────────────────────────────────────────────────────────────────────────
+
+  - description: 'Missing observações — field10 empty or missing'
+    vars:
+      fixture: 'fixtures/missing_observacoes.json'
+    expected:
+      type: 'json'
+      value:
+        field10:
+          text: !empty  # Should be empty or minimal
+        field11: !null-or !any
+        field12: !null-or !any
+
+  - description: 'No signatures detected — both field11 + field12 absent'
+    vars:
+      fixture: 'fixtures/no_signatures.json'
+    expected:
+      type: 'json'
+      value:
+        field10:
+          text: !not-empty
+        field11:
+          detected: false
+        field12:
+          detected: false
+
+# Quality gates
+thresholds:
+  - metric: pass-rate
+    threshold: 0.90  # 90% of tests must pass
+    window: 3        # over last 3 evaluations
+
+# Comparison: can track historical performance
+compareResults: true
+```

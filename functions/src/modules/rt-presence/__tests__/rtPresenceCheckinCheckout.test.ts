@@ -362,4 +362,161 @@ describe('rtPresenceCheckout', () => {
 
     expect(result.duration).toBe(0); // in mocked time, both are same timestamp
   });
+
+  // ─── Concurrent check-in (Wave 4) ─────────────────────────────────────────────
+
+  it('concurrent checkin creates new session (upsert semantics)', async () => {
+    seedColaborador(RT_UID, true);
+    const existingSessionId = `rt-${LAB_ID}-${RT_UID}-1700000000000`;
+    const nowTs = { toMillis: () => 1_700_000_000_000 };
+
+    docStore.set(`labs/${LAB_ID}/rt-presenca/current`, {
+      exists: true,
+      data: () => ({
+        labId: LAB_ID,
+        hasActiveRT: true,
+        rtId: RT_UID,
+        rtNome: 'Colaborador rt-1',
+        rtCrbm: 'CRBM-1234',
+        sessionId: existingSessionId,
+        checkedInAt: nowTs,
+        expiresAt: { toMillis: () => 1_700_028_800_000 },
+      }),
+    });
+
+    const req = authedRequest(RT_UID, { labId: LAB_ID });
+    const result = await rtPresenceCheckin(req as any);
+
+    expect(result.ok).toBe(true);
+    expect(result.sessionId).toBeDefined();
+    expect(result.sessionId).not.toBe(existingSessionId);
+  });
+
+  // ─── Audit trail (Wave 4) ──────────────────────────────────────────────────────
+
+  it('batch writes status doc and events doc', async () => {
+    seedColaborador(RT_UID, true);
+
+    const req = authedRequest(RT_UID, { labId: LAB_ID });
+    const result = await rtPresenceCheckin(req as any);
+
+    expect(result.ok).toBe(true);
+    expect(mockBatch.set).toHaveBeenCalledTimes(2);
+    expect(mockBatch.commit).toHaveBeenCalled();
+  });
+
+  it('generates sessionId in correct format', async () => {
+    seedColaborador(RT_UID, true);
+
+    const req = authedRequest(RT_UID, { labId: LAB_ID });
+    const result = await rtPresenceCheckin(req as any);
+
+    // Format: rt-{labId}-{rtUid}-{timestamp}
+    expect(result.sessionId).toMatch(/^rt-lab-abc-rt-1-\d+$/);
+  });
+});
+
+// ─── Wave 4 Additional Coverage ─────────────────────────────────────────────────
+
+describe('rtPresenceCheckout — Wave 4 Extensions', () => {
+  beforeEach(() => {
+    docStore.clear();
+    eventsStore.clear();
+    jest.clearAllMocks();
+  });
+
+  it('cannot checkout as different RT', async () => {
+    seedColaborador(OTHER_UID, true);
+    const sessionId = `rt-${LAB_ID}-${RT_UID}-1700000000000`;
+    const nowTs = { toMillis: () => 1_700_000_000_000 };
+
+    docStore.set(`labs/${LAB_ID}/rt-presenca/current`, {
+      exists: true,
+      data: () => ({
+        labId: LAB_ID,
+        hasActiveRT: true,
+        rtId: RT_UID,
+        rtNome: 'Colaborador rt-1',
+        rtCrbm: 'CRBM-1234',
+        sessionId,
+        checkedInAt: nowTs,
+      }),
+    });
+
+    const req = authedRequest(OTHER_UID, { labId: LAB_ID, sessionId });
+
+    try {
+      await rtPresenceCheckout(req as any);
+      expect(true).toBe(false);
+    } catch (err: any) {
+      expect(err.code).toBe('permission-denied');
+    }
+  });
+
+  it('cannot checkout with wrong sessionId', async () => {
+    seedColaborador(RT_UID, true);
+    const sessionId = `rt-${LAB_ID}-${RT_UID}-1700000000000`;
+    const wrongSessionId = 'wrong-session-id';
+
+    docStore.set(`labs/${LAB_ID}/rt-presenca/current`, {
+      exists: true,
+      data: () => ({
+        labId: LAB_ID,
+        hasActiveRT: true,
+        rtId: RT_UID,
+        rtNome: 'Colaborador rt-1',
+        rtCrbm: 'CRBM-1234',
+        sessionId,
+        checkedInAt: { toMillis: () => 1_700_000_000_000 },
+      }),
+    });
+
+    const req = authedRequest(RT_UID, { labId: LAB_ID, sessionId: wrongSessionId });
+
+    try {
+      await rtPresenceCheckout(req as any);
+      expect(true).toBe(false);
+    } catch (err: any) {
+      expect(err.code).toBe('permission-denied');
+    }
+  });
+
+  it('denies checkout when no active presence', async () => {
+    seedColaborador(RT_UID, true);
+
+    docStore.set(`labs/${LAB_ID}/rt-presenca/current`, {
+      exists: true,
+      data: () => ({
+        labId: LAB_ID,
+        hasActiveRT: false,
+      }),
+    });
+
+    const req = authedRequest(RT_UID, { labId: LAB_ID, sessionId: 'any-id' });
+
+    try {
+      await rtPresenceCheckout(req as any);
+      expect(true).toBe(false);
+    } catch (err: any) {
+      expect(err.code).toBe('failed-precondition');
+    }
+  });
+
+  it('checks auth before presença state', async () => {
+    const nonMemberUid = 'non-member-999';
+
+    const req = {
+      auth: { uid: nonMemberUid, token: { modules: { 'rt-presence': true } } as any },
+      data: { labId: LAB_ID, sessionId: 'any-id' },
+      rawRequest: {} as any,
+      acceptsStreaming: false,
+    } as unknown as CallableRequest<unknown>;
+
+    try {
+      await rtPresenceCheckout(req as any);
+      expect(true).toBe(false);
+    } catch (err: any) {
+      expect(err.code).toBe('permission-denied');
+    }
+  });
 });

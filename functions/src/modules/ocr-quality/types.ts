@@ -12,7 +12,7 @@
  *   - DICQ 4.14.7 — continuous improvement KPI (OCR accuracy as quality indicator)
  *   - RDC 978/2025 Art. 86 — PGQ component (post-market surveillance of IA)
  */
-import type { LogicalSignature } from '../../shared/signature';
+import type { LogicalSignature } from '../../shared/cryptoaudit';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Field-level OCR result

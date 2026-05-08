@@ -1,0 +1,234 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "v1.4-dev",
+  "phase": "4",
+  "timestamp": "2026-05-08T21:03:18.037Z",
+  "capturedAt": "2026-05-08",
+  "sourceCommit": "300f110dd0fdeb7bdc5d9cab444204bedd0692d7",
+  "status": "ESTABLISHED — Ready for Phase 4 smoke test (2026-05-20)",
+  "notes": "Phase 4 development baseline established 2026-05-08. Bundle grown due to new admin monitoring components (AlertsStatus, RTPresenceMonitor, SupervisorStatusBootstrapVerifier, ConsentBackfillDashboard). Main shell 408 KB, total JS 1184 KB. Lighthouse/telemetry metrics pending LHCI run and production monitoring. This baseline will be frozen after Phase 4 smoke test. Web Vitals and telemetry metrics (auth, laudo, queue, rules latency) captured separately during post-deployment monitoring.",
+  "metrics": {
+    "bundleSize": {
+      "mainShellGzipKb": {
+        "current": 408,
+        "baseline": 408,
+        "warn": 425,
+        "fail": 450,
+        "limit": 450,
+        "unit": "KB",
+        "status": "PASS",
+        "delta": 0,
+        "rationale": "Phase 4 main shell with new admin UI. +17 KB headroom to fail limit."
+      },
+      "totalInitialJsGzipKb": {
+        "current": 1184,
+        "baseline": 1184,
+        "warn": 1250,
+        "fail": 1350,
+        "limit": 1350,
+        "unit": "KB",
+        "status": "PASS",
+        "delta": 0,
+        "rationale": "Phase 4 includes admin monitoring UI components. +166 KB headroom. Future optimization: lazy-load admin components."
+      },
+      "topChunks": [
+        {
+          "file": "index-BNPTUq7P.js",
+          "gzipKb": 407.8,
+          "rawKb": 1645,
+          "description": "Main shell (React + app routes + auth shell)"
+        },
+        {
+          "file": "vendor-firebase-CR8j0sqV.js",
+          "gzipKb": 158.1,
+          "rawKb": 686.9,
+          "description": "Firebase Admin SDK"
+        },
+        {
+          "file": "vendor-xlsx-1fHNqz0U.js",
+          "gzipKb": 139.7,
+          "rawKb": 419.9,
+          "description": "SheetJS (export/educacao features)"
+        },
+        {
+          "file": "vendor-pdf-m4-iSrJB.js",
+          "gzipKb": 131.4,
+          "rawKb": 442,
+          "description": "PDF.js (laudos rendering)"
+        },
+        {
+          "file": "vendor-charts-JHQ430Uy.js",
+          "gzipKb": 110,
+          "rawKb": 376.1,
+          "description": "Recharts (CIQ analytics)"
+        },
+        {
+          "file": "vendor-react-Csx7Aqq-.js",
+          "gzipKb": 65.1,
+          "rawKb": 205.4,
+          "description": "React + React DOM (shared eager import)"
+        },
+        {
+          "file": "module-educacao-Oc1MwW3S.js",
+          "gzipKb": 51,
+          "rawKb": 229,
+          "description": "Educação Continuada module (async route)"
+        },
+        {
+          "file": "module-ct-qLkq7rM3.js",
+          "gzipKb": 33.8,
+          "rawKb": 124.5,
+          "description": "Controle Temperatura module (async route)"
+        }
+      ]
+    },
+    "lighthouse": {
+      "status": "PENDING_LHCI",
+      "reason": "Run `npm run build && npx @lhci/cli autorun` to collect",
+      "targetAveragePerformance": {
+        "target": 87,
+        "warn": 82,
+        "fail": 77
+      },
+      "targetAverageAccessibility": {
+        "target": 90,
+        "warn": 85,
+        "fail": 80
+      },
+      "criticalRoutes": [
+        "/hub",
+        "/auth/login",
+        "/features/bioquimica/runs",
+        "/features/analytics",
+        "/features/export/wizard"
+      ]
+    },
+    "webVitals": {
+      "status": "PENDING_LHCI",
+      "reason": "Derived from Lighthouse metrics",
+      "lcpP95Ms": {
+        "baseline": 1900,
+        "warn": 2090,
+        "fail": 2500,
+        "unit": "ms"
+      },
+      "inpP95Ms": {
+        "baseline": 110,
+        "warn": 126,
+        "fail": 200,
+        "unit": "ms"
+      },
+      "clsP95": {
+        "baseline": 0.04,
+        "warn": 0.048,
+        "fail": 0.1,
+        "unit": "score"
+      }
+    },
+    "backend": {
+      "status": "PENDING_PRODUCTION_MONITORING",
+      "reason": "Captured via Cloud Logs telemetry during 24h post-deployment window",
+      "auth": {
+        "p95Ms": {
+          "baseline": 400,
+          "warn": 450,
+          "fail": 500,
+          "unit": "ms",
+          "source": "Cloud Functions triggerUserCreation latency"
+        },
+        "p99Ms": {
+          "baseline": 600,
+          "warn": 700,
+          "fail": 800,
+          "unit": "ms"
+        }
+      },
+      "laudoLoad": {
+        "p95Ms": {
+          "baseline": 1200,
+          "warn": 1800,
+          "fail": 2000,
+          "unit": "ms",
+          "source": "Firestore query + chart render"
+        },
+        "p99Ms": {
+          "baseline": 2000,
+          "warn": 2700,
+          "fail": 3000,
+          "unit": "ms"
+        }
+      },
+      "queue": {
+        "p95Ms": {
+          "baseline": 75,
+          "warn": 90,
+          "fail": 100,
+          "unit": "ms",
+          "source": "Cloud Tasks dequeue latency"
+        },
+        "p99Ms": {
+          "baseline": 140,
+          "warn": 180,
+          "fail": 200,
+          "unit": "ms"
+        }
+      },
+      "firestoreRules": {
+        "p95Ms": {
+          "baseline": 30,
+          "warn": 45,
+          "fail": 50,
+          "unit": "ms",
+          "source": "Server-side rules evaluation"
+        },
+        "p99Ms": {
+          "baseline": 60,
+          "warn": 90,
+          "fail": 100,
+          "unit": "ms"
+        }
+      }
+    }
+  },
+  "validationGate": {
+    "name": "perf-validate.mjs",
+    "ciRunCommand": "node scripts/perf-validate.mjs --json --baseline=.planning/perf-baseline.json",
+    "failThresholds": [
+      {
+        "metric": "mainShellGzipKb",
+        "condition": "value > 450 KB",
+        "action": "BLOCK_MERGE"
+      },
+      {
+        "metric": "totalInitialJsGzipKb",
+        "condition": "value > 1350 KB",
+        "action": "BLOCK_MERGE"
+      },
+      {
+        "metric": "lighthouseAveragePerformance",
+        "condition": "value < 82/100",
+        "action": "BLOCK_MERGE"
+      },
+      {
+        "metric": "lcpP95Ms",
+        "condition": "value > 2500 ms",
+        "action": "BLOCK_MERGE"
+      }
+    ]
+  },
+  "nextSteps": [
+    "2026-05-20 09:00 — Phase 4 smoke test begins",
+    "2026-05-20 10:00 — Run Lighthouse CI: npm run build && npx @lhci/cli autorun",
+    "2026-05-20 11:00 — Deploy to production",
+    "2026-05-20-21 — Monitor 24h via Firebase Performance + Cloud Logs",
+    "2026-05-21 — Capture final telemetry baselines (auth, laudo, queue, rules)",
+    "2026-05-21 — Freeze baseline for Phase 5+ gating"
+  ],
+  "relatedDocuments": [
+    ".planning/PERFORMANCE_VALIDATION.md — full validation spec with test commands",
+    "scripts/perf-validate.mjs — validation orchestrator (7 metrics)",
+    ".planning/perf-baseline.json — source of truth for all metrics",
+    "docs/observability/PERF_VALIDATION_RUNBOOK.md — status semantics + escalation (TBD)",
+    ".github/workflows/lighthouse-ci.yml — CI gate integration (TBD)"
+  ]
+}

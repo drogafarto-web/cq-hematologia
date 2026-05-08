@@ -1,0 +1,33 @@
+{
+  "prompt": "Você está analisando um laudo clínico (relatório de resultado de laboratório). [Image: clinical report with complete signatures and date]",
+  "expectedOutput": {
+    "field10": {
+      "text": "Hemoglobina dentro do intervalo de referência. Contagem de plaquetas normal. Nenhuma alteração encontrada. Paciente apto para procedimento.",
+      "confidence": "high"
+    },
+    "field11": {
+      "detected": true,
+      "boundingBox": {
+        "x": 5,
+        "y": 75,
+        "width": 25,
+        "height": 20
+      },
+      "confidence": "high",
+      "notes": "Carimbo do RT com nome e inscrição"
+    },
+    "field12": {
+      "detected": true,
+      "dateText": "2026-05-08",
+      "boundingBox": {
+        "x": 65,
+        "y": 75,
+        "width": 25,
+        "height": 20
+      },
+      "confidence": "high",
+      "notes": "Assinatura do diretor com data impressa ao lado"
+    },
+    "overallConfidence": "high"
+  }
+}

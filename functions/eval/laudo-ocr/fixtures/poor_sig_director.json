@@ -1,0 +1,33 @@
+{
+  "prompt": "Você está analisando um laudo clínico (relatório de resultado de laboratório). [Image: clinical report with blurred/smudged director signature]",
+  "expectedOutput": {
+    "field10": {
+      "text": "Teste de triagem realizado com sucesso. Resultados dentro dos limites esperados para idade.",
+      "confidence": "high"
+    },
+    "field11": {
+      "detected": true,
+      "boundingBox": {
+        "x": 8,
+        "y": 78,
+        "width": 22,
+        "height": 16
+      },
+      "confidence": "high",
+      "notes": "Assinatura clara do RT"
+    },
+    "field12": {
+      "detected": true,
+      "dateText": "2026-05-07",
+      "boundingBox": {
+        "x": 68,
+        "y": 78,
+        "width": 22,
+        "height": 16
+      },
+      "confidence": "low",
+      "notes": "Assinatura do diretor parcialmente borrada por dobra do papel"
+    },
+    "overallConfidence": "medium"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "prompt": "Você está analisando um laudo clínico (relatório de resultado de laboratório). [Image: clinical report with no observações/notes section]",
+  "expectedOutput": {
+    "field10": {
+      "text": "",
+      "confidence": "high"
+    },
+    "field11": {
+      "detected": true,
+      "boundingBox": {
+        "x": 10,
+        "y": 80,
+        "width": 20,
+        "height": 15
+      },
+      "confidence": "high",
+      "notes": "Assinatura do RT detectada"
+    },
+    "field12": {
+      "detected": true,
+      "dateText": "2026-05-08",
+      "boundingBox": {
+        "x": 70,
+        "y": 80,
+        "width": 20,
+        "height": 15
+      },
+      "confidence": "high",
+      "notes": "Assinatura do diretor com data"
+    },
+    "overallConfidence": "medium"
+  }
+}

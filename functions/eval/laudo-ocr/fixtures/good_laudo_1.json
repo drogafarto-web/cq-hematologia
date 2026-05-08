@@ -1,0 +1,33 @@
+{
+  "prompt": "Você está analisando um laudo clínico (relatório de resultado de laboratório). [Image: typical clinical report with clear signatures]",
+  "expectedOutput": {
+    "field10": {
+      "text": "Paciente apresenta resultado dentro dos padrões de normalidade para glicose e eletrólitos. Sem alterações significativas detectadas.",
+      "confidence": "high"
+    },
+    "field11": {
+      "detected": true,
+      "boundingBox": {
+        "x": 10,
+        "y": 80,
+        "width": 20,
+        "height": 15
+      },
+      "confidence": "high",
+      "notes": "Assinatura clara com carimbo do RT"
+    },
+    "field12": {
+      "detected": true,
+      "dateText": "2026-05-08",
+      "boundingBox": {
+        "x": 70,
+        "y": 80,
+        "width": 20,
+        "height": 15
+      },
+      "confidence": "high",
+      "notes": "Assinatura legível com data clara"
+    },
+    "overallConfidence": "high"
+  }
+}
