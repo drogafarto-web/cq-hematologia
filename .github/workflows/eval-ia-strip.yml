@@ -1,0 +1,153 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# DRAFT — NOT YET ACTIVE
+# ─────────────────────────────────────────────────────────────────────────────
+# This workflow runs the offline regression eval for the `classifyStripGemini`
+# RDT classifier (Phase 11). It is intentionally gated behind a manual
+# `workflow_dispatch` trigger and a guard step until:
+#   1. Real fixtures land in functions/eval/ia-strip/fixtures/ (RT-signed)
+#   2. GEMINI_API_KEY secret is provisioned for the eval-only service account
+#   3. Baseline accuracy ≥ 0.85 confirmed on first manual run
+#   4. RT (Responsável Técnico) sign-off captured in
+#      docs/ai-evals/IA_STRIP_EVAL_FRAMEWORK.md
+#
+# Activation steps:
+#   - Remove the `if: false` guard on the `eval` job below
+#   - Uncomment the `pull_request` and `schedule` triggers
+#   - Confirm `EVAL_ACCURACY_THRESHOLD` matches the baseline you measured
+#
+# Owner: AI/ML platform — see CODEOWNERS for routing.
+# Spec: docs/ai-evals/IA_STRIP_EVAL_FRAMEWORK.md
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: eval-ia-strip (DRAFT)
+
+on:
+  workflow_dispatch:
+    inputs:
+      threshold_override:
+        description: "Override accuracy threshold (0.0–1.0). Leave blank to use default."
+        required: false
+        default: ""
+  # ── Activate after sign-off ────────────────────────────────────────────────
+  # pull_request:
+  #   paths:
+  #     - "functions/src/modules/ia-strip/**"
+  #     - "functions/eval/ia-strip/**"
+  #     - ".github/workflows/eval-ia-strip.yml"
+  # schedule:
+  #   # Mondays 04:00 UTC (01:00 BRT) — weekly drift check
+  #   - cron: "0 4 * * 1"
+
+permissions:
+  contents: read
+  pull-requests: write   # for commenting eval summary on PRs (post-activation)
+
+env:
+  EVAL_ACCURACY_THRESHOLD: "0.85"   # matches in-code claim; revisit after baseline
+  EVAL_AMBIGUOUS_MAX_CONFIDENCE: "0.80"
+  EVAL_SCHEMA_FAILURE_MAX: "0.00"
+
+jobs:
+  eval:
+    name: Run promptfoo eval
+    runs-on: ubuntu-latest
+    if: false   # ← REMOVE this line to activate (currently DRAFT)
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: functions/package-lock.json
+
+      - name: Install functions deps
+        working-directory: functions
+        run: npm ci
+
+      - name: Verify fixtures present
+        working-directory: functions/eval/ia-strip
+        run: |
+          if [ ! -f fixtures/manifest.json ]; then
+            echo "::error::fixtures/manifest.json missing — eval cannot run"
+            exit 1
+          fi
+          COUNT=$(jq 'length' fixtures/manifest.json)
+          if [ "$COUNT" -lt 50 ]; then
+            echo "::error::Manifest has only $COUNT entries — minimum 50 for statistical signal"
+            exit 1
+          fi
+          echo "Manifest entries: $COUNT"
+
+      - name: Generate test cases from manifest
+        working-directory: functions
+        run: node scripts/build-eval-fixtures.mjs eval/ia-strip/fixtures/manifest.json
+
+      - name: Run promptfoo eval
+        working-directory: functions
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY_EVAL }}
+        run: npm run eval:ia-strip
+
+      - name: Compute pass/fail gate
+        id: gate
+        working-directory: functions/eval/ia-strip
+        run: |
+          THRESHOLD="${{ github.event.inputs.threshold_override || env.EVAL_ACCURACY_THRESHOLD }}"
+          ACCURACY=$(jq -r '.results.stats.accuracy // 0' output/results.json)
+          SCHEMA_FAIL=$(jq -r '.results.stats.schemaFailureRate // 0' output/results.json)
+
+          echo "accuracy=$ACCURACY" >> $GITHUB_OUTPUT
+          echo "threshold=$THRESHOLD" >> $GITHUB_OUTPUT
+          echo "schema_fail=$SCHEMA_FAIL" >> $GITHUB_OUTPUT
+
+          PASS=true
+          awk -v a="$ACCURACY" -v t="$THRESHOLD" 'BEGIN { exit !(a+0 >= t+0) }' || PASS=false
+          if [ "$SCHEMA_FAIL" != "0" ] && [ "$SCHEMA_FAIL" != "0.0" ]; then
+            PASS=false
+          fi
+
+          if [ "$PASS" = "false" ]; then
+            echo "::error::Eval gate FAILED — accuracy=$ACCURACY (threshold=$THRESHOLD), schema_fail=$SCHEMA_FAIL"
+            exit 1
+          fi
+          echo "Eval gate PASSED — accuracy=$ACCURACY"
+
+      - name: Upload eval report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ia-strip-eval-${{ github.run_id }}
+          path: |
+            functions/eval/ia-strip/output/
+          retention-days: 30
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const acc = '${{ steps.gate.outputs.accuracy }}';
+            const thr = '${{ steps.gate.outputs.threshold }}';
+            const sf  = '${{ steps.gate.outputs.schema_fail }}';
+            const status = '${{ job.status }}';
+            const body = [
+              `### IA-Strip Eval — ${status === 'success' ? 'PASS' : 'FAIL'}`,
+              ``,
+              `| Metric | Value | Threshold |`,
+              `| --- | --- | --- |`,
+              `| Accuracy | ${acc} | ≥ ${thr} |`,
+              `| Schema failure rate | ${sf} | == 0 |`,
+              ``,
+              `Full report: see workflow artifacts.`,
+            ].join('\n');
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });
