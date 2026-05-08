@@ -1,20 +1,21 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.4
-milestone_name: milestone
+milestone_name: Milestone Summary
 status: executing
-last_updated: "2026-05-07T21:30:00.000Z"
+last_updated: "2026-05-08T16:45:00.000Z"
 progress:
   total_phases: 15
-  completed_phases: 4
-  total_waves: 4
-  completed_waves: 1
+  completed_phases: 5
+  total_plans: 40
+  completed_plans: 28
+  percent: 70
 ---
 
-# HC Quality v1.4 — Phase 2 Complete, Phase 3 Ready
+# HC Quality v1.4 — Phase 4 Complete, Phase 5 Ready
 
-**Last Updated:** 2026-05-07 (21:35 UTC)
-**Status:** `v1.4-phase-2-complete` — v1.4 planning deep-dive finished. 9 comprehensive artifacts (8,500+ lines). All RDC blockers (Phase 0) LIVE. Phase 3 execution unblocked (2026-05-13). v1.3 performance baseline captured (`.planning/v1.3-PERFORMANCE_BASELINE.md`).
+**Last Updated:** 2026-05-08 (16:45 UTC)
+**Status:** `v1.4-phase-4-complete` — Portal + NOTIVISA integration fully delivered. All 4 plans (04-01 through 04-04) executed with atomic per-plan SUMMARY commits. E2E test suite (135/135 pass). Cloud Logs monitoring + deployment readiness verified. Ready for Phase 5 kickoff (conditional on 24h post-deploy monitoring).
 
 ---
 
@@ -35,6 +36,7 @@ progress:
 - Unit tests: 738/738 passing
 
 **v1.3 Highlights:**
+
 - ✅ Phase 8.5 housekeeping complete (0 TS errors, build green)
 - ✅ Phase 9 bioquímica shipped (2,700+ LOC, Westgard CLSI, Levey-Jennings)
 - ✅ Phase 10 (liberacao) 50% — state machine + RT signature live
@@ -55,17 +57,20 @@ progress:
 **Milestone:** v1.4 — Phase 2 (Planning Deep-Dive) COMPLETE ✅ (2026-05-07 20:30 UTC)
 
 **Phase 0 closure:**
+
 - 00-01 (turnos) ✅ Rules + Functions + Hosting LIVE
 - 00-02 (DPIA + LGPD) ✅ POL-LGPD-001 + IT-LGPD-DPIA-001 LIVE
 - 00-03 (lab-apoio) ✅ Contracts module + LIVE
 - 00-04 (risks FMEA-lite) ✅ Risk register skeleton LIVE
 
 **Phase 1 deliverables (2026-05-07 18:00–19:00 UTC):**
+
 - ✅ 01-BASELINE-SMOKE-REPORT.md — 4 critical flows PASS, 0 Cloud Logs errors
 - ✅ v1.4-REQUIREMENTS-VERIFIED.md — 15 core + 4 TD + 7 v2 reqs verified
 - ✅ v1.4-RISK-MITIGATION-MATRIX.md — 19 risks mapped, top 5 mitigated
 
 **Phase 2 deliverables (2026-05-07 20:30 UTC):**
+
 - ✅ 02-v14-planning-PLAN.md — Phase 2 execution plan + task completion
 - ✅ 02-EXECUTIVE-SUMMARY.md — 9 artifacts, 8,500+ lines
 - ✅ v1.4-REQ-PHASE-MATRIX.md — 16 REQs locked to phases
@@ -109,6 +114,7 @@ progress:
 **v1.3 is COMPLETE and LIVE in production.**
 
 Key achievements:
+
 - 35 modules in production
 - 78 Cloud Functions deployed (callables + triggers + cron)
 - 738/738 unit tests passing
@@ -139,13 +145,14 @@ See `.planning/milestones/v1.4-KICKOFF-SUMMARY.md` for full phase breakdown and 
 | **Phase 1** | ✅ COMPLETE | 2026-05-07 | Smoke tests + baseline verification |
 | **Phase 2** | ✅ COMPLETE | 2026-05-07 | Planning deep-dive (9 artifacts) |
 | **Phase 3** | ✅ COMPLETE | 2026-05-07 | Schema + Rules + Functions scaffolding |
-| **Phase 4** | 📋 MERGE-READY | 2026-05-19 | Portal auth + NOTIVISA integration — 29 commits staged |
+| **Phase 4** | ✅ COMPLETE | 2026-05-08 | Portal auth + NOTIVISA integration — 4 plans + E2E tests ✅ |
 | **Phase 5** | 📋 PLANNING | 2026-06-30 | Critical escalation + IA training |
 | **Phase 6+** | 📅 BACKLOG | TBD | Extended roadmap |
 
 **Overall v1.4 Progress:** Phase 0–3 (100%) + Phase 4 (90% — code ready, merge gate 2026-05-19) + Phase 5 (0%) = **~43% complete**
 
 **Phase 4 Status (as of 2026-05-07 23:59 UTC):**
+
 - Code commits: 15 (portal auth UI, NOTIVISA callables, rules, E2E tests)
 - Doc commits: 14 (planning, runbooks, auditor alignment, operational infrastructure)
 - Total commits: 29 staged for merge to main
