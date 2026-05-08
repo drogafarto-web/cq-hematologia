@@ -1,0 +1,187 @@
+{
+  "$schema": "./perf-baseline.schema.json",
+  "version": "v1.3",
+  "capturedAt": "2026-05-07",
+  "sourceCommit": "448a95a",
+  "sourceAudit": ".planning/PERFORMANCE_AUDIT_PHASE_4_5.md",
+  "notes": "v1.3 production baseline. Numbers reflect main shell + 5 critical Lighthouse routes + production p95 telemetry. Update only when CTO signs off on a new baseline (see PERF_VALIDATION_RUNBOOK.md).",
+  "metrics": {
+    "bundle": {
+      "mainShellGzipKb": {
+        "baseline": 399,
+        "warn": 419,
+        "fail": 439,
+        "limitKb": 420,
+        "unit": "KB",
+        "direction": "lower-is-better",
+        "rationale": "Phase 4-5 audit (2026-05-08) measured 399 KB main shell. Phase 4 budget is +21 KB headroom. Hard cap 420 KB."
+      },
+      "totalInitialJsGzipKb": {
+        "baseline": 770,
+        "warn": 850,
+        "fail": 900,
+        "limitKb": 900,
+        "unit": "KB",
+        "direction": "lower-is-better",
+        "rationale": "Shell + eager vendor (React + Firebase + Zod). Beyond 900 KB the cold-start LCP budget is at risk."
+      },
+      "totalLazyChunksGzipKb": {
+        "baseline": 1350,
+        "warn": 1800,
+        "fail": 2048,
+        "limitKb": 2048,
+        "unit": "KB",
+        "direction": "lower-is-better",
+        "rationale": "Sum of all lazy module chunks. Cap 2 MB to keep PWA precache under 5.5 MB."
+      }
+    },
+    "lighthouse": {
+      "averagePerformance": {
+        "baseline": 91,
+        "warn": 88,
+        "fail": 82,
+        "limit": 87,
+        "unit": "score/100",
+        "direction": "higher-is-better",
+        "rationale": "5-route average. v1.3 produced 91. Phase 4 target >=87."
+      },
+      "perRoute": {
+        "/hub": { "baseline": 92, "fail": 78 },
+        "/auth/login": { "baseline": 95, "fail": 87 },
+        "/features/bioquimica/runs": { "baseline": 87, "fail": 77 },
+        "/features/analytics": { "baseline": 88, "fail": 78 },
+        "/features/export/wizard": { "baseline": 94, "fail": 84 }
+      },
+      "averageAccessibility": {
+        "baseline": 96,
+        "warn": 92,
+        "fail": 90,
+        "limit": 90,
+        "unit": "score/100",
+        "direction": "higher-is-better",
+        "rationale": "WCAG AA design quality gate. Below 90 the design system regressed."
+      }
+    },
+    "webVitals": {
+      "lcpP95Ms": {
+        "baseline": 1900,
+        "warn": 2090,
+        "fail": 2500,
+        "limitMs": 2500,
+        "unit": "ms",
+        "direction": "lower-is-better",
+        "rationale": "v1.3 avg 1.9s. Warn at +10% (2.09s). Hard limit Google good-CWV (2.5s)."
+      },
+      "inpP95Ms": {
+        "baseline": 110,
+        "warn": 126,
+        "fail": 200,
+        "limitMs": 200,
+        "unit": "ms",
+        "direction": "lower-is-better",
+        "rationale": "v1.3 avg 110ms. Warn +15%. Hard limit 200ms (Google good-CWV)."
+      },
+      "clsP95": {
+        "baseline": 0.04,
+        "warn": 0.048,
+        "fail": 0.1,
+        "limit": 0.1,
+        "unit": "score",
+        "direction": "lower-is-better",
+        "rationale": "v1.3 avg 0.04. Warn +20%. Hard limit 0.1."
+      },
+      "fcpP95Ms": {
+        "baseline": 1300,
+        "warn": 1500,
+        "fail": 2000,
+        "limitMs": 2000,
+        "unit": "ms",
+        "direction": "lower-is-better"
+      },
+      "ttfbP95Ms": {
+        "baseline": 350,
+        "warn": 800,
+        "fail": 1200,
+        "limitMs": 1200,
+        "unit": "ms",
+        "direction": "lower-is-better"
+      }
+    },
+    "auth": {
+      "p95Ms": {
+        "baseline": 400,
+        "warn": 450,
+        "fail": 500,
+        "limitMs": 500,
+        "unit": "ms",
+        "direction": "lower-is-better",
+        "rationale": "Login submit -> Firebase ID token issued + Zustand hydrated. Critical path every session."
+      },
+      "p99Ms": {
+        "baseline": 600,
+        "warn": 700,
+        "fail": 800,
+        "limitMs": 800,
+        "unit": "ms",
+        "direction": "lower-is-better"
+      }
+    },
+    "laudoLoad": {
+      "p95Ms": {
+        "baseline": 1200,
+        "warn": 1800,
+        "fail": 2000,
+        "limitMs": 2000,
+        "unit": "ms",
+        "direction": "lower-is-better",
+        "rationale": "Laudo entry -> chart + table rendered. Includes Firestore query + render. Time-sensitive clinical workflow."
+      },
+      "p99Ms": {
+        "baseline": 2000,
+        "warn": 2700,
+        "fail": 3000,
+        "limitMs": 3000,
+        "unit": "ms",
+        "direction": "lower-is-better"
+      }
+    },
+    "queue": {
+      "p95Ms": {
+        "baseline": 75,
+        "warn": 90,
+        "fail": 100,
+        "limitMs": 100,
+        "unit": "ms",
+        "direction": "lower-is-better",
+        "rationale": "Cloud Tasks dequeue latency for async jobs (PDF, audit, notifications)."
+      },
+      "p99Ms": {
+        "baseline": 140,
+        "warn": 180,
+        "fail": 200,
+        "limitMs": 200,
+        "unit": "ms",
+        "direction": "lower-is-better"
+      }
+    },
+    "firestoreRules": {
+      "p95Ms": {
+        "baseline": 30,
+        "warn": 45,
+        "fail": 50,
+        "limitMs": 50,
+        "unit": "ms",
+        "direction": "lower-is-better",
+        "rationale": "Server-side rules evaluation. Above 50ms indicates expensive exists()/get() expressions."
+      },
+      "p99Ms": {
+        "baseline": 60,
+        "warn": 90,
+        "fail": 100,
+        "limitMs": 100,
+        "unit": "ms",
+        "direction": "lower-is-better"
+      }
+    }
+  }
+}

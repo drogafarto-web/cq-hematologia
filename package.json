@@ -25,7 +25,8 @@
     "fb:deploy": "firebase deploy --project hmatologia2",
     "fb:logs:backup": "firebase functions:log --only scheduledDailyBackup --project hmatologia2",
     "fb:logs:ec": "firebase functions:log --only ec_scheduledAlertasVencimento --project hmatologia2",
-    "analyze": "cross-env ANALYZE=true npm run build && start dist/stats.html"
+    "analyze": "cross-env ANALYZE=true npm run build && start dist/stats.html",
+    "perf:validate": "node scripts/perf-validate.mjs"
   },
   "engines": {
     "node": "22.x",
