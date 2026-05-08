@@ -186,7 +186,9 @@
       "Bash(cd \"C:\\\\\\\\hc quality\")",
       "PowerShell(& \"C:\\\\hc quality\\\\scripts\\\\send-auditor-email.ps1\")",
       "Bash(bash *)",
-      "WebFetch(domain:api.anvisa.gov.br)"
+      "WebFetch(domain:api.anvisa.gov.br)",
+      "PowerShell(Copy-Item *)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\labcl\\\\Downloads\\\\\" | Where-Object {$_.Extension -match \"jpeg|jpg\"} | Select-Object Name | Sort-Object -Property Name -Descending | Select-Object -First 10)"
     ]
   },
   "model": "haiku",
