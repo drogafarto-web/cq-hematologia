@@ -1,0 +1,33 @@
+{
+  "displayName": "A1 — Audit log fallback engaged (writeAuditLog FAILED after retries)",
+  "documentation": {
+    "content": "Triggered when [writeAuditLog] FAILED after retries appears more than 3 times in 1h. Indicates audit-log primary writes are losing data and falling back to auditLogFailures collection. Compliance: RDC 978 Art. 128, ADR-0017. Runbook: docs/observability/RUNBOOK.md#a1-audit-log-fallback-engaged",
+    "mimeType": "text/markdown"
+  },
+  "userLabels": {
+    "alert_id": "a1",
+    "severity": "warning",
+    "compliance": "rdc-978-art-128",
+    "owner": "oncall-eng"
+  },
+  "conditions": [
+    {
+      "displayName": "writeAuditLog failure count > 3 in 1h",
+      "conditionMatchedLog": {
+        "filter": "resource.type=\"cloud_function\" AND resource.labels.region=\"southamerica-east1\" AND severity=\"ERROR\" AND textPayload:\"[writeAuditLog] FAILED after retries\""
+      }
+    }
+  ],
+  "alertStrategy": {
+    "notificationRateLimit": {
+      "period": "3600s"
+    },
+    "autoClose": "86400s"
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "notificationChannels": [
+    "projects/hmatologia2/notificationChannels/PLACEHOLDER_ONCALL_ENG"
+  ],
+  "severity": "WARNING"
+}

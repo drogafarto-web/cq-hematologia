@@ -1,0 +1,34 @@
+{
+  "displayName": "A3 — IA-strip consent gate violation (LGPD Art. 9)",
+  "documentation": {
+    "content": "Triggered when consentGate.ts throws HttpsError('failed-precondition', 'consent-not-captured'). Indicates an attempt to invoke Gemini IA without LGPD consent recorded. The gate is working — every fire is a UX/workflow gap to investigate, not a privacy breach. Compliance: LGPD Art. 9, DICQ 4.4. Runbook: docs/observability/RUNBOOK.md#a3-consent-gate-violation",
+    "mimeType": "text/markdown"
+  },
+  "userLabels": {
+    "alert_id": "a3",
+    "severity": "error",
+    "compliance": "lgpd-art-9",
+    "owner": "dpo"
+  },
+  "conditions": [
+    {
+      "displayName": "consent-not-captured occurrences >= 1 in 5min",
+      "conditionMatchedLog": {
+        "filter": "resource.type=\"cloud_function\" AND resource.labels.function_name=\"classifyStripGemini\" AND severity=\"ERROR\" AND (textPayload:\"consent-not-captured\" OR jsonPayload.message:\"consent-not-captured\")"
+      }
+    }
+  ],
+  "alertStrategy": {
+    "notificationRateLimit": {
+      "period": "1800s"
+    },
+    "autoClose": "86400s"
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "notificationChannels": [
+    "projects/hmatologia2/notificationChannels/PLACEHOLDER_DPO",
+    "projects/hmatologia2/notificationChannels/PLACEHOLDER_RT_CLINICAL"
+  ],
+  "severity": "ERROR"
+}

@@ -1,0 +1,47 @@
+{
+  "displayName": "A2 — Críticos SLA breach (RDC 978 Art. 5.7.1 — 60min)",
+  "documentation": {
+    "content": "Triggered when criticos-escalacao SLA exceeds 60 min. Detection via custom metric custom.googleapis.com/criticos/sla_breach_count emitted by criticosSlaProbe scheduled function. Compliance: RDC 978 Art. 5.7.1. Runbook: docs/observability/RUNBOOK.md#a2-criticos-sla-breach. STATUS: DRAFT — requires criticosSlaProbe function deployment (Wave 3).",
+    "mimeType": "text/markdown"
+  },
+  "userLabels": {
+    "alert_id": "a2",
+    "severity": "error",
+    "compliance": "rdc-978-art-5-7-1",
+    "owner": "rt-clinical",
+    "status": "draft"
+  },
+  "conditions": [
+    {
+      "displayName": "criticos sla_breach_count > 0",
+      "conditionThreshold": {
+        "filter": "metric.type=\"custom.googleapis.com/criticos/sla_breach_count\" AND resource.type=\"global\"",
+        "aggregations": [
+          {
+            "alignmentPeriod": "300s",
+            "perSeriesAligner": "ALIGN_MAX"
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 0,
+        "duration": "0s",
+        "trigger": {
+          "count": 1
+        }
+      }
+    }
+  ],
+  "alertStrategy": {
+    "notificationRateLimit": {
+      "period": "300s"
+    },
+    "autoClose": "3600s"
+  },
+  "combiner": "OR",
+  "enabled": false,
+  "notificationChannels": [
+    "projects/hmatologia2/notificationChannels/PLACEHOLDER_RT_CLINICAL",
+    "projects/hmatologia2/notificationChannels/PLACEHOLDER_ONCALL_ENG"
+  ],
+  "severity": "ERROR"
+}

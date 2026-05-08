@@ -1,0 +1,48 @@
+{
+  "displayName": "A6 — LGPD Art. 9 — Gemini call without consent (belt-and-suspenders)",
+  "documentation": {
+    "content": "Triggered when geminiEgressAudit detects a Gemini outbound call NOT preceded by a matching imuno-ia-guardrails event within 60s. Belt-and-suspenders: independent of consentGate.ts to catch bypass scenarios. Single occurrence is a P0 privacy incident. ANPD notification clock starts at first event. Compliance: LGPD Art. 9 + Art. 48, DICQ 4.4. Runbook: docs/observability/RUNBOOK.md#a6-gemini-without-consent. STATUS: DRAFT — requires geminiEgressAudit function deployment + custom metric (Wave 3).",
+    "mimeType": "text/markdown"
+  },
+  "userLabels": {
+    "alert_id": "a6",
+    "severity": "critical",
+    "compliance": "lgpd-art-9",
+    "owner": "dpo",
+    "regulatory_clock": "72h",
+    "status": "draft"
+  },
+  "conditions": [
+    {
+      "displayName": "lgpd gemini_bypass_count > 0",
+      "conditionThreshold": {
+        "filter": "metric.type=\"custom.googleapis.com/lgpd/gemini_bypass_count\" AND resource.type=\"global\"",
+        "aggregations": [
+          {
+            "alignmentPeriod": "900s",
+            "perSeriesAligner": "ALIGN_MAX"
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 0,
+        "duration": "0s",
+        "trigger": {
+          "count": 1
+        }
+      }
+    }
+  ],
+  "alertStrategy": {
+    "notificationRateLimit": {
+      "period": "300s"
+    },
+    "autoClose": "604800s"
+  },
+  "combiner": "OR",
+  "enabled": false,
+  "notificationChannels": [
+    "projects/hmatologia2/notificationChannels/PLACEHOLDER_DPO",
+    "projects/hmatologia2/notificationChannels/PLACEHOLDER_CTO"
+  ],
+  "severity": "CRITICAL"
+}
