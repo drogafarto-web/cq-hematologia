@@ -976,7 +976,7 @@ function ModalShell({
   );
 }
 
-function NovaRunModal({
+export function NovaRunModal({
   onClose,
   onSubmit,
   isSaving,
@@ -1167,7 +1167,7 @@ function DeleteLotModal({
   );
 }
 
-function QRModal({
+export function QRModal({
   run,
   lotId,
   onClose,
@@ -1193,7 +1193,7 @@ function QRModal({
   );
 }
 
-function RunDetailModal({ run, onClose }: { run: UroanaliseRun; onClose: () => void }) {
+export function RunDetailModal({ run, onClose }: { run: UroanaliseRun; onClose: () => void }) {
   const analitos = Object.entries(run.resultados) as Array<
     [string, NonNullable<UroanaliseRun['resultados'][keyof UroanaliseRun['resultados']]>]
   >;
