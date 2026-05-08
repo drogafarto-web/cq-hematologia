@@ -40,31 +40,25 @@ Toda função de `turnosService.ts` recebe `labId` como parâmetro posicional ob
 
 ## Status atual
 
-**Fase:** Phase 0 / Plan 00-01 — **em desenvolvimento** (T1-T4 completo, T5-T10 pendentes).
-**Deadlin**: Dia 1.5 da fase (execução contínua até D1.5).
-**Próximo passo:** T5 (rules + indexes), T6 (hooks + UI), T7 (shell wiring), T8 (este CLAUDE.md + root update), T9 (pre-deploy), T10 (deploy + logs).
+**Fase:** Phase 0 / Plan 00-01 — **Em prod (2026-05-07)**. T1–T10 completos.
+**Sign-off:** PHASE0-SIGN-OFF-MEMO.md (CTO + RT + DevOps, 2026-05-07 18:30 UTC).
+**Próximo passo:** acompanhar Cloud Logs day-1 + planejar Plan 5 W0 (`turnos_supervisorCheckin`, ainda registrado em code mas não deployado — verificar 28aa191).
 
-### Entregue em T1-T4
+### Deployado em produção (Phase 0)
 
-- types/Turno.ts — Turno, TurnoInput, Periodo, TurnoAuditEvent
-- services/turnosService.ts — read-only subscibe + get
-- services/turnosCallables.ts — lazy callable wrappers
-- functions/src/modules/turnos/validators.ts — Zod schemas, assertTurnosAccess
-- functions/src/modules/turnos/signatureCanonical.ts — SHA-256 server-side
-- functions/src/modules/turnos/createTurno.ts — turnos_createTurno callable
-- functions/src/modules/turnos/updateTurno.ts — turnos_updateTurno callable
-- functions/src/modules/turnos/softDeleteTurno.ts — turnos_softDeleteTurno callable
-- functions/src/modules/turnos/backfill90Days.ts — turnos_backfill90Days callable
-- functions/src/modules/turnos/onTurnoEventCreated.ts — Firestore v2 trigger for chainHash
+Functions live em `southamerica-east1` (verificado via `firebase functions:list --project hmatologia2`):
 
-### Pendências restantes
+- `turnos_createTurno` (callable)
+- `turnos_updateTurno` (callable)
+- `turnos_softDeleteTurno` (callable)
+- `turnos_backfill90Days` (callable)
+- `onTurnoEventCreated` (Firestore v2 trigger — chainHash)
 
-- T5: Firestore rules block (`/labs/{labId}/turnos/` + events subcollection), 2 composite indexes, rules emulator test
-- T6: Hooks + components (useTurnos, useCoberturaTurnos, TurnoForm, TurnosList, CoberturaReport, TurnosView)
-- T7: Shell wiring (AppRouter lazy route, View union, Hub tile, manualChunks)
-- T8: Root CLAUDE.md update
-- T9: Pre-deploy (claim provisioning, dry-run backfill)
-- T10: Deploy (rules → functions → hosting) + Cloud Logs monitor 24h
+Rules + indexes deployed; React shell + hooks + componentes shippados; provision claims script executado.
+
+### Em desenvolvimento pós-Phase-0 (não deployado)
+
+- `turnos_supervisorCheckin` — callable registrado no code (commits dcc5cb7/3e785e1, Plan 5 W0) mas ainda **não está em `firebase functions:list`**. Aguarda deploy de Phase 5 W0.
 
 ## Convenções fixadas
 
