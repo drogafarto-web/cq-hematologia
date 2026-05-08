@@ -53,6 +53,12 @@ export interface UroanaliseRedesignedShellProps {
   auditTrailLoading?: boolean;
   auditTrailSubtitle?: string;
 
+  // Extra header actions (e.g., approve/reject lot) rendered before the "Trilha" button
+  headerActionsExtra?: React.ReactNode;
+
+  // Optional banner rendered above breadcrumb (e.g., preview/beta indicator)
+  banner?: React.ReactNode;
+
   // Optional cancel out of the whole module
   onCancel?: () => void;
 }
@@ -82,6 +88,8 @@ export function UroanaliseRedesignedShell({
   auditTrailEvents,
   auditTrailLoading,
   auditTrailSubtitle,
+  headerActionsExtra,
+  banner,
   onCancel,
 }: UroanaliseRedesignedShellProps) {
   const [activeTab, setActiveTab] = useState<UroTabKey>('corrida');
@@ -130,6 +138,7 @@ export function UroanaliseRedesignedShell({
   // ── Header actions slot ──────────────────────────────────────────────────
   const headerActions = (
     <div className="flex items-center gap-2">
+      {headerActionsExtra}
       <button
         type="button"
         onClick={() => setAuditTrailOpen(true)}
@@ -142,6 +151,9 @@ export function UroanaliseRedesignedShell({
 
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-[#0f1318] text-slate-900 dark:text-white/90 overflow-hidden">
+      {/* Optional banner — preview, beta, etc. */}
+      {banner}
+
       {/* Breadcrumb header — full width */}
       <UroBreadcrumbHeader
         labName={labName}
