@@ -65,14 +65,14 @@ export function subscribeRisks(
   onData?: (risks: Risk[]) => void,
   onError?: (error: Error) => void
 ) {
-  const constraints: any[] = [where('labId', '==', labId)];
+  const constraints: any[] = [];
 
   // Filter by status if provided
   if (filters?.status && filters.status.length > 0) {
     constraints.push(where('status', 'in', filters.status));
   }
 
-  const q = query(collection(db, 'risks'), ...constraints);
+  const q = query(collection(db, `labs/${labId}/risks`), ...constraints);
 
   return onSnapshot(
     q,
@@ -141,7 +141,7 @@ export function subscribeRisks(
  * Get a single risk by ID.
  */
 export async function getRisk(labId: string, riskId: string): Promise<Risk | null> {
-  const docRef = doc(db, 'risks', riskId);
+  const docRef = doc(db, `labs/${labId}/risks`, riskId);
   const docSnap = await getDoc(docRef);
 
   if (!docSnap.exists()) {
