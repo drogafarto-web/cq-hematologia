@@ -205,6 +205,7 @@ export {
 //   labApoio_registrarAvaliacaoPeriodica — append annual evaluation (Art. 39)
 //   labApoio_uploadContratoAnexo    — register PDF URL + size (Storage pre-validates)
 //   labApoio_checkExpiry            — scheduled cron: 60d/30d/7d/0d alerts (email + in-app)
+//   labApoio_generateContractTemplate — Phase 5 W0: 6-clause RDC 978 Arts. 36–39 minuta
 //   onContratoEventCreated          — Firestore trigger, computes chainHash per event
 export {
   labApoio_createContrato,
@@ -213,6 +214,7 @@ export {
   labApoio_registrarAvaliacaoPeriodica,
   labApoio_uploadContratoAnexo,
   labApoio_checkExpiry,
+  labApoio_generateContractTemplate,
   onContratoEventCreated,
 } from './modules/labApoio';
 
@@ -2178,4 +2180,13 @@ export { classificarDocAuto } from './sgq/classificarDocAuto';
 //   escalacaoCriticos,
 //   escalacaoCriticos_webhook,
 // } from './modules/criticos/index';
+
+// ─── criticos-config module (Phase 5 / Plan 05-01 — RDC 978 Art. 167) ────────
+// Critical Values Threshold Configuration. RT/admin/owner write; lab member read.
+export {
+  criticosConfig_createThreshold,
+  criticosConfig_updateThreshold,
+  criticosConfig_getThresholds,
+} from './modules/criticosConfig/index';
+
 export { aprovarBatchImport } from './sgq/aprovarBatchImport';
