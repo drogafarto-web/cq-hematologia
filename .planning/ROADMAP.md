@@ -1,23 +1,23 @@
 ---
 milestone: v1.4
-version: 1.0
+version: 1.1
 date_created: 2026-05-07
-date_updated: 2026-05-07
+date_updated: 2026-05-08
 status: approved
-revision_note: "Phase 3 LIVE (2026-05-07). Phases 4–5 planned (2026-05-20 ~ 2026-06-27). Phase 6–9 backlog sketched."
+revision_note: "Phase 3 LIVE (2026-05-07). Phase 7 pivoted to Advanced Auditoria (2026-05-08). Phases 4–5 planned (2026-05-20 ~ 2026-06-27). Phases 6, 8–9 backlog."
 ---
 
 # HC Quality v1.4 — Roadmap
 
 **Milestone:** v1.4 (Quality Control Extensions + Compliance Phase 2)  
 **Period:** 2026-05-07 → 2026-08-15 (14 weeks)  
-**Status:** Phase 3 PRODUCTION LIVE · Phases 4–5 PLANNED
+**Status:** Phase 3 PRODUCTION LIVE · Phase 7 PLANNED (NEW) · Phases 4–5 PLANNED
 
 ---
 
 ## v1.4 Milestone Summary
 
-**Overall Progress:** Phase 3 COMPLETE (100%), Phases 4–5 PLANNED, Phase 6–9 BACKLOG  
+**Overall Progress:** Phase 3 COMPLETE (100%), Phase 7 PLANNED (NEW), Phases 4–5 detailed, Phases 6, 8–9 backlog  
 **Target Completion:** 2026-08-15 (14 weeks from Phase 3 close)  
 **Compliance Target:** DICQ 88%+, RDC 978 92%+, LGPD 85%+
 
@@ -26,7 +26,9 @@ revision_note: "Phase 3 LIVE (2026-05-07). Phases 4–5 planned (2026-05-20 ~ 20
 | **Phase 3** | Schema, Rules, Helpers, Functions Base | 12 deliverables, 42.4K LOC, 738/738 tests | ✅ LIVE | 2026-05-07 | 2/10 |
 | **Phase 4** | Portal + NOTIVISA Integration | Portal UI (04-01/02), NOTIVISA API (04-03/04) | 📋 PLANNED | 2026-06-02 | 3.5/10 |
 | **Phase 5** | Críticos + IA Strip Enhancement | Críticos severity (05-01/02), IA OCR (05-03/04) | 📋 PLANNED | 2026-06-27 | 3.5/10 |
-| **Phase 6–9** | CAPA + Auditoria + Export + Mobile | CAPA workflow, audit trail, export wizard, mobile | 📅 BACKLOG | 2026-08-15 | 4/10 |
+| **Phase 6** | CAPA Workflow | CAPA schema + UI + audit trail | 📅 BACKLOG | 2026-07-14 | 3/10 |
+| **Phase 7** | Advanced Auditoria + AI Insights | Audit trail extension, anomaly detection, alerts, reporting | 📋 PLANNED (NEW) | 2026-08-04 | 2.5/10 |
+| **Phase 8–9** | NOTIVISA Edge + Labs Apoio + Manual QC | Extended quality assurance | 📅 BACKLOG | 2026-08-15 | 4/10 |
 
 ---
 
@@ -159,13 +161,9 @@ revision_note: "Phase 3 LIVE (2026-05-07). Phases 4–5 planned (2026-05-20 ~ 20
 
 ---
 
-## Phases 6–9 — Backlog (Sketch)
+## Phase 6 — CAPA Workflow (2 weeks)
 
-**Combined Effort:** ~9 weeks, 2–3 FTE baseline (peaks during Phase 4), target 2026-08-15
-
-### Phase 6 — CAPA + Auditoria (2 weeks)
-
-**Goal:** CAPA workflow + audit trail for compliance-critical actions.  
+**Goal:** CAPA workflow implementation for non-conformance investigation and corrective action tracking.  
 **Period:** 2026-06-30 → 2026-07-14  
 **Compliance:** RDC 978 Art. 86 (CAPA management), DICQ 4.14.6 (preventive action)
 
@@ -173,26 +171,54 @@ revision_note: "Phase 3 LIVE (2026-05-07). Phases 4–5 planned (2026-05-20 ~ 20
 |------|-------|----------|
 | **06-01** | CAPA schema (finding → action → verification → closeout) | 3 days |
 | **06-02** | CAPA workflow UI (assign, track, evidence, sign-off) | 4 days |
-| **06-03** | Audit trail (write intent + read consent per RDC 978 5.3) | 3 days |
+| **06-03** | Audit trail integration (CAPA investigation evidence) | 3 days |
 | **06-04** | E2E tests + compliance audit | 2 days |
 | **06-05** | Deploy | 1 day |
 
-### Phase 7 — Export Wizard + Mobile (3 weeks)
+---
 
-**Goal:** Multi-format export (XLSX, PDF, CSV) + mobile-responsive UI overhaul.  
+## Phase 7 — Advanced Auditoria + AI Insights (2 weeks) — NEW PLANNED
+
+**Goal:** Enhanced audit trail with cross-collection diffs, AI-powered anomaly detection, real-time alerts, and NLP-driven audit reporting.  
 **Period:** 2026-07-15 → 2026-08-04  
-**Compliance:** DICQ 4.3 (report distribution), RDC 978 (data portability)
+**Team:** 2 FTE (backend/frontend) + 0.5 FTE AI specialist  
+**Compliance:** RDC 978 5.3, Art. 107 + DICQ 4.4 (Trilha de Auditoria, Investigação de NC)
+
+### Plan Structure
 
 | Plan | Focus | Duration |
 |------|-------|----------|
-| **07-01** | Export wizard 4-step (format, filters, recipients, schedule) | 4 days |
-| **07-02** | XLSX/PDF render engines (Cloud Function backed) | 4 days |
-| **07-03** | Mobile UI rewrite (NativeWind dark theme) | 4 days |
-| **07-04** | Batch export scheduler + email delivery | 2 days |
-| **07-05** | E2E tests (Detox on 5 critical flows) | 2 days |
-| **07-06** | Deploy | 1 day |
+| **07-01** | Audit Trail Extension (cross-collection diffs, context capture) | 3–4 days |
+| **07-02** | Anomaly Detection Engine (baseline + Gemini pattern matching) | 4–5 days |
+| **07-03** | Smart Alert System (real-time, role-based routing, drill-down UI) | 4–5 days |
+| **07-04** | Audit Report Generation (NLP summaries Portuguese, PDF/CSV exports) | 2–3 days |
 
-### Phase 8 — Remaining NOTIVISA + Labs Apoio (2 weeks)
+### Compliance Alignment
+
+- **RDC 978 5.3** — Enhanced audit trail with field-level diffs + context
+- **RDC 978 Art. 107** — Regular audit reviews via automated report generation
+- **DICQ 4.4** — Trilha de auditoria with anomaly detection + investigation support
+
+### Key Technologies
+
+- **Diff Detection:** Native JS (deterministic field-level change tracking)
+- **Baseline Computation:** Firestore queries + operator behavior analysis
+- **Anomaly Scoring:** 5-dimensional weighted scoring (operation rarity, time, result, velocity, module jump)
+- **AI Analysis:** Gemini 2.5 Flash (semantic pattern matching, <$0.01 per report)
+- **PDF/CSV Export:** Cloud Function backed + Cloud Storage hosting
+- **Real-time Alerts:** Firestore listeners, role-based routing, drill-down UI
+
+### Success Criteria
+
+- Audit trail captures field-level diffs + context for every regulatory write
+- Anomaly detection baseline data-driven from historical entries
+- Alert system real-time (<2 sec delivery), role-based access
+- Report generation <10 seconds for 1000 entries, NLP summary in Portuguese
+- All tests ≥85% coverage, WCAG AA accessibility verified
+
+---
+
+## Phase 8 — Remaining NOTIVISA + Labs Apoio (2 weeks)
 
 **Goal:** Complete NOTIVISA API coverage + third-party lab contracts module.  
 **Period:** 2026-08-05 → 2026-08-18  
@@ -206,7 +232,9 @@ revision_note: "Phase 3 LIVE (2026-05-07). Phases 4–5 planned (2026-05-20 ~ 20
 | **08-04** | E2E + compliance audit | 2 days |
 | **08-05** | Deploy | 1 day |
 
-### Phase 9 — Manual Qualidade + Bioquímica Phase 2 (2 weeks)
+---
+
+## Phase 9 — Manual Qualidade + Bioquímica Phase 2 (2 weeks)
 
 **Goal:** Manual entry for QC data (post-scanner scenarios) + Bioquímica analyte expansion.  
 **Period:** 2026-08-19 → 2026-08-15 (converge)  
@@ -244,7 +272,7 @@ revision_note: "Phase 3 LIVE (2026-05-07). Phases 4–5 planned (2026-05-20 ~ 20
 
 - **DICQ 4.6** — Críticos workflow (Phase 5)
 - **DICQ 4.14.6** — CAPA management (Phase 6)
-- **DICQ 4.14.7** — KPI dashboard (Phase 7 Export)
+- **DICQ 4.4** — Audit trail + anomaly detection (Phase 7) ← NEW
 - **DICQ 4.8** — Customer feedback (Phase 6 Auditoria subcollection)
 
 **Status:** 📅 Phases 5–9 complete compliance target 95%+.
@@ -268,8 +296,8 @@ Phase 3 (LIVE — 2026-05-07)
 │           ├─→ IA Strip OCR (05-03/04)
 │           └─→ Deploy 2026-06-27
 │               │
-│               ├─→ Phase 6 (CAPA + Auditoria, 2026-06-30)
-│               ├─→ Phase 7 (Export + Mobile, 2026-07-15)
+│               ├─→ Phase 6 (CAPA, 2026-06-30)
+│               ├─→ Phase 7 (Advanced Auditoria, 2026-07-15) ← NEW
 │               ├─→ Phase 8 (NOTIVISA edge, Labs Apoio, 2026-08-05)
 │               └─→ Phase 9 (Manual QC + Bio2, 2026-08-19)
 │
@@ -288,7 +316,7 @@ Phase 3 (LIVE — 2026-05-07)
 | Phase 4 | 2.0 | 1.0 | 0.5 | 0.5 | 3.5 | Parallel (start 2026-05-20) |
 | Phase 5 | 1.0 | 0.5 | 1.5 | 0.5 | 3.5 | Parallel (start 2026-06-09) |
 | Phase 6 | 1.0 | 0.8 | 0.2 | 0.5 | 2.5 | Sequential after Phase 5 |
-| Phase 7 | 0.8 | 1.2 | 0.0 | 0.5 | 2.5 | Parallel Phase 6 |
+| Phase 7 | 1.0 | 1.0 | 0.5 | 0.5 | 3.0 | NEW: Parallel Phase 6 |
 | Phase 8 | 1.0 | 0.5 | 0.0 | 0.5 | 2.0 | Overlap Phases 6–7 |
 | Phase 9 | 1.5 | 1.0 | 0.5 | 0.5 | 3.5 | Final push, target 2026-08-15 |
 
@@ -297,14 +325,16 @@ Phase 3 (LIVE — 2026-05-07)
 
 ---
 
-## Risk Dashboard (Updated for v1.4)
+## Risk Dashboard (Updated for v1.4 + Phase 7)
 
 | Risk | Likelihood | Impact | Mitigation | Status |
 |------|-----------|--------|-----------|--------|
 | **Portal UX complexity** | Medium | 1-week slip | Pair programming Phase 4 week 1; design spike pre-Phase 4 | Monitoring |
 | **NOTIVISA gov endpoint flakiness** | Medium | 2-week slip | Webhook timeout + retry queue in Phase 4-04; mock gov env for tests | Monitoring |
 | **Gemini OCR cost overruns** (Phase 5) | Low | Budget impact | Rate limiting + batch processing per Phase 5-06; cost cap $500/mo | Monitoring |
-| **Mobile responsive rewrite scope creep** (Phase 7) | High | 1-week slip | Freeze design by 2026-07-01; component inventory audit Phase 6 | Monitoring |
+| **Gemini anomaly detection false positives** (Phase 7) | Medium | Alert fatigue | Tuning post-deploy; start with high threshold (0.85), gradually lower | Monitoring |
+| **Report generation timeout** (Phase 7) | Low | Degraded UX | Limit query to 5000 entries per report; paginate if >5000 | Mitigation |
+| **Real-time alert memory leak** (Phase 7) | Low | Long-term cost | Enforce unsubscribe on component unmount; test with Chrome DevTools | Monitoring |
 | **Labs Apoio contract complexity** (Phase 8) | Medium | 3-day slip | Legal review by 2026-08-01; template contracts in place early | Planning |
 | **Phases 6–9 schedule compression** | Medium | Final deadline slip | Weekly checkpoint gates; cut Phase 9 scope if needed (bio analytes → v1.5) | Mitigating |
 
@@ -317,6 +347,7 @@ Phase 3 (LIVE — 2026-05-07)
 | **Phase 3 Production** | All systems stable, 0 critical incidents | Cloud Logs dashboard + weekly review | 2026-05-14 |
 | **Phase 4 Deploy** | Portal + NOTIVISA live, gov batch acceptance | Firebase deploy + gov test batch ACK | 2026-06-02 |
 | **Phase 5 Deploy** | Críticos + IA live, OCR accuracy ≥92% | E2E tests + 100-sample validation | 2026-06-27 |
+| **Phase 7 Deploy** | Audit trail + anomaly detection + alerts live | Firebase deploy + E2E tests ≥85% coverage | 2026-08-04 |
 | **Phase 6–9 Deliver** | All 4 phases live, DICQ ≥88% | Compliance audit + Firebase deploy | 2026-08-15 |
 | **Compliance Baseline** | DICQ 88%+, RDC 978 92%+, LGPD 85%+ | Third-party audit report | 2026-08-31 |
 | **Test Coverage** | ≥95% on new code | nyc report Phase 4–9 | 2026-08-15 |
@@ -343,9 +374,9 @@ Phase 5: Críticos + IA Strip (planned)
        │─ IA strip parser ────────────┤ Jun 21
        │─ E2E + deploy ──────────────┤ Jun 27
 
-Phase 6–9: Backlog (sketch)
+Phase 6–9: Quality Assurance & Compliance
               │── Phase 6 (CAPA, 2w) ────┤ Jul 14
-              │── Phase 7 (Export, 3w) ──┤ Aug 4
+              │── Phase 7 (Auditoria AI, 2w) ──┤ Aug 4  [NEW]
               │── Phase 8 (NOTIVISA edge, 2w) ┤ Aug 18
               └── Phase 9 (Manual QC + Bio, converge Aug 15)
 
@@ -356,5 +387,6 @@ Compliance audit: 2026-08-31 (final sign-off)
 ---
 
 **Created:** 2026-05-07  
-**Status:** Phase 3 LIVE, Phases 4–5 detailed, Phases 6–9 sketched  
-**Next Step:** `gsd-execute-phase 4` to begin Phase 4 planning (Portal + NOTIVISA) on 2026-05-20
+**Updated:** 2026-05-08 (Phase 7 planned)  
+**Status:** Phase 3 LIVE, Phase 7 PLANNED, Phases 4–5 detailed, Phases 6, 8–9 sketched  
+**Next Step:** Execute Phase 4 (Portal + NOTIVISA) on 2026-05-20
