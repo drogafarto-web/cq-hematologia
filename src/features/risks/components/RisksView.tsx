@@ -3,17 +3,72 @@
  *
  * Layout:
  *   - Sticky topbar (← Hub, title, lab badge)
- *   - KPI strip (total ativos, criticos, alto, em tratamento, vencendo revisão)
+ *   - KPI strip (ativos, críticos, alto, mitigando, vencendo revisão)
  *   - Tabs: [Registro | Matriz | Top 5 | Revisões]
- *   - Tab content (components TBD in T7)
- *
- * T9 shell integration: registers lazy route + tile in Hub.
+ *   - Tab content: RiskRegister, RiskMatrix, Top5RisksWidget, ReviewHistory
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useActiveLabId } from '../../../store/useAuthStore';
+import { subscribeRisks } from '../services/risksService';
+import type { Risk } from '../types/Risk';
+import { RiskRegister } from './RiskRegister';
+import { RiskMatrix } from './RiskMatrix';
+import { Top5RisksWidget } from './Top5RisksWidget';
+import { ReviewHistory } from './ReviewHistory';
 
 export const RisksView: React.FC = () => {
+  const labId = useActiveLabId();
   const [activeTab, setActiveTab] = useState<'registro' | 'matriz' | 'top5' | 'revisoes'>('registro');
+  const [risks, setRisks] = useState<Risk[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedRisk, setSelectedRisk] = useState<Risk | null>(null);
+
+  // Firestore subscription
+  useEffect(() => {
+    if (!labId) return;
+
+    setIsLoading(true);
+    setError(null);
+    let firstSnapshot = true;
+
+    const unsub = subscribeRisks(
+      labId,
+      {},
+      (incoming) => {
+        setRisks(incoming);
+        if (firstSnapshot) {
+          setIsLoading(false);
+          firstSnapshot = false;
+        }
+      },
+      (err) => {
+        setError(err.message);
+        setIsLoading(false);
+      }
+    );
+
+    return unsub;
+  }, [labId]);
+
+  // KPI calculations
+  const kpis = useMemo(() => {
+    const active = risks.filter(r => !r.deletadoEm && r.status !== 'fechado');
+    const criticos = active.filter(r => r.nivel === 'critico');
+    const altos = active.filter(r => r.nivel === 'alto');
+    const mitigando = active.filter(r => r.status === 'mitigando');
+    const now = new Date();
+    const vencendo = active.filter(r => r.reviewDate && new Date(r.reviewDate) < new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000));
+
+    return {
+      total: active.length,
+      criticos: criticos.length,
+      altos: altos.length,
+      mitigando: mitigando.length,
+      vencendo: vencendo.length,
+    };
+  }, [risks]);
 
   return (
     <div className="min-h-screen bg-[#141417]">
@@ -32,27 +87,27 @@ export const RisksView: React.FC = () => {
         </div>
       </div>
 
-      {/* ─── KPI strip (stub) ─────────────────────────────────────────────── */}
+      {/* ─── KPI strip ────────────────────────────────────────────────────── */}
       <div className="border-b border-white/10 bg-white/5 px-4 py-3">
         <div className="grid grid-cols-5 gap-2 text-center text-sm">
           <div>
-            <div className="text-lg font-semibold text-white">—</div>
+            <div className="text-lg font-semibold text-white">{isLoading ? '—' : kpis.total}</div>
             <div className="text-xs text-white/50">Ativos</div>
           </div>
           <div>
-            <div className="text-lg font-semibold text-red-500">—</div>
+            <div className="text-lg font-semibold text-red-500">{isLoading ? '—' : kpis.criticos}</div>
             <div className="text-xs text-white/50">Críticos</div>
           </div>
           <div>
-            <div className="text-lg font-semibold text-orange-500">—</div>
+            <div className="text-lg font-semibold text-orange-500">{isLoading ? '—' : kpis.altos}</div>
             <div className="text-xs text-white/50">Alto</div>
           </div>
           <div>
-            <div className="text-lg font-semibold text-amber-500">—</div>
+            <div className="text-lg font-semibold text-amber-500">{isLoading ? '—' : kpis.mitigando}</div>
             <div className="text-xs text-white/50">Mitigando</div>
           </div>
           <div>
-            <div className="text-lg font-semibold text-yellow-600">—</div>
+            <div className="text-lg font-semibold text-yellow-600">{isLoading ? '—' : kpis.vencendo}</div>
             <div className="text-xs text-white/50">Vencendo</div>
           </div>
         </div>
@@ -82,28 +137,39 @@ export const RisksView: React.FC = () => {
         </div>
       </div>
 
-      {/* ─── Tab content (stub) ──────────────────────────────────────────── */}
-      <div className="p-4">
+      {/* ─── Tab content ──────────────────────────────────────────────────── */}
+      <div>
         {activeTab === 'registro' && (
-          <div className="text-white/60 text-sm">
-            Registro de riscos (RiskRegister component — T7)
-          </div>
+          <RiskRegister
+            risks={risks}
+            isLoading={isLoading}
+            error={error}
+            onRefresh={() => labId && subscribeRisks(labId, {}, setRisks)}
+          />
         )}
         {activeTab === 'matriz' && (
-          <div className="text-white/60 text-sm">
-            Matriz 5×5 de probabilidade × severidade (RiskMatrix component — T7)
-          </div>
+          <RiskMatrix risks={risks} />
         )}
         {activeTab === 'top5' && (
-          <div className="text-white/60 text-sm">
-            Top 5 riscos críticos por NPR (Top5RisksWidget component — T7)
-          </div>
+          <Top5RisksWidget risks={risks} onRiskClick={setSelectedRisk} />
         )}
-        {activeTab === 'revisoes' && (
-          <div className="text-white/60 text-sm">
-            Histórico de revisões periódicas (ReviewHistory component — T7)
+        {activeTab === 'revisoes' && selectedRisk ? (
+          <div className="p-4">
+            <div className="mb-4">
+              <button
+                onClick={() => setSelectedRisk(null)}
+                className="text-sm text-white/60 hover:text-white/80"
+              >
+                ← Voltar para Top 5
+              </button>
+            </div>
+            <ReviewHistory risk={selectedRisk} />
           </div>
-        )}
+        ) : activeTab === 'revisoes' ? (
+          <div className="p-4 text-center text-white/50">
+            Selecione um risco em "Top 5" para ver histórico de revisões
+          </div>
+        ) : null}
       </div>
     </div>
   );
