@@ -109,3 +109,130 @@ export type TurnoCoverageStatus = 'registered' | 'inferred' | 'missing' | 'multi
  * Usado para renderizar heatmap na CoberturaReport.
  */
 export type CoberturaMap = Map<string, Map<Periodo, TurnoCoverageStatus>>;
+
+// ─── Presença do supervisor (RDC 978 Art. 122) ──────────────────────────────
+// Wave 0 — Supervisor presencial enforcement. Gateia escrita de runs/laudos
+// quando não há supervisor `active` no turno corrente.
+
+/**
+ * Status da presença do supervisor no turno.
+ *
+ * - `awaiting`: turno cadastrado, dentro da janela de checkin (até 15min antes do início)
+ * - `active`: supervisor presencialmente confirmado (checkedIn) — análises liberadas
+ * - `absent`: turno iniciado sem checkin no prazo — bloqueio de escrita até substituto
+ * - `closed`: turno encerrado (checkout manual ou rollover automático)
+ */
+export type PresencaStatus = 'awaiting' | 'active' | 'absent' | 'closed';
+
+/**
+ * Snapshot do supervisor que está presencialmente ativo no turno.
+ * Imutável por sessão de checkin (atualizado em novo checkin/substituição).
+ */
+export interface SupervisorAtivo {
+  /** UID do colaborador-supervisor (FK educacaoContinuada/{labId}/colaboradores/{id}) */
+  uid: UserId;
+  /** Nome snapshot no momento do checkin */
+  nome: string;
+  /** CRBM snapshot */
+  crbm: string;
+  /** Timestamp do checkin presencial */
+  checkedInAt: Timestamp;
+  /** True se este supervisor é substituto (RDC 978 Art. 122 — substituto designado) */
+  isSubstitute: boolean;
+  /** UID do supervisor primário substituído (apenas quando isSubstitute=true) */
+  substituteOf: UserId | null;
+  /** Justificativa da substituição (≥10 chars, obrigatório quando isSubstitute=true) */
+  substituteReason: string | null;
+}
+
+/**
+ * Documento de presença de um turno.
+ * Path: /labs/{labId}/turnos/{turnoId}/presenca/current (singleton).
+ *
+ * RN-PRESENCA-01: status=='active' é pré-requisito para escrita de runs/laudos
+ *                 que carreguem `turnoId` de referência (rule enforcement).
+ * RN-PRESENCA-02: transição awaiting → active requer presença física confirmada
+ *                 (callable supervisorCheckin com biometria opcional ou PIN do RT).
+ * RN-PRESENCA-03: substituto designado requer auditoria (substituteReason ≥10 chars).
+ * RN-PRESENCA-04: absent → active permitido mas registra no audit trail.
+ * RN-PRESENCA-05: closed é terminal — bloqueio de novo checkin no mesmo turno.
+ */
+export interface TurnoPresenca {
+  readonly id: 'current';
+  readonly turnoId: string;
+  readonly labId: LabId;
+  status: PresencaStatus;
+  supervisorAtivo: SupervisorAtivo | null;
+  /** Timestamp planejado de início (computado via periodo + data) */
+  inicioPlanejado: Timestamp;
+  /** Timestamp planejado de fim */
+  fimPlanejado: Timestamp;
+  /** Última atualização (server timestamp) */
+  atualizadoEm: Timestamp;
+  /** True se notificação de 15min foi enviada ao RT */
+  alertaPreEnviado: boolean;
+  /** True se notificação de ausência (turno iniciado sem checkin) foi enviada */
+  alertaAusenciaEnviado: boolean;
+}
+
+/**
+ * Cache lab-wide de qual supervisor está atualmente ativo.
+ * Path: /labs/{labId}/supervisor-status/current (singleton).
+ *
+ * **Crítico:** rules de runs/laudos consultam este doc para liberar/bloquear escrita.
+ * Atualizado atomicamente por `turnos_supervisorCheckin` / `Checkout`.
+ */
+export interface LabSupervisorStatus {
+  readonly id: 'current';
+  readonly labId: LabId;
+  /** True se há supervisor com status='active' agora — single source of truth */
+  hasActiveSupervisor: boolean;
+  /** Turno atualmente ativo (ref) ou null */
+  turnoAtivoId: string | null;
+  /** UID do supervisor presencialmente confirmado */
+  supervisorAtivoUid: UserId | null;
+  /** Snapshot do nome para exibição rápida em badges */
+  supervisorAtivoNome: string | null;
+  /** True se o supervisor ativo é substituto */
+  supervisorAtivoIsSubstitute: boolean;
+  /** Última atualização */
+  atualizadoEm: Timestamp;
+}
+
+/**
+ * Input DTO para realizar checkin presencial.
+ */
+export interface SupervisorCheckinInput {
+  turnoId: string;
+  /** UID do supervisor que está fazendo checkin */
+  supervisorUid: UserId;
+  /** PIN de 4-6 dígitos cadastrado pelo supervisor (defense-in-depth) */
+  pin?: string | null;
+}
+
+/**
+ * Input DTO para designar substituto.
+ */
+export interface DesignateSubstituteInput {
+  turnoId: string;
+  /** UID do substituto (deve ser colaborador ativo com habilitação compatível) */
+  substituteUid: UserId;
+  /** Justificativa obrigatória (≥10 chars) — para audit trail */
+  reason: string;
+}
+
+/**
+ * Evento de auditoria de presença.
+ * Path: /labs/{labId}/turnos/{turnoId}/presenca-events/{eventId}.
+ */
+export interface PresencaEvent {
+  readonly id: string;
+  tipo: 'checkin' | 'checkout' | 'substitute' | 'absent_marked' | 'pre_alert' | 'absence_alert';
+  operadorId: string;
+  supervisorUid: UserId | null;
+  isSubstitute: boolean;
+  reason: string | null;
+  timestamp: Timestamp;
+  chainHash: string;
+  chainHashAnterior: string | null;
+}
