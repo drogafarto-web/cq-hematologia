@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useTurnos } from '../hooks/useTurnos';
 import type { Turno } from '../types/Turno';
+import { SupervisorPresencaActions } from './SupervisorPresencaActions';
 
 const PERIODO_LABEL: Record<string, string> = {
   manha: 'Manhã',
@@ -136,6 +137,7 @@ export function TurnosList({ onEdit }: TurnosListProps) {
               <th className="px-4 py-2 text-left font-medium text-slate-200">Supervisor</th>
               <th className="px-4 py-2 text-left font-medium text-slate-200">CRBM</th>
               <th className="px-4 py-2 text-left font-medium text-slate-200">Inferida?</th>
+              <th className="px-4 py-2 text-left font-medium text-slate-200">Presença</th>
               <th className="px-4 py-2 text-left font-medium text-slate-200">Observações</th>
               <th className="px-4 py-2 text-left font-medium text-slate-200">Ações</th>
             </tr>
@@ -153,6 +155,9 @@ export function TurnosList({ onEdit }: TurnosListProps) {
                   ) : (
                     '—'
                   )}
+                </td>
+                <td className="px-4 py-2">
+                  <SupervisorPresencaActions turno={turno} />
                 </td>
                 <td className="px-4 py-2 max-w-xs truncate text-slate-300">
                   {turno.observacoes || '—'}

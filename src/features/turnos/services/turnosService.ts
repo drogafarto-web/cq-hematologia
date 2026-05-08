@@ -26,7 +26,12 @@ import {
   type QueryDocumentSnapshot,
   type Unsubscribe,
 } from '../../../shared/services/firebase';
-import type { Turno, TurnoFilters, TurnoAuditEvent } from '../types/Turno';
+import type {
+  Turno,
+  TurnoFilters,
+  TurnoAuditEvent,
+  TurnoPresenca,
+} from '../types/Turno';
 import type { LabId } from '../types/shared_refs';
 
 // ─── Raiz e caminhos ──────────────────────────────────────────────────────────
@@ -41,6 +46,9 @@ const turnoDoc = (labId: LabId, turnoId: string): DocumentReference =>
 
 const turnoEventsCol = (labId: LabId, turnoId: string): CollectionReference =>
   collection(turnoDoc(labId, turnoId), 'events');
+
+const presencaDocRef = (labId: LabId, turnoId: string): DocumentReference =>
+  doc(turnoDoc(labId, turnoId), 'presenca', 'current');
 
 // ─── Mapping snapshot → entidade ──────────────────────────────────────────────
 
@@ -174,6 +182,44 @@ export async function getTurnoAuditTrail(
   const q = query(turnoEventsCol(labId, turnoId), orderBy('timestamp', 'desc'));
   const snapshot = await getDocs(q);
   return snapshot.docs.map(mapAuditEvent);
+}
+
+/**
+ * Subscribe to a turno's presença/current document.
+ * Returns null in callback when the doc does not yet exist (no checkin done).
+ */
+export function subscribePresenca(
+  labId: LabId,
+  turnoId: string,
+  callback: (presenca: TurnoPresenca | null) => void,
+  onError?: (err: Error) => void,
+): Unsubscribe {
+  return onSnapshot(
+    presencaDocRef(labId, turnoId),
+    (snap) => {
+      if (!snap.exists()) {
+        callback(null);
+        return;
+      }
+      const d = snap.data();
+      callback({
+        id: 'current',
+        turnoId,
+        labId,
+        status: d.status,
+        supervisorAtivo: d.supervisorAtivo ?? null,
+        inicioPlanejado: d.inicioPlanejado,
+        fimPlanejado: d.fimPlanejado,
+        atualizadoEm: d.atualizadoEm,
+        alertaPreEnviado: Boolean(d.alertaPreEnviado),
+        alertaAusenciaEnviado: Boolean(d.alertaAusenciaEnviado),
+      } as TurnoPresenca);
+    },
+    (error) => {
+      const err = new Error(`Subscribe presença error: ${error.message}`);
+      if (onError) onError(err);
+    },
+  );
 }
 
 // ─── Callable wrappers (read-only adapters) ──────────────────────────────────
