@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-08T00:00:00Z",
+  "title": "Design System: HC Quality — Uroanalise CIQ",
+  "extensions": {
+    "colorMeta": {
+      "accent-amber": {
+        "role": "primary",
+        "displayName": "Amber Alert",
+        "canonical": "oklch(70% 0.17 45)",
+        "tonalRamp": [
+          "oklch(40% 0.15 45)",
+          "oklch(50% 0.16 45)",
+          "oklch(60% 0.17 45)",
+          "oklch(70% 0.17 45)",
+          "oklch(80% 0.12 45)",
+          "oklch(90% 0.06 45)",
+          "oklch(95% 0.02 45)"
+        ]
+      },
+      "accent-red": {
+        "role": "error",
+        "displayName": "Red Error",
+        "canonical": "oklch(62% 0.19 30)",
+        "tonalRamp": [
+          "oklch(35% 0.18 30)",
+          "oklch(45% 0.19 30)",
+          "oklch(55% 0.19 30)",
+          "oklch(62% 0.19 30)",
+          "oklch(75% 0.15 30)",
+          "oklch(85% 0.10 30)",
+          "oklch(95% 0.03 30)"
+        ]
+      },
+      "accent-emerald": {
+        "role": "success",
+        "displayName": "Emerald Confirm",
+        "canonical": "oklch(65% 0.13 160)",
+        "tonalRamp": [
+          "oklch(35% 0.12 160)",
+          "oklch(45% 0.13 160)",
+          "oklch(55% 0.13 160)",
+          "oklch(65% 0.13 160)",
+          "oklch(78% 0.10 160)",
+          "oklch(88% 0.06 160)",
+          "oklch(95% 0.02 160)"
+        ]
+      },
+      "neutral-slate-900": {
+        "role": "neutral",
+        "displayName": "Slate 900 (darkest)",
+        "canonical": "oklch(10% 0.007 250)",
+        "tonalRamp": [
+          "oklch(10% 0.007 250)",
+          "oklch(20% 0.008 250)",
+          "oklch(35% 0.008 250)",
+          "oklch(50% 0.008 250)",
+          "oklch(65% 0.007 250)",
+          "oklch(80% 0.005 250)",
+          "oklch(95% 0.002 250)"
+        ]
+      },
+      "neutral-slate-500": {
+        "role": "neutral",
+        "displayName": "Slate 500 (tertiary text)",
+        "canonical": "oklch(56% 0.04 250)",
+        "tonalRamp": [
+          "oklch(30% 0.035 250)",
+          "oklch(40% 0.038 250)",
+          "oklch(50% 0.042 250)",
+          "oklch(56% 0.04 250)",
+          "oklch(70% 0.035 250)",
+          "oklch(85% 0.02 250)",
+          "oklch(95% 0.005 250)"
+        ]
+      },
+      "neutral-slate-200": {
+        "role": "neutral",
+        "displayName": "Slate 200 (light borders)",
+        "canonical": "oklch(92% 0.008 250)",
+        "tonalRamp": [
+          "oklch(50% 0.008 250)",
+          "oklch(65% 0.008 250)",
+          "oklch(80% 0.008 250)",
+          "oklch(92% 0.008 250)",
+          "oklch(95% 0.004 250)",
+          "oklch(98% 0.002 250)",
+          "oklch(99% 0.001 250)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "label": {
+        "displayName": "Label / Caption",
+        "purpose": "Field labels, section headers, uppercase sublabels. Maximum contrast."
+      },
+      "body": {
+        "displayName": "Body / Form Input",
+        "purpose": "Operator input, data display, form hints. Main reading text."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Button labels, action text. Must be legible at actual button size."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "spring-ease",
+        "value": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "purpose": "Button press spring effect. iOS-like response."
+      },
+      {
+        "name": "spring-soft",
+        "value": "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        "purpose": "Button release return spring. Smooth deceleration."
+      },
+      {
+        "name": "transition-state",
+        "value": "150ms ease",
+        "purpose": "State changes (bg, color, border). Default easing for non-motion properties."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "mobile",
+        "value": "640px"
+      },
+      {
+        "name": "tablet",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Input Field (Dark Mode)",
+      "kind": "input",
+      "refersTo": "input-dark",
+      "description": "Text input with dark mode styling. Border-based, focused by border shift to amber.",
+      "html": "<input type=\"text\" class=\"ds-input-dark\" placeholder=\"Digite valor...\" />",
+      "css": ".ds-input-dark { width: 100%; padding: 10px 14px; border-radius: 16px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.09); color: rgba(255, 255, 255, 0.9); font-size: 14px; line-height: 1.5; transition: background-color 150ms ease, border-color 150ms ease; } .ds-input-dark:focus { outline: none; border-color: rgba(245, 158, 11, 0.5); background: rgba(255, 255, 255, 0.08); } .ds-input-dark:disabled { opacity: 0.4; } .ds-input-dark::placeholder { color: rgba(255, 255, 255, 0.2); }"
+    },
+    {
+      "name": "Button Primary (Amber)",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary action button. Amber background, white text, spring press effect.",
+      "html": "<button class=\"ds-button-primary\">Confirmar</button>",
+      "css": ".ds-button-primary { background: #f59e0b; color: white; padding: 12px 16px; border-radius: 12px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 150ms ease; } .ds-button-primary:hover { background: #d97706; } .ds-button-primary:focus-visible { outline: 2px solid #fbbf24; outline-offset: 2px; } .ds-button-primary:active { transform: scale(0.96); transition: transform 80ms cubic-bezier(0.25, 0.46, 0.45, 0.94); }"
+    },
+    {
+      "name": "Button Secondary (Ghost)",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Secondary action. Transparent, bordered, slate text. No fill on interaction.",
+      "html": "<button class=\"ds-button-secondary\">Cancelar</button>",
+      "css": ".ds-button-secondary { background: transparent; color: #64748b; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 16px; font-size: 14px; font-weight: 500; cursor: pointer; transition: border-color 150ms ease, color 150ms ease; } .ds-button-secondary:hover { border-color: #cbd5e1; color: #334155; } .ds-button-secondary:focus-visible { outline: 2px solid #f59e0b; outline-offset: 2px; }"
+    },
+    {
+      "name": "Toggle Button (Nivel N/P)",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Nivel toggle (Normal / Patológico). Selected state shows amber bg + border.",
+      "html": "<button class=\"ds-toggle selected\">N — Normal</button>",
+      "css": ".ds-toggle { flex: 1; padding: 12px 14px; border-radius: 16px; text-align: left; border: 1px solid #e2e8f0; background: white; color: #94a3b8; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 150ms ease; } .ds-toggle:hover { border-color: #cbd5e1; color: #475569; } .ds-toggle.selected { background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.4); color: #b45309; } .dark .ds-toggle { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.09); color: rgba(255, 255, 255, 0.3); } .dark .ds-toggle.selected { background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.5); color: #fcd34d; }"
+    },
+    {
+      "name": "Status Dot (Valid)",
+      "kind": "chip",
+      "refersTo": "button-secondary",
+      "description": "Status indicator. Emerald for valid/conforming. 8px diameter.",
+      "html": "<span class=\"ds-status-dot valid\"></span>",
+      "css": ".ds-status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; } .ds-status-dot.valid { background: #10b981; } .ds-status-dot.warning { background: #f59e0b; } .ds-status-dot.error { background: #ef4444; }"
+    },
+    {
+      "name": "Field Label",
+      "kind": "custom",
+      "refersTo": "button-secondary",
+      "description": "Form label. Uppercase, font-medium, slate-500 in light mode.",
+      "html": "<label class=\"ds-label\">Nivel <span class=\"required\">*</span></label>",
+      "css": ".ds-label { display: block; font-size: 11px; font-weight: 500; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; } .dark .ds-label { color: rgba(255, 255, 255, 0.45); } .ds-label .required { color: #ef4444; margin-left: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Clinical Dashboard",
+    "overview": "The uroanalise module is a specialist's workbench for quality control analysis. Interface assumes technical expertise. Every element serves precision: operators glance and understand immediately. Dark-first to reduce eye strain in variable lab lighting. No decorative elements. No onboarding in the UI. Design is lean, purposeful, and scientifically restrained. The system rejects template-SaaS defaults and consumer-friendly casualness. It looks like it was built by someone who understands urinalysis.",
+    "keyCharacteristics": [
+      "Specialist's interface; zero pedagogical scaffolding",
+      "Dark-first with high contrast for variable lab lighting",
+      "Precision hierarchy: complex data immediately legible",
+      "Restrained color strategy: tinted neutrals + amber accent ≤10%",
+      "Keyboard-native workflow; visual feedback is instant",
+      "Compliance visible: assinatura, auditoria, soft-delete reflected in structure"
+    ],
+    "rules": [
+      {
+        "name": "The Amber Scarcity Rule",
+        "body": "The amber accent is precious. Use it only when visual prominence serves the workflow: selected toggle, focus ring, critical action button. If a screen has more than one amber element, one of them is noise. Audit ruthlessly.",
+        "section": "colors"
+      },
+      {
+        "name": "The Clarity-Through-Scale Rule",
+        "body": "Hierarchy via size (≥1.25 ratio) + weight contrast (400 → 500 → 600). No flat scales. Every size step has a purpose. Never use the same size + weight for two different roles.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "Surfaces are flat. Depth is structural (layering via z-index + positioning), not shadow-volumetric. Shadows appear only as confirmation feedback (e.g., 'this button is pressed'). If you feel the urge to add shadow for 'visual interest', stop; that's a sign the layout needs hierarchy work, not decoration.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use amber sparingly. One accent element per logical grouping; no more than two per screen section.",
+      "Do make validation immediate and visible. Error borders + error text; no spinner purgatory.",
+      "Do respect prefers-reduced-motion. Test with motion off; animations are enhancement, not gating.",
+      "Do use tabular-nums in data tables and number fields (font-variant-numeric: tabular-nums). Columns stay aligned.",
+      "Do use high contrast borders and text. WCAG AA is minimum; lab lighting demands AA+ (4.5:1 text, 3:1 large).",
+      "Do keep keyboard navigation first. Tab order must match visual left-to-right, top-to-bottom. No JavaScript tab-order hacks.",
+      "Do label every button, even if it's icon-only. Aria-label required; visually adjacent label is better.",
+      "Do place compliance markers (assinatura, audit trail) in a consistent, visible location. Not hidden in a menu."
+    ],
+    "donts": [
+      "Don't use side-stripe borders (border-left / border-right > 1px) as colored accents. Rewrite with full borders or background tints.",
+      "Don't add gradient text (background-clip: text + gradient). Use solid color + weight/size for emphasis.",
+      "Don't default to glassmorphism. Blurs are rare and purposeful (one-off hero), or nothing.",
+      "Don't create card grids with identical icon + heading + text. That's SaaS-template default. If you're using cards, make each one distinct in its function or visual treatment.",
+      "Don't use modals as the first thought. Inline edit, progressive disclosure, or a separate screen are often better.",
+      "Don't decorate with pastel colors or playful microinteractions. This is not a lifestyle app; it's a precision instrument.",
+      "Don't assume light mode is the default. Dark mode is the primary. Light mode is supported for accessibility; never optimize for light.",
+      "Don't use casual/conversational tone in UI copy. Assume expertise. 'Confirm níveis' not 'Please pick the level of your sample!'."
+    ]
+  }
+}
