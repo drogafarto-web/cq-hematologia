@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useActiveLab, useIsSuperAdmin, useUser, useUserRole } from '../../store/useAuthStore';
 import { useAppStore } from '../../store/useAppStore';
 import { useAuthFlow } from '../auth/hooks/useAuthFlow';
@@ -6,6 +6,7 @@ import { ThemeToggle } from '../../shared/components/ui/ThemeToggle';
 import { useUroLots } from './hooks/useUroLots';
 import { UroanaliseContent } from './components/UroanaliseContent';
 import { UroanaliseSettingsModal } from './components/UroanaliseSettingsModal';
+import { UroanaliseRedesignedDemo } from './components/UroanaliseRedesignedDemo';
 import { EquipmentSetupBar } from '../insumos/components/EquipmentSetupBar';
 import type { UroanaliseLot } from './types/Uroanalise';
 import type { UroLotStatus } from './types/_shared_refs';
@@ -371,6 +372,16 @@ export function UroanaliseView() {
   const activeLotId = userSelectedLotId ?? lots[0]?.id ?? null;
 
   const userName = user?.displayName || user?.email?.split('@')[0] || 'Operador';
+
+  // ?ui=v2 — opt-in preview do redesign (não-disruptivo, zero impacto em produção)
+  const useRedesign = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return new URLSearchParams(window.location.search).get('ui') === 'v2';
+  }, []);
+
+  if (useRedesign) {
+    return <UroanaliseRedesignedDemo />;
+  }
 
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-[#0B0F14] text-slate-900 dark:text-white overflow-hidden">
