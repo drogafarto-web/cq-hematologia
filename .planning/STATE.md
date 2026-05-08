@@ -146,10 +146,10 @@ See `.planning/milestones/v1.4-KICKOFF-SUMMARY.md` for full phase breakdown and 
 | **Phase 2** | ✅ COMPLETE | 2026-05-07 | Planning deep-dive (9 artifacts) |
 | **Phase 3** | ✅ COMPLETE | 2026-05-07 | Schema + Rules + Functions scaffolding |
 | **Phase 4** | ✅ COMPLETE | 2026-05-08 | Portal auth + NOTIVISA integration — 4 plans + E2E tests ✅ |
-| **Phase 5** | 📋 PLANNING | 2026-06-30 | Critical escalation + IA training |
+| **Phase 5** | 🔄 EXECUTING | 2026-05-15 (est.) | Critical escalation + IA training — 4 subagents (waves 1–2) in background, auto-approve, sleep-safe |
 | **Phase 6+** | 📅 BACKLOG | TBD | Extended roadmap |
 
-**Overall v1.4 Progress:** Phase 0–3 (100%) + Phase 4 (90% — code ready, merge gate 2026-05-19) + Phase 5 (0%) = **~43% complete**
+**Overall v1.4 Progress:** Phase 0–4 (100%) + Phase 5 (10% — executing) + Phase 6–15 (0%) = **~47% complete**
 
 **Phase 4 Status (as of 2026-05-07 23:59 UTC):**
 
