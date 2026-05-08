@@ -52,3 +52,6 @@ Seções obrigatórias:
 - [ADR-0019 — Phase 3 Schema Design: 5 New Collections + Indices](ADR-0019-phase-3-schema-design.md)
 - [ADR-0020 — Pessimistic Locking for Concurrent Draft Editing](ADR-0020-pessimistic-locking-draft-editing.md)
 - [ADR-0021 — NOTIVISA Queue & Retry Pattern](ADR-0021-notivisa-queue-pattern.md)
+
+### Wave 1 / 2 ADRs (2026-05-08, Incident Response Continuation)
+- [ADR-0030 — Criticos Audit Trail: HMAC Baseline Reset Extension](ADR-0030-criticos-hmac-baseline-extension.md) — extends ADR-0017 to the criticos chain (covers Wave 1 Agent 1 fix `a6e01ad`)

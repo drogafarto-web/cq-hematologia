@@ -22,6 +22,7 @@ import {
   RejectNotivisaDraftInputSchema,
   notivisaDraftsCol,
 } from './validators';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 import {
   generateNotivisaSignatureServer,
   type LogicalSignature,
@@ -161,21 +162,16 @@ export const rejectNotivisaDraft = onCall<unknown, Promise<RejectNotivisaDraftRe
 
     await batch.commit();
 
-    // Audit non-blocking
-    admin
-      .firestore()
-      .collection('auditLogs')
-      .add({
-        action: 'NOTIVISA_DRAFT_REJECT',
-        callerUid: uid,
-        labId: input.labId,
-        payload: {
-          draftId: input.draftId,
-          motivo: input.motivo,
-        },
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      })
-      .catch(() => {});
+    // Audit non-blocking — retries + fallback to auditLogFailures/
+    await writeAuditLog({
+      action: 'NOTIVISA_DRAFT_REJECT',
+      callerUid: uid,
+      labId: input.labId,
+      payload: {
+        draftId: input.draftId,
+        motivo: input.motivo,
+      },
+    });
 
     return {
       ok: true,
