@@ -139,11 +139,20 @@ See `.planning/milestones/v1.4-KICKOFF-SUMMARY.md` for full phase breakdown and 
 | **Phase 1** | ✅ COMPLETE | 2026-05-07 | Smoke tests + baseline verification |
 | **Phase 2** | ✅ COMPLETE | 2026-05-07 | Planning deep-dive (9 artifacts) |
 | **Phase 3** | ✅ COMPLETE | 2026-05-07 | Schema + Rules + Functions scaffolding |
-| **Phase 4** | 📋 PLANNED | 2026-06-02 | Portal auth + NOTIVISA integration |
+| **Phase 4** | 📋 MERGE-READY | 2026-05-19 | Portal auth + NOTIVISA integration — 29 commits staged |
 | **Phase 5** | 📋 PLANNING | 2026-06-30 | Critical escalation + IA training |
 | **Phase 6+** | 📅 BACKLOG | TBD | Extended roadmap |
 
-**Overall v1.4 Progress:** Phase 0–3 (100%) + Phase 4 (0%) + Phase 5 (0%) = **~40% complete**
+**Overall v1.4 Progress:** Phase 0–3 (100%) + Phase 4 (90% — code ready, merge gate 2026-05-19) + Phase 5 (0%) = **~43% complete**
+
+**Phase 4 Status (as of 2026-05-07 23:59 UTC):**
+- Code commits: 15 (portal auth UI, NOTIVISA callables, rules, E2E tests)
+- Doc commits: 14 (planning, runbooks, auditor alignment, operational infrastructure)
+- Total commits: 29 staged for merge to main
+- Merge status: Zero conflicts expected; firestore.rules changes additive
+- Deploy gate: `scripts/preflight-gate.sh` ready; rules → functions → hosting sequence verified
+- Merge target date: 2026-05-19 (pending final E2E + Cloud Logs monitoring validation)
+- Reference: `.planning/PHASE_4_COMMITS_READY_TO_MERGE.md`
 
 ---
 

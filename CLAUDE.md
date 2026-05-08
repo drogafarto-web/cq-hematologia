@@ -70,6 +70,7 @@ Use: `bash scripts/monitor-cloud-logs.sh 24 30` (or `.ps1` equiv.) imediatamente
 
 **v1.4 Production Readiness (Pre-Deployment):**
 
+- **Performance Validation:** [`.planning/PERFORMANCE_VALIDATION.md`](.planning/PERFORMANCE_VALIDATION.md) — 7-metric validation suite (bundle size, Lighthouse, Web Vitals, auth latency, laudo load, queue processing, rules latency). Test commands for Bash/PowerShell. Ready for Phase 4 smoke test May 20. Run: `bash scripts/phase4-validation.sh` or `.\scripts\phase4-validation.ps1`.
 - **Incident Response:** [`.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md`](.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md) — Severity matrix (Green/Yellow/Red/Black), on-call rotation template (4-week cycle), incident commander decision authority, runbook links, contact tree, communication templates, post-mortem framework. **MUST fill contact details before 2026-05-20 launch.** Includes quick-reference cards (laminate & post at desks).
 
 ---
