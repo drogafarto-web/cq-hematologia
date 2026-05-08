@@ -148,6 +148,47 @@ export function validateAVS(avs: string): boolean {
   return clean.length >= 6;
 }
 
+/**
+ * Detecta vigência expirando em janela.
+ * Retorna 'expired' (já vencido), 'critical' (≤30d), 'warning' (≤90d), 'ok' (>90d).
+ *
+ * @param vigenciaFim YYYY-MM-DD
+ * @param referenceDate Data de referência (default: hoje)
+ */
+export function classifyAVSExpiry(
+  vigenciaFim: string,
+  referenceDate: Date = new Date(),
+): 'expired' | 'critical' | 'warning' | 'ok' {
+  const fim = new Date(vigenciaFim).getTime();
+  const ref = referenceDate.getTime();
+  const days = Math.floor((fim - ref) / (1000 * 60 * 60 * 24));
+  if (days < 0) return 'expired';
+  if (days <= 30) return 'critical';
+  if (days <= 90) return 'warning';
+  return 'ok';
+}
+
+/**
+ * RN-LABAPOIO-08 — Detecta sobreposição de vigência entre dois intervalos.
+ * Dois contratos para o mesmo CNPJ não podem ter vigências sobrepostas
+ * (RDC 978 Art. 36 — contrato vigente único).
+ *
+ * @param a Intervalo A { inicio, fim } em YYYY-MM-DD
+ * @param b Intervalo B { inicio, fim } em YYYY-MM-DD
+ * @returns true se sobrepõem
+ */
+export function vigenciaOverlaps(
+  a: { inicio: string; fim: string },
+  b: { inicio: string; fim: string },
+): boolean {
+  const aIni = new Date(a.inicio).getTime();
+  const aFim = new Date(a.fim).getTime();
+  const bIni = new Date(b.inicio).getTime();
+  const bFim = new Date(b.fim).getTime();
+  // Sobreposição clássica de intervalos fechados
+  return aIni <= bFim && bIni <= aFim;
+}
+
 // ─── Zod schemas ─────────────────────────────────────────────────────────────
 
 const CriticidadeSchema = z.enum(['baixa', 'media', 'alta']);
