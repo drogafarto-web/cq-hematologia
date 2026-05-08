@@ -27,6 +27,7 @@
 
 import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import * as admin from 'firebase-admin';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 export const ec_onParticipanteCreated = onDocumentCreated(
   'educacaoContinuada/{labId}/participantes/{participanteId}',
@@ -96,19 +97,16 @@ export const ec_onParticipanteCreated = onDocumentCreated(
       // se falhar (ex: já foi deletado), segue — audit log ainda é gravado
     }
 
-    db.collection('auditLogs')
-      .add({
-        action: 'EC_FK_VIOLATION_PARTICIPANTE',
-        severity: 'FK_VIOLATION',
-        labId,
-        payload: {
-          participanteId,
-          execucaoId: execucaoId ?? null,
-          colaboradorId: colaboradorId ?? null,
-          violations,
-        },
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      })
-      .catch(() => {});
+    await writeAuditLog({
+      action: 'EC_FK_VIOLATION_PARTICIPANTE',
+      severity: 'FK_VIOLATION',
+      labId,
+      payload: {
+        participanteId,
+        execucaoId: execucaoId ?? null,
+        colaboradorId: colaboradorId ?? null,
+        violations,
+      },
+    });
   },
 );

@@ -35,6 +35,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { z } from 'zod';
 import { syncClaims } from '../../helpers/claims';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 // ─── Constantes ──────────────────────────────────────────────────────────────
 
@@ -161,17 +162,14 @@ export const grantTemporarySuperAdminToAll = onCall(
     const grantId = `grant-${Date.now()}-${request.auth.uid.slice(0, 8)}`;
 
     if (dryRun) {
-      // Audit do probe (não-bloqueante)
-      db.collection('auditLogs')
-        .add({
-          action: 'TEMP_SUPERADMIN_GRANT_DRY_RUN',
-          callerUid: request.auth.uid,
-          callerEmail: request.auth.token['email'] ?? null,
-          grantId,
-          payload: { scanned: diffs.length, toPromote, alreadySuperAdmin },
-          timestamp: admin.firestore.FieldValue.serverTimestamp(),
-        })
-        .catch(() => {});
+      // Audit do probe — best-effort com retry + fallback
+      await writeAuditLog({
+        action: 'TEMP_SUPERADMIN_GRANT_DRY_RUN',
+        callerUid: request.auth.uid,
+        callerEmail: request.auth.token['email'] ?? null,
+        grantId,
+        payload: { scanned: diffs.length, toPromote, alreadySuperAdmin },
+      });
 
       return {
         dryRun: true,
@@ -296,15 +294,12 @@ export const revokeTemporarySuperAdmin = onCall(
     const keptSuperAdmin = snapshotSnap.size - toRevoke.length;
 
     if (dryRun) {
-      db.collection('auditLogs')
-        .add({
-          action: 'TEMP_SUPERADMIN_REVOKE_DRY_RUN',
-          callerUid: request.auth.uid,
-          callerEmail: request.auth.token['email'] ?? null,
-          payload: { scanned, toRevoke: toRevoke.length },
-          timestamp: admin.firestore.FieldValue.serverTimestamp(),
-        })
-        .catch(() => {});
+      await writeAuditLog({
+        action: 'TEMP_SUPERADMIN_REVOKE_DRY_RUN',
+        callerUid: request.auth.uid,
+        callerEmail: request.auth.token['email'] ?? null,
+        payload: { scanned, toRevoke: toRevoke.length },
+      });
 
       return {
         dryRun: true,

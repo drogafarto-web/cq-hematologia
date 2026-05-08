@@ -20,6 +20,7 @@ import * as admin from 'firebase-admin';
 import { z } from 'zod';
 
 import { assertEcAccess, ecCollection, ensureEcLabRoot } from './validators';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 const RespostaInputSchema = z
   .object({
@@ -200,23 +201,20 @@ export const ec_submeterTeste = onCall<unknown, Promise<SubmeterTesteResult>>(
 
     await batch.commit();
 
-    db.collection('auditLogs')
-      .add({
-        action: 'EC_SUBMETER_TESTE',
-        callerUid: uid,
-        labId: input.labId,
-        payload: {
-          avaliacaoTesteId: avaliacaoRef.id,
-          execucaoId: input.execucaoId,
-          colaboradorId: input.colaboradorId,
-          pontuacaoTotal,
-          percentualAcerto,
-          aprovado,
-          temDissertativasPendentes,
-        },
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      })
-      .catch(() => {});
+    await writeAuditLog({
+      action: 'EC_SUBMETER_TESTE',
+      callerUid: uid,
+      labId: input.labId,
+      payload: {
+        avaliacaoTesteId: avaliacaoRef.id,
+        execucaoId: input.execucaoId,
+        colaboradorId: input.colaboradorId,
+        pontuacaoTotal,
+        percentualAcerto,
+        aprovado,
+        temDissertativasPendentes,
+      },
+    });
 
     return {
       ok: true,

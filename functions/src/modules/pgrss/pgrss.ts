@@ -2,6 +2,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import * as admin from 'firebase-admin';
 import { checkNCs } from '../qualidade/naoConformidade';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 const db = admin.firestore();
 
@@ -73,16 +74,13 @@ export const registrarGeracao = onCall(
 
       const ref = await db.collection(`labs/${labId}/pgrss-geracao`).add(registro);
 
-      // Audit log
-      db.collection('auditLogs')
-        .add({
-          action: 'PGRSS_GERAR',
-          callerUid: request.auth.uid,
-          labId,
-          payload: { registroId: ref.id, tipo, peso_kg },
-          timestamp: admin.firestore.FieldValue.serverTimestamp(),
-        })
-        .catch(() => {});
+      // Audit log — best-effort com retry + fallback
+      await writeAuditLog({
+        action: 'PGRSS_GERAR',
+        callerUid: request.auth.uid,
+        labId,
+        payload: { registroId: ref.id, tipo, peso_kg },
+      });
 
       return {
         success: true,
@@ -157,16 +155,13 @@ export const registrarColeta = onCall(
 
       await batch.commit();
 
-      // Audit log
-      db.collection('auditLogs')
-        .add({
-          action: 'PGRSS_COLETA',
-          callerUid: request.auth.uid,
-          labId,
-          payload: { coletaId: coletaRef.id, empresa_coletora, quantidadeRegistros: registroGeracaoIds.length },
-          timestamp: admin.firestore.FieldValue.serverTimestamp(),
-        })
-        .catch(() => {});
+      // Audit log — best-effort com retry + fallback
+      await writeAuditLog({
+        action: 'PGRSS_COLETA',
+        callerUid: request.auth.uid,
+        labId,
+        payload: { coletaId: coletaRef.id, empresa_coletora, quantidadeRegistros: registroGeracaoIds.length },
+      });
 
       return {
         success: true,
@@ -353,15 +348,12 @@ export const gerarRelatorioMensal = onSchedule(
 
         await db.collection(`labs/${labId}/pgrss-relatorios`).add(relatorio);
 
-        // Audit
-        db.collection('auditLogs')
-          .add({
-            action: 'PGRSS_RELATORIO_GERADO',
-            labId,
-            payload: { mes: relatorio.mes, ano: relatorio.ano, compliancePercentual: compliance },
-            timestamp: admin.firestore.FieldValue.serverTimestamp(),
-          })
-          .catch(() => {});
+        // Audit — best-effort com retry + fallback
+        await writeAuditLog({
+          action: 'PGRSS_RELATORIO_GERADO',
+          labId,
+          payload: { mes: relatorio.mes, ano: relatorio.ano, compliancePercentual: compliance },
+        });
       } catch (error) {
         console.error(`Erro gerando relatório PGRSS para ${labId}:`, error);
       }

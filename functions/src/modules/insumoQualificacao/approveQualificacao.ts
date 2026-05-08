@@ -30,6 +30,7 @@ import {
 import {
   computeMovimentacaoQualificacaoSignature,
 } from './signatureCanonical';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 interface ApproveResult {
   ok: true;
@@ -248,17 +249,14 @@ export const approveQualificacao = onCall<unknown, Promise<ApproveResult>>(
 
       await batch.commit();
 
-      // Audit log
-      db.collection('auditLogs')
-        .add({
-          action: 'INSUMO_QUALIFICACAO_APROVADO',
-          callerUid: uid,
-          labId,
-          targetId: q.insumoId,
-          payload: { qId, mode: q.qualificacaoMode, runs: evidenciaRunIds.length },
-          timestamp: admin.firestore.FieldValue.serverTimestamp(),
-        })
-        .catch(() => {});
+      // Audit log — best-effort com retry + fallback
+      await writeAuditLog({
+        action: 'INSUMO_QUALIFICACAO_APROVADO',
+        callerUid: uid,
+        labId,
+        targetId: q.insumoId,
+        payload: { qId, mode: q.qualificacaoMode, runs: evidenciaRunIds.length },
+      });
 
       return { ok: true, qId, insumoId: q.insumoId };
     }
@@ -325,16 +323,13 @@ export const approveQualificacao = onCall<unknown, Promise<ApproveResult>>(
 
     await batch.commit();
 
-    db.collection('auditLogs')
-      .add({
-        action: 'INSUMO_QUALIFICACAO_APROVADO',
-        callerUid: uid,
-        labId,
-        targetId: q.insumoId,
-        payload: { qId, mode: 'checklist-rt' },
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      })
-      .catch(() => {});
+    await writeAuditLog({
+      action: 'INSUMO_QUALIFICACAO_APROVADO',
+      callerUid: uid,
+      labId,
+      targetId: q.insumoId,
+      payload: { qId, mode: 'checklist-rt' },
+    });
 
     return { ok: true, qId, insumoId: q.insumoId };
   },

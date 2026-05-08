@@ -19,6 +19,7 @@ import {
   RegistrarEficaciaInputSchema,
 } from './validators';
 import { generateEcSignatureServer } from './signatureCanonical';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 // ─── ec_registrarAvaliacaoEficacia ──────────────────────────────────────────
 
@@ -95,20 +96,17 @@ export const ec_registrarAvaliacaoEficacia = onCall<
   const ref = ecCollection(db, input.labId, 'avaliacoesEficacia').doc();
   await ref.set(doc);
 
-  db.collection('auditLogs')
-    .add({
-      action: 'EC_REGISTRAR_EFICACIA',
-      callerUid: uid,
-      labId: input.labId,
-      payload: {
-        avaliacaoId: ref.id,
-        execucaoId: input.execucaoId,
-        resultado: input.resultado,
-        fechado: input.fechar,
-      },
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    })
-    .catch(() => {});
+  await writeAuditLog({
+    action: 'EC_REGISTRAR_EFICACIA',
+    callerUid: uid,
+    labId: input.labId,
+    payload: {
+      avaliacaoId: ref.id,
+      execucaoId: input.execucaoId,
+      resultado: input.resultado,
+      fechado: input.fechar,
+    },
+  });
 
   return { ok: true, avaliacaoId: ref.id };
 });
@@ -170,15 +168,12 @@ export const ec_fecharAvaliacaoEficacia = onCall<
 
   await ref.update(patch);
 
-  db.collection('auditLogs')
-    .add({
-      action: 'EC_FECHAR_EFICACIA',
-      callerUid: uid,
-      labId: input.labId,
-      payload: { avaliacaoId: input.avaliacaoId },
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    })
-    .catch(() => {});
+  await writeAuditLog({
+    action: 'EC_FECHAR_EFICACIA',
+    callerUid: uid,
+    labId: input.labId,
+    payload: { avaliacaoId: input.avaliacaoId },
+  });
 
   return { ok: true };
 });

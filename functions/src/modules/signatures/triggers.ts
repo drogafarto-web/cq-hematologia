@@ -17,21 +17,20 @@ import {
   extractMovimentacaoCanonicalFields,
   extractRunCanonicalFields,
 } from './canonical';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 async function logDivergence(
   kind: string,
   detail: Record<string, unknown>,
 ): Promise<void> {
-  await admin
-    .firestore()
-    .collection('auditLogs')
-    .add({
-      action: 'SIGNATURE_DIVERGENCE',
-      kind,
-      detail,
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      severity: 'warning',
-    });
+  // Routes through resilient writeAuditLog (retry + fallback) instead of a
+  // raw .add() — divergences are tamper signals; losing one is unacceptable.
+  await writeAuditLog({
+    action: 'SIGNATURE_DIVERGENCE',
+    kind,
+    detail,
+    severity: 'warning',
+  });
 }
 
 // ─── Hematologia / Coag / Uro runs ───────────────────────────────────────────
@@ -59,12 +58,14 @@ function makeRunSigner(subpath: string, moduleId: string) {
       const result = verify(key, canonical, clientSig);
 
       if (result.divergence) {
+        // logDivergence delegates to writeAuditLog which never throws —
+        // failures surface via console.error + auditLogFailures fallback.
         await logDivergence('run', {
           path: afterSnap.ref.path,
           moduleId,
           clientSignature: clientSig,
           serverHmac: result.serverHmac,
-        }).catch(() => {});
+        });
       }
 
       // Dual-write — grava serverHmac e flag de divergência
@@ -114,11 +115,12 @@ export const onMovimentacaoSignature = onDocumentWritten(
     const result = verify(key, canonical, clientSig);
 
     if (result.divergence) {
+      // logDivergence is internally resilient (writeAuditLog never throws).
       await logDivergence('insumo-movimentacao', {
         path: afterSnap.ref.path,
         clientSignature: clientSig,
         serverHmac: result.serverHmac,
-      }).catch(() => {});
+      });
     }
 
     await afterSnap.ref.update({

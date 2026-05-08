@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { jsonrepair } from 'jsonrepair';
 import * as admin from 'firebase-admin';
 import { syncClaims, syncModuleClaims } from './helpers/claims';
+import { writeAuditLog } from './shared/audit/writeAuditLog';
 
 // CRÍTICO: setGlobalOptions DEVE ser chamado ANTES de qualquer import/export
 // de módulo com Cloud Functions. Os re-exports abaixo executam os
@@ -615,19 +616,16 @@ export const createUser = onCall({}, async (request) => {
 
   await batch.commit();
 
-  // Audit — non-blocking
-  db.collection('auditLogs')
-    .add({
-      action: 'CREATE_USER',
-      callerUid: request.auth.uid,
-      callerEmail: request.auth.token.email ?? null,
-      targetUid: uid,
-      targetEmail: email,
-      labId: labId ?? null,
-      payload: {},
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    })
-    .catch(() => {});
+  // Audit — best-effort with retry + fallback (non-blocking)
+  await writeAuditLog({
+    action: 'CREATE_USER',
+    callerUid: request.auth.uid,
+    callerEmail: request.auth.token.email ?? null,
+    targetUid: uid,
+    targetEmail: email,
+    labId: labId ?? null,
+    payload: {},
+  });
 
   return { uid };
 });
@@ -670,18 +668,13 @@ export const setUserDisabled = onCall({}, async (request) => {
 
   await admin.firestore().doc(`users/${uid}`).update({ disabled });
 
-  admin
-    .firestore()
-    .collection('auditLogs')
-    .add({
-      action: disabled ? 'DISABLE_USER' : 'ENABLE_USER',
-      callerUid: request.auth.uid,
-      callerEmail: request.auth.token.email ?? null,
-      targetUid: uid,
-      payload: { disabled },
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    })
-    .catch(() => {});
+  await writeAuditLog({
+    action: disabled ? 'DISABLE_USER' : 'ENABLE_USER',
+    callerUid: request.auth.uid,
+    callerEmail: request.auth.token.email ?? null,
+    targetUid: uid,
+    payload: { disabled },
+  });
 
   return { success: true };
 });
@@ -719,18 +712,13 @@ export const setUserSuperAdmin = onCall({}, async (request) => {
   await admin.firestore().doc(`users/${targetUid}`).update({ isSuperAdmin });
   await syncClaims(targetUid, isSuperAdmin);
 
-  admin
-    .firestore()
-    .collection('auditLogs')
-    .add({
-      action: isSuperAdmin ? 'PROMOTE_SUPERADMIN' : 'DEMOTE_SUPERADMIN',
-      callerUid: request.auth.uid,
-      callerEmail: request.auth.token.email ?? null,
-      targetUid,
-      payload: { isSuperAdmin },
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    })
-    .catch(() => {});
+  await writeAuditLog({
+    action: isSuperAdmin ? 'PROMOTE_SUPERADMIN' : 'DEMOTE_SUPERADMIN',
+    callerUid: request.auth.uid,
+    callerEmail: request.auth.token.email ?? null,
+    targetUid,
+    payload: { isSuperAdmin },
+  });
 
   return { success: true };
 });
@@ -775,17 +763,14 @@ export const addUserToLab = onCall({}, async (request) => {
 
   await batch.commit();
 
-  db.collection('auditLogs')
-    .add({
-      action: 'ADD_TO_LAB',
-      callerUid: request.auth.uid,
-      callerEmail: request.auth.token.email ?? null,
-      targetUid,
-      labId,
-      payload: { role },
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    })
-    .catch(() => {});
+  await writeAuditLog({
+    action: 'ADD_TO_LAB',
+    callerUid: request.auth.uid,
+    callerEmail: request.auth.token.email ?? null,
+    targetUid,
+    labId,
+    payload: { role },
+  });
 
   return { success: true };
 });
@@ -827,17 +812,14 @@ export const updateUserLabRole = onCall({}, async (request) => {
   batch.update(db.doc(`users/${targetUid}`), { [`roles.${labId}`]: role });
   await batch.commit();
 
-  db.collection('auditLogs')
-    .add({
-      action: 'CHANGE_ROLE',
-      callerUid: request.auth.uid,
-      callerEmail: request.auth.token.email ?? null,
-      targetUid,
-      labId,
-      payload: { role },
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    })
-    .catch(() => {});
+  await writeAuditLog({
+    action: 'CHANGE_ROLE',
+    callerUid: request.auth.uid,
+    callerEmail: request.auth.token.email ?? null,
+    targetUid,
+    labId,
+    payload: { role },
+  });
 
   return { success: true };
 });
@@ -881,17 +863,14 @@ export const removeUserFromLab = onCall({}, async (request) => {
   batch.update(db.doc(`users/${targetUid}`), updates);
   await batch.commit();
 
-  db.collection('auditLogs')
-    .add({
-      action: 'REMOVE_FROM_LAB',
-      callerUid: request.auth.uid,
-      callerEmail: request.auth.token.email ?? null,
-      targetUid,
-      labId,
-      payload: {},
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    })
-    .catch(() => {});
+  await writeAuditLog({
+    action: 'REMOVE_FROM_LAB',
+    callerUid: request.auth.uid,
+    callerEmail: request.auth.token.email ?? null,
+    targetUid,
+    labId,
+    payload: {},
+  });
 
   return { success: true };
 });
@@ -949,18 +928,15 @@ export const deleteUser = onCall({}, async (request) => {
   batch.delete(db.doc(`users/${targetUid}`));
   await batch.commit();
 
-  // Audit — non-blocking
-  db.collection('auditLogs')
-    .add({
-      action: 'DELETE_USER',
-      callerUid: request.auth.uid,
-      callerEmail: request.auth.token.email ?? null,
-      targetUid,
-      targetEmail,
-      payload: { labsRemoved: labIds },
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    })
-    .catch(() => {});
+  // Audit — best-effort with retry + fallback
+  await writeAuditLog({
+    action: 'DELETE_USER',
+    callerUid: request.auth.uid,
+    callerEmail: request.auth.token.email ?? null,
+    targetUid,
+    targetEmail,
+    payload: { labsRemoved: labIds },
+  });
 
   return { success: true };
 });
@@ -1009,18 +985,13 @@ export const setModulesClaims = onCall({}, async (request) => {
   // Merge with existing claims (preserves isSuperAdmin + any future flags)
   await syncModuleClaims(uid, modules);
 
-  admin
-    .firestore()
-    .collection('auditLogs')
-    .add({
-      action: 'SET_MODULE_CLAIMS',
-      callerUid: request.auth.uid,
-      callerEmail: request.auth.token.email ?? null,
-      targetUid: uid,
-      payload: { modules },
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    })
-    .catch(() => {});
+  await writeAuditLog({
+    action: 'SET_MODULE_CLAIMS',
+    callerUid: request.auth.uid,
+    callerEmail: request.auth.token.email ?? null,
+    targetUid: uid,
+    payload: { modules },
+  });
 
   return { success: true };
 });
@@ -2034,19 +2005,16 @@ export const approveUserForLab = onCall({}, async (request) => {
   // 6. Mark emailVerified: true — admin validated the email by approving
   await admin.auth().updateUser(uid, { emailVerified: true });
 
-  // 7. Audit log — non-blocking
-  db.collection('auditLogs')
-    .add({
-      action: 'APPROVE_PENDING_USER',
-      callerUid: request.auth.uid,
-      callerEmail: request.auth.token.email ?? null,
-      targetUid: uid,
-      targetEmail: pending.email ?? null,
-      labId,
-      payload: { assignedRole },
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    })
-    .catch(() => {});
+  // 7. Audit log — best-effort with retry + fallback
+  await writeAuditLog({
+    action: 'APPROVE_PENDING_USER',
+    callerUid: request.auth.uid,
+    callerEmail: request.auth.token.email ?? null,
+    targetUid: uid,
+    targetEmail: pending.email ?? null,
+    labId,
+    payload: { assignedRole },
+  });
 
   return { success: true };
 });

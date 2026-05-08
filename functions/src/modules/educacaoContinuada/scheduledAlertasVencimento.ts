@@ -21,6 +21,7 @@ import {
   SMTP_PORT,
   sendEmail,
 } from '../../shared/email/smtpClient';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 const FROM_EMAIL = 'alertas@app.labclinmg.com.br';
 const FROM_NAME = 'HC Quality — Educação Continuada';
@@ -92,19 +93,16 @@ export const ec_scheduledAlertasVencimento = onSchedule(
 
         if (recipientsUnicos.length === 0) {
           // Sem destinatários — loga e pula
-          db.collection('auditLogs')
-            .add({
-              action: 'EC_ALERTA_EMAIL_NO_RECIPIENT',
-              labId,
-              payload: {
-                alertaId: alertaDoc.id,
-                treinamentoId,
-                diasRestantes,
-                motivo: 'sem destinatários configurados',
-              },
-              timestamp: admin.firestore.FieldValue.serverTimestamp(),
-            })
-            .catch(() => {});
+          await writeAuditLog({
+            action: 'EC_ALERTA_EMAIL_NO_RECIPIENT',
+            labId,
+            payload: {
+              alertaId: alertaDoc.id,
+              treinamentoId,
+              diasRestantes,
+              motivo: 'sem destinatários configurados',
+            },
+          });
           continue;
         }
 
@@ -125,29 +123,23 @@ export const ec_scheduledAlertasVencimento = onSchedule(
           // Marca como notificado
           await alertaDoc.ref.update({ status: 'notificado' });
 
-          db.collection('auditLogs')
-            .add({
-              action: 'EC_ALERTA_EMAIL_ENVIADO',
-              labId,
-              payload: {
-                alertaId: alertaDoc.id,
-                treinamentoId,
-                diasRestantes,
-                recipientCount: recipientsUnicos.length,
-              },
-              timestamp: admin.firestore.FieldValue.serverTimestamp(),
-            })
-            .catch(() => {});
+          await writeAuditLog({
+            action: 'EC_ALERTA_EMAIL_ENVIADO',
+            labId,
+            payload: {
+              alertaId: alertaDoc.id,
+              treinamentoId,
+              diasRestantes,
+              recipientCount: recipientsUnicos.length,
+            },
+          });
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);
-          db.collection('auditLogs')
-            .add({
-              action: 'EC_ALERTA_EMAIL_ERROR',
-              labId,
-              payload: { alertaId: alertaDoc.id, error: msg },
-              timestamp: admin.firestore.FieldValue.serverTimestamp(),
-            })
-            .catch(() => {});
+          await writeAuditLog({
+            action: 'EC_ALERTA_EMAIL_ERROR',
+            labId,
+            payload: { alertaId: alertaDoc.id, error: msg },
+          });
         }
       }
     }

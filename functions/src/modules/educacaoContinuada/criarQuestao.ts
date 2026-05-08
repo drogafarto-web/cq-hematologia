@@ -15,6 +15,7 @@ import * as admin from 'firebase-admin';
 import { z } from 'zod';
 
 import { assertEcAccess, ecCollection, ensureEcLabRoot } from './validators';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 const OpcaoQuestaoInputSchema = z.object({
   texto: z.string().trim().min(1),
@@ -113,15 +114,12 @@ export const ec_criarQuestao = onCall<unknown, Promise<CriarQuestaoResult>>(
 
     await batch.commit();
 
-    db.collection('auditLogs')
-      .add({
-        action: 'EC_CRIAR_QUESTAO',
-        callerUid: uid,
-        labId: input.labId,
-        payload: { questaoId: questoesRef.id, templateId: input.templateId, tipo: input.tipo },
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      })
-      .catch(() => {});
+    await writeAuditLog({
+      action: 'EC_CRIAR_QUESTAO',
+      callerUid: uid,
+      labId: input.labId,
+      payload: { questaoId: questoesRef.id, templateId: input.templateId, tipo: input.tipo },
+    });
 
     return { ok: true, questaoId: questoesRef.id };
   },

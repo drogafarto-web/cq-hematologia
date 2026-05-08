@@ -17,6 +17,7 @@ import {
   ensureEcLabRoot,
 } from './validators';
 import { generateEcSignatureServer } from './signatureCanonical';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 interface CommitRealizadaResult {
   ok: true;
@@ -189,23 +190,20 @@ export const ec_commitExecucaoRealizada = onCall<
 
   await batch.commit();
 
-  // Audit non-blocking
-  db.collection('auditLogs')
-    .add({
-      action: 'EC_COMMIT_REALIZADA',
-      callerUid: uid,
-      labId: input.labId,
-      payload: {
-        execucaoId: execRef.id,
-        treinamentoId: input.treinamentoId,
-        participanteCount: participantesPlan.length,
-        alertaId: alertaRef?.id ?? null,
-        tipoTreinamento,
-        alertaSkipped: !deveCriarAlerta,
-      },
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    })
-    .catch(() => {});
+  // Audit — best-effort com retry + fallback
+  await writeAuditLog({
+    action: 'EC_COMMIT_REALIZADA',
+    callerUid: uid,
+    labId: input.labId,
+    payload: {
+      execucaoId: execRef.id,
+      treinamentoId: input.treinamentoId,
+      participanteCount: participantesPlan.length,
+      alertaId: alertaRef?.id ?? null,
+      tipoTreinamento,
+      alertaSkipped: !deveCriarAlerta,
+    },
+  });
 
   return {
     ok: true,
