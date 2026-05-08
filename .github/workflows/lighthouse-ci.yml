@@ -1,11 +1,13 @@
-name: Lighthouse CI
+name: Lighthouse CI + Perf Gate
 
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   schedule:
-    # Mondays 08:00 UTC
-    - cron: '0 8 * * 1'
+    # Nightly 02:00 UTC (23:00 BRT)
+    - cron: '0 2 * * *'
   workflow_dispatch:
 
 concurrency:
@@ -14,10 +16,11 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   lighthouse:
-    name: Lighthouse Audit
+    name: Lighthouse + Perf Validation
     runs-on: ubuntu-latest
 
     steps:
@@ -25,7 +28,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -44,10 +47,69 @@ jobs:
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
 
-      - name: Upload Lighthouse report
+      - name: Run perf-validate (bundle + lighthouse + web vitals)
+        id: perf
+        run: |
+          node scripts/perf-validate.mjs --pr-summary --json
+        continue-on-error: true
+
+      - name: Upload Lighthouse raw report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: lighthouse-report-${{ github.sha }}
           path: .lighthouseci/
           retention-days: 30
+
+      - name: Upload perf validation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-report-${{ github.sha }}
+          path: |
+            dist/perf-report-*.md
+            dist/perf-report-*.json
+            dist/perf-pr-summary.md
+          retention-days: 30
+
+      - name: Comment perf summary on PR
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'dist/perf-pr-summary.md';
+            if (!fs.existsSync(path)) {
+              core.warning('No perf summary found at ' + path);
+              return;
+            }
+            const body = fs.readFileSync(path, 'utf8');
+            const marker = '<!-- perf-validate-summary -->';
+            const fullBody = `${marker}\n${body}`;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find((c) => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: fullBody,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: fullBody,
+              });
+            }
+
+      - name: Fail job if perf gate failed
+        if: steps.perf.outcome == 'failure'
+        run: |
+          echo "::error::Performance gate FAILED. See perf-report artifact + PR comment."
+          exit 1

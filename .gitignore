@@ -136,6 +136,7 @@ scripts/*
 !scripts/watch-staging-setup.mjs
 # Exceção: deploy gate (ADR-0018) — bloqueia deploy de functions com secrets PENDING_SET_*
 !scripts/preflight-secrets-check.sh
+!scripts/perf-validate.mjs
 # Exceção: functions/scripts/ hospeda utilitários de dev versionados
 !functions/scripts/
 !functions/scripts/**
