@@ -1,6 +1,11 @@
 /**
  * approveNotivisaDraft — RT/admin approves draft, transitions to approved status
  *
+ * @deprecated Use notivisaApproveDraft instead (Wave 2-10).
+ * Scheduled for removal 2026-08-01. See:
+ * - Migration guide: docs/notivisa/MIGRATION_LEGACY_TO_WAVE2.md
+ * - Deprecation timeline: docs/notivisa/NOTIVISA_CLEANUP_ROADMAP.md
+ *
  * Implementação Batch 1, ADR-0026 Phase 8.
  *
  * Responsabilidades:
