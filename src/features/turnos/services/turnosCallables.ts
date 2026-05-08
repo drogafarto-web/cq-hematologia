@@ -35,6 +35,17 @@ export interface CallBackfill90DaysResult {
   dryRun: boolean;
 }
 
+export interface CallSupervisorCheckinResult {
+  ok: true;
+  presencaStatus: 'active';
+  isSubstitute: boolean;
+}
+
+export interface CallSupervisorCheckoutResult {
+  ok: true;
+  presencaStatus: 'closed';
+}
+
 // ─── Payload types ──────────────────────────────────────────────────────────
 
 export interface CreateTurnoPayload {
@@ -62,6 +73,19 @@ export interface Backfill90DaysPayload {
   dryRun?: boolean;
 }
 
+export interface SupervisorCheckinPayload {
+  labId: LabId;
+  turnoId: string;
+  supervisorUid: string;
+  pin?: string | null;
+}
+
+export interface SupervisorCheckoutPayload {
+  labId: LabId;
+  turnoId: string;
+  observacoes?: string | null;
+}
+
 // ─── Lazy-loaded callables ──────────────────────────────────────────────────
 
 let _callCreateTurno: HttpsCallable<CreateTurnoPayload, CallCreateTurnoResult> | null =
@@ -75,6 +99,14 @@ let _callSoftDeleteTurno: HttpsCallable<
 let _callBackfill90Days: HttpsCallable<
   Backfill90DaysPayload,
   CallBackfill90DaysResult
+> | null = null;
+let _callSupervisorCheckin: HttpsCallable<
+  SupervisorCheckinPayload,
+  CallSupervisorCheckinResult
+> | null = null;
+let _callSupervisorCheckout: HttpsCallable<
+  SupervisorCheckoutPayload,
+  CallSupervisorCheckoutResult
 > | null = null;
 
 function getCallCreateTurno(): HttpsCallable<CreateTurnoPayload, CallCreateTurnoResult> {
@@ -109,6 +141,26 @@ function getCallBackfill90Days(): HttpsCallable<
     _callBackfill90Days = httpsCallable(functions, 'turnos_backfill90Days');
   }
   return _callBackfill90Days;
+}
+
+function getCallSupervisorCheckin(): HttpsCallable<
+  SupervisorCheckinPayload,
+  CallSupervisorCheckinResult
+> {
+  if (!_callSupervisorCheckin) {
+    _callSupervisorCheckin = httpsCallable(functions, 'turnos_supervisorCheckin');
+  }
+  return _callSupervisorCheckin;
+}
+
+function getCallSupervisorCheckout(): HttpsCallable<
+  SupervisorCheckoutPayload,
+  CallSupervisorCheckoutResult
+> {
+  if (!_callSupervisorCheckout) {
+    _callSupervisorCheckout = httpsCallable(functions, 'turnos_supervisorCheckout');
+  }
+  return _callSupervisorCheckout;
 }
 
 // ─── Public API ──────────────────────────────────────────────────────────────
@@ -166,6 +218,39 @@ export async function callBackfill90Days(
 ): Promise<CallBackfill90DaysResult> {
   try {
     const result = await getCallBackfill90Days()(payload);
+    return result.data;
+  } catch (error) {
+    throw translateError(error);
+  }
+}
+
+/**
+ * Supervisor presencial check-in.
+ * RDC 978/2025 Art. 122 — supervisor confirms physical presence at start of shift.
+ * Server validates: window (≤30min early, before fim), member of designated supervisor
+ * or pre-designated substitute, optional PIN.
+ */
+export async function callSupervisorCheckin(
+  payload: SupervisorCheckinPayload,
+): Promise<CallSupervisorCheckinResult> {
+  try {
+    const result = await getCallSupervisorCheckin()(payload);
+    return result.data;
+  } catch (error) {
+    throw translateError(error);
+  }
+}
+
+/**
+ * Supervisor presencial check-out.
+ * RDC 978/2025 Art. 122 — supervisor confirms shift closure.
+ * Server validates: only the supervisor who checked in may close (caller uid match).
+ */
+export async function callSupervisorCheckout(
+  payload: SupervisorCheckoutPayload,
+): Promise<CallSupervisorCheckoutResult> {
+  try {
+    const result = await getCallSupervisorCheckout()(payload);
     return result.data;
   } catch (error) {
     throw translateError(error);

@@ -21,4 +21,6 @@ export { turnos_createTurno } from './createTurno';
 export { turnos_updateTurno } from './updateTurno';
 export { turnos_softDeleteTurno } from './softDeleteTurno';
 export { turnos_backfill90Days } from './backfill90Days';
+export { turnos_supervisorCheckin } from './supervisorCheckin';
+export { turnos_supervisorCheckout } from './supervisorCheckout';
 export { onTurnoEventCreated } from './onTurnoEventCreated';
