@@ -2144,14 +2144,17 @@ export { previewDocDrive } from './sgq/previewDocDrive';
 export { classificarDocAuto } from './sgq/classificarDocAuto';
 
 // ─── criticos module (Phase 6 — Critical Values Escalation) ──────────────────
-// SMS + Email escalation for critical lab results with SLA tracking
-// TODO(Phase 15): re-enable after Twilio secrets are provisioned
-// export {
-//   registerCriticoDetection,
-//   acknowledgeEscalacao,
-//   escalacaoCriticos,
-//   escalacaoCriticos_webhook,
-// } from './modules/criticos/index';
+// SMS + Email escalation for critical lab results with SLA tracking.
+// Wave 2 (2026-05-08): Twilio decoupled via lazy import + isTwilioProvisioned()
+// gate. acknowledgeEscalacao is Firestore-only and runs without Twilio.
+// SMS-emitting paths (registerCriticoDetection, cron, webhook) short-circuit
+// cleanly with TWILIO_NOT_PROVISIONED when secrets are still PENDING_SET.
+export {
+  registerCriticoDetection,
+  acknowledgeEscalacao,
+  escalacaoCriticos,
+  escalacaoCriticos_webhook,
+} from './modules/criticos/index';
 
 // ─── criticos-config module (Phase 5 / Plan 05-01 — RDC 978 Art. 167) ────────
 // Critical Values Threshold Configuration. RT/admin/owner write; lab member read.
