@@ -26,6 +26,7 @@ export interface ClassifyStripPayload {
   labId: string;                               // Multi-tenant lab identifier
   captureId: string;                           // Unique image identifier
   operatorId: string;                          // User who captured image
+  patientId: string;                           // Subject of the image — gates LGPD consent check
   promptVariant?: PromptVariant;               // A/B test variant (v1|v2|v3)
 }
 
