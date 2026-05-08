@@ -188,11 +188,12 @@
       "Bash(bash *)",
       "WebFetch(domain:api.anvisa.gov.br)",
       "PowerShell(Copy-Item *)",
-      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\labcl\\\\Downloads\\\\\" | Where-Object {$_.Extension -match \"jpeg|jpg\"} | Select-Object Name | Sort-Object -Property Name -Descending | Select-Object -First 10)"
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\labcl\\\\Downloads\\\\\" | Where-Object {$_.Extension -match \"jpeg|jpg\"} | Select-Object Name | Sort-Object -Property Name -Descending | Select-Object -First 10)",
+      "Bash(chmod +x scripts/preflight-functions-check.sh scripts/deploy-functions.sh)"
     ]
   },
+  "model": "haiku",
   "enabledMcpjsonServers": [
     "firebase"
-  ],
-  "model": "haiku"
+  ]
 }

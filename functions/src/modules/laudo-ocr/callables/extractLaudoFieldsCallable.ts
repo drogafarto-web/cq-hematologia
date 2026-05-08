@@ -20,20 +20,16 @@ import { extractLaudoFields } from '../laudoOCRExtractor';
 import { validateLaudoExtraction } from '../validators';
 import {
   ExtractLaudoFieldsInput,
-  ExtractLaudoFieldsResponse,
   ExtractLaudoFieldsInputSchema,
 } from '../types';
 
-export const extractLaudoFieldsCallable = onCall<
-  ExtractLaudoFieldsInput,
-  ExtractLaudoFieldsResponse
->(
+export const extractLaudoFieldsCallable = onCall(
   {
     region: 'southamerica-east1',
-    memory: '1GB',
+    memory: '1GiB',
     timeoutSeconds: 60, // Gemini Vision may take a few seconds
   },
-  async (request): Promise<ExtractLaudoFieldsResponse> => {
+  async (request) => {
     try {
       // 1. Auth check
       if (!request.auth) {
@@ -65,7 +61,7 @@ export const extractLaudoFieldsCallable = onCall<
       }
 
       const memberData = memberDoc.data();
-      if (!memberData?.status === 'active') {
+      if (memberData?.status !== 'active') {
         throw new HttpsError(
           'permission-denied',
           `User not active member of lab ${labId}`

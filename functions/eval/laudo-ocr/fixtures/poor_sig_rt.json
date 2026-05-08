@@ -1,0 +1,33 @@
+{
+  "prompt": "Você está analisando um laudo clínico (relatório de resultado de laboratório). [Image: clinical report with faint/hard-to-read RT signature]",
+  "expectedOutput": {
+    "field10": {
+      "text": "Paciente apresenta níveis ligeiramente elevados de colesterol. Recomenda-se acompanhamento em 3 meses.",
+      "confidence": "high"
+    },
+    "field11": {
+      "detected": true,
+      "boundingBox": {
+        "x": 12,
+        "y": 82,
+        "width": 18,
+        "height": 12
+      },
+      "confidence": "medium",
+      "notes": "Assinatura pálida/desbotada, pode ser de difícil leitura"
+    },
+    "field12": {
+      "detected": true,
+      "dateText": "2026-05-08",
+      "boundingBox": {
+        "x": 72,
+        "y": 82,
+        "width": 18,
+        "height": 12
+      },
+      "confidence": "high",
+      "notes": "Assinatura do diretor legível com data clara"
+    },
+    "overallConfidence": "medium"
+  }
+}

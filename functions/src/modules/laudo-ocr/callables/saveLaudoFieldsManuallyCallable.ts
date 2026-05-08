@@ -21,22 +21,18 @@ import * as admin from 'firebase-admin';
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
 import {
   SaveLaudoFieldsManuallyInput,
-  SaveLaudoFieldsManuallyResponse,
   SaveLaudoFieldsManuallyInputSchema,
   LaudoExtractedFields,
 } from '../types';
 import { validateLaudoExtraction } from '../validators';
 
-export const saveLaudoFieldsManuallyCallable = onCall<
-  SaveLaudoFieldsManuallyInput,
-  SaveLaudoFieldsManuallyResponse
->(
+export const saveLaudoFieldsManuallyCallable = onCall(
   {
     region: 'southamerica-east1',
-    memory: '512MB',
+    memory: '512MiB',
     timeoutSeconds: 30,
   },
-  async (request): Promise<SaveLaudoFieldsManuallyResponse> => {
+  async (request) => {
     try {
       // 1. Auth check
       if (!request.auth) {

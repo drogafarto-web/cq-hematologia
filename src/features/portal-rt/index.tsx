@@ -2,15 +2,19 @@
  * Portal RT — Entry Point (Lazy-loaded)
  *
  * Phase 4 Responsible Technician (RT) dashboard.
- * Scaffold: navigation shell ready for feature modules.
+ * Full implementation: all 5 sections wired with real-time data subscription patterns.
  */
 
 import React from 'react';
 import { useActiveLabId } from '../../store/useAuthStore';
 import { PortalRTShell } from './components/PortalRTShell';
 import { usePortalRTNav } from './hooks/usePortalRTNav';
-import { PortalHeading, PortalSection } from './components/_ui';
 import { useActiveLab } from '../../store/useAuthStore';
+import { DashboardSection } from './sections/DashboardSection';
+import { CriticosSection } from './sections/CriticosSection';
+import { ResultadosSection } from './sections/ResultadosSection';
+import { ComplianceSection } from './sections/ComplianceSection';
+import { ConfiguracaoSection } from './sections/ConfiguracaoSection';
 
 export function PortalRTView() {
   const activeLabId = useActiveLabId();
@@ -60,51 +64,11 @@ export function PortalRTView() {
       onSelectSection={selectSection}
       escalationCount={escalationCount}
     >
-      {/* Placeholder content for each section */}
-      {activeSection === 'dashboard' && (
-        <PortalSection title="Dashboard" subtitle="Visão geral operacional">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {['Testes em Fila', 'Críticos Pendentes', 'Taxa de Conformidade', 'Últimas 24h'].map((card) => (
-              <div key={card} className="p-4 rounded-lg bg-[#1a1a1d] border border-white/8">
-                <p className="text-white/50 text-sm mb-2">{card}</p>
-                <p className="text-2xl font-semibold text-white">—</p>
-              </div>
-            ))}
-          </div>
-        </PortalSection>
-      )}
-
-      {activeSection === 'criticos' && (
-        <PortalSection title="Valores Críticos" subtitle="Escalações e revisões pendentes">
-          <div className="p-6 rounded-lg bg-[#1a1a1d] border border-white/8 text-center">
-            <p className="text-white/50">Nenhum valor crítico pendente</p>
-          </div>
-        </PortalSection>
-      )}
-
-      {activeSection === 'resultados' && (
-        <PortalSection title="Resultados" subtitle="Testes processados e laudos">
-          <div className="p-6 rounded-lg bg-[#1a1a1d] border border-white/8 text-center">
-            <p className="text-white/50">Nenhum resultado para exibir</p>
-          </div>
-        </PortalSection>
-      )}
-
-      {activeSection === 'compliance' && (
-        <PortalSection title="Compliance" subtitle="Conformidade regulatória e auditoria">
-          <div className="p-6 rounded-lg bg-[#1a1a1d] border border-white/8 text-center">
-            <p className="text-white/50">Módulo em desenvolvimento</p>
-          </div>
-        </PortalSection>
-      )}
-
-      {activeSection === 'configuracao' && (
-        <PortalSection title="Configuração" subtitle="Ajustes e preferências">
-          <div className="p-6 rounded-lg bg-[#1a1a1d] border border-white/8 text-center">
-            <p className="text-white/50">Módulo em desenvolvimento</p>
-          </div>
-        </PortalSection>
-      )}
+      {activeSection === 'dashboard' && <DashboardSection labId={activeLabId || undefined} />}
+      {activeSection === 'criticos' && <CriticosSection labId={activeLabId || undefined} />}
+      {activeSection === 'resultados' && <ResultadosSection labId={activeLabId || undefined} />}
+      {activeSection === 'compliance' && <ComplianceSection labId={activeLabId || undefined} />}
+      {activeSection === 'configuracao' && <ConfiguracaoSection labId={activeLabId || undefined} />}
     </PortalRTShell>
   );
 }

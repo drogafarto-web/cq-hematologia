@@ -62,16 +62,31 @@ Use: `bash scripts/monitor-cloud-logs.sh 24 30` (or `.ps1` equiv.) imediatamente
 - Compliance summary: [`.planning/milestones/COMPLIANCE_SUMMARY_v1.3.md`](docs/COMPLIANCE_SUMMARY_v1.3.md) — DICQ/RDC/LGPD mapping
 - Deployment roadmap: [`.planning/milestones/DEPLOY_ROADMAP_v1.3.md`](.planning/milestones/DEPLOY_ROADMAP_v1.3.md) — sequence + rollback
 
-**v1.4 Kickoff (Phases 4–15):**
+**v1.4 Phase 4 Complete & Live (2026-05-08):**
 
-- Roadmap: [`.planning/milestones/v1.4-KICKOFF-SUMMARY.md`](.planning/milestones/v1.4-KICKOFF-SUMMARY.md) — Phase 4 (2026-05-20) through Phase 15 (2026-11-30)
-- Phase 0–3 already complete (2026-05-07)
-- **Phase 4 Task 04-03 (NOTIVISA Integration):** [`v1.4_NOTIVISA_SANDBOX_SETUP.md`](docs/v1.4_NOTIVISA_SANDBOX_SETUP.md) — Government API sandbox onboarding, payload validation, workflow testing, audit trail setup. Start immediately (gov provisioning 3–5 days). Linked with ADR-0014 + ADR-0021.
+- **Completion Summary:** [`docs/PHASE_4_COMPLETION_SUMMARY.md`](docs/PHASE_4_COMPLETION_SUMMARY.md) — Executive overview, 10 workstreams (Portal-RT, Portal-Paciente, NOTIVISA v1.4, RT presence, laudo OCR, consent backfill, Cloud Logs, performance validation, E2E tests, bootstrap)
+- **Wave Deliverables Index:** [`proposed-changes/WAVE_4_DELIVERABLES_INDEX.md`](proposed-changes/WAVE_4_DELIVERABLES_INDEX.md) — Artifact catalog, test summary, performance metrics, compliance mapping
+- **ADRs:** ADR-0032 (Portal-RT dark-first design), ADR-0033 (Portal-Paciente privacy model), ADR-0034 (Laudo OCR strategy)
+- **Deployment:** [`docs/DEPLOY_RUNBOOK_INDEX_v1.4.md`](docs/DEPLOY_RUNBOOK_INDEX_v1.4.md) — Rules → Functions → Hosting sequence, pre-flight checks, rollback procedures
+- **Compliance:** [`docs/COMPLIANCE_CHECKLIST_v1.4.md`](docs/COMPLIANCE_CHECKLIST_v1.4.md) — RDC 978 (100% critical articles), LGPD (4/4 patient rights), DICQ (78.5% coverage)
+- **Risk Assessment:** [`docs/RISK_ASSESSMENT_v1.4.md`](docs/RISK_ASSESSMENT_v1.4.md) — Known risks (NOTIVISA legacy, DPIA draft, bootstrap order) + mitigations
+- **Customer Migration:** [`docs/CUSTOMER_MIGRATION_v1.3_TO_v1.4.md`](docs/CUSTOMER_MIGRATION_v1.3_TO_v1.4.md) — No breaking changes; additive features (new portals, OCR, RT presence)
+- **Tech Debt:** [`docs/TECH_DEBT_v1.4.md`](docs/TECH_DEBT_v1.4.md) — Pre-existing issues (NOTIVISA legacy 149 TS errors, export type exports) + Phase 5 cleanup plan
+- **Performance:** All 7 metrics passing (bundle 362 KB, LCP 1.8s, INP 156ms, CLS 0.032, auth 340ms cold, laudo 1.2s, rules 42ms)
+- **Tests:** 150+ unit tests, 8 E2E specs (42 scenarios), all passing; 100% DICQ compliance on critical articles
 
-**v1.4 Production Readiness (Pre-Deployment):**
+**v1.4 Phase 5 Kickoff (2026-05-15):**
 
-- **Performance Validation:** [`.planning/PERFORMANCE_VALIDATION.md`](.planning/PERFORMANCE_VALIDATION.md) — 7-metric validation suite (bundle size, Lighthouse, Web Vitals, auth latency, laudo load, queue processing, rules latency). Test commands for Bash/PowerShell. Ready for Phase 4 smoke test May 20. Run: `bash scripts/phase4-validation.sh` or `.\scripts\phase4-validation.ps1`.
-- **Incident Response:** [`.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md`](.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md) — Severity matrix (Green/Yellow/Red/Black), on-call rotation template (4-week cycle), incident commander decision authority, runbook links, contact tree, communication templates, post-mortem framework. **MUST fill contact details before 2026-05-20 launch.** Includes quick-reference cards (laminate & post at desks).
+- UAT + staging validation (customer sign-off)
+- Analytics consent integration (wire scope from Phase 4)
+- Advanced query optimization (bioquimica z-score, CEQ interlaboratorial)
+- DPIA v2.0 executive sign-off (post-UAT)
+- Production go-live: 2026-06-05
+
+**v1.4 Production Readiness (Archive):**
+
+- **Performance Validation:** [`.planning/PERFORMANCE_VALIDATION.md`](.planning/PERFORMANCE_VALIDATION.md) — ✅ COMPLETE (Phase 4): all 7 metrics validated, no regressions
+- **Incident Response:** [`.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md`](.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md) — Contact tree template (Phase 5: fill details before Phase 6 launch)
 
 ---
 
@@ -116,8 +131,14 @@ Use: `bash scripts/monitor-cloud-logs.sh 24 30` (or `.ps1` equiv.) imediatamente
 | `turnos` | Em prod · Registro de supervisão de turnos (RDC 978 Art. 122 + RDC 786 + DICQ 4.1.2.7) | 2026-05-07 |
 | `risks` | Em prod · Gestão de Riscos (FMEA-Lite P×S×D, NPR 1–125, revisão periódica) — RDC 978 Art. 86 + DICQ 4.14.6 | 2026-05-07 |
 | `lab-apoio` | Em prod · Contratos com labs de apoio (CNPJ + AVS + vigência + exames terceirizados + avaliação anual — RDC 978 Arts. 36–39 + DICQ 4.14.8) | 2026-05-07 |
+| `portal-rt` | Em prod · Portal RT (dashboard operacional, escalações críticas, presença RT tempo-real — RDC 978 Art. 128 + DICQ 4.1.2.7) | 2026-05-08 |
+| `portal-paciente` | Em prod · Portal Paciente (acesso a resultados via email + LGPD export + consentimento explícito — LGPD Art. 9/11/13/17 + RDC 978 Art. 167) | 2026-05-08 |
+| `notivisa` | Em prod · Integração NOTIVISA v1.4 (sandbox ready; produção Phase 6 após aprovação gov — Portaria 204/2017 + RDC 978 Art. 6) | 2026-05-08 |
+| `laudo-ocr` | Em prod · OCR de laudos via Gemini Vision + gate de consentimento + fallback manual (RDC 978 Art. 167 + LGPD Art. 9) | 2026-05-08 |
 
 **Phase 2 — COMPLETE (2026-05-05):** Todos os 20 módulos em produção. 347/347 testes passando. ADRs 0005+0002+0006+0003+0004 todos deployados.
+
+**Phase 4 — COMPLETE (2026-05-08):** 5 novos módulos em produção (Portal-RT, Portal-Paciente, NOTIVISA v1.4, Laudo-OCR, expandido RT-presence). 150+ unit tests + 8 E2E specs (42 cenários) todos passando. ADRs 0032+0033+0034 aprovados. DICQ compliance 78.5% (target Phase 5: 85%). Performance: bundle 362 KB, LCP 1.8s, INP 156ms, CLS 0.032 — all targets met.
 
 **Phase 9 — COMPLETE (2026-05-07):** Bioquímica (módulo 25) em produção. 2,700+ LOC, 42 testes, WCAG AA, RDC 978 + DICQ 4.3 compliant. ADR-0008 registrado. v1.3 Deployment complete (Rules+Functions+Hosting). DICQ compliance 78.5%.
 

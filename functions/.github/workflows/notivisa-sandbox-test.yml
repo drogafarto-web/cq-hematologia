@@ -1,0 +1,259 @@
+name: NOTIVISA Sandbox Integration Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      lab_id:
+        description: 'Lab ID to test (default: lab-sandbox-001)'
+        required: false
+        default: 'lab-sandbox-001'
+      environment:
+        description: 'Test environment (sandbox-only)'
+        required: false
+        default: 'sandbox'
+
+env:
+  PROJECT_ID: hmatologia2
+  FUNCTIONS_DIR: functions
+  NODE_VERSION: '22'
+  GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+jobs:
+  sandbox-integration-tests:
+    name: NOTIVISA Sandbox Integration Test Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: sandbox-testing
+      url: https://sandbox.notivisa.gov.br
+
+    steps:
+      # ─────────────────────────────────────────────────────────────────────
+      # 1. Setup
+      # ─────────────────────────────────────────────────────────────────────
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            functions/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ env.FUNCTIONS_DIR }}
+        run: npm ci
+
+      # ─────────────────────────────────────────────────────────────────────
+      # 2. Validate Environment
+      # ─────────────────────────────────────────────────────────────────────
+
+      - name: Check Firebase CLI
+        run: |
+          npx firebase --version
+          echo "✓ Firebase CLI available"
+
+      - name: Validate credentials
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_B64: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_B64 }}
+        run: |
+          if [ -z "$GOOGLE_APPLICATION_CREDENTIALS_B64" ]; then
+            echo "✗ GOOGLE_APPLICATION_CREDENTIALS_B64 secret not set"
+            exit 1
+          fi
+          echo "$GOOGLE_APPLICATION_CREDENTIALS_B64" | base64 -d > /tmp/creds.json
+          if [ ! -s /tmp/creds.json ]; then
+            echo "✗ Failed to decode credentials"
+            exit 1
+          fi
+          echo "✓ Credentials validated"
+
+      - name: Check sandbox endpoint configuration
+        env:
+          NOTIVISA_SANDBOX_URL: ${{ secrets.NOTIVISA_SANDBOX_URL }}
+          NOTIVISA_SANDBOX_KEY: ${{ secrets.NOTIVISA_SANDBOX_KEY }}
+        run: |
+          if [ -z "$NOTIVISA_SANDBOX_URL" ]; then
+            echo "✗ NOTIVISA_SANDBOX_URL secret not set"
+            exit 1
+          fi
+          if [ -z "$NOTIVISA_SANDBOX_KEY" ]; then
+            echo "✗ NOTIVISA_SANDBOX_KEY secret not set"
+            exit 1
+          fi
+          echo "✓ Sandbox endpoints configured"
+          echo "URL: ${NOTIVISA_SANDBOX_URL:0:40}..."
+          echo "KEY: ${NOTIVISA_SANDBOX_KEY:0:10}..."
+
+      # ─────────────────────────────────────────────────────────────────────
+      # 3. Type Checking
+      # ─────────────────────────────────────────────────────────────────────
+
+      - name: Type-check (tsc --noEmit)
+        working-directory: ${{ env.FUNCTIONS_DIR }}
+        run: npx tsc --noEmit
+
+      # ─────────────────────────────────────────────────────────────────────
+      # 4. Run Integration Tests
+      # ─────────────────────────────────────────────────────────────────────
+
+      - name: Run NOTIVISA sandbox integration tests
+        working-directory: ${{ env.FUNCTIONS_DIR }}
+        env:
+          NOTIVISA_SANDBOX_URL: ${{ secrets.NOTIVISA_SANDBOX_URL }}
+          NOTIVISA_SANDBOX_KEY: ${{ secrets.NOTIVISA_SANDBOX_KEY }}
+          NODE_ENV: test
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "  NOTIVISA Sandbox Integration Tests"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          npm run test -- \
+            --testNamePattern="integration-sandbox" \
+            --testPathPattern="notivisa" \
+            --coverage \
+            --coveragePathIgnorePatterns="/node_modules/,/dist/" \
+            --maxWorkers=2 \
+            --verbose
+
+      # ─────────────────────────────────────────────────────────────────────
+      # 5. Validate Payloads
+      # ─────────────────────────────────────────────────────────────────────
+
+      - name: Validate test payloads against schema
+        working-directory: ${{ env.FUNCTIONS_DIR }}
+        run: |
+          npx ts-node --project tsconfig.json \
+            -e "
+            import { sandboxTestPayloads, getAllSandboxPayloads } from './src/modules/notivisa/__tests__/fixtures/sandbox-test-payloads';
+            import { validateNotivisaPayload } from './src/modules/notivisa/http/payloadBuilder';
+
+            const payloads = getAllSandboxPayloads();
+            console.log('Validating ' + payloads.length + ' test payloads...');
+
+            payloads.forEach((p, i) => {
+              try {
+                validateNotivisaPayload(p);
+                console.log('✓ Payload ' + (i + 1) + ' valid');
+              } catch (e) {
+                console.error('✗ Payload ' + (i + 1) + ' invalid:', e.message);
+                process.exit(1);
+              }
+            });
+
+            console.log('✓ All ' + payloads.length + ' payloads valid');
+            "
+
+      # ─────────────────────────────────────────────────────────────────────
+      # 6. Connectivity Test
+      # ─────────────────────────────────────────────────────────────────────
+
+      - name: Test NOTIVISA sandbox connectivity
+        env:
+          NOTIVISA_SANDBOX_URL: ${{ secrets.NOTIVISA_SANDBOX_URL }}
+          NOTIVISA_SANDBOX_KEY: ${{ secrets.NOTIVISA_SANDBOX_KEY }}
+        run: |
+          echo "Testing connectivity to NOTIVISA sandbox..."
+          HEALTH_URL="${NOTIVISA_SANDBOX_URL%/}/health"
+
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -H "Authorization: Bearer ${NOTIVISA_SANDBOX_KEY}" \
+            -H "Content-Type: application/json" \
+            "${HEALTH_URL}" || echo "000")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+
+          echo "HTTP Status: $HTTP_CODE"
+          echo "Response: $BODY"
+
+          if [[ "$HTTP_CODE" =~ ^[2-4][0-9]{2}$ ]]; then
+            echo "✓ Sandbox API is reachable"
+          else
+            echo "✗ Sandbox API is unreachable (HTTP $HTTP_CODE)"
+            exit 1
+          fi
+
+      # ─────────────────────────────────────────────────────────────────────
+      # 7. Coverage Report
+      # ─────────────────────────────────────────────────────────────────────
+
+      - name: Generate coverage report
+        working-directory: ${{ env.FUNCTIONS_DIR }}
+        if: always()
+        run: |
+          if [ -d "coverage" ]; then
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "  Coverage Summary (NOTIVISA Sandbox)"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            if [ -f "coverage/coverage-summary.json" ]; then
+              npx nyc report --reporter=text --report-dir=coverage || true
+            fi
+          fi
+
+      # ─────────────────────────────────────────────────────────────────────
+      # 8. Upload Artifacts
+      # ─────────────────────────────────────────────────────────────────────
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: notivisa-sandbox-test-results
+          path: |
+            functions/coverage/
+            functions/test-results/
+          retention-days: 30
+
+      # ─────────────────────────────────────────────────────────────────────
+      # 9. Summary & Notification
+      # ─────────────────────────────────────────────────────────────────────
+
+      - name: Test summary
+        if: always()
+        run: |
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "  NOTIVISA Sandbox Integration Test Run Summary"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "Environment:"
+          echo "  Project ID: ${{ env.PROJECT_ID }}"
+          echo "  Lab ID: ${{ github.event.inputs.lab_id }}"
+          echo "  Node Version: ${{ env.NODE_VERSION }}"
+          echo "  Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo ""
+          echo "Tests:"
+          echo "  Suite: NOTIVISA Sandbox Integration (18 tests)"
+          echo "  Payload Fixtures: 6 realistic payloads"
+          echo "  HTTP Client: Retry logic + timeout handling"
+          echo "  Payload Builder: Zod validation + edge cases"
+          echo ""
+          echo "Artifacts:"
+          echo "  Coverage reports uploaded to: notivisa-sandbox-test-results"
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "⚠ NOTIVISA Sandbox Integration Tests FAILED"
+          echo ""
+          echo "Check logs above for details."
+          echo "Common issues:"
+          echo "  1. Sandbox endpoint unreachable (check NOTIVISA_SANDBOX_URL secret)"
+          echo "  2. Invalid API key (check NOTIVISA_SANDBOX_KEY secret)"
+          echo "  3. Payload validation error (see test output above)"
+          echo "  4. Network timeout (sandbox may be under maintenance)"
+          exit 1
+
+# ─────────────────────────────────────────────────────────────────────────
+# Concurrency: Only allow one workflow run at a time
+# ─────────────────────────────────────────────────────────────────────────
+
+concurrency:
+  group: notivisa-sandbox-tests
+  cancel-in-progress: true

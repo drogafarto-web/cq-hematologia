@@ -113,6 +113,20 @@ service cloud.firestore {
         && get(statusPath).data.hasActiveSupervisor == true;
     }
 
+    // hasActiveRT(labId) — RDC 978/2025 Art. 22 enforcement.
+    // Reads /labs/{labId}/rt-presenca/current (server-only cache;
+    // rtPresenceCheckin / rtPresenceCheckout Cloud Functions maintain it).
+    // FAIL-CLOSED: if the cache doc doesn't exist or hasActiveRT != true,
+    // returns false and blocks critical writes (criticos thresholds, bioquimica runs,
+    // CEQ submissions). Each lab must bootstrap rt-presenca/current doc via
+    // initial RT checkin before launching critical workflows.
+    // SuperAdmin bypass remains for incident response.
+    function hasActiveRT(labId) {
+      let statusPath = /databases/$(database)/documents/labs/$(labId)/rt-presenca/current;
+      return exists(statusPath)
+        && get(statusPath).data.hasActiveRT == true;
+    }
+
     // ── /users ────────────────────────────────────────────────────────────────
 
     match /users/{userId} {
@@ -658,6 +672,23 @@ service cloud.firestore {
 
         allow read: if isActiveMemberOfLab(labId);
         allow create, update, delete: if false;  // Via risks_* callables only
+      }
+
+      // ── rt-presenca (Phase 6 / Wave 4 — RDC 978 Art. 22) ──────────────────
+      // RT presence status — server-side cache of active RT check-in.
+      // DL-1: all writes via rtPresenceCheckin / rtPresenceCheckout callables only.
+      // Client reads to display indicator + duration timer.
+      match /rt-presenca/{presencaId} {
+        allow read: if isActiveMemberOfLab(labId);
+        allow create, update, delete: if false;  // Via rtPresence_* callables only
+      }
+
+      // ── rt-presenca-events (Phase 6 / Wave 4 — RDC 978 Art. 22) ────────────
+      // Audit trail for RT presence sessions — chain-hashed event log.
+      // Append-only, immutable after creation (RDC 978/2025 Art. 22 audit trail).
+      match /rt-presenca-events/{eventId} {
+        allow read: if isActiveMemberOfLab(labId) && isAdminOrOwner(labId);
+        allow create, update, delete: if false;  // Via rtPresence_* callables only
       }
     }
 
@@ -1632,7 +1663,10 @@ service cloud.firestore {
 
       match /bioquimica/root/runs/{runId} {
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
-        allow create, update: if false;  // Via recordRunBioquimica callable (Plan 09-04)
+        // RDC 978/2025 Art. 22: RT must be present to record runs.
+        // Callable recordRunBioquimica validates hasActiveRT server-side.
+        allow create, update: if isSuperAdmin() ||
+                               (isActiveMemberOfLab(labId) && hasActiveRT(labId));
         allow delete: if false;
       }
 
@@ -1804,10 +1838,11 @@ service cloud.firestore {
       // Configuração de limiares críticos por analito.
       // Lab admin define ranges; detectCriticalValue compara resultados.
       // Soft-delete only.
+      // RDC 978/2025 Art. 22: RT must be present to create/update thresholds.
       match /criticos-thresholds/{thresholdId} {
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow create, update: if isSuperAdmin() ||
-                               (isActiveMemberOfLab(labId) && isAdminOrOwner(labId)) &&
+                               (isActiveMemberOfLab(labId) && isAdminOrOwner(labId) && hasActiveRT(labId)) &&
                                request.resource.data.labId == labId;
         allow delete: if false;  // Soft-delete only
       }
@@ -1981,6 +2016,133 @@ service cloud.firestore {
         allow write: if false;  // Via syncMedicosWorklab callable only
       }
 
+      // ── ADR 0003: Nao-Conformidade (Non-Conformidade) ──────────────────────
+      // Global NC spine: every lab can track NCs for quality management
+      // RDC 978 Art. 134 (tratamento de desvios), DICQ 4.5 (NC management)
+      match /labs/{labId}/nao-conformidades/{ncId} {
+        // Create: Lab member only, HMAC required (ADR 0005)
+        allow create: if isActiveMemberOfLab(labId)
+                      && request.resource.data.numero != null
+                      && request.resource.data.descricao != null
+                      && request.resource.data.severidade in ['leve', 'grave', 'critica']
+                      && request.resource.data.hmac != null
+                      && request.resource.data.hmac is string
+                      && request.resource.data.hmac.size() == 64;
+
+        // Read: All lab members can read NCs (compliance visibility)
+        allow read: if isActiveMemberOfLab(labId);
+
+        // Update: Responsável Técnico or Admin only (status transitions, CAPA)
+        allow update: if isActiveMemberOfLab(labId)
+                      && (request.auth.token.responsavelTecnico == true ||
+                          isAdminOrOwner(labId))
+                      && request.resource.data.hmac != null
+                      && request.resource.data.hmac is string
+                      && request.resource.data.hmac.size() == 64;
+
+        // Delete: Not allowed (immutable for audit trail)
+        allow delete: if false;
+
+        // ── Status History: Append-only signed entries ──────────────────────
+        // Each NC must maintain an immutable history of status changes
+        // Every entry is signed with HMAC for non-repudiation
+        match /statusHistory/{entryId} {
+          // Create: Lab member, entry must have HMAC
+          allow create: if isActiveMemberOfLab(labId)
+                        && request.resource.data.timestamp != null
+                        && request.resource.data.novoStatus != null
+                        && request.resource.data.mudadoPor != null
+                        && request.resource.data.hmac != null
+                        && request.resource.data.hmac is string
+                        && request.resource.data.hmac.size() == 64;
+
+          // Read: Lab member
+          allow read: if isActiveMemberOfLab(labId);
+
+          // Append-only: Update/delete never allowed
+          allow update: if false;
+          allow delete: if false;
+        }
+      }
+
+      // ── ADR 0004: POP Versionado (Procedimentos Operacionais Padrão) ──────
+      // Document control for SOPs (procedures, work instructions)
+      // Versioning: Draft (em_revisao) → Active (ativa) → Obsolete (obsoleta)
+      // RDC 978 Art. 88 (POP adequação), DICQ 4.3.2 (document control)
+      match /labs/{labId}/pops/{popId} {
+        // Read: All lab members can read POPs (operational necessity)
+        allow read: if isActiveMemberOfLab(labId);
+
+        // Create: Admin only (document control responsibility)
+        allow create: if isActiveMemberOfLab(labId)
+                      && (request.auth.token.admin == true ||
+                          request.auth.token.isSuperAdmin == true)
+                      && request.resource.data.nome != null
+                      && request.resource.data.codigo != null;
+
+        // Update: Responsável Técnico or Admin only
+        // Typically used to update conteudo, not version status
+        allow update: if isActiveMemberOfLab(labId)
+                      && (request.auth.token.responsavelTecnico == true ||
+                          request.auth.token.admin == true ||
+                          request.auth.token.isSuperAdmin == true);
+
+        // Delete: Not allowed (immutable for audit trail)
+        allow delete: if false;
+
+        // ── POP Versions: Drafted, signed, activated ────────────────────────
+        // Versioning lifecycle: em_revisao (awaiting RT sig) → ativa → obsoleta
+        match /versoes/{vId} {
+          // Read: All lab members (must check current version for compliance)
+          allow read: if isActiveMemberOfLab(labId);
+
+          // Create: Admin only (prepare version for RT review)
+          allow create: if isActiveMemberOfLab(labId)
+                        && (request.auth.token.admin == true ||
+                            request.auth.token.isSuperAdmin == true)
+                        && request.resource.data.numero != null
+                        && request.resource.data.hashConteudo != null
+                        && request.resource.data.status in ['em_revisao', 'ativa']
+                        && request.resource.data.dataVigenciaInicio != null
+                        && request.resource.data.dataVigenciaFim != null;
+
+          // Update: Responsável Técnico only (sign version)
+          // Signature updates: assinadaPor + hmac + mark ativa/obsoleta
+          allow update: if isActiveMemberOfLab(labId)
+                        && request.auth.token.responsavelTecnico == true
+                        && request.resource.data.assinadaPor.hmac != null
+                        && request.resource.data.assinadaPor.hmac is string
+                        && request.resource.data.assinadaPor.hmac.size() == 64;
+
+          // Delete: Not allowed (immutable for audit trail)
+          allow delete: if false;
+        }
+
+        // ── Training records: Track operator qualification ──────────────────
+        // Operator must have valid training on current POP version to operate
+        match /treinamentos/{treinId} {
+          // Read: Lab members (check own training status)
+          allow read: if isActiveMemberOfLab(labId);
+
+          // Create: Responsável Técnico or Admin (record training completion)
+          allow create: if isActiveMemberOfLab(labId)
+                        && (request.auth.token.responsavelTecnico == true ||
+                            request.auth.token.admin == true)
+                        && request.resource.data.operadorUid != null
+                        && request.resource.data.popVersaoNumero != null
+                        && request.resource.data.dataConcluso != null
+                        && request.resource.data.validoAte != null;
+
+          // Update: Responsável Técnico or Admin (update expiration if renewal)
+          allow update: if isActiveMemberOfLab(labId)
+                        && (request.auth.token.responsavelTecnico == true ||
+                            request.auth.token.admin == true);
+
+          // Delete: Not allowed (immutable for audit trail)
+          allow delete: if false;
+        }
+      }
+
       // ── /users/{userId}/privacyAceites — Privacy Policy Acceptance Tracking ──
       // User acceptance records per policy version. Scoped to /users/{userId}
       // (not under /labs/) because acceptance is personal, not lab-specific.
@@ -2103,6 +2265,58 @@ service cloud.firestore {
     allow create: if request.auth.token.portal == true;
     allow update: if false;  // Immutable after submission
     allow delete: if false;  // Soft-delete only for LGPD
+  }
+
+  // ── /laudos/{labId}/extractions/{laudoId} — Laudo OCR Extraction Results ──
+  // RDC 978 Art. 167: OCR extraction of fields 10–12 (observações + signatures)
+  // Phase 6: Automated extraction via Gemini Vision + manual fallback
+  //
+  // Created by: extractLaudoFieldsCallable (auto) or saveLaudoFieldsManuallyCallable (manual)
+  // Read by: RT (own lab), Auditor (own lab), Admin/Owner (own lab)
+  // Delete: never (immutable extraction history for audit trail)
+  //
+  // Audit trail: field source ('auto' or 'manual'), geminiLatencyMs, confidence scores
+  match /laudos/{labId}/extractions/{laudoId} {
+    // Read: RT, Auditor, Admin, Owner with lab membership
+    allow read: if isActiveMemberOfLab(labId) &&
+                (getMemberRole(labId) in ['rt', 'auditor', 'admin', 'owner']);
+
+    // Create: Cloud Functions only (client cannot write directly)
+    // Extraction is stored server-side by callable after Gemini processing
+    allow create: if false;
+
+    // Update: Cloud Functions only (if correction needed, create new extraction + soft-delete old)
+    allow update: if false;
+
+    // Delete: never — immutable audit trail (RDC 978)
+    allow delete: if false;
+
+    // Audit subcollection (immutable event log)
+    match /auditLog/{logId} {
+      allow read: if parent.read;
+      allow create: if false;  // Callable writes via batch
+      allow update, delete: if false;
+    }
+  }
+
+  // ── /consents/{labId}/patients/{patientId} — LGPD Consent for AI Processing ──
+  // Phase 6: Consent gate for Gemini Vision OCR (LGPD Art. 9 — explicit opt-in)
+  // Client: sets iaProcessing, consentVersion, etc. when patient agrees
+  // Server: consentGate() function checks iaProcessing == true before Gemini call
+  match /consents/{labId}/patients/{patientId} {
+    // Read: Patient (own consent), RT, Admin, Auditor in lab
+    allow read: if isActiveMemberOfLab(labId) ||
+                (request.auth.uid == patientId);  // Patient can view own consent
+
+    // Create/Update: Patient consent via portal (client-initiated)
+    // OR RT/Admin can set on behalf of patient (with explicit operator_id audit trail)
+    allow create, update: if (isActiveMemberOfLab(labId) &&
+                             getMemberRole(labId) in ['rt', 'admin', 'owner']) ||
+                            (request.auth.uid == patientId &&
+                             request.resource.data.iaProcessing in [true, false]);
+
+    // Delete: never (consent history immutable)
+    allow delete: if false;
   }
 
 }

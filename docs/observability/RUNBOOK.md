@@ -366,4 +366,266 @@ CRITICAL (A4, A6)
 
 ---
 
-**Last Updated:** 2026-05-08 | **Version:** 1.4-rc1 | **Owner:** Wave 2 Agent 5 (initial); CTO (ongoing)
+## Troubleshooting: Alert Not Firing (Extended)
+
+### Diagnostic checklist
+
+**When A1/A3/A4 alert isn't firing but you expect it to:**
+
+1. **Confirm policy is enabled:**
+   ```bash
+   gcloud alpha monitoring policies describe <policy-name> \
+     --project=hmatologia2 | grep "enabled"
+   ```
+   If `enabled: false`, activate:
+   ```bash
+   gcloud alpha monitoring policies update <policy-name> \
+     --enabled=true --project=hmatologia2
+   ```
+
+2. **Confirm notification channel is configured:**
+   ```bash
+   gcloud alpha monitoring policies describe <policy-name> \
+     --project=hmatologia2 | grep -A5 "notificationChannels"
+   ```
+   If empty or shows placeholders, the policy was partially activated. Update with correct channel IDs:
+   ```bash
+   gcloud alpha monitoring channels list --format=json --project=hmatologia2 | \
+     jq '.[] | {id: .name, displayName}'
+   ```
+
+3. **Verify log filter matches actual logs:**
+   Open [Cloud Logs Explorer](https://console.cloud.google.com/logs/query) in GCP Console.
+   Paste the policy's filter (see below). If no results appear within last 1h, logs aren't being emitted.
+
+   **A1 filter (copy-paste into Log Explorer):**
+   ```
+   resource.type="cloud_function"
+   resource.labels.region="southamerica-east1"
+   severity="ERROR"
+   textPayload:"[writeAuditLog] FAILED after retries"
+   ```
+
+   **A3 filter:**
+   ```
+   resource.type="cloud_function"
+   resource.labels.function_name="classifyStripGemini"
+   severity="ERROR"
+   (textPayload:"consent-not-captured" OR jsonPayload.message:"consent-not-captured")
+   ```
+
+   **A4 filter:**
+   ```
+   resource.type="cloud_function"
+   severity="ERROR"
+   (textPayload:"[generateChainHash] previous hash mismatch"
+    OR textPayload:"[verifyChainHash] mismatch"
+    OR textPayload:"chain-hash-mismatch")
+   ```
+
+   If filter returns 0 results: logs aren't being emitted (expected if function isn't invoked), or log format changed.
+
+4. **Check alert notification rate limits:**
+   Alerts have `notificationRateLimit` periods. If an alert fired 10 min ago, it may be silenced until period expires.
+
+   | Policy | Rate Limit | Duration |
+   |--------|-----------|----------|
+   | A1 | 3600s (1h) | Once per hour after first fire |
+   | A3 | 1800s (30m) | Once per 30 min after first fire |
+   | A4 | 60s | Once per minute (CRITICAL, aggressive) |
+
+   To force a re-test, modify the policy to reduce the limit temporarily:
+   ```bash
+   # Edit the JSON policy file, change notificationRateLimit.period to "0s"
+   gcloud alpha monitoring policies update <policy-name> \
+     --update-from-file=<modified-policy.json> --project=hmatologia2
+   # Restore period when done
+   ```
+
+5. **Check notification channel delivery:**
+   Verify the Slack/Email/PagerDuty integration is working:
+   ```bash
+   # List channels and their status
+   gcloud alpha monitoring channels list --format=json --project=hmatologia2 | \
+     jq '.[] | {displayName, type, verified}'
+   ```
+
+   If `verified: false`, the channel integration has issues. Recreate it.
+
+6. **Enable debug logging:**
+   For functions, check if logging is actually happening:
+   ```bash
+   gcloud functions logs read <function-name> \
+     --region=southamerica-east1 \
+     --project=hmatologia2 \
+     --limit=20
+   ```
+
+### Common root causes
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| "Policy doesn't exist" | Never created or deleted | Re-run `bash scripts/activate-cloud-logs-alerts.sh` |
+| Policy exists but `enabled: false` | Partial activation / Wave 3 wait | `gcloud ... --enabled=true ...` |
+| "No logs match filter" | Function not invoked / log format wrong | Manually trigger function, check log format |
+| "Channel verification failed" | Slack token expired / PagerDuty key wrong | Recreate channel with valid credentials |
+| "Alert fired but no notification" | Channel delivery failed / rate-limited | Check channel status, adjust rate limit if needed |
+
+---
+
+## Escalation Matrix (Severity Levels)
+
+Use this matrix to determine **who to page** and **how quickly** for each alert severity.
+
+### Green (informational)
+
+Conditions: None of the policies are in an alert state.
+
+**Action:** Monitor regularly but no immediate response needed.
+
+### Yellow (warning — A1, A5)
+
+Conditions: A WARNING alert has fired.
+
+| Role | SLA | Action |
+|------|-----|--------|
+| On-call eng | Acknowledge within 15 min | Open runbook, diagnose root cause, begin mitigation |
+| Escalation | If unresolved after 2h | Page CTO + RT for high-severity warnings |
+
+**Notification:** Slack `#alerts-prod` or `#hmatologia2-incidents`
+
+### Red (error — A2, A3)
+
+Conditions: An ERROR alert has fired.
+
+| Role | SLA | Action |
+|------|-----|--------|
+| On-call eng | Acknowledge within 5 min | Page primary owner (RT for A2/A3-clinical, DPO for A3-privacy) |
+| RT / DPO | Acknowledge within 10 min | Begin active mitigation (see policy runbook section) |
+| CTO | Escalated if unresolved after 1h | Incident bridge + decision authority |
+
+**Notification:** PagerDuty (primary owner) + Slack (team awareness)
+
+### Black (critical — A4, A6)
+
+Conditions: A CRITICAL alert has fired (only A4 and A6).
+
+| Role | SLA | Action |
+|------|-----|--------|
+| CTO | Acknowledge within **5 min** — by phone | **STOP. DO NOT PROCEED WITH OTHER WORK.** Activate incident bridge immediately. |
+| RT / DPO | Acknowledge within 5 min | Join CTO bridge. Begin forensics per runbook. |
+| Incident commander | Immediately | Assume decision authority. Legal/compliance notification clock starts (72h for RDC/LGPD). |
+
+**Notification:** PagerDuty (CTO on-call) + Phone call (if no ack) + `#incident-critical` Slack
+
+---
+
+## On-Call Contact Rotation
+
+**To populate before 2026-05-20 launch:**
+
+| Role | Contact | Phone | Slack | Fallback |
+|------|---------|-------|-------|----------|
+| On-call eng (week 1) | [NAME] | [PHONE] | [HANDLE] | [BACKUP CONTACT] |
+| On-call eng (week 2) | [NAME] | [PHONE] | [HANDLE] | [BACKUP CONTACT] |
+| RT clinical (primary) | [NAME] | [PHONE] | [HANDLE] | [BACKUP CONTACT] |
+| DPO (privacy lead) | [NAME] | [PHONE] | [HANDLE] | [BACKUP CONTACT] |
+| CTO (founder) | [NAME] | [PHONE] | [HANDLE] | N/A (primary) |
+
+**4-week rotation template:**
+
+```
+Week 1 (May 20–26, 2026):   Eng A on-call
+Week 2 (May 27–Jun 02):     Eng B on-call
+Week 3 (Jun 03–09):         Eng C on-call
+Week 4 (Jun 10–16):         Eng A on-call (repeat)
+```
+
+---
+
+## Incident Response Templates
+
+### Quick-reference card (print & laminate)
+
+```
+╔═══════════════════════════════════════════════════╗
+║  HC QUALITY INCIDENT RESPONSE — QUICK CARD        ║
+║  Post at desk of on-call engineer                 ║
+╚═══════════════════════════════════════════════════╝
+
+🚨 ALERT FIRES
+├─ Yellow (WARNING: A1, A5)
+│  └─ Acknowledge within 15 min
+│     → On-call eng starts diagnosis
+│     → Escalate to CTO if >2h unresolved
+│
+├─ Red (ERROR: A2, A3)
+│  └─ Acknowledge within 5 min
+│     → Page primary owner (RT or DPO)
+│     → CTO joins if >1h unresolved
+│
+└─ Black (CRITICAL: A4, A6)
+   └─ Acknowledge within 5 min BY PHONE
+      → STOP all other work
+      → Activate incident bridge
+      → Page CTO, RT, DPO immediately
+      → Regulatory clock starts (72h for RDC/LGPD)
+
+📖 RUNBOOK: docs/observability/RUNBOOK.md#a<N>-...
+💬 INCIDENT SLACK: #incident-critical (Black) or #hmatologia2-incidents (Yellow/Red)
+☎️  EMERGENCY: [CTO PHONE]
+```
+
+### Post-incident review template
+
+File as: `docs/incidents/YYYY-MM-DD-<ALERT-ID>-<SHORT-NAME>.md`
+
+```markdown
+# Incident Report — [Date] [Alert ID] [Name]
+
+## Incident Metadata
+
+| Field | Value |
+|-------|-------|
+| Alert | A<N> — [Name] |
+| Severity | CRITICAL / ERROR / WARNING |
+| Detection time | [ISO timestamp] |
+| Resolution time | [ISO timestamp] |
+| Duration | [minutes] |
+| Regulatory impact | Yes / No |
+
+## Timeline
+
+- **T+0min:** Alert fired at [time]. [Role] acknowledged.
+- **T+Xmin:** Root cause identified: [cause].
+- **T+Ymin:** Mitigation started: [action].
+- **T+Zmin:** All-clear: [verification].
+
+## Root Cause
+
+[Description of what went wrong, why, and evidence]
+
+## Mitigation
+
+[What did we do to fix it immediately?]
+
+## Prevention
+
+[What will we change to prevent recurrence?]
+
+## Regulatory Notification
+
+- ANVISA / ANPD notification required: Yes / No
+- Notification sent: [Date/Time] / Pending
+- Runbook reference: [Link]
+
+---
+
+**Owner:** [Your Name]  
+**Reviewed by:** [CTO / RT / DPO]  
+**Date:** [YYYY-MM-DD]
+```
+
+---
+
+**Last Updated:** 2026-05-08 | **Version:** 1.4 Extended | **Owner:** Wave 4 Agent 7 (extended); Wave 2 Agent 5 (original); CTO (ongoing)

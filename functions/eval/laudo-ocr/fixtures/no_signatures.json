@@ -1,0 +1,21 @@
+{
+  "prompt": "Você está analisando um laudo clínico (relatório de resultado de laboratório). [Image: clinical report draft with no signatures yet]",
+  "expectedOutput": {
+    "field10": {
+      "text": "Resultados de hemograma completo: glóbulos vermelhos, hemoglobina e hematócrito dentro dos parâmetros normais.",
+      "confidence": "high"
+    },
+    "field11": {
+      "detected": false,
+      "confidence": "high",
+      "notes": "Sem assinatura/carimbo visível — laudo ainda não assinado pelo RT"
+    },
+    "field12": {
+      "detected": false,
+      "dateText": null,
+      "confidence": "high",
+      "notes": "Sem assinatura/carimbo visível — laudo em rascunho"
+    },
+    "overallConfidence": "high"
+  }
+}
