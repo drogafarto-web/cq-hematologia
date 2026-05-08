@@ -178,7 +178,12 @@
       "Bash(sort -k2)",
       "Bash(Select-Object -ExpandProperty Name)",
       "Bash(Sort-Object)",
-      "Bash([ -d \"C:/hc quality/src/features/$dir\" ])"
+      "Bash([ -d \"C:/hc quality/src/features/$dir\" ])",
+      "Bash(Sort-Object LastWriteTime -Descending)",
+      "Bash(Select-Object -First 20 FullName, LastWriteTime)",
+      "Read(//c/hc quality/src/features/patient-portal/**)",
+      "Bash(echo \"portal-portal files: $\\(find 'C:\\\\\\\\hc quality\\\\\\\\src\\\\\\\\features\\\\\\\\patient-portal' -type f)",
+      "Bash(cd \"C:\\\\\\\\hc quality\")"
     ]
   },
   "model": "haiku",

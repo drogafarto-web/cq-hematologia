@@ -185,3 +185,77 @@ export const RejectNotivisaDraftInputSchema = z.object({
 });
 
 export type RejectNotivisaDraftInput = z.infer<typeof RejectNotivisaDraftInputSchema>;
+
+/**
+ * updateResultStatus — mark result as reviewed/released (Phase 4, callable 5)
+ */
+export const UpdateResultStatusInputSchema = z.object({
+  labId: z.string().min(1),
+  submissionId: z.string().min(1),
+  action: z.enum(['review', 'release']),
+  signature: LogicalSignatureSchema,
+});
+
+export type UpdateResultStatusInput = z.infer<typeof UpdateResultStatusInputSchema>;
+
+/**
+ * fetchTestResults — retrieve completed test results (Phase 4, callable 6)
+ */
+export const FetchTestResultsInputSchema = z.object({
+  labId: z.string().min(1),
+  filters: z
+    .object({
+      status: z.enum(['received', 'reviewed', 'released']).optional(),
+      dateRange: z
+        .object({
+          startTs: z.number().int().positive(),
+          endTs: z.number().int().positive(),
+        })
+        .optional(),
+      pacienteCpf: z.string().regex(/^\d{11}$/).optional(),
+      submissionId: z.string().optional(),
+    })
+    .optional(),
+  pageSize: z.number().int().min(1).max(100).default(20),
+  pageToken: z.string().optional(),
+});
+
+export type FetchTestResultsInput = z.infer<typeof FetchTestResultsInputSchema>;
+
+/**
+ * validateAuthorization — check NOTIVISA permissions (Phase 4, callable 7)
+ */
+export const ValidateAuthorizationInputSchema = z.object({
+  labId: z.string().min(1),
+});
+
+export type ValidateAuthorizationInput = z.infer<typeof ValidateAuthorizationInputSchema>;
+
+/**
+ * logAuditTrail — immutable event logging (Phase 4, callable 8)
+ */
+export const LogAuditTrailInputSchema = z.object({
+  labId: z.string().min(1),
+  eventType: z.enum([
+    'DRAFT_CREATED',
+    'DRAFT_SUBMITTED',
+    'DRAFT_APPROVED',
+    'DRAFT_REJECTED',
+    'REQUISITION_SENT',
+    'RESULT_RECEIVED',
+    'RESULT_REVIEWED',
+    'RESULT_RELEASED',
+    'ARCHIVE_EXPORTED',
+    'CONFIG_CHANGED',
+    'AUTH_FAILED',
+    'DATA_ACCESS',
+    'PERMISSION_GRANTED',
+    'PERMISSION_REVOKED',
+    'SYSTEM_EVENT',
+  ]),
+  resourceId: z.string().min(1),
+  details: z.record(z.any()).optional(),
+  signature: LogicalSignatureSchema,
+});
+
+export type LogAuditTrailInput = z.infer<typeof LogAuditTrailInputSchema>;

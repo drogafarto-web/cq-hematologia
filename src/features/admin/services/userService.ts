@@ -89,6 +89,8 @@ export async function removeUserFromLab(labId: string, uid: string): Promise<voi
 export async function addUserToLab(uid: string, labId: string, role: UserRole): Promise<void> {
   const fn = httpsCallable(functions, 'addUserToLab');
   await fn({ targetUid: uid, labId, role });
+  // Sincroniza claims imediatamente após adicionar ao lab
+  await syncModuleClaimsForUser(uid);
 }
 
 export async function updateUserLabRole(uid: string, labId: string, role: UserRole): Promise<void> {
@@ -99,6 +101,20 @@ export async function updateUserLabRole(uid: string, labId: string, role: UserRo
 export async function deleteUserViaFunction(uid: string): Promise<void> {
   const fn = httpsCallable(functions, 'deleteUser');
   await fn({ targetUid: uid });
+}
+
+/**
+ * Sincroniza a claim `modules` para um usuário específico e força refresh do token.
+ * Deve ser chamada APÓS adicionar/modificar membership em um lab.
+ *
+ * Sem isso, o usuário não consegue acessar módulos mesmo sendo membro ativo
+ * (RDC 978/2025 — auditoria de claims obrigatória).
+ */
+export async function syncModuleClaimsForUser(uid: string): Promise<void> {
+  const fn = httpsCallable(functions, 'provisionModulesClaims');
+  await fn({ targetUid: uid, dryRun: false });
+  // Força refresh do token imediatamente
+  await auth.currentUser?.getIdToken(/* forceRefresh */ true);
 }
 
 // ─── Cloud Function callables ─────────────────────────────────────────────────
