@@ -20,6 +20,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 import { generateCtSignatureServer, type LogicalSignature } from './signatureCanonical';
 import {
   assertCtAccess,
@@ -182,23 +183,18 @@ export const ct_commitLeitura = onCall<unknown, Promise<CommitLeituraResult>>(
 
     await batch.commit();
 
-    // Audit non-blocking
-    admin
-      .firestore()
-      .collection('auditLogs')
-      .add({
-        action: 'CT_COMMIT_LEITURA',
-        callerUid: uid,
-        labId: input.labId,
-        payload: {
-          equipamentoId: input.equipamentoId,
-          leituraId: leituraRef.id,
-          ncId,
-          foraDosLimites: avaliacao.fora,
-        },
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      })
-      .catch(() => {});
+    // Audit — best-effort with retry + fallback
+    await writeAuditLog({
+      action: 'CT_COMMIT_LEITURA',
+      callerUid: uid,
+      labId: input.labId,
+      payload: {
+        equipamentoId: input.equipamentoId,
+        leituraId: leituraRef.id,
+        ncId,
+        foraDosLimites: avaliacao.fora,
+      },
+    });
 
     return {
       ok: true,

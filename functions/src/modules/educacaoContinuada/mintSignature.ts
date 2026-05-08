@@ -11,13 +11,13 @@
  */
 
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
-import * as admin from 'firebase-admin';
 
 import {
   assertEcAccess,
   MintSignatureInputSchema,
 } from './validators';
 import { generateEcSignatureServer } from './signatureCanonical';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 interface MintedSignatureWire {
   hash: string;
@@ -46,18 +46,13 @@ export const ec_mintSignature = onCall<unknown, Promise<{ signatures: MintedSign
       };
     });
 
-    // Audit non-blocking — alta cardinalidade aceitável (cap de 500 do schema)
-    admin
-      .firestore()
-      .collection('auditLogs')
-      .add({
-        action: 'EC_MINT_SIGNATURE',
-        callerUid: uid,
-        labId,
-        payload: { count: signatures.length },
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      })
-      .catch(() => {});
+    // Audit — best-effort com retry + fallback (alta cardinalidade aceitável, cap de 500 no schema)
+    await writeAuditLog({
+      action: 'EC_MINT_SIGNATURE',
+      callerUid: uid,
+      labId,
+      payload: { count: signatures.length },
+    });
 
     return { signatures };
   },

@@ -20,6 +20,7 @@
 
 import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import * as admin from 'firebase-admin';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 interface EtapaTrilhaRaw {
   templateId: string;
@@ -78,14 +79,11 @@ export const ec_onColaboradorCreated = onDocumentCreated(
         return d['trilhaId'] === trilhaDoc.id && d['deletadoEm'] === null;
       });
       if (jaTem) {
-        db.collection('auditLogs')
-          .add({
-            action: 'EC_RN08_TRIGGER_SKIP_EXISTING',
-            labId,
-            payload: { colaboradorId, trilhaId: trilhaDoc.id },
-            timestamp: admin.firestore.FieldValue.serverTimestamp(),
-          })
-          .catch(() => {});
+        await writeAuditLog({
+          action: 'EC_RN08_TRIGGER_SKIP_EXISTING',
+          labId,
+          payload: { colaboradorId, trilhaId: trilhaDoc.id },
+        });
         continue;
       }
 
@@ -106,19 +104,16 @@ export const ec_onColaboradorCreated = onDocumentCreated(
         deletadoEm: null,
       });
 
-      db.collection('auditLogs')
-        .add({
-          action: 'EC_RN08_TRIGGER_STARTED',
-          labId,
-          payload: {
-            colaboradorId,
-            trilhaId: trilhaDoc.id,
-            progressoId: progressoRef.id,
-            cargo: cargoRaw,
-          },
-          timestamp: admin.firestore.FieldValue.serverTimestamp(),
-        })
-        .catch(() => {});
+      await writeAuditLog({
+        action: 'EC_RN08_TRIGGER_STARTED',
+        labId,
+        payload: {
+          colaboradorId,
+          trilhaId: trilhaDoc.id,
+          progressoId: progressoRef.id,
+          cargo: cargoRaw,
+        },
+      });
     }
   },
 );

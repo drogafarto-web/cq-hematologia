@@ -13,6 +13,7 @@ import {
   ensureEcLabRoot,
 } from './validators';
 import { generateEcSignatureServer } from './signatureCanonical';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 interface CommitAdiadaResult {
   ok: true;
@@ -96,19 +97,16 @@ export const ec_commitExecucaoAdiada = onCall<unknown, Promise<CommitAdiadaResul
 
     await batch.commit();
 
-    db.collection('auditLogs')
-      .add({
-        action: 'EC_COMMIT_ADIADA',
-        callerUid: uid,
-        labId: input.labId,
-        payload: {
-          execucaoOriginalId: input.execucaoOriginalId,
-          novaExecucaoId: novaRef.id,
-          motivo: input.motivo,
-        },
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      })
-      .catch(() => {});
+    await writeAuditLog({
+      action: 'EC_COMMIT_ADIADA',
+      callerUid: uid,
+      labId: input.labId,
+      payload: {
+        execucaoOriginalId: input.execucaoOriginalId,
+        novaExecucaoId: novaRef.id,
+        motivo: input.motivo,
+      },
+    });
 
     return { ok: true, novaExecucaoId: novaRef.id };
   },

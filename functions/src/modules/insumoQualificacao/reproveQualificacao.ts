@@ -23,6 +23,7 @@ import {
   loadOperadorInfo,
 } from './validators';
 import { computeMovimentacaoQualificacaoSignature } from './signatureCanonical';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 interface ReproveResult {
   ok: true;
@@ -147,16 +148,13 @@ export const reproveQualificacao = onCall<unknown, Promise<ReproveResult>>(
 
     await batch.commit();
 
-    db.collection('auditLogs')
-      .add({
-        action: 'INSUMO_QUALIFICACAO_REPROVADO',
-        callerUid: uid,
-        labId,
-        targetId: q.insumoId,
-        payload: { qId, motivoReprovacao, notificarNotivisa },
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      })
-      .catch(() => {});
+    await writeAuditLog({
+      action: 'INSUMO_QUALIFICACAO_REPROVADO',
+      callerUid: uid,
+      labId,
+      targetId: q.insumoId,
+      payload: { qId, motivoReprovacao, notificarNotivisa },
+    });
 
     return { ok: true, qId, insumoId: q.insumoId };
   },

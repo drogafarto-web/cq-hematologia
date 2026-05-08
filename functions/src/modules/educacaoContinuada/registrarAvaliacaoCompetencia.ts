@@ -18,6 +18,7 @@ import {
   RegistrarCompetenciaInputSchema,
 } from './validators';
 import { generateEcSignatureServer } from './signatureCanonical';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 interface RegistrarCompetenciaResult {
   ok: true;
@@ -107,20 +108,17 @@ export const ec_registrarAvaliacaoCompetencia = onCall<
   const ref = ecCollection(db, input.labId, 'avaliacoesCompetencia').doc();
   await ref.set(doc);
 
-  db.collection('auditLogs')
-    .add({
-      action: 'EC_REGISTRAR_COMPETENCIA',
-      callerUid: uid,
-      labId: input.labId,
-      payload: {
-        avaliacaoId: ref.id,
-        execucaoId: input.execucaoId,
-        colaboradorId: input.colaboradorId,
-        resultado: input.resultado,
-      },
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    })
-    .catch(() => {});
+  await writeAuditLog({
+    action: 'EC_REGISTRAR_COMPETENCIA',
+    callerUid: uid,
+    labId: input.labId,
+    payload: {
+      avaliacaoId: ref.id,
+      execucaoId: input.execucaoId,
+      colaboradorId: input.colaboradorId,
+      resultado: input.resultado,
+    },
+  });
 
   return { ok: true, avaliacaoId: ref.id };
 });

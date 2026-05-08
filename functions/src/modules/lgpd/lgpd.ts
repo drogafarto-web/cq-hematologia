@@ -2,6 +2,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import * as admin from 'firebase-admin';
 import * as crypto from 'crypto';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 const db = admin.firestore();
 
@@ -63,16 +64,13 @@ export const criarSolicitacao = onCall(
 
       const ref = await db.collection(`labs/${labId}/lgpd-solicitacoes`).add(solicitacao);
 
-      // Audit log
-      db.collection('auditLogs')
-        .add({
-          action: 'LGPD_SOLICITACAO_CRIADA',
-          callerUid: request.auth.uid,
-          labId,
-          payload: { solicitacaoId: ref.id, tipo, titular_email },
-          timestamp: admin.firestore.FieldValue.serverTimestamp(),
-        })
-        .catch(() => {});
+      // Audit log — best-effort com retry + fallback
+      await writeAuditLog({
+        action: 'LGPD_SOLICITACAO_CRIADA',
+        callerUid: request.auth.uid,
+        labId,
+        payload: { solicitacaoId: ref.id, tipo, titular_email },
+      });
 
       return {
         success: true,
@@ -228,22 +226,19 @@ export const processarExclusao = onCall(
           colecoesSummary.map((c) => `${c.colecao}(${c.campo})=${c.count}`).join(', '),
       );
 
-      // Audit log
-      db.collection('auditLogs')
-        .add({
-          action: 'LGPD_EXCLUSAO_PROCESSADA',
-          callerUid: request.auth.uid,
-          labId,
-          payload: {
-            solicitacaoId,
-            usuario_id,
-            dadosAnonimizados: dadosExcluidos.length,
-            colecoesSummary,
-            batchesUsados: batches.length,
-          },
-          timestamp: admin.firestore.FieldValue.serverTimestamp(),
-        })
-        .catch(() => {});
+      // Audit log — best-effort com retry + fallback
+      await writeAuditLog({
+        action: 'LGPD_EXCLUSAO_PROCESSADA',
+        callerUid: request.auth.uid,
+        labId,
+        payload: {
+          solicitacaoId,
+          usuario_id,
+          dadosAnonimizados: dadosExcluidos.length,
+          colecoesSummary,
+          batchesUsados: batches.length,
+        },
+      });
 
       return {
         success: true,
@@ -297,16 +292,13 @@ export const gerarDPIA = onCall(
 
       const ref = await db.collection(`labs/${labId}/lgpd-dpia`).add(dpia);
 
-      // Audit
-      db.collection('auditLogs')
-        .add({
-          action: 'LGPD_DPIA_CRIADA',
-          callerUid: request.auth.uid,
-          labId,
-          payload: { dpiaId: ref.id, titulo },
-          timestamp: admin.firestore.FieldValue.serverTimestamp(),
-        })
-        .catch(() => {});
+      // Audit — best-effort com retry + fallback
+      await writeAuditLog({
+        action: 'LGPD_DPIA_CRIADA',
+        callerUid: request.auth.uid,
+        labId,
+        payload: { dpiaId: ref.id, titulo },
+      });
 
       return {
         success: true,

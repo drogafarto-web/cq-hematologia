@@ -16,6 +16,7 @@ const PDFDocument = require('pdfkit') as typeof import('pdfkit');
 import * as QRCode from 'qrcode';
 
 import { assertEcAccess, ecCollection, ensureEcLabRoot } from './validators';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 const GerarCertificadoInputSchema = z.object({
   labId: z.string().min(1),
@@ -145,19 +146,16 @@ export const ec_gerarCertificado = onCall<unknown, Promise<GerarCertificadoResul
       geradoPor: uid,
     });
 
-    db.collection('auditLogs')
-      .add({
-        action: 'EC_GERAR_CERTIFICADO',
-        callerUid: uid,
-        labId,
-        payload: {
-          certificadoId: certRef.id,
-          colaboradorId: av['colaboradorId'],
-          treinamentoId: exec['treinamentoId'],
-        },
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      })
-      .catch(() => {});
+    await writeAuditLog({
+      action: 'EC_GERAR_CERTIFICADO',
+      callerUid: uid,
+      labId,
+      payload: {
+        certificadoId: certRef.id,
+        colaboradorId: av['colaboradorId'],
+        treinamentoId: exec['treinamentoId'],
+      },
+    });
 
     return { ok: true, certificadoId: certRef.id, pdfDownloadUrl: downloadUrl, qrCodePayload };
   },

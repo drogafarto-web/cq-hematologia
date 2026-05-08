@@ -1,5 +1,6 @@
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import * as admin from 'firebase-admin';
+import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 const db = admin.firestore();
 
@@ -195,20 +196,17 @@ export const aggregateKPIs = onSchedule(
 
         console.log(`[KPI] Lab ${labId}: Aggregation complete (runs: ${totalRuns}, turnaround: ${turnaroundMedia.toFixed(1)}h)`);
 
-        // Audit
-        db.collection('auditLogs')
-          .add({
-            action: 'KPI_AGREGADO',
-            labId,
-            payload: {
-              runs: totalRuns,
-              turnaround: turnaroundMedia.toFixed(1),
-              retrabalho: retrabalhoPercentual.toFixed(1),
-              documentacao: documentacaoPercentual.toFixed(1),
-            },
-            timestamp: admin.firestore.FieldValue.serverTimestamp(),
-          })
-          .catch(() => {});
+        // Audit — best-effort com retry + fallback
+        await writeAuditLog({
+          action: 'KPI_AGREGADO',
+          labId,
+          payload: {
+            runs: totalRuns,
+            turnaround: turnaroundMedia.toFixed(1),
+            retrabalho: retrabalhoPercentual.toFixed(1),
+            documentacao: documentacaoPercentual.toFixed(1),
+          },
+        });
       } catch (error) {
         console.error(`Erro agregando KPIs para ${labId}:`, error);
       }
