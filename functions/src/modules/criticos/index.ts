@@ -16,6 +16,7 @@ import {
   checkMessageStatus,
   getSMSTemplate,
 } from '../../shared/sms/twilioClient';
+import { generateChainHash } from '../../shared/signature';
 import type {
   RegisterCriticoDetectionResponse,
   AcknowledgeEscalacaoResponse,
@@ -25,6 +26,66 @@ import type {
 } from './types';
 
 const db = admin.firestore();
+
+/**
+ * Build a chained logical signature for a CriticosLogEvento.
+ *
+ * Per ADR-0017 + RDC 978 Art. 128: every audit entry carries a 64-hex
+ * HMAC-SHA256 chain hash binding (operatorId, eventId, escalacaoId, tipo,
+ * timestamp, detalhes) to the prior event's hash for the same escalacao,
+ * making the trail tamper-evident.
+ *
+ * Returns both the signature (for the doc) and the previous event id
+ * (for `eventoAnteriorId` linkage). When no prior event exists, chain
+ * origin is null — matches ADR-0017 baseline-reset semantics.
+ */
+async function buildLogEventoSignature(params: {
+  labId: string;
+  escalacaoId: string;
+  eventoId: string;
+  tipo: CriticosLogEvento['tipo'];
+  detalhes: CriticosLogEvento['detalhes'];
+  operadorId: string;
+  ts: admin.firestore.Timestamp;
+}): Promise<{
+  assinatura: CriticosLogEvento['assinatura'];
+  eventoAnteriorId?: string;
+}> {
+  const { labId, escalacaoId, eventoId, tipo, detalhes, operadorId, ts } =
+    params;
+
+  // Fetch most recent prior event for this escalacao to chain against.
+  const priorSnap = await db
+    .collection('labs')
+    .doc(labId)
+    .collection('criticos-log-eventos')
+    .where('escalacaoId', '==', escalacaoId)
+    .orderBy('timestamp', 'desc')
+    .limit(1)
+    .get();
+
+  const prior = priorSnap.empty
+    ? null
+    : (priorSnap.docs[0].data() as CriticosLogEvento);
+  const previousHash = prior?.assinatura?.hash ?? null;
+  const eventoAnteriorId = prior?.id;
+
+  const hash = generateChainHash({
+    eventoId,
+    escalacaoId,
+    labId,
+    tipo,
+    operadorId,
+    tsMs: ts.toMillis(),
+    detalhes,
+    previousHash,
+  });
+
+  return {
+    assinatura: { hash, operatorId: operadorId, ts },
+    ...(eventoAnteriorId ? { eventoAnteriorId } : {}),
+  };
+}
 
 // ============================================================================
 // 2.1: registerCriticoDetection()
@@ -183,24 +244,33 @@ export const registerCriticoDetection = onCall(
         .collection('criticos-log-eventos')
         .doc();
 
+      const eventoTs = admin.firestore.Timestamp.now();
+      const detalhes = {
+        canal: 'SMS',
+        telefone_masked: `+55 98${medico.telefone.slice(-8)}`,
+        twilio_sid: smsResult.sid || 'FAILED',
+      };
+      const { assinatura, eventoAnteriorId } = await buildLogEventoSignature({
+        labId,
+        escalacaoId: escalacaoRef.id,
+        eventoId: eventoRef.id,
+        tipo: 'sms_enviado',
+        detalhes,
+        operadorId: request.auth.uid,
+        ts: eventoTs,
+      });
+
       const evento: CriticosLogEvento = {
         id: eventoRef.id,
         labId,
         escalacaoId: escalacaoRef.id,
         laudoId,
         tipo: 'sms_enviado',
-        detalhes: {
-          canal: 'SMS',
-          telefone_masked: `+55 98${medico.telefone.slice(-8)}`,
-          twilio_sid: smsResult.sid || 'FAILED',
-        },
-        timestamp: admin.firestore.Timestamp.now(),
+        detalhes,
+        timestamp: eventoTs,
         operadorId: request.auth.uid,
-        assinatura: {
-          hash: '', // Would generate hash
-          operatorId: request.auth.uid,
-          ts: admin.firestore.Timestamp.now(),
-        },
+        assinatura,
+        ...(eventoAnteriorId ? { eventoAnteriorId } : {}),
         deletadoEm: null,
       };
 
@@ -347,24 +417,33 @@ export const acknowledgeEscalacao = onCall(
         .collection('criticos-log-eventos')
         .doc();
 
+      const ackDetalhes = {
+        reconhecido_por: acknowledgedBy,
+        metodo: method,
+        tempo_sla_ms: tempoSlaMs,
+      };
+      const { assinatura: ackAssinatura, eventoAnteriorId: ackPriorId } =
+        await buildLogEventoSignature({
+          labId,
+          escalacaoId,
+          eventoId: eventoRef.id,
+          tipo: 'reconhecimento_manual',
+          detalhes: ackDetalhes,
+          operadorId: request.auth.uid,
+          ts: now,
+        });
+
       await eventoRef.set({
         id: eventoRef.id,
         labId,
         escalacaoId,
         laudoId: escalacao.laudoId,
         tipo: 'reconhecimento_manual',
-        detalhes: {
-          reconhecido_por: acknowledgedBy,
-          metodo: method,
-          tempo_sla_ms: tempoSlaMs,
-        },
+        detalhes: ackDetalhes,
         timestamp: now,
         operadorId: request.auth.uid,
-        assinatura: {
-          hash: '',
-          operatorId: request.auth.uid,
-          ts: now,
-        },
+        assinatura: ackAssinatura,
+        ...(ackPriorId ? { eventoAnteriorId: ackPriorId } : {}),
         deletadoEm: null,
       } as CriticosLogEvento);
 
@@ -472,23 +551,32 @@ export const escalacaoCriticos = onSchedule(
                 .collection('criticos-log-eventos')
                 .doc();
 
+              const slaDetalhes = {
+                sla_minutos_target: escalacao.sla_minutos_target,
+                tempo_decorrido_ms: elapsedMs,
+              };
+              const { assinatura: slaAssinatura, eventoAnteriorId: slaPriorId } =
+                await buildLogEventoSignature({
+                  labId,
+                  escalacaoId: escalacaoDoc.id,
+                  eventoId: eventoRef.id,
+                  tipo: 'sla_vencido_alerta',
+                  detalhes: slaDetalhes,
+                  operadorId: 'system',
+                  ts: now,
+                });
+
               await eventoRef.set({
                 id: eventoRef.id,
                 labId,
                 escalacaoId: escalacaoDoc.id,
                 laudoId: escalacao.laudoId,
                 tipo: 'sla_vencido_alerta',
-                detalhes: {
-                  sla_minutos_target: escalacao.sla_minutos_target,
-                  tempo_decorrido_ms: elapsedMs,
-                },
+                detalhes: slaDetalhes,
                 timestamp: now,
                 operadorId: 'system',
-                assinatura: {
-                  hash: '',
-                  operatorId: 'system',
-                  ts: now,
-                },
+                assinatura: slaAssinatura,
+                ...(slaPriorId ? { eventoAnteriorId: slaPriorId } : {}),
                 deletadoEm: null,
               } as CriticosLogEvento);
             }
@@ -572,23 +660,35 @@ export const escalacaoCriticos_webhook = onRequest(
           eventoTipo = 'sms_falha';
         }
 
+        const webhookTs = admin.firestore.Timestamp.now();
+        const webhookDetalhes = {
+          twilio_sid: MessageSid,
+          status: MessageStatus,
+        };
+        const {
+          assinatura: webhookAssinatura,
+          eventoAnteriorId: webhookPriorId,
+        } = await buildLogEventoSignature({
+          labId,
+          escalacaoId: escalacaoDoc.id,
+          eventoId: eventoRef.id,
+          tipo: eventoTipo,
+          detalhes: webhookDetalhes,
+          operadorId: 'twilio-webhook',
+          ts: webhookTs,
+        });
+
         await eventoRef.set({
           id: eventoRef.id,
           labId,
           escalacaoId: escalacaoDoc.id,
           laudoId: escalacao.laudoId,
           tipo: eventoTipo,
-          detalhes: {
-            twilio_sid: MessageSid,
-            status: MessageStatus,
-          },
-          timestamp: admin.firestore.Timestamp.now(),
+          detalhes: webhookDetalhes,
+          timestamp: webhookTs,
           operadorId: 'twilio-webhook',
-          assinatura: {
-            hash: '',
-            operatorId: 'twilio-webhook',
-            ts: admin.firestore.Timestamp.now(),
-          },
+          assinatura: webhookAssinatura,
+          ...(webhookPriorId ? { eventoAnteriorId: webhookPriorId } : {}),
           deletadoEm: null,
         } as CriticosLogEvento);
       }

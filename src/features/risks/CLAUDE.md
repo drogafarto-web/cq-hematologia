@@ -35,23 +35,30 @@ Toda função de `risksService.ts` recebe `labId` como parâmetro posicional obr
 
 ## Status atual
 
-**Fase:** Phase 0 Plan 00-04 (2026-05-07)
-**Delivery**: MVP FMEA-Lite
-**Callables**: 4 entregues (createRisk, updateRisk, softDeleteRisk, registrarRevisao); 1 stretch (seedFromCsv TBD)
-**Triggers**: onRiskEventCreated (chainHash)
-**Cron**: scheduledReview (annual + monthly top-5)
-**Rules**: `/labs/{labId}/risks/{riskId}` deny client-direct write; allow read by lab member
-**Indexes**: 2 compostos (npr DESC; reviewDate ASC)
-**UI**: RisksView stub + placeholder components (T7 em progresso)
-**Tests**: computeNPR + deriveNivel unit tests (14 cases, all green)
+**Fase:** Phase 0 Plan 00-04 — **Em prod (2026-05-07)**. T1–T11 completos.
+**Sign-off:** PHASE0-SIGN-OFF-MEMO.md (CTO + RT + DevOps, 2026-05-07 18:30 UTC).
+**Próximo passo:** acompanhar Cloud Logs day-1 + monitorar primeiro ciclo do cron `scheduledReview` (annual + monthly top-5).
 
-### Próximas tarefas prioritárias (T7–T11 em progresso)
+### Deployado em produção (Phase 0)
 
-- **T7**: RiskRegister table + RiskForm multi-step + RiskMatrix SVG + RiskReviewModal
-- **T8**: ✅ rules + indexes deployed
-- **T9**: ✅ lazy route + shell integration
-- **T10**: ✅ módulo CLAUDE.md + root table + DPIA v1.1 patch
-- **T11**: Deploy (pre-deploy checks + Cloud Logs 24h)
+Functions live em `southamerica-east1` (verificado via `firebase functions:list --project hmatologia2`):
+
+- `risks_createRisk` (callable)
+- `risks_updateRisk` (callable)
+- `risks_softDeleteRisk` (callable)
+- `risks_registrarRevisao` (callable)
+- `onRiskEventCreated` (Firestore v2 trigger — chainHash)
+- `scheduledReview` (scheduled cron, 512 MiB — annual + monthly top-5)
+
+Rules (DL-1 deny client-direct write) + 2 composite indexes (npr DESC; reviewDate ASC) deployed; provision claims script executado (commit ad80a0e: extended provisionModulesClaims com risks + lab-apoio).
+
+**Tests:** computeNPR + deriveNivel unit tests (14 cases, all green) + E2E suite (commit a84fe4e).
+
+### Pós-Phase-0 / débitos técnicos
+
+- **T7 UI components:** RisksView stub + placeholder components shipped; RiskRegister/RiskForm/RiskMatrix/RiskReviewModal/Top5RisksWidget refinement em curso (não bloqueia compliance — auditor flow funciona via Matriz tab).
+- **`risks_seedFromCsv`** stretch callable (ADR-0016 escape hatch) **não deployado** — opcional, drop para v1.4.1 se Riopomba não solicitar.
+- **DPIA v1.1 patch:** publicar em SGQ após ADR-0016 finalizar (Plan 00-02 forward ref).
 
 ## Padrões arquiteturais
 

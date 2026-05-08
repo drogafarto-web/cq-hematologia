@@ -42,33 +42,27 @@ Toda função de `labApoioService.ts` recebe `labId` como parâmetro posicional 
 
 ## Status atual
 
-**Fase:** Phase 0 / Plan 00-03 — **em desenvolvimento** (T1-T7 completo, T8-T10 pendentes).
-**Deadline**: Dia 2.5 da fase (execução contínua até D2.5).
-**Próximo passo:** T8 (CLAUDE.md + root update), T9 (pre-deploy + provision claims), T10 (deploy + Cloud Logs 24h).
+**Fase:** Phase 0 / Plan 00-03 — **Em prod (2026-05-07)**. T1–T10 completos.
+**Sign-off:** PHASE0-SIGN-OFF-MEMO.md (CTO + RT + DevOps, 2026-05-07 18:30 UTC).
+**Próximo passo:** acompanhar Cloud Logs day-1 + concluir deploy de `labApoio_generateContractTemplate` (Phase 5 W0, registrado em code mas ainda não deployado).
 
-### Entregue em T1-T7
+### Deployado em produção (Phase 0)
 
-- types/LabApoio.ts — Contrato, ContratoInput, ExameItem, Certificacao, AvaliacaoPeriodica, LabApoioFilters
-- types/shared_refs.ts — LabId, UserId type brands
-- services/labApoioService.ts — read-only subscribe + get + audit trail
-- services/labApoioStorageService.ts — [pending T6 integration]
-- functions/src/modules/labApoio/validators.ts — Zod schemas, CNPJ+AVS validators, assertLabApoioAccess
-- functions/src/modules/labApoio/signatureCanonical.ts — SHA-256 server-side
-- functions/src/modules/labApoio/{createContrato,updateContrato,softDeleteContrato,registrarAvaliacaoPeriodica,uploadContratoAnexo}.ts — 5 callables
-- functions/src/modules/labApoio/checkExpiry.ts — scheduled cron daily 06:00 BRT
-- functions/src/modules/labApoio/onContratoEventCreated.ts — Firestore v2 trigger for chainHash
-- hooks/useLabApoio.ts — primary hook with mutations
-- hooks/useExpiryAlerts.ts — derives expiring bins
-- components/LabApoioView.tsx, LabApoioList.tsx, LabApoioForm.tsx, LabApoioAvaliacao.tsx, VencimentosWidget.tsx
-- firestore.rules — lab-apoio block with DL-1 enforcement
-- storage.rules — PDF upload block (<10MB, PDF-only, admin/owner write)
-- firestore.indexes.json — 2 composite indexes (ativo+vigenciaFim, +criticidade)
+Functions live em `southamerica-east1` (verificado via `firebase functions:list --project hmatologia2`):
 
-### Pendências restantes
+- `labApoio_createContrato` (callable)
+- `labApoio_updateContrato` (callable)
+- `labApoio_softDeleteContrato` (callable)
+- `labApoio_registrarAvaliacaoPeriodica` (callable)
+- `labApoio_uploadContratoAnexo` (callable)
+- `labApoio_checkExpiry` (scheduled, 512 MiB)
+- `onContratoEventCreated` (Firestore v2 trigger — chainHash)
 
-- T8: Este CLAUDE.md + root CLAUDE.md update + Obsidian checkbox 4.14.8
-- T9: Pre-deploy (provision claims labApoio, dry-run backfill)
-- T10: Deploy (rules → functions → hosting) + Cloud Logs monitor 24h
+Rules (lab-apoio block + storage rules) + 2 composite indexes (ativo+vigenciaFim, +criticidade) deployed; React shell + hooks + 5 componentes shippados; provision claims script executado (commit 6ce1c27).
+
+### Em desenvolvimento pós-Phase-0 (não deployado)
+
+- `labApoio_generateContractTemplate` — callable Phase 5 W0 (commit 8f55750: vigencia overlap detection RN-LABAPOIO-08), gera minuta com 6 cláusulas RDC 978 Arts. 36–39. Registrado em `functions/src/index.ts` mas ainda **não está em `firebase functions:list`**. Aguarda deploy de Phase 5 W0.
 
 ## Convenções fixadas
 
