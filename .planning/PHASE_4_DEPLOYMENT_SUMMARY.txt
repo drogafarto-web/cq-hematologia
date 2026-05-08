@@ -1,0 +1,232 @@
+================================================================================
+PHASE 4 DEPLOYMENT PACKAGE — EXECUTIVE SUMMARY
+================================================================================
+
+PROJECT: HC Quality (CQ Labclin)
+DEPLOYMENT DATE: May 20, 2026 (08:30–12:30 UTC-3)
+REGION: southamerica-east1 (Firebase)
+STATUS: Ready for Execution
+
+================================================================================
+DELIVERABLES (5 Documents Created)
+================================================================================
+
+1. PHASE_4_FEATURE_FLAG_STRATEGY.md (8.2 KB)
+   • Feature flag architecture (Firestore-based)
+   • Rollout schedule: 0% → 25% → 50% → 100% (May 20 → June 10)
+   • Bucketing strategy (deterministic hash-based lab assignment)
+   • Client/server-side flag evaluation code
+   • Post-rollout archival procedures
+
+2. PHASE_4_DEPLOYMENT_RUNBOOK.md (12.5 KB)
+   • Pre-deployment validation (19 pre-flight checks)
+   • Deployment execution steps (4 phases)
+   • Smoke test suite (10 automated checks)
+   • 4-hour post-deployment monitoring
+   • Manual scenario validation (6 user flows)
+   • Exit criteria verification (8 metrics)
+
+3. PHASE_4_MONITORING_DASHBOARD_SPECS.md (16.8 KB)
+   • Dashboard 1: Portal Auth Health (5 widgets)
+   • Dashboard 2: NOTIVISA Queue Health (6 widgets)
+   • Dashboard 3: Firestore Access (4 widgets)
+   • Dashboard 4: System Health Overview (6 widgets)
+   • Alert Policies (5 total: 2 P1, 2 P2, 1 P3)
+   • Log sinks and export configuration
+
+4. PHASE_4_POST_DEPLOYMENT_VALIDATION.md (11.3 KB)
+   • Smoke tests (7 automated checks)
+   • Lab testing (5 manual scenarios)
+   • Auditor review (3 compliance checks)
+   • Sign-off templates
+
+5. PHASE_4_DEPLOYMENT_PACKAGE_INDEX.md (9.4 KB)
+   • Complete package index and usage guide
+   • Pre/deployment/post checklists
+   • Emergency contacts + escalation tree
+   • Critical thresholds + success criteria
+   • FAQ and next steps
+
+REFERENCE: PHASE_4_ROLLBACK_PROCEDURES.md (existing, still valid)
+   • Rollback decision tree (5 triggers)
+   • Execution steps (hosting, rules, functions, all)
+   • Post-rollback monitoring
+   • Feature flag disable (fast path: <1 min)
+
+================================================================================
+KEY FEATURES
+================================================================================
+
+Feature Flag System
+-------------------
+• Gradual rollout: 0% → 25% (May 24) → 50% (May 29) → 100% (June 6)
+• Deterministic bucketing: labs assigned via SHA-256(labId) hash
+• Whitelist override: internal labs enabled first
+• Server-side + client-side evaluation
+• Fast disable: set enabled=false in Firestore (no code rollback needed)
+• Time to disable: <1 minute
+
+Monitoring (4 Dashboards, 5 Alerts)
+------------------------------------
+Dashboard 1: Portal Auth Health
+  • Auth success rate, login latency, email delivery, failed attempts
+
+Dashboard 2: NOTIVISA Queue Health
+  • Queue status, processing latency, success rate, stuck entries, feature flag state
+
+Dashboard 3: Firestore Access
+  • Patient/laudo read latency, rule rejections, index usage
+
+Dashboard 4: System Health Overview
+  • Error rate, function execution time, quota usage, error budget, uptime
+
+Alert Policies (5 Total)
+  P1: Portal Auth Failures (>5 in 5 min) — SMS page + Slack
+  P1: NOTIVISA Queue Stuck (>0 entries >15 min) — SMS page + Slack
+  P2: Rule Rejections (>10 in 5 min) — Email + Slack
+  P2: Email Delivery Failure (>5% failure rate) — Email + Slack
+  P3: Function Latency (p90 >3s) — Email only
+
+Rollback Strategy
+------------------
+Fast path (feature flag disable):
+  • Time: <1 minute
+  • Effect: All submitNotivisa calls return "FEATURE_DISABLED" immediately
+  • No code rollback needed
+
+Code rollback path (if flag disable insufficient):
+  • Hosting rollback: 1 min
+  • Rules rollback: 2 min
+  • Functions rollback: 5 min
+  • Full rollback: 10 min
+
+================================================================================
+DEPLOYMENT TIMELINE
+================================================================================
+
+May 20, 2026 (08:30–12:30 UTC-3)
+├─ 08:30: Pre-deployment gate
+├─ 08:35: Phase 4.0 — Hosting (2 min)
+├─ 08:40: Phase 4.1 — Rules + Indexes (5 min)
+├─ 08:50: Phase 4.2 — Functions (5 min)
+├─ 09:00: Phase 4.3 — Feature flag (2 min)
+├─ 09:05: Phase 4.4 — Smoke tests (15 min)
+├─ 09:25: POST-DEPLOY MONITORING (4 hours)
+│  ├─ Hour 1: Dashboard review
+│  ├─ Hours 2–3: Manual scenarios
+│  └─ Hour 4: Cloud Logs analysis
+└─ 12:30: Sign-off
+
+May 22: Enable internal labs (whitelist)
+May 24: Rollout to 25% of labs
+May 29: Rollout to 50% of labs
+June 6: Rollout to 100% of labs
+June 10: Archive feature flag
+
+================================================================================
+EXIT CRITERIA (10 REQUIRED FOR GO-LIVE)
+================================================================================
+
+MUST have ALL items checked:
+
+☐ Smoke tests: 10/10 pass (automated)
+☐ Manual lab tests: 5/5 scenarios pass (manual)
+☐ Auditor review: Compliance sign-off
+☐ P0 alerts: 0 fired in 4-hour window
+☐ Unhandled exceptions: 0 in Cloud Logs
+☐ Auth success rate: >99%
+☐ Portal load time: <2s LCP
+☐ Queue health: 0 stuck entries
+☐ Error rate: <0.1%
+☐ Bundle size: <365 KB
+
+If ANY item NOT met: INITIATE ROLLBACK
+
+================================================================================
+TEAM ROLES & RESPONSIBILITIES
+================================================================================
+
+Incident Commander (CTO)
+  • Approves deployment start + rollback decisions
+  • Available 08:30–12:30 UTC-3
+  • Escalation for all P1 incidents unresolved >15 min
+
+On-Call Engineer #1 (Primary)
+  • Executes deployment runbook steps
+  • Watches dashboards during monitoring
+  • Responds to alerts: P1 <15min, P2 <1hr
+  • Escalates to CTO if unresolved >30 min
+
+On-Call Engineer #2 (Secondary / Escalation)
+  • Available if #1 unavailable
+  • Provides fresh perspective on troubleshooting
+
+Tech Lead (Support)
+  • Validates pre-deployment checklist
+  • Reviews Cloud Logs during monitoring
+  • Provides technical guidance
+
+Lab Director / Auditor (Compliance)
+  • Reviews security controls
+  • Signs off on RDC 978 compliance
+  • Validates patient data isolation
+
+Alert Manager (Post-Deployment)
+  • Monitors 24/7 after go-live
+  • Advances feature flag percentages (May 22, 24, 29, June 6)
+  • Manages alert escalations
+
+================================================================================
+CRITICAL THRESHOLDS
+================================================================================
+
+Alert if ANY exceeded:
+
+Auth failures: >5 in 5 minutes → P1 (SMS page)
+Queue stuck entries: >0 (pending >15 min) → P1 (SMS page)
+Rule rejections: >10 in 5 minutes → P2 (Email)
+Error rate: >0.5% → P2 (Email)
+Function latency p95: >3 seconds → P3 (Email)
+Bundle size: >365 KB → PRE-DEPLOY BLOCKER
+
+================================================================================
+QUICK START
+================================================================================
+
+Before May 19 EOD:
+  1. Read PHASE_4_DEPLOYMENT_RUNBOOK.md
+  2. Complete pre-deployment checklist
+  3. Brief team on emergency contacts
+
+May 20, 08:30 UTC-3:
+  1. Execute deployment runbook "Deployment Execution" section
+  2. Follow step-by-step instructions
+  3. Do NOT skip smoke tests
+
+May 20, 12:30 UTC-3:
+  1. Complete post-deployment validation
+  2. Get sign-offs (CTO + Lab Director)
+  3. Post go-live summary to Slack
+
+May 22+:
+  1. Monitor dashboards daily
+  2. Advance feature flag per schedule
+  3. Archive after June 10 (full rollout)
+
+If Rollback Needed:
+  1. Consult PHASE_4_ROLLBACK_PROCEDURES.md
+  2. Execute rollback steps
+  3. Document incident
+
+================================================================================
+DOCUMENT STATUS
+================================================================================
+
+Status: READY FOR DEPLOYMENT
+Version: 1.0 (Phase 4 RTM)
+Last Updated: 2026-05-07
+Owner: CTO / Incident Commander
+Approval: Pending CTO sign-off (May 19 EOD)
+
+Next Documents: PHASE_4_FEATURE_FLAG_STRATEGY.md → PHASE_4_DEPLOYMENT_RUNBOOK.md
+Reference: PHASE_4_ROLLBACK_PROCEDURES.md (existing, no changes needed)

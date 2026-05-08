@@ -586,10 +586,11 @@ function LoteForm({
     if (showTraceability && !traceExamCode.trim()) {
       e.traceExamCode = 'Informe o código do primeiro atendimento (Worklab).';
     }
-    // Nota fiscal: opcional em TODOS os tipos durante a fase inicial de produção.
-    // Quando a base de lotes começar a ter massa crítica e o módulo de
-    // qualificação de fornecedores for ativado, tornar obrigatório em tira-uro
-    // (RDC 786/2023 art. 42). Por ora só exibimos "recomendado" no label.
+    // ADR 0002 — notaFiscalId é obrigatório por Firestore rules (exceto legado com _legacyMigrated).
+    // UI valida para guiar o usuário; o Firestore é a source-of-truth de enforcement.
+    if (!notaFiscalId) {
+      e.notaFiscalId = 'Informe a nota fiscal (obrigatória por RDC 786/2023).';
+    }
     const diasNum = diasEstab.trim() === '' ? 0 : Number(diasEstab);
     if (!Number.isFinite(diasNum) || diasNum < 0 || diasNum > 365) {
       e.diasEstab = 'Estabilidade deve ficar entre 0 e 365 dias.';
@@ -790,7 +791,7 @@ function LoteForm({
             notaFiscalId={notaFiscalId}
             onSelect={setNotaFiscalId}
             onCreateNew={() => setShowNovaNota(true)}
-            required={false}
+            required={true}
             error={errors.notaFiscalId}
           />
         </div>

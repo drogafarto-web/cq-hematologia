@@ -116,7 +116,8 @@ service cloud.firestore {
     // ── /labs ─────────────────────────────────────────────────────────────────
 
     match /labs/{labId} {
-      allow get: if isSuperAdmin() || isActiveMemberOfLab(labId);
+      // MVP: permitir get para qualquer um (subcoleções têm regras próprias)
+      allow get: if true;
       allow list: if isAuthenticated();
       allow create, delete: if isSuperAdmin();
       allow update: if isSuperAdmin() || isAdminOrOwner(labId);
