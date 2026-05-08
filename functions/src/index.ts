@@ -188,12 +188,16 @@ export { ci_signDesignacao } from './modules/controle-interno/index';
 //   turnos_updateTurno              — edit observações + supervisorName (post-backfill)
 //   turnos_softDeleteTurno          — logical delete only (RN-TURNO-04)
 //   turnos_backfill90Days           — admin-only backfill for last 90d × 4 periodos
+//   turnos_supervisorCheckin        — supervisor presencial check-in (RDC 978 Art. 122)
+//   turnos_supervisorCheckout       — supervisor presencial check-out (RDC 978 Art. 122)
 //   onTurnoEventCreated             — Firestore trigger, computes chainHash per event
 export {
   turnos_createTurno,
   turnos_updateTurno,
   turnos_softDeleteTurno,
   turnos_backfill90Days,
+  turnos_supervisorCheckin,
+  turnos_supervisorCheckout,
   onTurnoEventCreated,
 } from './modules/turnos/index';
 
