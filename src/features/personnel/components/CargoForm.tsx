@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useActiveLabId } from '../../../store/useAuthStore';
-import { cargoService } from '../services/cargoService';
+import { createCargo, updateCargo } from '../services/cargoService';
 import type { CargoInput } from '../types';
 
 interface CargoFormProps {
@@ -127,10 +127,10 @@ export const CargoForm: React.FC<CargoFormProps> = ({
 
       let id: string;
       if (isEdit && cargoId) {
-        await cargoService.updateCargo(labId, cargoId, input);
+        await updateCargo(labId, cargoId, input);
         id = cargoId;
       } else {
-        id = await cargoService.createCargo(labId, input);
+        id = await createCargo(labId, input);
       }
 
       onSuccess?.(id);
