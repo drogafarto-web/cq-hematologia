@@ -125,3 +125,89 @@ export const Backfill90DaysInputSchema = z.object({
 });
 
 export type Backfill90DaysInput = z.infer<typeof Backfill90DaysInputSchema>;
+
+// ─── Presença schemas (Phase 5 Wave 0 — RDC 978 Art. 122) ───────────────────
+
+export const SupervisorCheckinInputSchema = z.object({
+  labId: z.string().min(1),
+  turnoId: z.string().min(1),
+  supervisorUid: z.string().min(1),
+  pin: z.string().regex(/^\d{4,6}$/).optional().nullable(),
+});
+
+export type SupervisorCheckinInput = z.infer<typeof SupervisorCheckinInputSchema>;
+
+export const SupervisorCheckoutInputSchema = z.object({
+  labId: z.string().min(1),
+  turnoId: z.string().min(1),
+});
+
+export type SupervisorCheckoutInput = z.infer<typeof SupervisorCheckoutInputSchema>;
+
+export const DesignateSubstituteInputSchema = z.object({
+  labId: z.string().min(1),
+  turnoId: z.string().min(1),
+  substituteUid: z.string().min(1),
+  reason: z.string().min(10).max(500),
+});
+
+export type DesignateSubstituteInput = z.infer<typeof DesignateSubstituteInputSchema>;
+
+// ─── Presença path helpers ──────────────────────────────────────────────────
+
+export function presencaDoc(
+  db: admin.firestore.Firestore,
+  labId: string,
+  turnoId: string,
+) {
+  return db.doc(`labs/${labId}/turnos/${turnoId}/presenca/current`);
+}
+
+export function presencaEventsCol(
+  db: admin.firestore.Firestore,
+  labId: string,
+  turnoId: string,
+) {
+  return db.collection(`labs/${labId}/turnos/${turnoId}/presenca-events`);
+}
+
+export function labSupervisorStatusDoc(
+  db: admin.firestore.Firestore,
+  labId: string,
+) {
+  return db.doc(`labs/${labId}/supervisor-status/current`);
+}
+
+// ─── Periodo → janela horária (defaults configuráveis por lab no futuro) ────
+
+interface PeriodoWindow {
+  startH: number;
+  endH: number;
+}
+
+export const PERIODO_WINDOWS: Record<string, PeriodoWindow> = {
+  manha: { startH: 6, endH: 12 },
+  tarde: { startH: 12, endH: 18 },
+  noite: { startH: 18, endH: 24 },
+  plantao: { startH: 0, endH: 24 },
+};
+
+/**
+ * Computa início e fim planejados do turno (em ms epoch UTC) a partir
+ * de `data` (ISO YYYY-MM-DD) + `periodo`. Assume timezone do lab = America/Sao_Paulo.
+ */
+export function computeTurnoWindow(
+  data: string,
+  periodo: string,
+): { inicioMs: number; fimMs: number } {
+  const window = PERIODO_WINDOWS[periodo];
+  if (!window) {
+    throw new HttpsError('invalid-argument', `Período desconhecido: ${periodo}`);
+  }
+  // Treat as America/Sao_Paulo (UTC-3, no DST since 2019). Backfilled with sufficient
+  // accuracy for window calculation; not used for legal/audit timestamps.
+  const [y, m, d] = data.split('-').map(Number);
+  const inicio = Date.UTC(y, m - 1, d, window.startH + 3, 0, 0);
+  const fim = Date.UTC(y, m - 1, d, window.endH + 3, 0, 0);
+  return { inicioMs: inicio, fimMs: fim };
+}
