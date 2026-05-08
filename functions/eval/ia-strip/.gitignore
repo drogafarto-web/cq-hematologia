@@ -1,0 +1,11 @@
+# Eval outputs — never commit
+output/
+*.html
+*.log
+
+# Real fixtures must NEVER be committed (clinical data)
+fixtures/images/
+fixtures/manifest.json
+
+# Cached promptfoo state
+.promptfoo/

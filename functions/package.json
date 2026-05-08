@@ -8,7 +8,8 @@
     "test": "jest --rootDir src",
     "test:notivisa": "jest --testPathPattern=notivisa/__tests__",
     "test:coverage": "jest --rootDir src --coverage",
-    "preview:backup-pdf": "node scripts/preview-backup-pdf.mjs"
+    "preview:backup-pdf": "node scripts/preview-backup-pdf.mjs",
+    "eval:ia-strip": "promptfoo eval -c eval/ia-strip/promptfooconfig.yaml"
   },
   "engines": {
     "node": "22"
@@ -39,6 +40,7 @@
     "@types/node": "^22.0.0",
     "@types/pdfkit": "^0.13.9",
     "jest": "^29.7.0",
+    "promptfoo": "^0.95.0",
     "puppeteer": "^22.15.0",
     "ts-jest": "^29.1.1",
     "typescript": "^5.9.3"

@@ -1,0 +1,179 @@
+# promptfoo config — IA Strip RDT Classifier (Phase 11)
+# ─────────────────────────────────────────────────────────────────────────────
+# Purpose: Offline regression suite for `classifyStripGemini` callable.
+# Source of truth (do NOT mutate from here):
+#   functions/src/modules/ia-strip/callables/classifyStripGemini.ts
+# Model: gemini-2.5-flash (matches production, region southamerica-east1)
+# Confidence threshold (production runtime): 0.85 → AUTO_SAVE vs MANUAL_REVIEW
+#
+# Run:  npm run eval:ia-strip   (from functions/)
+# Env:  GEMINI_API_KEY must be set (same secret used by the callable).
+#
+# Status: SCAFFOLD — fixtures stub only. Real labeled images + ground-truth
+# manifest required before this gate goes live. See fixtures/README.md and
+# docs/ai-evals/IA_STRIP_EVAL_FRAMEWORK.md.
+# ─────────────────────────────────────────────────────────────────────────────
+
+description: "RDT Strip Classifier (HIV/Dengue/Syphilis/COVID/HCG) — Gemini 2.5 Flash"
+
+env:
+  # promptfoo reads GEMINI_API_KEY from process env (do not hardcode).
+  GEMINI_API_KEY: ${GEMINI_API_KEY}
+
+providers:
+  - id: google:gemini-2.5-flash
+    label: prod-equiv
+    config:
+      generationConfig:
+        temperature: 0.1
+        topP: 0.95
+        maxOutputTokens: 512
+        responseMimeType: application/json
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Prompts — mirror buildPrompt() variant v1 (baseline) per test type.
+# v2 (terse) and v3 (English) are A/B variants; this suite locks v1 as the
+# regression baseline. Add v2/v3 suites once v1 is stable.
+# ─────────────────────────────────────────────────────────────────────────────
+
+prompts:
+  - id: hiv-v1
+    label: HIV v1 (PT clinical)
+    raw: |
+      Você está analisando a imagem de um strip de teste rápido para HIV (RDT — Rapid Diagnostic Test).
+
+      INSTRUÇÕES:
+      A imagem mostra duas linhas possíveis:
+      - Linha C (Controle): DEVE estar sempre presente (válida o teste)
+      - Linha T (Teste): Se presente, indica resultado REATIVO
+
+      CLASSIFICAÇÃO:
+      1. REATIVO (R): Se houver linha clara TANTO em C quanto em T. As duas linhas são distintas.
+      2. NÃO-REATIVO (NR): Se houver linha em C mas AUSÊNCIA de linha em T.
+      3. INCONCLUSO: Se a imagem estiver borrada, mal iluminada, linhas muito fracas, ou reação ambígua.
+
+      RESPONDA APENAS COM JSON VÁLIDO:
+      {
+        "classification": "R|NR|INCONCLUSIVE",
+        "confidence": 0.0–1.0,
+        "reasoning": "explicação breve (máx 200 caracteres)"
+      }
+
+  - id: dengue-v1
+    label: Dengue v1 (PT clinical)
+    raw: |
+      Você está analisando a imagem de um strip para DENGUE (IgM e/ou IgG).
+
+      LAYOUT:
+      - Linha C (Controle): DEVE estar presente
+      - Linha M (IgM): Infecção aguda
+      - Linha G (IgG): Infecção passada/crônica
+
+      CLASSIFICAÇÃO:
+      1. REATIVO (R): Se houver IgM OU IgG OU AMBOS (indica exposição à dengue)
+      2. NÃO-REATIVO (NR): Se houver C mas nenhuma linha M ou G
+      3. INCONCLUSO: C presente mas M e G ambíguas ou muito fracas
+
+      JSON: {"classification": "R|NR|INCONCLUSIVE", "confidence": 0–1, "reasoning": "..."}
+
+  - id: syphilis-v1
+    label: Syphilis v1 (PT clinical)
+    raw: |
+      Você está analisando a imagem de um strip para SÍFILIS (RPR/Treponemal).
+
+      LAYOUT:
+      - Linha C (Controle): DEVE estar presente
+      - Linha T (Teste): Presença indica sífilis
+
+      CLASSIFICAÇÃO:
+      1. REATIVO (R): C + T visíveis
+      2. NÃO-REATIVO (NR): C apenas
+      3. INCONCLUSO: T muito fraco, resultado ambíguo → recomenda teste confirmador
+
+      JSON: {"classification": "R|NR|INCONCLUSIVE", "confidence": 0–1, "reasoning": "..."}
+
+  - id: covid-v1
+    label: COVID v1 (PT clinical)
+    raw: |
+      Você está analisando a imagem de um teste rápido para COVID-19 (Antígeno).
+
+      LAYOUT:
+      - Linha C (Controle): DEVE estar presente
+      - Linha T (Teste): Detecta proteína viral (antígeno SARS-CoV-2)
+
+      CLASSIFICAÇÃO:
+      1. REATIVO (R): C + T visíveis (antígeno detectado, potencialmente infeccioso)
+      2. NÃO-REATIVO (NR): C apenas (sem antígeno detectado)
+      3. INCONCLUSO: T muito fraco (possível carga viral baixa), linhas borradas
+
+      JSON: {"classification": "R|NR|INCONCLUSIVE", "confidence": 0–1, "reasoning": "..."}
+
+  - id: hcg-v1
+    label: HCG v1 (PT clinical)
+    raw: |
+      Você está analisando a imagem de um teste rápido de GRAVIDEZ (HCG).
+
+      LAYOUT:
+      - Linha C (Controle): DEVE estar presente
+      - Linha T (Teste): Presença = HCG detectado (gravidez)
+      - Intensidade da linha T correlaciona com nível de HCG
+
+      CLASSIFICAÇÃO:
+      1. REATIVO (R): T visível (qualquer intensidade) + C presente
+      2. NÃO-REATIVO (NR): C apenas, sem T
+      3. INCONCLUSO: T muito fraco ou resultado ambíguo
+
+      JSON: {"classification": "R|NR|INCONCLUSIVE", "confidence": 0–1, "reasoning": "..."}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Default assertions applied to every test case (overridden per-case if needed)
+# ─────────────────────────────────────────────────────────────────────────────
+
+defaultTest:
+  assert:
+    # 1. Schema match — must parse as the GeminiResponseRaw shape parseGeminiResponse() expects.
+    - type: is-json
+      value:
+        type: object
+        required: [classification, confidence]
+        properties:
+          classification:
+            type: string
+            enum: [R, NR, INCONCLUSIVE]
+          confidence:
+            type: number
+            minimum: 0
+            maximum: 1
+          reasoning:
+            type: string
+
+    # 2. Latency budget (callable timeout is 30s; we want p99 < 3s).
+    - type: latency
+      threshold: 5000
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Test cases — driven by fixtures/manifest.json
+# Each entry of the manifest expands into one test case here.
+# Until real fixtures land, this file references the manifest path; promptfoo
+# will fail-fast with a descriptive error if the manifest is empty.
+# ─────────────────────────────────────────────────────────────────────────────
+
+tests: file://fixtures/tests.generated.yaml
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Pass criteria (rolled up across all cases — informational; CI gate enforces)
+#
+# Baseline targets (per audit, matches in-code claim "85–88% on validation set"):
+#   - Overall accuracy            ≥ 0.85
+#   - Clear-case confidence       ≥ 0.85   (avg over non-ambiguous fixtures)
+#   - Ambiguous-case confidence   ≤ 0.80   (model should self-flag for MANUAL_REVIEW)
+#   - INCONCLUSIVE rate (clear)   ≤ 0.05   (over-flagging hurts UX)
+#   - Schema parse failure rate   == 0.00  (any parse fail is a bug)
+#
+# These are tracked in the eval HTML report; CI gate logic in
+# .github/workflows/eval-ia-strip.yml.
+# ─────────────────────────────────────────────────────────────────────────────
+
+outputPath: ./output/results.json
+
+sharing: false
