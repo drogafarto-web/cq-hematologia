@@ -2,7 +2,7 @@ import * as functions from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { NotaFiscal, NotaFiscalItem, InsumoLote } from './types';
 import { isFornecedorQualificado } from './fornecedor';
-import { signAuditEntry } from '../audit/cryptoAudit';
+import { writeChainedAudit } from '../../shared/audit/writeChainedAudit';
 import { HCQ_SIGNATURE_HMAC_KEY } from '../signatures/verifier';
 
 const db = admin.firestore();
@@ -83,13 +83,13 @@ export const criarNotaFiscal = functions.onCall(
   if (!secret) {
     throw new functions.HttpsError('internal', 'HCQ_SIGNATURE_HMAC_KEY not configured');
   }
-  signAuditEntry(
-    `/labs/${labId}/notas-fiscais`,
-    request.auth.uid,
-    'notaFiscal.criada',
-    { numero, serie, fornecedorId, itens: itens.length },
-    secret
-  ).catch(() => {});
+  await writeChainedAudit({
+    collectionPath: `/labs/${labId}/notas-fiscais`,
+    operadorId: request.auth.uid,
+    operation: 'notaFiscal.criada',
+    payload: { numero, serie, fornecedorId, itens: itens.length },
+    secret,
+  });
 
   return { success: true, nfId: nfRef.id };
 });
@@ -169,13 +169,17 @@ export const confirmarRecebimento = functions.onCall(
   if (!secret) {
     throw new functions.HttpsError('internal', 'HCQ_SIGNATURE_HMAC_KEY not configured');
   }
-  signAuditEntry(
-    `/labs/${labId}/notas-fiscais`,
-    request.auth.uid,
-    'notaFiscal.conferida',
-    { nfId, lotesGerados: loteIds.length, desvios: desviosObservados?.length || 0 },
-    secret
-  ).catch(() => {});
+  await writeChainedAudit({
+    collectionPath: `/labs/${labId}/notas-fiscais`,
+    operadorId: request.auth.uid,
+    operation: 'notaFiscal.conferida',
+    payload: {
+      nfId,
+      lotesGerados: loteIds.length,
+      desvios: desviosObservados?.length || 0,
+    },
+    secret,
+  });
 
   return {
     success: true,
