@@ -240,8 +240,19 @@
 | Right to correction | Art. 19 | ❌ PENDING | Phase 13 (patient portal) |
 | Right to deletion | Art. 17 | ⚠️ PARTIAL | Anonymization cron exists (90-day TTL); verification pending |
 | Data breach notification | Art. 34 | 🟡 PARTIAL | Logging in place; notification SOP TBD |
+| AI processing — sensitive health data | Art. 9, 11 | 🚫 **BLOCKED** | DPIA `IT-LGPD-DPIA-002` (DRAFT 2026-05-08) — pending RT/DPO sign-off |
+| International transfer (Gemini Vision API) | Art. 33 | 🚫 **BLOCKED** | TIA documented in DPIA-002 §8 — Google DPA + SCC C2P required before rollout |
+| Automated decision review | Art. 20 | ✅ COVERED (by design) | RT review mandatory; thresholding < 0.85 → manual review |
 
 **LGPD Coverage:** **62%** ✓ (core + pending roadmap)
+
+> 🚫 **BLOCKER aberto (2026-05-08) — IA Strip Rollout suspenso.** O módulo `ia-strip` (callable `classifyStripGemini`) envia imagens de strips de teste rápido (dado pessoal sensível — saúde) ao operador estrangeiro Google LLC sem que a Política de Privacidade vigente (POL-LGPD-001 v1.0) contemple esse tratamento. Foram emitidos em DRAFT três artefatos para fechamento do gap:
+>
+> - [`docs/lgpd/IT-LGPD-DPIA-002-IA-STRIP-GEMINI.md`](lgpd/IT-LGPD-DPIA-002-IA-STRIP-GEMINI.md) — DPIA específica (LGPD Arts. 9, 11, 33).
+> - [`docs/lgpd/POL-LGPD-001-AMENDMENT-2026-05-08.md`](lgpd/POL-LGPD-001-AMENDMENT-2026-05-08.md) — Aditamento à Política.
+> - [`docs/lgpd/IA-STRIP-CONSENT-FLOW.md`](lgpd/IA-STRIP-CONSENT-FLOW.md) — Fluxo operacional de consentimento, opt-out e retenção.
+>
+> **Status:** DRAFT — pendente assinatura RT + DPO + CTO. Rollout do módulo `ia-strip` em produção fica **bloqueado** até (i) assinatura conjunta dos três documentos, (ii) implementação dos controles TC-02, TC-03, TC-10 e TC-11 descritos na DPIA, e (iii) DPA Google Cloud (SCC C2P) ativo na conta `hmatologia2`.
 
 ---
 
