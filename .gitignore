@@ -137,6 +137,11 @@ scripts/*
 # Exceção: deploy gate (ADR-0018) — bloqueia deploy de functions com secrets PENDING_SET_*
 !scripts/preflight-secrets-check.sh
 !scripts/perf-validate.mjs
+# Exceção: bootstrap supervisor-status (W3-7) — pre-deploy migration para Wave 2
+!scripts/bootstrap-supervisor-status.mjs
+!scripts/cleanup-supervisor-status.mjs
+!scripts/__tests__
+!scripts/__tests__/**
 # Exceção: functions/scripts/ hospeda utilitários de dev versionados
 !functions/scripts/
 !functions/scripts/**
