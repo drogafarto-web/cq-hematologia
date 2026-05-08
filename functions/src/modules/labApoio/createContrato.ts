@@ -25,6 +25,7 @@ import {
   ensureLabApoioLabRoot,
   CreateContratoInputSchema,
   validateCNPJ,
+  vigenciaOverlaps,
 } from './validators';
 
 interface CreateContratoResult {
@@ -62,18 +63,26 @@ export const labApoio_createContrato = onCall<unknown, Promise<CreateContratoRes
       );
     }
 
-    // 3. Check uniqueness (labId, cnpj) — RN-LABAPOIO-01
+    // 3. Check uniqueness (labId, cnpj) e sobreposição de vigência —
+    //    RN-LABAPOIO-01 + RN-LABAPOIO-08 (RDC 978 Art. 36 — contrato vigente único).
     const labApoioCol = labApoioCollection(db, input.labId);
     const existingQuery = await labApoioCol
       .where('cnpj', '==', input.cnpj)
       .where('deletadoEm', '==', null)
-      .limit(1)
       .get();
 
-    if (!existingQuery.empty) {
+    const overlapping = existingQuery.docs.find((d) => {
+      const data = d.data();
+      return vigenciaOverlaps(
+        { inicio: input.vigenciaInicio, fim: input.vigenciaFim },
+        { inicio: data.vigenciaInicio as string, fim: data.vigenciaFim as string },
+      );
+    });
+
+    if (overlapping) {
       throw new HttpsError(
         'already-exists',
-        'Já existe um contrato ativo com este CNPJ neste laboratório.',
+        `Já existe contrato ativo com este CNPJ cuja vigência sobrepõe (${overlapping.data().vigenciaInicio} → ${overlapping.data().vigenciaFim}). RDC 978 Art. 36 exige contrato vigente único.`,
       );
     }
 
