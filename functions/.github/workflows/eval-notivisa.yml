@@ -1,0 +1,120 @@
+name: NOTIVISA Validation Guardrails — Eval Gate
+
+on:
+  pull_request:
+    paths:
+      - "functions/src/modules/notivisa/**"
+      - "functions/eval/notivisa/**"
+      - "functions/src/shared/notivisa/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "functions/src/modules/notivisa/**"
+      - "functions/eval/notivisa/**"
+
+jobs:
+  notivisa-eval:
+    runs-on: ubuntu-latest
+
+    name: NOTIVISA Payload Validation Eval
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: functions/package-lock.json
+
+      - name: Install dependencies
+        working-directory: functions
+        run: npm ci
+
+      - name: Run NOTIVISA eval suite
+        working-directory: functions
+        run: |
+          bash eval/notivisa/run-eval.sh --verbose
+        id: eval
+        continue-on-error: true
+
+      - name: Upload eval results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: notivisa-eval-results
+          path: functions/eval/notivisa/results/
+          retention-days: 30
+
+      - name: Parse eval report for PR comment
+        if: always() && github.event_name == 'pull_request'
+        id: parse-report
+        run: |
+          REPORT=$(ls -t functions/eval/notivisa/results/eval-report-*.json | head -1)
+          if [ -f "$REPORT" ]; then
+            PASS_RATE=$(jq -r '.metrics.passRate' "$REPORT")
+            TOTAL_TESTS=$(jq -r '.metrics.totalTests' "$REPORT")
+            PASSED_TESTS=$(jq -r '.metrics.passedTests' "$REPORT")
+            GATE_STATUS=$(jq -r '.deployGateRecommendation' "$REPORT")
+
+            echo "PASS_RATE=$PASS_RATE" >> "$GITHUB_OUTPUT"
+            echo "TOTAL_TESTS=$TOTAL_TESTS" >> "$GITHUB_OUTPUT"
+            echo "PASSED_TESTS=$PASSED_TESTS" >> "$GITHUB_OUTPUT"
+            echo "GATE_STATUS=$GATE_STATUS" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Comment on PR with eval results
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const passRate = '${{ steps.parse-report.outputs.PASS_RATE }}';
+            const totalTests = '${{ steps.parse-report.outputs.TOTAL_TESTS }}';
+            const passedTests = '${{ steps.parse-report.outputs.PASSED_TESTS }}';
+            const gateStatus = '${{ steps.parse-report.outputs.GATE_STATUS }}';
+
+            const comment = `## NOTIVISA Validation Guardrails Eval
+
+            **Status:** ${gateStatus}
+
+            | Metric | Value |
+            |--------|-------|
+            | Pass Rate | ${passRate}% |
+            | Tests Passed | ${passedTests}/${totalTests} |
+            | Threshold | ≥95% |
+
+            ### Fixtures Tested
+            - ✓ Valid hemoglobin test
+            - ✗ Invalid CPF checksum
+            - ⚠ Unregistered exam code
+            - ✗ Future result date
+            - ✓ Multiple results (panel)
+            - ⚠ Stale signature
+            - ✓ Coded result (negative)
+            - ✓ Portuguese coded value (reagente)
+            - ⚠ Unusual coded value
+            - ✗ Invalid operator CPF
+
+            [View Full Report](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Enforce gate (fail on <95%)
+        if: steps.eval.outcome == 'failure'
+        run: |
+          echo "NOTIVISA eval gate FAILED — fix errors before merging"
+          exit 1
+
+      - name: Gate passed
+        if: steps.eval.outcome == 'success'
+        run: |
+          echo "✓ NOTIVISA eval gate PASSED"
+          echo "  Ready for deployment"

@@ -1,6 +1,6 @@
 /**
  * NOTIVISA Module Types
- * Phase 4 implementation pending
+ * Phase 4 + Wave 3 implementation
  */
 
 import type { NotivisaPayload } from '../../shared/notivisa';
@@ -52,4 +52,35 @@ export interface NotivisaQueueResponse {
   status: string;
   message: string;
   eventId?: string;
+}
+
+// Wave 3 HTTP Client types
+export interface NotivisaDraftPayload {
+  versao: string;
+  laudo_id: string;
+  paciente_cpf: string;
+  data_resultado: number;
+  resultados: Array<{
+    analito: string;
+    valor: string | number;
+    unidade: string;
+    referencia: string;
+  }>;
+  assinador: {
+    cpf: string;
+    nome: string;
+    data_assinatura: number;
+  };
+}
+
+export interface NotivisaStatusResponse {
+  status: 'pending' | 'processing' | 'approved' | 'rejected';
+  reason?: string;
+  updatedAt?: number;
+}
+
+export interface NotivisaApprovalResponse {
+  approvalId: string;
+  approvedAt: number;
+  certificateUrl: string;
 }

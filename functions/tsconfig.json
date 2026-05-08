@@ -20,6 +20,10 @@
     "src/**/*.test.ts",
     "src/**/*.test.tsx",
     "src/__tests__/**",
+    // Legacy NOTIVISA callables: 149 pre-Wave-2 TS errors excluded temporarily.
+    // Wave 2–3 refactored NOTIVISA via Wave 2-10 feature flag (new callables coexist).
+    // Hard delete of legacy code planned Phase 6 (2026-07). See docs/NOTIVISA_TSCONFIG_CLEANUP_ROADMAP.md.
+    // Rollback: if legacy must be re-enabled, remove this line and re-run `npx tsc --noEmit` (errors reappear).
     "src/modules/notivisa/**",
     "src/modules/ia-strip/**",
     "src/modules/portals/**",
