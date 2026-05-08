@@ -43,20 +43,12 @@ export function PortalRTView() {
           </svg>
           <p className="text-white font-medium mb-2">Acesso não autorizado</p>
           <p className="text-white/50 text-sm mb-4">Você não tem permissão para acessar este módulo.</p>
-          {logout && (
-            <button
-              onClick={logout}
-              className="px-4 py-2 rounded-lg bg-violet-500/20 text-violet-300 text-sm font-medium hover:bg-violet-500/30 transition-colors"
-            >
-              Voltar
-            </button>
-          )}
         </div>
       </div>
     );
   }
 
-  const labName = activeLab?.nome || activeLabId || 'Lab';
+  const labName = activeLab?.name || activeLabId || 'Lab';
   const operatorName = 'Responsável Técnico';
 
   return (
