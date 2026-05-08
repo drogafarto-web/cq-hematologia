@@ -1,6 +1,24 @@
 {
   "indexes": [
     {
+      "collectionGroup": "items",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "analyteId", "order": "ASCENDING" },
+        { "fieldPath": "ageGroup", "order": "ASCENDING" },
+        { "fieldPath": "sex", "order": "ASCENDING" },
+        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "items",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "analyteId", "order": "ASCENDING" },
+        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "accessRequests",
       "queryScope": "COLLECTION",
       "fields": [
@@ -693,13 +711,6 @@
       "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "nextRetry", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "notivisa-queue",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
