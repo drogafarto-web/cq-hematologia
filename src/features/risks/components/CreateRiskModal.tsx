@@ -205,6 +205,9 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
               onChange={(e) => handleChange('processo', e.target.value)}
               disabled={isSubmitting}
               className="w-full px-3 py-2 bg-white/[0.05] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 disabled:opacity-50"
+              style={{
+                colorScheme: 'dark',
+              }}
             >
               <option value="">Selecione...</option>
               {PROCESSO_OPTIONS.map((p) => (
@@ -226,6 +229,9 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
               onChange={(e) => handleChange('categoria', e.target.value)}
               disabled={isSubmitting}
               className="w-full px-3 py-2 bg-white/[0.05] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 disabled:opacity-50"
+              style={{
+                colorScheme: 'dark',
+              }}
             >
               <option value="">Selecione...</option>
               {CATEGORIA_OPTIONS.map((c) => (
@@ -254,6 +260,7 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
                   onChange={(e) => handleChange('probabilidade', parseInt(e.target.value))}
                   disabled={isSubmitting}
                   className="w-full px-2 py-1 bg-white/[0.05] border border-white/10 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 disabled:opacity-50"
+                  style={{ colorScheme: 'dark' }}
                 >
                   {[1, 2, 3, 4, 5].map((v) => (
                     <option key={v} value={v}>
@@ -274,6 +281,7 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
                   onChange={(e) => handleChange('severidade', parseInt(e.target.value))}
                   disabled={isSubmitting}
                   className="w-full px-2 py-1 bg-white/[0.05] border border-white/10 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 disabled:opacity-50"
+                  style={{ colorScheme: 'dark' }}
                 >
                   {[1, 2, 3, 4, 5].map((v) => (
                     <option key={v} value={v}>
@@ -294,6 +302,7 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
                   onChange={(e) => handleChange('deteccao', parseInt(e.target.value))}
                   disabled={isSubmitting}
                   className="w-full px-2 py-1 bg-white/[0.05] border border-white/10 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 disabled:opacity-50"
+                  style={{ colorScheme: 'dark' }}
                 >
                   {[1, 2, 3, 4, 5].map((v) => (
                     <option key={v} value={v}>
