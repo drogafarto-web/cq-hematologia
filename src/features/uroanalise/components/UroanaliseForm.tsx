@@ -777,6 +777,7 @@ export function UroanaliseForm({
                 value={form.cargo ?? ''}
                 onChange={(e) => setField('cargo', e.target.value as UroanaliseFormData['cargo'])}
                 className={errors.cargo ? INPUT_ERR : INPUT}
+                style={{ colorScheme: 'dark' }}
               >
                 <option value="" disabled>
                   Selecione o cargo…
@@ -823,6 +824,7 @@ export function UroanaliseForm({
                 setField('frequencia', e.target.value as UroanaliseFormData['frequencia'])
               }
               className={errors.frequencia ? INPUT_ERR : INPUT}
+              style={{ colorScheme: 'dark' }}
             >
               <option value="DIARIA">Diária</option>
               <option value="LOTE">Por troca de lote de tiras</option>
@@ -1173,6 +1175,7 @@ export function UroanaliseForm({
                     )
                   }
                   className={errors.notivisaTipo ? INPUT_ERR : INPUT}
+                  style={{ colorScheme: 'dark' }}
                 >
                   <option value="">— selecione —</option>
                   <option value="queixa_tecnica">Queixa técnica</option>
@@ -1193,6 +1196,7 @@ export function UroanaliseForm({
                     )
                   }
                   className={errors.notivisaStatus ? INPUT_ERR : INPUT}
+                  style={{ colorScheme: 'dark' }}
                 >
                   <option value="">— selecione —</option>
                   <option value="pendente">Pendente</option>
