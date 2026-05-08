@@ -59,7 +59,16 @@ export const RisksView: React.FC = () => {
     const altos = active.filter(r => r.nivel === 'alto');
     const mitigando = active.filter(r => r.status === 'mitigando');
     const now = new Date();
-    const vencendo = active.filter(r => r.reviewDate && new Date(r.reviewDate) < new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000));
+    const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const vencendo = active.filter(r => {
+      if (!r.reviewDate) return false;
+      const reviewDateObj = r.reviewDate instanceof Date
+        ? r.reviewDate
+        : (typeof r.reviewDate === 'object' && 'toDate' in r.reviewDate)
+        ? (r.reviewDate as any).toDate()
+        : new Date(r.reviewDate);
+      return reviewDateObj < thirtyDaysFromNow;
+    });
 
     return {
       total: active.length,

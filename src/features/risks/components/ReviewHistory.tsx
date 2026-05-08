@@ -29,7 +29,11 @@ const RESULTADO_CONFIG: Record<string, { dot: string; cls: string }> = {
 };
 
 const ReviewRow = memo(({ revisao }: { revisao: Revisao }) => {
-  const date = revisao.criadoEm instanceof Date ? revisao.criadoEm : new Date(revisao.criadoEm);
+  const date = revisao.criadoEm instanceof Date
+    ? revisao.criadoEm
+    : (revisao.criadoEm && typeof revisao.criadoEm === 'object' && 'toDate' in revisao.criadoEm)
+    ? (revisao.criadoEm as any).toDate()
+    : new Date(revisao.criadoEm);
 
   return (
     <tr className="border-b border-white/[0.04] last:border-b-0 hover:bg-white/[0.02] transition-colors duration-150">
@@ -120,7 +124,13 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ risk }) => {
               {risk.reviewDate ? 'Próxima' : 'Não agendada'}
             </div>
             <div className="text-white/50">
-              {risk.reviewDate ? new Date(risk.reviewDate).toLocaleDateString('pt-BR') : '—'}
+              {risk.reviewDate ? (
+                risk.reviewDate instanceof Date
+                  ? risk.reviewDate.toLocaleDateString('pt-BR')
+                  : (typeof risk.reviewDate === 'object' && 'toDate' in risk.reviewDate)
+                  ? (risk.reviewDate as any).toDate().toLocaleDateString('pt-BR')
+                  : new Date(risk.reviewDate).toLocaleDateString('pt-BR')
+              ) : '—'}
             </div>
           </div>
         </div>
