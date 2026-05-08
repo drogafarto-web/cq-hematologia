@@ -59,16 +59,19 @@ export function useSessionManagement(): UseSessionManagementReturn {
     try {
       // Call Cloud Function to refresh token
       // This extends the expiry to +72 hours from now
-      const refreshTokenFn = (await import('firebase/functions')).httpsCallable(
-        (await import('../../shared/services/firebase')).functions,
-        'refreshPatientToken',
-      );
+      const { httpsCallable } = await import('firebase/functions');
+      const { functions } = await import('../../shared/services/firebase');
+
+      const refreshTokenFn = httpsCallable<
+        { currentToken: string },
+        { success: boolean; token: string; expiresAt: number }
+      >(functions, 'refreshPatientToken');
 
       const result = await refreshTokenFn({
         currentToken: session.token,
       });
 
-      if (result.data?.success && result.data?.token && result.data?.expiresAt) {
+      if (result.data.success && result.data.token && result.data.expiresAt) {
         // Update session with new token
         usePatientAuthStore.getState().setSession({
           token: result.data.token,
