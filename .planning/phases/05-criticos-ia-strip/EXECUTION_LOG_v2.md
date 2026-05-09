@@ -95,3 +95,20 @@ Starting 4 parallel Haiku agents. Verification gate after completion.
 - **Verdict:** ✅ **PROCEED TO WAVE 5**
 
 ---
+
+## Wave 5 — TESTS
+
+### W5 Execution
+- **W5-A1:** ✅ Unit tests criticoDetector (44 tests, 100% coverage) — commit 9c65b93
+- **W5-A2:** ✅ Unit tests IA classification (40 tests, 96.22% coverage)
+- **W5-A3:** ✅ Unit tests Twilio SMS (42 tests, mocked)
+- **W5-A4:** ✅ E2E specs escalation (4 specs, all passing)
+- **W5-A5:** ✅ E2E specs IA strip (12 tests, all passing) — commit 3f77f50
+
+### Wave 5 Verification Gate
+- **tsc:** ✅ PASS (0 new TypeScript errors)
+- **tests:** ✅ 1494 passed (includes 142 new W5 tests), 16 pre-existing failures (portal-paciente, not W5)
+- **coverage:** ✅ W5-A1 (100%), W5-A2 (96.22%), E2E specs all passing
+- **Verdict:** ✅ **PROCEED TO WAVE 6**
+
+---
