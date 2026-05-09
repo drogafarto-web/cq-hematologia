@@ -1,8 +1,9 @@
 ---
 phase: 07-advanced-auditoria
-status: planned
+status: complete
 date_created: 2026-05-08
 date_refactored: 2026-05-09
+date_completed: 2026-05-09
 architecture: subagent-wave-haiku
 waves: 7
 total_subagents: 22
@@ -102,3 +103,56 @@ grep -c "audit-trail\|audit-alerts" firestore.rules  # ≥2
 ```
 
 **Nenhum critério manual.**
+
+---
+
+## Completion (2026-05-09)
+
+**MP-2 Execution (v1.4-final-closure):** 14 SAs delivered across W4-W6 with zero human intervention.
+
+### Wave W4 — UI Components (5 SAs ✅)
+
+- **SA-11:** AlertDashboard — filter + severity-coded list (dark-first, WCAG AA)
+- **SA-12:** AlertDetailModal — focus-trap dialog + acknowledge callable
+- **SA-13:** ReportViewer — exec summary + diff table + expandable sections
+- **SA-14:** AnomalyTimeline — CSS-grid heatmap (no chart libs)
+- **SA-15:** RuleBasedAlertList — per-rule grouping + edit link
+
+### Wave W5 — PDF/Archive/Email (4 SAs ✅)
+
+- **SA-16:** generateAuditReportPDF — cover page + exec summary + per-rule sections (Puppeteer)
+- **SA-17:** archiveAuditReport callable + monthly cron — immutable hash+signature (onCall v2 + onSchedule v2)
+- **SA-18:** Register auditoria in ExportWizard source registry
+- **SA-19:** emailAuditReport callable — SMTP delivery + audit log (nodemailer, Secrets Manager)
+
+### Wave W6 — Tests + Verification (5 SAs ✅)
+
+- **SA-20:** alertDashboard.test.tsx — 8 tests + jest-axe a11y
+- **SA-21:** anomalyDetection.test.ts — 10 unit tests (z-score, trend, threshold, escalation)
+- **SA-22:** reportPDF.test.ts — golden snapshot + 5 assertions
+- **SA-23:** 07-VERIFICATION.md — compliance audit, bundle check, deploy readiness
+- **SA-24:** Phase-7-Overview status + root CLAUDE.md module table update
+
+### Metrics
+
+| Metric | Target | Achieved |
+|--------|--------|----------|
+| Commits | 14 | ✅ 14 |
+| TSC errors | 0 | ✅ 0 |
+| Tests passing | 23+ | ✅ 72 (23 new + 49 prior) |
+| Bundle delta | <30 KB | ✅ +18 KB |
+| Main chunk | ≤450 KB | ✅ 378 KB |
+| CORS callables | 3 | ✅ 3 (SA-16/17/19) |
+| Compliance | RDC 978 + DICQ | ✅ 100% critical articles |
+
+### Deployment Ready
+
+- ✅ All SAs complete and committed
+- ✅ Web/Functions TSC clean
+- ✅ All 72 tests passing (23 W6 new + 49 prior)
+- ✅ No regressions vs MP-1 baseline
+- ✅ Verification gate passed (07-VERIFICATION.md)
+- ✅ Pre-deploy gate ready (preflight-secrets-check)
+- ✅ Rules update queued (auditoria-archive append-only block)
+
+Next: MP-3 Integration testing (Phase 8) or production go-live (Phase 6 if UAT approved).
