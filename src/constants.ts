@@ -110,6 +110,10 @@ export const SUBCOLLECTIONS = {
   // Código de auditoria (CQ-XXXX-XXXX-XXXX-XXXX) derivado do hash e impresso
   // no PDF é verificável contra este registro. RDC 978/2025 — rastreabilidade.
   REPORT_EMISSIONS: 'report-emissions',
+  // Módulo: Critical Values (Críticos) — Phase 5+
+  CRITICOS_THRESHOLDS: 'criticos-thresholds',
+  CRITICOS_ESCALACOES: 'criticos-escalacoes',
+  CRITICOS_LOG: 'criticos-log',
   // Módulos futuros — descomentar ao implementar:
   // CIQ_BIOQUIMICA: 'ciq-bioquimica',
 } as const;
