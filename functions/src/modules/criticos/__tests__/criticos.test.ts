@@ -12,6 +12,7 @@
 
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { detectCriticoEm, detectAllCriticos } from '../../../src/features/criticos/utils/criticoDetector';
+import { generateChainHash } from '../../../shared/signature';
 import type { CriticoThreshold } from '../../../src/features/criticos/utils/criticoDetector';
 
 describe('Critical Values Detection', () => {
@@ -233,5 +234,116 @@ describe('Error Handling', () => {
     const result = detectCriticoEm(resultado, [thresholdNoMin], paciente);
 
     expect(result.isCritico).toBe(false);
+  });
+});
+
+describe('HMAC Chain Signatures (ADR-0017)', () => {
+  it('should generate 64-character hex hash for chain signature', () => {
+    const payload = {
+      eventoId: 'evento-001',
+      escalacaoId: 'escalacao-001',
+      labId: 'lab-001',
+      tipo: 'sms_enviado',
+      operadorId: 'user-001',
+      tsMs: Date.now(),
+      detalhes: { canal: 'SMS', twilio_sid: 'SM123456' },
+      previousHash: null,
+    };
+
+    const hash = generateChainHash(payload);
+
+    expect(hash).toBeTruthy();
+    expect(typeof hash).toBe('string');
+    expect(hash.length).toBe(64);
+    expect(/^[a-f0-9]{64}$/.test(hash)).toBe(true);
+  });
+
+  it('should generate different hashes for different payloads', () => {
+    const basePayload = {
+      eventoId: 'evento-001',
+      escalacaoId: 'escalacao-001',
+      labId: 'lab-001',
+      tipo: 'sms_enviado',
+      operadorId: 'user-001',
+      tsMs: Date.now(),
+      detalhes: { canal: 'SMS', twilio_sid: 'SM123456' },
+      previousHash: null,
+    };
+
+    const hash1 = generateChainHash(basePayload);
+
+    const payload2 = {
+      ...basePayload,
+      eventoId: 'evento-002',
+    };
+    const hash2 = generateChainHash(payload2);
+
+    expect(hash1).not.toBe(hash2);
+    expect(hash1.length).toBe(64);
+    expect(hash2.length).toBe(64);
+  });
+
+  it('should chain previous hash for tamper-evidence', () => {
+    const event1Payload = {
+      eventoId: 'evento-001',
+      escalacaoId: 'escalacao-001',
+      labId: 'lab-001',
+      tipo: 'sms_enviado',
+      operadorId: 'user-001',
+      tsMs: 1000,
+      detalhes: { canal: 'SMS', twilio_sid: 'SM123456' },
+      previousHash: null,
+    };
+
+    const hash1 = generateChainHash(event1Payload);
+
+    // Second event chains the first
+    const event2Payload = {
+      eventoId: 'evento-002',
+      escalacaoId: 'escalacao-001',
+      labId: 'lab-001',
+      tipo: 'reconhecimento_manual',
+      operadorId: 'user-002',
+      tsMs: 2000,
+      detalhes: { reconhecido_por: 'Dr. Silva', metodo: 'manual' },
+      previousHash: hash1,
+    };
+
+    const hash2 = generateChainHash(event2Payload);
+
+    // Different previous hash should produce different result
+    const event2PayloadAlteredPrev = {
+      ...event2Payload,
+      previousHash: 'altered_hash_' + hash1.slice(14),
+    };
+    const hash2Altered = generateChainHash(event2PayloadAlteredPrev);
+
+    expect(hash2).not.toBe(hash2Altered);
+    expect(hash1.length).toBe(64);
+    expect(hash2.length).toBe(64);
+  });
+
+  it('should validate signature format for Firestore rules', () => {
+    const payload = {
+      eventoId: 'evento-001',
+      escalacaoId: 'escalacao-001',
+      labId: 'lab-001',
+      tipo: 'sms_enviado',
+      operadorId: 'user-001',
+      tsMs: Date.now(),
+      detalhes: { canal: 'SMS' },
+      previousHash: null,
+    };
+
+    const hash = generateChainHash(payload);
+    const signature = {
+      hash,
+      operatorId: 'user-001',
+      ts: new Date(),
+    };
+
+    // Firestore rule validation: hash.size() == 64
+    expect(signature.hash.length).toBe(64);
+    expect(/^[a-f0-9]{64}$/.test(signature.hash)).toBe(true);
   });
 });
