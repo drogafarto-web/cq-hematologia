@@ -201,7 +201,13 @@
       "Bash(\"Node processes *)",
       "Bash(pkill -f \"node.*8080\")",
       "PowerShell(Get-ScheduledTask *)",
-      "Bash(Modal\")"
+      "Bash(Modal\")",
+      "PowerShell(Get-Date *)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(Test-NetConnection *)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\hc quality\\\\functions\\\\src\\\\modules\" -Directory | Select-Object -First 5 | ForEach-Object { $_.Name })",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\hc quality\\\\functions\\\\src\\\\modules\\\\admin\" | Select-Object -First 10 | ForEach-Object { $_.Name })",
+      "PowerShell(Stop-Process *)"
     ]
   },
   "model": "haiku",

@@ -308,6 +308,8 @@ export {
   calculateAccuracy,
   collectIADataset,
   handleMLTeamFeedback,
+  classifyStripImage,
+  collectIADatasetManual,
 } from './modules/ciqImuno/index';
 
 // ─── bioquimica module (Phase 9 — CIQ Quantitativo) ─────────────────────────
