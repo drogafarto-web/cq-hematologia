@@ -74,7 +74,7 @@ async function isActiveMemberOfLab(labId: string, uid: string): Promise<boolean>
  * Caller: admin/RT
  */
 export const createAuditoria = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', cors: true },
   async (request: CallableRequest<any>) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Auth token required');
@@ -139,7 +139,7 @@ export const createAuditoria = onCall(
  * Se severidade >= grave, cria NC automaticamente.
  */
 export const registerAchado = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', cors: true },
   async (request: CallableRequest<RegisterAchadoInputType>) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Auth token required');
@@ -307,7 +307,7 @@ export const registerAchado = onCall(
  * Creates sessão + checklist items in atomic batch.
  */
 export const installChecklistTemplate = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', cors: true },
   async (request: CallableRequest<InstallChecklistTemplateInputType>) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Auth required');
@@ -431,7 +431,7 @@ export const installChecklistTemplate = onCall(
  * Called when auditor finalizes session (syncs offline draft responses).
  */
 export const updateChecklistResponses = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', cors: true },
   async (request: CallableRequest<UpdateChecklistResponseInputType>) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Auth required');
@@ -505,47 +505,10 @@ export const updateChecklistResponses = onCall(
 );
 
 /**
- * createPlanoAcao: Cria plano de ação pós-achado para closure.
- */
-export const createPlanoAcao = onCall(
-  { region: 'southamerica-east1' },
-  async (request: CallableRequest<any>) => {
-    if (!request.auth) {
-      throw new HttpsError('unauthenticated', 'Auth required');
-    }
-
-    const { labId, achadoId, descricao, responsavel, prazo } = request.data;
-
-    if (!labId || !achadoId || !descricao || !responsavel || !prazo) {
-      throw new HttpsError(
-        'invalid-argument',
-        'Campos obrigatórios: labId, achadoId, descricao, responsavel, prazo'
-      );
-    }
-
-    const isMember = await isActiveMemberOfLab(labId, request.auth.uid);
-    if (!isMember) {
-      throw new HttpsError('permission-denied', 'Not a lab member');
-    }
-
-    try {
-      // TODO: Implement plano de ação creation
-      return {
-        success: true,
-        message: 'Plano de ação creation not yet implemented',
-      };
-    } catch (error: any) {
-      if (error instanceof HttpsError) throw error;
-      throw new HttpsError('internal', error.message);
-    }
-  }
-);
-
-/**
  * closeAuditoria: Finaliza auditoria (marca como finalizada).
  */
 export const closeAuditoria = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', cors: true },
   async (request: CallableRequest<any>) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Auth required');
