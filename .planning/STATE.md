@@ -14,7 +14,7 @@ progress:
 
 # HC Quality v1.4 — Phase 4 Complete, Phase 5 Ready
 
-**Last Updated:** 2026-05-09 (00:35 UTC)
+**Last Updated:** 2026-05-09 (04:35 UTC)
 **Status:** `v1.4-phase-4-LIVE` — Phase 4 deployed to production 2026-05-08 (Rules + Indexes + 78 Functions + Hosting). 1427/1569 unit tests passing (142 skipped: 4 E2E suites + 1 integration test parked w/ TODO post-deploy rewrite). Hotfix indexes (events + notivisa-outbox composite) deployed 2026-05-09 00:30 UTC after queue processor reported FAILED_PRECONDITION. No other errors in Cloud Logs. Ready for Phase 5 (currently 10% — 4 subagents executing waves 1–2).
 
 ---
@@ -146,10 +146,10 @@ See `.planning/milestones/v1.4-KICKOFF-SUMMARY.md` for full phase breakdown and 
 | **Phase 2** | ✅ COMPLETE | 2026-05-07 | Planning deep-dive (9 artifacts) |
 | **Phase 3** | ✅ COMPLETE | 2026-05-07 | Schema + Rules + Functions scaffolding |
 | **Phase 4** | ✅ COMPLETE | 2026-05-08 | Portal auth + NOTIVISA integration — 4 plans + E2E tests ✅ |
-| **Phase 5** | 🔄 EXECUTING | 2026-05-15 (est.) | Critical escalation + IA training — 4 subagents (waves 1–2) in background, auto-approve, sleep-safe |
+| **Phase 5** | ✅ WAVE-1-LIVE | 2026-05-09 | Critical escalation + IA training — Wave 1 (05-01, 05-03) deployed 2026-05-09 04:32 UTC |
 | **Phase 6+** | 📅 BACKLOG | TBD | Extended roadmap |
 
-**Overall v1.4 Progress:** Phase 0–4 (100%) + Phase 5 (10% — executing) + Phase 6–15 (0%) = **~47% complete**
+**Overall v1.4 Progress:** Phase 0–4 (100%) + Phase 5 (25% — Wave 1 LIVE, Wave 2 in progress) + Phase 6–15 (0%) = **~52% complete**
 
 **Phase 4 Status (as of 2026-05-07 23:59 UTC):**
 
