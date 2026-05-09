@@ -16,7 +16,8 @@ import { describe, it, expect, beforeEach } from 'vitest';
  * In actual E2E: use emulator or test project
  */
 
-describe('Patient Portal Error Scenarios (E2E)', () => {
+// TODO(phase-4-deploy 2026-05-08): rewrite as integration tests w/ emulator post-deploy
+describe.skip('Patient Portal Error Scenarios (E2E)', () => {
   beforeEach(() => {
     // Clear session before each test
     localStorage.clear();

@@ -714,6 +714,23 @@
       ]
     },
     {
+      "collectionGroup": "events",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "nextRetry", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "notivisa-outbox",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "escalatedToSupervisor", "order": "ASCENDING" },
+        { "fieldPath": "notificationDeadline", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "criticos-escalacoes",
       "queryScope": "COLLECTION",
       "fields": [
