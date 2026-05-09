@@ -255,15 +255,17 @@ export {
   scheduledReview,
 } from './modules/risks/index';
 
-// ─── qualidade module (ADR 0003 — Não-Conformidade) ─────────────────────────
+// ─── qualidade module (ADR 0003 — Não-Conformidade + Phase 7 Advanced Auditoria) ──
 // Lifecycle management for quality incidents (Não-Conformidades).
 // openNaoConformidade: create NC with audit trail
 // updateNaoConformidade: progress NC through workflow (aberta → investig → correcao → verif → fechada)
+// scheduledAuditReportJob: daily scheduled report generation (Phase 7 Wave 5)
 export {
   openNaoConformidade,
   updateNaoConformidade,
   addAcao,
-} from './modules/qualidade/naoConformidade';
+  scheduledAuditReportJob,
+} from './modules/qualidade';
 
 // ─── procedimentos module (ADR 0004 — POP Versioning & RT Signatures) ────────
 // Standard Operating Procedure (POP) versioning with RT cryptographic signatures.

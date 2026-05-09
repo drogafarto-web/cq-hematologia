@@ -3,3 +3,4 @@ export { investigarNC, executarAcaoCorretiva, verificarEficacia } from './capaWo
 export { NCSeveridade, type NaoConformidade, type CAPAStatus, type NCOrigem } from './types';
 export type { NCBlockingCheckResult } from './naoConformidade';
 export { qualidade_exportAuditTrail } from './exportAuditTrail';
+export { scheduledAuditReportJob } from './scheduledAuditReportJob';

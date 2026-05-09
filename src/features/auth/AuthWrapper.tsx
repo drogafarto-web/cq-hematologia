@@ -60,6 +60,11 @@ const AuditTrailView = React.lazy(() =>
   import('../auditoria-trail').then((m) => ({ default: m.AuditTrailView })),
 );
 
+// Phase 7: Qualidade — Advanced Auditoria com detecção de anomalias (lazy-loaded)
+const QualidadeView = React.lazy(() =>
+  import('../qualidade/AuditoriaView').then((m) => ({ default: m.default })),
+);
+
 import { useBrowserHistorySync } from '../../shared/hooks/useBrowserHistorySync';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
@@ -206,6 +211,12 @@ function AppRouter() {
     view = (
       <React.Suspense fallback={<FullScreenLoader />}>
         <AuditTrailView />
+      </React.Suspense>
+    );
+  } else if (currentView === 'qualidade') {
+    view = (
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <QualidadeView />
       </React.Suspense>
     );
   } else if (currentView === 'capa-tracking') {
