@@ -16,8 +16,8 @@
 
 import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import * as admin from 'firebase-admin';
-import { detectAnomalies } from './anomalyDetector';
-import { generateAlert } from './alertEngine';
+import { detectAnomalies } from '../../shared/anomalyDetector';
+import { generateAlert } from '../../shared/alertEngine';
 import type { AuditEntry, AnomalyScore } from '../../types/anomalyTypes';
 
 // Initialize Firestore admin
@@ -72,7 +72,7 @@ export const onAuditTrailEntry = onDocumentCreated(
           entryId,
           labId,
           operatorId: entry.operatorId || 'unknown',
-          overallScore: 0,
+          overall: 0,
           dimensions: [],
           computedAt: Date.now(),
         };
@@ -89,13 +89,13 @@ export const onAuditTrailEntry = onDocumentCreated(
       console.log('[cfAuditTrigger] Anomaly score saved', {
         labId,
         entryId,
-        score: anomalyScore.overallScore,
+        score: anomalyScore.overall,
       });
 
       // 3. Generate alert if threshold exceeded
-      if (anomalyScore.overallScore >= 0.85) {
+      if (anomalyScore.overall >= 0.85) {
         try {
-          await generateAlert(db, labId, anomalyScore);
+          await generateAlert({ entryId, overall: anomalyScore.overall, dimensions: [], flags: [] }, labId);
           console.log('[cfAuditTrigger] Alert generated', {
             labId,
             entryId,

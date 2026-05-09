@@ -75,7 +75,7 @@ async function aggregateMetrics(
   topModules: string[];
   periodString: string;
 }> {
-  let query = db.collection('labs').doc(labId).collection('audit-alerts') as any;
+  let query: FirebaseFirestore.Query = db.collection('labs').doc(labId).collection('audit-alerts');
 
   // Apply date filters if custom period
   if (filter.period === 'custom' && filter.startDate && filter.endDate) {
@@ -105,7 +105,7 @@ async function aggregateMetrics(
   const snapshot = await query.get();
   const alerts: AuditAlert[] = [];
 
-  snapshot.forEach((doc) => {
+  snapshot.forEach((doc: FirebaseFirestore.DocumentSnapshot) => {
     alerts.push({
       id: doc.id,
       ...doc.data(),
@@ -117,7 +117,10 @@ async function aggregateMetrics(
   const moduleMap = new Map<string, number>();
 
   alerts.forEach((alert) => {
-    severityBreakdown[alert.severity]++;
+    const severity = alert.severity as keyof typeof severityBreakdown;
+    if (severity in severityBreakdown) {
+      severityBreakdown[severity]++;
+    }
 
     const moduleName =
       alert.anomalyScore.aiInsight ||
@@ -182,7 +185,7 @@ export const generateAuditReport = onCall<
       console.log('[generateAuditReport] Metrics aggregated', metrics);
 
       // 3. Generate summary via Gemini
-      const aiSummary = await summarizeAuditFindings({
+      const summaryText = await summarizeAuditFindings({
         entryCount: metrics.entryCount,
         anomalyCount: metrics.anomalyCount,
         period: metrics.periodString,
@@ -201,12 +204,9 @@ export const generateAuditReport = onCall<
         id: reportId,
         labId,
         filter,
-        summary: {
-          entryCount: metrics.entryCount,
-          anomalyCount: metrics.anomalyCount,
-          severityBreakdown: metrics.severityBreakdown,
-          complianceScore: 85, // TODO: compute from audit-trail coverage
-        },
+        summary: summaryText || 'Relatório de auditoria gerado com sucesso.',
+        entryCount: metrics.entryCount,
+        anomalyCount: metrics.anomalyCount,
         generatedAt: now,
       };
 
