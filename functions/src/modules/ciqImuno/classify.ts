@@ -199,7 +199,8 @@ export const classifyStripImage = onCall(async (request) => {
   // Parse and validate input
   let payload: ClassifyStripImagePayload;
   try {
-    payload = ClassifyStripImagePayloadSchema.parse(request.data);
+    const validated = ClassifyStripImagePayloadSchema.parse(request.data) as ClassifyStripImagePayload;
+    payload = validated;
   } catch (error) {
     const validationError = error instanceof z.ZodError
       ? error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ')
@@ -362,7 +363,8 @@ export const collectIADataset = onCall(async (request) => {
   // Parse and validate input
   let payload: CollectIADatasetPayload;
   try {
-    payload = CollectIADatasetPayloadSchema.parse(request.data);
+    const validated = CollectIADatasetPayloadSchema.parse(request.data) as CollectIADatasetPayload;
+    payload = validated;
   } catch (error) {
     const validationError = error instanceof z.ZodError
       ? error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ')

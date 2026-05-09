@@ -182,6 +182,13 @@ const ControlTempIcon = () => (
   </Svg>
 );
 
+const CriticosIcon = () => (
+  <Svg size={20}>
+    <path d="M10 2.5L3.5 5v5.5c0 3.5 2.7 6.5 6.5 7.5 3.8-1 6.5-4 6.5-7.5V5L10 2.5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+    <path d="M10 8v4M10 14.5a0.75 0.75 0 1 1 0-1.5 0.75 0.75 0 0 1 0 1.5z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+  </Svg>
+);
+
 /* ── DICQ / SGQ icons ────────────────────────────────────────────────────── */
 
 const DocsIcon = () => (
@@ -394,8 +401,8 @@ const MODULES: ModuleDef[] = [
   {
     id: 'ciq-imuno',
     name: 'CIQ-Imuno',
-    tagline: 'Imunoensaios rápidos · strips · OCR',
-    bullets: ['HIV, Dengue, HCG, Sífilis, COVID', 'Manual + analisador', 'pinHistory append-only'],
+    tagline: 'Imunoensaios rápidos · IA strip + análise acurácia',
+    bullets: ['HIV, Dengue, HCG, Sífilis, COVID', 'IA classification + upload manual', 'Dashboard acurácia + metrô visualização'],
     icon: <ImunoIcon />,
     bloco: 'Bloco 4',
     iconBg: 'bg-emerald-500/15',
@@ -430,6 +437,19 @@ const MODULES: ModuleDef[] = [
     status: 'active',
     category: 'analitico',
     view: 'controle-temperatura',
+  },
+  {
+    id: 'criticos',
+    name: 'Valores Críticos',
+    tagline: 'Comunicação de resultados críticos · Escalações',
+    bullets: ['Detecção e escalação', 'Limites por analito', 'RDC 978 Art. 5.7.1'],
+    icon: <CriticosIcon />,
+    bloco: 'Bloco 4',
+    iconBg: 'bg-red-500/15',
+    iconColor: 'text-red-400',
+    status: 'active',
+    category: 'analitico',
+    view: 'criticos' as View,
   },
   {
     id: 'educacao-continuada',
