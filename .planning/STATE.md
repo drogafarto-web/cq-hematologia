@@ -146,10 +146,10 @@ See `.planning/milestones/v1.4-KICKOFF-SUMMARY.md` for full phase breakdown and 
 | **Phase 2** | ✅ COMPLETE | 2026-05-07 | Planning deep-dive (9 artifacts) |
 | **Phase 3** | ✅ COMPLETE | 2026-05-07 | Schema + Rules + Functions scaffolding |
 | **Phase 4** | ✅ COMPLETE | 2026-05-08 | Portal auth + NOTIVISA integration — 4 plans + E2E tests ✅ |
-| **Phase 5** | ✅ WAVE-1-LIVE | 2026-05-09 | Critical escalation + IA training — Wave 1 (05-01, 05-03) deployed 2026-05-09 04:32 UTC — **CASCADE PAUSED** |
-| **Phase 6+** | ⏸️ PAUSED | TBD | Auto-triggers DISABLED — manual trigger required for Phase 6 |
+| **Phase 5** | ✅ COMPLETE | 2026-05-09 | Criticos + CIQ-Imuno IA — 8 waves + 27 subagents, all acceptance criteria met |
+| **Phase 6+** | 📋 READY | 2026-05-22 | Auto-triggers DISABLED — manual trigger required; Phase 5 completion verified |
 
-**Overall v1.4 Progress:** Phase 0–4 (100%) + Phase 5 (25% — Wave 1 LIVE, Wave 2 in progress) + Phase 6–15 (0%) = **~52% complete**
+**Overall v1.4 Progress:** Phase 0–5 (100%) + Phase 6–15 (0%) = **~54% complete**
 
 ⚠️ **CASCADE STATUS:** Auto-triggers disabled as of 2026-05-09 06:15 UTC. Phase 5 continues executing in background. Phase 6 will NOT auto-trigger when Phase 5 completes. Manual intervention required to start Phase 6.
 
@@ -184,4 +184,4 @@ See `.planning/milestones/v1.4-KICKOFF-SUMMARY.md` for full phase breakdown and 
 
 ---
 
-**Last edit:** 2026-05-08 — Cascade Orchestrator V2 (Anthropic-aligned) active. See `.planning/v1.4-CASCADE-ORCHESTRATOR-V2.md`. Phase 5 finishes under V1; Phase 6→9 use V2 (orchestrator-worker, Haiku 4.5 fanout, Persistence Auditor, Verifier gates, 0 human gates). v1.4 target advanced from 2026-07-09 → 2026-06-12.
+**Last edit:** 2026-05-09 11:22 UTC — Phase 5 COMPLETE. 4 modules shipped (criticos, ciq-imuno dataset, escalacoes, IA classification). 8 waves × 27 subagents (W0–W5 core, W6 verification, W7 prep, W8 sync). 1494+ tests passing, bundle 419 KB, all compliance verified. See `PHASE_5_COMPLETION_SUMMARY.md`. Cascade Orchestrator V2 paused; manual gate required for Phase 6 kickoff (2026-05-22).
