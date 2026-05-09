@@ -8,9 +8,9 @@
 import { useState, useMemo } from 'react';
 import { useCAPAs } from '../hooks/useCAPAs';
 import { CAPAStatusBadge } from './CAPAStatusBadge';
-import type { CAPAWithDeadlineStatus } from '../types';
+import type { CAPAWithDeadlineStatus, CapaStateLegacy } from '../types';
 
-type FilterStatus = 'all' | 'open' | 'in-progress' | 'evidence-submitted' | 'auditor-reviewing' | 'closed';
+type FilterStatus = 'all' | CapaStateLegacy;
 
 interface CAPAListViewProps {
   onSelect: (capaId: string) => void;
@@ -18,20 +18,20 @@ interface CAPAListViewProps {
 
 const STATUS_FILTERS: FilterStatus[] = [
   'all',
-  'open',
-  'in-progress',
-  'evidence-submitted',
-  'auditor-reviewing',
-  'closed',
+  'aberto',
+  'em-andamento',
+  'evidencia-submetida',
+  'auditor-revisando',
+  'fechado',
 ];
 
 const STATUS_LABELS: Record<FilterStatus, string> = {
   all: 'Todos',
-  'open': 'Aberto',
-  'in-progress': 'Em andamento',
-  'evidence-submitted': 'Evidência submetida',
-  'auditor-reviewing': 'Auditor revisando',
-  'closed': 'Fechado',
+  'aberto': 'Aberto',
+  'em-andamento': 'Em andamento',
+  'evidencia-submetida': 'Evidência submetida',
+  'auditor-revisando': 'Auditor revisando',
+  'fechado': 'Fechado',
 };
 
 function getDeadlineColor(daysRemaining: number | null): string {
@@ -73,7 +73,7 @@ export function CAPAListView({ onSelect }: CAPAListViewProps) {
 
   const filtered = useMemo(() => {
     if (filterStatus === 'all') return capas;
-    return capas.filter((c) => c.status === filterStatus);
+    return capas.filter((c) => c.state === filterStatus);
   }, [capas, filterStatus]);
 
   if (error) {
@@ -149,31 +149,31 @@ export function CAPAListView({ onSelect }: CAPAListViewProps) {
                   className="border-t border-white/5 hover:bg-white/2 transition-colors cursor-pointer"
                 >
                   <td className="px-4 py-3 font-mono text-xs text-slate-300">
-                    {capa.findingId.slice(-6)}
+                    {capa.finding.findingId.slice(-6)}
                   </td>
                   <td className="px-4 py-3 text-slate-200 max-w-xs truncate">
-                    {capa.title}
+                    {capa.finding.title}
                   </td>
                   <td className="px-4 py-3">
-                    <CAPAStatusBadge status={capa.status} />
+                    <CAPAStatusBadge status={capa.state as CapaStateLegacy} />
                   </td>
-                  <td className={`px-4 py-3 font-mono text-xs font-medium ${getDeadlineColor(capa.daysRemaining)}`}>
-                    {capa.daysRemaining === null
+                  <td className={`px-4 py-3 font-mono text-xs font-medium ${getDeadlineColor(capa.deadlineStatus.daysRemaining)}`}>
+                    {capa.deadlineStatus.daysRemaining === null
                       ? '—'
-                      : capa.daysRemaining < 0
-                        ? `${Math.abs(capa.daysRemaining)}d vencido`
-                        : `${capa.daysRemaining}d`}
+                      : capa.deadlineStatus.daysRemaining < 0
+                        ? `${Math.abs(capa.deadlineStatus.daysRemaining)}d vencido`
+                        : `${capa.deadlineStatus.daysRemaining}d`}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(capa.severity)}`}>
-                      {capa.severity === 'critical' ? 'Crítica' : capa.severity === 'major' ? 'Maior' : 'Menor'}
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(capa.finding.severity)}`}>
+                      {capa.finding.severity === 'critical' || capa.finding.severity === 'critica' ? 'Crítica' : capa.finding.severity === 'major' || capa.finding.severity === 'alta' ? 'Maior' : 'Menor'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-center">
                     <button
                       onClick={() => onSelect(capa.id)}
                       className="inline-flex items-center gap-1.5 px-2.5 h-7 rounded-md text-xs font-medium bg-violet-500/20 text-violet-300 hover:bg-violet-500/30 transition-colors"
-                      aria-label={`Ver CAPA ${capa.findingId}`}
+                      aria-label={`Ver CAPA ${capa.finding.findingId}`}
                     >
                       Ver
                     </button>
@@ -195,14 +195,14 @@ export function CAPAListView({ onSelect }: CAPAListViewProps) {
           <span>
             Abertos:{' '}
             <span className="font-semibold text-red-400">
-              {filtered.filter((c) => c.status === 'open').length}
+              {filtered.filter((c) => c.state === 'aberto').length}
             </span>
           </span>
           <span className="text-white/20">·</span>
           <span>
             Vencidos:{' '}
             <span className="font-semibold text-red-400">
-              {filtered.filter((c) => (c.daysRemaining ?? 0) < 0).length}
+              {filtered.filter((c) => (c.deadlineStatus.daysRemaining ?? 0) < 0).length}
             </span>
           </span>
         </div>

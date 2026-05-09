@@ -190,7 +190,7 @@ export function CalibracaoList() {
                       <button
                         onClick={() => setSelectedId(cal.id)}
                         className="inline-flex items-center gap-1.5 px-2.5 h-7 rounded-md text-xs font-medium bg-violet-500/20 text-violet-300 hover:bg-violet-500/30 transition-colors"
-                        aria-label={`Upload certificado para ${cal.equipmentName}`}
+                        aria-label={`Upload certificado para ${cal.equipName}`}
                       >
                         <UploadIcon />
                         Upload

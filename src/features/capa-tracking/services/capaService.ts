@@ -11,9 +11,9 @@
 
 import {
   collection,
-  db,
   doc,
   getDoc,
+  getDocs,
   onSnapshot,
   orderBy,
   query,
@@ -77,9 +77,10 @@ export async function getCapaById(labId: LabId, capaId: string): Promise<(CapaDo
   const snap = await getDoc(capaDoc(labId, capaId));
   if (!snap.exists()) return null;
   const capa = mapCapaDocument(snap);
+  const deadlineMs = typeof capa.deadlineDate === 'number' ? capa.deadlineDate : (capa.deadlineDate as any)?.toMillis?.() ?? 0;
   return {
     ...capa,
-    daysRemaining: daysRemaining(capa.deadlineDate),
+    daysRemaining: daysRemaining(deadlineMs),
   };
 }
 
@@ -102,10 +103,13 @@ export function subscribeToCapas(
     (snapshot) => {
       const capas = snapshot.docs
         .map(mapCapaDocument)
-        .map((capa) => ({
-          ...capa,
-          daysRemaining: daysRemaining(capa.deadlineDate),
-        }));
+        .map((capa) => {
+          const deadlineMs = typeof capa.deadlineDate === 'number' ? capa.deadlineDate : (capa.deadlineDate as any)?.toMillis?.() ?? 0;
+          return {
+            ...capa,
+            daysRemaining: daysRemaining(deadlineMs),
+          };
+        });
       onUpdate(capas);
     },
     (err) => {
@@ -128,14 +132,17 @@ export async function listCapas(
     ? query(capaCol(labId), where('state', '==', filterState), orderBy(orderField, 'asc'))
     : query(capaCol(labId), orderBy(orderField, 'asc'));
 
-  const snapshot = await db.collection('labs').doc(labId).collection('capa-tracking').get();
+  const snapshot = await getDocs(q);
   return snapshot.docs
     .map(mapCapaDocument)
     .filter((capa) => !filterState || capa.state === filterState)
-    .map((capa) => ({
-      ...capa,
-      daysRemaining: daysRemaining(capa.deadlineDate),
-    }));
+    .map((capa) => {
+      const deadlineMs = typeof capa.deadlineDate === 'number' ? capa.deadlineDate : (capa.deadlineDate as any)?.toMillis?.() ?? 0;
+      return {
+        ...capa,
+        daysRemaining: daysRemaining(deadlineMs),
+      };
+    });
 }
 
 // ─── Singleton ─────────────────────────────────────────────────────────────

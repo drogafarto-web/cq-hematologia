@@ -5,10 +5,10 @@
  * Dark-first design with proper contrast ratios (WCAG AA).
  */
 
-import type { CAPAStatus } from '../types';
+import type { CapaStateLegacy } from '../types';
 
 interface CAPAStatusBadgeProps {
-  status: CAPAStatus;
+  status: CapaStateLegacy;
   className?: string;
 }
 
@@ -21,7 +21,7 @@ interface CAPAStatusBadgeProps {
  * - auditor-revisando: amber (in review)
  * - fechado: emerald (complete)
  */
-const STATUS_CONFIG: Record<CAPAStatus, { label: string; colorClass: string }> = {
+const STATUS_CONFIG: Record<CapaStateLegacy, { label: string; colorClass: string }> = {
   'aberto': {
     label: 'Aberto',
     colorClass: 'bg-slate-700 text-slate-100',

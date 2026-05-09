@@ -23,9 +23,11 @@ interface CalibracaoDetailProps {
 function CalibracaoTimeline({ record }: { record: CalibracaoRecord }) {
   const sortedCerts = useMemo(() => {
     const sorted = [...(record.certificates || [])];
-    return sorted.sort(
-      (a, b) => b.uploadedAt.toMillis() - a.uploadedAt.toMillis(),
-    );
+    return sorted.sort((a, b) => {
+      const aTime = typeof a.uploadedAt === 'number' ? a.uploadedAt : a.uploadedAt.toMillis();
+      const bTime = typeof b.uploadedAt === 'number' ? b.uploadedAt : b.uploadedAt.toMillis();
+      return bTime - aTime;
+    });
   }, [record.certificates]);
 
   return (
@@ -60,8 +62,8 @@ function CalibracaoTimeline({ record }: { record: CalibracaoRecord }) {
                 <div>
                   <p className="text-gray-500">Upload:</p>
                   <p>
-                    {cert.uploadedAt.toDate().toLocaleDateString('pt-BR')} às{' '}
-                    {cert.uploadedAt.toDate().toLocaleTimeString('pt-BR')}
+                    {(typeof cert.uploadedAt === 'number' ? new Date(cert.uploadedAt) : cert.uploadedAt.toDate()).toLocaleDateString('pt-BR')} às{' '}
+                    {(typeof cert.uploadedAt === 'number' ? new Date(cert.uploadedAt) : cert.uploadedAt.toDate()).toLocaleTimeString('pt-BR')}
                   </p>
                 </div>
                 <div>
@@ -112,7 +114,7 @@ function CalibracaoTimeline({ record }: { record: CalibracaoRecord }) {
           <div className="rounded-lg border border-amber-900/50 bg-amber-900/20 p-4">
             <p className="text-xs font-semibold text-amber-400">Próxima calibração</p>
             <p className="text-sm text-white">
-              {record.dueDateInfo.nextDueDate.toDate().toLocaleDateString('pt-BR')}
+              {(typeof record.dueDateInfo.nextDueDate === 'number' ? new Date(record.dueDateInfo.nextDueDate) : record.dueDateInfo.nextDueDate.toDate()).toLocaleDateString('pt-BR')}
             </p>
             <p className="mt-1 text-xs text-amber-400">
               {record.dueDateInfo.daysUntilDue} dias
@@ -128,8 +130,8 @@ export default function CalibracaoDetail({
   record,
   onClose,
 }: CalibracaoDetailProps) {
-  const lastCalibrationDate = record.lastCalibrationDate.toDate().toLocaleDateString('pt-BR');
-  const nextDueDate = record.dueDateInfo.nextDueDate.toDate().toLocaleDateString('pt-BR');
+  const lastCalibrationDate = (typeof record.lastCalibrationDate === 'number' ? new Date(record.lastCalibrationDate) : record.lastCalibrationDate.toDate()).toLocaleDateString('pt-BR');
+  const nextDueDate = (typeof record.dueDateInfo.nextDueDate === 'number' ? new Date(record.dueDateInfo.nextDueDate) : record.dueDateInfo.nextDueDate.toDate()).toLocaleDateString('pt-BR');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4">

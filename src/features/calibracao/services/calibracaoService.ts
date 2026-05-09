@@ -11,9 +11,9 @@
 
 import {
   collection,
-  db,
   doc,
   getDoc,
+  getDocs,
   onSnapshot,
   orderBy,
   query,
@@ -40,18 +40,37 @@ const calibracaoDoc = (labId: LabId, id: string): DocumentReference =>
 // ─── Mapping snapshot → entity ─────────────────────────────────────────────
 
 function mapCalibracaoRecord(snap: QueryDocumentSnapshot): CalibracaoRecord {
-  const d = snap.data();
+  const d = snap.data() as any;
+  const nextDueTime = typeof d.nextDueDate === 'number' ? d.nextDueDate : d.nextDueDate?.toMillis?.() ?? 0;
+  const lastCalibTime = typeof d.lastCalibrationDate === 'number' ? d.lastCalibrationDate : d.lastCalibrationDate?.toMillis?.() ?? 0;
+  const uploadedAtTime = typeof d.uploadedAt === 'number' ? d.uploadedAt : d.uploadedAt?.toMillis?.() ?? 0;
+
   return {
     id: snap.id,
     labId: d.labId as LabId,
     equipamentoId: d.equipamentoId as string,
+    equipId: d.equipamentoId as string,
+    equipName: d.equipName as string,
     calibrationMethod: d.calibrationMethod as string,
-    nextDueDate: d.nextDueDate.toMillis?.() ?? d.nextDueDate,
+    nextDueDate: nextDueTime,
     status: d.status as CalibracaoStatus,
+    statusUpdatedAt: d.statusUpdatedAt ?? 0,
     certificates: d.certificates ?? [],
-    lastCalibrationDate: d.lastCalibrationDate?.toMillis?.() ?? d.lastCalibrationDate,
+    lastCalibrationDate: lastCalibTime,
+    certificateStoragePath: d.certificateStoragePath ?? '',
+    certificateHash: d.certificateHash ?? '',
+    expandedUncertainty: d.expandedUncertainty ?? 0,
     uploadedBy: d.uploadedBy as string,
-    uploadedAt: d.uploadedAt?.toMillis?.() ?? d.uploadedAt,
+    uploadedAt: uploadedAtTime,
+    createdAt: d.createdAt ?? 0,
+    createdBy: d.createdBy as string,
+    alertsSent: d.alertsSent ?? [],
+    dueDateInfo: {
+      nextDueDate: nextDueTime,
+      daysUntilDue: Math.ceil((nextDueTime - Date.now()) / (1000 * 60 * 60 * 24)),
+      status: d.status as any,
+      alertsSent: { dias30: false, dias15: false, dias7: false },
+    },
     notes: d.notes,
     deletedAt: d.deletedAt,
   } as CalibracaoRecord;
@@ -103,13 +122,14 @@ export async function getCalibracaoAuditReport(labId: LabId, equipamentoId: stri
     orderBy('lastCalibrationDate', 'desc'),
   );
 
-  const snapshot = await db.collection('labs').doc(labId).collection('calibracao').get();
+  const snapshot = await getDocs(q);
+
   return snapshot.docs
     .map(mapCalibracaoRecord)
     .filter((rec) => rec.equipamentoId === equipamentoId)
     .sort((a, b) => {
-      const aDate = a.lastCalibrationDate ?? 0;
-      const bDate = b.lastCalibrationDate ?? 0;
+      const aDate = (typeof a.lastCalibrationDate === 'number' ? a.lastCalibrationDate : 0) ?? 0;
+      const bDate = (typeof b.lastCalibrationDate === 'number' ? b.lastCalibrationDate : 0) ?? 0;
       return bDate - aDate;
     });
 }

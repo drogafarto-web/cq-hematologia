@@ -78,10 +78,15 @@ export function useCAPAs(): UseCAPAsResult {
     const unsubscribe = subscribeToCapas(
       labId,
       (rawCapas) => {
-        // Adiciona deadline status computed a cada CAPA
+        // Adiciona deadline status computed a cada CAPA + legacy field aliases
         const withStatus: CAPAWithDeadlineStatus[] = rawCapas.map((capa) => ({
           ...capa,
           deadlineStatus: computeDeadlineStatus(capa),
+          // Legacy field aliases for backward compatibility with components
+          priority: capa.finding.severity,
+          dicqRef: capa.finding.dicqBlocks?.[0] || '',
+          deadline: typeof capa.deadlineDate === 'number' ? capa.deadlineDate : capa.deadlineDate?.toMillis?.() ?? 0,
+          status: capa.state,
         }));
 
         // Ordena por deadline (próximas primeiro)

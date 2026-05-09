@@ -217,5 +217,6 @@
   },
   "enabledMcpjsonServers": [
     "firebase"
-  ]
+  ],
+  "model": "haiku"
 }

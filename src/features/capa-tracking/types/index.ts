@@ -98,29 +98,45 @@ export interface CapaDocument {
   auditorSignOffAt?: number;
   deletedAt?: number;
   // Legacy field aliases for backward compatibility with components
-  priority?: CapaSeverity; // Alias for finding.severity
-  dicqRef?: string; // Alias for finding.dicqBlocks[0]
-  deadline?: number; // Alias for deadlineDate
-  status?: CapaState; // Alias for state
+  // These are populated by the useCAPAs hook
+  priority: CapaSeverity; // Alias for finding.severity
+  dicqRef: string; // Alias for finding.dicqBlocks[0]
+  deadline: number; // Alias for deadlineDate (as timestamp number)
+  status: CapaState; // Alias for state
   owner?: string; // Legacy: who owns the CAPA
   ownerName?: string; // Legacy: owner name denormalized
 }
 
 // Helpers puros
 export function isValidStateTransition(from: CapaState, to: CapaState): boolean {
+  // Normalize to English for comparison
+  const normalizedFrom = from === 'aberto' ? 'open'
+    : from === 'em-andamento' ? 'in-progress'
+    : from === 'evidencia-submetida' ? 'evidence-submitted'
+    : from === 'auditor-revisando' ? 'auditor-reviewing'
+    : from === 'fechado' ? 'closed'
+    : from;
+
+  const normalizedTo = to === 'aberto' ? 'open'
+    : to === 'em-andamento' ? 'in-progress'
+    : to === 'evidencia-submetida' ? 'evidence-submitted'
+    : to === 'auditor-revisando' ? 'auditor-reviewing'
+    : to === 'fechado' ? 'closed'
+    : to;
+
   // closed não tem transições válidas
-  if (from === 'closed') return false;
+  if (normalizedFrom === 'closed') return false;
   // auditor-reviewing pode voltar para in-progress
-  if (from === 'auditor-reviewing' && to === 'in-progress') return true;
+  if (normalizedFrom === 'auditor-reviewing' && normalizedTo === 'in-progress') return true;
   // Caso geral: transições sequenciais conforme estado atual
-  const validNext: Record<CapaState, CapaState[]> = {
+  const validNext: Record<CapaStateNew, CapaStateNew[]> = {
     'open': ['in-progress'],
     'in-progress': ['evidence-submitted'],
     'evidence-submitted': ['auditor-reviewing'],
     'auditor-reviewing': ['closed', 'in-progress'],
     'closed': []
   };
-  return validNext[from]?.includes(to) ?? false;
+  return validNext[normalizedFrom as CapaStateNew]?.includes(normalizedTo as CapaStateNew) ?? false;
 }
 
 export function daysRemaining(deadlineDate: number): number {

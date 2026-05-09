@@ -6,21 +6,21 @@
  */
 
 import { useState } from 'react';
-import type { CAPAStatus } from '../types';
+import type { CapaStateLegacy } from '../types';
 
 interface CAPAStatusTransitionModalProps {
   capaId: string;
-  currentStatus: CAPAStatus;
+  currentStatus: CapaStateLegacy;
   isOpen: boolean;
   onClose: () => void;
-  onSubmit?: (toStatus: CAPAStatus, notes?: string) => Promise<void>;
+  onSubmit?: (toStatus: CapaStateLegacy, notes?: string) => Promise<void>;
 }
 
 /**
  * Valid transitions matrix.
  * Defines which status transitions are allowed.
  */
-const VALID_TRANSITIONS: Record<CAPAStatus, CAPAStatus[]> = {
+const VALID_TRANSITIONS: Record<CapaStateLegacy, CapaStateLegacy[]> = {
   'aberto': ['em-andamento'],
   'em-andamento': ['evidencia-submetida'],
   'evidencia-submetida': ['auditor-revisando', 'em-andamento'],
@@ -31,7 +31,7 @@ const VALID_TRANSITIONS: Record<CAPAStatus, CAPAStatus[]> = {
 /**
  * Status labels for display.
  */
-const STATUS_LABEL: Record<CAPAStatus, string> = {
+const STATUS_LABEL: Record<CapaStateLegacy, string> = {
   'aberto': 'Aberto',
   'em-andamento': 'Em Andamento',
   'evidencia-submetida': 'Evidência Submetida',
