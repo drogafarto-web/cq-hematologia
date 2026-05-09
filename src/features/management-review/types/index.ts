@@ -1,134 +1,120 @@
+/**
+ * Management Review Type System
+ *
+ * Types para revisão anual da direção (DICQ 4.15, 15 entradas obrigatórias).
+ * Multi-tenant: escoped a `/labs/{labId}/management-review`
+ */
+
 import { Timestamp } from 'firebase/firestore';
 
-/**
- * Management Review Domain Types
- * DICQ 4.15 — Annual Direction Critical Analysis (Análise Crítica pela Direção)
- *
- * The 15 mandatory sections as per DICQ 4.15:
- * 1. Audit results review
- * 2. NC/CAPA status
- * 3. KPI trends
- * 4. Customer feedback
- * 5. Personnel competency
- * 6. Infrastructure + calibration
- * 7. Supplier performance
- * 8. Regulatory changes
- * 9. Improvement opportunities
- * 10. Risk assessment
- * 11. Quality objectives status
- * 12. Resource allocation
- * 13. Procedural changes
- * 14. Strategic initiatives
- * 15. Attendees + signature
- */
+// ──────────────────────────────────────────────────────────────────────────
+// PHASE 8 Type System (Wave 0: simplified spec)
+// ──────────────────────────────────────────────────────────────────────────
 
-/**
- * LogicalSignature — audit trail format
- * Consistent with controle-temperatura and auditoria-interna patterns
- */
+export type EntrySource = 'auto-aggregated' | 'manual' | 'imported';
+
+export interface ManagementReviewEntry {
+  entryNumber: number;  // 1–15
+  title: string;
+  data: Record<string, unknown>;
+  source: EntrySource;
+  lastUpdated: number;
+}
+
+export interface ReviewSignature {
+  signerRole: 'diretor' | 'gerente_qualidade';
+  signerName: string;
+  operatorId: string;
+  hash: string;
+  ts: number;
+}
+
+export interface ManagementReviewMeeting {
+  id: string;
+  labId: string;
+  dataReuniao: number;
+  ano: number;
+  entries: ManagementReviewEntry[];  // exatamente 15
+  attendees: string[];
+  decisions: string[];
+  actionItems: string[];
+  signatures: ReviewSignature[];
+  pdfStoragePath?: string;
+  createdAt: number;
+  createdBy: string;
+  approvedAt?: number;
+  deletedAt?: number;
+}
+
+export const MANAGEMENT_REVIEW_ENTRY_TITLES: readonly string[] = [
+  'Resultado de Auditorias',
+  'Conformidades e Ações Corretivas',
+  'Tendências de Indicadores de Desempenho',
+  'Feedback do Cliente',
+  'Competência do Pessoal',
+  'Infraestrutura e Calibração',
+  'Desempenho de Fornecedores',
+  'Mudanças Regulatórias',
+  'Oportunidades para Melhoria',
+  'Avaliação de Riscos',
+  'Status de Objetivos de Qualidade',
+  'Alocação de Recursos',
+  'Mudanças Procedimentais',
+  'Iniciativas Estratégicas',
+  'Data, Participantes e Assinatura',
+];
+
+// ──────────────────────────────────────────────────────────────────────────
+// Extended Type System (Wave 1+: full implementation, exports needed by services)
+// ──────────────────────────────────────────────────────────────────────────
+
 export interface LogicalSignature {
-  hash: string;                      // HMAC-SHA256 (exactly 64 chars)
-  operatorId: string;                // uid of signer
-  ts: Timestamp;                     // moment of signature
+  hash: string;
+  operatorId: string;
+  ts: Timestamp;
 }
 
-/**
- * Individual review section entry
- * Maps to one of the 15 mandatory DICQ 4.15 sections
- */
 export interface ReviewEntry {
-  id: string;                        // UUID
+  id: string;
   sectionNumber: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15;
-  sectionTitle: string;              // DICQ 4.15 section title (Portuguese)
-  content: string;                   // Markdown-formatted content entered by director
-  sourceData?: Record<string, any>; // Pre-populated reference data (e.g., NC count, KPI values)
-  notes?: string;                    // Optional editor notes
+  sectionTitle: string;
+  content: string;
+  sourceData?: Record<string, any>;
+  notes?: string;
 }
 
-/**
- * Template with pre-populated sections
- * Returned by generateReviewTemplate CF
- */
 export interface ReviewTemplate {
   year: number;
-  entries: ReviewEntry[];            // 15 sections with pre-filled sourceData
-  sourceDataTimestamp: Timestamp;   // When source data was pulled
-  warnings?: string[];               // Warnings if data sources incomplete (e.g., "KPI collection not found")
-}
-
-/**
- * Management Review — the main annual direction critical analysis document
- * Multi-tenant scoped to `/labs/{labId}/management-reviews/{id}`
- */
-export interface ManagementReview {
-  id: string;                        // UUID
-  labId: string;                     // Tenant scoping
-  year: number;                      // 2026, 2027, etc.
-  dataRevisao: Timestamp;            // When the review meeting took place
-
-  // 15 mandatory sections
   entries: ReviewEntry[];
-
-  // Meeting metadata
-  participantes: string[];           // List of attendee names
-  diretor: string;                   // Director name/ID who led review
-  gerenteQualidade: string;          // Quality Manager name/ID
-  outrasCargos?: string[];           // Other attendee roles/names (optional)
-
-  // Signature (director authorizes)
-  chainHash: LogicalSignature;
-
-  // Status workflow
-  status: 'draft' | 'submitted' | 'approved' | 'archived';
-
-  // Linkage to meeting minutes
-  ataIds: string[];                  // FK to Ata documents (if any)
-
-  // Audit trail
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-  deletedAt?: Timestamp | null;      // Soft delete only (RN-06)
+  sourceDataTimestamp: Timestamp;
+  warnings?: string[];
 }
 
-/**
- * Meeting Minutes — Ata
- * Separate document linked to ManagementReview
- * Captures discussion points, decisions, action items
- */
-export interface Ata {
-  id: string;                        // UUID
-  labId: string;                     // Tenant scoping
-  managementReviewId: string;        // FK to ManagementReview (may be null if standalone)
-
-  // Meeting details
-  dataReuniao: Timestamp;            // Date meeting held
-  horaInicio: string;                // "09:00" format
-  horaFim: string;                   // "11:30" format
-  local: string;                     // Location (e.g., "Sala de Reuniões")
-
-  // Content
-  pauta: string;                     // Meeting agenda (Markdown)
-  conteudo: string;                  // Full minutes/discussion notes (Markdown)
-
-  // Attendance
-  participantes: string[];           // List of attendee names
-  decisoes: string[];                // Decisions made (bullet points)
-
-  // Signature
-  assinado: boolean;
-  assinadoPor?: string;              // Name/ID of person who signed
-  chainHash?: LogicalSignature;      // Optional signature with hash
-
-  // Audit trail
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-  deletedAt?: Timestamp | null;      // Soft delete only (RN-06)
+export function createEmptyReviewEntry(
+  sectionNumber: number,
+  sectionTitle: string
+): ReviewEntry {
+  return {
+    id: crypto.randomUUID(),
+    sectionNumber: sectionNumber as any,
+    sectionTitle,
+    content: '',
+    sourceData: {},
+    notes: ''
+  };
 }
 
-/**
- * Hardcoded definitions of the 15 mandatory DICQ 4.15 sections
- * Used to initialize review form and validate completeness
- */
+export function createEmptyReviewTemplate(year: number): ReviewTemplate {
+  return {
+    year,
+    entries: REVIEW_SECTIONS.map((section) =>
+      createEmptyReviewEntry(section.number, section.titlePt)
+    ),
+    sourceDataTimestamp: Timestamp.now(),
+    warnings: []
+  };
+}
+
 export const REVIEW_SECTIONS = [
   {
     number: 1 as const,
@@ -222,43 +208,47 @@ export const REVIEW_SECTIONS = [
   }
 ] as const;
 
-/**
- * Review status enumeration
- */
 export enum ReviewStatus {
-  DRAFT = 'draft',           // Incomplete, editable
-  SUBMITTED = 'submitted',   // All sections complete, signed
-  APPROVED = 'approved',     // Auditor or leadership approved
-  ARCHIVED = 'archived'      // Archived for records
+  DRAFT = 'draft',
+  SUBMITTED = 'submitted',
+  APPROVED = 'approved',
+  ARCHIVED = 'archived'
 }
 
-/**
- * Helper: Create empty ReviewEntry for initialization
- */
-export function createEmptyReviewEntry(
-  sectionNumber: number,
-  sectionTitle: string
-): ReviewEntry {
-  return {
-    id: crypto.randomUUID(),
-    sectionNumber: sectionNumber as any,
-    sectionTitle,
-    content: '',
-    sourceData: {},
-    notes: ''
-  };
+export interface ManagementReview {
+  id: string;
+  labId: string;
+  year: number;
+  dataRevisao: Timestamp;
+  entries: ReviewEntry[];
+  participantes: string[];
+  diretor: string;
+  gerenteQualidade: string;
+  outrasCargos?: string[];
+  chainHash: LogicalSignature;
+  status: 'draft' | 'submitted' | 'approved' | 'archived';
+  ataIds: string[];
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  deletedAt?: Timestamp | null;
 }
 
-/**
- * Helper: Create empty ReviewTemplate
- */
-export function createEmptyReviewTemplate(year: number): ReviewTemplate {
-  return {
-    year,
-    entries: REVIEW_SECTIONS.map(section =>
-      createEmptyReviewEntry(section.number, section.titlePt)
-    ),
-    sourceDataTimestamp: Timestamp.now(),
-    warnings: []
-  };
+export interface Ata {
+  id: string;
+  labId: string;
+  managementReviewId?: string;
+  dataReuniao: Timestamp;
+  horaInicio: string;
+  horaFim: string;
+  local: string;
+  pauta: string;
+  conteudo: string;
+  participantes: string[];
+  decisoes: string[];
+  assinado: boolean;
+  assinadoPor?: string;
+  chainHash?: LogicalSignature;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  deletedAt?: Timestamp | null;
 }
