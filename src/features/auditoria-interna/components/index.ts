@@ -5,3 +5,8 @@ export { ChecklistItemCard } from './ChecklistItemCard';
 export { AchadoForm } from './AchadoForm';
 export { SessoesList } from './SessoesList';
 export { AuditoriasList } from './AuditoriasList';
+export { PlanoAcaoForm } from './PlanoAcaoForm';
+export { PlanoAcaoList } from './PlanoAcaoList';
+export { PresencaPanel } from './PresencaPanel';
+export { ReAuditoriaCard } from './ReAuditoriaCard';
+export { ReAuditoriaChain } from './ReAuditoriaChain';
