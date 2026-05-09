@@ -577,8 +577,9 @@ const MODULES: ModuleDef[] = [
     bloco: 'Bloco 5',
     iconBg: 'bg-red-500/10',
     iconColor: 'text-red-400/60',
-    status: 'soon',
+    status: 'active',
     category: 'sgq',
+    view: 'sgq-capa' as View,
   },
   {
     id: 'indicadores',

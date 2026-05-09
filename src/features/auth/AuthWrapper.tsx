@@ -21,6 +21,7 @@ import { EducacaoContinuadaView } from '../educacao-continuada/EducacaoContinuad
 import { ControlTemperaturaView } from '../controle-temperatura/ControlTemperaturaView';
 import { SGQView } from '../sgq/SGQView';
 import { ListaMestraView } from '../sgq/ListaMestraView';
+import CAPAHome from '../sgq/capa/pages/CAPAHome';
 import { RastreabilidadeView } from '../traceability/RastreabilidadeView';
 import { AnalyticsHub } from '../analytics/components/AnalyticsHub';
 import { ExportQueueView } from '../export/components/ExportQueueView';
@@ -189,6 +190,8 @@ function AppRouter() {
     view = <SGQView />;
   } else if (currentView === 'sgq-lista-mestra') {
     view = <ListaMestraView />;
+  } else if (currentView === 'sgq-capa') {
+    view = <CAPAHome />;
   } else if (currentView === 'rastreabilidade') {
     view = <RastreabilidadeView />;
   } else if (currentView === 'analytics') {
