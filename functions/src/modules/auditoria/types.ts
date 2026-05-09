@@ -46,6 +46,10 @@ export interface Auditoria {
   responsavelTecnico: string;
   proximaAuditoriaPlanejada: Timestamp;
   status: 'planejada' | 'em_execução' | 'finalizada';
+  // Re-audit support (PQ-24 §6.6 — Effectiveness verification)
+  tipoExecucao?: 'inicial' | 'reAuditoria';
+  auditoriaOriginalId?: string; // FK quando tipoExecucao === 'reAuditoria'
+  escopoSetores?: string[]; // ['Bioquímica', 'Imuno', ...]
   readonly criadoEm: Timestamp;
   readonly criadoPor: string;
   deletadoEm: Timestamp | null;
@@ -82,4 +86,33 @@ export interface ChecklistItem {
   observacoes: string;
   readonly criadoEm: Timestamp;
   readonly criadoPor: string;
+}
+
+export interface Presenca {
+  readonly id: string;
+  readonly sessaoId: string;
+  readonly auditoriaId: string;
+  readonly labId: string;
+  readonly userId: string;
+  nome: string;
+  papel: 'auditor' | 'auditado' | 'observador' | 'rt' | 'gerente_qc' | 'direcao';
+  reuniao: 'abertura' | 'encerramento';
+  assinatura: LogicalSignature;
+  readonly criadoEm: Timestamp;
+  readonly criadoPor: string;
+  deletadoEm: Timestamp | null;
+}
+
+export interface Reuniao {
+  readonly id: string;
+  readonly sessaoId: string;
+  readonly auditoriaId: string;
+  readonly labId: string;
+  reuniao: 'abertura' | 'encerramento';
+  pauta: string;
+  dataHora: Timestamp;
+  presencasConfirmadas: number;
+  readonly criadoEm: Timestamp;
+  readonly criadoPor: string;
+  deletadoEm: Timestamp | null;
 }
