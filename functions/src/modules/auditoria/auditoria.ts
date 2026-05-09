@@ -3,6 +3,8 @@ import * as admin from 'firebase-admin';
 import * as crypto from 'crypto';
 import { z } from 'zod';
 import type { Auditoria, Achado, Sessao, ChecklistItem, LogicalSignature, Presenca, Reuniao, PlanoAcao } from './types';
+// Re-export incomplete phase-11 types so unused-locals tolerates them until handlers land
+export type { Presenca as _Presenca, Reuniao as _Reuniao, PlanoAcao as _PlanoAcao };
 import { checkNCs } from '../qualidade/naoConformidade';
 
 // Load checklist templates from seed data
@@ -83,6 +85,7 @@ const RegisterPresencaInput = z.object({
 });
 
 type RegisterPresencaInputType = z.infer<typeof RegisterPresencaInput>;
+export type { RegisterPresencaInputType as _RegisterPresencaInputType };
 
 const CreatePlanoAcaoInput = z.object({
   labId: z.string().min(1, 'labId é obrigatório'),
@@ -99,6 +102,7 @@ const CreatePlanoAcaoInput = z.object({
 });
 
 type CreatePlanoAcaoInputType = z.infer<typeof CreatePlanoAcaoInput>;
+export type { CreatePlanoAcaoInputType as _CreatePlanoAcaoInputType };
 
 // ============ Helper: Check lab membership ============
 
