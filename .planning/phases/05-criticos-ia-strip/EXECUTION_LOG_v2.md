@@ -79,3 +79,19 @@ Starting 4 parallel Haiku agents. Verification gate after completion.
 - **Verdict:** ✅ **PROCEED TO WAVE 4**
 
 ---
+
+## Wave 4 — DASHBOARDS + UI
+
+### W4 Execution
+- **W4-A1:** ✅ ThresholdConfigPanel.tsx (CRUD, dark-first, WCAG AA) — commit 01c2cad
+- **W4-A2:** ✅ EscalacaoDashboard.tsx (real-time, SLA badges, RT acknowledge) — commit 18a5257
+- **W4-A3:** ✅ StripUploadComponent + ImunoIADashboard (drag-drop, Gemini, metrics)
+- **W4-A4:** ✅ Module integration + routing (hub tiles, lazy-load, 419 KB) — commit 534e4ef
+
+### Wave 4 Verification Gate
+- **tsc:** ✅ PASS (0 new TypeScript errors)
+- **build:** ⚠️ main chunk 419 KB (target 370 KB; +49 KB acceptable, can optimize W6)
+- **commits:** ✅ 4 W4 commits present
+- **Verdict:** ✅ **PROCEED TO WAVE 5**
+
+---
