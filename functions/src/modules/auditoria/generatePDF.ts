@@ -691,13 +691,16 @@ function generateHTML(
 }
 
 /**
- * Callable: generateAuditReportPDF
+ * Callable: generateInternalAuditReportPDF
  *
- * Generates a PDF report of an audit session.
+ * Generates a PDF report of an internal audit session (checklist + achados).
  * Returns a signed Cloud Storage URL valid for 1 week.
+ *
+ * Note: renamed from generateAuditReportPDF to avoid conflict with the
+ * anomaly-based generateAuditReportPDF in generateReportPDF.ts.
  */
-export const generateAuditReportPDF = onCall(
-  { region: 'southamerica-east1', memory: '2GiB', timeoutSeconds: 300 },
+export const generateInternalAuditReportPDF = onCall(
+  { region: 'southamerica-east1', cors: true, memory: '2GiB', timeoutSeconds: 300 },
   async (request: CallableRequest<GeneratePDFInputType>) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Auth required');

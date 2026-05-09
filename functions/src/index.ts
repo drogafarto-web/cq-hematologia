@@ -368,7 +368,8 @@ export {
 // closeAuditoria: mark audit as fechada
 // installChecklistTemplate: load DICQ template (~115 items) into audit session
 // updateChecklistResponses: batch-sync offline checklist responses
-// generateAuditReportPDF: Puppeteer server-side PDF generation (Wave 3) with ~115 items, achados, severity, NC links, RT signature
+// generateInternalAuditReportPDF: Puppeteer server-side PDF (Wave 3) — checklist ~115 items, achados, severity, NC links, RT signature
+// generateAuditReportPDF: Puppeteer server-side PDF (SA-16) — anomaly-based report with NLP summary + per-rule sections
 //
 // Phase 11 PQ-24: createPlanoAcao, registerPresenca, createReAuditoria
 // (action plan for closure, presence registration, re-audit chain)
@@ -381,6 +382,7 @@ export {
   closeAuditoria,
   installChecklistTemplate,
   updateChecklistResponses,
+  generateInternalAuditReportPDF,
   generateAuditReportPDF,
 } from './modules/auditoria/index';
 
