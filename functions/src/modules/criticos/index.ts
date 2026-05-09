@@ -17,6 +17,7 @@ import { z } from 'zod';
 // provisioned. Acknowledgment is a Firestore-only state transition; SMS is
 // only required by registerCriticoDetection / cron / webhook.
 import { generateChainHash } from '../../shared/signature';
+export { acknowledgeEscalacao } from './acknowledge';
 
 /**
  * Returns true when Twilio creds appear to be provisioned. Wave 2 — until
@@ -33,7 +34,6 @@ function isTwilioProvisioned(): boolean {
 }
 import type {
   RegisterCriticoDetectionResponse,
-  AcknowledgeEscalacaoResponse,
   EscalacaoCriticosResponse,
   CriticosEscalacao,
   CriticosLogEvento,
@@ -375,131 +375,8 @@ export const registerCriticoDetection = onCall(
 );
 
 // ============================================================================
-// 2.2: acknowledgeEscalacao()
+// 2.2: acknowledgeEscalacao() — imported from ./acknowledge.ts
 // ============================================================================
-
-const AcknowledgeEscalacaoRequestSchema = z.object({
-  labId: z.string().min(1),
-  escalacaoId: z.string().min(1),
-  acknowledgedBy: z.string().min(1),
-  method: z.enum(['portal_web', 'webhook_twilio', 'manual_rt']),
-  notas: z.string().optional(),
-});
-
-export const acknowledgeEscalacao = onCall(
-  async (
-    request
-  ): Promise<AcknowledgeEscalacaoResponse> => {
-    try {
-      if (!request.auth?.uid) {
-        throw new HttpsError(
-          'unauthenticated',
-          'User must be authenticated'
-        );
-      }
-
-      const data = AcknowledgeEscalacaoRequestSchema.parse(request.data);
-      const { labId, escalacaoId, acknowledgedBy, method } = data;
-
-      const escalacaoRef = db
-        .collection('labs')
-        .doc(labId)
-        .collection('criticos-escalacoes')
-        .doc(escalacaoId);
-
-      const escalacaoDoc = await escalacaoRef.get();
-      if (!escalacaoDoc.exists) {
-        throw new HttpsError(
-          'not-found',
-          'Escalacao not found'
-        );
-      }
-
-      const escalacao = escalacaoDoc.data() as CriticosEscalacao;
-
-      // Validate state
-      if (escalacao.status !== 'enviado') {
-        throw new HttpsError(
-          'failed-precondition',
-          'Escalacao already acknowledged or canceled'
-        );
-      }
-
-      const now = admin.firestore.Timestamp.now();
-      const tempoSlaMs =
-        now.toMillis() - escalacao.criadoEm.toMillis();
-
-      const slaStatus =
-        tempoSlaMs <= escalacao.sla_minutos_target * 60 * 1000
-          ? 'em_prazo'
-          : 'vencido';
-
-      // Update escalacao
-      await escalacaoRef.update({
-        status: 'reconhecido',
-        reconhecido_em: now,
-        reconhecido_por: acknowledgedBy,
-        tempo_sla_ms: tempoSlaMs,
-        sla_status: slaStatus,
-        atualizadoEm: now,
-        atualizadoPor: request.auth.uid,
-      });
-
-      // Log event
-      const eventoRef = db
-        .collection('labs')
-        .doc(labId)
-        .collection('criticos-log-eventos')
-        .doc();
-
-      const ackDetalhes = {
-        reconhecido_por: acknowledgedBy,
-        metodo: method,
-        tempo_sla_ms: tempoSlaMs,
-      };
-      const { assinatura: ackAssinatura, eventoAnteriorId: ackPriorId } =
-        await buildLogEventoSignature({
-          labId,
-          escalacaoId,
-          eventoId: eventoRef.id,
-          tipo: 'reconhecimento_manual',
-          detalhes: ackDetalhes,
-          operadorId: request.auth.uid,
-          ts: now,
-        });
-
-      await eventoRef.set({
-        id: eventoRef.id,
-        labId,
-        escalacaoId,
-        laudoId: escalacao.laudoId,
-        tipo: 'reconhecimento_manual',
-        detalhes: ackDetalhes,
-        timestamp: now,
-        operadorId: request.auth.uid,
-        assinatura: ackAssinatura,
-        ...(ackPriorId ? { eventoAnteriorId: ackPriorId } : {}),
-        deletadoEm: null,
-      } as CriticosLogEvento);
-
-      return {
-        success: true,
-        escalacaoId,
-        status: 'reconhecido',
-        tempoSlaMs,
-        slaStatus: slaStatus as 'em_prazo' | 'vencido',
-      };
-    } catch (error: any) {
-      console.error('acknowledgeEscalacao error:', error);
-      if (error instanceof HttpsError) throw error;
-
-      throw new HttpsError(
-        'internal',
-        error.message || 'Internal error'
-      );
-    }
-  }
-);
 
 // ============================================================================
 // 2.3: escalacaoCriticos() — Cron Trigger (5-min interval)
