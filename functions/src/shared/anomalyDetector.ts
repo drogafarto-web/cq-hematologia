@@ -5,7 +5,7 @@
  * Phase 7 Wave 2 — Advanced Auditoria
  */
 
-import type { AuditEntry, AnomalyScore, BaselineStats, AnomalyDimension } from '../types/anomalyTypes';
+import type { AuditEntry, BaselineStats, AnomalyDimension } from '../types/anomalyTypes';
 
 export interface AnomalyDetectionResult {
   entryId: string;

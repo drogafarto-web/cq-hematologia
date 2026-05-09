@@ -59,7 +59,21 @@ export const onAuditTrailEntry = onDocumentCreated(
       // 1. Detect anomalies
       let anomalyScore: AnomalyScore;
       try {
-        anomalyScore = await detectAnomalies(db, labId, entry);
+        const detectionResult = await detectAnomalies(entry, {
+          operationCounts: {},
+          moduleFrequency: {},
+          hourlyPattern: new Array(24).fill(0),
+          totalEntries: 0,
+          entropyScore: 0,
+        });
+        anomalyScore = {
+          entryId,
+          labId,
+          operatorId: entry.operatorId || 'unknown',
+          overall: detectionResult.overall,
+          dimensions: detectionResult.dimensions,
+          computedAt: Date.now(),
+        };
       } catch (detectionErr) {
         // Graceful degradation: create baseline anomaly score if detection fails
         console.warn('[cfAuditTrigger] Anomaly detection failed', {
@@ -99,7 +113,7 @@ export const onAuditTrailEntry = onDocumentCreated(
           console.log('[cfAuditTrigger] Alert generated', {
             labId,
             entryId,
-            score: anomalyScore.overallScore,
+            score: anomalyScore.overall,
           });
         } catch (alertErr) {
           console.warn('[cfAuditTrigger] Alert generation failed', {
