@@ -11,7 +11,6 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { useAppStore } from '../../../../store/useAppStore';
 import type { CAPA, CAPAStatus } from '../types';
 
 interface CAPAListViewProps {
@@ -92,7 +91,6 @@ export default function CAPAListView({
   onCreateClick,
   onCAPASelect,
 }: CAPAListViewProps) {
-  const setCurrentView = useAppStore((s) => s.setCurrentView);
   const [statusFilter, setStatusFilter] = useState<CAPAStatus | ''>('');
   const [sortBy, setSortBy] = useState<'prazo' | 'status' | 'criacao'>('criacao');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
