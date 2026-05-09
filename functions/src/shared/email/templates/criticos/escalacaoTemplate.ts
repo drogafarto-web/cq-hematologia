@@ -11,7 +11,7 @@
  * Responsive HTML for email clients (Gmail, Outlook, Apple Mail)
  */
 
-import type { CriticosEscalacao, CriticosTierEscalation } from '../../modules/criticos/types';
+import type { CriticosEscalacao, CriticosTierEscalation } from '../../../../modules/criticos/types';
 
 export interface EmailTemplateOutput {
   subject: string;
@@ -122,9 +122,10 @@ const i18n = {
   },
 };
 
-type I18nKey = keyof typeof i18n['pt-BR'];
-
-function t(locale: 'pt-BR' | 'en', key: keyof typeof i18n['pt-BR']): typeof i18n['pt-BR'][keyof typeof i18n['pt-BR']] {
+function t<K extends keyof typeof i18n['pt-BR']>(
+  locale: 'pt-BR' | 'en',
+  key: K,
+): typeof i18n['pt-BR'][K] {
   return i18n[locale][key];
 }
 
@@ -162,21 +163,17 @@ export function renderEscalacaoEmail(
   });
 
   let recipientName = '';
-  let recipientEmail = '';
   let subjectTemplate = '';
 
   if (destinatario === 'RT') {
     recipientName = escalacao.rtNome;
-    recipientEmail = escalacao.rtEmail;
     subjectTemplate = 'escalacaoRT';
   } else if (destinatario === 'MEDICO') {
     recipientName = escalacao.medicoNome;
-    recipientEmail = escalacao.medicoEmail;
     subjectTemplate = 'escalacaoMedico';
   } else {
     // CTO or DIRETOR_MEDICO
     recipientName = escalacao.medicoNome; // Placeholder; in production, resolve from DB
-    recipientEmail = escalacao.medicoEmail;
     subjectTemplate = 'escalacaoCTO';
   }
 
@@ -507,9 +504,6 @@ export function renderSLABreachEmail(
   const subject = substitute(t(locale, 'subject').slaBreach, {
     paciente: escalacao.pacienteNome,
   });
-
-  const severityColor =
-    escalacao.severidade === 'alta' ? '#dc2626' : '#d97706';
 
   const html = `<!DOCTYPE html>
 <html>

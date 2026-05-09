@@ -212,7 +212,12 @@ export const updateCAPA = onCall(
         throw new HttpsError('not-found', 'CAPA não encontrada');
       }
 
-      const currentStatus = snap.data()?.status;
+      const capaData = snap.data();
+      if (!capaData) {
+        throw new HttpsError('not-found', 'CAPA não encontrada');
+      }
+
+      const currentStatus = capaData.status;
       if (!isValidTransition(currentStatus, input.newStatus)) {
         throw new HttpsError(
           'failed-precondition',
@@ -285,6 +290,10 @@ export const assignCAPA = onCall(
       }
 
       const capa = snap.data();
+      if (!capa) {
+        throw new HttpsError('not-found', 'CAPA não encontrada');
+      }
+
       if (capa.status === 'fechada' || capa.status === 'cancelada') {
         throw new HttpsError(
           'failed-precondition',
@@ -378,6 +387,10 @@ export const verifyCAPA = onCall(
       }
 
       const capa = snap.data();
+      if (!capa) {
+        throw new HttpsError('not-found', 'CAPA não encontrada');
+      }
+
       if (capa.status !== 'em-tratamento') {
         throw new HttpsError(
           'failed-precondition',
