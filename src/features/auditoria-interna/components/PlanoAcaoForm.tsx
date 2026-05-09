@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useActiveLabId } from '../../../store/useAuthStore';
-import { createPlanoAcao } from '../../sgq/auditoria/auditoriaService';
+import { createPlanoAcao } from '../services/auditoriaService';
 
 interface PlanoAcaoFormProps {
   achadoId: string;

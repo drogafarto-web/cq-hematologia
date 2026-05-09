@@ -314,3 +314,99 @@ export async function softDeleteAchado(
   const callable = httpsCallable(functions, 'deleteAchado');
   await callable({ labId, achadoId, motivo });
 }
+
+// ──────────────────────────────────────────────────────────────────────────
+// Phase 11 PQ-24: Plano de Ação + Presença + Re-Auditoria
+// ──────────────────────────────────────────────────────────────────────────
+
+/**
+ * createPlanoAcao: Cria plano de ação para achado com assinatura server-side
+ * Accepts both object and positional argument forms for compatibility
+ */
+export async function createPlanoAcao(
+  labIdOrInput:
+    | string
+    | {
+        labId: string;
+        auditoriaId: string;
+        achadoId: string;
+        descricao: string;
+        responsavel: string;
+        prazo: number;
+      },
+  auditoriaId?: string,
+  achadoId?: string,
+  descricao?: string,
+  responsavel?: string,
+  prazo?: Date | number
+): Promise<string> {
+  let input: {
+    labId: string;
+    auditoriaId: string;
+    achadoId: string;
+    descricao: string;
+    responsavel: string;
+    prazo: number;
+  };
+
+  if (typeof labIdOrInput === 'string') {
+    // Positional arguments form (legacy)
+    input = {
+      labId: labIdOrInput,
+      auditoriaId: auditoriaId!,
+      achadoId: achadoId!,
+      descricao: descricao!,
+      responsavel: responsavel!,
+      prazo:
+        prazo instanceof Date
+          ? prazo.getTime()
+          : (prazo as number),
+    };
+  } else {
+    // Object form
+    input = labIdOrInput;
+  }
+
+  const callable = httpsCallable<typeof input, { planoId: string }>(
+    functions,
+    'createPlanoAcao'
+  );
+  const result = await callable(input);
+  return result.data.planoId;
+}
+
+/**
+ * registerPresenca: Registra presença em reunião de auditoria
+ */
+export async function registerPresenca(input: {
+  labId: string;
+  auditoriaId: string;
+  sessaoId: string;
+  reuniao: 'abertura' | 'encerramento';
+  participantes: Array<{ userId: string; nome: string; papel: string }>;
+}): Promise<{ reuniaoId: string }> {
+  const callable = httpsCallable<typeof input, { reuniaoId: string }>(
+    functions,
+    'registerPresenca'
+  );
+  const result = await callable(input);
+  return result.data;
+}
+
+/**
+ * createReAuditoria: Cria re-auditoria vinculada a auditoria finalizada
+ */
+export async function createReAuditoria(input: {
+  labId: string;
+  auditoriaOriginalId: string;
+  proximaAuditoriaPlanejada: number;
+  responsavelTecnico: string;
+  motivacao: string;
+}): Promise<{ auditoriaId: string }> {
+  const callable = httpsCallable<typeof input, { auditoriaId: string }>(
+    functions,
+    'createReAuditoria'
+  );
+  const result = await callable(input);
+  return result.data;
+}
