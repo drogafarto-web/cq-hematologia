@@ -29,3 +29,19 @@ Starting 4 parallel Haiku agents. Verification gate after completion.
 - **Verdict:** ✅ **PROCEED TO WAVE 1**
 
 ---
+
+## Wave 1 — FOUNDATION
+
+### W1 Execution
+- **W1-A1:** ✅ Threshold types (6 types, 13 Zod validators, 815 lines) — commit 334c97f
+- **W1-A2:** ✅ Firestore rules + indexes (3 collections, 104 additions) — commit d4c3c9d
+- **W1-A3:** ✅ IA Strip types (4 types, confidence 0.85 enforced) — commit 0938008
+- **W1-A4:** ✅ Storage rules (labId isolation, file validation) — committed
+
+### Wave 1 Verification Gate
+- **tsc:** ✅ PASS (0 errors, no new TypeScript regressions)
+- **lint:** ✅ PASS (263 errors, 1872 warnings — +1 err, +58 warn acceptable for new code)
+- **commits:** ✅ 5 commits from W1 agents
+- **Verdict:** ✅ **PROCEED TO WAVE 2**
+
+---
