@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useActiveLabId } from '../../../store/useAuthStore';
 import {
-  watchManagementReviews,
-  getManagementReview,
-  getLatestManagementReview
+  getMeetings,
+  getMeetingById
 } from '../services/managementReviewService';
-import { ManagementReview, ReviewStatus } from '../types';
+import type { ManagementReviewMeeting } from '../types';
 
 interface UseManagementReviewResult {
-  reviews: ManagementReview[];
+  reviews: ManagementReviewMeeting[];
   currentYear: number;
-  latest: ManagementReview | null;
-  byYear: Record<number, ManagementReview[]>;
+  latest: ManagementReviewMeeting | null;
+  byYear: Record<number, ManagementReviewMeeting[]>;
   loading: boolean;
   error: string | null;
 }
@@ -26,8 +25,8 @@ interface UseManagementReviewResult {
  */
 export function useManagementReview(): UseManagementReviewResult {
   const labId = useActiveLabId();
-  const [reviews, setReviews] = useState<ManagementReview[]>([]);
-  const [latest, setLatest] = useState<ManagementReview | null>(null);
+  const [reviews, setReviews] = useState<ManagementReviewMeeting[]>([]);
+  const [latest, setLatest] = useState<ManagementReviewMeeting | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,40 +42,40 @@ export function useManagementReview(): UseManagementReviewResult {
     setLoading(true);
     setError(null);
 
-    // Subscribe to real-time reviews
-    const unsubscribe = watchManagementReviews(labId, async (data) => {
-      setReviews(data);
-      setLoading(false);
-
-      // Fetch latest completed review
-      try {
-        const latestReview = await getLatestManagementReview(labId);
-        setLatest(latestReview);
-      } catch (err) {
-        console.warn('[useManagementReview] Could not fetch latest review:', err);
-      }
-    });
-
-    // Cleanup: unsubscribe on unmount
-    return () => {
-      unsubscribe();
-    };
+    // Fetch all meetings (one-time, not real-time)
+    getMeetings(labId)
+      .then((data) => {
+        setReviews(data);
+        // Latest is the first one (already sorted by date DESC in service)
+        setLatest(data.length > 0 ? data[0] : null);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('[useManagementReview] Error fetching reviews:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch reviews');
+        setLoading(false);
+      });
   }, [labId]);
 
   // Organize reviews by year
-  const byYear: Record<number, ManagementReview[]> = {};
-  reviews.forEach((review) => {
-    if (!byYear[review.year]) {
-      byYear[review.year] = [];
+  const byYear: Record<number, ManagementReviewMeeting[]> = {};
+  reviews.forEach((meeting) => {
+    const year = meeting.ano;
+    if (!byYear[year]) {
+      byYear[year] = [];
     }
-    byYear[review.year].push(review);
+    byYear[year].push(meeting);
   });
 
-  // Sort by date within each year
-  Object.values(byYear).forEach((yearReviews) => {
-    yearReviews.sort((a, b) => {
-      const aDate = a.dataRevisao?.toDate?.().getTime() || 0;
-      const bDate = b.dataRevisao?.toDate?.().getTime() || 0;
+  // Sort by date within each year (already sorted by service, but ensure it)
+  Object.values(byYear).forEach((yearMeetings) => {
+    yearMeetings.sort((a, b) => {
+      const aDate = typeof a.dataReuniao === 'number'
+        ? a.dataReuniao
+        : (a.dataReuniao as any)?.toMillis?.() || 0;
+      const bDate = typeof b.dataReuniao === 'number'
+        ? b.dataReuniao
+        : (b.dataReuniao as any)?.toMillis?.() || 0;
       return bDate - aDate; // Most recent first
     });
   });
@@ -93,35 +92,35 @@ export function useManagementReview(): UseManagementReviewResult {
 
 /**
  * useFetchManagementReview
- * One-time fetch of a specific review
+ * One-time fetch of a specific meeting
  *
  * Useful for detail views
  */
-export function useFetchManagementReview(reviewId: string | null) {
+export function useFetchManagementReview(meetingId: string | null) {
   const labId = useActiveLabId();
-  const [review, setReview] = useState<ManagementReview | null>(null);
+  const [meeting, setMeeting] = useState<ManagementReviewMeeting | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!reviewId || !labId) {
+    if (!meetingId || !labId) {
       return;
     }
 
     setLoading(true);
     setError(null);
 
-    getManagementReview(labId, reviewId)
+    getMeetingById(labId, meetingId)
       .then((data) => {
-        setReview(data);
+        setMeeting(data);
         setLoading(false);
       })
       .catch((err) => {
         console.error('[useFetchManagementReview] Error:', err);
-        setError(err.message || 'Failed to fetch review');
+        setError(err instanceof Error ? err.message : 'Failed to fetch meeting');
         setLoading(false);
       });
-  }, [reviewId, labId]);
+  }, [meetingId, labId]);
 
-  return { review, loading, error };
+  return { meeting, loading, error };
 }
