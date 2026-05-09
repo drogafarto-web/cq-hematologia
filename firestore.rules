@@ -2720,6 +2720,34 @@ service cloud.firestore {
       allow read: if isActiveMemberOfLab(labId) && (isAdminOrOwner(labId) || getMemberRole(labId) == 'rt');
       allow delete: if false;
     }
+
+    // ── /labs/{labId}/auditorias-internas/{auditoriaId}/planos-acao — Phase 11 PQ-24 ──
+    // Plano de Ação (action plan) for findings (achados) — RDC 978 Art. 88
+    // Writable via callable only. Read by lab members. Immutable after creation.
+    match /labs/{labId}/auditorias-internas/{auditoriaId}/planos-acao/{planoId} {
+      allow read: if isActiveMemberOfLab(labId);
+      allow create: if false;  // Via createPlanoAcao callable only
+      allow update: if isActiveMemberOfLab(labId)
+                    && labIdMatches(request.resource.data)
+                    && keepsLabId() && keepsCreatedAt()
+                    && request.resource.data.status in ['aberto', 'em-andamento', 'concluido', 'cancelado']
+                    && (
+                      // Only RT/admin can transition to concluido
+                      request.resource.data.status != 'concluido'
+                      || getMemberRole(labId) in ['rt', 'admin']
+                    );
+      allow delete: if false;  // Soft-delete only
+    }
+
+    // ── /labs/{labId}/auditorias-internas/{auditoriaId}/sessoes/{sessaoId}/reunioes — Phase 11 PQ-24 ──
+    // Reunião (meeting presence) for abertura/encerramento (opening/closing session)
+    // Immutable after creation — captures roster with server-side signature
+    match /labs/{labId}/auditorias-internas/{auditoriaId}/sessoes/{sessaoId}/reunioes/{reuniaoId} {
+      allow read: if isActiveMemberOfLab(labId);
+      allow create: if false;  // Via registerPresenca callable only
+      allow update: if false;  // Immutable after creation (server-only)
+      allow delete: if false;  // Soft-delete only
+    }
   }
 
 }
