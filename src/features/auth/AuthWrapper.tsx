@@ -55,6 +55,11 @@ const RisksView = React.lazy(() =>
   import('../risks/components/RisksView').then((m) => ({ default: m.RisksView })),
 );
 
+// Phase 8: CAPA Tracking — Wave 5 (lazy-loaded)
+const CAPATrackingHome = React.lazy(() =>
+  import('../capa-tracking/pages/CAPATrackingHome').then((m) => ({ default: m.default })),
+);
+
 // Phase 1.4: Auditoria — Trilha de eventos (lazy-loaded)
 const AuditTrailView = React.lazy(() =>
   import('../auditoria-trail').then((m) => ({ default: m.AuditTrailView })),
@@ -220,7 +225,11 @@ function AppRouter() {
       </React.Suspense>
     );
   } else if (currentView === 'capa-tracking') {
-    view = <CAPADashboard />;
+    view = (
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <CAPATrackingHome />
+      </React.Suspense>
+    );
   } else if (currentView === 'calibracao') {
     view = <CalibracaoDashboard />;
   } else if (currentView === 'personnel') {
