@@ -179,7 +179,7 @@ export class TwilioSMSClient {
     }
 
     // Log failure with audit trail
-    const errorCode = lastError?.code || 'UNKNOWN_ERROR';
+    const errorCode = (lastError as any)?.code || 'UNKNOWN_ERROR';
     const errorMessage = lastError?.message || 'Unknown error';
 
     console.error(
