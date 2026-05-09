@@ -24,7 +24,6 @@ import type { Auditoria } from '../types';
 
 interface ReAuditoriaChainProps {
   auditoriaId: string;
-  labId: string;
 }
 
 /**
@@ -39,7 +38,6 @@ interface ChainNode {
 
 export function ReAuditoriaChain({
   auditoriaId,
-  labId,
 }: ReAuditoriaChainProps) {
   const activeLabId = useActiveLabId();
   const [allAuditorias, setAllAuditorias] = useState<Auditoria[]>([]);
