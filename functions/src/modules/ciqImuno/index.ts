@@ -38,3 +38,10 @@ export {
 export {
   handleMLTeamFeedback,
 } from './handleMLTeamFeedback';
+
+export {
+  classifyStripImage,
+  collectIADataset as collectIADatasetManual,
+  type Classification as ImunoClassification,
+  type TestKit as ImunoTestKit,
+} from './classify';
