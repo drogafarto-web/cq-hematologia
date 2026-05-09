@@ -424,6 +424,7 @@ export type View =
   | 'controle-temperatura'
   | 'sgq-documentos'
   | 'sgq-lista-mestra'
+  | 'sgq-capa'
   | 'rastreabilidade'
   | 'analytics'
   | 'exports'
