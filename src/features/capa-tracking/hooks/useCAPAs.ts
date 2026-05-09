@@ -10,8 +10,8 @@
 
 import { useEffect, useState } from 'react';
 import { useActiveLabId } from '../../../store/useAuthStore';
-import { watchCAPAs } from '../services/capaService';
-import type { CAPA, CAPAWithDeadlineStatus, DeadlineStatus } from '../types';
+import { subscribeToCapas } from '../services/capaService';
+import type { CapaDocument, CAPAWithDeadlineStatus, DeadlineStatus } from '../types';
 
 /**
  * Calcula dias até deadline e status visual.
@@ -20,9 +20,11 @@ import type { CAPA, CAPAWithDeadlineStatus, DeadlineStatus } from '../types';
  * - 1-7 dias: at-risk (amber)
  * - <0: overdue (red)
  */
-function computeDeadlineStatus(capa: CAPA): DeadlineStatus {
+function computeDeadlineStatus(capa: CapaDocument): DeadlineStatus {
   const now = new Date();
-  const deadlineMs = capa.deadline?.toMillis?.() ?? 0;
+  const deadlineMs = typeof capa.deadlineDate === 'number'
+    ? capa.deadlineDate
+    : (capa.deadlineDate as any)?.toMillis?.() ?? 0;
   const nowMs = now.getTime();
   const daysRemaining = Math.ceil((deadlineMs - nowMs) / (1000 * 60 * 60 * 24));
 
@@ -73,7 +75,7 @@ export function useCAPAs(): UseCAPAsResult {
     setLoading(true);
     setError(null);
 
-    const unsubscribe = watchCAPAs(
+    const unsubscribe = subscribeToCapas(
       labId,
       (rawCapas) => {
         // Adiciona deadline status computed a cada CAPA
@@ -84,14 +86,15 @@ export function useCAPAs(): UseCAPAsResult {
 
         // Ordena por deadline (próximas primeiro)
         withStatus.sort((a, b) => {
-          const aTime = a.deadline?.toMillis?.() ?? 0;
-          const bTime = b.deadline?.toMillis?.() ?? 0;
+          const aTime = typeof a.deadlineDate === 'number' ? a.deadlineDate : a.deadlineDate?.toMillis?.() ?? 0;
+          const bTime = typeof b.deadlineDate === 'number' ? b.deadlineDate : b.deadlineDate?.toMillis?.() ?? 0;
           return aTime - bTime;
         });
 
         setCapas(withStatus);
         setLoading(false);
       },
+      undefined, // filterState
       (err) => {
         setError(err);
         setLoading(false);
