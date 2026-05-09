@@ -534,6 +534,13 @@ export {
   classificarReclamacaoIA,
   criarNCDraft,
   transitarReclamacao,
+  // MP-6 (v1.4-final-closure) — patient-portal phase 2 intake + RCA
+  intakeReclamacao,
+  triageReclamacao,
+  startRCAFiveWhys,
+  submitRCAAnswer,
+  completeRCAFiveWhys,
+  closeReclamacao,
 } from './modules/reclamacoes/index';
 
 // ─── satisfacao module (Phase 11 — NPS surveys) ────────────────────────────────
