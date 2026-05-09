@@ -1,0 +1,59 @@
+{
+  "version": "1.0",
+  "updatedAt": "2026-05-09",
+  "papeis_obrigatorios_abertura": [
+    {
+      "papel": "auditor",
+      "descricao": "Auditor Líder responsável pela condução",
+      "obrigatorio": true,
+      "minimo": 1
+    },
+    {
+      "papel": "rt",
+      "descricao": "Responsável Técnico do laboratório",
+      "obrigatorio": true,
+      "minimo": 1
+    },
+    {
+      "papel": "gerente_qc",
+      "descricao": "Gerente da Qualidade",
+      "obrigatorio": true,
+      "minimo": 1
+    },
+    {
+      "papel": "auditado",
+      "descricao": "Representante do(s) setor(es) auditado(s)",
+      "obrigatorio": true,
+      "minimo": 1
+    }
+  ],
+  "papeis_obrigatorios_encerramento": [
+    {
+      "papel": "auditor",
+      "obrigatorio": true,
+      "minimo": 1
+    },
+    {
+      "papel": "rt",
+      "obrigatorio": true,
+      "minimo": 1
+    },
+    {
+      "papel": "gerente_qc",
+      "obrigatorio": true,
+      "minimo": 1
+    }
+  ],
+  "papeis_opcionais": [
+    {
+      "papel": "observador",
+      "descricao": "Observadores externos ou estagiários",
+      "obrigatorio": false
+    },
+    {
+      "papel": "direcao",
+      "descricao": "Direção do Laboratório",
+      "obrigatorio": false
+    }
+  ]
+}
