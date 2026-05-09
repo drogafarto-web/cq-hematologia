@@ -12,7 +12,6 @@
 
 import React, { useState } from 'react';
 import { useActiveLabId } from '../../../../store/useAuthStore';
-import { useAppStore } from '../../../../store/useAppStore';
 import { useCAPADetail } from '../hooks/useCAPADetail';
 import { updateCAPAStatus } from '../services/capaService';
 import ActionCard from './ActionCard';
@@ -21,6 +20,7 @@ import type { CAPAStatus } from '../types';
 
 interface CAPADetailViewProps {
   capaId?: string;
+  onBack?: () => void;
 }
 
 const STATUS_STYLES = {
@@ -41,9 +41,8 @@ function formatDate(timestamp: any): string {
   }
 }
 
-export default function CAPADetailView({ capaId: providedCapaId }: CAPADetailViewProps) {
+export default function CAPADetailView({ capaId: providedCapaId, onBack }: CAPADetailViewProps) {
   const labId = useActiveLabId();
-  const setCurrentView = useAppStore((s) => s.setCurrentView);
   const effectiveCapaId = providedCapaId;
 
   const { capa, acoes, verificacoes, isLoading, error } = useCAPADetail(
@@ -91,13 +90,15 @@ export default function CAPADetailView({ capaId: providedCapaId }: CAPADetailVie
   return (
     <div className="min-h-screen bg-[#141417] text-white p-6">
       {/* Header with back button */}
-      <button
-        onClick={() => setCurrentView('sgq-capa')}
-        className="mb-6 text-violet-400 hover:text-violet-300 focus:ring-2 focus:ring-violet-500 rounded px-2 py-1"
-        aria-label="Voltar à lista de CAPAs"
-      >
-        ← Voltar
-      </button>
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="mb-6 text-violet-400 hover:text-violet-300 focus:ring-2 focus:ring-violet-500 rounded px-2 py-1"
+          aria-label="Voltar à lista de CAPAs"
+        >
+          ← Voltar
+        </button>
+      )}
 
       {/* Main Container */}
       <div className="max-w-4xl mx-auto space-y-6">

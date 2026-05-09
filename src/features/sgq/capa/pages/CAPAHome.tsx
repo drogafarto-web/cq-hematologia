@@ -36,6 +36,7 @@ export default function CAPAHome() {
     return (
       <CAPADetailView
         capaId={selectedCAPAId}
+        onBack={() => setCurrentView('list')}
       />
     );
   }
