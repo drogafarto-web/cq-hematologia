@@ -114,6 +114,9 @@ export const SUBCOLLECTIONS = {
   CRITICOS_THRESHOLDS: 'criticos-thresholds',
   CRITICOS_ESCALACOES: 'criticos-escalacoes',
   CRITICOS_LOG: 'criticos-log',
+  CRITICOS_ROUTING: 'criticos-routing',
+  // Módulo: IA Strip OCR (Imunologia) — Phase 5
+  IA_STRIP_DATASET: 'ia-strip-dataset',
   // Módulos futuros — descomentar ao implementar:
   // CIQ_BIOQUIMICA: 'ciq-bioquimica',
 } as const;

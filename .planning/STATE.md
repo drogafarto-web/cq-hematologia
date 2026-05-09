@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Milestone Summary
-status: executing
-last_updated: "2026-05-09T20:00:00.000Z"
+status: verifying
+last_updated: "2026-05-09T18:38:18.457Z"
 progress:
-  total_phases: 10
+  total_phases: 18
   completed_phases: 8
-  total_plans: 36
-  completed_plans: 34
-  percent: 80
+  total_plans: 52
+  completed_plans: 42
+  percent: 81
 ---
 
 # HC Quality v1.4 — Phase 8 Complete (CAPA Closure + Micro-Modules)
@@ -186,3 +186,27 @@ See `.planning/milestones/v1.4-KICKOFF-SUMMARY.md` for full phase breakdown and 
 ---
 
 **Last edit:** 2026-05-09 11:22 UTC — Phase 5 COMPLETE. 4 modules shipped (criticos, ciq-imuno dataset, escalacoes, IA classification). 8 waves × 27 subagents (W0–W5 core, W6 verification, W7 prep, W8 sync). 1494+ tests passing, bundle 419 KB, all compliance verified. See `PHASE_5_COMPLETION_SUMMARY.md`. Cascade Orchestrator V2 paused; manual gate required for Phase 6 kickoff (2026-05-22).
+
+---
+
+## v1.4-final-closure Branch Progress (2026-05-09)
+
+Closure session running on branch `v1.4-final-closure` (off `main`). 8 macro-phases planned (MP-0..MP-8); 6 complete in this session.
+
+| MP | Scope | SAs | Status |
+|----|-------|-----|--------|
+| MP-0 | Foundation & cleanup (archive, baseline, tokens) | 4 | ✅ COMPLETE |
+| MP-1 | Phase 11 PQ-24 closure (planos de ação, presença, re-auditoria) | 6 | ✅ COMPLETE |
+| MP-2 | Phase 7 advanced auditoria W4-W6 (alerts UI, PDF, archive cron, email) | 14 | ✅ COMPLETE |
+| MP-3 | Phase 5 críticos + IA strip OCR (thresholds, escalation, Gemini, dataset) | 12 | ✅ COMPLETE |
+| MP-4 | Phase 10 críticos FSM (4-state, SLA cron, immutable history) | 6 | ✅ COMPLETE |
+| MP-5a | Bioquímica Phase 9b (CLSI Westgard 8 + interlab z-score + Gemini OCR) | 22 | ✅ COMPLETE |
+| MP-5b | CEQ deepening | — | ⏸ DEFERRED (next branch) |
+| MP-5c | Analytics consent integration | — | ⏸ DEFERRED (next branch) |
+| MP-6 | Reclamações / portal-paciente extension | TBD | 🚧 IN PROGRESS (parallel session) |
+| MP-7 | DICQ formal audit pass | — | ⏭ SKIPPED (defer to v1.4-FINAL follow-up) |
+| MP-8 | Pre-deploy gate sweep + tag | TBD | ⏳ PENDING (after MP-6) |
+
+**Aggregate (MP-0..MP-5a):** 60 SAs · 48 commits · ~131 new tests · TSC 0 errors web + functions · main chunk 378 KB gzip.
+**Tag plan:** `v1.4-PARTIAL` after MP-6+MP-8 close. NOT `v1.4-FINAL` until MP-7 lands separately.
+**Final report:** `.planning/phases/v1.4-final-closure/FINAL-REPORT.md`.

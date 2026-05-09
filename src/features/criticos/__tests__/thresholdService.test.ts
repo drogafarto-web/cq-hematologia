@@ -144,7 +144,9 @@ describe('Threshold Service', () => {
       expect(result.condicional?.sexo).toBe('M');
     });
 
-    it('should default ativo to true', () => {
+    it('should throw when ativo is missing (schema does not default)', () => {
+      // The schema requires `ativo: boolean` — no .default() is applied.
+      // Callers must always supply ativo explicitly.
       const input: any = {
         analitoId: 'rbc',
         analitoNome: 'RBC',
@@ -152,24 +154,26 @@ describe('Threshold Service', () => {
         max: 5.5,
         unidade: 'M/uL',
         severidade: 'alta' as const,
+        // ativo intentionally omitted
       };
 
-      const result = validateThresholdInput(input);
-      expect(result.ativo).toBe(true);
+      expect(() => validateThresholdInput(input)).toThrow('Validation error');
     });
 
-    it('should default min/max to null if not provided', () => {
+    it('should throw when both min and max are omitted (schema requires explicit null)', () => {
+      // The schema requires min: number|null and max: number|null.
+      // Omitting them entirely fails Zod required field validation,
+      // triggering the min/max refine which rejects both-null inputs.
       const input = {
         analitoId: 'rbc',
         analitoNome: 'RBC',
         unidade: 'M/uL',
         severidade: 'alta' as const,
         ativo: true,
+        // min and max intentionally omitted — should throw
       };
 
-      const result = validateThresholdInput(input as any);
-      // At least one should be non-null, or it should be provided
-      // This will likely fail validation if both are null
+      expect(() => validateThresholdInput(input as any)).toThrow();
     });
   });
 

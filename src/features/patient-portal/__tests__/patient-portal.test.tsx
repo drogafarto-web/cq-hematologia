@@ -98,7 +98,7 @@ describe('Patient Portal — Session Expiry', () => {
   beforeEach(() => {
     localStorage.clear();
     usePatientAuthStore.getState().clearAuth();
-    vi.useFakeTimers();
+    vi.useFakeTimers({ now: Date.now() });
   });
 
   afterEach(() => {
@@ -219,10 +219,17 @@ describe('Patient Portal — RN Compliance', () => {
 
   it('RN-P02: Should enforce 72h expiry', () => {
     const token = 'jwt-123';
-    const expiresAt = Date.now() + 72 * 60 * 60 * 1000;
+    const now = Date.now();
+    const expiresAt = now + 72 * 60 * 60 * 1000;
 
     act(() => {
+      vi.setSystemTime(now);
       usePatientAuthStore.getState().setAuth(token, 'patient-001', 'lab-001', expiresAt);
+    });
+
+    act(() => {
+      // Must call checkExpiry() to populate remainingMs — setAuth() does not auto-populate it
+      usePatientAuthStore.getState().checkExpiry();
     });
 
     const state = usePatientAuthStore.getState();

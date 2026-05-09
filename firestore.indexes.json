@@ -994,26 +994,18 @@
         { "fieldPath": "generatedAt", "order": "DESCENDING" }
       ]
     },
+
     {
-      "collectionGroup": "presenca",
-      "queryScope": "COLLECTION",
+      "collectionGroup": "reunioes",
+      "queryScope": "COLLECTION_GROUP",
       "fields": [
-        { "fieldPath": "sessaoId", "order": "ASCENDING" },
+        { "fieldPath": "auditoriaId", "order": "ASCENDING" },
         { "fieldPath": "criadoEm", "order": "DESCENDING" }
       ]
     },
     {
-      "collectionGroup": "reunioes",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "auditoriaId", "order": "ASCENDING" },
-        { "fieldPath": "tipo", "order": "ASCENDING" },
-        { "fieldPath": "dataHora", "order": "DESCENDING" }
-      ]
-    },
-    {
       "collectionGroup": "planos-acao",
-      "queryScope": "COLLECTION",
+      "queryScope": "COLLECTION_GROUP",
       "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "prazo", "order": "ASCENDING" }
@@ -1023,8 +1015,9 @@
       "collectionGroup": "auditorias-internas",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "tipoExecucao", "order": "ASCENDING" },
-        { "fieldPath": "ano", "order": "DESCENDING" }
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "ano", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
       ]
     }
   ],

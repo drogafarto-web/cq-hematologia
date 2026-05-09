@@ -2,9 +2,7 @@ import { onCall, HttpsError, CallableRequest } from 'firebase-functions/v2/https
 import * as admin from 'firebase-admin';
 import * as crypto from 'crypto';
 import { z } from 'zod';
-import type { Auditoria, Achado, Sessao, ChecklistItem, LogicalSignature, Presenca, Reuniao, PlanoAcao } from './types';
-// Re-export incomplete phase-11 types so unused-locals tolerates them until handlers land
-export type { Presenca as _Presenca, Reuniao as _Reuniao, PlanoAcao as _PlanoAcao };
+import type { Auditoria, Achado, Sessao, ChecklistItem, LogicalSignature } from './types';
 import { checkNCs } from '../qualidade/naoConformidade';
 
 // Load checklist templates from seed data
@@ -57,53 +55,6 @@ const UpdateChecklistResponseInput = z.object({
 
 type UpdateChecklistResponseInputType = z.infer<typeof UpdateChecklistResponseInput>;
 
-const CreateReAuditoriaInput = z.object({
-  labId: z.string().min(1, 'labId é obrigatório'),
-  auditoriaOriginalId: z.string().min(1, 'auditoriaOriginalId é obrigatório'),
-  proximaAuditoriaPlanejada: z.string().refine((s) => !isNaN(Date.parse(s)), 'Data inválida'),
-  responsavelTecnico: z.string().min(1, 'responsavelTecnico é obrigatório'),
-  motivacao: z
-    .string()
-    .min(20, 'Motivação deve ter pelo menos 20 caracteres')
-    .max(500, 'Motivação não pode exceder 500 caracteres'),
-});
-
-type CreateReAuditoriaInputType = z.infer<typeof CreateReAuditoriaInput>;
-
-const RegisterPresencaInput = z.object({
-  labId: z.string().min(1, 'labId é obrigatório'),
-  auditoriaId: z.string().min(1, 'auditoriaId é obrigatório'),
-  sessaoId: z.string().min(1, 'sessaoId é obrigatório'),
-  reuniao: z.enum(['abertura', 'encerramento']),
-  participantes: z.array(
-    z.object({
-      userId: z.string().min(1, 'userId é obrigatório'),
-      nome: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').max(120, 'Nome não pode exceder 120 caracteres'),
-      papel: z.enum(['auditor', 'auditado', 'observador', 'rt', 'gerente_qc', 'direcao']),
-    })
-  ).min(1, 'Pelo menos 1 participante obrigatório').max(50, 'Máximo 50 participantes por registro'),
-});
-
-type RegisterPresencaInputType = z.infer<typeof RegisterPresencaInput>;
-export type { RegisterPresencaInputType as _RegisterPresencaInputType };
-
-const CreatePlanoAcaoInput = z.object({
-  labId: z.string().min(1, 'labId é obrigatório'),
-  auditoriaId: z.string().min(1, 'auditoriaId é obrigatório'),
-  achadoId: z.string().min(1, 'achadoId é obrigatório'),
-  descricao: z
-    .string()
-    .min(20, 'Descrição deve ter pelo menos 20 caracteres')
-    .max(500, 'Descrição não pode exceder 500 caracteres'),
-  responsavel: z.string().min(1, 'responsavel é obrigatório'),
-  prazo: z
-    .string()
-    .refine((s) => !isNaN(Date.parse(s)), 'prazo deve ser uma data ISO 8601 válida'),
-});
-
-type CreatePlanoAcaoInputType = z.infer<typeof CreatePlanoAcaoInput>;
-export type { CreatePlanoAcaoInputType as _CreatePlanoAcaoInputType };
-
 // ============ Helper: Check lab membership ============
 
 async function isActiveMemberOfLab(labId: string, uid: string): Promise<boolean> {
@@ -123,7 +74,7 @@ async function isActiveMemberOfLab(labId: string, uid: string): Promise<boolean>
  * Caller: admin/RT
  */
 export const createAuditoria = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', cors: true },
   async (request: CallableRequest<any>) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Auth token required');
@@ -184,114 +135,11 @@ export const createAuditoria = onCall(
 );
 
 /**
- * createReAuditoria: Cria re-auditoria linkada a auditoria original (PQ-24 §6.6).
- * Valida que original está finalizada e tem pelo menos 1 NC fechada.
- * Caller: admin/RT
- */
-export const createReAuditoria = onCall(
-  { region: 'southamerica-east1' },
-  async (request: CallableRequest<CreateReAuditoriaInputType>) => {
-    if (!request.auth) {
-      throw new HttpsError('unauthenticated', 'Auth token required');
-    }
-
-    // Validate input
-    let input: CreateReAuditoriaInputType;
-    try {
-      input = CreateReAuditoriaInput.parse(request.data);
-    } catch (err: any) {
-      throw new HttpsError('invalid-argument', err.message);
-    }
-
-    const isMember = await isActiveMemberOfLab(input.labId, request.auth.uid);
-    if (!isMember) {
-      throw new HttpsError('permission-denied', 'Not a lab member');
-    }
-
-    try {
-      // 1. Fetch auditoriaOriginal
-      const audRef = db.collection(`labs/${input.labId}/auditorias-internas`).doc(input.auditoriaOriginalId);
-      const audSnap = await audRef.get();
-
-      if (!audSnap.exists || audSnap.data()?.deletadoEm) {
-        throw new HttpsError('not-found', 'Auditoria original não encontrada');
-      }
-
-      const auditoriaOriginal = audSnap.data() as Auditoria;
-
-      // 2. Validate that original audit is 'finalizada'
-      if (auditoriaOriginal.status !== 'finalizada') {
-        throw new HttpsError(
-          'failed-precondition',
-          'Auditoria original deve estar finalizada antes de re-auditar'
-        );
-      }
-
-      // 3. Check for at least 1 closed NC linked to original audit
-      // Query collectionGroup('naoConformidades').where(auditoriaId == original.id).where(status == 'fechada')
-      const closedNcsSnapshot = await db
-        .collectionGroup('naoConformidades')
-        .where('auditoriaId', '==', input.auditoriaOriginalId)
-        .where('status', '==', 'fechada')
-        .limit(1)
-        .get();
-
-      if (closedNcsSnapshot.empty) {
-        throw new HttpsError(
-          'failed-precondition',
-          'Sem não-conformidades fechadas na auditoria original para validar. Re-auditoria requer verificação de eficácia.'
-        );
-      }
-
-      // 4. Check for blocking NCs before creating
-      const ncCheck = await checkNCs(input.labId, 'auditoria');
-      if (ncCheck.blocked) {
-        throw new HttpsError(
-          'failed-precondition',
-          ncCheck.message || 'NC crítica aberta bloqueia operações neste módulo'
-        );
-      }
-
-      // 5. Create re-auditoria
-      const reAuditoria: Auditoria = {
-        id: '', // will be set by doc ref
-        labId: input.labId,
-        ano: new Date().getFullYear(),
-        frequencia: auditoriaOriginal.frequencia,
-        responsavelTecnico: input.responsavelTecnico,
-        proximaAuditoriaPlanejada: admin.firestore.Timestamp.fromDate(
-          new Date(input.proximaAuditoriaPlanejada)
-        ),
-        status: 'planejada',
-        criadoEm: admin.firestore.Timestamp.now(),
-        criadoPor: request.auth.uid,
-        deletadoEm: null,
-        // Additional fields for re-audit tracking (added to Auditoria type)
-        tipoExecucao: 'reAuditoria',
-        auditoriaOriginalId: input.auditoriaOriginalId,
-        escopoSetores: auditoriaOriginal.escopoSetores ?? [],
-      };
-
-      const reAudRef = await db.collection(`labs/${input.labId}/auditorias-internas`).add(reAuditoria);
-
-      return {
-        success: true,
-        reAuditoriaId: reAudRef.id,
-        auditoriaOriginalId: input.auditoriaOriginalId,
-      };
-    } catch (error: any) {
-      if (error instanceof HttpsError) throw error;
-      throw new HttpsError('internal', error.message || 'Erro ao criar re-auditoria');
-    }
-  }
-);
-
-/**
  * registerAchado: Registra um achado (finding) numa sessão de auditoria.
  * Se severidade >= grave, cria NC automaticamente.
  */
 export const registerAchado = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', cors: true },
   async (request: CallableRequest<RegisterAchadoInputType>) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Auth token required');
@@ -459,7 +307,7 @@ export const registerAchado = onCall(
  * Creates sessão + checklist items in atomic batch.
  */
 export const installChecklistTemplate = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', cors: true },
   async (request: CallableRequest<InstallChecklistTemplateInputType>) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Auth required');
@@ -583,7 +431,7 @@ export const installChecklistTemplate = onCall(
  * Called when auditor finalizes session (syncs offline draft responses).
  */
 export const updateChecklistResponses = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', cors: true },
   async (request: CallableRequest<UpdateChecklistResponseInputType>) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Auth required');
@@ -657,129 +505,10 @@ export const updateChecklistResponses = onCall(
 );
 
 /**
- * createPlanoAcao: Cria plano de ação pós-achado para closure.
- */
-export const createPlanoAcao = onCall(
-  { region: 'southamerica-east1' },
-  async (request: CallableRequest<CreatePlanoAcaoInputType>) => {
-    if (!request.auth) {
-      throw new HttpsError('unauthenticated', 'Auth required');
-    }
-
-    const operatorId = request.auth.uid;
-
-    // Validate input with Zod
-    let input: CreatePlanoAcaoInputType;
-    try {
-      input = CreatePlanoAcaoInput.parse(request.data);
-    } catch (err: any) {
-      throw new HttpsError('invalid-argument', err.message);
-    }
-
-    // Check lab membership
-    const isMember = await isActiveMemberOfLab(input.labId, operatorId);
-    if (!isMember) {
-      throw new HttpsError('permission-denied', 'Not a lab member');
-    }
-
-    try {
-      // Validate that achado exists and belongs to the specified auditoria
-      const achadosQuery = db
-        .collectionGroup('achados')
-        .where('id', '==', input.achadoId)
-        .where('labId', '==', input.labId);
-
-      const achadosSnapshot = await achadosQuery.limit(1).get();
-      if (achadosSnapshot.empty) {
-        throw new HttpsError('not-found', `Achado ${input.achadoId} not found for lab ${input.labId}`);
-      }
-
-      const achadoDoc = achadosSnapshot.docs[0];
-      const achadoData = achadoDoc.data() as Achado;
-
-      // Verify achado belongs to the specified auditoria
-      if (achadoData.labId !== input.labId) {
-        throw new HttpsError('permission-denied', 'Achado does not belong to this lab');
-      }
-
-      // Generate logical signature with deterministic canonical JSON
-      const canonicalPayload = {
-        achadoId: input.achadoId,
-        auditoriaId: input.auditoriaId,
-        descricao: input.descricao,
-        prazo: input.prazo,
-        responsavel: input.responsavel,
-      };
-      const sortedKeys = Object.keys(canonicalPayload).sort();
-      const canonicalJson =
-        '{' +
-        sortedKeys
-          .map((k) => `"${k}":${JSON.stringify((canonicalPayload as any)[k])}`)
-          .join(',') +
-        '}';
-      const hash = crypto
-        .createHash('sha256')
-        .update(canonicalJson)
-        .digest('hex');
-
-      const assinatura: LogicalSignature = {
-        hash,
-        operatorId,
-        ts: admin.firestore.Timestamp.now(),
-      };
-
-      // Create plano de ação document
-      const planoRef = db
-        .collection(
-          `labs/${input.labId}/auditorias-internas/${input.auditoriaId}/planos-acao`
-        )
-        .doc();
-
-      const prazoDate = new Date(input.prazo);
-
-      const planoAcao: PlanoAcao = {
-        id: planoRef.id,
-        labId: input.labId,
-        auditoriaId: input.auditoriaId,
-        achadoId: input.achadoId,
-        descricao: input.descricao,
-        responsavel: input.responsavel,
-        prazo: admin.firestore.Timestamp.fromDate(prazoDate),
-        status: 'nao_iniciado',
-        assinatura,
-        criadoEm: assinatura.ts,
-        criadoPor: operatorId,
-        deletadoEm: null,
-      };
-
-      // Use transaction to atomically create plano + update achado
-      await db.runTransaction(async (tx) => {
-        // Create plano de ação
-        tx.set(planoRef, planoAcao);
-
-        // Update achado with reference to plano de ação
-        tx.update(achadoDoc.ref, {
-          planoAcaoId: planoRef.id,
-        });
-      });
-
-      return {
-        success: true,
-        planoId: planoRef.id,
-        status: 'nao_iniciado',
-      };
-    } catch (error: any) {
-      if (error instanceof HttpsError) throw error;
-      throw new HttpsError('internal', error.message || 'Error creating plano de ação');
-    }
-  }
-);
-
-/**
  * closeAuditoria: Finaliza auditoria (marca como finalizada).
  */
 export const closeAuditoria = onCall(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', cors: true },
   async (request: CallableRequest<any>) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Auth required');
@@ -814,158 +543,6 @@ export const closeAuditoria = onCall(
     } catch (error: any) {
       if (error instanceof HttpsError) throw error;
       throw new HttpsError('internal', error.message);
-    }
-  }
-);
-
-/**
- * registerPresenca: Registra assinatura digital de participantes em reunião de auditoria (abertura/encerramento).
- * Gera LogicalSignature para cada participante e atualiza contador na reunião (cria se não existir).
- */
-export const registerPresenca = onCall(
-  { region: 'southamerica-east1' },
-  async (request: CallableRequest<RegisterPresencaInputType>) => {
-    if (!request.auth) {
-      throw new HttpsError('unauthenticated', 'Auth token required');
-    }
-
-    const operatorId = request.auth.uid;
-
-    // Validate input
-    let input: RegisterPresencaInputType;
-    try {
-      input = RegisterPresencaInput.parse(request.data);
-    } catch (err: any) {
-      throw new HttpsError('invalid-argument', err.message);
-    }
-
-    // Check lab membership
-    const isMember = await isActiveMemberOfLab(input.labId, operatorId);
-    if (!isMember) {
-      throw new HttpsError('permission-denied', 'Not a lab member');
-    }
-
-    try {
-      // Check for blocking NCs
-      const ncCheck = await checkNCs(input.labId, 'auditoria');
-      if (ncCheck.blocked) {
-        throw new HttpsError('failed-precondition', ncCheck.message || 'Blocking NC prevents operation');
-      }
-
-      const presencasRef = db.collection(
-        `labs/${input.labId}/auditorias-internas/${input.auditoriaId}/sessoes/${input.sessaoId}/presenca`
-      );
-
-      const reuniaoRef = db.collection(
-        `labs/${input.labId}/auditorias-internas/${input.auditoriaId}/sessoes/${input.sessaoId}/reunioes`
-      );
-
-      // Use transaction for atomic presenca creation + reuniao update
-      const result = await db.runTransaction(async (tx) => {
-        // Get or create reuniao document for this session + tipo
-        const reuniaoQuery = await tx.get(
-          reuniaoRef.where('reuniao', '==', input.reuniao).limit(1)
-        );
-
-        let reuniaoRef_: any;
-        let reuniaoId: string;
-
-        if (reuniaoQuery.empty) {
-          // Create new reuniao document
-          const newReuniaoRef = reuniaoRef.doc();
-          reuniaoId = newReuniaoRef.id;
-
-          const novaReuniao: Reuniao = {
-            id: reuniaoId,
-            sessaoId: input.sessaoId,
-            auditoriaId: input.auditoriaId,
-            labId: input.labId,
-            reuniao: input.reuniao,
-            pauta: 'Auto-criada via registerPresenca',
-            dataHora: admin.firestore.Timestamp.now(),
-            presencasConfirmadas: input.participantes.length,
-            criadoEm: admin.firestore.Timestamp.now(),
-            criadoPor: operatorId,
-            deletadoEm: null,
-          };
-
-          tx.set(newReuniaoRef, novaReuniao);
-          reuniaoRef_ = newReuniaoRef;
-        } else {
-          // Update existing reuniao with incremented presencas count
-          const existingDoc = reuniaoQuery.docs[0];
-          reuniaoId = existingDoc.id;
-          reuniaoRef_ = reuniaoRef.doc(reuniaoId);
-
-          const currentCount = existingDoc.data().presencasConfirmadas || 0;
-          tx.update(reuniaoRef_, {
-            presencasConfirmadas: currentCount + input.participantes.length,
-          });
-        }
-
-        // Create presenca documents for each participante
-        let totalRegistrados = 0;
-        for (const participante of input.participantes) {
-          const presencaRef = presencasRef.doc();
-
-          // Generate logical signature with canonical JSON
-          const canonicalPayload = {
-            auditoriaId: input.auditoriaId,
-            papel: participante.papel,
-            reuniao: input.reuniao,
-            sessaoId: input.sessaoId,
-            userId: participante.userId,
-          };
-
-          const sortedKeys = Object.keys(canonicalPayload).sort();
-          const canonicalJson =
-            '{' +
-            sortedKeys
-              .map((k) => `"${k}":${JSON.stringify((canonicalPayload as any)[k])}`)
-              .join(',') +
-            '}';
-
-          const hash = crypto
-            .createHash('sha256')
-            .update(canonicalJson)
-            .digest('hex');
-
-          const assinatura: LogicalSignature = {
-            hash,
-            operatorId,
-            ts: admin.firestore.Timestamp.now(),
-          };
-
-          const presenca: Presenca = {
-            id: presencaRef.id,
-            sessaoId: input.sessaoId,
-            auditoriaId: input.auditoriaId,
-            labId: input.labId,
-            userId: participante.userId,
-            nome: participante.nome,
-            papel: participante.papel,
-            reuniao: input.reuniao,
-            assinatura,
-            criadoEm: assinatura.ts,
-            criadoPor: operatorId,
-            deletadoEm: null,
-          };
-
-          tx.set(presencaRef, presenca);
-          totalRegistrados++;
-        }
-
-        return { reuniaoId, totalRegistrados };
-      });
-
-      return {
-        success: true,
-        reuniaoId: result.reuniaoId,
-        totalRegistrados: result.totalRegistrados,
-      };
-    } catch (error: any) {
-      if (error instanceof HttpsError) throw error;
-      throw new HttpsError('internal', error.message || 'Error registering presenca');
     }
   }
 );

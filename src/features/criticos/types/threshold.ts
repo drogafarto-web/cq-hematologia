@@ -813,3 +813,62 @@ export interface EscalationRecipients {
   emails: string[];
   slaMinutos: number;
 }
+
+// ─── MP-3 Phase 5 Helper Functions ───────────────────────────────────────────
+
+/**
+ * MP-3 Threshold type for helper function (avoids circular import).
+ * Defines the severity classification input.
+ */
+export interface MP3CriticoThreshold {
+  faixaCritica: { min: number | null; max: number | null };
+  faixaPanico: { min: number | null; max: number | null };
+  severityDefault: 'low' | 'medium' | 'high' | 'panic';
+}
+
+/**
+ * Classify a measured value against a threshold to determine severity.
+ *
+ * Rules:
+ * - If valor is within faixaPanico → 'panic'
+ * - Else if within faixaCritica → threshold.severityDefault (clamped to medium/high)
+ * - Else → null (not critical)
+ * - Open-ended bounds (null) mean "any value below/above is in range"
+ *
+ * @param valor Measured value
+ * @param threshold Threshold configuration with faixaCritica and faixaPanico ranges
+ * @returns Severity level ('low' | 'medium' | 'high' | 'panic') or null if not critical
+ */
+export function classifySeverity(
+  valor: number,
+  threshold: MP3CriticoThreshold
+): 'low' | 'medium' | 'high' | 'panic' | null {
+  // Check panic range first (highest priority)
+  if (threshold.faixaPanico) {
+    const inPanicMin =
+      threshold.faixaPanico.min === null || valor >= threshold.faixaPanico.min;
+    const inPanicMax =
+      threshold.faixaPanico.max === null || valor <= threshold.faixaPanico.max;
+    if (inPanicMin && inPanicMax) {
+      return 'panic';
+    }
+  }
+
+  // Check critical range
+  if (threshold.faixaCritica) {
+    const inCritMin =
+      threshold.faixaCritica.min === null || valor >= threshold.faixaCritica.min;
+    const inCritMax =
+      threshold.faixaCritica.max === null || valor <= threshold.faixaCritica.max;
+    if (inCritMin && inCritMax) {
+      // Return default severity, ensuring it's medium or high
+      const severity = threshold.severityDefault;
+      if (severity === 'panic' || severity === 'low') {
+        return 'medium'; // Fallback to medium for invalid defaults
+      }
+      return severity;
+    }
+  }
+
+  return null;
+}

@@ -212,11 +212,15 @@
       "PowerShell(Get-ChildItem -Path \"C:\\\\hc quality\\\\functions\\\\src\" -File | Where-Object { $_.Name -match 'env' })",
       "Bash(xargs -I {} wc -l {})",
       "Bash(clear *)",
-      "PowerShell(Get-ChildItem *)"
+      "PowerShell(Get-ChildItem *)",
+      "WebFetch(domain:www.anthropic.com)",
+      "WebFetch(domain:anthropic.com)",
+      "Bash(curl -sf https://hmatologia2.web.app)",
+      "Skill(gsd-autonomous)"
     ]
   },
+  "model": "sonnet",
   "enabledMcpjsonServers": [
     "firebase"
-  ],
-  "model": "haiku"
+  ]
 }

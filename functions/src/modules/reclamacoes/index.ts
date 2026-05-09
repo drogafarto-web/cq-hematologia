@@ -13,3 +13,13 @@ export { classificarReclamacaoIA } from './classificarReclamacaoIA';
 // export { parseEmailReclamacao } from './parseEmailReclamacao';
 export { criarNCDraft } from './criarNCDraft';
 export { transitarReclamacao } from './transitarReclamacao';
+
+// MP-6 (v1.4-final-closure) — patient-portal phase 2 intake + RCA
+export {
+  intakeReclamacao,
+  triageReclamacao,
+  startRCAFiveWhys,
+  submitRCAAnswer,
+  completeRCAFiveWhys,
+  closeReclamacao,
+} from './intakeReclamacao';

@@ -116,7 +116,8 @@ Use: `bash scripts/monitor-cloud-logs.sh 24 30` (or `.ps1` equiv.) imediatamente
 | `educacao-continuada` | Em prod · ISO 15189 + XLSX + callables server-side | 2026-04-24 |
 | `sgq` | Em prod · Documentos da Qualidade (DICQ 4.3) — MQ/PQ/IT/FR/POL + versionamento + audit + POL-LGPD-001 + IT-LGPD-DPIA-001 (Phase 0) | 2026-05-07 |
 | `pops` | Em prod · Procedimentos Operacionais Padrão (DICQ 4.3) — versionamento + treinamento + assinatura RT | 2026-05-03 |
-| `auditoria` | Em prod · Trilha de audit (write intent + read consent) — RDC 978 5.3 + DICQ 4.4 | 2026-05-03 |
+| `auditoria` | Em prod · Phase 7 W4-W6 (advanced — alerts, anomaly timeline, PDF archive, email, ExportWizard) — RDC 978 5.3 + DICQ 4.4 | 2026-05-09 |
+| `auditoria-interna` | Em prod · Phase 11 PQ-24 (planos de ação + presença reuniões + re-auditoria com chain de NCs fechadas) — RDC 978 Art. 107 + DICQ 4.4 | 2026-05-09 |
 | `sgd` | Em prod · Sistema de Gestão Documental (DICQ 4.3) — Lista Mestra, hierarquia, distribuição, Drive importer + Riopomba migration (80 docs) | 2026-05-06 |
 | `treinamentos` | Em prod · Sistema de registro de treinamentos com vínculo a POPs + certificação + revalidação | 2026-05-05 |
 | `biosseguranca` | Em prod · Gestão de áreas de risco, níveis NB1-NB4, EPE + inspeções com ISO 14644 | 2026-05-05 |
@@ -127,7 +128,7 @@ Use: `bash scripts/monitor-cloud-logs.sh 24 30` (or `.ps1` equiv.) imediatamente
 | `export` | Em prod · Phase 3.3 — ExportWizard 4-step + XLSX CF + PDF compress + email + batch+scheduled | 2026-05-05 |
 | `mobile` | Em prod · Phase 3.3 — NativeWind dark theme + biometric auth + Detox E2E (5 critical flows) | 2026-05-05 |
 | `ceq` | Em prod · Controle de Qualidade Externo — participação externa, z-score, comparação interlaboratorial | 2026-05-05 |
-| `bioquimica` | Em prod · CIQ quantitativo + Westgard CLSI + Levey-Jennings | 2026-05-07 |
+| `bioquimica` | Em prod · Phase 9b (CLSI 8-rule Westgard + z-score interlaboratorial + Gemini OCR de tira reagente, 50+ analitos) — RDC 978 Arts. 167/179/180/183 + DICQ 4.3 Bloco F + LGPD Art. 9 | 2026-05-09 |
 | `turnos` | Em prod · Registro de supervisão de turnos (RDC 978 Art. 122 + RDC 786 + DICQ 4.1.2.7) | 2026-05-07 |
 | `risks` | Em prod · Gestão de Riscos (FMEA-Lite P×S×D, NPR 1–125, revisão periódica) — RDC 978 Art. 86 + DICQ 4.14.6 | 2026-05-07 |
 | `lab-apoio` | Em prod · Contratos com labs de apoio (CNPJ + AVS + vigência + exames terceirizados + avaliação anual — RDC 978 Arts. 36–39 + DICQ 4.14.8) | 2026-05-07 |
@@ -135,6 +136,8 @@ Use: `bash scripts/monitor-cloud-logs.sh 24 30` (or `.ps1` equiv.) imediatamente
 | `portal-paciente` | Em prod · Portal Paciente (acesso a resultados via email + LGPD export + consentimento explícito — LGPD Art. 9/11/13/17 + RDC 978 Art. 167) | 2026-05-08 |
 | `notivisa` | Em prod · Integração NOTIVISA v1.4 (sandbox ready; produção Phase 6 após aprovação gov — Portaria 204/2017 + RDC 978 Art. 6) | 2026-05-08 |
 | `laudo-ocr` | Em prod · OCR de laudos via Gemini Vision + gate de consentimento + fallback manual (RDC 978 Art. 167 + LGPD Art. 9) | 2026-05-08 |
+| `criticos` | Em prod · Phase 5 (per-lab thresholds + SMS+email+in-app escalation cascade + IA strip OCR via Gemini + dataset feedback loop) — RDC 978 Arts. 127/128/167 + DICQ 4.4 + LGPD Arts. 9/13/17 | 2026-05-09 |
+| `criticos-fsm` | Em prod · Phase 10 (FSM 4 estados NORMAL→CRITICO→ALERTADO→RESOLVIDO + SLA enforcement por minuto + history append-only imutável) — RDC 978 Art. 127 + DICQ 4.4 | 2026-05-09 |
 
 **Phase 2 — COMPLETE (2026-05-05):** Todos os 20 módulos em produção. 347/347 testes passando. ADRs 0005+0002+0006+0003+0004 todos deployados.
 

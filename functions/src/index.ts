@@ -365,20 +365,26 @@ export {
 // ─── auditoria module (ADR 0004 — Internal Audit + Findings → NC Auto-gen) ────
 // createAuditoria: create internal audit with scope and scheduled date
 // registerAchado: record audit findings (grave/critica trigger NC auto-gen dialog)
-// createPlanoAcao: action plan for closure (CAPA workflow)
 // closeAuditoria: mark audit as fechada
 // registerPresenca: register digital signature of audit meeting participants (FR-045)
 // installChecklistTemplate: load DICQ template (~115 items) into audit session
 // updateChecklistResponses: batch-sync offline checklist responses
-// generateAuditReportPDF: Puppeteer server-side PDF generation (Wave 3) with ~115 items, achados, severity, NC links, RT signature
+// generateInternalAuditReportPDF: Puppeteer server-side PDF (Wave 3) — checklist ~115 items, achados, severity, NC links, RT signature
+// generateAuditReportPDF: Puppeteer server-side PDF (SA-16) — anomaly-based report with NLP summary + per-rule sections
+//
+// Phase 11 PQ-24: createPlanoAcao, registerPresenca, createReAuditoria
+// (action plan for closure, presence registration, re-audit chain)
 export {
   createAuditoria,
   registerAchado,
   createPlanoAcao,
+  registerPresenca,
+  createReAuditoria,
   closeAuditoria,
   registerPresenca,
   installChecklistTemplate,
   updateChecklistResponses,
+  generateInternalAuditReportPDF,
   generateAuditReportPDF,
 } from './modules/auditoria/index';
 
@@ -532,7 +538,22 @@ export {
   classificarReclamacaoIA,
   criarNCDraft,
   transitarReclamacao,
+  // MP-6 (v1.4-final-closure) — patient-portal phase 2 intake + RCA
+  intakeReclamacao,
+  triageReclamacao,
+  startRCAFiveWhys,
+  submitRCAAnswer,
+  completeRCAFiveWhys,
+  closeReclamacao,
 } from './modules/reclamacoes/index';
+
+// ─── nps module (MP-6 / v1.4-final-closure) ─────────────────────────────────
+// Anonymous-OK NPS submission (patientToken idempotency) + cycle aggregation.
+// LGPD: followUp content NEVER hits Cloud Logs.
+export {
+  submitNPS,
+  aggregateNPSCycle,
+} from './modules/nps/submitNPS';
 
 // ─── satisfacao module (Phase 11 — NPS surveys) ────────────────────────────────
 // NPS post-resolution, quarterly campaigns, response anonymization (LGPD).

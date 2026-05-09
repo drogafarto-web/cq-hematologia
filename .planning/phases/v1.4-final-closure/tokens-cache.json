@@ -1,0 +1,306 @@
+{
+  "version": "v1.4-final-closure",
+  "extracted_from": "DESIGN_SYSTEM.md",
+  "extracted_at": "2026-05-09",
+  "colors": {
+    "light": {
+      "primary": {
+        "primary": "#2563EB",
+        "tailwind": "blue-600"
+      },
+      "primary_hover": {
+        "primary": "#1D4ED8",
+        "tailwind": "blue-700"
+      },
+      "primary_soft": {
+        "primary": "#EFF4FF",
+        "tailwind": "blue-50"
+      },
+      "success": {
+        "primary": "#10B981",
+        "tailwind": "emerald-500"
+      },
+      "warning": {
+        "primary": "#F59E0B",
+        "tailwind": "amber-500"
+      },
+      "danger": {
+        "primary": "#EF4444",
+        "tailwind": "red-500"
+      },
+      "background": {
+        "primary": "#F8FAFC",
+        "tailwind": "slate-50"
+      },
+      "card": {
+        "primary": "#FFFFFF",
+        "tailwind": "white"
+      },
+      "border": {
+        "primary": "#E2E8F0",
+        "tailwind": "slate-200"
+      },
+      "border_strong": {
+        "primary": "#CBD5E1",
+        "tailwind": "slate-300"
+      },
+      "text": {
+        "primary": "#0F172A",
+        "tailwind": "slate-900"
+      },
+      "text_muted": {
+        "primary": "#64748B",
+        "tailwind": "slate-500"
+      },
+      "text_faint": {
+        "primary": "#94A3B8",
+        "tailwind": "slate-400"
+      }
+    },
+    "dark": {
+      "background": "dark:bg-[#0B0F14]",
+      "sidebar_topbar": "dark:bg-[#0F1318]",
+      "card": "dark:bg-white/[0.03]",
+      "border": "dark:border-white/[0.06]",
+      "text": "dark:text-white",
+      "text_muted": "dark:text-slate-400",
+      "text_faint": "dark:text-slate-500"
+    },
+    "accents": {
+      "emerald": {
+        "primary": "emerald-500",
+        "light_bg": "emerald-50",
+        "dark_bg": "emerald-500/10",
+        "light_text": "emerald-700",
+        "dark_text": "emerald-400",
+        "light_border": "emerald-200",
+        "dark_border": "emerald-500/20"
+      },
+      "red": {
+        "primary": "red-500",
+        "light_bg": "red-50",
+        "dark_bg": "red-500/10",
+        "light_text": "red-700",
+        "dark_text": "red-400",
+        "light_border": "red-200",
+        "dark_border": "red-500/20"
+      },
+      "amber": {
+        "primary": "amber-500",
+        "light_bg": "amber-50",
+        "dark_bg": "amber-500/10",
+        "light_text": "amber-700",
+        "dark_text": "amber-400",
+        "light_border": "amber-200",
+        "dark_border": "amber-500/20"
+      }
+    },
+    "alpha_variants": {
+      "white_5": "white/[0.05]",
+      "white_6": "white/[0.06]",
+      "white_10": "white/[0.10]",
+      "white_80": "white/80"
+    }
+  },
+  "spacing": {
+    "grid_base": "4px",
+    "scales": {
+      "padding": ["p-0.5", "p-1", "p-2", "p-3", "p-4", "p-5", "p-6", "p-8"],
+      "gap": ["gap-0.5", "gap-1", "gap-1.5", "gap-2", "gap-2.5", "gap-3", "gap-4", "gap-6"],
+      "margin": ["mb-1.5", "mb-2", "mb-6"]
+    },
+    "forbidden": ["p-[13px]", "arbitrary padding values"],
+    "page_padding": "px-8 py-6",
+    "card_gap": "gap-4",
+    "section_gap": "gap-6 / mb-6",
+    "inline_gap": "gap-2 / gap-2.5",
+    "table_padding": "px-4 py-3"
+  },
+  "typography": {
+    "font_display": "Inter",
+    "font_mono": "JetBrains Mono",
+    "scales": {
+      "h1_page": {
+        "size": "24px",
+        "weight": "700",
+        "class": ".h1 / page"
+      },
+      "h2": {
+        "size": "18px",
+        "weight": "600",
+        "class": ".h2"
+      },
+      "text_sm": {
+        "size": "14px",
+        "weight": "400",
+        "class": "text-sm"
+      },
+      "text_xs": {
+        "size": "12px",
+        "class": "text-xs"
+      },
+      "text_10px": {
+        "size": "10px",
+        "weight": "600",
+        "class": "text-[10px]",
+        "usage": "UPPERCASE labels with tracking"
+      }
+    },
+    "sizing_kpi": "text-[28px]",
+    "modifiers": {
+      "tracking_tight": "in titles",
+      "tabular_nums": "in laboratory numeric data (values, z-scores)",
+      "tracking_wide": "in section headers, uppercase",
+      "tracking_wider": "in table headers, uppercase"
+    },
+    "weight_scale": ["font-normal", "font-medium", "font-semibold"]
+  },
+  "radii": {
+    "sm": "rounded",
+    "md": "rounded-md",
+    "lg": "rounded-lg",
+    "xl": "rounded-xl",
+    "2xl": "rounded-2xl",
+    "full": "rounded-full",
+    "forbidden_on_data_cards": "rounded-2xl"
+  },
+  "shadows": {
+    "sm": "shadow-sm",
+    "none_dark": "dark:shadow-none"
+  },
+  "motion": {
+    "duration": ["150ms", "200ms"],
+    "max_duration": "200ms",
+    "respects_reduced_motion": true,
+    "allowed_transitions": ["transition-colors", "transition-all"],
+    "default_easing": "spring ease"
+  },
+  "icons": {
+    "policy": "inline SVG with currentColor",
+    "stroke_width_nav": "1.8",
+    "stroke_width_small": "2",
+    "sizes": {
+      "nav_sidebar": "16×16px",
+      "buttons": "14×14px",
+      "dense_contexts": "13×13px"
+    },
+    "forbidden_libraries": ["lucide-react", "heroicons", "react-icons"],
+    "mandatory_aria_hidden": "on decorative icons"
+  },
+  "components": {
+    "buttons": {
+      "height_default": "h-9",
+      "height_small": "h-8",
+      "height_large": "h-10",
+      "radius": "rounded-lg",
+      "radius_dense": "rounded-md",
+      "padding_primary": "px-3.5"
+    },
+    "cards": {
+      "radius": "rounded-xl",
+      "forbidden_radius": "rounded-2xl in data cards",
+      "padding": "p-5",
+      "header_padding": "px-5 py-3.5",
+      "border_width": "border"
+    },
+    "badges": {
+      "structure": "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border",
+      "dot_size": "w-1.5 h-1.5"
+    },
+    "kpi_cards": {
+      "accent_bar_width": "w-[3px]",
+      "accent_bar_position": "absolute left-0 top-0 bottom-0",
+      "grid": "grid-cols-4 gap-4"
+    },
+    "tables": {
+      "padding_cell": "px-4 py-3",
+      "padding_header": "px-4 py-2.5",
+      "numeric_alignment": "text-right with tabular-nums"
+    },
+    "segmented_controls": {
+      "gap": "gap-0.5",
+      "button_height": "h-7",
+      "button_padding": "px-3",
+      "button_radius": "rounded-md",
+      "button_size": "text-xs font-medium"
+    },
+    "westgard_chips": {
+      "font": "font-mono",
+      "size": "text-[11px]",
+      "padding": "px-1.5 py-0.5",
+      "radius": "rounded"
+    },
+    "step_indicator": {
+      "step_size": "w-[22px] h-[22px]",
+      "step_radius": "rounded-full",
+      "step_text": "text-[11px] font-semibold",
+      "connector_height": "h-px",
+      "connector_margin": "mx-3"
+    }
+  },
+  "data_viz": {
+    "westgard_zones": {
+      "zone_normal": {
+        "range": "±1 SD",
+        "color": "#ECFDF5",
+        "tailwind": "emerald (green zone)"
+      },
+      "zone_warning": {
+        "range": "±2 to ±3 SD",
+        "color": "#FFFBEB",
+        "tailwind": "amber (warning zone)"
+      },
+      "zone_rejection": {
+        "range": ">±3 SD",
+        "color": "#FEF2F2",
+        "tailwind": "red (rejection zone)"
+      }
+    },
+    "westgard_rules": {
+      "1_2s": "aviso only (1 value beyond ±2 SD)",
+      "1_3s": "rejeição (1 value beyond ±3 SD)",
+      "2_2s": "rejeição (2 consecutive beyond ±2 SD, same side)",
+      "R_4s": "rejeição (2 consecutive spanning >4 SD, opposite sides)",
+      "4_1s": "rejeição (4 consecutive beyond ±1 SD, same side)",
+      "10x": "rejeição (10 consecutive same side of mean)",
+      "6T": "rejeição (6 monotonic increase/decrease)",
+      "6X": "rejeição (6 consecutive same side, shift)"
+    }
+  },
+  "layout": {
+    "shell": {
+      "sidebar_width": "232px",
+      "sidebar_sticky": "sticky top-0 h-screen",
+      "topbar_height": "56px",
+      "topbar_sticky": "sticky top-0 z-10",
+      "page_max_width": "max-w-[1400px]"
+    },
+    "sidebar_nav": {
+      "brand_size": "26×26px",
+      "nav_state_active": "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400",
+      "nav_state_hover": "bg-slate-100 dark:bg-white/[0.05]"
+    },
+    "topbar_elements": {
+      "search_width": "260px"
+    }
+  },
+  "a11y": {
+    "contrast_min_normal": 4.5,
+    "contrast_min_large": 3.0,
+    "focus_visible_required": true,
+    "keyboard_nav_required": true,
+    "semantic_html_required": true,
+    "wcag_target": "AA"
+  },
+  "antipatterns": [
+    "No decorative gradients (bg-gradient-to-*)",
+    "No external icon libraries (lucide, heroicons, react-icons)",
+    "No hardcoded colors in style={{color: '#...'}}",
+    "No rounded-2xl on data cards/tables",
+    "No animations beyond transition-colors/all with duration < 200ms",
+    "No text-purple-* or text-violet-* (use blue/slate/semantic status)",
+    "No decorative icons without aria-hidden",
+    "No flex gap-* when layout should be table",
+    "No business logic in UI components (belongs in hooks)"
+  ]
+}
