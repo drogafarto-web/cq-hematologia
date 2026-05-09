@@ -1,5 +1,9 @@
 # Incident Response Contact Tree
 
+Who to contact at each severity level.
+
+---
+
 ## Green Incident (Internal Only)
 
 **Who to notify:**
@@ -13,14 +17,14 @@
 ## Yellow Incident (Team + Operations)
 
 **Who to notify (in order):**
-1. **On-Call IC:** [slack, phone, SMS] — decides if escalation to Red needed
-2. **Team Lead:** [slack, email] — if IC needs backup
-3. **Ops/DevOps:** [slack] — if infrastructure needed (database recovery, function redeployment)
+1. **On-Call IC:** Decides if escalation to Red needed
+2. **Team Lead:** If IC needs backup
+3. **Ops/DevOps:** If infrastructure needed
 
 **Timeline:**
-- T+5min: IC declares severity Yellow, activates team
+- T+5min: IC declares Yellow
 - T+30min: If no progress, escalate to Red
-- T+2h: Status update to leadership (Slack #incidents)
+- T+2h: Status update to leadership
 
 **Example:** "Analytics dashboard slow, 5% laudo exports failing"
 
@@ -37,12 +41,12 @@
 6. **Product Lead:** Aware of user impact, prepares customer communication
 
 **Timeline:**
-- T+1min: Alerts fire (Cloud Logs anomaly)
-- T+5min: IC confirms severity Red, initiates group Slack call
-- T+15min: First status update (what is problem, ETA)
-- T+30min: If not resolved, escalate to CTO (Black consideration)
+- T+1min: Alerts fire
+- T+5min: IC confirms Red, initiates group Slack call
+- T+15min: First status update
+- T+30min: If not resolved, escalate to CTO
 - Every 30min: Status update in Slack #incidents
-- T+1h: Incident resolved or escalated
+- T+1h: Resolved or escalated
 
 **Customer Notification:** CTO decides (usually after resolve, unless >1h outage)
 
@@ -59,35 +63,35 @@
 4. **Business/Legal:** Regulatory notification prep
 5. **Auditor:** If RDC compliance affected (within 24h)
 6. **Customer Notification:** CTO + Legal (if data loss or outage >3h)
-7. **ANVISA (if required):** Via Legal (NOTIVISA failure, patient safety)
+7. **ANVISA (if required):** Via Legal
 
 **Timeline:**
-- T+0: Black declared (system down or data lost)
-- T+1min: Emergency group call initiated (Slack Huddle)
-- T+5min: CTO declares action plan (restore from backup, redeploy, etc.)
-- T+15min: First status update (what we're doing, ETA)
-- T+30min: Second status update (progress or escalation)
-- Every 15min: Status until resolved
-- T+24h (if data loss): Auditor notified in writing
-- T+48h: Customer notification letter (if required)
+- T+0: Black declared
+- T+1min: Emergency group call initiated
+- T+5min: CTO declares action plan
+- T+15min: First status update
+- T+30min: Second status update
+- Every 15min: Updates until resolved
+- T+24h (if data loss): Auditor notified
+- T+48h: Customer notification letter
 
 **No external communication without CTO sign-off.**
 
-**Example:** "Database entirely inaccessible, audit trail data lost"
+**Example:** "Database inaccessible, audit trail data lost"
 
 ---
 
 ## Contact Details (To Be Filled By Ops Team)
 
-| Role | Name | Phone | Slack | Email | WhatsApp |
-|------|------|-------|-------|-------|----------|
-| CTO | | | | | |
-| IC Week 1 | | | | | |
-| IC Backup Week 1 | | | | | |
-| IC Week 2 | | | | | |
-| IC Backup Week 2 | | | | | |
-| Engineering Lead | | | | | |
-| Ops/DevOps | | | | | |
-| Product Lead | | | | | |
+| Role | Name | Phone | Slack | Email |
+|------|------|-------|-------|-------|
+| CTO | | | | |
+| IC Week 1 | | | | |
+| IC Backup Week 1 | | | | |
+| IC Week 2 | | | | |
+| IC Backup Week 2 | | | | |
+| Engineering Lead | | | | |
+| Ops/DevOps | | | | |
+| Product Lead | | | | |
 
-*To be completed before Phase 4 launch (2026-05-20).*
+*To be completed before production go-live.*
