@@ -17,7 +17,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
-import { db, functions } from '../../../shared/services/firebase';
+import { db, functions } from '../../../../shared/services/firebase';
 import type {
   CAPA,
   CAParecao,
@@ -51,7 +51,7 @@ const updateCAPACallable = httpsCallable<any, { success: boolean }>(
   'updateCAPA'
 );
 
-const assignCAPACallable = httpsCallable<any, { success: boolean }>(
+const assignCAPACallable = httpsCallable<any, { success: boolean; acaoId?: string }>(
   functions,
   'assignCAPA'
 );

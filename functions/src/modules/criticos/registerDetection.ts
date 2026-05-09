@@ -13,11 +13,7 @@ import { z } from 'zod';
 import * as admin from 'firebase-admin';
 import { db } from '../../shared/firebase';
 import { generateChainHash } from '../../shared/signature';
-import {
-  defaultWindowForTier,
-  defaultDestinatarioForTier,
-  DEFAULT_TIER_LADDER,
-} from './tierEngine';
+// Tier engine imports unused after Wave 2 refactor (kept module for future use)
 import type {
   CriticosEscalacao,
   CriticosLogEvento,
@@ -34,7 +30,7 @@ const CriticalDetectionInputSchema = z.object({
   laudoId: z.string().min(1, 'laudoId required'),
   laudoVersion: z.number().int().min(1, 'laudoVersion must be >= 1'),
   analitoId: z.string().min(1, 'analitoId required'),
-  result: z.number('result must be a number'),
+  result: z.number({ invalid_type_error: 'result must be a number' }),
   unit: z.string().min(1, 'unit required'),
   pacientId: z.string().min(1, 'patientId required'),
   pacienteNome: z.string().min(1, 'pacienteNome required'),
@@ -54,7 +50,7 @@ const CriticalDetectionInputSchema = z.object({
   motivo: z.string().min(1, 'motivo required'),
 });
 
-type CriticalDetectionInput = z.infer<typeof CriticalDetectionInputSchema>;
+// CriticalDetectionInput type inferred inline where used
 
 /**
  * Mock detector function — checks if result exceeds threshold.
@@ -139,7 +135,7 @@ function createInitialTiers(
   physicianNome: string,
   activatedAtTs: admin.firestore.Timestamp
 ): CriticosTierEscalation[] {
-  const now = activatedAtTs.toMillis();
+  void activatedAtTs;
   const tiers: CriticosTierEscalation[] = [];
 
   // Tier 1: RT — 15 minute window

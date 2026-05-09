@@ -33,7 +33,6 @@ function isTwilioProvisioned(): boolean {
 }
 import type {
   RegisterCriticoDetectionResponse,
-  EscalacaoCriticosResponse,
   CriticosEscalacao,
   CriticosLogEvento,
 } from './types';
@@ -381,5 +380,4 @@ export const registerCriticoDetection = onCall(
 // 2.3: escalacaoCriticos() — Cron Trigger (5-min interval)
 // 2.4: escalacaoCriticos_webhook() — Twilio Status Callback
 // ============================================================================
-// Imported from cron.ts
-export { escalacaoCriticos, escalacaoCriticos_webhook } from './cron';
+// Already exported at top of file from ./cron.ts
