@@ -39,7 +39,7 @@ type CreateCapaInput = z.infer<typeof createCapaInputSchema>;
 type CreateCapaOutput = z.infer<typeof createCapaOutputSchema>;
 
 export const createCapa = onCall<CreateCapaInput, Promise<CreateCapaOutput>>(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', cors: true },
   async (request): Promise<CreateCapaOutput> => {
     // ========== 1. Validate request ==========
     if (!request.auth) {

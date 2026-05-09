@@ -42,7 +42,7 @@ export const uploadCapaEvidence = onCall<
   z.infer<typeof uploadCapaEvidenceInputSchema>,
   Promise<UploadCapaEvidenceOutput>
 >(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', cors: true },
   async (request): Promise<UploadCapaEvidenceOutput> => {
     // ========== 1. Validate request ==========
     if (!request.auth) {
