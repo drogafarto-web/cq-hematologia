@@ -19,6 +19,10 @@ export { ImunoIADashboard } from './components/ImunoIADashboard';
 export { LotDecisionModal } from './components/LotDecisionModal';
 export { StripUploadComponent } from './components/StripUploadComponent';
 
-// Types
-export type { CIQImunoLot, CIQImunoRun, CIQImunoFormData } from './types/CIQImuno';
+// Form Schema & Types
+export { CIQImunoFormSchema } from './components/CIQImunoForm.schema';
+export type { CIQImunoFormData } from './components/CIQImunoForm.schema';
+
+// Domain Types
+export type { CIQImunoLot, CIQImunoRun } from './types/CIQImuno';
 export type { TestType, Classification, RecommendedAction, StripImageMetadata } from './types';
