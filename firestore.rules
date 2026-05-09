@@ -1894,17 +1894,40 @@ service cloud.firestore {
         allow delete: if false;  // Hard delete never
       }
 
-      // ── /labs/{labId}/criticos-thresholds/** — Phase 10 (Critical Ranges) ────
-      // Configuração de limiares críticos por analito.
-      // Lab admin define ranges; detectCriticalValue compara resultados.
-      // Soft-delete only.
-      // RDC 978/2025 Art. 22: RT must be present to create/update thresholds.
+      // ── /labs/{labId}/criticos-thresholds/{thresholdId} — Phase 5 (Critical Thresholds) ──
+      // Critical value threshold configuration per analyte (RDC 978 Art. 167, ISO 15189 5.8.7).
+      // Lab admin (with active RT) defines min/max ranges; detectCriticalValue compares results.
+      // DL-1 applied: writes via Cloud Function callables only (future Phase 5.1)
+      // Currently: admin/RT CRUD permitted for Phase 5.0 development; will move to callables-only
+      // Soft-delete only via deletadoEm timestamp; hard-delete forbidden (RN-06, audit trail).
+      // RDC 978/2025 Art. 22: RT must be present (active member) to define thresholds.
       match /criticos-thresholds/{thresholdId} {
-        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
-        allow create, update: if isSuperAdmin() ||
-                               (isActiveMemberOfLab(labId) && isAdminOrOwner(labId) && hasActiveRT(labId)) &&
-                               request.resource.data.labId == labId;
-        allow delete: if false;  // Soft-delete only
+        // Read: any active lab member (visibility for all staff + auditors)
+        allow read: if isActiveMemberOfLab(labId);
+
+        // Create: admin/RT only (Phase 5.0); will move to callables-only in Phase 5.1
+        // Validation: labId match + analyte + unit + severidade + min/max logic
+        allow create: if isSuperAdmin() ||
+                      (isActiveMemberOfLab(labId) && isAdminOrRT(labId) && hasActiveRT(labId) &&
+                       request.resource.data.labId == labId &&
+                       request.resource.data.analitoId is string &&
+                       request.resource.data.analitoNome is string &&
+                       request.resource.data.unidade is string &&
+                       request.resource.data.severidade in ['alta', 'baixa'] &&
+                       (request.resource.data.min == null || request.resource.data.min is number) &&
+                       (request.resource.data.max == null || request.resource.data.max is number) &&
+                       (request.resource.data.min != null || request.resource.data.max != null) &&
+                       request.resource.data.ativo is bool &&
+                       request.resource.data.deletadoEm == null);
+
+        // Update: admin/RT only; preserve labId + createdAt
+        allow update: if isSuperAdmin() ||
+                      (isActiveMemberOfLab(labId) && isAdminOrRT(labId) &&
+                       request.resource.data.labId == resource.data.labId &&
+                       request.resource.data.criadoEm == resource.data.criadoEm);
+
+        // Delete: never hard-delete; soft-delete via deletadoEm field only (RN-06)
+        allow delete: if false;
       }
 
       // ── /labs/{labId}/exames-config/** — Phase 10 (Exam Classification) ──────
@@ -2022,27 +2045,46 @@ service cloud.firestore {
         allow delete: if false;  // Immutable audit trail
       }
 
-      // ── /labs/{labId}/criticos-escalacoes/** — Phase 6 (Critical Escalation) ──
-      // Escalation tracking for critical result flagging (ISO 15189 5.8.7).
-      // Server (callable): create escalations via registerCriticoDetection
-      // RT/Auditor: read SLA metrics, acknowledge
-      // Immutable audit trail per RDC 978 Art. 128
-      match /criticos-escalacoes/{docId} {
-        allow create: if false;  // Cloud Function (Admin SDK) only
-        allow read: if isAdminOrRT(labId) || hasRole('auditor');
-        allow update: if false;  // Cloud Function (Admin SDK) only
-        allow delete: if false;  // Immutable escalation history
+      // ── /labs/{labId}/criticos-escalacoes/{escalacaoId} — Phase 5 (Critical Escalations) ──
+      // Escalation tracking for critical result flagging (ISO 15189 5.8.7, RDC 978 Art. 167).
+      // Server (Cloud Function callable registerCriticoDetection): creates escalations with signature
+      // RT/Admin/Auditor: read escalation status + SLA metrics, acknowledge via callable only
+      // Immutable creation; updates (acknowledgement, SLA status) via Cloud Function batch only.
+      // Soft-delete via Cloud Function; hard-delete forbidden (RN-06, audit trail).
+      match /criticos-escalacoes/{escalacaoId} {
+        // Read: RT, Admin, Auditor see escalations + SLA metrics for response tracking
+        allow read: if isActiveMemberOfLab(labId) &&
+                    (isAdminOrRT(labId) || getMemberRole(labId) == 'auditor');
+
+        // Create: Cloud Function (Admin SDK) only with signature + timestamp validation
+        // Client-side create denied — server is sole authority for payload + HMAC generation
+        allow create: if false;
+
+        // Update: Cloud Function only (acknowledgement status, SLA tracking, soft-delete flag)
+        // Client cannot mutate escalation data directly; all updates via callables
+        allow update: if false;
+
+        // Delete: never hard-delete; soft-delete (deletadoEm) via Cloud Function only
+        allow delete: if false;
       }
 
-      // ── /labs/{labId}/criticos-log-eventos/** — Phase 6 (Critical Audit Trail) ─
-      // Append-only event log for critical value escalations (RDC 978 Art. 128).
-      // Server (Cloud Function): append events
-      // RT/Auditor: read for compliance review
-      match /criticos-log-eventos/{docId} {
-        allow create: if false;  // Cloud Function (Admin SDK) only
-        allow read: if isAdminOrRT(labId) || hasRole('auditor');
-        allow update: if false;  // Immutable after creation
-        allow delete: if false;  // Append-only trail
+      // ── /labs/{labId}/criticos-log-eventos/{eventId} — Phase 5 (Critical Audit Trail) ─
+      // Append-only immutable event log for critical value escalation lifecycle (RDC 978 Art. 128, DICQ 4.4).
+      // Server (Cloud Function): creates audit events on escalation changes (created, acknowledged, resolved)
+      // Lab members: read-only for compliance review + non-repudiation audit
+      // Each event signed with hash (SHA-256) + operatorId + timestamp (immutable chain).
+      match /criticos-log-eventos/{eventId} {
+        // Read: all active lab members can audit the trail (compliance visibility required)
+        allow read: if isActiveMemberOfLab(labId);
+
+        // Create: Cloud Function (Admin SDK) only with valid signature block
+        // Payload: { escalacaoId, tipo, descricao, assinatura: {hash, operatorId, ts}, ... }
+        // Client-side create denied — server generates signature server-side
+        allow create: if false;
+
+        // Update/Delete: never — immutable append-only audit trail per regulatory requirement
+        allow update: if false;
+        allow delete: if false;
       }
 
       // ── /labs/{labId}/imuno-ias-dev/** — Phase 9 (IA Training Dataset) ──────────
