@@ -806,6 +806,14 @@
       ]
     },
     {
+      "collectionGroup": "criticos-escalacoes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "nextRetry", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "criticos-log-eventos",
       "queryScope": "COLLECTION",
       "fields": [
