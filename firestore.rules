@@ -2720,6 +2720,36 @@ service cloud.firestore {
       allow read: if isActiveMemberOfLab(labId) && (isAdminOrOwner(labId) || getMemberRole(labId) == 'rt');
       allow delete: if false;
     }
+
+    // ── Internal Audit: Presence (FR-045) ──────────────────────────────────────
+    // RDC 978 + DICQ 4.1.2.7: audit session attendance tracking
+    match /labs/{labId}/auditorias-internas/{auditoriaId}/sessoes/{sessaoId}/presenca/{presencaId} {
+      allow read: if isActiveMemberOfLab(labId);
+      allow create: if false;  // callable only
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ── Internal Audit: Meetings (Reuniões) ────────────────────────────────────
+    // RDC 978 + DICQ 4.1.2.7: audit session meeting records
+    match /labs/{labId}/auditorias-internas/{auditoriaId}/sessoes/{sessaoId}/reunioes/{reuniaoId} {
+      allow read: if isActiveMemberOfLab(labId);
+      allow create: if false;  // callable only
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ── Internal Audit: Action Plans (Planos de Ação) ──────────────────────────
+    // RDC 978 Art. 5.3 + DICQ 4.1.3: corrective action tracking
+    match /labs/{labId}/auditorias-internas/{auditoriaId}/planos-acao/{planoId} {
+      allow read: if isActiveMemberOfLab(labId);
+      allow create: if false;  // callable only
+      allow update: if isActiveMemberOfLab(labId)
+                       && request.resource.data.labId == labId
+                       && request.resource.data.diff(resource.data).affectedKeys()
+                          .hasOnly(['status', 'evidenciaUrl', 'assinatura', 'concluídoEm']);
+      allow delete: if false;
+    }
   }
 
 }
