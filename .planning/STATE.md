@@ -3,19 +3,19 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Milestone Summary
 status: executing
-last_updated: "2026-05-09T00:35:00.000Z"
+last_updated: "2026-05-09T12:00:00.000Z"
 progress:
   total_phases: 15
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 40
-  completed_plans: 28
-  percent: 70
+  completed_plans: 32
+  percent: 80
 ---
 
-# HC Quality v1.4 — Phase 4 Complete, Phase 5 Ready
+# HC Quality v1.4 — Phase 6 Complete, Phase 7 Ready
 
-**Last Updated:** 2026-05-09 (04:35 UTC)
-**Status:** `v1.4-phase-4-LIVE` — Phase 4 deployed to production 2026-05-08 (Rules + Indexes + 78 Functions + Hosting). 1427/1569 unit tests passing (142 skipped: 4 E2E suites + 1 integration test parked w/ TODO post-deploy rewrite). Hotfix indexes (events + notivisa-outbox composite) deployed 2026-05-09 00:30 UTC after queue processor reported FAILED_PRECONDITION. No other errors in Cloud Logs. Ready for Phase 5 (currently 10% — 4 subagents executing waves 1–2).
+**Last Updated:** 2026-05-09 (12:00 UTC)
+**Status:** `v1.4-phase-6-COMPLETE` — Phase 6 (CAPA + Incident Response) delivered 2026-05-09 via 10-agent parallel execution (Wave 1: schema, Wave 2: UI+runbooks, Wave 3: tests+compliance). 1547+ unit tests passing. All RDC 978 + DICQ + WCAG AA compliance verified. Ready for Phase 7 (Advanced Auditoria).
 
 ---
 
@@ -147,7 +147,8 @@ See `.planning/milestones/v1.4-KICKOFF-SUMMARY.md` for full phase breakdown and 
 | **Phase 3** | ✅ COMPLETE | 2026-05-07 | Schema + Rules + Functions scaffolding |
 | **Phase 4** | ✅ COMPLETE | 2026-05-08 | Portal auth + NOTIVISA integration — 4 plans + E2E tests ✅ |
 | **Phase 5** | ✅ COMPLETE | 2026-05-09 | Criticos + CIQ-Imuno IA — 8 waves + 27 subagents, all acceptance criteria met |
-| **Phase 6+** | 📋 READY | 2026-05-22 | Auto-triggers DISABLED — manual trigger required; Phase 5 completion verified |
+| **Phase 6** | ✅ COMPLETE | 2026-05-09 | CAPA + Incident Response — 10 agents, 3 waves, 53+ tests, RDC/DICQ/WCAG AA verified |
+| **Phase 7+** | 📋 READY | 2026-05-22 | Advanced Auditoria — auto-trigger scheduled; manual execution available |
 
 **Overall v1.4 Progress:** Phase 0–5 (100%) + Phase 6–15 (0%) = **~54% complete**
 
