@@ -355,5 +355,76 @@ service firebase.storage {
     match /exports/{labId}/consent-backfill/{file=**} {
       allow read, write: if false;
     }
+
+    // ── IA Strip Images: imuno-ias bucket for hematology quantitative analysis ──
+    // Path: labs/{labId}/imuno-ias/{stripId}/*
+    // Authenticated users upload strip images (PNG/JPEG ≤5MB) with metadata audit.
+    // Read/delete restricted to RT or admin per Phase 5 requirements.
+    // Metadata must include: labId, uploadedBy, timestamp (client-enforced,
+    // server-validated via custom metadata in request.resource.metadata).
+
+    match /labs/{labId}/imuno-ias/{stripId}/{filename} {
+
+      function isAuth() {
+        return request.auth != null;
+      }
+
+      function isSuperAdmin() {
+        return isAuth() &&
+          firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
+          firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isSuperAdmin == true;
+      }
+
+      function isActiveMember() {
+        let memberPath = /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid);
+        return isAuth() &&
+          firestore.exists(memberPath) &&
+          firestore.get(memberPath).data.active == true;
+      }
+
+      function getMemberRole() {
+        return firestore.get(
+          /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid)
+        ).data.role;
+      }
+
+      function isAdminOrOwner() {
+        let role = getMemberRole();
+        return role == 'admin' || role == 'owner';
+      }
+
+      function isRtRole() {
+        let role = getMemberRole();
+        return role == 'RT';
+      }
+
+      function isImageType() {
+        return request.resource.contentType == 'image/png'
+            || request.resource.contentType == 'image/jpeg';
+      }
+
+      function isSizeValid() {
+        return request.resource.size <= 5 * 1024 * 1024;  // 5MB max
+      }
+
+      function hasMetadata() {
+        return request.resource.metadata != null
+            && request.resource.metadata.labId == labId
+            && request.resource.metadata.uploadedBy == request.auth.uid
+            && request.resource.metadata.timestamp != null;
+      }
+
+      // Read: RT or admin/owner only
+      allow read: if isSuperAdmin() || (isActiveMember() && (isAdminOrOwner() || isRtRole()));
+
+      // Write: authenticated active member, image type/size enforced, metadata required
+      allow create, update: if isActiveMember()
+                            && isImageType()
+                            && isSizeValid()
+                            && hasMetadata();
+
+      // Delete: admin/owner or superAdmin only
+      allow delete: if isSuperAdmin() || (isActiveMember() && isAdminOrOwner());
+    }
   }
 }
