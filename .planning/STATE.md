@@ -146,10 +146,12 @@ See `.planning/milestones/v1.4-KICKOFF-SUMMARY.md` for full phase breakdown and 
 | **Phase 2** | ✅ COMPLETE | 2026-05-07 | Planning deep-dive (9 artifacts) |
 | **Phase 3** | ✅ COMPLETE | 2026-05-07 | Schema + Rules + Functions scaffolding |
 | **Phase 4** | ✅ COMPLETE | 2026-05-08 | Portal auth + NOTIVISA integration — 4 plans + E2E tests ✅ |
-| **Phase 5** | ✅ WAVE-1-LIVE | 2026-05-09 | Critical escalation + IA training — Wave 1 (05-01, 05-03) deployed 2026-05-09 04:32 UTC |
-| **Phase 6+** | 📅 BACKLOG | TBD | Extended roadmap |
+| **Phase 5** | ✅ WAVE-1-LIVE | 2026-05-09 | Critical escalation + IA training — Wave 1 (05-01, 05-03) deployed 2026-05-09 04:32 UTC — **CASCADE PAUSED** |
+| **Phase 6+** | ⏸️ PAUSED | TBD | Auto-triggers DISABLED — manual trigger required for Phase 6 |
 
 **Overall v1.4 Progress:** Phase 0–4 (100%) + Phase 5 (25% — Wave 1 LIVE, Wave 2 in progress) + Phase 6–15 (0%) = **~52% complete**
+
+⚠️ **CASCADE STATUS:** Auto-triggers disabled as of 2026-05-09 06:15 UTC. Phase 5 continues executing in background. Phase 6 will NOT auto-trigger when Phase 5 completes. Manual intervention required to start Phase 6.
 
 **Phase 4 Status (as of 2026-05-07 23:59 UTC):**
 

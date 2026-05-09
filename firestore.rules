@@ -2096,6 +2096,26 @@ service cloud.firestore {
         allow delete: if false;  // Training data immutable
       }
 
+      // ── /labs/{labId}/imuno-ia-exports/** — Phase 5 (IA Dataset Export) ──────
+      // Monthly IA dataset exports for ML team fine-tuning.
+      // Admin/RT: create + read (export)
+      // Cloud Function only: writes via collectIADataset callable
+      match /imuno-ia-exports/{exportId} {
+        allow read: if isAdminOrRT(labId);
+        allow create: if false;  // Via collectIADataset callable only
+        allow update, delete: if false;  // Immutable export records
+      }
+
+      // ── /labs/{labId}/imuno-ia-feedback/** — Phase 5 (IA Fine-tuning Feedback) ──
+      // Feedback from ML team after dataset fine-tuning (v1.5+).
+      // Cloud Function only: writes via handleMLTeamFeedback callable
+      // Admin/RT: read feedback for visibility
+      match /imuno-ia-feedback/{feedbackId} {
+        allow read: if isAdminOrRT(labId);
+        allow create: if false;  // Via handleMLTeamFeedback callable only
+        allow update, delete: if false;  // Immutable feedback records
+      }
+
       // ── /labs/{labId}/laudos-draft/** — Phase 4 (Laudo Draft Management) ──────
       // Draft storage + edit locks (pessimistic concurrency control).
       // Admin/RT: create, edit (with lock validation)

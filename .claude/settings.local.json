@@ -199,7 +199,9 @@
       "Bash(Stop-Process -Force)",
       "Bash(Start-Sleep -Seconds 2)",
       "Bash(\"Node processes *)",
-      "Bash(pkill -f \"node.*8080\")"
+      "Bash(pkill -f \"node.*8080\")",
+      "PowerShell(Get-ScheduledTask *)",
+      "Bash(Modal\")"
     ]
   },
   "model": "haiku",
