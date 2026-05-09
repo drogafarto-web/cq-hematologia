@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Milestone Summary
 status: executing
-last_updated: "2026-05-08T16:45:00.000Z"
+last_updated: "2026-05-09T00:35:00.000Z"
 progress:
   total_phases: 15
   completed_phases: 5
@@ -14,8 +14,8 @@ progress:
 
 # HC Quality v1.4 — Phase 4 Complete, Phase 5 Ready
 
-**Last Updated:** 2026-05-08 (16:45 UTC)
-**Status:** `v1.4-phase-4-complete` — Portal + NOTIVISA integration fully delivered. All 4 plans (04-01 through 04-04) executed with atomic per-plan SUMMARY commits. E2E test suite (135/135 pass). Cloud Logs monitoring + deployment readiness verified. Ready for Phase 5 kickoff (conditional on 24h post-deploy monitoring).
+**Last Updated:** 2026-05-09 (00:35 UTC)
+**Status:** `v1.4-phase-4-LIVE` — Phase 4 deployed to production 2026-05-08 (Rules + Indexes + 78 Functions + Hosting). 1427/1569 unit tests passing (142 skipped: 4 E2E suites + 1 integration test parked w/ TODO post-deploy rewrite). Hotfix indexes (events + notivisa-outbox composite) deployed 2026-05-09 00:30 UTC after queue processor reported FAILED_PRECONDITION. No other errors in Cloud Logs. Ready for Phase 5 (currently 10% — 4 subagents executing waves 1–2).
 
 ---
 
@@ -182,4 +182,4 @@ See `.planning/milestones/v1.4-KICKOFF-SUMMARY.md` for full phase breakdown and 
 
 ---
 
-**Last edit:** 2026-05-07 21:30 UTC — v1.3 archived, v1.4 kickoff ready.
+**Last edit:** 2026-05-08 — Cascade Orchestrator V2 (Anthropic-aligned) active. See `.planning/v1.4-CASCADE-ORCHESTRATOR-V2.md`. Phase 5 finishes under V1; Phase 6→9 use V2 (orchestrator-worker, Haiku 4.5 fanout, Persistence Auditor, Verifier gates, 0 human gates). v1.4 target advanced from 2026-07-09 → 2026-06-12.
