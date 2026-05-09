@@ -50,7 +50,7 @@ export const updateCapaState = onCall<
   { labId: string; capaId: string; newState: string; reason?: string },
   Promise<UpdateCapaStateOutput>
 >(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', cors: true },
   async (request): Promise<UpdateCapaStateOutput> => {
     // ========== 1. Validate request ==========
     if (!request.auth) {

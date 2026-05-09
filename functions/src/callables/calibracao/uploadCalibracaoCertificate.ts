@@ -45,7 +45,7 @@ export const uploadCalibracaoCertificate = onCall<
   z.infer<typeof uploadCalibracaoCertificateInputSchema>,
   Promise<UploadCalibracaoCertificateOutput>
 >(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', cors: true },
   async (request): Promise<UploadCalibracaoCertificateOutput> => {
     // ========== 1. Validate request ==========
     if (!request.auth) {

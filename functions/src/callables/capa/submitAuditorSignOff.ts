@@ -33,7 +33,7 @@ export const submitAuditorSignOff = onCall<
   z.infer<typeof submitAuditorSignOffInputSchema>,
   Promise<SubmitAuditorSignOffOutput>
 >(
-  { region: 'southamerica-east1' },
+  { region: 'southamerica-east1', cors: true },
   async (request): Promise<SubmitAuditorSignOffOutput> => {
     // ========== 1. Validate request ==========
     if (!request.auth) {
