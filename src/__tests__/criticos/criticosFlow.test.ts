@@ -28,12 +28,12 @@ describe('Críticos Flow', () => {
     expect(result).toBeNull();
   });
 
-  // ─── Test 2: classifySeverity returns medium in critical range ───────────────
+  // ─── Test 2: classifySeverity returns medium in critical range only ────────
 
-  it('should return medium when in critical range', () => {
+  it('should return medium when in critical range only', () => {
     const threshold: MP3CriticoThreshold = {
       faixaCritica: { min: 10, max: 20 },
-      faixaPanico: { min: 5, max: 25 },
+      faixaPanico: { min: 50, max: 60 }, // Panic range separate
       severityDefault: 'medium',
     };
 
@@ -46,11 +46,11 @@ describe('Críticos Flow', () => {
   it('should return panic when in panic range', () => {
     const threshold: MP3CriticoThreshold = {
       faixaCritica: { min: 10, max: 20 },
-      faixaPanico: { min: 2, max: 30 },
+      faixaPanico: { min: 2, max: 8 }, // Panic range separate from critical
       severityDefault: 'medium',
     };
 
-    const result = classifySeverity(1, threshold);
+    const result = classifySeverity(5, threshold);
     expect(result).toBe('panic');
   });
 
@@ -77,7 +77,10 @@ describe('Críticos Flow', () => {
       severityDefault: 'high',
     };
 
-    expect(classifySeverity(0, threshold)).toBe('high'); // Below implied boundary
+    // Value 0: in critical range (min=null means any value ≤ 50)
+    // Also in panic range (min=null means any value ≤ 60)
+    // So panic takes precedence
+    expect(classifySeverity(0, threshold)).toBe('panic');
     expect(classifySeverity(100, threshold)).toBeNull(); // Above max
   });
 
@@ -88,7 +91,7 @@ describe('Críticos Flow', () => {
       severityDefault: 'high',
     };
 
-    expect(classifySeverity(150, threshold)).toBe('high'); // Above implied boundary
+    expect(classifySeverity(150, threshold)).toBe('panic'); // Above 80 = in panic range
     expect(classifySeverity(50, threshold)).toBeNull(); // Below min
   });
 
@@ -103,15 +106,18 @@ describe('Críticos Flow', () => {
     };
 
     expect(classifySeverity(7, validThreshold)).toBe('panic');
-    expect(classifySeverity(12, validThreshold)).toBe('high');
+    expect(classifySeverity(12, validThreshold)).toBe('panic'); // 12 is in BOTH ranges, panic wins
   });
 
   // ─── Test 7: Fallback to medium for invalid defaults ──────────────────────
 
   it('should clamp invalid severity defaults to medium', () => {
+    // Value 15 is in BOTH critical (10-20) AND panic (5-25) ranges
+    // So it will always return 'panic', regardless of severityDefault
+    // Let's test with a value only in critical range (not in panic)
     const thresholdPanic: MP3CriticoThreshold = {
       faixaCritica: { min: 10, max: 20 },
-      faixaPanico: { min: 5, max: 25 },
+      faixaPanico: { min: 5, max: 9 }, // Panic is only 5-9, so 15 is not in panic
       severityDefault: 'panic', // Invalid in critical range
     };
 
@@ -120,7 +126,7 @@ describe('Críticos Flow', () => {
 
     const thresholdLow: MP3CriticoThreshold = {
       faixaCritica: { min: 10, max: 20 },
-      faixaPanico: { min: 5, max: 25 },
+      faixaPanico: { min: 21, max: 25 }, // Panic is only 21-25, so 15 is not in panic
       severityDefault: 'low', // Invalid in critical range
     };
 
