@@ -227,6 +227,56 @@ export interface CriticosConfig {
   auditLevel: 'basico' | 'completo';
 }
 
+// ─── MP-3 Phase 5 Additions ──────────────────────────────────────────────────
+
+/** Critical value severity levels — Phase 5 threshold system */
+export type CriticoSeverity = 'low' | 'medium' | 'high' | 'panic';
+
+/** Notification delivery channel configuration */
+export interface NotificationChannel {
+  /** Channel type: SMS, email, or in-app */
+  type: 'sms' | 'email' | 'in-app';
+  /** Recipient identifier: phone (E.164), email, or userId */
+  target: string;
+  /** Delivery priority: 0 = primary, 1+ = fallback order */
+  fallbackOrder: number;
+}
+
+/** Per-lab critical value threshold with severity ranges — Phase 5 */
+export interface CriticoThreshold {
+  id: string;
+  labId: string;
+  analitoId: string;
+  analitoNome: string;
+  unidade: string;
+  /** Critical range — null = open-ended (any value below/above is critical) */
+  faixaCritica: { min: number | null; max: number | null };
+  /** Panic range — above panic always triggers 'panic' severity */
+  faixaPanico: { min: number | null; max: number | null };
+  /** Default severity when in critical range (medium or high) */
+  severityDefault: CriticoSeverity;
+  ativo: boolean;
+  criadoEm: number;
+  criadoPor: string;
+  deletadoEm?: number;
+}
+
+/** Escalation routing rule — defines recipients and SLA per severity/analyte */
+export interface CriticoRouteRule {
+  id: string;
+  labId: string;
+  /** null = applies to all analytes; specific ID = rule for that analyte */
+  analitoId?: string;
+  severity: CriticoSeverity;
+  /** Notification channels in priority order */
+  channels: NotificationChannel[];
+  /** User ID of escalation owner (typically RT) */
+  responsavelEscalacaoUserId: string;
+  /** SLA window in minutes (default 5) */
+  slaMinutes: number;
+  ativo: boolean;
+}
+
 /** Request to register critical detection */
 export interface RegisterCriticoDetectionRequest {
   labId: string;
