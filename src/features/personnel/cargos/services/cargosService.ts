@@ -25,7 +25,8 @@ import type {
   Cargo,
   CargoPermissions,
   CargoAuthorityMatrix,
-} from '../../types';
+  SecaoLab,
+} from '../types';
 import type { LabId } from '../../types/_shared_refs';
 
 // ─── Paths ────────────────────────────────────────────────────────────────
@@ -45,15 +46,16 @@ function mapCargo(snap: QueryDocumentSnapshot): Cargo {
     labId: d.labId as LabId,
     nome: d.nome as string,
     descricao: d.descricao as string,
-    requisitosMinimos: d.requisitosMinimos ?? [],
-    secao: d.secao as string,
+    requisitosMinimos: (d.requisitosMinimos ?? '') as string,
+    secao: d.secao as SecaoLab,
     reportaA: d.reportaA,
     substituidor: d.substituidor,
-    dataDesignacao: d.dataDesignacao?.toMillis?.() ?? d.dataDesignacao,
+    dataDesignacao: d.dataDesignacao?.toMillis?.() ?? d.dataDesignacao ?? 0,
     permissions: d.permissions as CargoPermissions,
-    criadoEm: d.criadoEm?.toMillis?.() ?? d.criadoEm,
-    deletedAt: d.deletedAt,
-  } as Cargo;
+    createdAt: d.createdAt?.toMillis?.() ?? d.createdAt ?? 0,
+    createdBy: (d.createdBy ?? '') as string,
+    deletedAt: d.deletedAt?.toMillis?.() ?? d.deletedAt ?? undefined,
+  };
 }
 
 // ─── API ──────────────────────────────────────────────────────────────────
@@ -71,7 +73,7 @@ export async function getCargos(labId: LabId): Promise<Cargo[]> {
 /**
  * Create a new cargo (admin only — rules enforce).
  */
-export async function createCargo(labId: LabId, input: Omit<Cargo, 'id' | 'labId' | 'criadoEm' | 'deletedAt'>): Promise<string> {
+export async function createCargo(labId: LabId, input: Omit<Cargo, 'id' | 'labId' | 'createdAt' | 'deletedAt'>): Promise<string> {
   const ref = doc(cargosCol(labId));
   await setDoc(ref, {
     labId,
@@ -83,7 +85,8 @@ export async function createCargo(labId: LabId, input: Omit<Cargo, 'id' | 'labId
     substituidor: input.substituidor,
     dataDesignacao: input.dataDesignacao,
     permissions: input.permissions,
-    criadoEm: serverTimestamp(),
+    createdBy: input.createdBy,
+    createdAt: serverTimestamp(),
     deletedAt: null,
   });
   return ref.id;
@@ -95,7 +98,7 @@ export async function createCargo(labId: LabId, input: Omit<Cargo, 'id' | 'labId
 export async function updateCargo(
   labId: LabId,
   cargoId: string,
-  updates: Partial<Omit<Cargo, 'id' | 'labId' | 'criadoEm' | 'deletedAt'>>,
+  updates: Partial<Omit<Cargo, 'id' | 'labId' | 'createdAt' | 'deletedAt'>>,
 ): Promise<void> {
   const ref = cargoDoc(labId, cargoId);
   const payload: Record<string, unknown> = {};

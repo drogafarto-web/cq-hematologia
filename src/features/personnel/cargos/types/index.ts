@@ -17,6 +17,7 @@ export interface Cargo {
   reportaA?: string;
   substituidor?: string;
   dataDesignacao: number;
+  permissions: CargoPermissions;
   createdAt: number;
   createdBy: string;
   deletedAt?: number;
