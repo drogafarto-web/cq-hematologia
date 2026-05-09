@@ -46,7 +46,7 @@ export function CAPAStatusTransitionModal({
   onClose,
   onSubmit,
 }: CAPAStatusTransitionModalProps) {
-  const [selectedStatus, setSelectedStatus] = useState<CAPAStatus | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<CapaStateLegacy | null>(null);
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -110,7 +110,7 @@ export function CAPAStatusTransitionModal({
                 <select
                   id={`status-${capaId}`}
                   value={selectedStatus || ''}
-                  onChange={(e) => setSelectedStatus(e.target.value as CAPAStatus)}
+                  onChange={(e) => setSelectedStatus(e.target.value as CapaStateLegacy)}
                   className="w-full px-3 py-2 rounded-md bg-white/10 border border-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                   required
                   aria-label="Selecione o novo status"
