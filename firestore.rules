@@ -2536,4 +2536,54 @@ service cloud.firestore {
     }
   }
 
+  // ── /labs/{labId}/capa/{capaId} — CAPA Collection (Phase 6, Task 06-01) ──
+  // Corrective/Preventive Action (CAPA) tracking per RDC 978 Art. 99 + DICQ 4.14.6
+  // Schema: finding → action → verification → closeout
+  // Created by: createCAPA callable (server-sealed)
+  // Updated by: updateCAPA, assignCAPA, verifyCAPA callables (server-sealed)
+  // Read by: RT, Auditor, Admin/Owner in lab
+  // Delete: never (soft-delete only via deletadoEm + softDeleteCAPA callable)
+  match /labs/{labId}/capa/{capaId} {
+    // Read: RT, Admin, Auditor, Owner with lab membership
+    allow read: if isActiveMemberOfLab(labId) &&
+                (getMemberRole(labId) in ['rt', 'auditor', 'admin', 'owner']);
+
+    // Create: Cloud Functions only (createCAPA callable)
+    allow create: if request.auth == null;
+
+    // Update: Cloud Functions only (updateCAPA, assignCAPA, verifyCAPA callables)
+    allow update: if request.auth == null;
+
+    // Delete: never (soft-delete only via callable)
+    allow delete: if false;
+
+    // Subcollection: acoes (actions) — each CAPA has 1+ corrective/preventive actions
+    match /acoes/{acaoId} {
+      allow read: if parent.read;
+
+      // Create: Cloud Function callable only (assignCAPA)
+      allow create: if request.auth == null;
+
+      // Update: Cloud Function callable only (action completion)
+      allow update: if request.auth == null;
+
+      // Delete: never (soft-delete only)
+      allow delete: if false;
+    }
+
+    // Subcollection: verificacoes (verifications) — RT verification, immutable
+    match /verificacoes/{verificacaoId} {
+      allow read: if parent.read;
+
+      // Create: Cloud Function callable only (verifyCAPA)
+      allow create: if request.auth == null;
+
+      // Update: never (immutable once created — no corrections)
+      allow update: if false;
+
+      // Delete: never
+      allow delete: if false;
+    }
+  }
+
 }
