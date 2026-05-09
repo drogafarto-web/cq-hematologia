@@ -26,7 +26,7 @@ import {
 import type {
   Designacao,
   DesignacaoType,
-} from '../../types';
+} from '../types';
 import type { LabId } from '../../types/_shared_refs';
 
 // ─── Paths ────────────────────────────────────────────────────────────────
@@ -48,14 +48,16 @@ function mapDesignacao(snap: QueryDocumentSnapshot): Designacao {
     personId: d.personId as string,
     personName: d.personName as string,
     cargoId: d.cargoId as string,
-    dataDesignacao: d.dataDesignacao?.toMillis?.() ?? d.dataDesignacao,
-    motivo: d.motivo as string,
-    vigencia: d.vigencia as number,
-    dataExpiracao: d.dataExpiracao?.toMillis?.() ?? d.dataExpiracao,
+    dataDesignacao: d.dataDesignacao?.toMillis?.() ?? d.dataDesignacao ?? 0,
+    motivo: (d.motivo ?? '') as string,
+    vigencia: (d.vigencia ?? 0) as number,
+    dataExpiracao: d.dataExpiracao?.toMillis?.() ?? d.dataExpiracao ?? 0,
     assinatura: d.assinatura,
     auditLog: d.auditLog ?? [],
-    deletedAt: d.deletedAt,
-  } as Designacao;
+    createdAt: d.createdAt?.toMillis?.() ?? d.createdAt ?? 0,
+    createdBy: (d.createdBy ?? '') as string,
+    deletedAt: d.deletedAt?.toMillis?.() ?? d.deletedAt ?? undefined,
+  };
 }
 
 // ─── API ──────────────────────────────────────────────────────────────────
@@ -102,10 +104,7 @@ export async function getActiveDesignacao(labId: LabId, type: DesignacaoType): P
   const now = Date.now();
   const active = snapshot.docs
     .map(mapDesignacao)
-    .filter((des) => {
-      const expiration = typeof des.dataExpiracao === 'number' ? des.dataExpiracao : des.dataExpiracao?.toMillis?.() ?? 0;
-      return expiration > now;
-    });
+    .filter((des) => des.dataExpiracao > now);
 
   return active.length > 0 ? active[0] : null;
 }

@@ -6,17 +6,19 @@
  * Shows validity status and certificate management.
  */
 
-import { useMemo } from 'react';
-import { useDesignacoes } from '../../hooks/useDesignacoes';
+import { useEffect, useMemo, useState } from 'react';
+import { useActiveLabId } from '../../../../store/useAuthStore';
+import { subscribeToDesignacoes } from '../services/designacoesService';
+import type { Designacao, DesignacaoType } from '../types';
 
 interface DesignacoesListProps {}
 
-type CargoKey = 'RT' | 'quality-manager' | 'director';
+type CargoKey = DesignacaoType;
 
 const CARGO_LABELS: Record<CargoKey, { label: string; color: string }> = {
-  'RT': { label: 'Responsável Técnico', color: 'bg-purple-500/10 border-purple-500/30' },
-  'quality-manager': { label: 'Gerente de Qualidade', color: 'bg-emerald-500/10 border-emerald-500/30' },
-  'director': { label: 'Diretor', color: 'bg-blue-500/10 border-blue-500/30' },
+  'responsavel-tecnico': { label: 'Responsável Técnico', color: 'bg-purple-500/10 border-purple-500/30' },
+  'gerente-qualidade': { label: 'Gerente de Qualidade', color: 'bg-emerald-500/10 border-emerald-500/30' },
+  'diretor-laboratorio': { label: 'Diretor', color: 'bg-blue-500/10 border-blue-500/30' },
 };
 
 function PrintIcon() {
@@ -68,12 +70,12 @@ function DesignacaoCard({
   onNew,
 }: {
   role: CargoKey;
-  designation: any | null;
+  designation: Designacao | null;
   loading: boolean;
   onNew: (role: CargoKey) => void;
 }) {
   const roleInfo = CARGO_LABELS[role];
-  const validity = designation ? getValidityStatus(designation.expiryDate) : null;
+  const validity = designation ? getValidityStatus(designation.dataExpiracao) : null;
 
   return (
     <div className={`border rounded-lg p-5 ${roleInfo.color}`}>
@@ -101,7 +103,7 @@ function DesignacaoCard({
           <div>
             <p className="text-xs text-slate-400 mb-1">Designado</p>
             <p className="text-sm font-medium text-white">
-              {designation.name}
+              {designation.personName}
             </p>
           </div>
 
@@ -110,13 +112,13 @@ function DesignacaoCard({
             <div>
               <p className="text-xs text-slate-400 mb-0.5">Desde</p>
               <p className="text-xs font-mono text-slate-200">
-                {formatDate(designation.designationDate)}
+                {formatDate(designation.dataDesignacao)}
               </p>
             </div>
             <div>
               <p className="text-xs text-slate-400 mb-0.5">Expira</p>
               <p className="text-xs font-mono text-slate-200">
-                {formatDate(designation.expiryDate)}
+                {formatDate(designation.dataExpiracao)}
               </p>
             </div>
           </div>
@@ -156,9 +158,48 @@ function DesignacaoCard({
 }
 
 export function DesignacoesList({}: DesignacoesListProps) {
-  const { designacoes, loading, error, currentByRole } = useDesignacoes();
+  const labId = useActiveLabId();
+  const [designacoes, setDesignacoes] = useState<Designacao[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  const roles: CargoKey[] = ['RT', 'quality-manager', 'director'];
+  useEffect(() => {
+    if (!labId) {
+      setLoading(false);
+      setError(new Error('No active lab'));
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    const unsubscribe = subscribeToDesignacoes(
+      labId,
+      (list) => {
+        setDesignacoes(list);
+        setLoading(false);
+      },
+      (err) => {
+        setError(err);
+        setLoading(false);
+      },
+    );
+    return unsubscribe;
+  }, [labId]);
+
+  const currentByRole = useMemo(() => {
+    const map = new Map<DesignacaoType, Designacao>();
+    const now = Date.now();
+    for (const d of designacoes) {
+      if (d.deletedAt) continue;
+      if (d.dataExpiracao <= now) continue;
+      const existing = map.get(d.type);
+      if (!existing || existing.dataDesignacao < d.dataDesignacao) {
+        map.set(d.type, d);
+      }
+    }
+    return map;
+  }, [designacoes]);
+
+  const roles: CargoKey[] = ['responsavel-tecnico', 'gerente-qualidade', 'diretor-laboratorio'];
 
   const handleNewDesignacao = (role: CargoKey) => {
     // Placeholder for opening new designation form
@@ -185,7 +226,7 @@ export function DesignacoesList({}: DesignacoesListProps) {
         <span>
           Vencidas:{' '}
           <span className="font-semibold text-red-400">
-            {designacoes.filter((d) => !d.deletedAt && d.expiryDate && d.expiryDate < Date.now()).length}
+            {designacoes.filter((d) => !d.deletedAt && d.dataExpiracao && d.dataExpiracao < Date.now()).length}
           </span>
         </span>
       </div>
@@ -229,19 +270,19 @@ export function DesignacoesList({}: DesignacoesListProps) {
               </thead>
               <tbody>
                 {designacoes
-                  .filter((d) => !d.deletedAt && d.expiryDate && d.expiryDate < Date.now())
+                  .filter((d) => !d.deletedAt && d.dataExpiracao && d.dataExpiracao < Date.now())
                   .slice(0, 5)
                   .map((d, i) => (
                     <tr key={i} className="border-t border-white/5 hover:bg-white/2 transition-colors">
                       <td className="px-4 py-2 text-slate-200 font-medium">
-                        {CARGO_LABELS[d.role as CargoKey]?.label || d.role}
+                        {CARGO_LABELS[d.type as CargoKey]?.label || d.type}
                       </td>
-                      <td className="px-4 py-2 text-slate-400">{d.name}</td>
+                      <td className="px-4 py-2 text-slate-400">{d.personName}</td>
                       <td className="px-4 py-2 text-slate-500 text-[10px] font-mono">
-                        {formatDate(d.designationDate)}
+                        {formatDate(d.dataDesignacao)}
                       </td>
                       <td className="px-4 py-2 text-red-400 text-[10px] font-mono">
-                        {formatDate(d.expiryDate)}
+                        {formatDate(d.dataExpiracao)}
                       </td>
                     </tr>
                   ))}
