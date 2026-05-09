@@ -108,15 +108,17 @@ export function Field({ label, hint, error, htmlFor, children }: FieldProps) {
 interface CardProps {
   className?: string;
   children: React.ReactNode;
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
-export function Card({ className = '', children }: CardProps) {
+export function Card({ className = '', children, onClick }: CardProps) {
   return (
     <div
       className={
         'rounded-xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm ' +
         className
       }
+      onClick={onClick}
     >
       {children}
     </div>

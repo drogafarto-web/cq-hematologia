@@ -278,6 +278,38 @@ export {
   recordarTreinamentoPOP,
 } from './modules/procedimentos/pop';
 
+// ─── ciqImuno module (Phase 5 — IA Strip Classification + Dataset Aggregation) ──
+// Task 05-03: Image classification
+//   classifyStripGemini: Gemini 2.5 Flash Vision API for rapid test strip classification
+//     - Downloads image from Firebase Storage signed URL
+//     - Calls Gemini Vision API with structured prompt
+//     - Applies confidence threshold (default 0.85)
+//     - Logs cost per call + recommended action (AUTO_SAVE | MANUAL_REVIEW)
+//   recordManualOverride: Log RT manual override in audit trail
+//     - Validates RT/admin membership + parses payload
+//     - Creates audit log + updates Firestore record
+//     - Notifies RT for low-confidence results
+//   flagForManualReview: Send notification to RT for low-confidence classifications
+// Task 05-04: Accuracy metrics + dataset export
+//   calculateAccuracy: Calculate accuracy metrics from verified images
+//     - Confusion matrix generation
+//     - Per-confidence bin binning (0.7-0.8, 0.8-0.9, 0.9-1.0)
+//     - Per-test-kit breakdown (HIV, Dengue, Syphilis, COVID, HCG)
+//   collectIADataset: Export monthly dataset for ML team
+//     - Queries verified images for month
+//     - Calculates accuracy metrics
+//     - Exports JSON to Cloud Storage (immutable)
+//     - Returns fileUrl + stats
+//   handleMLTeamFeedback: Receive fine-tuning feedback from ML team (v1.5 placeholder)
+export {
+  classifyStripGemini,
+  recordManualOverride,
+  flagForManualReview,
+  calculateAccuracy,
+  collectIADataset,
+  handleMLTeamFeedback,
+} from './modules/ciqImuno/index';
+
 // ─── bioquimica module (Phase 9 — CIQ Quantitativo) ─────────────────────────
 // parseBulaBioquimica: Gemini 2.5 Flash multimodal PDF parsing for control material
 // applyBulaToLot: atomic application of parsed bula data to ControlMaterial
