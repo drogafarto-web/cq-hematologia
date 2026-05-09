@@ -545,6 +545,14 @@ export {
   closeReclamacao,
 } from './modules/reclamacoes/index';
 
+// ─── nps module (MP-6 / v1.4-final-closure) ─────────────────────────────────
+// Anonymous-OK NPS submission (patientToken idempotency) + cycle aggregation.
+// LGPD: followUp content NEVER hits Cloud Logs.
+export {
+  submitNPS,
+  aggregateNPSCycle,
+} from './modules/nps/submitNPS';
+
 // ─── satisfacao module (Phase 11 — NPS surveys) ────────────────────────────────
 // NPS post-resolution, quarterly campaigns, response anonymization (LGPD).
 export {
