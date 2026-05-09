@@ -13,7 +13,7 @@
 import React, { useState, useRef } from 'react';
 import { httpsCallable } from 'firebase/functions';
 import { ref, uploadBytes, getBytes } from 'firebase/storage';
-import { functions, storage } from '@shared/firebase';
+import { functions, storage } from '../../../shared/services/firebase';
 import type { Classification } from '../types';
 
 interface StripUploadProps {

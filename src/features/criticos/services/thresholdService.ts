@@ -145,7 +145,15 @@ export async function updateThreshold(
   const validated = validateThresholdInput(merged);
 
   // Update (keep criadoEm and criador immutable)
-  await updateDoc(docRef, validated);
+  const updatePayload = {
+    analitoId: validated.analitoId,
+    min: validated.min,
+    max: validated.max,
+    severidade: validated.severidade,
+    ativo: validated.ativo,
+    condicional: validated.condicional,
+  };
+  await updateDoc(docRef, updatePayload);
 }
 
 /**

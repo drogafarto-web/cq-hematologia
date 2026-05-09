@@ -22,7 +22,7 @@ import {
   startAt,
   endAt,
 } from 'firebase/firestore';
-import { db } from '@shared/firebase';
+import { db } from '../../../shared/services/firebase';
 import type { IAPerfMetrics, TestType, Classification } from '../types';
 
 interface ImunoIADashboardProps {
@@ -34,6 +34,7 @@ interface ImunoIADashboardProps {
  */
 export const ImunoIADashboard: React.FC<ImunoIADashboardProps> = ({ labId }) => {
   const [metrics, setMetrics] = useState<IAPerfMetrics | null>(null);
+  const [confusionMatrix, setConfusionMatrix] = useState<Record<string, Record<string, number>>>({});
   const [selectedTestKit, setSelectedTestKit] = useState<TestType>('HIV');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
@@ -102,7 +103,13 @@ export const ImunoIADashboard: React.FC<ImunoIADashboardProps> = ({ labId }) => 
     let manualOverrideCount = 0;
 
     const confidenceDistribution: Record<string, number> = {};
-    const accuracyByTestKit: Record<TestType, number> = {};
+    const accuracyByTestKit: Record<TestType, number> = {
+      HIV: 0,
+      Dengue: 0,
+      Syphilis: 0,
+      COVID: 0,
+      HCG: 0,
+    };
     const dailyTrend: Record<string, { accuracy: number; count: number }> = {};
 
     images.forEach((image: any) => {
