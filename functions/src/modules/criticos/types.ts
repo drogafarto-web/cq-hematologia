@@ -172,6 +172,12 @@ export interface RegisterCriticoDetectionResponse {
     slaMinutosTarget: number;
     etaAckMs: number;
   };
+  slaDeadlines?: Array<{
+    tier: 1 | 2 | 3;
+    destinatario: 'RT' | 'MEDICO' | 'CTO' | 'DIRETOR_MEDICO';
+    deadlineMs: number;
+  }>;
+  status?: 'critical_registered' | 'no_action';
   notivisaDraftId?: string;
 }
 
