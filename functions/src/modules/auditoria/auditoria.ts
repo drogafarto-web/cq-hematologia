@@ -657,34 +657,116 @@ export const updateChecklistResponses = onCall(
  */
 export const createPlanoAcao = onCall(
   { region: 'southamerica-east1' },
-  async (request: CallableRequest<any>) => {
+  async (request: CallableRequest<CreatePlanoAcaoInputType>) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Auth required');
     }
 
-    const { labId, achadoId, descricao, responsavel, prazo } = request.data;
+    const operatorId = request.auth.uid;
 
-    if (!labId || !achadoId || !descricao || !responsavel || !prazo) {
-      throw new HttpsError(
-        'invalid-argument',
-        'Campos obrigatórios: labId, achadoId, descricao, responsavel, prazo'
-      );
+    // Validate input with Zod
+    let input: CreatePlanoAcaoInputType;
+    try {
+      input = CreatePlanoAcaoInput.parse(request.data);
+    } catch (err: any) {
+      throw new HttpsError('invalid-argument', err.message);
     }
 
-    const isMember = await isActiveMemberOfLab(labId, request.auth.uid);
+    // Check lab membership
+    const isMember = await isActiveMemberOfLab(input.labId, operatorId);
     if (!isMember) {
       throw new HttpsError('permission-denied', 'Not a lab member');
     }
 
     try {
-      // TODO: Implement plano de ação creation
+      // Validate that achado exists and belongs to the specified auditoria
+      const achadosQuery = db
+        .collectionGroup('achados')
+        .where('id', '==', input.achadoId)
+        .where('labId', '==', input.labId);
+
+      const achadosSnapshot = await achadosQuery.limit(1).get();
+      if (achadosSnapshot.empty) {
+        throw new HttpsError('not-found', `Achado ${input.achadoId} not found for lab ${input.labId}`);
+      }
+
+      const achadoDoc = achadosSnapshot.docs[0];
+      const achadoData = achadoDoc.data() as Achado;
+
+      // Verify achado belongs to the specified auditoria
+      if (achadoData.labId !== input.labId) {
+        throw new HttpsError('permission-denied', 'Achado does not belong to this lab');
+      }
+
+      // Generate logical signature with deterministic canonical JSON
+      const canonicalPayload = {
+        achadoId: input.achadoId,
+        auditoriaId: input.auditoriaId,
+        descricao: input.descricao,
+        prazo: input.prazo,
+        responsavel: input.responsavel,
+      };
+      const sortedKeys = Object.keys(canonicalPayload).sort();
+      const canonicalJson =
+        '{' +
+        sortedKeys
+          .map((k) => `"${k}":${JSON.stringify((canonicalPayload as any)[k])}`)
+          .join(',') +
+        '}';
+      const hash = crypto
+        .createHash('sha256')
+        .update(canonicalJson)
+        .digest('hex');
+
+      const assinatura: LogicalSignature = {
+        hash,
+        operatorId,
+        ts: admin.firestore.Timestamp.now(),
+      };
+
+      // Create plano de ação document
+      const planoRef = db
+        .collection(
+          `labs/${input.labId}/auditorias-internas/${input.auditoriaId}/planos-acao`
+        )
+        .doc();
+
+      const prazoDate = new Date(input.prazo);
+
+      const planoAcao: PlanoAcao = {
+        id: planoRef.id,
+        labId: input.labId,
+        auditoriaId: input.auditoriaId,
+        achadoId: input.achadoId,
+        descricao: input.descricao,
+        responsavel: input.responsavel,
+        prazo: admin.firestore.Timestamp.fromDate(prazoDate),
+        status: 'nao_iniciado',
+        assinatura,
+        criadoEm: assinatura.ts,
+        criadoPor: operatorId,
+        deletadoEm: null,
+      };
+
+      // Use transaction to atomically create plano + update achado
+      await db.runTransaction(async (tx) => {
+        // Create plano de ação
+        tx.set(planoRef, planoAcao);
+
+        // Update achado with reference to plano de ação
+        tx.update(achadoDoc.ref, {
+          planoAcaoId: planoRef.id,
+        });
+      });
+
       return {
         success: true,
-        message: 'Plano de ação creation not yet implemented',
+        planoId: planoRef.id,
+        status: 'nao_iniciado',
       };
     } catch (error: any) {
       if (error instanceof HttpsError) throw error;
-      throw new HttpsError('internal', error.message);
+      throw new HttpsError('internal', error.message || 'Error creating plano de ação');
     }
   }
 );

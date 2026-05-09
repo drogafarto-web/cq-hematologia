@@ -26,16 +26,19 @@ export interface Achado {
 }
 
 export interface PlanoAcao {
-  auditoriaId: string;
+  readonly id: string;
+  readonly labId: string;
+  readonly auditoriaId: string;
   achadoId: string;
   descricao: string;
   responsavel: string;
   prazo: Timestamp;
   evidencia?: string;
   status: PlanoAcaoStatus;
+  assinatura: LogicalSignature;
   readonly criadoEm: Timestamp;
   readonly criadoPor: string;
-  concluídoEm?: Timestamp;
+  deletadoEm: Timestamp | null;
 }
 
 export interface Auditoria {
