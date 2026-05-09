@@ -768,8 +768,24 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "analitoId", "order": "ASCENDING" },
-        { "fieldPath": "ativo", "order": "DESCENDING" },
+        { "fieldPath": "ativo", "order": "ASCENDING" },
         { "fieldPath": "criadoEm", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "criticos-thresholds",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "analitoId", "order": "ASCENDING" },
+        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "criticos-routing",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ativo", "order": "ASCENDING" },
+        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
       ]
     },
     {
@@ -836,6 +852,72 @@
       "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "lastUpdated", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "images",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "images",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "flaggedForManualReview", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "images",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "geminiClassification.confidence", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "cost",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "dateKey", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "imuno-ias-dev",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "manualVerdict", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "imuno-ia-exports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "exportMonth", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "imuno-ia-exports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "exportedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "imuno-ia-feedback",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId", "order": "ASCENDING" },
+        { "fieldPath": "receivedAt", "order": "DESCENDING" }
       ]
     }
   ],

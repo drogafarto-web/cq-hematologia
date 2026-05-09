@@ -690,6 +690,66 @@ service cloud.firestore {
         allow read: if isActiveMemberOfLab(labId) && isAdminOrOwner(labId);
         allow create, update, delete: if false;  // Via rtPresence_* callables only
       }
+
+      // ── criticos-thresholds (Phase 5 / Wave 2 — RDC 978 Art. 17 + DICQ 5.8.7) ──
+      // Critical value thresholds per analyte (min/max cutoffs, conditional by age/sex).
+      // RDC 978 Art. 17 requires RT approval for threshold definition.
+      // DL-1: writes primarily via Cloud Function callables (future);
+      // client-side writes allowed temporarily (Phase 5.0) for CRUD development,
+      // will be deprecated to callables-only in Phase 5.1.
+      // Hard-delete forbidden (RN-06) — soft-delete only via deletadoEm timestamp.
+      match /criticos-thresholds/{thresholdId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrRT(labId));
+        allow create: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrRT(labId) &&
+           request.resource.data.labId == labId &&
+           request.resource.data.analitoId is string &&
+           request.resource.data.analitoNome is string &&
+           request.resource.data.unidade is string &&
+           request.resource.data.severidade in ['alta', 'baixa'] &&
+           (request.resource.data.min == null || request.resource.data.min is number) &&
+           (request.resource.data.max == null || request.resource.data.max is number) &&
+           (request.resource.data.min != null || request.resource.data.max != null) &&
+           request.resource.data.ativo is bool &&
+           request.resource.data.deletadoEm == null &&
+           request.resource.data.criadoEm is timestamp &&
+           request.resource.data.criador is map &&
+           request.resource.data.criador.operadorId == request.auth.uid &&
+           request.resource.data.criador.nome is string);
+        allow update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrRT(labId) &&
+           request.resource.data.labId == resource.data.labId &&
+           request.resource.data.criadoEm == resource.data.criadoEm &&
+           request.resource.data.criador == resource.data.criador);
+        allow delete: if false;  // Soft-delete only via deletadoEm
+      }
+
+      // ── criticos-routing (Phase 5 / Wave 2 — Escalation Rules) ───────────────
+      // Routing rules determine who gets notified for critical values (escalation recipients,
+      // SLA minutes). Created/updated by lab admin/RT.
+      match /criticos-routing/{ruleId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrRT(labId));
+        allow create: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdmin(labId) &&
+           request.resource.data.labId == labId &&
+           request.resource.data.criterioBloco in ['all', 'byAnalyte', 'bySeverity', 'byAnalyteAndSeverity'] &&
+           request.resource.data.recipients is map &&
+           request.resource.data.recipients.operadorIds is list &&
+           request.resource.data.recipients.telefones is list &&
+           request.resource.data.recipients.emails is list &&
+           request.resource.data.slaMinutos is number &&
+           request.resource.data.slaMinutos > 0 &&
+           request.resource.data.ativo is bool &&
+           request.resource.data.deletadoEm == null &&
+           request.resource.data.criadoEm is timestamp);
+        allow update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdmin(labId) &&
+           request.resource.data.labId == resource.data.labId &&
+           request.resource.data.criadoEm == resource.data.criadoEm);
+        allow delete: if false;  // Soft-delete only
+      }
     }
 
     // ── Raiz — inalterados ──────────────────────────────────────────────────
@@ -2317,6 +2377,101 @@ service cloud.firestore {
 
     // Delete: never (consent history immutable)
     allow delete: if false;
+  }
+
+  // ── /imuno-ias-dev/{labId}/* — IA Strip Classification Dataset (Phase 5 / Task 05-03) ──
+  // Immunology rapid test (RDT) strip image classification dataset for Gemini Vision
+  // model training and accuracy tracking. RDC 978 Art. 167 (IA validation).
+  //
+  // Collections:
+  //   - images/{imageId}: Classified strips (Gemini + RT verdict)
+  //   - audit/{logId}: Manual override audit trail (immutable)
+  //   - config/{configId}: Lab-specific IA configuration (RT/admin write)
+  //
+  // Created by: classifyStripGemini callable (server-side image upload)
+  // Read by: RT, Auditor, Admin/Owner in lab
+  // Delete: never (soft-delete only via deletadoEm timestamp)
+  match /imuno-ias-dev/{labId} {
+    allow read: if isActiveMemberOfLab(labId);
+    allow create, update: if false;
+    allow delete: if false;
+
+    // Images collection: classified strips
+    match /images/{imageId} {
+      allow read: if isActiveMemberOfLab(labId) &&
+                  (getMemberRole(labId) in ['rt', 'auditor', 'admin', 'owner']);
+
+      // Create: Cloud Function callable only (classifyStripGemini)
+      allow create: if false;
+
+      // Update: RT/Admin can override (via recordManualOverride callable)
+      allow update: if (isActiveMemberOfLab(labId) &&
+                        getMemberRole(labId) in ['rt', 'admin', 'owner']) &&
+                   resource.data.deletadoEm == null &&
+                   request.resource.data.labId == resource.data.labId &&
+                   request.resource.data.createdAt == resource.data.createdAt;
+
+      // Delete: never (soft-delete only via deletadoEm)
+      allow delete: if false;
+    }
+
+    // Audit trail: manual override events (immutable)
+    match /audit/{logId} {
+      allow read: if isActiveMemberOfLab(labId) &&
+                  (getMemberRole(labId) in ['auditor', 'admin', 'owner']);
+
+      // Create: Cloud Function callable only (recordManualOverride)
+      allow create: if false;
+
+      // Update, Delete: never (immutable audit trail)
+      allow update, delete: if false;
+    }
+
+    // Configuration: lab-specific thresholds (RT/admin write)
+    match /config/{configId} {
+      allow read: if isActiveMemberOfLab(labId);
+
+      // Create/Update: RT/Admin via callable only
+      allow create, update: if (isActiveMemberOfLab(labId) &&
+                                getMemberRole(labId) in ['rt', 'admin', 'owner']) &&
+                           request.resource.data.labId == labId;
+
+      // Delete: never
+      allow delete: if false;
+    }
+
+    // Cost tracking: daily API cost aggregates
+    match /cost/{dateKey} {
+      allow read: if isActiveMemberOfLab(labId) &&
+                  getMemberRole(labId) in ['admin', 'owner'];
+
+      // All writes via Cloud Function (automatic cost logging)
+      allow create, update, delete: if false;
+    }
+
+    // Exports: monthly dataset exports for ML team (Task 05-04)
+    match /exports/{exportId} {
+      allow read: if isActiveMemberOfLab(labId) &&
+                  getMemberRole(labId) in ['admin', 'owner', 'auditor'];
+
+      // Create/Update: Cloud Function callable only (collectIADataset)
+      allow create, update: if false;
+
+      // Delete: never (immutable export records)
+      allow delete: if false;
+    }
+
+    // ML Team Feedback: fine-tuning feedback from ML team (Phase 11+ / Task 05-04)
+    match /feedback/{feedbackId} {
+      allow read: if isActiveMemberOfLab(labId) &&
+                  getMemberRole(labId) in ['admin', 'owner', 'auditor'];
+
+      // Create: Cloud Function callable only (handleMLTeamFeedback)
+      allow create: if false;
+
+      // Update, Delete: never (immutable feedback records)
+      allow update, delete: if false;
+    }
   }
 
 }

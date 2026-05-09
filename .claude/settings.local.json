@@ -189,7 +189,17 @@
       "WebFetch(domain:api.anvisa.gov.br)",
       "PowerShell(Copy-Item *)",
       "PowerShell(Get-ChildItem \"C:\\\\Users\\\\labcl\\\\Downloads\\\\\" | Where-Object {$_.Extension -match \"jpeg|jpg\"} | Select-Object Name | Sort-Object -Property Name -Descending | Select-Object -First 10)",
-      "Bash(chmod +x scripts/preflight-functions-check.sh scripts/deploy-functions.sh)"
+      "Bash(chmod +x scripts/preflight-functions-check.sh scripts/deploy-functions.sh)",
+      "Bash(tee baseline-tsc.txt)",
+      "PowerShell(npx playwright --version 2>&1)",
+      "PowerShell(npx playwright install --with-deps 2>&1 | Select-Object -Last 20)",
+      "Bash(tee baseline-lint.txt)",
+      "PowerShell(Get-NetTCPConnection *)",
+      "Bash(Get-Process node *)",
+      "Bash(Stop-Process -Force)",
+      "Bash(Start-Sleep -Seconds 2)",
+      "Bash(\"Node processes *)",
+      "Bash(pkill -f \"node.*8080\")"
     ]
   },
   "model": "haiku",
