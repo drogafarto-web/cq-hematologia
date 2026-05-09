@@ -13,22 +13,36 @@ import { usePatientConsent } from '../hooks/usePatientConsent';
 import { Timestamp } from 'firebase/firestore';
 import type { PatientResult } from '../types';
 
-// Mock Firebase
+// Mock Firebase — all Firestore operations used by portal-paciente sections
+const mockDocRef = { id: 'mock-doc', type: 'document', path: 'mock/path' };
+const mockCollectionRef = { id: 'mock-collection', type: 'collection', path: 'mock/collection' };
+const mockQuery = { type: 'query' };
+const mockDb = { type: 'firestore', app: {}, toJSON: () => ({}) };
+
 vi.mock('firebase/firestore', async () => {
   const actual = await vi.importActual('firebase/firestore');
   return {
     ...actual,
-    getFirestore: vi.fn(),
-    doc: vi.fn(),
-    onSnapshot: vi.fn((ref, onSuccess, onError) => {
-      // Simulate no existing consent document
-      onSuccess({ exists: () => false });
+    getFirestore: vi.fn(() => mockDb),
+    doc: vi.fn(() => mockDocRef),
+    collection: vi.fn(() => mockCollectionRef),
+    query: vi.fn(() => mockQuery),
+    orderBy: vi.fn(() => ({})),
+    where: vi.fn(() => ({})),
+    getDocs: vi.fn(() => Promise.resolve({ docs: [], empty: true, size: 0 })),
+    onSnapshot: vi.fn((_ref, onSuccess, _onError) => {
+      // Simulate empty/no-data snapshots for all listeners
+      onSuccess({ exists: () => false, docs: [], empty: true, size: 0 });
       return vi.fn(); // unsubscribe
     }),
   };
 });
 
 describe('PortalPacienteShell', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('renders without crashing', () => {
     render(
       <PortalPacienteShell

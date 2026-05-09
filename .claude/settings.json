@@ -8,6 +8,7 @@
       "Bash(git *)",
       "Bash(npm *)",
       "Bash(npx *)",
+      "Bash(cd *)",
       "Bash(gsd-sdk *)",
       "Bash(firebase *)",
       "Bash(gcloud *)"
