@@ -9,6 +9,33 @@
  *
  * PDF must be <10MB per RDC 978 compliance.
  * Uses Puppeteer for server-side rendering + pdf-lib for manipulation.
+ *
+ * ──────────────────────────────────────────────────────────────────────
+ * FR-043 (Relatório de Auditoria Interna) — Mapping HC Quality → 4 tabelas
+ *
+ * TABELA 1 — Identificação:
+ *   Campos: data, auditor_lider, auditor(es), setores_auditados
+ *   Source: auditoria.criadoEm, sessao.auditor, (auditor auxiliares TBD),
+ *           auditoria.escopoSetores
+ *   Status: ✓ IMPLEMENTADA (header grid da função generateHTML)
+ *
+ * TABELA 2 — Sumário Conformidades:
+ *   Campos: total_itens, conformes, não_conformes, na, %_conformidade
+ *   Source: checklistItems count, filtered por resposta
+ *   Status: ✓ IMPLEMENTADA (stats-box em generateHTML)
+ *
+ * TABELA 3 — Achados (1 linha por achado, severidade ≥ leve):
+ *   Campos: descricao, severidade, evidencia, ncId (se criada)
+ *   Source: Sessao/achados subcollection
+ *   Status: ✓ IMPLEMENTADA (seção Achados por severidade em generateHTML)
+ *
+ * TABELA 4 — Plano de Ação (1 linha por achado com plano):
+ *   Campos: achado_descricao, acao, responsavel, prazo, status
+ *   Source: labs/{labId}/auditorias-internas/{auditoriaId}/planos-acao
+ *   Status: ⚠ TODO — FR-043-T4: fetch planos-acao e render na HTML
+ *
+ * Última revisão: 2026-05-09 (Phase 11, Wave B4)
+ * ──────────────────────────────────────────────────────────────────────
  */
 
 import { onCall, HttpsError, CallableRequest } from 'firebase-functions/v2/https';
@@ -89,7 +116,12 @@ function generateHTML(
     });
   };
 
-  // Statistics
+  // FR-043-T4: Plano de Ação não implementado ainda
+  // TODO: fetch from labs/{labId}/auditorias-internas/{auditoriaId}/planos-acao
+  //       and render in dedicated section after achados
+  console.warn('[FR-043-T4] Plano de Ação section not yet populated in PDF output');
+
+  // Statistics (FR-043-T2)
   const conforme = checklistItems.filter((i) => i.resposta === 'conforme').length;
   const naoConforme = checklistItems.filter((i) => i.resposta === 'não-conforme').length;
   const na = checklistItems.filter((i) => i.resposta === 'N/A').length;
@@ -97,7 +129,7 @@ function generateHTML(
     ? ((conforme / checklistItems.length) * 100).toFixed(1)
     : 'N/A';
 
-  // Group achados by severity
+  // Group achados by severity (FR-043-T3)
   const achadosPorSeveridade = {
     crítica: achados.filter((a) => a.severidade === 'crítica'),
     grave: achados.filter((a) => a.severidade === 'grave'),
