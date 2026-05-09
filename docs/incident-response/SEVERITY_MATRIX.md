@@ -1,64 +1,90 @@
 # Incident Severity Matrix
 
+Classification system for production incidents: Green/Yellow/Red/Black with clear decision criteria and response SLAs.
+
+---
+
 ## Green — Low Risk / Development Issue
 
-**Impact:** No patient impact, internal systems only, non-urgent  
-**Examples:** UI typo, dev environment broken, documentation gap, test failure  
-**Response Time SLA:** Next business day  
-**Team Notification:** Slack #dev-incidents (async)  
-**Escalation Trigger:** None (resolve in normal sprint)
+**Impact:** No patient impact, internal systems only, non-urgent
+
+**Examples:**
+- UI typo or visual bug
+- Dev environment broken
+- Documentation gap
+- Test failure in non-critical module
+
+**Response Time SLA:** Next business day (8 hours)
+
+**Team Notification:** Slack `#dev-incidents` (async)
 
 **Decision Criteria:**
 - Zero production data affected
-- Zero regulatory/audit impact
+- Zero regulatory impact
 - Non-blocking for users
 
 ---
 
 ## Yellow — Moderate Impact / Partial Degradation
 
-**Impact:** Some users affected, non-critical workflow, workaround available  
-**Examples:** Analytics dashboard slow (>3s load), 5% of laudo exports failing, audit trail query timeout (auditor can use report API instead)  
-**Response Time SLA:** 4 hours (on-call engineer)  
-**Team Notification:** Slack @oncall, Slack #incidents  
-**Escalation:** If not resolved in 2h, escalate to Yellow IC
+**Impact:** Some users affected, non-critical workflow, workaround available
+
+**Examples:**
+- Analytics dashboard slow (>3s load)
+- 5% of laudo exports failing
+- Audit trail query timeout
+
+**Response Time SLA:** 4 hours (on-call engineer)
+
+**Team Notification:** Slack `@oncall`, Slack `#incidents`
 
 **Decision Criteria:**
 - <10% of users affected
-- Workaround available (manual process, alternate feature)
-- Regulatory impact: none or minimal (DICQ only)
+- Workaround available
+- Regulatory impact: none or minimal
 
 ---
 
 ## Red — High Impact / Critical Degradation
 
-**Impact:** Core workflow down, many users affected, regulatory implications  
-**Examples:** Patient portal down, laudo release blocked (RT can't sign), audit trail corrupted, NOTIVISA submissions failing (gov deadline risk)  
-**Response Time SLA:** 1 hour (Incident Commander on call)  
-**Team Notification:** All + on-call + leadership  
-**Escalation:** Automatic after 30min without progress
+**Impact:** Core workflow down, many users affected, regulatory implications
+
+**Examples:**
+- Patient portal down
+- Laudo release blocked
+- Audit trail corrupted
+- NOTIVISA submissions failing
+
+**Response Time SLA:** 1 hour (Incident Commander on call)
+
+**Team Notification:** All + on-call + leadership
 
 **Decision Criteria:**
 - ≥50% of users affected OR
-- Core workflow (laudo release, CAPA, audit trail) down OR
-- RDC Art. 128 impact (audit trail integrity breach)
-- DICQ 4.4 impact (external communication blocked)
+- Core workflow (laudo release, CAPA, audit) down OR
+- RDC Art. 128 impact (audit trail integrity)
 
 ---
 
 ## Black — Complete System Failure / Regulatory Crisis
 
-**Impact:** System down, patient safety risk, regulatory authority notification required  
-**Examples:** Database entirely inaccessible, all functions failing, patient data lost/corrupted, NOTIVISA breach (gov reporting law)  
-**Response Time SLA:** Immediate (CTO + full team)  
-**Team Notification:** All hands on deck  
-**Escalation:** Declared immediately by CTO or IC
+**Impact:** System down, patient safety risk, regulatory notification required
+
+**Examples:**
+- Database entirely inaccessible
+- All functions failing
+- Patient data lost/corrupted
+- NOTIVISA breach
+
+**Response Time SLA:** Immediate (CTO + full team)
+
+**Team Notification:** All hands on deck
 
 **Decision Criteria:**
 - System completely unavailable OR
 - Patient safety at risk OR
-- RDC Art. 128 violation (audit trail corrupted, cannot verify) OR
-- Legal/regulatory obligation to notify (LGPD breach, gov API failure)
+- Data loss confirmed OR
+- Regulatory notification required
 
 ---
 
@@ -66,20 +92,20 @@
 
 ```
 1. Is patient data affected (read/write/integrity)?
-   → YES: Red or Black (see 2)
-   → NO: Go to 3
+   ├─ YES: Go to 2
+   └─ NO: Go to 3
 
 2. Is patient data lost or corrupted?
-   → YES: Black (immediate CTO escalation)
-   → NO: Red (RDC audit trail impact)
+   ├─ YES: BLACK
+   └─ NO: RED
 
-3. Is a core workflow (laudo, CAPA, audit, NOTIVISA) down?
-   → YES: Red (many users blocked)
-   → NO: Go to 4
+3. Is core workflow (laudo, CAPA, audit) down?
+   ├─ YES: RED
+   └─ NO: Go to 4
 
-4. Is a non-critical system slow or failing (analytics, exports)?
-   → YES: Yellow (workaround available)
-   → NO: Green (minor issue)
+4. Is non-critical system slow/failing (analytics)?
+   ├─ YES: YELLOW
+   └─ NO: GREEN
 ```
 
 ---
@@ -87,22 +113,35 @@
 ## Response Time SLA by Severity
 
 | Severity | Detection | First Response | Resolution Target |
-|----------|-----------|---------------|--------------------|
-| **Green** | Next standup | Next business day | Next sprint |
-| **Yellow** | On-call monitoring (30s) | 15 min | 4 hours |
-| **Red** | Automated alert (1min) | 5 min | 1 hour |
-| **Black** | Automated alert + manual verification | Immediate | 30 min (if possible; escalate to restore) |
+|----------|-----------|----------------|-------------------|
+| Green | Next standup | Next business day | Next sprint |
+| Yellow | 30s monitoring | 15 min | 4 hours |
+| Red | 1min alert | 5 min | 1 hour |
+| Black | Immediate + verify | <2 min | 30 min (restore) |
 
 ---
 
-## On-Call Escalation
+## Escalation Criteria
 
-**Yellow incident escalates to Red if:**
-- Not resolved in 2 hours
-- More data emerges showing higher impact
-- On-call engineer unable to make progress (asks for backup)
+**Yellow → Red:**
+- >10% of users affected
+- No workaround available
+- >30 min to resolution
+- Unknown root cause
 
-**Red incident escalates to Black if:**
-- Data loss / corruption confirmed
-- Unable to restore within 30 min
-- Regulatory notification appears necessary
+**Red → Black:**
+- Data loss confirmed
+- Corruption detected
+- All backups failed
+- Patient safety at risk
+
+---
+
+## Customer Notification Rules
+
+| Severity | Notify? | Timeline | Approver |
+|----------|---------|----------|----------|
+| Green | No | — | N/A |
+| Yellow | If >1h | After resolution | CTO |
+| Red | If >1h | After 30min | CTO |
+| Black | Yes | Within 1h | CTO + Legal |

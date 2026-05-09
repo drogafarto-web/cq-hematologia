@@ -4,10 +4,10 @@
 
 | Week | Primary IC | Backup IC | Coverage | Timezone |
 |------|-----------|-----------|----------|----------|
-| 1 (May 13–19) | [Name] | [Name] | Mon–Sun 24h | BR (UTC-3) |
-| 2 (May 20–26) | [Name] | [Name] | Mon–Sun 24h | BR (UTC-3) |
-| 3 (May 27–Jun 2) | [Name] | [Name] | Mon–Sun 24h | BR (UTC-3) |
-| 4 (Jun 3–9) | [Name] | [Name] | Mon–Sun 24h | BR (UTC-3) |
+| 1 | [Name] | [Name] | Mon–Sun 24h | BR (UTC-3) |
+| 2 | [Name] | [Name] | Mon–Sun 24h | BR (UTC-3) |
+| 3 | [Name] | [Name] | Mon–Sun 24h | BR (UTC-3) |
+| 4 | [Name] | [Name] | Mon–Sun 24h | BR (UTC-3) |
 
 *Fill in names and contact methods below.*
 
@@ -28,14 +28,12 @@
 - Can override normal deployment procedures (e.g., hot-fix without full review)
 - Can declare severity and activate on-call team
 - Can make critical decisions (e.g., "rollback function X")
-- Cannot unilaterally decide to contact external parties (auditor, customer) — requires CTO approval unless Black
+- Cannot unilaterally decide to contact external parties — requires CTO approval unless Black
 
 **Contact Methods (IC to fill in):**
 - Phone: [+55 number]
 - Slack: @[name]
 - Email: [email]
-- WhatsApp: [+55 number]
-- Pagerduty: [link] (future)
 
 ---
 
@@ -44,7 +42,7 @@
 **Responsibilities:**
 - Assume Primary IC duties if Primary unreachable
 - Assist with escalation (Yellow → Red decision)
-- Cover handoff during shift change (last 2 hours of shift overlap)
+- Cover handoff during shift change
 
 **Contact Methods (to fill in):**
 - Phone: [+55 number]
@@ -57,11 +55,11 @@
 **Friday 17:00 (outgoing IC):**
 - Review last week's incidents (if any)
 - Brief incoming IC on ongoing issues
-- Share access to critical tools (Cloud Console, database, Slack channels)
+- Share access to critical tools
 - Document any known risks
 
 **Monday 09:00 (incoming IC):**
-- Run health check: Cloud Logs, monitoring dashboard, function execution
+- Run health check: Cloud Logs, monitoring, functions
 - Verify all contacts in tree are current
 - Read post-mortem from previous week (if any)
 - Declare "on-call week started" in Slack
@@ -72,30 +70,28 @@
 
 - Cloud Console: [link to project]
 - Cloud Logs: [saved filter for errors]
-- Monitoring Dashboard: [Grafana/Cloud Monitoring link]
-- Database: [Firestore console]
-- Functions: [Cloud Functions list]
-- Deployment Keys: [1password vault, teams channel]
-- Runbooks: docs/incident-response/RUNBOOK_LINKS.md
+- Monitoring Dashboard: [link]
+- Firestore Console: [link]
+- Deployment Keys: [location]
 
 ---
 
 ## Escalation Triggers
 
 **Escalate to Backup IC if:**
-- Primary IC unreachable for 5 min (call + Slack + SMS)
-- Primary IC says "need backup" (overwhelmed)
-- Incident severity upgraded (Yellow → Red)
+- Primary IC unreachable for 5 min
+- Primary IC says "need backup"
+- Severity upgraded (Yellow → Red)
 
 **Escalate to CTO if:**
 - Black incident declared
 - Red incident not resolved in 30 min
-- External party notification needed (customer, auditor, gov)
+- External party notification needed
 
 ---
 
 ## Compensation / Rest Days
 
-- Primary IC on-call week: +2 days off following week (Mon–Tue)
+- Primary IC on-call week: +2 days off following week
 - Backup IC: +0.5 day off (if backup called in)
-- If Black incident occurs: +1 day off for all responders
+- If Black incident: +1 day off for all responders
