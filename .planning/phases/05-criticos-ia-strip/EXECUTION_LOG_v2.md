@@ -63,3 +63,19 @@ Starting 4 parallel Haiku agents. Verification gate after completion.
 - **Verdict:** ✅ **PROCEED TO WAVE 3**
 
 ---
+
+## Wave 3 — BACKEND PIPELINE
+
+### W3 Execution
+- **W3-A1:** ✅ registerCriticoDetection callable (auth, validation, 3-tier SLA, atomic) — commit 6192bad
+- **W3-A2:** ✅ acknowledgeEscalacao callable (RT role, state validation, writeBatch) — commit c48dd0e
+- **W3-A3:** ✅ escalacaoCriticos cron + webhook (5min polling, Twilio status, chain-hash) — commit e4521c1
+- **W3-A4:** ✅ IA classification callables (Gemini Vision + dataset, confidence 0.85) — commit aba16b3
+
+### Wave 3 Verification Gate
+- **tsc:** ✅ PASS (0 new TypeScript errors)
+- **lint:** ✅ PASS (266 errors, 1912 warnings — +28 warn, same errors acceptable)
+- **commits:** ✅ 4 W3 commits present
+- **Verdict:** ✅ **PROCEED TO WAVE 4**
+
+---

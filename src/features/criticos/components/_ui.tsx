@@ -14,19 +14,24 @@ const REDUCE_MOTION_CLASS =
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'ghost' | 'danger' | 'subtle';
+  size?: 'sm' | 'md';
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   function Button(
-    { variant = 'primary', className = '', children, type, ...rest },
+    { variant = 'primary', size = 'md', className = '', children, type, ...rest },
     ref,
   ) {
     const base =
-      'inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium ' +
+      'inline-flex items-center gap-2 rounded-md font-medium ' +
       'transition-[background-color,color,border-color,transform,box-shadow] duration-150 ease-out ' +
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141417] ' +
       'disabled:opacity-40 disabled:cursor-not-allowed ' +
       REDUCE_MOTION_CLASS;
+    const sizes: Record<string, string> = {
+      sm: 'px-3 py-1.5 text-xs',
+      md: 'px-4 py-2 text-sm',
+    };
     const variants: Record<string, string> = {
       primary:
         'bg-violet-500 text-white hover:bg-violet-400 active:bg-violet-600 ' +
@@ -44,7 +49,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         type={type ?? 'button'}
-        className={`${base} ${variants[variant]} ${className}`}
+        className={`${base} ${sizes[size]} ${variants[variant]} ${className}`}
         {...rest}
       >
         {children}
