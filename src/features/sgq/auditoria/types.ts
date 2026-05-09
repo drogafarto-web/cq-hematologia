@@ -175,3 +175,157 @@ export type AuditEntryInput = Omit<
   | 'timestamp'
   | 'deletadoEm'
 >;
+
+// ─── Logical Signature (RDC 978 Art. 128 + DICQ 4.4) ────────────────────────
+
+export interface LogicalSignature {
+  hash: string;     // 64-char hex (SHA-256)
+  operatorId: string;
+  ts: Timestamp;
+}
+
+// ─── Sessão (audit session) ────────────────────────────────────────────────
+
+export interface Sessao {
+  readonly id: string;
+  readonly labId: string;
+  readonly auditoriaId: string;
+
+  numero: string;           // e.g., 'SESS-2026-001'
+  dataInicio: Timestamp;
+  dataFim: Timestamp | null;
+
+  // ─── Multi-auditor support (FR-42)
+  auditorLider?: string;        // operatorId do auditor líder
+  auditoresAuxiliares?: string[]; // operatorIds adicionais
+
+  status: 'aberta' | 'encerrada' | 'cancelada';
+  motivo?: string;
+
+  readonly criadoEm: Timestamp;
+  readonly criadoPor: string;
+  deletadoEm: Timestamp | null;
+}
+
+export type SessaoInput = Omit<
+  Sessao,
+  'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm'
+>;
+
+// ─── Auditoria (audit plan + execution) ────────────────────────────────────
+
+export interface Auditoria {
+  readonly id: string;
+  readonly labId: string;
+
+  numero: string;           // e.g., 'AUD-2026-001'
+  titulo: string;
+  descricao?: string;
+
+  // ─── Scope + Re-audit support (FR-42)
+  tipoExecucao?: 'inicial' | 'reAuditoria';
+  auditoriaOriginalId?: string;  // FK quando tipoExecucao === 'reAuditoria'
+  escopoSetores?: string[];      // ['Bioquímica', 'Imuno', ...]
+  escopoEspecialidades?: string[];
+
+  dataPlanehadaPara: Timestamp;
+  dataRealizada: Timestamp | null;
+
+  status: 'planejada' | 'em_execucao' | 'concluida' | 'cancelada';
+
+  // ─── Approval chain
+  aprovacoes?: LogicalSignature[]; // múltiplas: Direção + QC
+
+  responsavel: string;      // operatorId
+  observacoes?: string;
+
+  readonly criadoEm: Timestamp;
+  readonly criadoPor: string;
+  deletadoEm: Timestamp | null;
+}
+
+export type AuditoriaInput = Omit<
+  Auditoria,
+  'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm'
+>;
+
+// ─── Presença em reunião de auditoria (FR-45) ──────────────────────────────
+
+export type PapelPresenca = 'auditor' | 'auditado' | 'observador' | 'rt' | 'gerente_qc' | 'direcao';
+
+export interface Presenca {
+  readonly id: string;
+  readonly sessaoId: string;
+  readonly labId: string;
+  readonly auditoriaId: string;
+
+  userId: string;          // operatorId
+  nome: string;            // snapshot at time of signing
+  papel: PapelPresenca;
+  reuniao: 'abertura' | 'encerramento';
+  assinatura: LogicalSignature;
+
+  readonly criadoEm: Timestamp;
+  readonly criadoPor: string;
+  deletadoEm: Timestamp | null;
+}
+
+export type PresencaInput = Omit<
+  Presenca,
+  'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm' | 'assinatura'
+>;
+
+// ─── Reunião de auditoria (opening + closing) ──────────────────────────────
+
+export interface ReuniaoAuditoria {
+  readonly id: string;
+  readonly sessaoId: string;
+  readonly labId: string;
+  readonly auditoriaId: string;
+
+  tipo: 'abertura' | 'encerramento';
+  dataHora: Timestamp;
+  pauta: string;          // min 10 chars
+  concluidaEm: Timestamp | null;
+  totalPresentes: number;
+
+  readonly criadoEm: Timestamp;
+  readonly criadoPor: string;
+  deletadoEm: Timestamp | null;
+}
+
+export type ReuniaoAuditoriaInput = Omit<
+  ReuniaoAuditoria,
+  'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm'
+>;
+
+// ─── Plano de Ação (action item from audit finding) ────────────────────────
+
+export interface PlanoAcao {
+  readonly id: string;
+  readonly labId: string;
+  readonly auditoriaId: string;
+
+  numero: string;           // e.g., 'PA-2026-001'
+  descricao: string;
+  responsavel: string;      // operatorId
+  dataLimite: Timestamp;
+  prioridade: 'baixa' | 'media' | 'alta' | 'critica';
+
+  status: 'aberto' | 'em_execucao' | 'concluido' | 'cancelado';
+
+  // ─── Execution tracking
+  evidenciaUrl?: string;      // link para evidência de execução
+  assinatura?: LogicalSignature; // assinatura ao concluir
+
+  observacoes?: string;
+
+  readonly criadoEm: Timestamp;
+  readonly criadoPor: string;
+  deletadoEm: Timestamp | null;
+}
+
+export type PlanoAcaoInput = Omit<
+  PlanoAcao,
+  'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm'
+>;
