@@ -17,63 +17,78 @@ import {
   getDoc,
   query,
   orderBy,
+  Timestamp,
   type CollectionReference,
   type DocumentReference,
   type QueryDocumentSnapshot,
 } from '../../../shared/services/firebase';
 import type {
-  ManagementReviewMeeting,
+  ManagementReview,
 } from '../types';
 import type { LabId } from '../types/_shared_refs';
 
 // ─── Paths ────────────────────────────────────────────────────────────────
 
 const managementReviewCol = (labId: LabId): CollectionReference =>
-  collection(db, 'labs', labId, 'management-review');
+  collection(db, 'labs', labId, 'management-reviews');
 
 const managementReviewDoc = (labId: LabId, id: string): DocumentReference =>
   doc(managementReviewCol(labId), id);
 
 // ─── Mapping snapshot → entity ─────────────────────────────────────────────
 
-function mapManagementReviewMeeting(snap: QueryDocumentSnapshot): ManagementReviewMeeting {
+function asTimestamp(value: unknown): Timestamp {
+  if (value instanceof Timestamp) return value;
+  if (typeof value === 'number') return Timestamp.fromMillis(value);
+  if (value && typeof (value as { toMillis?: () => number }).toMillis === 'function') {
+    return Timestamp.fromMillis((value as { toMillis: () => number }).toMillis());
+  }
+  return Timestamp.now();
+}
+
+function mapManagementReview(snap: QueryDocumentSnapshot): ManagementReview {
   const d = snap.data();
   return {
     id: snap.id,
     labId: d.labId as LabId,
-    dataReuniao: d.dataReuniao?.toMillis?.() ?? d.dataReuniao,
-    ano: d.ano as number,
+    year: d.year as number,
+    dataRevisao: asTimestamp(d.dataRevisao),
     entries: d.entries ?? [],
-    attendees: d.attendees ?? [],
-    decisions: d.decisions ?? [],
-    signatures: d.signatures ?? [],
-    criadoEm: d.criadoEm?.toMillis?.() ?? d.criadoEm,
-    deletedAt: d.deletedAt,
-  } as ManagementReviewMeeting;
+    participantes: d.participantes ?? [],
+    diretor: (d.diretor ?? '') as string,
+    gerenteQualidade: (d.gerenteQualidade ?? '') as string,
+    outrasCargos: d.outrasCargos,
+    chainHash: d.chainHash,
+    status: (d.status ?? 'draft') as ManagementReview['status'],
+    ataIds: d.ataIds ?? [],
+    createdAt: asTimestamp(d.createdAt),
+    updatedAt: asTimestamp(d.updatedAt),
+    deletedAt: d.deletedAt ?? null,
+  };
 }
 
 // ─── API ──────────────────────────────────────────────────────────────────
 
 /**
- * Get all management review meetings for the lab (ordered by date DESC).
+ * Get all management reviews for the lab (ordered by date DESC).
  */
-export async function getMeetings(labId: LabId, limit?: number): Promise<ManagementReviewMeeting[]> {
-  const q = query(managementReviewCol(labId), orderBy('dataReuniao', 'desc'));
+export async function getMeetings(labId: LabId, limit?: number): Promise<ManagementReview[]> {
+  const q = query(managementReviewCol(labId), orderBy('dataRevisao', 'desc'));
   const snapshot = await getDocs(q);
-  const meetings = snapshot.docs
-    .map(mapManagementReviewMeeting)
-    .filter((m) => !m.deletedAt);
+  const reviews = snapshot.docs
+    .map(mapManagementReview)
+    .filter((r) => !r.deletedAt);
 
-  return limit ? meetings.slice(0, limit) : meetings;
+  return limit ? reviews.slice(0, limit) : reviews;
 }
 
 /**
- * Get a single management review meeting by ID.
+ * Get a single management review by ID.
  */
-export async function getMeetingById(labId: LabId, id: string): Promise<ManagementReviewMeeting | null> {
+export async function getMeetingById(labId: LabId, id: string): Promise<ManagementReview | null> {
   const snap = await getDoc(managementReviewDoc(labId, id));
   if (!snap.exists()) return null;
-  return mapManagementReviewMeeting(snap);
+  return mapManagementReview(snap as QueryDocumentSnapshot);
 }
 
 // ─── Callables (server-side writes) ────────────────────────────────────────
@@ -108,7 +123,7 @@ export interface CreateMeetingInput {
 
 export interface CreateMeetingOutput {
   meetingId: string;
-  meeting: ManagementReviewMeeting;
+  meeting: ManagementReview;
 }
 
 /**
