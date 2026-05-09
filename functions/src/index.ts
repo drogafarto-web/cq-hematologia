@@ -365,15 +365,19 @@ export {
 // ─── auditoria module (ADR 0004 — Internal Audit + Findings → NC Auto-gen) ────
 // createAuditoria: create internal audit with scope and scheduled date
 // registerAchado: record audit findings (grave/critica trigger NC auto-gen dialog)
-// createPlanoAcao: action plan for closure (CAPA workflow)
 // closeAuditoria: mark audit as fechada
 // installChecklistTemplate: load DICQ template (~115 items) into audit session
 // updateChecklistResponses: batch-sync offline checklist responses
 // generateAuditReportPDF: Puppeteer server-side PDF generation (Wave 3) with ~115 items, achados, severity, NC links, RT signature
+//
+// Phase 11 PQ-24: createPlanoAcao, registerPresenca, createReAuditoria
+// (action plan for closure, presence registration, re-audit chain)
 export {
   createAuditoria,
   registerAchado,
   createPlanoAcao,
+  registerPresenca,
+  createReAuditoria,
   closeAuditoria,
   installChecklistTemplate,
   updateChecklistResponses,
