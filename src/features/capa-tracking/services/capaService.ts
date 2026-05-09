@@ -1,187 +1,155 @@
 /**
- * capaService.ts
+ * capaService.ts — Phase 8 Wave 1
  *
- * Camada de persistência multi-tenant do módulo CAPA Tracking.
- * Toda operação recebe `labId` explicitamente — não há caminho que permita
- * escrita sem tenant. Documentos também carregam `labId` redundante para
- * defense-in-depth nas security rules.
+ * Firestore CRUD read-only for CAPA tracking.
+ * No business logic — only queries, snapshots, and entity mapping.
  *
- * Deleção é sempre lógica (RN-06) — nenhuma função deste arquivo invoca
- * `deleteDoc`. Guarda de 5 anos conforme RDC 978/2025.
- *
- * Nota: CAPAs são subdocumentos de Non-Conformidades criadas na Phase 5 (Auditoria).
- * Estrutura: `/labs/{labId}/naoConformidades/{ncId}/capaPlano/{capaId}`
+ * Multi-tenant: `/labs/{labId}/capa-tracking/{capaId}`
+ * Soft-delete only (RN-06) — never invoke deleteDoc
+ * LogicalSignature validation in Cloud Function callables
  */
 
 import {
-  Timestamp,
   collection,
   db,
   doc,
   getDoc,
+  getDocs,
   onSnapshot,
   orderBy,
   query,
-  serverTimestamp,
-  updateDoc,
   where,
   type CollectionReference,
   type DocumentReference,
   type QueryDocumentSnapshot,
   type Unsubscribe,
 } from '../../../shared/services/firebase';
-import type { CAPA, CAPAInput } from '../types';
+import type {
+  CapaDocument,
+  CapaState,
+} from '../types';
+import { daysRemaining } from '../types';
+import type { LabId } from '../types/_shared_refs';
 
-// ─── Paths multi-tenant ───────────────────────────────────────────────────────
+// ─── Paths ────────────────────────────────────────────────────────────────
 
-/**
- * Retorna a coleção raiz de non-conformidades para um lab.
- */
-const nonConformidadesCol = (labId: string): CollectionReference =>
-  collection(db, 'labs', labId, 'naoConformidades');
+const capaCol = (labId: LabId): CollectionReference =>
+  collection(db, 'labs', labId, 'capa-tracking');
 
-/**
- * Retorna a referência a um documento específico de non-conformidade.
- */
-const nonConformidadeDoc = (labId: string, ncId: string): DocumentReference =>
-  doc(nonConformidadesCol(labId), ncId);
+const capaDoc = (labId: LabId, capaId: string): DocumentReference =>
+  doc(capaCol(labId), capaId);
 
-/**
- * Retorna a subcoleção de CAPAs dentro de uma non-conformidade.
- * Estrutura: `/labs/{labId}/naoConformidades/{ncId}`
- * Nota: Em Firestore, CAPAs são armazenadas como um campo `capaPlano` subdocumento,
- * ou como documento separado. Aqui temos o CAPA como field no NC document.
- * Service lê via getDoc em naoConformidades + acessa field capaPlano.
- */
-const capaFromNC = (labId: string, ncId: string): DocumentReference =>
-  nonConformidadeDoc(labId, ncId);
+// ─── Mapping snapshot → entity ─────────────────────────────────────────────
 
-// ─── Mapping snapshot → entidade ──────────────────────────────────────────────
-
-/**
- * Extrai um CAPA do subdocumento `capaPlano` dentro de uma Non-Conformidade.
- */
-function mapCAPAFromNC(ncId: string, labId: string, capaData: any): CAPA {
+function mapCapaDocument(snap: QueryDocumentSnapshot): CapaDocument {
+  const d = snap.data();
   return {
-    id: ncId,
-    labId,
-    ncId,
-    finding: capaData.finding ?? '',
-    dicqRef: capaData.dicqRef ?? '',
-    priority: capaData.priority ?? 'media',
-    deadline: capaData.deadline,
-    owner: capaData.owner ?? '',
-    ownerName: capaData.ownerName ?? '',
-    status: capaData.status ?? 'aberto',
-    transitions: capaData.transitions ?? [],
-    evidence: capaData.evidence ?? [],
-    effectivenessCriteria: capaData.effectivenessCriteria ?? '',
-    closedAt: capaData.closedAt,
-    closedBy: capaData.closedBy,
-    closureSignature: capaData.closureSignature,
-    createdAt: capaData.createdAt,
-    createdBy: capaData.createdBy,
-    deletedAt: capaData.deletedAt ?? null,
+    id: snap.id,
+    labId: d.labId as LabId,
+    ncId: d.ncId as string | undefined,
+    finding: {
+      findingId: d.finding.findingId,
+      title: d.finding.title,
+      severity: d.finding.severity,
+      dicqBlocks: d.finding.dicqBlocks ?? [],
+      rdcArticles: d.finding.rdcArticles ?? [],
+    },
+    state: d.state as CapaState,
+    createdAt: d.createdAt.toMillis?.() ?? d.createdAt,
+    createdBy: d.createdBy as string,
+    rootCause: d.rootCause as string,
+    correctiveAction: d.correctiveAction as string,
+    deadlineDate: d.deadlineDate.toMillis?.() ?? d.deadlineDate,
+    evidence: d.evidence ?? [],
+    rfiLog: d.rfiLog ?? [],
+    stateHistory: d.stateHistory ?? [],
+    auditorSignOffEmail: d.auditorSignOffEmail,
+    auditorSignOffAt: d.auditorSignOffAt,
+    deletedAt: d.deletedAt,
+  } as CapaDocument;
+}
+
+// ─── API ──────────────────────────────────────────────────────────────────
+
+/**
+ * Get a single CAPA by ID with daysRemaining calculated at read time.
+ */
+export async function getCapaById(labId: LabId, capaId: string): Promise<(CapaDocument & { daysRemaining: number }) | null> {
+  const snap = await getDoc(capaDoc(labId, capaId));
+  if (!snap.exists()) return null;
+  const capa = mapCapaDocument(snap);
+  const deadlineMs = typeof capa.deadlineDate === 'number' ? capa.deadlineDate : (capa.deadlineDate as any)?.toMillis?.() ?? 0;
+  return {
+    ...capa,
+    daysRemaining: daysRemaining(deadlineMs),
   };
 }
 
-// ─── API: CAPA ─────────────────────────────────────────────────────────────────
-
 /**
- * Retorna um CAPA específico pelo ID (que é o ncId).
- * Lê o documento de Non-Conformidade e extrai o campo capaPlano.
+ * Subscribe to all CAPAs in the lab, optionally filtered by state.
+ * daysRemaining calculated on each update.
  */
-export async function getCAPA(labId: string, capaId: string): Promise<CAPA | null> {
-  const ncDoc = await getDoc(capaFromNC(labId, capaId));
-  if (!ncDoc.exists()) {
-    return null;
-  }
-  const data = ncDoc.data();
-  const capaPlano = data?.capaPlano;
-  if (!capaPlano) {
-    return null;
-  }
-  return mapCAPAFromNC(capaId, labId, capaPlano);
-}
-
-/**
- * Inscreve-se a mudanças em tempo real de todos os CAPAs de um lab.
- *
- * Filtra por `deletedAt == null` por padrão (padrão de soft-delete).
- * Ordena por deadline (ascendente) para UI destacar próximas vencidas.
- *
- * Retorna unsubscribe para cleanup em useEffect.
- */
-export function watchCAPAs(
-  labId: string,
-  callback: (capas: CAPA[]) => void,
+export function subscribeToCapas(
+  labId: LabId,
+  onUpdate: (capas: Array<CapaDocument & { daysRemaining: number }>) => void,
+  filterState?: CapaState,
   onError?: (err: Error) => void,
 ): Unsubscribe {
-  const nonConfsCol = nonConformidadesCol(labId);
+  const q = filterState
+    ? query(capaCol(labId), where('state', '==', filterState), orderBy('deadlineDate', 'asc'))
+    : query(capaCol(labId), orderBy('deadlineDate', 'asc'));
 
   return onSnapshot(
-    query(nonConfsCol),
+    q,
     (snapshot) => {
-      const capas: CAPA[] = [];
-      snapshot.forEach((ncDoc) => {
-        const data = ncDoc.data();
-        const capaPlano = data?.capaPlano;
-        if (capaPlano && capaPlano.deletedAt === null) {
-          capas.push(mapCAPAFromNC(ncDoc.id, labId, capaPlano));
-        }
-      });
-      // Ordena por deadline (próximos primeiro)
-      capas.sort((a, b) => {
-        const aTime = a.deadline?.toMillis?.() ?? 0;
-        const bTime = b.deadline?.toMillis?.() ?? 0;
-        return aTime - bTime;
-      });
-      callback(capas);
+      const capas = snapshot.docs
+        .map(mapCapaDocument)
+        .map((capa) => {
+          const deadlineMs = typeof capa.deadlineDate === 'number' ? capa.deadlineDate : (capa.deadlineDate as any)?.toMillis?.() ?? 0;
+          return {
+            ...capa,
+            daysRemaining: daysRemaining(deadlineMs),
+          };
+        });
+      onUpdate(capas);
     },
-    (error) => {
-      onError?.(error);
+    (err) => {
+      if (onError) onError(new Error(`Subscribe error: ${err.message}`));
     },
   );
 }
 
 /**
- * Atualiza um CAPA (campos de negócio).
- * Chamado por Cloud Function callable após validação de transição.
- * Service aqui é apenas persistência — sem validação de estado.
+ * List all CAPAs in the lab with optional filtering and sorting.
+ * Synchronous snapshot — prefer subscribeToCapas for reactive updates.
  */
-export async function updateCAPAStatus(
-  labId: string,
-  capaId: string,
-  patch: Partial<CAPAInput>,
-): Promise<void> {
-  const ncRef = capaFromNC(labId, capaId);
-  await updateDoc(ncRef, { 'capaPlano': { ...patch } });
+export async function listCapas(
+  labId: LabId,
+  filterState?: CapaState,
+  sortBy: 'deadline' | 'created' = 'deadline',
+): Promise<Array<CapaDocument & { daysRemaining: number }>> {
+  const orderField = sortBy === 'deadline' ? 'deadlineDate' : 'createdAt';
+  const q = filterState
+    ? query(capaCol(labId), where('state', '==', filterState), orderBy(orderField, 'asc'))
+    : query(capaCol(labId), orderBy(orderField, 'asc'));
+
+  const snapshot = await getDocs(q);
+  return snapshot.docs
+    .map(mapCapaDocument)
+    .filter((capa) => !filterState || capa.state === filterState)
+    .map((capa) => {
+      const deadlineMs = typeof capa.deadlineDate === 'number' ? capa.deadlineDate : (capa.deadlineDate as any)?.toMillis?.() ?? 0;
+      return {
+        ...capa,
+        daysRemaining: daysRemaining(deadlineMs),
+      };
+    });
 }
 
-/**
- * Deleção lógica de um CAPA (RN-06).
- * Marca `deletedAt` com timestamp do servidor.
- * Nunca remove o documento — mantém guarda de 5 anos (RDC 978/2025).
- */
-export async function softDeleteCAPA(
-  labId: string,
-  capaId: string,
-): Promise<void> {
-  const ncRef = capaFromNC(labId, capaId);
-  await updateDoc(ncRef, {
-    'capaPlano.deletedAt': serverTimestamp(),
-  });
-}
+// ─── Singleton ─────────────────────────────────────────────────────────────
 
-/**
- * Reverte deleção lógica de um CAPA.
- */
-export async function restoreCAPA(
-  labId: string,
-  capaId: string,
-): Promise<void> {
-  const ncRef = capaFromNC(labId, capaId);
-  await updateDoc(ncRef, {
-    'capaPlano.deletedAt': null,
-  });
-}
+export const capaService = {
+  getCapaById,
+  subscribeToCapas,
+  listCapas,
+};

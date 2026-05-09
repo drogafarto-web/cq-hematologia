@@ -55,9 +55,19 @@ const RisksView = React.lazy(() =>
   import('../risks/components/RisksView').then((m) => ({ default: m.RisksView })),
 );
 
+// Phase 8: CAPA Tracking — Wave 5 (lazy-loaded)
+const CAPATrackingHome = React.lazy(() =>
+  import('../capa-tracking/pages/CAPATrackingHome').then((m) => ({ default: m.default })),
+);
+
 // Phase 1.4: Auditoria — Trilha de eventos (lazy-loaded)
 const AuditTrailView = React.lazy(() =>
   import('../auditoria-trail').then((m) => ({ default: m.AuditTrailView })),
+);
+
+// Phase 7: Qualidade — Advanced Auditoria com detecção de anomalias (lazy-loaded)
+const QualidadeView = React.lazy(() =>
+  import('../qualidade/AuditoriaView').then((m) => ({ default: m.default })),
 );
 
 import { useBrowserHistorySync } from '../../shared/hooks/useBrowserHistorySync';
@@ -208,8 +218,18 @@ function AppRouter() {
         <AuditTrailView />
       </React.Suspense>
     );
+  } else if (currentView === 'qualidade') {
+    view = (
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <QualidadeView />
+      </React.Suspense>
+    );
   } else if (currentView === 'capa-tracking') {
-    view = <CAPADashboard />;
+    view = (
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <CAPATrackingHome />
+      </React.Suspense>
+    );
   } else if (currentView === 'calibracao') {
     view = <CalibracaoDashboard />;
   } else if (currentView === 'personnel') {

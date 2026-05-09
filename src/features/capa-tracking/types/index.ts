@@ -1,142 +1,172 @@
 /**
- * CAPA Tracking Domain Types (Phase 8)
+ * CAPA Tracking Type System — Phase 8 Wave 0 (Simplified spec)
  *
- * Type hierarchy for CAPA tracking, status transitions, and evidence management.
- * Multi-tenant: all entities scoped to `/labs/{labId}/naoConformidades/{ncId}` paths.
+ * Unificado para CAPA closure. Zero lógica — apenas interfaces, enums e helpers puros.
+ * Multi-tenant: escoped a `/labs/{labId}/<coleção>`
+ * Soft-delete only (RN-06): todos carregam `deletedAt: number | undefined`
  *
- * Soft-delete only (RN-06): all entities have `deletedAt: Timestamp | null`
- * LogicalSignature: { hash (SHA-256), operatorId, ts } for audit trail immutability
+ * Note: Existing components use older type names (CAPAStatus, CAPA, etc.).
+ * Both type systems are exported for backward compatibility.
  */
 
-import type { Timestamp } from 'firebase/firestore';
+// ──────────────────────────────────────────────────────────────────────────
+// PHASE 8 Simplified Type System
+// ──────────────────────────────────────────────────────────────────────────
 
-/**
- * LogicalSignature — immutable audit marker
- *
- * Shared pattern with auditoria-interna.
- * - hash: SHA-256 of canonical JSON (64 hex chars)
- * - operatorId: request.auth.uid (creator/signer)
- * - ts: Timestamp of signature
- *
- * Rules validate: hash.size() == 64 + operatorId == request.auth.uid + ts is timestamp
- */
+// English status per plan spec
+export type CapaStateNew = 'open' | 'in-progress' | 'evidence-submitted' | 'auditor-reviewing' | 'closed';
+export type CapaSeverityNew = 'critical' | 'major' | 'minor';
+
+// Portuguese status for backward compatibility with components
+export type CapaStateLegacy = 'aberto' | 'em-andamento' | 'evidencia-submetida' | 'auditor-revisando' | 'fechado';
+export type CapaSeverityLegacy = 'critica' | 'alta' | 'media';
+
+// Union types for public API (components don't distinguish)
+export type CapaState = CapaStateNew | CapaStateLegacy;
+export type CapaSeverity = CapaSeverityNew | CapaSeverityLegacy;
+
+export type RFIStatus = 'pending' | 'answered';
+
 export interface LogicalSignature {
-  readonly hash: string;        // SHA-256 hex (64 chars)
-  readonly operatorId: string;  // request.auth.uid
-  readonly ts: Timestamp;       // when signed
+  hash: string;
+  operatorId: string;
+  ts: number;
 }
 
-/**
- * CAPAStatus — workflow states
- *
- * Transitions follow state machine:
- * aberto → em-andamento → evidencia-submetida → auditor-revisando → fechado (terminal)
- */
-export type CAPAStatus =
-  | 'aberto'
-  | 'em-andamento'
-  | 'evidencia-submetida'
-  | 'auditor-revisando'
-  | 'fechado';
-
-/**
- * CAPAPriority — severity of finding
- *
- * From Phase 7 audit dry-run categorization:
- * - critica: Major non-conformance (NCM) requiring immediate action
- * - alta: High-priority gap affecting operations
- * - media: Medium-priority procedural improvement
- * - estendida: Extended timeline (v1.4 scope)
- */
-export type CAPAPriority = 'critica' | 'alta' | 'media' | 'estendida';
-
-/**
- * CAPATransition — audit trail entry for status changes
- *
- * Immutable record of who changed status, when, and with what signature.
- * Appended to transitions[] array (never mutated).
- */
-export interface CAPATransition {
-  from: CAPAStatus;
-  to: CAPAStatus;
-  operatorId: string;           // request.auth.uid who initiated transition
-  signature: LogicalSignature;  // immutable proof of change
-  notes?: string;               // optional context (e.g., "rejected — more evidence needed")
+export interface Evidence {
+  id: string;
+  labId: string;
+  capaId: string;
+  fileName: string;
+  filename?: string; // Legacy alias
+  fileSize: number;
+  mimeType: 'application/pdf' | 'image/png' | 'image/jpeg' | 'text/plain';
+  storagePath: string;
+  uploadedBy: string;
+  uploadedAt: number;
+  hash: string;
+  signature: LogicalSignature;
+  description?: string;
+  type?: 'foto' | 'documento' | 'certificado' | 'pop' | 'treinamento'; // Legacy field
+  deletedAt?: number;
 }
 
-/**
- * CAPAEvidenceRef — link to stored evidence artifact
- *
- * Evidence stored in Cloud Storage at:
- * /labs/{labId}/auditoria-evidencia/capa-{ncId}/{filename}
- * Chain-hash validated in Firestore rules.
- */
-export interface CAPAEvidenceRef {
-  type: 'foto' | 'documento' | 'certificado' | 'pop' | 'treinamento';
-  storagePath: string;          // gs://hmatologia2.appspot.com/labs/{labId}/auditoria-evidencia/...
-  uploadedAt: Timestamp;
-  uploadedBy: string;           // userId
-  hash: string;                 // SHA-256 for integrity verification
-  filename?: string;            // original filename (metadata)
+export interface AuditorRFI {
+  rfiId: string;
+  question: string;
+  askedBy: string;
+  askedAt: number;
+  dueDate: number;
+  response?: string;
+  respondedBy?: string;
+  respondedAt?: number;
+  status: RFIStatus;
+  deletedAt?: number;
 }
 
-/**
- * CAPA — Corrective Action Plan
- *
- * 1:1 mapping with Non-Conformidade (NC) from Phase 7 audit.
- * Created automatically when NC is registered with critical/high severity.
- * Tracked in Firestore under `/labs/{labId}/naoConformidades/{ncId}`
- * as a subdocument at `naoConformidades/{ncId}/capaPlano`.
- */
-export interface CAPA {
-  readonly id: string;                    // matches NC id (1:1)
-  readonly labId: string;                 // multi-tenant
-  readonly ncId: string;                  // reference to parent NC
-  finding: string;                        // descriptive finding from audit (e.g., "Falta em analisadores")
-  dicqRef: string;                        // DICQ reference (e.g., "DICQ 5.3.1.4")
-  priority: CAPAPriority;                 // critica | alta | media | estendida
-  deadline: Timestamp;                    // target closure date
-  owner: string;                          // userId assigned to action
-  ownerName: string;                      // denormalized for display (e.g., "João Silva")
-  status: CAPAStatus;                     // current workflow state
-  transitions: CAPATransition[];          // immutable history of status changes
-  evidence: CAPAEvidenceRef[];            // links to uploaded evidence
-  effectivenessCriteria: string;          // RN-validation: how to verify closure
-  closedAt?: Timestamp;                   // when status changed to 'fechado'
-  closedBy?: string;                      // userId who closed (auditor)
-  closureSignature?: LogicalSignature;    // signed closure proof
-  readonly createdAt: Timestamp;          // when CAPA was created
-  readonly createdBy?: string;            // userId who created (usually system on NC creation)
-  deletedAt: Timestamp | null;            // soft-delete marker (RN-06)
+export interface CapaFinding {
+  findingId: string;
+  title: string;
+  severity: CapaSeverity;
+  dicqBlocks: string[];
+  rdcArticles: string[];
 }
 
-/**
- * CAPAInput — payload for creating/updating CAPA
- *
- * Omits audit fields (id, labId, ncId, createdAt, deletedAt).
- * Only service layer can write these fields.
- */
-export type CAPAInput = Omit<
-  CAPA,
-  'id' | 'labId' | 'ncId' | 'createdAt' | 'createdBy' | 'deletedAt'
->;
+export interface CapaStateTransition {
+  from: CapaState | null;
+  to: CapaState;
+  transitionedAt: number;
+  transitionedBy: string;
+  reason?: string;
+}
 
-/**
- * DaysUntilDeadline — computed deadline status (virtual field, not stored)
- *
- * Added by hook during display computation.
- */
+export interface CapaDocument {
+  id: string;
+  labId: string;
+  ncId?: string; // Legacy: was the NC id this CAPA links to
+  finding: CapaFinding;
+  state: CapaState;
+  createdAt: number | { toMillis(): number };
+  createdBy: string;
+  rootCause: string;
+  correctiveAction: string;
+  deadlineDate: number | { toMillis(): number };
+  evidence: Evidence[];
+  rfiLog: AuditorRFI[];
+  stateHistory: CapaStateTransition[];
+  auditorSignOffEmail?: string;
+  auditorSignOffAt?: number;
+  deletedAt?: number;
+  // Legacy field aliases for backward compatibility with components
+  // These are populated by the useCAPAs hook
+  priority: CapaSeverity; // Alias for finding.severity
+  dicqRef: string; // Alias for finding.dicqBlocks[0]
+  deadline: number; // Alias for deadlineDate (as timestamp number)
+  status: CapaState; // Alias for state
+  owner?: string; // Legacy: who owns the CAPA
+  ownerName?: string; // Legacy: owner name denormalized
+}
+
+// Helpers puros
+export function isValidStateTransition(from: CapaState, to: CapaState): boolean {
+  // Normalize to English for comparison
+  const normalizedFrom = from === 'aberto' ? 'open'
+    : from === 'em-andamento' ? 'in-progress'
+    : from === 'evidencia-submetida' ? 'evidence-submitted'
+    : from === 'auditor-revisando' ? 'auditor-reviewing'
+    : from === 'fechado' ? 'closed'
+    : from;
+
+  const normalizedTo = to === 'aberto' ? 'open'
+    : to === 'em-andamento' ? 'in-progress'
+    : to === 'evidencia-submetida' ? 'evidence-submitted'
+    : to === 'auditor-revisando' ? 'auditor-reviewing'
+    : to === 'fechado' ? 'closed'
+    : to;
+
+  // closed não tem transições válidas
+  if (normalizedFrom === 'closed') return false;
+  // auditor-reviewing pode voltar para in-progress
+  if (normalizedFrom === 'auditor-reviewing' && normalizedTo === 'in-progress') return true;
+  // Caso geral: transições sequenciais conforme estado atual
+  const validNext: Record<CapaStateNew, CapaStateNew[]> = {
+    'open': ['in-progress'],
+    'in-progress': ['evidence-submitted'],
+    'evidence-submitted': ['auditor-reviewing'],
+    'auditor-reviewing': ['closed', 'in-progress'],
+    'closed': []
+  };
+  return validNext[normalizedFrom as CapaStateNew]?.includes(normalizedTo as CapaStateNew) ?? false;
+}
+
+export function daysRemaining(deadlineDate: number): number {
+  const now = Date.now();
+  const days = (deadlineDate - now) / (1000 * 60 * 60 * 24);
+  return Math.floor(days);
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// Backward Compatibility — Legacy Type System (for existing components)
+// ──────────────────────────────────────────────────────────────────────────
+
+// Aliases for existing components that use old naming
+export type CAPAStatus = CapaState;
+export type CAPASeverity = CapaSeverity;
+export interface CAPA extends CapaDocument {}
+export interface CAPATransition extends CapaStateTransition {}
+export interface CAPAEvidenceRef extends Evidence {}
+
 export interface DeadlineStatus {
   daysRemaining: number;
-  status: 'on-track' | 'at-risk' | 'overdue';  // >7 days | 1-7 days | <0
-  color: 'emerald' | 'amber' | 'red';          // color for UI indicator
+  status: 'on-track' | 'at-risk' | 'overdue';
+  color: 'emerald' | 'amber' | 'red';
 }
 
-/**
- * CAPAWithDeadlineStatus — CAPA + computed deadline field
- *
- * Returned by useCAPAs hook (adds virtual field).
- */
-export interface CAPAWithDeadlineStatus extends CAPA {
+export interface CAPAWithDeadlineStatus extends CapaDocument {
   readonly deadlineStatus: DeadlineStatus;
 }
+
+export type CAPAInput = Omit<
+  CapaDocument,
+  'id' | 'labId' | 'createdAt' | 'createdBy' | 'deletedAt'
+>;

@@ -209,10 +209,14 @@
       "PowerShell(Get-ChildItem -Path \"C:\\\\hc quality\\\\functions\\\\src\\\\modules\\\\admin\" | Select-Object -First 10 | ForEach-Object { $_.Name })",
       "PowerShell(Stop-Process *)",
       "Bash(Get-Date *)",
-      "PowerShell(Get-ChildItem -Path \"C:\\\\hc quality\\\\functions\\\\src\" -File | Where-Object { $_.Name -match 'env' })"
+      "PowerShell(Get-ChildItem -Path \"C:\\\\hc quality\\\\functions\\\\src\" -File | Where-Object { $_.Name -match 'env' })",
+      "Bash(xargs -I {} wc -l {})",
+      "Bash(clear *)",
+      "PowerShell(Get-ChildItem *)"
     ]
   },
   "enabledMcpjsonServers": [
     "firebase"
-  ]
+  ],
+  "model": "haiku"
 }

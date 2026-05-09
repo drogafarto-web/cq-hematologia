@@ -27,6 +27,9 @@ export {
   limit,
   startAfter,
 
+  // Firestore instance
+  getFirestore,
+
   // Real-time listeners
   onSnapshot,
 

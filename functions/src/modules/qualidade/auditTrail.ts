@@ -1,4 +1,4 @@
-import { onCall, HttpsError } from 'firebase-functions/v2/https';
+import { onCall, HttpsError, CallableRequest } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import type { QualidadeAuditEntry, ComplianceReport, AuditTrailFilters } from './types';
 import {
@@ -7,14 +7,91 @@ import {
   verifyAuditEntry,
 } from '../audit/cryptoAudit';
 import { HCQ_SIGNATURE_HMAC_KEY } from '../signatures/verifier';
+import { captureContext, type AuditContext } from '../../shared/contextCapture';
+import { buildDiff, type DiffEntry } from '../../shared/auditDiffDetector';
 
 const db = admin.firestore();
 
 /**
  * ADR 0001 Wave 2 — Audit Trail Complete Implementation
  * Callables: getAuditTrail, validateChain, generateComplianceReport
- * Internal helper: writeAuditEntry (not a public callable)
+ *
+ * Phase 7 Wave 1 Extension:
+ * - createAuditEntry: Capture context + diffs for every operation
  */
+
+/**
+ * Extended audit entry with captured context and diffs
+ * Used by Phase 7 advanced auditoria
+ */
+export interface ExtendedAuditEntry extends QualidadeAuditEntry {
+  context?: AuditContext;
+  diffs?: DiffEntry[];
+}
+
+/**
+ * createAuditEntry — Extended audit logging with context capture + diff detection
+ * Called by business logic functions (investigarNC, executarAcaoCorretiva, etc.)
+ *
+ * RDC 978 Art. 107 — Complete context recording
+ * Phase 7 Wave 1 — SA-05
+ */
+export async function createAuditEntry(
+  req: CallableRequest<any>,
+  moduleId: string,
+  recordId: string,
+  before?: unknown,
+  after?: unknown
+): Promise<ExtendedAuditEntry> {
+  if (!req.auth?.uid) {
+    throw new HttpsError('unauthenticated', 'Auth required');
+  }
+
+  const context = captureContext(req);
+  const diffs = buildDiff(before, after);
+  const secret = HCQ_SIGNATURE_HMAC_KEY.value();
+
+  const entryData: Partial<ExtendedAuditEntry> = {
+    labId: context.labId,
+    operatorId: context.operatorId,
+    operation: context.action,
+    modulo: moduleId,
+    acao: context.action,
+    resultado: 'sucesso',
+    payload: {
+      moduleId,
+      recordId,
+      before,
+      after,
+    },
+    context,
+    diffs,
+    timestamp: admin.firestore.FieldValue.serverTimestamp() as any,
+    deletadoEm: null,
+    previousHash: null,
+    hmac: '',
+    hash: '',
+  };
+
+  if (secret) {
+    const sig = await signAuditEntry(
+      `/labs/${context.labId}/audit-trail`,
+      context.operatorId,
+      context.action,
+      entryData,
+      secret
+    );
+    (entryData as any).hmac = sig.hmac;
+    (entryData as any).hash = sig.hash;
+  }
+
+  const entryRef = await db.collection(`labs/${context.labId}/audit-trail`).add(entryData);
+
+  return {
+    id: entryRef.id,
+    ...entryData,
+  } as ExtendedAuditEntry;
+}
 
 /**
  * writeAuditEntry — Internal audit logging helper

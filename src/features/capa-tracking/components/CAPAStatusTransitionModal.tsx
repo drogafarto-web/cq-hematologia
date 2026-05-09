@@ -6,21 +6,21 @@
  */
 
 import { useState } from 'react';
-import type { CAPAStatus } from '../types';
+import type { CapaStateLegacy } from '../types';
 
 interface CAPAStatusTransitionModalProps {
   capaId: string;
-  currentStatus: CAPAStatus;
+  currentStatus: CapaStateLegacy;
   isOpen: boolean;
   onClose: () => void;
-  onSubmit?: (toStatus: CAPAStatus, notes?: string) => Promise<void>;
+  onSubmit?: (toStatus: CapaStateLegacy, notes?: string) => Promise<void>;
 }
 
 /**
  * Valid transitions matrix.
  * Defines which status transitions are allowed.
  */
-const VALID_TRANSITIONS: Record<CAPAStatus, CAPAStatus[]> = {
+const VALID_TRANSITIONS: Record<CapaStateLegacy, CapaStateLegacy[]> = {
   'aberto': ['em-andamento'],
   'em-andamento': ['evidencia-submetida'],
   'evidencia-submetida': ['auditor-revisando', 'em-andamento'],
@@ -31,7 +31,7 @@ const VALID_TRANSITIONS: Record<CAPAStatus, CAPAStatus[]> = {
 /**
  * Status labels for display.
  */
-const STATUS_LABEL: Record<CAPAStatus, string> = {
+const STATUS_LABEL: Record<CapaStateLegacy, string> = {
   'aberto': 'Aberto',
   'em-andamento': 'Em Andamento',
   'evidencia-submetida': 'Evidência Submetida',
@@ -46,7 +46,7 @@ export function CAPAStatusTransitionModal({
   onClose,
   onSubmit,
 }: CAPAStatusTransitionModalProps) {
-  const [selectedStatus, setSelectedStatus] = useState<CAPAStatus | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<CapaStateLegacy | null>(null);
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -110,7 +110,7 @@ export function CAPAStatusTransitionModal({
                 <select
                   id={`status-${capaId}`}
                   value={selectedStatus || ''}
-                  onChange={(e) => setSelectedStatus(e.target.value as CAPAStatus)}
+                  onChange={(e) => setSelectedStatus(e.target.value as CapaStateLegacy)}
                   className="w-full px-3 py-2 rounded-md bg-white/10 border border-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                   required
                   aria-label="Selecione o novo status"

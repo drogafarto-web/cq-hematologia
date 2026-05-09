@@ -7,7 +7,7 @@
  * Compliance: RDC 978 Art. 127 (nonconformity records), DICQ 4.14.1
  */
 
-import * as functions from 'firebase-functions';
+import { onCall, HttpsError, CallableRequest } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { z } from 'zod';
 
@@ -17,7 +17,6 @@ import {
   RecordPostMortemInputSchema,
   getEscalationLevelBySeverity,
   isValidSeverityEscalation,
-  isValidStatusTransition,
   type Incident,
   type IncidentAction,
   type PostMortemAction,
@@ -53,7 +52,7 @@ function handleError(error: unknown): CallableError {
 
 // ─── Helper: Check Auth Context ────────────────────────────────────────────
 
-function assertAuthenticated(context: functions.https.CallableContext): string {
+function assertAuthenticated(context: any): string {
   if (!context.auth) {
     throw new CallableError('UNAUTHENTICATED', 'Must be authenticated to perform this action');
   }
@@ -73,7 +72,7 @@ async function assertLabMember(labId: string, userId: string, requiredRole?: str
   }
 
   const member = memberDoc.data();
-  if (member.status !== 'active') {
+  if (!member || member.status !== 'active') {
     throw new CallableError('NOT_ACTIVE_MEMBER', 'User is not an active member of this lab');
   }
 
@@ -86,10 +85,11 @@ async function assertLabMember(labId: string, userId: string, requiredRole?: str
 
 // ─── Create Incident ───────────────────────────────────────────────────────
 
-export const createIncident = functions
-  .region('southamerica-east1')
-  .https.onCall<any, { incidentId: string; auditEntryId?: string }>(
-    async (data, context) => {
+export const createIncident = onCall(
+  { region: 'southamerica-east1' },
+  async (request: CallableRequest<any>) => {
+    const context = request.auth;
+    const data = request.data;
       const userId = assertAuthenticated(context);
 
       try {
@@ -116,7 +116,7 @@ export const createIncident = functions
         const incidentsRef = admin.firestore().collection(`labs/${labId}/incidents`);
         const incidentDocRef = incidentsRef.doc();
 
-        const now = admin.firestore.Timestamp.now();
+        const now = admin.firestore.FieldValue.serverTimestamp() as any;
         const escalationLevel = getEscalationLevelBySeverity(validated.severity);
 
         const incident: Incident = {
@@ -152,7 +152,7 @@ export const createIncident = functions
       } catch (error) {
         const err = handleError(error);
         console.error('[createIncident] Error:', err);
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           err.code === 'VALIDATION_ERROR' ? 'invalid-argument' : 'internal',
           err.message
         );
@@ -162,9 +162,11 @@ export const createIncident = functions
 
 // ─── Escalate Incident ─────────────────────────────────────────────────────
 
-export const escalateIncident = functions
-  .region('southamerica-east1')
-  .https.onCall<any, { escalated: boolean }>(async (data, context) => {
+export const escalateIncident = onCall(
+  { region: 'southamerica-east1' },
+  async (request: CallableRequest<any>) => {
+    const context = request.auth;
+    const data = request.data;
     const userId = assertAuthenticated(context);
 
     try {
@@ -224,18 +226,21 @@ export const escalateIncident = functions
     } catch (error) {
       const err = handleError(error);
       console.error('[escalateIncident] Error:', err);
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         err.code === 'VALIDATION_ERROR' ? 'invalid-argument' : 'internal',
         err.message
       );
     }
-  });
+  }
+);
 
 // ─── Close Incident ───────────────────────────────────────────────────────
 
-export const closeIncident = functions
-  .region('southamerica-east1')
-  .https.onCall<any, { closed: boolean; mttr: number }>(async (data, context) => {
+export const closeIncident = onCall(
+  { region: 'southamerica-east1' },
+  async (request: CallableRequest<any>) => {
+    const context = request.auth;
+    const data = request.data;
     const userId = assertAuthenticated(context);
 
     try {
@@ -288,15 +293,18 @@ export const closeIncident = functions
     } catch (error) {
       const err = handleError(error);
       console.error('[closeIncident] Error:', err);
-      throw new functions.https.HttpsError('internal', err.message);
+      throw new HttpsError('internal', err.message);
     }
-  });
+  }
+);
 
 // ─── Record Post-Mortem ────────────────────────────────────────────────────
 
-export const recordPostMortem = functions
-  .region('southamerica-east1')
-  .https.onCall<any, { recorded: boolean }>(async (data, context) => {
+export const recordPostMortem = onCall(
+  { region: 'southamerica-east1' },
+  async (request: CallableRequest<any>) => {
+    const context = request.auth;
+    const data = request.data;
     const userId = assertAuthenticated(context);
 
     try {
@@ -319,7 +327,7 @@ export const recordPostMortem = functions
       }
 
       // Update incident with post-mortem link
-      const now = admin.firestore.Timestamp.now();
+      const now = admin.firestore.FieldValue.serverTimestamp() as any;
       await incidentRef.update({
         status: 'closed',
         postMortemScheduledAt: now,
@@ -344,18 +352,21 @@ export const recordPostMortem = functions
     } catch (error) {
       const err = handleError(error);
       console.error('[recordPostMortem] Error:', err);
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         err.code === 'VALIDATION_ERROR' ? 'invalid-argument' : 'internal',
         err.message
       );
     }
-  });
+  }
+);
 
 // ─── Soft Delete Incident ──────────────────────────────────────────────────
 
-export const softDeleteIncident = functions
-  .region('southamerica-east1')
-  .https.onCall<any, { deleted: boolean }>(async (data, context) => {
+export const softDeleteIncident = onCall(
+  { region: 'southamerica-east1' },
+  async (request: CallableRequest<any>) => {
+    const context = request.auth;
+    const data = request.data;
     const userId = assertAuthenticated(context);
 
     try {
@@ -378,7 +389,7 @@ export const softDeleteIncident = functions
 
       // Soft delete: set deletadoEm
       await incidentRef.update({
-        deletadoEm: admin.firestore.Timestamp.now(),
+        deletadoEm: admin.firestore.FieldValue.serverTimestamp(),
       });
 
       console.log(`[INCIDENT] Soft-deleted: ${incidentId}`);
@@ -387,6 +398,7 @@ export const softDeleteIncident = functions
     } catch (error) {
       const err = handleError(error);
       console.error('[softDeleteIncident] Error:', err);
-      throw new functions.https.HttpsError('internal', err.message);
+      throw new HttpsError('internal', err.message);
     }
-  });
+  }
+);

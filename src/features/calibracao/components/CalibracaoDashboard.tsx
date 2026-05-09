@@ -13,7 +13,7 @@
 import React, { useMemo, useState } from 'react';
 import { useCalibracoes } from '../hooks/useCalibracoes';
 import { useDueDateMonitor } from '../hooks/useDueDateMonitor';
-import type { CalibracaoRecord, CalibracaoStatus } from '../types/index';
+import type { CalibracaoRecord, CalibracaoStatusLegacy } from '../types/index';
 import CertificateUploadModal from './CertificateUploadModal';
 import CalibracaoDetail from './CalibracaoDetail';
 
@@ -30,7 +30,7 @@ const SORT_OPTIONS: SortOption[] = [
   { key: 'equipment-name', label: 'Por nome do equipamento' },
 ];
 
-const statusColors: Record<CalibracaoStatus, { bg: string; dot: string; text: string }> = {
+const statusColors: Record<CalibracaoStatusLegacy, { bg: string; dot: string; text: string }> = {
   'no-prazo': {
     bg: 'bg-emerald-900/20',
     dot: 'bg-emerald-500',
@@ -48,7 +48,7 @@ const statusColors: Record<CalibracaoStatus, { bg: string; dot: string; text: st
   },
 };
 
-const statusLabels: Record<CalibracaoStatus, string> = {
+const statusLabels: Record<CalibracaoStatusLegacy, string> = {
   'no-prazo': 'No prazo',
   'em-risco': 'Em risco',
   vencido: 'Vencido',

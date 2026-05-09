@@ -12,7 +12,7 @@ import { CAPAStatusBadge } from './CAPAStatusBadge';
 import { CAPADeadlineIndicator } from './CAPADeadlineIndicator';
 import { CAPAEvidenceList } from './CAPAEvidenceList';
 import { CAPAStatusTransitionModal } from './CAPAStatusTransitionModal';
-import type { CAPAWithDeadlineStatus } from '../types';
+import type { CAPAWithDeadlineStatus, CapaStateLegacy } from '../types';
 
 /**
  * Single CAPA card component.
@@ -64,7 +64,7 @@ function CAPACard({ capa }: { capa: CAPAWithDeadlineStatus }) {
         {/* Finding: 2 lines truncated */}
         <div>
           <p className="text-sm text-white/90 line-clamp-2 hover:line-clamp-none transition-all">
-            {capa.finding}
+            {capa.finding.title}
           </p>
         </div>
 
@@ -78,7 +78,7 @@ function CAPACard({ capa }: { capa: CAPAWithDeadlineStatus }) {
 
         {/* Status Badge */}
         <div>
-          <CAPAStatusBadge status={capa.status} />
+          <CAPAStatusBadge status={capa.status as CapaStateLegacy} />
         </div>
 
         {/* Evidence Count + View Link */}
@@ -122,7 +122,7 @@ function CAPACard({ capa }: { capa: CAPAWithDeadlineStatus }) {
       {/* Transition Modal */}
       <CAPAStatusTransitionModal
         capaId={capa.id}
-        currentStatus={capa.status}
+        currentStatus={capa.status as CapaStateLegacy}
         isOpen={showTransition}
         onClose={() => setShowTransition(false)}
         onSubmit={async (toStatus, notes) => {
@@ -151,19 +151,19 @@ export function CAPADashboard() {
 
     if (sortBy === 'deadline') {
       sorted.sort((a, b) => {
-        const aTime = a.deadline?.toMillis?.() ?? 0;
-        const bTime = b.deadline?.toMillis?.() ?? 0;
+        const aTime = a.deadline ?? 0;
+        const bTime = b.deadline ?? 0;
         return aTime - bTime;
       });
     } else if (sortBy === 'priority') {
-      const priorityOrder = { critica: 0, alta: 1, media: 2, estendida: 3 };
+      const priorityOrder: Record<string, number> = { critica: 0, critical: 0, alta: 1, major: 1, media: 2, minor: 2, estendida: 3 };
       sorted.sort((a, b) => {
-        const aIdx = priorityOrder[a.priority] ?? 3;
-        const bIdx = priorityOrder[b.priority] ?? 3;
+        const aIdx = priorityOrder[a.priority as string] ?? 3;
+        const bIdx = priorityOrder[b.priority as string] ?? 3;
         return aIdx - bIdx;
       });
     } else if (sortBy === 'status') {
-      const statusOrder = {
+      const statusOrder: Record<CapaStateLegacy, number> = {
         'aberto': 0,
         'em-andamento': 1,
         'evidencia-submetida': 2,
@@ -171,8 +171,8 @@ export function CAPADashboard() {
         'fechado': 4,
       };
       sorted.sort((a, b) => {
-        const aIdx = statusOrder[a.status] ?? 5;
-        const bIdx = statusOrder[b.status] ?? 5;
+        const aIdx = statusOrder[(a.status as CapaStateLegacy)] ?? 5;
+        const bIdx = statusOrder[(b.status as CapaStateLegacy)] ?? 5;
         return aIdx - bIdx;
       });
     }
@@ -182,7 +182,7 @@ export function CAPADashboard() {
 
   // Count by status
   const statusCounts = useMemo(() => {
-    const counts = {
+    const counts: Record<CapaStateLegacy, number> = {
       'aberto': 0,
       'em-andamento': 0,
       'evidencia-submetida': 0,
@@ -190,7 +190,7 @@ export function CAPADashboard() {
       'fechado': 0,
     };
     capas.forEach((c) => {
-      counts[c.status]++;
+      counts[(c.status as CapaStateLegacy)]++;
     });
     return counts;
   }, [capas]);

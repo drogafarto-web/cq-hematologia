@@ -10,7 +10,7 @@
 
 import { useEffect, useState } from 'react';
 import { useActiveLabId } from '../../../store/useAuthStore';
-import { watchCalibraces } from '../services/calibracaoService';
+import { subscribeToCalibracoes } from '../services/calibracaoService';
 import type { CalibracaoRecord } from '../types/index';
 
 export interface UseCalibracoesResult {
@@ -34,7 +34,7 @@ export function useCalibracoes(): UseCalibracoesResult {
     }
 
     // Subscribe to calibration list
-    const unsubscribe = watchCalibraces(
+    const unsubscribe = subscribeToCalibracoes(
       labId,
       (records) => {
         setCalibracoes(records);

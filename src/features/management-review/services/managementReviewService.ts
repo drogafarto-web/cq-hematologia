@@ -1,241 +1,166 @@
+/**
+ * managementReviewService.ts — Phase 8 Wave 1
+ *
+ * Annual direction critical analysis meetings (reuniões de revisão gerencial).
+ * Reads: getMeetings, getMeetingById
+ * Writes: via callable (Cloud Function server-side only)
+ *
+ * Multi-tenant: `/labs/{labId}/management-review/{meetingId}`
+ * DICQ 4.15 — 15 mandatory review entries with signatures
+ */
+
 import {
   collection,
-  query,
-  where,
-  onSnapshot,
-  getDoc,
-  getDocs,
+  db,
   doc,
+  getDocs,
+  getDoc,
+  query,
+  orderBy,
   Timestamp,
-  QueryConstraint,
-  CollectionReference,
-  Unsubscribe
-} from 'firebase/firestore';
-import { db } from '../../../shared/services/firebase';
-import { ManagementReview, ReviewStatus } from '../types';
+  type CollectionReference,
+  type DocumentReference,
+  type QueryDocumentSnapshot,
+} from '../../../shared/services/firebase';
+import type {
+  ManagementReview,
+} from '../types';
+import type { LabId } from '../types/_shared_refs';
 
-/**
- * ManagementReviewService
- * Multi-tenant CRUD for DICQ 4.15 annual direction critical analysis
- *
- * Collection path: /labs/{labId}/management-reviews/{id}
- *
- * Key invariants:
- * - All operations are multi-tenant scoped (labId required)
- * - Soft-delete only (never deleteDoc, use deletedAt field)
- * - No business logic (validation lives in hooks/Cloud Functions)
- * - Snapshot mapping is the only responsibility
- */
+// ─── Paths ────────────────────────────────────────────────────────────────
 
-/**
- * Real-time listener for all management reviews of a lab
- * Filters: deletedAt == null (not soft-deleted)
- *
- * @param labId - Lab ID (tenant scope)
- * @param callback - Invoked when data changes
- * @returns Unsubscribe function
- */
-export function watchManagementReviews(
-  labId: string,
-  callback: (reviews: ManagementReview[]) => void
-): Unsubscribe {
-  const path = collection(db, 'labs', labId, 'management-reviews');
+const managementReviewCol = (labId: LabId): CollectionReference =>
+  collection(db, 'labs', labId, 'management-reviews');
 
-  const q = query(
-    path,
-    where('deletedAt', '==', null),
-    where('labId', '==', labId)
-  );
+const managementReviewDoc = (labId: LabId, id: string): DocumentReference =>
+  doc(managementReviewCol(labId), id);
 
-  return onSnapshot(q, (snapshot) => {
-    const reviews: ManagementReview[] = [];
-    snapshot.forEach((doc) => {
-      reviews.push({
-        id: doc.id,
-        ...doc.data()
-      } as ManagementReview);
-    });
-    callback(reviews);
-  });
+// ─── Mapping snapshot → entity ─────────────────────────────────────────────
+
+function asTimestamp(value: unknown): Timestamp {
+  if (value instanceof Timestamp) return value;
+  if (typeof value === 'number') return Timestamp.fromMillis(value);
+  if (value && typeof (value as { toMillis?: () => number }).toMillis === 'function') {
+    return Timestamp.fromMillis((value as { toMillis: () => number }).toMillis());
+  }
+  return Timestamp.now();
 }
 
-/**
- * Fetch all management reviews for a lab
- * One-time read; use watchManagementReviews for real-time
- *
- * @param labId - Lab ID
- * @param filterByYear - Optional: filter by year
- * @returns Array of ManagementReview
- */
-export async function getManagementReviews(
-  labId: string,
-  filterByYear?: number
-): Promise<ManagementReview[]> {
-  const path = collection(db, 'labs', labId, 'management-reviews');
-
-  const constraints: QueryConstraint[] = [
-    where('deletedAt', '==', null),
-    where('labId', '==', labId)
-  ];
-
-  if (filterByYear !== undefined) {
-    constraints.push(where('year', '==', filterByYear));
-  }
-
-  const q = query(path, ...constraints);
-  const snapshot = await getDocs(q);
-
-  const reviews: ManagementReview[] = [];
-  snapshot.forEach((doc) => {
-    reviews.push({
-      id: doc.id,
-      ...doc.data()
-    } as ManagementReview);
-  });
-
-  return reviews;
-}
-
-/**
- * Fetch single management review
- *
- * @param labId - Lab ID
- * @param reviewId - Review ID
- * @returns ManagementReview or null if not found
- */
-export async function getManagementReview(
-  labId: string,
-  reviewId: string
-): Promise<ManagementReview | null> {
-  const docRef = doc(db, 'labs', labId, 'management-reviews', reviewId);
-  const docSnap = await getDoc(docRef);
-
-  if (!docSnap.exists()) {
-    return null;
-  }
-
-  const data = docSnap.data();
-  if (data.deletedAt !== null) {
-    return null; // Soft-deleted
-  }
-
+function mapManagementReview(snap: QueryDocumentSnapshot): ManagementReview {
+  const d = snap.data();
   return {
-    id: docSnap.id,
-    ...data
-  } as ManagementReview;
+    id: snap.id,
+    labId: d.labId as LabId,
+    year: d.year as number,
+    dataRevisao: asTimestamp(d.dataRevisao),
+    entries: d.entries ?? [],
+    participantes: d.participantes ?? [],
+    diretor: (d.diretor ?? '') as string,
+    gerenteQualidade: (d.gerenteQualidade ?? '') as string,
+    outrasCargos: d.outrasCargos,
+    chainHash: d.chainHash,
+    status: (d.status ?? 'draft') as ManagementReview['status'],
+    ataIds: d.ataIds ?? [],
+    createdAt: asTimestamp(d.createdAt),
+    updatedAt: asTimestamp(d.updatedAt),
+    deletedAt: d.deletedAt ?? null,
+  };
 }
 
+// ─── API ──────────────────────────────────────────────────────────────────
+
 /**
- * Fetch reviews for a specific year
- *
- * @param labId - Lab ID
- * @param year - Year (e.g., 2026)
- * @returns Array of reviews for that year
+ * Get all management reviews for the lab (ordered by date DESC).
  */
-export async function getManagementReviewsByYear(
-  labId: string,
-  year: number
-): Promise<ManagementReview[]> {
-  const path = collection(db, 'labs', labId, 'management-reviews');
-
-  const q = query(
-    path,
-    where('deletedAt', '==', null),
-    where('labId', '==', labId),
-    where('year', '==', year)
-  );
-
+export async function getMeetings(labId: LabId, limit?: number): Promise<ManagementReview[]> {
+  const q = query(managementReviewCol(labId), orderBy('dataRevisao', 'desc'));
   const snapshot = await getDocs(q);
-  const reviews: ManagementReview[] = [];
+  const reviews = snapshot.docs
+    .map(mapManagementReview)
+    .filter((r) => !r.deletedAt);
 
-  snapshot.forEach((doc) => {
-    reviews.push({
-      id: doc.id,
-      ...doc.data()
-    } as ManagementReview);
-  });
-
-  return reviews;
+  return limit ? reviews.slice(0, limit) : reviews;
 }
 
 /**
- * Fetch the most recently completed review
- *
- * @param labId - Lab ID
- * @returns Latest ManagementReview or null
+ * Get a single management review by ID.
  */
-export async function getLatestManagementReview(
-  labId: string
-): Promise<ManagementReview | null> {
-  const path = collection(db, 'labs', labId, 'management-reviews');
+export async function getMeetingById(labId: LabId, id: string): Promise<ManagementReview | null> {
+  const snap = await getDoc(managementReviewDoc(labId, id));
+  if (!snap.exists()) return null;
+  return mapManagementReview(snap as QueryDocumentSnapshot);
+}
 
-  const q = query(
-    path,
-    where('deletedAt', '==', null),
-    where('labId', '==', labId),
-    where('status', 'in', ['submitted', 'approved', 'archived'])
-  );
+// ─── Callables (server-side writes) ────────────────────────────────────────
 
-  const snapshot = await getDocs(q);
-  let latest: ManagementReview | null = null;
-  let latestYear = -1;
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
-  snapshot.forEach((doc) => {
-    const review = {
-      id: doc.id,
-      ...doc.data()
-    } as ManagementReview;
+const functions = getFunctions(undefined, 'southamerica-east1');
 
-    if (review.year > latestYear) {
-      latestYear = review.year;
-      latest = review;
-    }
-  });
+export interface AggregateManagementReviewDataInput {
+  dateRange: {
+    from: number; // milliseconds
+    to: number; // milliseconds
+  };
+}
 
-  return latest;
+export interface AggregateManagementReviewDataOutput {
+  entries: Array<{
+    entryNumber: number;
+    title: string;
+    data: unknown;
+    source: string;
+    lastUpdated: number;
+  }>;
+}
+
+export interface CreateMeetingInput {
+  ano: number;
+  dataReuniao: number; // milliseconds
+  attendees: string[];
+  decisions: string[];
+}
+
+export interface CreateMeetingOutput {
+  meetingId: string;
+  meeting: ManagementReview;
 }
 
 /**
- * Soft-delete a management review
- * Sets deletedAt timestamp; does NOT delete the document
- * Note: This is a client-side helper; actual deletion should be via Cloud Function
- * to enforce permissions and update audit trails
- *
- * @param labId - Lab ID
- * @param reviewId - Review ID to delete
- * @param deletedAt - Timestamp of deletion (usually Timestamp.now())
+ * Aggregate data for the 15 mandatory management review entries.
+ * Queries across modules (CAPA, calibração, treinamentos, etc).
  */
-export function markManagementReviewDeleted(
-  labId: string,
-  reviewId: string,
-  deletedAt: Timestamp
-): void {
-  // This is a marker function; actual deletion happens via CF
-  // Just documenting the soft-delete pattern here
-  console.log(
-    `[ManagementReviewService] Marking review ${reviewId} as deleted at ${deletedAt.toDate().toISOString()}`
-  );
+export async function aggregateManagementReviewDataCallable(
+  labId: LabId,
+  dateRange: { from: number; to: number },
+): Promise<AggregateManagementReviewDataOutput> {
+  const fn = httpsCallable<
+    { labId: string; dateRange: { from: number; to: number } },
+    AggregateManagementReviewDataOutput
+  >(functions, 'managementReview_aggregateData');
+  return fn({ labId, dateRange }).then((result) => result.data);
 }
 
 /**
- * Helper: Map Firestore document to ManagementReview type
+ * Create a new management review meeting via Cloud Function.
+ * Server populates the 15 entries with aggregated data.
  */
-export function mapManagementReviewDoc(doc: any): ManagementReview {
-  return {
-    id: doc.id,
-    labId: doc.labId,
-    year: doc.year,
-    dataRevisao: doc.dataRevisao,
-    entries: doc.entries || [],
-    participantes: doc.participantes || [],
-    diretor: doc.diretor,
-    gerenteQualidade: doc.gerenteQualidade,
-    outrasCargos: doc.outrasCargos || [],
-    chainHash: doc.chainHash,
-    status: doc.status || ReviewStatus.DRAFT,
-    ataIds: doc.ataIds || [],
-    createdAt: doc.createdAt,
-    updatedAt: doc.updatedAt,
-    deletedAt: doc.deletedAt || null
-  } as ManagementReview;
+export async function createMeetingCallable(
+  labId: LabId,
+  input: CreateMeetingInput,
+): Promise<CreateMeetingOutput> {
+  const fn = httpsCallable<
+    { labId: string; payload: CreateMeetingInput },
+    CreateMeetingOutput
+  >(functions, 'managementReview_createMeeting');
+  return fn({ labId, payload: input }).then((result) => result.data);
 }
+
+// ─── Singleton ─────────────────────────────────────────────────────────────
+
+export const managementReviewService = {
+  getMeetings,
+  getMeetingById,
+  aggregateManagementReviewDataCallable,
+  createMeetingCallable,
+};

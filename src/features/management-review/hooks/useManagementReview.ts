@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useActiveLabId } from '../../../store/useAuthStore';
 import {
-  watchManagementReviews,
-  getManagementReview,
-  getLatestManagementReview
+  getMeetings,
+  getMeetingById
 } from '../services/managementReviewService';
-import { ManagementReview, ReviewStatus } from '../types';
+import type { ManagementReview } from '../types';
 
 interface UseManagementReviewResult {
   reviews: ManagementReview[];
@@ -43,40 +42,36 @@ export function useManagementReview(): UseManagementReviewResult {
     setLoading(true);
     setError(null);
 
-    // Subscribe to real-time reviews
-    const unsubscribe = watchManagementReviews(labId, async (data) => {
-      setReviews(data);
-      setLoading(false);
-
-      // Fetch latest completed review
-      try {
-        const latestReview = await getLatestManagementReview(labId);
-        setLatest(latestReview);
-      } catch (err) {
-        console.warn('[useManagementReview] Could not fetch latest review:', err);
-      }
-    });
-
-    // Cleanup: unsubscribe on unmount
-    return () => {
-      unsubscribe();
-    };
+    // Fetch all meetings (one-time, not real-time)
+    getMeetings(labId)
+      .then((data) => {
+        setReviews(data);
+        // Latest is the first one (already sorted by date DESC in service)
+        setLatest(data.length > 0 ? data[0] : null);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('[useManagementReview] Error fetching reviews:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch reviews');
+        setLoading(false);
+      });
   }, [labId]);
 
   // Organize reviews by year
   const byYear: Record<number, ManagementReview[]> = {};
   reviews.forEach((review) => {
-    if (!byYear[review.year]) {
-      byYear[review.year] = [];
+    const year = review.year;
+    if (!byYear[year]) {
+      byYear[year] = [];
     }
-    byYear[review.year].push(review);
+    byYear[year].push(review);
   });
 
-  // Sort by date within each year
+  // Sort by date within each year (already sorted by service, but ensure it)
   Object.values(byYear).forEach((yearReviews) => {
     yearReviews.sort((a, b) => {
-      const aDate = a.dataRevisao?.toDate?.().getTime() || 0;
-      const bDate = b.dataRevisao?.toDate?.().getTime() || 0;
+      const aDate = a.dataRevisao?.toMillis?.() ?? 0;
+      const bDate = b.dataRevisao?.toMillis?.() ?? 0;
       return bDate - aDate; // Most recent first
     });
   });
@@ -93,7 +88,7 @@ export function useManagementReview(): UseManagementReviewResult {
 
 /**
  * useFetchManagementReview
- * One-time fetch of a specific review
+ * One-time fetch of a specific meeting
  *
  * Useful for detail views
  */
@@ -111,14 +106,14 @@ export function useFetchManagementReview(reviewId: string | null) {
     setLoading(true);
     setError(null);
 
-    getManagementReview(labId, reviewId)
+    getMeetingById(labId, reviewId)
       .then((data) => {
         setReview(data);
         setLoading(false);
       })
       .catch((err) => {
         console.error('[useFetchManagementReview] Error:', err);
-        setError(err.message || 'Failed to fetch review');
+        setError(err instanceof Error ? err.message : 'Failed to fetch review');
         setLoading(false);
       });
   }, [reviewId, labId]);

@@ -14,7 +14,6 @@
 import React, { useRef, useState } from 'react';
 import { useActiveLabId, useUser } from '../../../store/useAuthStore';
 import { useCertificateUpload } from '../hooks/useCertificateUpload';
-import { addCertificateToCalibracao } from '../services/calibracaoService';
 import type { CalibracaoRecord } from '../types/index';
 
 interface CertificateUploadModalProps {
@@ -91,11 +90,9 @@ export default function CertificateUploadModal({
       setUploadError(null);
 
       // Upload file and get metadata
-      const cert = await upload(selectedFile, labId, record.equipId, userId);
+      await upload(selectedFile, labId, record.equipId, userId);
 
-      // Add certificate to calibration record in Firestore
-      await addCertificateToCalibracao(labId, record.equipId, cert);
-
+      // Certificate added via Cloud Function callable (uploadCalibracaoCertificateCallable)
       setState('done');
 
       // Auto-close after 2 seconds

@@ -431,6 +431,7 @@ export type View =
   | 'ceq'
   | 'auditoria-interna'
   | 'auditoria-trail'
+  | 'qualidade'
   | 'capa-tracking'
   | 'calibracao'
   | 'personnel'

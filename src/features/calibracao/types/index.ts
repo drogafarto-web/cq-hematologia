@@ -1,134 +1,138 @@
 /**
- * Calibração Domain Types (DICQ 5.3.1.4)
+ * Calibração Type System
  *
- * Equipment calibration tracking with certificate uploads and due date monitoring.
- * Multi-tenant: all entities scoped to `/labs/{labId}/calibracao/` paths.
- *
- * Soft-delete only (RN-06): all entities have `deletadoEm: Timestamp | null`
- * Chain-hash: HMAC-SHA256 on all certificate uploads for integrity verification
- * LogicalSignature: { hash (SHA-256), operatorId, ts } for audit trail immutability
+ * Type system para calibração de equipamentos. Zero lógica.
+ * Multi-tenant: escoped a `/labs/{labId}/calibracao`
+ * Soft-delete only (RN-06): marca `deletadoEm: Timestamp | null`
  */
 
 import type { Timestamp } from 'firebase/firestore';
 
-/**
- * LogicalSignature — immutable audit marker
- *
- * Pattern shared with auditoria-interna + educacao-continuada.
- * - hash: SHA-256 of canonical JSON (64 hex chars)
- * - operatorId: request.auth.uid (uploader/signer)
- * - ts: Timestamp of signature
- *
- * Rules validate: hash.size() == 64 + operatorId == request.auth.uid + ts is timestamp
- */
 export interface LogicalSignature {
-  readonly hash: string;        // SHA-256 hex (64 chars)
-  readonly operatorId: string;  // request.auth.uid
-  readonly ts: Timestamp;       // when signed
+  readonly hash: string;
+  readonly operatorId: string;
+  readonly ts: Timestamp;
 }
 
-/**
- * CertificateUpload — single calibration certificate record
- *
- * Links to Cloud Storage at: gs://bucket/calibracao/{labId}/{equipId}/{id}
- * Chain-hash validates integrity: HMAC-SHA256(labId + equipId + filename + operatorId + ts)
- */
-export interface CertificateUpload {
-  readonly id: string;                    // UUID, generated on upload
-  readonly calibracaoId: string;          // FK to CalibracaoRecord.id (equipId)
-  readonly filename: string;              // original filename (e.g., "cert_2026-05.pdf")
-  readonly mimeType: 'application/pdf' | 'image/jpeg' | 'image/png';
-  readonly storagePath: string;           // gs://bucket/calibracao/{labId}/{equipId}/{id}
-  readonly fileSize: number;              // bytes
-  readonly hash: string;                  // chain-hash HMAC-SHA256 (64 chars hex)
-  readonly operatorId: string;            // who uploaded (request.auth.uid)
-  readonly uploadedAt: Timestamp;         // when uploaded
-  readonly chainHash: LogicalSignature;   // integrity proof (hash + operatorId + ts)
-  readonly validUntil?: Timestamp;        // expiration date of certificate validity (if stamped on cert)
-}
+// New English status (per Phase 8 plan spec)
+export type CalibracaoStatusNew = 'in-date' | 'warning-30d' | 'warning-7d' | 'overdue' | 'out-of-service';
 
-/**
- * DueDateAlert — triggered when equipment approaches calibration due date
- *
- * Alerts fire at 30, 15, and 7 days before nextDueDate.
- * Can be dismissed by user (dismissedAt != null).
- */
-export interface DueDateAlert {
-  readonly id: string;                    // UUID
-  readonly labId: string;                 // multi-tenant
-  readonly equipId: string;               // FK to equipment
-  readonly calibracaoId: string;          // FK to calibration record
-  readonly daysRemaining: number;         // 30, 15, or 7
-  readonly sentAt: Timestamp;             // when alert was triggered
-  readonly dismissedAt?: Timestamp | null; // null = active, Timestamp = dismissed
-}
+// Legacy Portuguese status (for backward compatibility with components)
+export type CalibracaoStatusLegacy = 'no-prazo' | 'em-risco' | 'vencido';
 
-/**
- * DueDateInfo — computed status of equipment calibration deadline
- *
- * Derived field computed on read from CalibracaoRecord.nextDueDate
- */
+// Union type that includes both - used in Record mappings where components don't know the difference
+export type CalibracaoStatus = CalibracaoStatusNew | CalibracaoStatusLegacy;
+
+// DueDateInfo uses legacy Portuguese statuses for component compatibility
 export interface DueDateInfo {
   readonly nextDueDate: Timestamp;
-  readonly daysUntilDue: number;          // can be negative if overdue
-  readonly status: 'no-prazo' | 'em-risco' | 'vencido';  // >30d, 7-30d, <7d
+  readonly daysUntilDue: number;
+  readonly status: CalibracaoStatusLegacy; // 'no-prazo' | 'em-risco' | 'vencido'
   readonly alertsSent: {
-    readonly dias30: boolean;             // was 30-day alert sent?
-    readonly dias15: boolean;             // was 15-day alert sent?
-    readonly dias7: boolean;              // was 7-day alert sent?
+    readonly dias30: boolean;
+    readonly dias15: boolean;
+    readonly dias7: boolean;
   };
 }
 
-/**
- * CalibracaoRecord — main equipment calibration tracking entity
- *
- * One record per equipment, stored at `/labs/{labId}/calibracao/{equipId}`.
- * Historical calibrations (past certificates) live in `certificates[]` array.
- */
-export interface CalibracaoRecord {
-  readonly id: string;                    // matches equipId (1:1 linkage)
-  readonly labId: string;                 // multi-tenant (RN-multi-tenant)
-  readonly equipId: string;               // FK to equipamentos module
-  readonly equipName: string;             // denormalized from equipamentos (read-only at this layer)
-  readonly equipSerial?: string;          // equipment serial number
-  readonly lastCalibrationDate: Timestamp; // when equipment was last calibrated
-  readonly nextDueDate: Timestamp;        // when next calibration is due
-  readonly vendor?: string;               // vendor name (if applicable)
-  readonly vendorRef?: string;            // vendor document reference number
-  readonly certificates: CertificateUpload[]; // all uploaded certificates (past + current)
-  readonly dueDateInfo: DueDateInfo;      // computed status (derived)
-  readonly notes?: string;                // operational notes
-  readonly criadoEm: Timestamp;           // created timestamp
-  readonly atualizadoEm: Timestamp;       // last updated
-  readonly deletadoEm?: Timestamp | null; // soft-delete marker (RN-06)
+// Legacy CertificateUpload for backward compatibility
+export interface CertificateUpload {
+  readonly id: string;
+  readonly calibracaoId: string;
+  readonly filename: string;
+  readonly mimeType: 'application/pdf' | 'image/jpeg' | 'image/png';
+  readonly storagePath: string;
+  readonly fileSize: number;
+  readonly hash: string;
+  readonly chainHash?: LogicalSignature; // Legacy field for compatibility
+  readonly operatorId: string;
+  readonly uploadedAt: Timestamp;
+  readonly validUntil?: Timestamp;
 }
 
-/**
- * CalibracaoStatus — derived status from DueDateInfo
- *
- * Used in UI for color-coding and sorting.
- */
-export type CalibracaoStatus = 'no-prazo' | 'em-risco' | 'vencido';
+export interface CalibracaoRecord {
+  id: string;
+  labId: string;
+  equipamentoId: string;
+  equipId: string;  // Alias for equipamentoId (for components)
+  equipName: string;
+  equipSerial?: string;
+  calibrationMethod: 'in-house' | 'external-provider';
+  calibrationProvider?: string;
+  lastCalibrationDate: number | Timestamp;
+  nextDueDate: number | Timestamp;
+  certificateStoragePath: string;
+  certificateHash: string;
+  expandedUncertainty: number;
+  status: CalibracaoStatus;
+  statusUpdatedAt: number;
+  alertsSent: { days: number; sentAt: number }[];
+  createdAt: number | Timestamp;
+  criadoEm?: Timestamp;  // Legacy alias
+  createdBy: string;
+  deletedAt?: number;
+  // Required legacy fields for component compatibility
+  readonly dueDateInfo: DueDateInfo;
+  readonly certificates: CertificateUpload[];
+  readonly vendor?: string;
+  readonly vendorRef?: string;
+  readonly notes?: string;
+  readonly atualizadoEm?: Timestamp;
+  readonly deletadoEm?: Timestamp | null;
+}
 
-/**
- * Input DTO for creating/updating calibration records
- *
- * Omits audit fields (id, labId, criadoEm, atualizadoEm, deletadoEm)
- * Omits computed fields (dueDateInfo, certificates) — managed by service
- */
+export interface CalibracaoAlert {
+  id: string;
+  labId: string;
+  calibracaoId: string;
+  equipamentoName: string;
+  daysUntilOverdue: number;
+  alertType: 'warning-30d' | 'warning-7d' | 'overdue';
+  emailSentAt: number;
+  recipients: string[];
+}
+
+export function calculateCalibracaoStatus(nextDueDate: number | Timestamp): CalibracaoStatusNew {
+  const now = Date.now();
+  const dueTime = typeof nextDueDate === 'number' ? nextDueDate : nextDueDate.toMillis?.() ?? Date.now();
+  const daysUntilDue = (dueTime - now) / (1000 * 60 * 60 * 24);
+
+  if (daysUntilDue < 0) return 'overdue';
+  if (daysUntilDue < 7) return 'warning-7d';
+  if (daysUntilDue < 30) return 'warning-30d';
+  return 'in-date';
+}
+
+export function mapStatusToLegacy(status: CalibracaoStatusNew): CalibracaoStatusLegacy {
+  switch (status) {
+    case 'in-date':
+      return 'no-prazo';
+    case 'warning-30d':
+    case 'warning-7d':
+      return 'em-risco';
+    case 'overdue':
+    case 'out-of-service':
+      return 'vencido';
+    default:
+      return 'vencido';
+  }
+}
+
+export function mapLegacyToNew(status: CalibracaoStatusLegacy): CalibracaoStatusNew {
+  switch (status) {
+    case 'no-prazo':
+      return 'in-date';
+    case 'em-risco':
+      return 'warning-30d';
+    case 'vencido':
+      return 'overdue';
+    default:
+      return 'in-date';
+  }
+}
+
+// Backward compatibility exports for existing services/components
 export type CalibracaoInput = Omit<
   CalibracaoRecord,
   'id' | 'labId' | 'criadoEm' | 'atualizadoEm' | 'deletadoEm' | 'dueDateInfo' | 'certificates'
 >;
-
-/**
- * CalibracaoTimeline — helper type for rendering timeline view
- *
- * Combines past + future calibrations for UI display.
- */
-export interface CalibracaoTimeline {
-  readonly pastCalibrations: CertificateUpload[];  // sorted by uploadedAt DESC
-  readonly currentCertificate?: CertificateUpload; // most recent
-  readonly futureDueDate: Timestamp;
-  readonly status: CalibracaoStatus;
-}

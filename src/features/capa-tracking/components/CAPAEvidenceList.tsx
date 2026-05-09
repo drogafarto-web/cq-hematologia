@@ -19,7 +19,7 @@ interface CAPAEvidenceListProps {
  * Mapa de tipos de evidência → ícone + label.
  */
 const EVIDENCE_TYPE_CONFIG: Record<
-  CAPAEvidenceRef['type'],
+  NonNullable<CAPAEvidenceRef['type']>,
   { label: string; icon: string }
 > = {
   'foto': { label: 'Foto', icon: '📸' },
@@ -72,8 +72,8 @@ export function CAPAEvidenceList({
         ) : (
           <ul className="divide-y divide-white/10">
             {evidence.map((ev) => {
-              const config = EVIDENCE_TYPE_CONFIG[ev.type];
-              const date = ev.uploadedAt?.toDate?.() ?? new Date();
+              const config = ev.type ? EVIDENCE_TYPE_CONFIG[ev.type] : { label: 'Arquivo', icon: '📄' };
+              const date = new Date(ev.uploadedAt);
 
               return (
                 <li

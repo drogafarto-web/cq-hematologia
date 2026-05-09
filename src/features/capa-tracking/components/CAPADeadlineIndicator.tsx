@@ -9,7 +9,7 @@
 import type { DeadlineStatus } from '../types';
 
 interface CAPADeadlineIndicatorProps {
-  deadline: Date | { toDate(): Date };
+  deadline: number | Date | { toDate(): Date };
   deadlineStatus: DeadlineStatus;
   className?: string;
 }
@@ -17,8 +17,12 @@ interface CAPADeadlineIndicatorProps {
 /**
  * Formata data para exibição.
  */
-function formatDeadlineDate(deadline: Date | { toDate(): Date }): string {
-  const date = deadline instanceof Date ? deadline : deadline.toDate();
+function formatDeadlineDate(deadline: number | Date | { toDate(): Date }): string {
+  const date = typeof deadline === 'number'
+    ? new Date(deadline)
+    : deadline instanceof Date
+      ? deadline
+      : deadline.toDate();
   return new Intl.DateTimeFormat('pt-BR', {
     day: '2-digit',
     month: '2-digit',

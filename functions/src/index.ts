@@ -255,15 +255,17 @@ export {
   scheduledReview,
 } from './modules/risks/index';
 
-// ─── qualidade module (ADR 0003 — Não-Conformidade) ─────────────────────────
+// ─── qualidade module (ADR 0003 — Não-Conformidade + Phase 7 Advanced Auditoria) ──
 // Lifecycle management for quality incidents (Não-Conformidades).
 // openNaoConformidade: create NC with audit trail
 // updateNaoConformidade: progress NC through workflow (aberta → investig → correcao → verif → fechada)
+// scheduledAuditReportJob: daily scheduled report generation (Phase 7 Wave 5)
 export {
   openNaoConformidade,
   updateNaoConformidade,
   addAcao,
-} from './modules/qualidade/naoConformidade';
+  scheduledAuditReportJob,
+} from './modules/qualidade';
 
 // ─── procedimentos module (ADR 0004 — POP Versioning & RT Signatures) ────────
 // Standard Operating Procedure (POP) versioning with RT cryptographic signatures.
@@ -553,6 +555,36 @@ export {
 // for mandatory LGPD documents (POL-LGPD-001, IT-LGPD-DPIA-001) where proximaRevisao <= hoje.
 // Creates notifications for upcoming reviews. Idempotent via idempotencyKey.
 export { lgpd_scheduledAnnualReview } from './modules/lgpd/scheduledAnnualReview';
+
+// ─── CAPA module (Phase 8 Wave 3 — Corrective Action Tracking) ────────────────────
+// CAPA closure workflow with state machine (open → in-progress → evidence-submitted → auditor-reviewing → closed),
+// auditor RFI submission, evidence upload, and sign-off.
+// RDC 978/2025 Art. 5.3 + DICQ 4.14 compliance.
+// createCapa: create CAPA with initial finding + root cause + corrective action
+// updateCapaState: state machine transition with validation + audit trail
+// submitCapaRFI: auditor request for information (appends to rfiLog)
+// uploadCapaEvidence: register evidence file after Storage upload
+// submitAuditorSignOff: batch close multiple CAPAs with auditor signature
+export {
+  createCapa,
+  updateCapaState,
+  submitCapaRFI,
+  uploadCapaEvidence,
+  submitAuditorSignOff,
+} from './callables/capa/index';
+
+// ─── Calibração module (Phase 8 Wave 3 — Equipment Calibration) ──────────────────
+// uploadCalibracaoCertificate: register calibration certificate + equipment tracking
+// Validates certificate hash, calculates status (valid/warning/overdue).
+// DICQ 5.3.1.4 compliance.
+export { uploadCalibracaoCertificate } from './callables/calibracao/index';
+
+// ─── Management Review module (Phase 8 Wave 3 — DICQ 4.15 Annual Review) ────────
+// aggregateManagementReviewData: pre-populate annual management review with 15 data entries
+// from audit, NC, CAPA, training, CEQ, KPI, complaints, suppliers, improvements, personnel,
+// equipment, incidents, risk, PGRSS (manual), compliance gaps (manual).
+// Gracefully handles missing data sources (returns data: {error} instead of failing).
+export { aggregateManagementReviewData } from './callables/management-review/index';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
