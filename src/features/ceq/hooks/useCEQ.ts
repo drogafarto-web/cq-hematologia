@@ -10,8 +10,9 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
+import { FirebaseError } from 'firebase/app';
 import { onSnapshot } from 'firebase/firestore';
-import { db } from '../../../config/firebase.config';
+import { auth, db } from '../../../config/firebase.config';
 import { collection, query, where } from 'firebase/firestore';
 import { useAuthStore, useActiveLab } from '../../../store/useAuthStore';
 import { toast } from '../../../shared/store/useToastStore';
@@ -46,6 +47,24 @@ interface CEQState {
   error: string | null;
 }
 
+function formatCeqSnapshotError(err: unknown): string {
+  if (err instanceof FirebaseError && err.code === 'permission-denied') {
+    return (
+      'CEQ: permissão negada. Faça logout e login para atualizar o token; confira claim modules.ceq ' +
+      'e associação ao laboratório.'
+    );
+  }
+  return err instanceof Error ? err.message : 'Erro ao carregar dados CEQ';
+}
+
+async function primeAuthTokenForFirestore(): Promise<void> {
+  try {
+    await auth.currentUser?.getIdToken(true);
+  } catch {
+    /* ignore — snapshot still attempts with current session */
+  }
+}
+
 const initialState: CEQState = {
   participacoes: [],
   amostras: [],
@@ -58,108 +77,185 @@ const initialState: CEQState = {
 
 export function useCEQ() {
   const [state, setState] = useState(initialState);
+  const [listenerEpoch, setListenerEpoch] = useState(0);
   const activeLab = useActiveLab();
   const uid = useAuthStore((s) => s.appProfile?.user?.uid ?? '');
+
+  const retryCeqFirestoreListeners = useCallback(async () => {
+    try {
+      await auth.currentUser?.getIdToken(true);
+      setState((s) => ({ ...s, error: null }));
+      setListenerEpoch((e) => e + 1);
+    } catch {
+      toast.error('Não foi possível atualizar o token. Faça logout e login.');
+    }
+  }, []);
+
+  /**
+   * NOTA OPERACIONAL:
+   * Se persistir 'permission-denied' após 'Recarregar permissões', o usuário precisa
+   * de provisionamento de claims (modules.ceq) ou correção do documento 'members'
+   * associado ao laboratório — isso é uma ação de backend/admin.
+   */
 
   // ─── Load participacoes ──────────────────────────────────────────────────
 
   useEffect(() => {
     if (!activeLab) return;
 
-    const q = query(
-      collection(db, 'labs', activeLab.id, 'ceq-participacoes'),
-      where('ativo', '==', true),
-      where('deletadoEm', '==', null),
-    );
+    let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const participacoes = snapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          ...data,
-          id: doc.id,
-          criadoEm: data.criadoEm?.toDate() || new Date(),
-          dataInicio: data.dataInicio?.toDate() || new Date(),
-          dataFim: data.dataFim?.toDate(),
-          atualizadoEm: data.atualizadoEm?.toDate(),
-          deletadoEm: data.deletadoEm?.toDate(),
-        } as CEQParticipacao;
-      });
+    void (async () => {
+      await primeAuthTokenForFirestore();
+      if (cancelled) return;
 
-      setState((s) => ({ ...s, participacoes }));
-    });
+      const q = query(
+        collection(db, 'labs', activeLab.id, 'ceq-participacoes'),
+        where('ativo', '==', true),
+        where('deletadoEm', '==', null),
+      );
 
-    return unsubscribe;
-  }, [activeLab]);
+      unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const participacoes = snapshot.docs.map((doc) => {
+            const data = doc.data();
+            return {
+              ...data,
+              id: doc.id,
+              criadoEm: data.criadoEm?.toDate() || new Date(),
+              dataInicio: data.dataInicio?.toDate() || new Date(),
+              dataFim: data.dataFim?.toDate(),
+              atualizadoEm: data.atualizadoEm?.toDate(),
+              deletadoEm: data.deletadoEm?.toDate(),
+            } as CEQParticipacao;
+          });
+
+          setState((s) => ({ ...s, participacoes, error: null }));
+        },
+        (err) => {
+          const msg = formatCeqSnapshotError(err);
+          setState((s) => ({ ...s, participacoes: [], error: msg }));
+          toast.error(msg);
+        },
+      );
+    })();
+
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
+  }, [activeLab, listenerEpoch]);
 
   // ─── Load amostras when participacao selected ─────────────────────────────
 
   useEffect(() => {
     if (!activeLab || !state.selectedParticipacao) return;
 
-    const q = query(
-      collection(db, 'labs', activeLab.id, 'ceq-amostras'),
-      where('ceqParticipacaoId', '==', state.selectedParticipacao.id),
-      where('deletadoEm', '==', null),
-    );
+    const participacaoId = state.selectedParticipacao.id;
+    let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const amostras = snapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          ...data,
-          id: doc.id,
-          criadoEm: data.criadoEm?.toDate() || new Date(),
-          dataRecepcao: data.dataRecepcao?.toDate() || new Date(),
-          dataResultado: data.dataResultado?.toDate(),
-          resultadoRecebidoEm: data.resultadoRecebidoEm?.toDate(),
-          deletadoEm: data.deletadoEm?.toDate(),
-        } as CEQAmostra;
-      });
+    void (async () => {
+      await primeAuthTokenForFirestore();
+      if (cancelled) return;
 
-      setState((s) => ({ ...s, amostras }));
-    });
+      const q = query(
+        collection(db, 'labs', activeLab.id, 'ceq-amostras'),
+        where('ceqParticipacaoId', '==', participacaoId),
+        where('deletadoEm', '==', null),
+      );
 
-    return unsubscribe;
-  }, [activeLab, state.selectedParticipacao]);
+      unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const amostras = snapshot.docs.map((doc) => {
+            const data = doc.data();
+            return {
+              ...data,
+              id: doc.id,
+              criadoEm: data.criadoEm?.toDate() || new Date(),
+              dataRecepcao: data.dataRecepcao?.toDate() || new Date(),
+              dataResultado: data.dataResultado?.toDate(),
+              resultadoRecebidoEm: data.resultadoRecebidoEm?.toDate(),
+              deletadoEm: data.deletadoEm?.toDate(),
+            } as CEQAmostra;
+          });
+
+          setState((s) => ({ ...s, amostras, error: null }));
+        },
+        (err) => {
+          const msg = formatCeqSnapshotError(err);
+          setState((s) => ({ ...s, amostras: [], error: msg }));
+          toast.error(msg);
+        },
+      );
+    })();
+
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
+  }, [activeLab, state.selectedParticipacao, listenerEpoch]);
 
   // ─── Load resultados when amostra selected ──────────────────────────────
 
   useEffect(() => {
     if (!activeLab || !state.selectedAmostra) return;
 
-    const q = query(
-      collection(db, 'labs', activeLab.id, 'ceq-resultados'),
-      where('ceqAmostraId', '==', state.selectedAmostra.id),
-      where('deletadoEm', '==', null),
-    );
+    const amostraId = state.selectedAmostra.id;
+    let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const resultados = snapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          ...data,
-          id: doc.id,
-          criadoEm: data.criadoEm?.toDate() || new Date(),
-          atualizadoEm: data.atualizadoEm?.toDate(),
-          validadoEm: data.validadoEm?.toDate(),
-          ncAutomaticaCriadaEm: data.ncAutomaticaCriadaEm?.toDate(),
-          deletadoEm: data.deletadoEm?.toDate(),
-          investigacao: data.investigacao
-            ? {
-                ...data.investigacao,
-                dataInicio: data.investigacao.dataInicio?.toDate() || new Date(),
-                dataFim: data.investigacao.dataFim?.toDate(),
-              }
-            : undefined,
-        } as CEQResultado;
-      });
+    void (async () => {
+      await primeAuthTokenForFirestore();
+      if (cancelled) return;
 
-      setState((s) => ({ ...s, resultados }));
-    });
+      const q = query(
+        collection(db, 'labs', activeLab.id, 'ceq-resultados'),
+        where('ceqAmostraId', '==', amostraId),
+        where('deletadoEm', '==', null),
+      );
 
-    return unsubscribe;
-  }, [activeLab, state.selectedAmostra]);
+      unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const resultados = snapshot.docs.map((doc) => {
+            const data = doc.data();
+            return {
+              ...data,
+              id: doc.id,
+              criadoEm: data.criadoEm?.toDate() || new Date(),
+              atualizadoEm: data.atualizadoEm?.toDate(),
+              validadoEm: data.validadoEm?.toDate(),
+              ncAutomaticaCriadaEm: data.ncAutomaticaCriadaEm?.toDate(),
+              deletadoEm: data.deletadoEm?.toDate(),
+              investigacao: data.investigacao
+                ? {
+                    ...data.investigacao,
+                    dataInicio: data.investigacao.dataInicio?.toDate() || new Date(),
+                    dataFim: data.investigacao.dataFim?.toDate(),
+                  }
+                : undefined,
+            } as CEQResultado;
+          });
+
+          setState((s) => ({ ...s, resultados, error: null }));
+        },
+        (err) => {
+          const msg = formatCeqSnapshotError(err);
+          setState((s) => ({ ...s, resultados: [], error: msg }));
+          toast.error(msg);
+        },
+      );
+    })();
+
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
+  }, [activeLab, state.selectedAmostra, listenerEpoch]);
 
   // ─── Operations ───────────────────────────────────────────────────────────
 
@@ -250,6 +346,7 @@ export function useCEQ() {
 
   return {
     ...state,
+    retryCeqFirestoreListeners,
     selectParticipacao: (p: CEQParticipacao | null) =>
       setState((s) => ({
         ...s,

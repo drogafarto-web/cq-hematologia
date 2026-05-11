@@ -205,6 +205,53 @@ function StatCard({
   );
 }
 
+/* ─── Permission denied (stale JWT / claims) ──────────────────────────────── */
+
+function CeqPermissionBlocked({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void | Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false);
+
+  const handleRetry = async () => {
+    setBusy(true);
+    try {
+      await onRetry();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div
+      className="flex flex-col items-center justify-center py-16 px-4 text-center rounded-2xl border border-amber-500/20 bg-amber-500/[0.06]"
+      role="alert"
+    >
+      <div className="w-14 h-14 rounded-2xl bg-amber-500/[0.12] border border-amber-500/25 flex items-center justify-center mb-4 text-amber-400">
+        <AlertIcon size={26} />
+      </div>
+      <h3 className="text-base font-semibold text-white/90 mb-2">Permissão CEQ indisponível</h3>
+      <p className="text-sm text-white/50 max-w-md mb-6 leading-relaxed">{message}</p>
+      <button
+        type="button"
+        onClick={handleRetry}
+        disabled={busy}
+        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-violet-500 hover:bg-violet-400 disabled:opacity-50 disabled:pointer-events-none text-white text-sm font-medium transition-colors"
+      >
+        {busy ? 'Atualizando token…' : 'Recarregar permissões'}
+      </button>
+      <p className="mt-6 text-xs text-white/30 max-w-sm">
+        Se o problema continuar, faça logout e login ou peça ao administrador para conferir o claim{' '}
+        <code className="text-white/45">modules.ceq</code> e o documento de membro em{' '}
+        <code className="text-white/45">labs/…/members</code>.
+      </p>
+    </div>
+  );
+}
+
 /* ─── Empty state ─────────────────────────────────────────────────────────── */
 
 function EmptyParticipacoes({ onAdd }: { onAdd: () => void }) {
@@ -273,6 +320,7 @@ export function CEQDashboard() {
     criarParticipacao,
     receberAmostra,
     lancarResultado,
+    retryCeqFirestoreListeners,
   } = useCEQ();
 
   const [showParticipacaoForm, setShowParticipacaoForm] = useState(false);
@@ -294,6 +342,8 @@ export function CEQDashboard() {
     await lancarResultado(input);
     setShowResultadoForm(false);
   };
+
+  const isCeqPermissionDenied = Boolean(error?.includes('permissão negada'));
 
   return (
     <div className="min-h-screen bg-[#0B0F14] text-white">
@@ -323,16 +373,21 @@ export function CEQDashboard() {
           </button>
         </div>
 
-        {/* ── Error banner ──────────────────────────────────────────────── */}
-        {error && (
+        {/* ── Error banner (omit when full permission panel is shown below) ─ */}
+        {error && (!isCeqPermissionDenied || (participacoes.length > 0 || loading)) && (
           <div className="flex items-start gap-3 bg-red-500/[0.08] border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm">
             <AlertIcon size={16} />
             <span>{error}</span>
           </div>
         )}
 
+        {/* ── CEQ permission / token (empty list + permission-denied) ───── */}
+        {participacoes.length === 0 && !loading && isCeqPermissionDenied && error && (
+          <CeqPermissionBlocked message={error} onRetry={retryCeqFirestoreListeners} />
+        )}
+
         {/* ── Empty state ──────────────────────────────────────────────── */}
-        {participacoes.length === 0 && !loading && (
+        {participacoes.length === 0 && !loading && !isCeqPermissionDenied && (
           <EmptyParticipacoes onAdd={() => setShowParticipacaoForm(true)} />
         )}
 
