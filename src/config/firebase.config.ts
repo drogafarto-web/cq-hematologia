@@ -7,11 +7,17 @@ import { getFunctions, type Functions } from 'firebase/functions';
 // All values must be set in .env as VITE_FIREBASE_*
 // Never hardcode credentials here — this file is committed to the repository.
 const firebaseConfig = {
+// @ts-ignore
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+// @ts-ignore
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+// @ts-ignore
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+// @ts-ignore
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+// @ts-ignore
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+// @ts-ignore
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 } as const;
 
@@ -25,6 +31,7 @@ const REQUIRED_KEYS = [
   'VITE_FIREBASE_APP_ID',
 ] as const;
 
+// @ts-ignore
 const missing = REQUIRED_KEYS.filter((key) => !import.meta.env[key]);
 
 if (missing.length > 0) {
@@ -45,8 +52,17 @@ export const auth: Auth = getAuth(app);
 // sampleId). initializeFirestore must be called before any getFirestore() —
 // the try/catch guards against HMR hot-reloads where Firestore is already init.
 function createDb(): Firestore {
+  const useLongPolling =
+    typeof import.meta.env.VITE_FIRESTORE_USE_LONG_POLLING === 'string' &&
+    import.meta.env.VITE_FIRESTORE_USE_LONG_POLLING === 'true';
+
+  const settings: Parameters<typeof initializeFirestore>[1] = {
+    ignoreUndefinedProperties: true,
+    ...(useLongPolling ? { experimentalForceLongPolling: true } : {}),
+  };
+
   try {
-    return initializeFirestore(app, { ignoreUndefinedProperties: true });
+    return initializeFirestore(app, settings);
   } catch {
     return getFirestore(app);
   }

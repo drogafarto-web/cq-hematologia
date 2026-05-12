@@ -1,12 +1,13 @@
 import {
   collection,
-  doc,
   query,
   where,
   orderBy,
   limit,
   onSnapshot,
   getDocs,
+  type DocumentData,
+  type QueryDocumentSnapshot,
   type Unsubscribe,
 } from 'firebase/firestore';
 import { db } from '../../shared/services/firebase';
@@ -14,6 +15,18 @@ import type { KPIDaily, KPIAlert, KPIDashboardData } from './types/KPI';
 
 const kpiCollection = (labId: string) => collection(db, `labs/${labId}/kpi-metrics`);
 const alertCollection = (labId: string) => collection(db, `labs/${labId}/kpi-alerts`);
+
+function mapKpiDailyDoc(labId: string, d: QueryDocumentSnapshot<DocumentData>): KPIDaily {
+  const data = d.data();
+  const docLabId = typeof data.labId === 'string' && data.labId.length > 0 ? data.labId : labId;
+  return { ...data, id: d.id, labId: docLabId } as KPIDaily;
+}
+
+function mapKpiAlertDoc(labId: string, d: QueryDocumentSnapshot<DocumentData>): KPIAlert {
+  const data = d.data();
+  const docLabId = typeof data.labId === 'string' && data.labId.length > 0 ? data.labId : labId;
+  return { ...data, id: d.id, labId: docLabId } as KPIAlert;
+}
 
 export function subscribeLatestKPI(
   labId: string,
@@ -25,7 +38,7 @@ export function subscribeLatestKPI(
   return onSnapshot(
     q,
     (snap) => {
-      const kpi = snap.empty ? null : (snap.docs[0].data() as KPIDaily);
+      const kpi = snap.empty ? null : mapKpiDailyDoc(labId, snap.docs[0]);
       callback(kpi);
     },
     onError,
@@ -43,7 +56,7 @@ export function subscribeKPIHistory(
   return onSnapshot(
     q,
     (snap) => {
-      const kpis = snap.docs.map((d) => d.data() as KPIDaily);
+      const kpis = snap.docs.map((d) => mapKpiDailyDoc(labId, d));
       callback?.(kpis);
     },
     onError,
@@ -60,7 +73,7 @@ export function subscribeActiveAlerts(
   return onSnapshot(
     q,
     (snap) => {
-      const alerts = snap.docs.map((d) => d.data() as KPIAlert);
+      const alerts = snap.docs.map((d) => mapKpiAlertDoc(labId, d));
       callback?.(alerts);
     },
     onError,
@@ -74,8 +87,8 @@ export async function getKPIDashboardData(labId: string): Promise<KPIDashboardDa
 
   if (snap.empty) return null;
 
-  const dataAtual = snap.docs[0].data() as KPIDaily;
-  const dataAnterior = snap.docs[1]?.data() as KPIDaily | undefined;
+  const dataAtual = mapKpiDailyDoc(labId, snap.docs[0]);
+  const dataAnterior = snap.docs[1] ? mapKpiDailyDoc(labId, snap.docs[1]) : undefined;
 
   // Determine trend
   let tendencia: 'mejora' | 'deterioro' | 'estavel' = 'estavel';
@@ -90,7 +103,7 @@ export async function getKPIDashboardData(labId: string): Promise<KPIDashboardDa
   // Get active alerts
   const alertsQ = query(alertCollection(labId), where('lida', '==', false), limit(5));
   const alertsSnap = await getDocs(alertsQ);
-  const alertas = alertsSnap.docs.map((d) => d.data() as KPIAlert);
+  const alertas = alertsSnap.docs.map((d) => mapKpiAlertDoc(labId, d));
 
   return {
     dataAtual,

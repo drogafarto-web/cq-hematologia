@@ -100,6 +100,7 @@ import { connectFirestoreEmulator } from 'firebase/firestore';
 import { connectFunctionsEmulator } from 'firebase/functions';
 import { connectStorageEmulator } from 'firebase/storage';
 
+// @ts-ignore
 if (import.meta.env.VITE_USE_EMULATOR === 'true') {
   try {
     connectAuthEmulator(_emuAuth, 'http://localhost:9099', { disableWarnings: true });

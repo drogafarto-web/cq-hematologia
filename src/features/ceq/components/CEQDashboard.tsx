@@ -208,9 +208,11 @@ function StatCard({
 /* ─── Permission denied (stale JWT / claims) ──────────────────────────────── */
 
 function CeqPermissionBlocked({
+  title = 'Permissão CEQ indisponível',
   message,
   onRetry,
 }: {
+  title?: string;
   message: string;
   onRetry: () => void | Promise<void>;
 }) {
@@ -233,7 +235,7 @@ function CeqPermissionBlocked({
       <div className="w-14 h-14 rounded-2xl bg-amber-500/[0.12] border border-amber-500/25 flex items-center justify-center mb-4 text-amber-400">
         <AlertIcon size={26} />
       </div>
-      <h3 className="text-base font-semibold text-white/90 mb-2">Permissão CEQ indisponível</h3>
+      <h3 className="text-base font-semibold text-white/90 mb-2">{title}</h3>
       <p className="text-sm text-white/50 max-w-md mb-6 leading-relaxed">{message}</p>
       <button
         type="button"
@@ -248,6 +250,76 @@ function CeqPermissionBlocked({
         <code className="text-white/45">modules.ceq</code> e o documento de membro em{' '}
         <code className="text-white/45">labs/…/members</code>.
       </p>
+    </div>
+  );
+}
+
+function CeqTransportBlocked({
+  title,
+  message,
+  onRetry,
+  onCopyDiagnostics,
+}: {
+  title: string;
+  message: string;
+  onRetry: () => void | Promise<void>;
+  onCopyDiagnostics: () => void | Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [copyBusy, setCopyBusy] = useState(false);
+
+  const handleRetry = async () => {
+    setBusy(true);
+    try {
+      await onRetry();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleCopy = async () => {
+    setCopyBusy(true);
+    try {
+      await onCopyDiagnostics();
+    } finally {
+      setCopyBusy(false);
+    }
+  };
+
+  return (
+    <div
+      className="flex flex-col items-center justify-center py-16 px-4 text-center rounded-2xl border border-violet-500/25 bg-violet-500/[0.06]"
+      role="alert"
+    >
+      <div className="w-14 h-14 rounded-2xl bg-violet-500/[0.12] border border-violet-500/30 flex items-center justify-center mb-4 text-violet-300">
+        <AlertIcon size={26} />
+      </div>
+      <h3 className="text-base font-semibold text-white/90 mb-2">{title}</h3>
+      <p className="text-sm text-white/50 max-w-md mb-6 leading-relaxed">{message}</p>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button
+          type="button"
+          onClick={handleRetry}
+          disabled={busy}
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-violet-500 hover:bg-violet-400 disabled:opacity-50 disabled:pointer-events-none text-white text-sm font-medium transition-colors"
+        >
+          {busy ? 'A tentar tempo real…' : 'Tentar tempo real novamente'}
+        </button>
+        <button
+          type="button"
+          onClick={handleCopy}
+          disabled={copyBusy}
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-white/15 bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-50 text-white/85 text-sm font-medium transition-colors"
+        >
+          {copyBusy ? 'A copiar…' : 'Copiar diagnóstico'}
+        </button>
+      </div>
+      <ul className="mt-8 text-left text-xs text-white/35 max-w-md space-y-2 list-disc pl-4">
+        <li>Desative bloqueadores (uBlock, AdGuard, Privacy Badger) para este domínio.</li>
+        <li>No Brave: reduza Shields ou use uma janela sem extensões.</li>
+        <li>Confirme que <code className="text-white/45">firestore.googleapis.com</code> não está bloqueado.</li>
+        <li>Opcional de ambiente: <code className="text-white/45">VITE_FIRESTORE_USE_LONG_POLLING=true</code> (rebuild).</li>
+      </ul>
     </div>
   );
 }
@@ -321,6 +393,12 @@ export function CEQDashboard() {
     receberAmostra,
     lancarResultado,
     retryCeqFirestoreListeners,
+    copyCeqDiagnostics,
+    ceqRealtimeDegraded,
+    ceqErrorTitle,
+    isCeqRbacBlocked,
+    isCeqTransportSuspected,
+    showCeqAccessPanel,
   } = useCEQ();
 
   const [showParticipacaoForm, setShowParticipacaoForm] = useState(false);
@@ -342,8 +420,6 @@ export function CEQDashboard() {
     await lancarResultado(input);
     setShowResultadoForm(false);
   };
-
-  const isCeqPermissionDenied = Boolean(error?.includes('permissão negada'));
 
   return (
     <div className="min-h-screen bg-[#0B0F14] text-white">
@@ -373,21 +449,49 @@ export function CEQDashboard() {
           </button>
         </div>
 
-        {/* ── Error banner (omit when full permission panel is shown below) ─ */}
-        {error && (!isCeqPermissionDenied || (participacoes.length > 0 || loading)) && (
+        {/* ── Error banner (omit when full access panel is shown below) ─ */}
+        {error && (!showCeqAccessPanel || participacoes.length > 0 || loading) && (
           <div className="flex items-start gap-3 bg-red-500/[0.08] border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm">
             <AlertIcon size={16} />
-            <span>{error}</span>
+            <span>{ceqErrorTitle ? `${ceqErrorTitle} — ${error}` : error}</span>
           </div>
         )}
 
-        {/* ── CEQ permission / token (empty list + permission-denied) ───── */}
-        {participacoes.length === 0 && !loading && isCeqPermissionDenied && error && (
-          <CeqPermissionBlocked message={error} onRetry={retryCeqFirestoreListeners} />
+        {ceqRealtimeDegraded && participacoes.length > 0 && (
+          <div className="flex items-start gap-3 bg-violet-500/[0.08] border border-violet-500/25 rounded-xl px-4 py-3 text-violet-200/90 text-sm">
+            <AlertIcon size={16} />
+            <div>
+              <p className="font-medium text-white/90">Modo degradado (polling)</p>
+              <p className="text-white/50 mt-1 text-xs leading-relaxed">
+                O tempo real do Firestore pode estar bloqueado no navegador. Os dados são atualizados aproximadamente
+                a cada 8 segundos. Use &quot;Tentar tempo real novamente&quot; no painel de bloqueio ou após desativar
+                extensões.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ── CEQ RBAC (empty list + classified RBAC) ───────────────────── */}
+        {participacoes.length === 0 && !loading && isCeqRbacBlocked && error && (
+          <CeqPermissionBlocked
+            title={ceqErrorTitle ?? undefined}
+            message={error}
+            onRetry={retryCeqFirestoreListeners}
+          />
+        )}
+
+        {/* ── CEQ transport / streaming suspected (empty list) ───────────── */}
+        {participacoes.length === 0 && !loading && isCeqTransportSuspected && error && (
+          <CeqTransportBlocked
+            title={ceqErrorTitle ?? 'CEQ: tempo real bloqueado'}
+            message={error}
+            onRetry={retryCeqFirestoreListeners}
+            onCopyDiagnostics={copyCeqDiagnostics}
+          />
         )}
 
         {/* ── Empty state ──────────────────────────────────────────────── */}
-        {participacoes.length === 0 && !loading && !isCeqPermissionDenied && (
+        {participacoes.length === 0 && !loading && !showCeqAccessPanel && (
           <EmptyParticipacoes onAdd={() => setShowParticipacaoForm(true)} />
         )}
 

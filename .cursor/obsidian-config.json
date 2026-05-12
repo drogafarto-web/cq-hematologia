@@ -1,0 +1,13 @@
+{
+  "vaultPath": "C:/Users/labcl/Obsidian_Brain",
+  "obsidian": {
+    "apiKey": "56648d3955053af270a50e4a6a5c33babd8537b4dcaead230ca330d2a38bcd04",
+    "port": 27124,
+    "host": "localhost",
+    "url": "https://localhost:27124"
+  },
+  "server": {
+    "name": "obsidian-mcp",
+    "version": "1.0.0"
+  }
+}

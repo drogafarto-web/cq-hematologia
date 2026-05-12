@@ -1,5 +1,6 @@
 # Build output — Netlify gera o seu próprio
 dist/
+build/
 
 # Logs
 logs
@@ -89,6 +90,7 @@ backup_*/
 # (typo já visto), `service-account-prod.json`, etc.
 service-account*.json
 **/service-account*.json
+serviceAccountKey.json
 *.pem
 *.p12
 
@@ -173,4 +175,14 @@ test-results/
 modulo educa*/*.pdf
 modulo educa*/*.xlsx
 modulo educa*/*.docx
+
+# Cursor — cache/logs/tmp local (.cursor/skills e .cursor/rules permanecem versionados)
+.cursor/cache/
+.cursor/logs/
+.cursor/tmp/
+
+# OS
+.DS_Store
+Thumbs.db
+
 .claude/worktrees/

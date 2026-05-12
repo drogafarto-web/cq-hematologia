@@ -117,6 +117,28 @@ export interface Qualificacao {
 
 export type QualificacaoInput = Omit<Qualificacao, 'id' | 'labId' | 'criadoEm' | 'deletadoEm'>;
 
+// ─── PersonnelDossier (REQ-403 — dossiê por colaborador) ─────────────────────
+
+/** Documento: `/labs/{labId}/personnel/dossiers/{colaboradorId}` (id = Colaborador.id da educação continuada). */
+export interface PersonnelDossier {
+  readonly labId: string;
+  readonly colaboradorId: string;
+  readonly cvUrl: string | null;
+  readonly cvResumo: string | null;
+  readonly registroCRF: string | null;
+  readonly registroCRBM: string | null;
+  readonly registroCREF: string | null;
+  readonly certificacoesNotas: string | null;
+  readonly criadoEm: Timestamp;
+  readonly updatedAt: Timestamp;
+}
+
+/** Campos editáveis no cliente (sem audit fields). Limites alinhados a `firestore.rules`. */
+export type PersonnelDossierEditable = Pick<
+  PersonnelDossier,
+  'cvUrl' | 'cvResumo' | 'registroCRF' | 'registroCRBM' | 'registroCREF' | 'certificacoesNotas'
+>;
+
 // ─── Re-exports ───────────────────────────────────────────────────────────────
 
 export type LabId = string;

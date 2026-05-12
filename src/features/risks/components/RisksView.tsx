@@ -8,14 +8,23 @@
  *   - Tab content: RiskRegister, RiskMatrix, Top5RisksWidget, ReviewHistory
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { FirebaseError } from 'firebase/app';
 import { useActiveLabId } from '../../../store/useAuthStore';
+import { functions, httpsCallable } from '../../../shared/services/firebase';
+import { toast } from '../../../shared/store/useToastStore';
 import { subscribeRisks } from '../services/risksService';
 import type { Risk } from '../types/Risk';
 import { RiskRegister } from './RiskRegister';
 import { RiskMatrix } from './RiskMatrix';
+import { RiskDashboard } from './RiskDashboard';
 import { Top5RisksWidget } from './Top5RisksWidget';
 import { ReviewHistory } from './ReviewHistory';
+
+const callGenerateRiskMatrixPDF = httpsCallable<{ labId: string }, { url: string }>(
+  functions,
+  'generateRiskMatrixPDF',
+);
 
 export const RisksView: React.FC = () => {
   const labId = useActiveLabId();
@@ -24,6 +33,7 @@ export const RisksView: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedRisk, setSelectedRisk] = useState<Risk | null>(null);
+  const [pdfExporting, setPdfExporting] = useState(false);
 
   // Firestore subscription
   useEffect(() => {
@@ -79,6 +89,31 @@ export const RisksView: React.FC = () => {
     };
   }, [risks]);
 
+  const handleExportRiskMatrixPdf = useCallback(async () => {
+    if (!labId) return;
+    setPdfExporting(true);
+    try {
+      const result = await callGenerateRiskMatrixPDF({ labId });
+      const url = result.data?.url;
+      if (!url) {
+        toast.error('Resposta sem URL do PDF.');
+        return;
+      }
+      window.open(url, '_blank', 'noopener,noreferrer');
+      toast.success('PDF gerado. Abrindo em nova aba.');
+    } catch (e) {
+      const msg =
+        e instanceof FirebaseError
+          ? e.message
+          : e instanceof Error
+            ? e.message
+            : 'Falha ao gerar PDF.';
+      toast.error(msg);
+    } finally {
+      setPdfExporting(false);
+    }
+  }, [labId]);
+
   return (
     <div className="min-h-screen bg-[#141417]">
       {/* ─── Sticky topbar ────────────────────────────────────────────────── */}
@@ -89,10 +124,19 @@ export const RisksView: React.FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </a>
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <h1 className="text-lg font-semibold text-white">Gestão de Riscos</h1>
             <p className="text-xs text-white/50">FMEA-Lite • RDC 978 Art. 86</p>
           </div>
+          <button
+            type="button"
+            onClick={() => void handleExportRiskMatrixPdf()}
+            disabled={!labId || pdfExporting}
+            aria-label="Exportar mapa de riscos em PDF"
+            className="shrink-0 rounded-lg border border-white/15 bg-white/[0.06] px-3 py-2 text-xs font-medium text-white/90 transition-colors hover:bg-white/[0.1] focus:outline-none focus:ring-2 focus:ring-violet-500/50 disabled:pointer-events-none disabled:opacity-40"
+          >
+            {pdfExporting ? 'Gerando…' : 'Exportar Mapa de Riscos (PDF)'}
+          </button>
         </div>
       </div>
 
@@ -121,6 +165,8 @@ export const RisksView: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <RiskDashboard risks={risks} labId={labId} isLoadingRisks={isLoading} />
 
       {/* ─── Tab navigation ───────────────────────────────────────────────── */}
       <div className="border-b border-white/10">

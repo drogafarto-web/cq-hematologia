@@ -254,35 +254,59 @@ service cloud.firestore {
         allow update, delete: if false;
       }
 
-      // ── /ciq-coagulacao — MVP OPEN ACCESS ────────────────────────────────
-      // MVP: sem restrições. Pós-produção: adicionar validação de membership.
+// ── /ciq-coagulacao — RESTAURADO (ETAPA 1) ─────────────────────────────
+      // ETAPA 1: removido allow read/write: if true (acesso público acidental).
+      // Substituído por verificação de membership do lab.
+      // Pendente: hasModuleAccess('coagulacao') após provisionModulesClaims
+      // para o módulo coagulação (ETA indefinido).
       match /ciq-coagulacao/{lotId} {
-        allow read, write: if true;
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId));
+        allow create: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId));
+        allow update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        allow delete: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
 
         match /runs/{runId} {
-          allow read: if true;
-          allow create, update: if true;
-          allow delete: if isSuperAdmin();
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId));
+          // RDC 978 Art. 122: escrita de run requer supervisor ativo.
+          allow create, update: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && hasActiveSupervisor(labId));
+          allow delete: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
         }
 
         match /audit/{auditId} {
-          allow read: if true;
-          allow create: if true;
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId));
+          allow create: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId));
           allow update, delete: if false;
         }
       }
 
       match /ciq-coagulacao-meta/{docId} {
-        allow read, write: if true;
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId));
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
       }
 
       match /ciq-coagulacao-config/{docId} {
-        allow read, write: if true;
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId));
+        allow write: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
       }
 
       match /ciq-coagulacao-audit/{docId} {
-        allow read: if true;
-        allow create: if true;
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId));
+        allow create: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId));
         allow update, delete: if false;
       }
 
@@ -343,6 +367,17 @@ service cloud.firestore {
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow delete: if false;
+
+        match /manutencoes/{manutencaoId} {
+          allow read: if isActiveMemberOfLab(labId);
+          allow create: if isActiveMemberOfLab(labId)
+            && request.resource.data.labId == labId
+            && request.resource.data.equipamentoId == equipamentoId
+            && request.resource.data.status in ['agendada', 'realizada', 'cancelada'];
+          allow update: if isActiveMemberOfLab(labId)
+            && request.resource.data.labId == resource.data.labId;
+          allow delete: if false;
+        }
       }
 
       match /equipamentos-audit/{auditId} {
@@ -352,10 +387,51 @@ service cloud.firestore {
       }
 
       match /fornecedores/{fornecedorId} {
+        // Avaliações periódicas + events (chain-hash) — apoio-fornecedores (T-AF-03)
+        function fornecedorAvaliacaoLogicalSignatureOk(d) {
+          return d.logicalSignature is map
+            && d.logicalSignature.keys().hasAll(['hash', 'operatorId', 'ts'])
+            && d.logicalSignature.hash is string
+            && d.logicalSignature.hash.size() == 64
+            && d.logicalSignature.operatorId == request.auth.uid
+            && d.logicalSignature.ts is timestamp;
+        }
+        function fornecedorAvaliacaoCreateValid(d) {
+          return d.labId == labId
+            && d.fornecedorId == fornecedorId
+            && d.data is timestamp
+            && d.resultado in ['aprovado', 'aprovado_com_ressalva', 'reprovado']
+            && d.responsavel is string && d.responsavel.size() > 0
+            && d.responsavelNome is string && d.responsavelNome.size() > 0
+            && d.criteriosAvaliados is map
+            && d.criteriosAvaliados.keys()
+              .hasAll(['prazoEntrega', 'qualidadeProduto', 'documentacaoCorreta', 'atendimento'])
+            && d.criteriosAvaliados.prazoEntrega is bool
+            && d.criteriosAvaliados.qualidadeProduto is bool
+            && d.criteriosAvaliados.documentacaoCorreta is bool
+            && d.criteriosAvaliados.atendimento is bool
+            && d.criadoEm is timestamp
+            && fornecedorAvaliacaoLogicalSignatureOk(d)
+            && (!d.keys().hasAny(['observacoes']) || d.observacoes is string);
+        }
+
         allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow delete: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+
+        match /avaliacoes-periodicas/{avaliacaoId} {
+          allow read: if isActiveMemberOfLab(labId);
+          allow create: if isActiveMemberOfLab(labId)
+                         && fornecedorAvaliacaoCreateValid(request.resource.data);
+          allow update, delete: if false;
+        }
+
+        match /events/{eventId} {
+          allow read: if isActiveMemberOfLab(labId);
+          allow create: if isActiveMemberOfLab(labId);
+          allow update, delete: if false;
+        }
       }
 
       match /notas-fiscais/{notaId} {
@@ -674,6 +750,14 @@ service cloud.firestore {
         allow create, update, delete: if false;  // Via risks_* callables only
       }
 
+      // ── risk-templates (Gestão de Riscos — biblioteca de templates) ─────────
+      // Leitura para membros; escrita admin/owner; sem hard-delete (RN-06).
+      match /risk-templates/{templateId} {
+        allow read: if isActiveMemberOfLab(labId);
+        allow create, update: if isAdminOrOwner(labId);
+        allow delete: if false;
+      }
+
       // ── rt-presenca (Phase 6 / Wave 4 — RDC 978 Art. 22) ──────────────────
       // RT presence status — server-side cache of active RT check-in.
       // DL-1: all writes via rtPresenceCheckin / rtPresenceCheckout callables only.
@@ -766,11 +850,18 @@ service cloud.firestore {
       }
     }
 
-    match /auditLogs/{logId} {
-      allow create: if isAuthenticated();
-      allow read: if isSuperAdmin();
-      allow update, delete: if false;
-    }
+// ── /auditLogs — Global append-only com validação de tenant ────────────
+      // Cada log carrega labId para permitir auditoria cruzada de tenant.
+      // Escrita permitida a qualquer autenticado (client + callable);
+      // leitura restrita a superadmin (auditorias pontuais via callable).
+      match /auditLogs/{logId} {
+        allow create: if isAuthenticated()
+                      && request.resource.data.labId is string
+                      && request.resource.data.action is string
+                      && request.resource.data.operatorId == request.auth.uid;
+        allow read: if isSuperAdmin();
+        allow update, delete: if false;
+      }
 
     // ── /auditLogFailures — Phase 5: writeAuditLog fallback (Agent 8) ──────
     // Written by Cloud Functions (Admin SDK, rules-bypassed) when the primary
@@ -1345,6 +1436,10 @@ service cloud.firestore {
                      && request.resource.data.emailColaborador is bool
                      && request.resource.data.horaEnvio is string;
       }
+    }
+
+    // ── Modules scoped to /labs/{labId}/ ───────────────────────────────────
+    match /labs/{labId} {
 
       // ── ADR 0004 — POPs (Procedimentos Operacionais Padrão) ──────────────
       match /pops/{popId} {
@@ -1510,6 +1605,70 @@ service cloud.firestore {
         allow delete: if false;  // Never delete alerts
       }
 
+      // Indicadores & Melhoria — metas por KPI (soft-deactivate via ativo: false)
+      match /kpi-metas/{metaId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('kpis'));
+        allow create: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('kpis') && isAdminOrOwner(labId));
+        allow update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('kpis') && isAdminOrOwner(labId));
+        allow delete: if false;
+      }
+
+      // Planos de melhoria (DICQ 4.12) — sem hard delete
+      match /planos-melhoria/{planoId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('kpis'));
+        allow create: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('kpis'));
+        allow update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('kpis'));
+        allow delete: if false;
+
+        match /acoes/{acaoId} {
+          allow read: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && hasModuleAccess('kpis'));
+          allow create: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && hasModuleAccess('kpis'));
+          allow update: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && hasModuleAccess('kpis'));
+          allow delete: if false;
+        }
+      }
+
+      // ── CEQ (Controle Qualidade Externo) — Phase 2 Batch 3, PT participation ──
+      // collections: ceq-participacoes, ceq-amostras, ceq-resultados (module slug `ceq` in JWT)
+      match /ceq-participacoes/{participacaoId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('ceq'));
+        allow create: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('ceq'));
+        allow update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('ceq'));
+        allow delete: if false;  // RN-06 soft-delete only
+      }
+
+      match /ceq-amostras/{amostraId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('ceq'));
+        allow create: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('ceq'));
+        allow update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('ceq'));
+        allow delete: if false;
+      }
+
+      match /ceq-resultados/{resultadoId} {
+        allow read: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('ceq'));
+        allow create: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('ceq'));
+        allow update: if isSuperAdmin() ||
+          (isActiveMemberOfLab(labId) && hasModuleAccess('ceq'));
+        allow delete: if false;
+      }
+
       // ── /labs/{labId}/lgpd-* — Phase 2 Batch 2, Task 5 ──────────────────────
       // LGPD: política de privacidade + direitos do titular + DPIA + exclusão
       match /lgpd-solicitacoes/{solId} {
@@ -1652,15 +1811,13 @@ service cloud.firestore {
       }
 
       // ── /labs/{labId}/personnel/** — Phase 8 (Personnel/Cargos + Designações) ──
-      // Job descriptions (Cargos) + organizational designations (GQ/RT/Diretor).
-      // DICQ 5.1.3 (Descrição de Cargos) + DICQ 4.1.2.7 (GQ Designação) compliance.
-      // Soft-delete only (RN-06): nunca hard delete — auditor exige trilha completa.
-      // Writes via Cloud Function callable `signDesignacao` (Fase 0b pattern).
+      // Paths resolve via explicit rules at bottom of file (`match /labs/{labId}/personnel/...`).
+      // Fail-closed here so permissive wildcards do not over-cover restricted subtrees (REQ-403 dossiers).
       match /personnel/{document=**} {
-        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
-        allow create: if false;  // Via signDesignacao callable only
-        allow update: if false;  // Via signDesignacao callable only
-        allow delete: if false;  // Soft-delete only (RN-06)
+        allow read: if false;
+        allow create: if false;
+        allow update: if false;
+        allow delete: if false;
       }
 
       // ── /labs/{labId}/bioquimica/** — Phase 9 (CIQ Bioquímica Foundation) ──
@@ -2137,8 +2294,9 @@ service cloud.firestore {
                     (request.auth.token.medicoSolicitante == true && resource.data.id == request.auth.uid);
         allow write: if false;  // Via syncMedicosWorklab callable only
       }
+    }
 
-      // ── ADR 0003: Nao-Conformidade (Non-Conformidade) ──────────────────────
+    // ── ADR 0003: Nao-Conformidade (Non-Conformidade) ──────────────────────
       // Global NC spine: every lab can track NCs for quality management
       // RDC 978 Art. 134 (tratamento de desvios), DICQ 4.5 (NC management)
       match /labs/{labId}/nao-conformidades/{ncId} {
@@ -2269,8 +2427,7 @@ service cloud.firestore {
       // User acceptance records per policy version. Scoped to /users/{userId}
       // (not under /labs/) because acceptance is personal, not lab-specific.
       // Users can only read/write their own acceptance records.
-    }
-  }
+
 
   // ── /global-portal-medico/** — Phase 10 (Médico Portal Auth) ─────────────────
   // Portal externo para médicos solicitantes (portal-medico branch).
@@ -2700,8 +2857,8 @@ service cloud.firestore {
     // ── Personnel: Cargos (Phase 8 Wave 1) ────────────────────────────────────
     // DICQ 5.1.3: job descriptions with permission matrix
     match /labs/{labId}/personnel/cargos/{cargoId} {
-      allow create, update: if isAdminOrOwner(labId);
-      allow read: if isActiveMemberOfLab(labId);
+      allow create, update: if isSuperAdmin() || (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+      allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
       allow delete: if false;
     }
 
@@ -2709,8 +2866,51 @@ service cloud.firestore {
     // DICQ 4.1.2.7 + RDC 978 Art. 128: formal personnel appointments (RT, QA mgr, etc)
     match /labs/{labId}/personnel/designacoes/{designacaoId} {
       allow create: if false;  // callable only
-      allow read: if isActiveMemberOfLab(labId);
+      allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
       allow update, delete: if false;
+    }
+
+    // ── Personnel: Dossiers (REQ-403 slice 1) ─────────────────────────────────
+    // Per-collaborator dossier (CV, council IDs, certifications notes). Training list lives in
+    // `/labs/{labId}/qualificacoes` + UI tab. Access: superadmin OR admin/owner/RT only (REQ-403 rules line).
+    match /labs/{labId}/personnel/dossiers/{colaboradorId} {
+      function personnelDossierPayloadValidCreate() {
+        let d = request.resource.data;
+        return d.labId == labId
+          && d.colaboradorId == colaboradorId
+          && (d.cvUrl == null || (d.cvUrl is string && d.cvUrl.size() <= 2048))
+          && (d.cvResumo == null || (d.cvResumo is string && d.cvResumo.size() <= 8000))
+          && (d.registroCRF == null || (d.registroCRF is string && d.registroCRF.size() <= 128))
+          && (d.registroCRBM == null || (d.registroCRBM is string && d.registroCRBM.size() <= 128))
+          && (d.registroCREF == null || (d.registroCREF is string && d.registroCREF.size() <= 128))
+          && (d.certificacoesNotas == null || (d.certificacoesNotas is string && d.certificacoesNotas.size() <= 8000))
+          && d.criadoEm is timestamp
+          && d.updatedAt is timestamp;
+      }
+
+      function personnelDossierPayloadValidUpdate() {
+        let d = request.resource.data;
+        return d.labId == resource.data.labId
+          && d.colaboradorId == resource.data.colaboradorId
+          && d.criadoEm == resource.data.criadoEm
+          && (d.cvUrl == null || (d.cvUrl is string && d.cvUrl.size() <= 2048))
+          && (d.cvResumo == null || (d.cvResumo is string && d.cvResumo.size() <= 8000))
+          && (d.registroCRF == null || (d.registroCRF is string && d.registroCRF.size() <= 128))
+          && (d.registroCRBM == null || (d.registroCRBM is string && d.registroCRBM.size() <= 128))
+          && (d.registroCREF == null || (d.registroCREF is string && d.registroCREF.size() <= 128))
+          && (d.certificacoesNotas == null || (d.certificacoesNotas is string && d.certificacoesNotas.size() <= 8000))
+          && d.updatedAt is timestamp;
+      }
+
+      allow read: if isSuperAdmin() || (isActiveMemberOfLab(labId) && isAdminOrRT(labId));
+
+      allow create: if (isSuperAdmin() || (isActiveMemberOfLab(labId) && isAdminOrRT(labId)))
+                    && personnelDossierPayloadValidCreate();
+
+      allow update: if (isSuperAdmin() || (isActiveMemberOfLab(labId) && isAdminOrRT(labId)))
+                    && personnelDossierPayloadValidUpdate();
+
+      allow delete: if false;
     }
 
     // ── Management Review (Phase 8 Wave 1) ────────────────────────────────────
@@ -2750,4 +2950,5 @@ service cloud.firestore {
     }
   }
 
+}
 }

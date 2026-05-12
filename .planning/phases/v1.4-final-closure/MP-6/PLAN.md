@@ -5,7 +5,9 @@ label: Patient Portal Phase 2 — Complaint intake (RCA Five Whys) + NPS + sugge
 type: execute
 model: haiku
 escalation_model: sonnet
-depends_on: ["MP-5a", "MP-5b", "MP-5c"]
+depends_on: ["MP-5a"]
+# MP-5b (CEQ deepening) e MP-5c (analytics consent) deferidos — ver FINAL-REPORT.md
+depends_on_deferred: ["MP-5b", "MP-5c"]
 autonomous: true
 human_gates: 0
 total_subagents: 8

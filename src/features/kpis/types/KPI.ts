@@ -41,6 +41,9 @@ export interface KPIDaily {
   sla_atendido: boolean;
   sla_limite_horas: number;
 
+  /** Meta numérica do período (ex.: alvo de documentação %); opcional. */
+  meta?: number;
+
   readonly criadoEm: Timestamp;
 }
 

@@ -6,18 +6,28 @@
  * Dark-first design matching Apple/Linear references.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useOrgChart } from '../hooks/useOrgChart';
 import { useCargos } from '../hooks/useCargos';
+import { usePersonnelDossierGate } from '../hooks/usePersonnelDossierGate';
 import { OrgChart } from './OrgChart';
 import { CargoList } from './CargoList';
+import { PersonnelDossierTab } from './PersonnelDossierTab';
 
-type TabName = 'org-chart' | 'cargos';
+type TabName = 'org-chart' | 'cargos' | 'dossier';
 
 export function PersonnelDashboard(): React.ReactElement {
   const [activeTab, setActiveTab] = useState<TabName>('org-chart');
+  const { canAccess: canDossier, loading: dossierGateLoading } = usePersonnelDossierGate();
   const { tree, loading: treeLoading, error: treeError } = useOrgChart();
   const { cargos, loading: cargosLoading, error: cargosError } = useCargos();
+
+  useEffect(() => {
+    if (dossierGateLoading) return;
+    if (activeTab === 'dossier' && !canDossier) {
+      setActiveTab('org-chart');
+    }
+  }, [activeTab, canDossier, dossierGateLoading]);
 
   const loading = treeLoading || cargosLoading;
   const error = treeError || cargosError;
@@ -64,6 +74,21 @@ export function PersonnelDashboard(): React.ReactElement {
             >
               Cargos
             </button>
+            {!dossierGateLoading && canDossier && (
+              <button
+                onClick={() => setActiveTab('dossier')}
+                className={`border-b-2 px-1 py-4 text-sm font-medium transition-colors ${
+                  activeTab === 'dossier'
+                    ? 'border-violet-500 text-white'
+                    : 'border-transparent text-white/60 hover:text-white'
+                }`}
+                role="tab"
+                aria-selected={activeTab === 'dossier'}
+                aria-controls="personnel-tabpanel"
+              >
+                Dossiê
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -87,6 +112,10 @@ export function PersonnelDashboard(): React.ReactElement {
         {!loading && !error && activeTab === 'org-chart' && <OrgChart nodes={tree} />}
 
         {!loading && !error && activeTab === 'cargos' && <CargoList cargos={cargos} />}
+
+        {!loading && !error && activeTab === 'dossier' && canDossier && (
+          <PersonnelDossierTab canEdit={canDossier} />
+        )}
       </div>
     </main>
   );

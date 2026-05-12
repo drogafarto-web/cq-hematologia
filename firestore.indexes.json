@@ -1019,6 +1019,30 @@
         { "fieldPath": "ano", "order": "ASCENDING" },
         { "fieldPath": "status", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "ceq-participacoes",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "ativo", "order": "ASCENDING" },
+        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "ceq-amostras",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "ceqParticipacaoId", "order": "ASCENDING" },
+        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "ceq-resultados",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "ceqAmostraId", "order": "ASCENDING" },
+        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

@@ -15,6 +15,28 @@
  */
 
 import type { Timestamp } from 'firebase/firestore';
+import type { LogicalSignature } from '../../educacao-continuada/types/_shared_refs';
+
+/** Endereço estruturado (mesmo shape que `Endereco` em lab-apoio; sem import cruzado). */
+export interface EnderecoEstruturado {
+  logradouro: string;
+  numero: string;
+  complemento?: string;
+  bairro: string;
+  cidade: string;
+  estado: string; // UF
+  cep: string;
+}
+
+/** Qualificação de fornecedor (apoio externo / RDC 978). */
+export interface QualificacaoFornecedor {
+  qualificadoEm: Timestamp;
+  qualificadoPor: string;
+  qualificadoPorNome: string;
+  criteriosDocumentados: string;
+  categorias: string[];
+  logicalSignature: LogicalSignature;
+}
 
 export interface Fornecedor {
   id: string;
@@ -39,6 +61,8 @@ export interface Fornecedor {
   email?: string;
   /** Endereço livre (rua, número, cidade, UF). Estruturação futura se necessário. */
   endereco?: string;
+  /** Endereço estruturado (opcional; complementa `endereco` legado). */
+  enderecoEstruturado?: EnderecoEstruturado;
 
   /** Observações internas do operador (problemas recorrentes, contatos, etc). */
   observacoes?: string;
@@ -54,6 +78,14 @@ export interface Fornecedor {
   createdBy: string;
   updatedAt?: Timestamp;
   updatedBy?: string;
+
+  /** Qualificação documentada (opcional). */
+  qualificacao?: QualificacaoFornecedor;
+  /**
+   * Categorias de fornecimento (ex.: reagentes, peças).
+   * Ausente em docs legados — UIs devem tratar como `[]`.
+   */
+  categorias?: string[];
 }
 
 /**

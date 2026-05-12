@@ -1,0 +1,18 @@
+---
+description: Fluxo spec-driven para novo módulo ou feature grande — contexto → mini-spec → plano → fatias → revisão. Invocar com /spec-module ou ao pedir implementação em etapas.
+alwaysApply: false
+---
+
+# Spec-driven module (Cursor)
+
+Quando esta regra estiver ativa ou o usuário invocar **spec-driven / módulo novo / etapas**:
+
+1. **Contexto mínimo:** resuma só o necessário; use `@arquivo` para fontes de verdade.
+2. **Mini-spec antes de código:** problema, objetivo, arquivos, dependências, riscos, aceite, passos, validação.
+3. **Plano:** ordem de arquivos e fatias pequenas.
+4. **Execução:** uma fase por vez; revisar antes de seguir (`/composer-executor` por fatia; `/designer` se UI; `/qa` antes da próxima fatia).
+5. **Qualidade:** padrões do projeto (`AGENTS.md`, rules por domínio); sem escopo creep.
+
+Comando de referência: [.cursor/commands/spec-module.md](mdc:.cursor/commands/spec-module.md)
+
+Não substitui playbooks de CIQ ou deploy — complementa o fluxo de trabalho no editor.

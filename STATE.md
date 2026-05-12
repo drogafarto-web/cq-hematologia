@@ -1,3 +1,17 @@
+-   **State**: DEPLOYED (v1.4-STABLE)
+-   **Last Action**: Full Firebase deployment (Hosting, Firestore, Functions) successful.
+-   **Next Action**: Handover and user validation.
+
+## Deployment Progress (v1.4)
+- [x] MP-0: Merge & Resolve Conflicts
+- [x] MP-1: Firestore Rules & Indexes
+- [x] MP-2: Web App Build & Deploy (Hosting)
+- [x] MP-3: Cloud Functions Build (Resolved import.meta blocker)
+- [x] MP-4: Cloud Functions Deploy
+- [x] MP-5: Final Verification (v1.4 live)
+
+---
+
 # HC Quality — Current State
 
 **Last updated**: 2026-05-06 (Session 2026-05-06 — Phase 12 Plan 03 Complete)

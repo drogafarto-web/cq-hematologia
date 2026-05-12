@@ -144,12 +144,12 @@ describe('OCR Validation Service', () => {
 
     const report = validateOCRResult({
       parsed,
-      expectedAnalytes: ['alt', 'ast', 'ggt'],
+      expectedAnalytes: ['alt', 'ast', 'ggt', 'ldl'],
       catalog: minimalCatalog,
     });
 
     expect(report.validationSeverity).toBe('reject');
-    expect(report.unmatched).toHaveLength(2);
+    expect(report.unmatched).toHaveLength(3);
   });
 
   it('should reject on low overall confidence', () => {

@@ -219,7 +219,7 @@
       "Skill(gsd-autonomous)"
     ]
   },
-  "model": "sonnet",
+  "model": "haiku",
   "enabledMcpjsonServers": [
     "firebase"
   ]

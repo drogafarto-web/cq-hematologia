@@ -1,2 +1,17 @@
 export * from './types/KPI';
 export * from './kpisService';
+export { KPIDashboard } from './components/KPIDashboard';
+export { useKpiMetas } from './hooks/useKpiMetas';
+export type { UseKpiMetasResult } from './hooks/useKpiMetas';
+export { usePlanosMelhoria } from './hooks/usePlanosMelhoria';
+export type { UsePlanosMelhoriaFilters, UsePlanosMelhoriaResult } from './hooks/usePlanosMelhoria';
+export { usePlanoMelhoria } from './hooks/usePlanoMelhoria';
+export type { UsePlanoMelhoriaResult } from './hooks/usePlanoMelhoria';
+export { usePlanosMelhoriaPendentesCounts } from './hooks/usePlanosMelhoriaPendentesCounts';
+export { PlanoMelhoriaCard } from './components/PlanoMelhoriaCard';
+export type { PlanoMelhoriaCardProps } from './components/PlanoMelhoriaCard';
+export { PlanoMelhoriaListView } from './components/PlanoMelhoriaListView';
+export { PlanoMelhoriaDetail } from './components/PlanoMelhoriaDetail';
+export type { PlanoMelhoriaDetailProps } from './components/PlanoMelhoriaDetail';
+export { AcaoMelhoriaForm } from './components/AcaoMelhoriaForm';
+export type { AcaoMelhoriaFormProps } from './components/AcaoMelhoriaForm';

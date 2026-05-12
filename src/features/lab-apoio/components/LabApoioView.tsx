@@ -12,6 +12,7 @@ import { useLabApoio } from '../hooks/useLabApoio';
 import { useExpiryAlerts } from '../hooks/useExpiryAlerts';
 import { LabApoioList } from './LabApoioList';
 import { VencimentosWidget } from './VencimentosWidget';
+import { VigenciaAlertBanner } from './VigenciaAlertBanner';
 
 export function LabApoioView() {
   const { contratos, loading, error } = useLabApoio();
@@ -62,6 +63,8 @@ export function LabApoioView() {
           <span className="text-2xl font-bold text-amber-500">{semAvaliacaoAnual}</span>
         </div>
       </div>
+
+      {!loading && <VigenciaAlertBanner contratos={contratos} />}
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-white/5 px-6">

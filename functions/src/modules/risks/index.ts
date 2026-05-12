@@ -11,6 +11,8 @@ export { risks_createRisk } from './createRisk';
 export { risks_updateRisk } from './updateRisk';
 export { risks_softDeleteRisk } from './softDeleteRisk';
 export { risks_registrarRevisao } from './registrarRevisao';
+export { risks_vincularNcAoRisco } from './vincularNcAoRisco';
+export { risks_aprovarRisco } from './aprovarRisco';
 export { onRiskEventCreated } from './onRiskEventCreated';
 export { scheduledReview } from './scheduledReview';
 

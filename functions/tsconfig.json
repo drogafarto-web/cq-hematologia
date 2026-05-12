@@ -17,6 +17,7 @@
   "exclude": [
     "node_modules",
     "../node_modules",
+    "../src",
     "src/**/*.test.ts",
     "src/**/*.test.tsx",
     "src/__tests__/**",

@@ -1,0 +1,1 @@
+export { useAvaliacoesFornecedor } from './useAvaliacoesFornecedor';

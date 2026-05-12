@@ -104,13 +104,25 @@ export default defineConfig(({ mode }) => {
     // InstalÃ¡vel em desktop (Chrome/Edge) e mobile (Android/iOS).
     // Service worker gerado automaticamente via Workbox com auto-update
     // em cada deploy â€” o usuÃ¡rio vÃª prompt "nova versÃ£o disponÃ­vel".
+    //
+    // --- Contrato SW/cliente ---
+    // Precache: cada URL deve aparecer uma vez. `includeAssets` + `globPatterns` sobre o mesmo
+    // ficheiro em `public/` → duplicata (ex.: revision:null vs hash) e Workbox falha com
+    // add-to-cache-list-conflicting-entries. Ícones/favicon ficam só via cópia `public/` → `dist/` + glob.
+    // (1) `src/main.tsx`: `virtual:pwa-register` + `registerSW({ immediate: true })`.
+    // (2) `registerType: 'autoUpdate'` — atualização automática do plugin em produção.
+    // (3) `workbox.skipWaiting: true` — novo SW ativa assim que o install conclui (não fica em waiting).
+    // (4) `workbox.clientsClaim: true` — assume clientes imediatamente após ativar.
+    // (5) `selfDestroying: process.env.VITE_PWA_SELF_DESTROY === 'true'` — só true se a string for exatamente
+    //     'true'; caso contrário false (env ausente = false). NUNCA permanente: one-shot = um build+deploy
+    //     com a env definida na shell/CI antes de `vite build`, depois rebuild SEM a env e novo deploy.
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: [
-        'favicon.ico',
-        'icons/apple-touch-icon.png',
-        'assets/labclin-logo.png',
-      ],
+      selfDestroying: process.env.VITE_PWA_SELF_DESTROY === 'true',
+      includeManifestIcons: false,
+      // Intencionalmente vazio: favicon + icons já estão em `public/` e entram no precache via
+      // workbox.globPatterns — listar aqui duplicava o mesmo URL no manifest do SW.
+      includeAssets: [],
       manifest: {
         name: 'HC Quality â€” Controle de Qualidade Laboratorial',
         short_name: 'CQ Labclin',
@@ -147,11 +159,16 @@ export default defineConfig(({ mode }) => {
         ],
       },
       workbox: {
-        // Arquivos a precachear â€” shell do app. Firestore/Storage runtime
+        // Arquivos a precachear — shell do app. Firestore/Storage runtime
         // ficam por conta do Firebase SDK (IndexedDB).
-        globPatterns: ['**/*.{js,css,html,ico,png,webp,svg,woff2}'],
+        // `navigateFallback` below must be precached or Workbox throws
+        // `non-precached-url` at install and the SW never updates (stale UI).
+        globPatterns: ['**/*.{html,js,css,ico,png,webp,svg,woff2}'],
         // Limite generoso pra chunks do React + Firebase (~3MB tÃ­pico)
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        // (3)(4) Produção: novo SW assume controle assim que o install passa.
+        skipWaiting: true,
+        clientsClaim: true,
         cleanupOutdatedCaches: true,
         // NÃ£o cachear chamadas de Cloud Functions nem Firestore REST â€” esses
         // devem sempre ir atÃ© o servidor (ou falhar pra trigger offline do SDK).
@@ -213,7 +230,15 @@ export default defineConfig(({ mode }) => {
     globals: true,
     setupFiles: ['./test/setup.ts'],
     include: ['test/**/*.test.ts', 'test/**/*.test.tsx', 'test/**/*.smoke.ts', 'src/**/__tests__/**/*.test.ts', 'src/**/__tests__/**/*.test.tsx'],
-    exclude: ['**/node_modules/**', 'src/features/analytics/__tests__/**'],
+    exclude: [
+      '**/node_modules/**',
+      'src/features/analytics/__tests__/**',
+      // Integração / E2E: exigem emulador ou projeto Firebase configurado — não fazem parte do `test:unit` local/CI rápido
+      'test/integration/**',
+      '**/*.e2e.test.ts',
+      // UI do portal ainda não expõe estes componentes; teste fica para quando existirem os ficheiros
+      'src/features/patient-portal/__tests__/error-handling.test.tsx',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],

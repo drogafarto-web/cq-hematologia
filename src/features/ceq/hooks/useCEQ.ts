@@ -7,13 +7,17 @@
  * - CEQResultado entry + validation
  * - Real-time Z-score display
  * - NC auto-creation feedback
+ *
+ * Transport vs RBAC: snapshot (Listen/WebChannel) failures are classified with a unary
+ * getDocs probe — permission-denied on listener + unary ok suggests client-side blocking
+ * or streaming issues, not necessarily missing modules.ceq.
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { FirebaseError } from 'firebase/app';
 import { onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../../../config/firebase.config';
-import { collection, query, where } from 'firebase/firestore';
+import { collection, getDocs, limit, query, where } from 'firebase/firestore';
 import { useAuthStore, useActiveLab } from '../../../store/useAuthStore';
 import { toast } from '../../../shared/store/useToastStore';
 import type {
@@ -32,8 +36,93 @@ import {
   listarCEQAmostras,
   listarCEQResultados,
   validarCEQResultado,
-  obterCEQResultado,
 } from '../services/ceqService';
+import {
+  classifyFirestoreListenerError,
+  formatCeqUserFacingError,
+  type FirestoreListenerFailureCategory,
+  type FirestoreUnaryProbeResult,
+} from '../../../shared/firebase/firestoreTransportDiagnostics';
+import { validateCeqAccess, stringifyCeqAccessReport } from '../utils/validateCeqAccess';
+
+const CEQ_POLL_MS = 8000;
+
+type CeqUiErrorCategory = FirestoreListenerFailureCategory | 'none';
+
+type StreamKind = 'participacoes' | 'amostras' | 'resultados';
+
+async function primeAuthTokenForFirestore(): Promise<void> {
+  try {
+    await auth.currentUser?.getIdToken(true);
+  } catch {
+    /* ignore — snapshot still attempts with current session */
+  }
+}
+
+async function readTokenModulesCeq(): Promise<boolean | null> {
+  try {
+    const u = auth.currentUser;
+    if (!u) return null;
+    const tr = await u.getIdTokenResult(true);
+    const m = tr.claims?.modules as Record<string, unknown> | undefined;
+    return typeof m?.ceq === 'boolean' ? m.ceq : null;
+  } catch {
+    return null;
+  }
+}
+
+async function unaryProbeForStream(
+  labId: string,
+  kind: StreamKind,
+  participacaoId: string | undefined,
+  amostraId: string | undefined,
+): Promise<FirestoreUnaryProbeResult> {
+  try {
+    if (kind === 'participacoes') {
+      const q = query(
+        collection(db, 'labs', labId, 'ceq-participacoes'),
+        where('ativo', '==', true),
+        where('deletadoEm', '==', null),
+        limit(1),
+      );
+      const snap = await getDocs(q);
+      return { status: 'ok', docCount: snap.size };
+    }
+    if (kind === 'amostras') {
+      if (!participacaoId) {
+        return { status: 'error', code: 'skipped', message: 'missing participacaoId' };
+      }
+      const q = query(
+        collection(db, 'labs', labId, 'ceq-amostras'),
+        where('ceqParticipacaoId', '==', participacaoId),
+        where('deletadoEm', '==', null),
+        limit(1),
+      );
+      const snap = await getDocs(q);
+      return { status: 'ok', docCount: snap.size };
+    }
+    if (!amostraId) {
+      return { status: 'error', code: 'skipped', message: 'missing amostraId' };
+    }
+    const q = query(
+      collection(db, 'labs', labId, 'ceq-resultados'),
+      where('ceqAmostraId', '==', amostraId),
+      where('deletadoEm', '==', null),
+      limit(1),
+    );
+    const snap = await getDocs(q);
+    return { status: 'ok', docCount: snap.size };
+  } catch (e: unknown) {
+    if (e instanceof FirebaseError) {
+      return { status: 'error', code: e.code, message: e.message };
+    }
+    return {
+      status: 'error',
+      code: 'unknown',
+      message: e instanceof Error ? e.message : String(e),
+    };
+  }
+}
 
 interface CEQState {
   participacoes: CEQParticipacao[];
@@ -45,24 +134,6 @@ interface CEQState {
 
   loading: boolean;
   error: string | null;
-}
-
-function formatCeqSnapshotError(err: unknown): string {
-  if (err instanceof FirebaseError && err.code === 'permission-denied') {
-    return (
-      'CEQ: permissão negada. Faça logout e login para atualizar o token; confira claim modules.ceq ' +
-      'e associação ao laboratório.'
-    );
-  }
-  return err instanceof Error ? err.message : 'Erro ao carregar dados CEQ';
-}
-
-async function primeAuthTokenForFirestore(): Promise<void> {
-  try {
-    await auth.currentUser?.getIdToken(true);
-  } catch {
-    /* ignore — snapshot still attempts with current session */
-  }
 }
 
 const initialState: CEQState = {
@@ -78,11 +149,84 @@ const initialState: CEQState = {
 export function useCEQ() {
   const [state, setState] = useState(initialState);
   const [listenerEpoch, setListenerEpoch] = useState(0);
+  const [realtimeDegraded, setRealtimeDegraded] = useState(false);
+  const [ceqErrorCategory, setCeqErrorCategory] = useState<CeqUiErrorCategory>('none');
+  const [ceqErrorTitle, setCeqErrorTitle] = useState<string | null>(null);
+
+  const lastToastKeyRef = useRef<string | null>(null);
   const activeLab = useActiveLab();
   const uid = useAuthStore((s) => s.appProfile?.user?.uid ?? '');
 
+  const emitCeqToastOnce = useCallback((key: string, message: string) => {
+    if (lastToastKeyRef.current === key) return;
+    lastToastKeyRef.current = key;
+    toast.error(message);
+  }, []);
+
+  const applyListenerFailure = useCallback(
+    async (params: {
+      err: unknown;
+      stream: StreamKind;
+      labId: string;
+      participacaoId?: string;
+      amostraId?: string;
+      /** Clear lists affected by this stream */
+      clearParticipacoes?: boolean;
+      clearAmostras?: boolean;
+      clearResultados?: boolean;
+    }) => {
+      const { err, stream, labId, participacaoId, amostraId, clearParticipacoes, clearAmostras, clearResultados } =
+        params;
+
+      await primeAuthTokenForFirestore();
+      const unaryProbe = await unaryProbeForStream(labId, stream, participacaoId, amostraId);
+      const tokenClaimsCeqTrue = await readTokenModulesCeq();
+
+      const { category, technicalCode, technicalMessage } = classifyFirestoreListenerError({
+        err,
+        unaryProbe,
+        tokenClaimsCeqTrue,
+      });
+      const { title, body, copySlug } = formatCeqUserFacingError({ category });
+
+      if (import.meta.env.DEV || globalThis.localStorage?.getItem('hcq_firebase_diag') === '1') {
+        // eslint-disable-next-line no-console -- diagnóstico explícito sob flag DEV / localStorage
+        console.warn('[CEQ listener]', {
+          stream,
+          category,
+          technicalCode,
+          technicalMessage,
+          unaryProbe,
+          tokenClaimsCeqTrue,
+          copySlug,
+        });
+      }
+
+      setCeqErrorCategory(category);
+      setCeqErrorTitle(title);
+      setState((s) => ({
+        ...s,
+        ...(clearParticipacoes ? { participacoes: [] } : {}),
+        ...(clearAmostras ? { amostras: [] } : {}),
+        ...(clearResultados ? { resultados: [] } : {}),
+        error: body,
+      }));
+
+      if (category === 'transport_suspected') {
+        setRealtimeDegraded(true);
+      }
+
+      emitCeqToastOnce(`${category}:${stream}`, `${title} ${body}`);
+    },
+    [emitCeqToastOnce],
+  );
+
   const retryCeqFirestoreListeners = useCallback(async () => {
     try {
+      lastToastKeyRef.current = null;
+      setRealtimeDegraded(false);
+      setCeqErrorCategory('none');
+      setCeqErrorTitle(null);
       await auth.currentUser?.getIdToken(true);
       setState((s) => ({ ...s, error: null }));
       setListenerEpoch((e) => e + 1);
@@ -91,19 +235,54 @@ export function useCEQ() {
     }
   }, []);
 
-  /**
-   * NOTA OPERACIONAL:
-   * Se persistir 'permission-denied' após 'Recarregar permissões', o usuário precisa
-   * de provisionamento de claims (modules.ceq) ou correção do documento 'members'
-   * associado ao laboratório — isso é uma ação de backend/admin.
-   */
+  const copyCeqDiagnostics = useCallback(async () => {
+    if (!activeLab) {
+      toast.error('Nenhum laboratório ativo.');
+      return;
+    }
+    try {
+      const report = await validateCeqAccess({ auth, db, labId: activeLab.id });
+      const text = stringifyCeqAccessReport(report);
+      await navigator.clipboard.writeText(text);
+      toast.success('Diagnóstico CEQ copiado para a área de transferência.');
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Falha ao gerar diagnóstico';
+      toast.error(msg);
+    }
+  }, [activeLab]);
 
-  // ─── Load participacoes ──────────────────────────────────────────────────
+  // ─── Load participacoes (realtime or degraded polling) ───────────────────
 
   useEffect(() => {
     if (!activeLab) return;
 
+    const labId = activeLab.id;
     let cancelled = false;
+
+    if (realtimeDegraded) {
+      let interval: ReturnType<typeof setInterval> | undefined;
+      const tick = async () => {
+        try {
+          const list = await listarCEQParticipacoes(labId);
+          if (!cancelled) {
+            setState((s) => ({ ...s, participacoes: list, error: null }));
+          }
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : 'Erro ao carregar participações (polling)';
+          if (!cancelled) {
+            setState((s) => ({ ...s, participacoes: [], error: msg }));
+            toast.error(msg);
+          }
+        }
+      };
+      void tick();
+      interval = setInterval(() => void tick(), CEQ_POLL_MS);
+      return () => {
+        cancelled = true;
+        if (interval) clearInterval(interval);
+      };
+    }
+
     let unsubscribe: (() => void) | undefined;
 
     void (async () => {
@@ -111,7 +290,7 @@ export function useCEQ() {
       if (cancelled) return;
 
       const q = query(
-        collection(db, 'labs', activeLab.id, 'ceq-participacoes'),
+        collection(db, 'labs', labId, 'ceq-participacoes'),
         where('ativo', '==', true),
         where('deletadoEm', '==', null),
       );
@@ -133,11 +312,16 @@ export function useCEQ() {
           });
 
           setState((s) => ({ ...s, participacoes, error: null }));
+          setCeqErrorCategory('none');
+          setCeqErrorTitle(null);
         },
         (err) => {
-          const msg = formatCeqSnapshotError(err);
-          setState((s) => ({ ...s, participacoes: [], error: msg }));
-          toast.error(msg);
+          void applyListenerFailure({
+            err,
+            stream: 'participacoes',
+            labId,
+            clearParticipacoes: true,
+          });
         },
       );
     })();
@@ -146,15 +330,39 @@ export function useCEQ() {
       cancelled = true;
       unsubscribe?.();
     };
-  }, [activeLab, listenerEpoch]);
+  }, [activeLab, listenerEpoch, realtimeDegraded, applyListenerFailure]);
 
-  // ─── Load amostras when participacao selected ─────────────────────────────
+  // ─── Load amostras when participacao selected ───────────────────────────
 
   useEffect(() => {
     if (!activeLab || !state.selectedParticipacao) return;
 
+    const labId = activeLab.id;
     const participacaoId = state.selectedParticipacao.id;
     let cancelled = false;
+
+    if (realtimeDegraded) {
+      let interval: ReturnType<typeof setInterval> | undefined;
+      const tick = async () => {
+        try {
+          const amostras = await listarCEQAmostras(labId, participacaoId);
+          if (!cancelled) setState((s) => ({ ...s, amostras, error: null }));
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : 'Erro ao carregar amostras (polling)';
+          if (!cancelled) {
+            setState((s) => ({ ...s, amostras: [], error: msg }));
+            toast.error(msg);
+          }
+        }
+      };
+      void tick();
+      interval = setInterval(() => void tick(), CEQ_POLL_MS);
+      return () => {
+        cancelled = true;
+        if (interval) clearInterval(interval);
+      };
+    }
+
     let unsubscribe: (() => void) | undefined;
 
     void (async () => {
@@ -162,7 +370,7 @@ export function useCEQ() {
       if (cancelled) return;
 
       const q = query(
-        collection(db, 'labs', activeLab.id, 'ceq-amostras'),
+        collection(db, 'labs', labId, 'ceq-amostras'),
         where('ceqParticipacaoId', '==', participacaoId),
         where('deletadoEm', '==', null),
       );
@@ -186,9 +394,13 @@ export function useCEQ() {
           setState((s) => ({ ...s, amostras, error: null }));
         },
         (err) => {
-          const msg = formatCeqSnapshotError(err);
-          setState((s) => ({ ...s, amostras: [], error: msg }));
-          toast.error(msg);
+          void applyListenerFailure({
+            err,
+            stream: 'amostras',
+            labId,
+            participacaoId,
+            clearAmostras: true,
+          });
         },
       );
     })();
@@ -197,15 +409,39 @@ export function useCEQ() {
       cancelled = true;
       unsubscribe?.();
     };
-  }, [activeLab, state.selectedParticipacao, listenerEpoch]);
+  }, [activeLab, state.selectedParticipacao, listenerEpoch, realtimeDegraded, applyListenerFailure]);
 
-  // ─── Load resultados when amostra selected ──────────────────────────────
+  // ─── Load resultados when amostra selected ───────────────────────────────
 
   useEffect(() => {
     if (!activeLab || !state.selectedAmostra) return;
 
+    const labId = activeLab.id;
     const amostraId = state.selectedAmostra.id;
     let cancelled = false;
+
+    if (realtimeDegraded) {
+      let interval: ReturnType<typeof setInterval> | undefined;
+      const tick = async () => {
+        try {
+          const resultados = await listarCEQResultados(labId, amostraId);
+          if (!cancelled) setState((s) => ({ ...s, resultados, error: null }));
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : 'Erro ao carregar resultados (polling)';
+          if (!cancelled) {
+            setState((s) => ({ ...s, resultados: [], error: msg }));
+            toast.error(msg);
+          }
+        }
+      };
+      void tick();
+      interval = setInterval(() => void tick(), CEQ_POLL_MS);
+      return () => {
+        cancelled = true;
+        if (interval) clearInterval(interval);
+      };
+    }
+
     let unsubscribe: (() => void) | undefined;
 
     void (async () => {
@@ -213,7 +449,7 @@ export function useCEQ() {
       if (cancelled) return;
 
       const q = query(
-        collection(db, 'labs', activeLab.id, 'ceq-resultados'),
+        collection(db, 'labs', labId, 'ceq-resultados'),
         where('ceqAmostraId', '==', amostraId),
         where('deletadoEm', '==', null),
       );
@@ -244,9 +480,13 @@ export function useCEQ() {
           setState((s) => ({ ...s, resultados, error: null }));
         },
         (err) => {
-          const msg = formatCeqSnapshotError(err);
-          setState((s) => ({ ...s, resultados: [], error: msg }));
-          toast.error(msg);
+          void applyListenerFailure({
+            err,
+            stream: 'resultados',
+            labId,
+            amostraId,
+            clearResultados: true,
+          });
         },
       );
     })();
@@ -255,7 +495,7 @@ export function useCEQ() {
       cancelled = true;
       unsubscribe?.();
     };
-  }, [activeLab, state.selectedAmostra, listenerEpoch]);
+  }, [activeLab, state.selectedAmostra, listenerEpoch, realtimeDegraded, applyListenerFailure]);
 
   // ─── Operations ───────────────────────────────────────────────────────────
 
@@ -344,9 +584,20 @@ export function useCEQ() {
     [activeLab, uid],
   );
 
+  const isCeqRbacBlocked = ceqErrorCategory === 'rbac';
+  const isCeqTransportSuspected = ceqErrorCategory === 'transport_suspected';
+  const showCeqAccessPanel = isCeqRbacBlocked || isCeqTransportSuspected;
+
   return {
     ...state,
     retryCeqFirestoreListeners,
+    copyCeqDiagnostics,
+    ceqRealtimeDegraded: realtimeDegraded,
+    ceqErrorCategory,
+    ceqErrorTitle,
+    isCeqRbacBlocked,
+    isCeqTransportSuspected,
+    showCeqAccessPanel,
     selectParticipacao: (p: CEQParticipacao | null) =>
       setState((s) => ({
         ...s,

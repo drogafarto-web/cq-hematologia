@@ -1,0 +1,1 @@
+export { generateEquipamentoReport } from './generateEquipamentoReport';

@@ -234,6 +234,10 @@ export {
   onContratoEventCreated,
 } from './modules/labApoio';
 
+// ─── apoio / lab-apoio KPI alerts (apoio-fornecedores T-AF-10) ─────────────────
+//   apoio_alertVencimentos — daily 07:00 BRT: kpi-alerts for vigência + certificações ≤30d
+export { apoio_alertVencimentos } from './modules/apoio/alertVencimentos';
+
 // ─── risks module (Phase 0 / Plan 00-04 — DICQ 4.14.6 + RDC 978 Art. 86) ────────
 // Living risk register with FMEA-lite scoring (P × S × D, NPR 1–125), 5×5 heatmap,
 // periodic review automation (annual + monthly top-5), treatment tracking.
@@ -243,17 +247,25 @@ export {
 //   risks_updateRisk                — mutate P/S/D (NPR recomputed server-side)
 //   risks_softDeleteRisk            — logical delete (reject if status=fechado)
 //   risks_registrarRevisao          — append review (reclassificado recomputes NPR)
+//   risks_vincularNcAoRisco         — arrayUnion ncIds ou capaIds + evento de auditoria
+//   risks_aprovarRisco              — aprovação executiva risco crítico (admin/owner + assinatura)
 //   risks_seedFromCsv               — admin-only bulk import (stretch, optional)
 //   onRiskEventCreated              — Firestore trigger, computes chainHash per event
 //   scheduledReview                 — cron: daily 07:00 BRT (annual) + monthly top-5
+//   risks_alertRiskReviews          — cron: daily 07:00 BRT — kpi-alerts revisão ≤7d
+//   generateRiskMatrixPDF           — PDF mapa de riscos ativos (Storage + URL 2h)
 export {
   risks_createRisk,
   risks_updateRisk,
   risks_softDeleteRisk,
   risks_registrarRevisao,
+  risks_vincularNcAoRisco,
+  risks_aprovarRisco,
   onRiskEventCreated,
   scheduledReview,
 } from './modules/risks/index';
+export { risks_alertRiskReviews } from './modules/risks/alertRiskReviews';
+export { generateRiskMatrixPDF } from './callables/risks/generateRiskMatrixPDF';
 
 // ─── qualidade module (ADR 0003 — Não-Conformidade + Phase 7 Advanced Auditoria) ──
 // Lifecycle management for quality incidents (Não-Conformidades).
@@ -381,7 +393,6 @@ export {
   registerPresenca,
   createReAuditoria,
   closeAuditoria,
-  registerPresenca,
   installChecklistTemplate,
   updateChecklistResponses,
   generateInternalAuditReportPDF,
@@ -393,8 +404,10 @@ export {
 // criarEquipamento: create equipment record (admin/RT only)
 // registrarCalibracacao: record calibration completion
 // validarCalibracaoEquipamento: gate function, blocks CIQ runs if overdue
+// equipamentos_alertManutencaoVencida — cron: every 24h — kpi-alerts manutenção agendada vencida
 export {
   criarEquipamento,
+  equipamentos_alertManutencaoVencida,
   registrarCalibracacao,
   registrarManutencao,
 } from './modules/equipamentos/index';
@@ -571,6 +584,8 @@ export {
   criarSugestao,
   transitarSugestao,
   upvoteSugestao,
+  voteSugestao,
+  recomputeSugestaoRank,
 } from './modules/sugestoes/index';
 
 // ─── lgpd module (Phase 0 — LGPD Compliance) ────────────────────────────────────
@@ -602,12 +617,34 @@ export {
 // DICQ 5.3.1.4 compliance.
 export { uploadCalibracaoCertificate } from './callables/calibracao/index';
 
+// ─── Manutenção de equipamentos (labs/{labId}/equipamentos/.../manutencoes) ───────
+export { agendarManutencao, registrarManutencaoRealizada } from './callables/manutencao/index';
+
+// ─── Equipamentos — relatório PDF (gestão-equipamentos T-GE-12) ───────────────────
+export { generateEquipamentoReport } from './callables/equipamentos/index';
+
 // ─── Management Review module (Phase 8 Wave 3 — DICQ 4.15 Annual Review) ────────
 // aggregateManagementReviewData: pre-populate annual management review with 15 data entries
 // from audit, NC, CAPA, training, CEQ, KPI, complaints, suppliers, improvements, personnel,
 // equipment, incidents, risk, PGRSS (manual), compliance gaps (manual).
 // Gracefully handles missing data sources (returns data: {error} instead of failing).
 export { aggregateManagementReviewData } from './callables/management-review/index';
+
+// ─── Fornecedores (apoio externo / qualificação) ───────────────────────────────
+export {
+  qualificarFornecedor,
+  registrarAvaliacaoFornecedor,
+  generateFornecedoresReport,
+} from './callables/fornecedores/index';
+
+// ─── KPIs — metas / planos de melhoria (Indicadores & Melhoria) ─────────────────
+export {
+  definirMetaKPI,
+  generateKPIReport,
+  criarPlanoMelhoria,
+  atualizarAcaoMelhoria,
+  fecharPlanoMelhoria,
+} from './callables/kpis/index';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -770,7 +807,8 @@ export const setUserDisabled = onCall({}, async (request) => {
     throw new HttpsError('internal', `Falha ao atualizar conta: ${msg}`);
   }
 
-  await admin.firestore().doc(`users/${uid}`).update({ disabled });
+  // merge: true — perfil pode estar ausente no Firestore (Auth existe, doc não)
+  await admin.firestore().doc(`users/${uid}`).set({ disabled }, { merge: true });
 
   await writeAuditLog({
     action: disabled ? 'DISABLE_USER' : 'ENABLE_USER',
@@ -812,8 +850,9 @@ export const setUserSuperAdmin = onCall({}, async (request) => {
     );
   }
 
-  // Update Firestore + sync custom claim atomically (serially is fine here)
-  await admin.firestore().doc(`users/${targetUid}`).update({ isSuperAdmin });
+  // merge: true — update() falha com NOT_FOUND se users/{uid} não existir (erro → internal no cliente)
+  const userRef = admin.firestore().doc(`users/${targetUid}`);
+  await userRef.set({ isSuperAdmin }, { merge: true });
   await syncClaims(targetUid, isSuperAdmin);
 
   await writeAuditLog({

@@ -443,7 +443,11 @@ export type View =
   | 'sugestoes'
   | 'portal-medico'
   | 'turnos'
-  | 'risks';
+  | 'equipamentos'
+  | 'risks'
+  | 'kpis'
+  | 'lab-apoio'
+  | 'pre-pos-analitico';
 
 // ─── Traceability ─────────────────────────────────────────────────────────────
 

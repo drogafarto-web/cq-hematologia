@@ -159,7 +159,7 @@ describe('reportPDF', () => {
 
     // Count occurrences
     const ruleCount = (metadata.textContent.match(/RULE:/g) || []).length;
-    expect(ruleCount).toBe(2); // Only 2 rules have alerts
+    expect(ruleCount).toBe(3); // Três regras no fixture (inclui Threshold com count 0)
   });
 
   // ─── Test 5: Empty report produces valid PDF ────────────────────────────
@@ -177,14 +177,18 @@ describe('reportPDF', () => {
     const { metadata: meta1 } = generateMockPDF(fixtureReport);
     const { metadata: meta2 } = generateMockPDF(fixtureReport);
 
-    // Hash the summary sections for comparison
+    // Strip the wall-clock timestamp line before hashing — GENERATED embeds
+    // new Date().toISOString() so two renders in the same run differ by nanoseconds.
+    // Determinism is asserted on the stable content (lab name, period, rules).
+    const strip = (s: string) => s.replace(/GENERATED:.*?\n/, '');
+
     const hash1 = crypto
       .createHash('sha256')
-      .update(meta1.textContent)
+      .update(strip(meta1.textContent))
       .digest('hex');
     const hash2 = crypto
       .createHash('sha256')
-      .update(meta2.textContent)
+      .update(strip(meta2.textContent))
       .digest('hex');
 
     expect(hash1).toBe(hash2);

@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { useSugestoes } from '../hooks/useSugestoes';
 import { useActiveLabId } from '../../../store/useAuthStore';
 import { SugestaoDetail } from './SugestaoDetail';
+import { SugestaoVotingPanel } from './SugestaoVotingPanel';
 import type { LabId } from '../types';
 import type { Sugestao } from '../services/sugestaoService';
 
 export const SugestaoDashboard: React.FC = () => {
   const labId = useActiveLabId() as LabId;
+  const [view, setView] = useState<'lista' | 'votacao'>('lista');
   const [selectedCategoria, setSelectedCategoria] = useState<string>('todas');
   const [selectedStatus, setSelectedStatus] = useState<string>('todas');
   const [ordenarPor, setOrdenarPor] = useState<'votos' | 'recencia'>('votos');
@@ -30,17 +32,70 @@ export const SugestaoDashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Sugestões</h1>
-        <a
-          href="/sugestoes/nova"
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-        >
-          Nova sugestão
-        </a>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex rounded-lg border border-gray-300 dark:border-gray-600 p-0.5 bg-gray-100 dark:bg-[#111827]">
+            <button
+              type="button"
+              onClick={() => setView('lista')}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                view === 'lista'
+                  ? 'bg-white dark:bg-[#1f2937] text-gray-900 dark:text-white shadow'
+                  : 'text-gray-600 dark:text-gray-400'
+              }`}
+            >
+              Lista
+            </button>
+            <button
+              type="button"
+              onClick={() => setView('votacao')}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                view === 'votacao'
+                  ? 'bg-white dark:bg-[#1f2937] text-gray-900 dark:text-white shadow'
+                  : 'text-gray-600 dark:text-gray-400'
+              }`}
+            >
+              Votação
+            </button>
+          </div>
+          <a
+            href="/sugestoes/nova"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+          >
+            Nova sugestão
+          </a>
+        </div>
       </div>
 
-      {/* Filters */}
+      {view === 'votacao' && labId ? (
+        <>
+          <div className="max-w-3xl mx-auto">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Filtrar por categoria
+            </label>
+            <select
+              value={selectedCategoria}
+              onChange={(e) => setSelectedCategoria(e.target.value)}
+              className="w-full max-w-xs px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#1f2937] text-gray-900 dark:text-white"
+            >
+              <option value="todas">Todas</option>
+              <option value="produto">Produto</option>
+              <option value="processo">Processo</option>
+              <option value="ambiente">Ambiente</option>
+              <option value="atendimento">Atendimento</option>
+              <option value="outro">Outro</option>
+            </select>
+          </div>
+          <SugestaoVotingPanel
+            labId={labId}
+            filterTopic={selectedCategoria === 'todas' ? undefined : selectedCategoria}
+          />
+        </>
+      ) : null}
+
+      {/* Filters — lista view */}
+      {view === 'lista' ? (
       <div className="grid grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -91,8 +146,10 @@ export const SugestaoDashboard: React.FC = () => {
           </select>
         </div>
       </div>
+      ) : null}
 
       {/* List */}
+      {view === 'lista' ? (
       <div className="space-y-3">
         {isLoading ? (
           <div className="text-center py-8 text-gray-500">Carregando sugestões...</div>
@@ -141,6 +198,7 @@ export const SugestaoDashboard: React.FC = () => {
           ))
         )}
       </div>
+      ) : null}
     </div>
   );
 };

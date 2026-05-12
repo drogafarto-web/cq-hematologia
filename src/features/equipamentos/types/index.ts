@@ -7,6 +7,8 @@ export type {
   EquipamentoSnapshot,
   EquipamentoStatus,
 } from './Equipamento';
+export type { ManutencaoPreventiva, ManutencaoStatus } from './ManutencaoPreventiva';
+export type { EquipamentoUso } from './EquipamentoUso';
 export {
   RETENCAO_ANOS_POS_APOSENTADORIA,
   buildEquipamentoSnapshot,

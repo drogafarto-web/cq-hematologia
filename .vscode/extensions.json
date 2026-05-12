@@ -1,0 +1,16 @@
+﻿{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "eamodio.gitlens",
+    "usernamehw.errorlens",
+    "mikestead.dotenv",
+    "wix.vscode-import-cost",
+    "bradlc.vscode-tailwindcss",
+    "christian-kohler.npm-intellisense",
+    "PKief.material-icon-theme",
+    "humao.rest-client",
+    "Gruntfuggly.todo-tree",
+    "redhat.vscode-yaml"
+  ]
+}

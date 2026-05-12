@@ -1,0 +1,20 @@
+---
+description: Executor Composer 2 — tarefas pequenas, mini-spec antes de editar, uma etapa por vez, baixo risco. Invocar com /composer-executor.
+alwaysApply: false
+---
+
+# Composer 2 — executor de tarefas pequenas
+
+Quando o usuário estiver no **Composer 2** ou pedir **execução por etapas / baixo risco**:
+
+- **Uma tarefa** por conversa ou por rodada; contexto com `@arquivo` só do necessário.
+- **Antes de codar:** mini-spec (problema, objetivo, arquivos, dependências, riscos, aceite, passos).
+- **Mais de 3 passos** ou **muitos arquivos:** plano visível primeiro; confirmar se arriscado.
+- **Execução:** uma etapa autorizada → resultado → validação → **parar** até próxima instrução.
+- **Não:** escopo extra, refator amplo, reescrita criativa, vários problemas de uma vez.
+- **Dúvida:** padrão do repo; incerteza → perguntar.
+- Respeitar `AGENTS.md` (deploy/commit sem ack, etc.).
+
+**Cadeia típica:** `/spec-module` (spec + fatias) → `/composer-executor` (uma fatia) → `/designer` (se UI) → `/qa` (antes de seguir).
+
+Comando completo + **prompt-base de 7 passos:** [.cursor/commands/composer-executor.md](mdc:.cursor/commands/composer-executor.md)

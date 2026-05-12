@@ -13,17 +13,19 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ChainValidatorModal } from '../ChainValidatorModal';
 import * as auditCallables from '../../services/auditCallables';
 
-// Mock the callable
-jest.mock('../../services/auditCallables');
+vi.mock('../../services/auditCallables', () => ({
+  callValidateChain: vi.fn(),
+}));
 
 describe('ChainValidatorModal', () => {
   const mockLabId = 'lab-test-123' as any;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render nothing when closed', () => {
@@ -34,29 +36,27 @@ describe('ChainValidatorModal', () => {
   });
 
   it('should call validateChain when opened', async () => {
-    const mockValidateChain = jest.fn().mockResolvedValue({
+    vi.mocked(auditCallables.callValidateChain).mockResolvedValue({
       ok: true,
       status: 'valido',
       lastCheckTime: Date.now(),
-    });
-    (auditCallables.callValidateChain as jest.Mock) = mockValidateChain;
+    } as any);
 
     render(
       <ChainValidatorModal open={true} labId={mockLabId} onClose={() => {}} />
     );
 
     await waitFor(() => {
-      expect(mockValidateChain).toHaveBeenCalledWith({ labId: mockLabId });
+      expect(auditCallables.callValidateChain).toHaveBeenCalledWith({ labId: mockLabId });
     });
   });
 
   it('should display valid status when chain is intact', async () => {
-    const mockValidateChain = jest.fn().mockResolvedValue({
+    vi.mocked(auditCallables.callValidateChain).mockResolvedValue({
       ok: true,
       status: 'valido',
       lastCheckTime: Date.now(),
-    });
-    (auditCallables.callValidateChain as jest.Mock) = mockValidateChain;
+    } as any);
 
     render(
       <ChainValidatorModal open={true} labId={mockLabId} onClose={() => {}} />
@@ -68,7 +68,7 @@ describe('ChainValidatorModal', () => {
   });
 
   it('should display broken status with violation details', async () => {
-    const mockValidateChain = jest.fn().mockResolvedValue({
+    vi.mocked(auditCallables.callValidateChain).mockResolvedValue({
       ok: true,
       status: 'quebrado',
       firstViolation: {
@@ -78,8 +78,7 @@ describe('ChainValidatorModal', () => {
         actualHash: 'hash-actual',
       },
       lastCheckTime: Date.now(),
-    });
-    (auditCallables.callValidateChain as jest.Mock) = mockValidateChain;
+    } as any);
 
     render(
       <ChainValidatorModal open={true} labId={mockLabId} onClose={() => {}} />
@@ -92,13 +91,12 @@ describe('ChainValidatorModal', () => {
   });
 
   it('should call onClose when close button is clicked', async () => {
-    const mockOnClose = jest.fn();
-    const mockValidateChain = jest.fn().mockResolvedValue({
+    const mockOnClose = vi.fn();
+    vi.mocked(auditCallables.callValidateChain).mockResolvedValue({
       ok: true,
       status: 'valido',
       lastCheckTime: Date.now(),
-    });
-    (auditCallables.callValidateChain as jest.Mock) = mockValidateChain;
+    } as any);
 
     render(
       <ChainValidatorModal open={true} labId={mockLabId} onClose={mockOnClose} />
@@ -115,10 +113,9 @@ describe('ChainValidatorModal', () => {
   });
 
   it('should handle errors gracefully', async () => {
-    const mockValidateChain = jest.fn().mockRejectedValue(
+    vi.mocked(auditCallables.callValidateChain).mockRejectedValue(
       new Error('Conexão falhou')
     );
-    (auditCallables.callValidateChain as jest.Mock) = mockValidateChain;
 
     render(
       <ChainValidatorModal open={true} labId={mockLabId} onClose={() => {}} />
@@ -130,14 +127,13 @@ describe('ChainValidatorModal', () => {
   });
 
   it('should allow retry after error', async () => {
-    const mockValidateChain = jest.fn()
+    vi.mocked(auditCallables.callValidateChain)
       .mockRejectedValueOnce(new Error('Network error'))
       .mockResolvedValueOnce({
         ok: true,
         status: 'valido',
         lastCheckTime: Date.now(),
-      });
-    (auditCallables.callValidateChain as jest.Mock) = mockValidateChain;
+      } as any);
 
     render(
       <ChainValidatorModal open={true} labId={mockLabId} onClose={() => {}} />

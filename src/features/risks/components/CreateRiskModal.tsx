@@ -8,6 +8,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import type { RiskInput } from '../types/Risk';
+import { useRiskTemplates } from '../hooks/useRiskTemplates';
 import { callCreateRisk } from '../services/risksService';
 import { haptic } from '../../../shared/hooks/useHaptic';
 
@@ -61,6 +62,8 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [templateSelect, setTemplateSelect] = useState('');
+  const { templates, loading: templatesLoading } = useRiskTemplates(labId);
   const codigoRef = useRef<HTMLInputElement>(null);
 
   // Auto-focus on mount
@@ -82,6 +85,23 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
     value: string | number
   ) => {
     setForm(prev => ({ ...prev, [field]: value }));
+    setError(null);
+  };
+
+  const handleTemplatePick = (templateId: string) => {
+    setTemplateSelect(templateId);
+    if (!templateId) return;
+    const t = templates.find((x) => x.id === templateId);
+    if (!t) return;
+    setForm((prev) => ({
+      ...prev,
+      categoria: t.categoria,
+      processo: t.processo,
+      descricao: t.descricao,
+      probabilidade: t.pDefault,
+      severidade: t.sDefault,
+      deteccao: t.dDefault,
+    }));
     setError(null);
   };
 
@@ -163,6 +183,28 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Template opcional */}
+          <div>
+            <label htmlFor="risk-template-select" className="block text-sm font-medium text-white/70 mb-1.5">
+              Usar template
+            </label>
+            <select
+              id="risk-template-select"
+              value={templateSelect}
+              onChange={(e) => handleTemplatePick(e.target.value)}
+              disabled={isSubmitting || templatesLoading}
+              className="w-full px-3 py-2 bg-white/[0.05] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 disabled:opacity-50"
+              style={{ colorScheme: 'dark' }}
+            >
+              <option value="">— Nenhum —</option>
+              {templates.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.titulo}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Código */}
           <div>
             <label className="block text-sm font-medium text-white/70 mb-1.5">

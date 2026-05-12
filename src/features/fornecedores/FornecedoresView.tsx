@@ -32,6 +32,13 @@ import type { Fornecedor } from './types/Fornecedor';
 import type { NotaFiscal } from './types/NotaFiscal';
 import { toast } from '../../shared/store/useToastStore';
 import type { LabId } from './types/shared_refs';
+import { FirebaseError } from 'firebase/app';
+import { functions, httpsCallable } from '../../shared/services/firebase';
+
+const callGenerateFornecedoresReport = httpsCallable<{ labId: string }, { url: string }>(
+  functions,
+  'generateFornecedoresReport',
+);
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -250,6 +257,7 @@ function FornecedoresSection({ labId, canMutate }: { labId: string; canMutate: b
   const [showNovo, setShowNovo] = useState(false);
   const [emEdicao, setEmEdicao] = useState<Fornecedor | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [exportPdfLoading, setExportPdfLoading] = useState(false);
 
   const filters = useMemo(
     () => ({
@@ -325,6 +333,30 @@ function FornecedoresSection({ labId, canMutate }: { labId: string; canMutate: b
     }
   }
 
+  async function handleExportRelatorioPdf() {
+    setActionError(null);
+    setExportPdfLoading(true);
+    try {
+      const { data } = await callGenerateFornecedoresReport({ labId });
+      if (typeof data?.url !== 'string' || data.url.length === 0) {
+        throw new Error('Resposta inválida do servidor.');
+      }
+      window.open(data.url, '_blank', 'noopener,noreferrer');
+      toast.success('Relatório gerado. Abrindo em nova aba…');
+    } catch (err) {
+      const msg =
+        err instanceof FirebaseError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : 'Falha ao gerar relatório.';
+      setActionError(msg);
+      toast.error(msg);
+    } finally {
+      setExportPdfLoading(false);
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
@@ -344,6 +376,25 @@ function FornecedoresSection({ labId, canMutate }: { labId: string; canMutate: b
           />
           Mostrar inativos
         </label>
+        <button
+          type="button"
+          onClick={() => void handleExportRelatorioPdf()}
+          disabled={isLoading || exportPdfLoading}
+          aria-busy={exportPdfLoading}
+          className="px-4 h-10 rounded-xl border border-slate-200 dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-slate-800 dark:text-white/85 text-sm font-medium hover:bg-slate-50 dark:hover:bg-white/[0.07] transition-all shrink-0 disabled:opacity-45 disabled:pointer-events-none inline-flex items-center gap-2"
+        >
+          {exportPdfLoading ? (
+            <>
+              <span
+                className="inline-block size-3.5 rounded-full border-2 border-violet-500/30 border-t-violet-500 animate-spin"
+                aria-hidden
+              />
+              Gerando PDF…
+            </>
+          ) : (
+            'Exportar relatório (PDF)'
+          )}
+        </button>
         {canMutate && (
           <button
             type="button"

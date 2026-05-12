@@ -15,6 +15,7 @@ interface CEQParticipacaoFormProps {
 const PROVEDORES = [
   { id: 'controllab', nome: 'Controllab' },
   { id: 'eqa-provider', nome: 'EQA Provider' },
+  { id: 'pncq', nome: 'PNCQ' },
 ];
 
 const ESQUEMAS = {
@@ -24,6 +25,13 @@ const ESQUEMAS = {
   ],
   'eqa-provider': [
     { id: 'imunologia', nome: 'Imunologia' },
+  ],
+  pncq: [
+    { id: 'hematologia-basica', nome: 'Hematologia Básica' },
+    { id: 'coagulacao', nome: 'Coagulação' },
+    { id: 'urinalise', nome: 'Urinálise' },
+    { id: 'urinalise-virtual', nome: 'Urinálise Virtual' },
+    { id: 'vhs', nome: 'VHS' },
   ],
 };
 

@@ -14,7 +14,6 @@ import type {
   WestgardViolationCLSI8,
   WestgardRuleCLSI8,
   WestgardRuleConfigCLSI8,
-  CLSI8_DEFAULTS,
 } from '../types/westgardCLSI';
 
 // ─── Engine Input/Output ──────────────────────────────────────────────────

@@ -21,6 +21,7 @@ import { useEquipmentSetup } from '../../insumos/hooks/useEquipmentSetup';
 import { NovoLoteModal } from '../../insumos/components/NovoLoteModal';
 import { EditInsumoSecundarioModal } from '../../insumos/components/EditInsumoSecundarioModal';
 import { SubstituirLoteModal } from '../../insumos/components/SubstituirLoteModal';
+import { EquipamentoDetail } from './EquipamentoDetail';
 import { EquipamentoFormModal } from './EquipamentoFormModal';
 import {
   EnterManutencaoModal,
@@ -231,6 +232,14 @@ export function EquipamentoCard({
                 </div>
               </section>
             )}
+
+            <section>
+              <SectionTitle
+                title="Manutenção e calibração"
+                subtitle="Histórico preventivo/corretivo e status da próxima calibração"
+              />
+              <EquipamentoDetail equipamento={equipamento} />
+            </section>
 
             {/* Produtos compatíveis — view-only. Gestão do catálogo (criar/editar/
                 excluir) fica na aba global "Catálogo de produtos" pra deixar claro

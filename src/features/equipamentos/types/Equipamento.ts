@@ -144,6 +144,12 @@ export interface Equipamento {
   createdByName?: string;
   updatedAt?: Timestamp;
   updatedBy?: string;
+
+  /** URL do certificado de calibração (Storage). */
+  certificadoCalibracaoUrl?: string;
+  /** Próxima data prevista de calibração. */
+  proximaCalibracao?: Timestamp;
+  calibracaoStatus?: 'em_dia' | 'vencida' | 'proxima';
 }
 
 // ─── Audit log ────────────────────────────────────────────────────────────────

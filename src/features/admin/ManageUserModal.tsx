@@ -9,7 +9,9 @@ import {
   removeUserFromLab,
   deleteUserViaFunction,
   fetchAllLabs,
+  fetchLabsByIds,
 } from './services/userService';
+import { callableErrorMessage } from '../../shared/utils/callableErrors';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -188,23 +190,35 @@ export function ManageUserModal({
     return () => panel.removeEventListener('keydown', h);
   }, []);
 
-  // Load all labs once
+  // Load all labs once (+ fallback por ID se listagem global falhar ou vier vazia)
   useEffect(() => {
     let cancelled = false;
-    fetchAllLabs()
-      .then((labs) => {
+    (async () => {
+      try {
+        let labs = await fetchAllLabs();
+        if (
+          !cancelled &&
+          labs.length === 0 &&
+          (user.labIds?.length ?? 0) > 0
+        ) {
+          labs = await fetchLabsByIds(user.labIds ?? []);
+        }
         if (!cancelled) setAllLabs(labs);
-      })
-      .catch(() => {
-        if (!cancelled) setError('Erro ao carregar laboratórios.');
-      })
-      .finally(() => {
+      } catch {
+        try {
+          const labs = await fetchLabsByIds(user.labIds ?? []);
+          if (!cancelled) setAllLabs(labs);
+        } catch {
+          if (!cancelled) setError('Erro ao carregar laboratórios.');
+        }
+      } finally {
         if (!cancelled) setLabsLoading(false);
-      });
+      }
+    })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [user.labIds, user.uid]);
 
   // Reset "add to lab" select when user membership changes.
   // Padrão canônico de "clear controlled input ao trocar entidade de referência".
@@ -228,7 +242,7 @@ export function ManageUserModal({
     try {
       await fn();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erro inesperado.');
+      setError(callableErrorMessage(e));
     } finally {
       setBusyAction(null);
     }
@@ -541,9 +555,11 @@ export function ManageUserModal({
             {/* Add to lab */}
             {!labsLoading && labsAvailableToAdd.length === 0 && (
               <p className="text-xs text-white/25 text-center py-2 italic">
-                {allLabs.length === 0
+                {allLabs.length === 0 && local.labIds.length === 0
                   ? 'Nenhum laboratório cadastrado no sistema'
-                  : 'Usuário já participa de todos os laboratórios'}
+                  : allLabs.length === 0 && local.labIds.length > 0
+                    ? 'Catálogo de laboratórios indisponível; os vínculos do usuário aparecem acima.'
+                    : 'Usuário já participa de todos os laboratórios'}
               </p>
             )}
 

@@ -31,6 +31,7 @@ import { AuditoriaView } from '../auditoria-interna/components/AuditoriaView';
 import { CAPADashboard } from '../capa-tracking/components/CAPADashboard';
 import CalibracaoDashboard from '../calibracao/components/CalibracaoDashboard';
 import PersonnelDashboard from '../personnel/components/PersonnelDashboard';
+import { EquipamentosGestaoView } from '../equipamentos/components/EquipamentosGestaoView';
 import ManagementReviewDashboard from '../management-review/components/ManagementReviewDashboard';
 import { ReclamacoesView } from '../reclamacoes';
 import { SugestaoDashboard } from '../sugestoes';
@@ -53,6 +54,21 @@ const TurnosView = React.lazy(() =>
 // Phase 0: Risks (lazy-loaded)
 const RisksView = React.lazy(() =>
   import('../risks/components/RisksView').then((m) => ({ default: m.RisksView })),
+);
+
+// KPIs / Planos de melhoria (lazy-loaded)
+const PlanoMelhoriaListView = React.lazy(() =>
+  import('../kpis/components/PlanoMelhoriaListView').then((m) => ({ default: m.PlanoMelhoriaListView })),
+);
+
+const LabApoioView = React.lazy(() =>
+  import('../lab-apoio/components/LabApoioView').then((m) => ({ default: m.LabApoioView })),
+);
+
+const PrePosAnaliticoView = React.lazy(() =>
+  import('../pre-pos-analitico/components/PrePosAnaliticoView').then((m) => ({
+    default: m.PrePosAnaliticoView,
+  })),
 );
 
 // Phase 8: CAPA Tracking — Wave 5 (lazy-loaded)
@@ -270,10 +286,30 @@ function AppRouter() {
         <TurnosView />
       </React.Suspense>
     );
+  } else if (currentView === 'equipamentos') {
+    view = <EquipamentosGestaoView />;
   } else if (currentView === 'risks') {
     view = (
       <React.Suspense fallback={<FullScreenLoader />}>
         <RisksView />
+      </React.Suspense>
+    );
+  } else if (currentView === 'kpis') {
+    view = (
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <PlanoMelhoriaListView />
+      </React.Suspense>
+    );
+  } else if (currentView === 'lab-apoio') {
+    view = (
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <LabApoioView />
+      </React.Suspense>
+    );
+  } else if (currentView === 'pre-pos-analitico') {
+    view = (
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <PrePosAnaliticoView />
       </React.Suspense>
     );
   } else {

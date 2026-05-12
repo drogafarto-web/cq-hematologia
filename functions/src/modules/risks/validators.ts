@@ -20,6 +20,33 @@ interface AuthDataLite {
 }
 
 /**
+ * Exige membro ativo com role `admin` ou `owner` (ex.: aprovação de risco crítico).
+ * Chamar **após** `assertRisksAccess` (já valida auth + claim + membro ativo).
+ */
+export async function assertRisksAdminOrOwner(
+  auth: AuthDataLite | undefined,
+  labId: string,
+): Promise<void> {
+  if (!auth) {
+    throw new HttpsError('unauthenticated', 'Autenticação necessária.');
+  }
+  const uid = auth.uid;
+  const ts = new Date().toISOString();
+  const memberSnap = await admin
+    .firestore()
+    .doc(`labs/${labId}/members/${uid}`)
+    .get();
+  const role = memberSnap.data()?.['role'] as string | undefined;
+  if (role !== 'admin' && role !== 'owner') {
+    console.error('[RISKS_ADMIN_REQUIRED]', { uid, labId, role, ts });
+    throw new HttpsError(
+      'permission-denied',
+      'Apenas administradores ou proprietários do laboratório podem aprovar risco crítico.',
+    );
+  }
+}
+
+/**
  * Garante (em ordem):
  *   1. Caller autenticado
  *   2. Caller tem claim modules['risks'] === true
@@ -189,6 +216,37 @@ export const SeedFromCsvInputSchema = z.object({
 });
 
 export type SeedFromCsvInput = z.infer<typeof SeedFromCsvInputSchema>;
+
+/** Pelo menos um de `ncId` ou `capaId` (podem vir ambos na mesma chamada). */
+export const VincularNcAoRiscoInputSchema = z
+  .object({
+    labId: z.string().min(1),
+    riskId: z.string().min(1),
+    ncId: z.string().min(1).optional(),
+    capaId: z.string().min(1).optional(),
+  })
+  .refine((d) => Boolean(d.ncId) || Boolean(d.capaId), {
+    message: 'Informe ncId e/ou capaId.',
+  });
+
+export type VincularNcAoRiscoInput = z.infer<typeof VincularNcAoRiscoInputSchema>;
+
+const LogicalSignatureInputSchema = z.object({
+  hash: z
+    .string()
+    .length(64)
+    .regex(/^[a-f0-9]+$/i, 'hash deve ser SHA-256 hex (64 caracteres).'),
+  operatorId: z.string().min(1),
+  ts: z.any(),
+});
+
+export const AprovarRiscoInputSchema = z.object({
+  labId: z.string().min(1),
+  riskId: z.string().min(1),
+  logicalSignature: LogicalSignatureInputSchema,
+});
+
+export type AprovarRiscoInput = z.infer<typeof AprovarRiscoInputSchema>;
 
 // ─── NPR Validation ─────────────────────────────────────────────────────────
 

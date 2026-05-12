@@ -115,6 +115,10 @@ Em **Cursor**: digite `/` no chat e selecione. Em **Claude Code**: skill corresp
 | `/engineer` | ✅ `.cursor/commands/engineer.md` | `/hm-engineer` | Validação code world-class — segurança, arquitetura, performance, custo, resiliência |
 | `/designer` | ✅ `.cursor/commands/designer.md` | `/hm-designer` | Validação UI — sofisticação, pixel perfect, dark-first |
 | `/qa` | ✅ `.cursor/commands/qa.md` | `/hm-qa` | Testes + gaps + infra + integridade dados + custo |
+| `/spec-module` | ✅ `.cursor/commands/spec-module.md` | (manual) | Novo módulo/feature grande: contexto → mini-spec → plano → fatias → revisão (boas práticas Cursor) |
+| `/composer-executor` | ✅ `.cursor/commands/composer-executor.md` | (manual) | Composer 2: executor de tarefas pequenas, mini-spec obrigatória, uma etapa por vez, baixo risco |
+
+**Spec → fatias → Composer 2:** o texto para colar no Composer (prompt-base de 7 passos, versão longa e *prompt de bolso*) mora em [`.cursor/commands/composer-executor.md`](.cursor/commands/composer-executor.md); regras condicionais em `.cursor/rules/44-composer-executor.mdc` e `.cursor/rules/45-spec-module.mdc`.
 
 Playbooks-fonte:
 - [docs/playbooks/engineer-validation.md](docs/playbooks/engineer-validation.md)

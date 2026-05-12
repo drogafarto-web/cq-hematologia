@@ -1,168 +1,250 @@
-import React, { useEffect, useState } from 'react';
-import { useKPIs } from '../useKPIs';
-import type { KPIDaily, KPIAlert } from '../types/KPI';
+import { useEffect, useMemo, useState, type ReactElement } from 'react';
+import { Timestamp } from 'firebase/firestore';
 
-/**
- * KPIDashboard — Real-time metrics display with trend indicators.
- * Turnaround, rework%, conformance%, NC origins, SLA tracking.
- */
-export function KPIDashboard() {
-  const { subscribeToLatestKPI, subscribeToAlerts } = useKPIs();
+import { subscribeActiveAlerts, subscribeLatestKPI } from '../kpisService';
+import { useKpiMetas } from '../hooks/useKpiMetas';
+import type { KPIAlert, KPIDaily } from '../types/KPI';
+import {
+  KPI_META_TIPO_DOCUMENTACAO,
+  KPI_META_TIPO_RETRABALHO,
+  KPI_META_TIPO_TURNAROUND,
+} from '../constants/kpiMetaTipos';
+import { KpiValueMetaBar } from './KpiValueMetaBar';
+
+interface KPIDashboardProps {
+  readonly labId: string;
+}
+
+const ALERT_TIPO_LABEL: Record<KPIAlert['tipo'], string> = {
+  sla_breach: 'SLA',
+  high_rework: 'Retrabalho',
+  low_conformance: 'Documentação',
+};
+
+function formatKpiDate(data: KPIDaily['data'] | undefined): string {
+  if (!data) return '—';
+  if (data instanceof Timestamp) {
+    return data.toDate().toLocaleDateString('pt-BR');
+  }
+  if (typeof data === 'object' && data !== null && 'toDate' in data && typeof (data as Timestamp).toDate === 'function') {
+    return (data as Timestamp).toDate().toLocaleDateString('pt-BR');
+  }
+  return '—';
+}
+
+function formatAlertTime(ts: KPIAlert['acionada_em']): string {
+  if (ts instanceof Timestamp) {
+    return ts.toDate().toLocaleString('pt-BR');
+  }
+  return '—';
+}
+
+export function KPIDashboard({ labId }: KPIDashboardProps): ReactElement {
   const [kpi, setKpi] = useState<KPIDaily | null>(null);
   const [alerts, setAlerts] = useState<KPIAlert[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [kpiLoading, setKpiLoading] = useState(true);
+  const [alertsLoading, setAlertsLoading] = useState(true);
+  const [kpiError, setKpiError] = useState<Error | null>(null);
+  const [alertsError, setAlertsError] = useState<Error | null>(null);
+
+  const { getMetaByTipo, loading: metasLoading, error: metasError } = useKpiMetas(labId);
 
   useEffect(() => {
-    const unsubscribeKPI = subscribeToLatestKPI(
-      (data) => {
-        setKpi(data);
-        setLoading(false);
+    let cancelled = false;
+    setKpi(null);
+    setAlerts([]);
+    setKpiLoading(true);
+    setAlertsLoading(true);
+    setKpiError(null);
+    setAlertsError(null);
+
+    const unsubKpi = subscribeLatestKPI(
+      labId,
+      (next) => {
+        if (!cancelled) {
+          setKpi(next);
+          setKpiLoading(false);
+        }
       },
       (err) => {
-        console.error('Erro ao carregar KPI:', err);
-        setLoading(false);
-      }
+        if (!cancelled) {
+          setKpiError(err);
+          setKpiLoading(false);
+        }
+      },
     );
 
-    return unsubscribeKPI;
-  }, [subscribeToLatestKPI]);
-
-  useEffect(() => {
-    const unsubscribeAlerts = subscribeToAlerts(
-      (data) => setAlerts(data),
-      (err) => console.error('Erro ao carregar alertas:', err)
+    const unsubAlerts = subscribeActiveAlerts(
+      labId,
+      (list) => {
+        if (!cancelled) {
+          setAlerts(list);
+          setAlertsLoading(false);
+        }
+      },
+      (err) => {
+        if (!cancelled) {
+          setAlertsError(err);
+          setAlertsLoading(false);
+        }
+      },
     );
 
-    return unsubscribeAlerts;
-  }, [subscribeToAlerts]);
+    return () => {
+      cancelled = true;
+      unsubKpi();
+      unsubAlerts();
+    };
+  }, [labId]);
 
-  if (loading || !kpi) {
-    return <div className="p-6 text-center text-gray-500">Carregando métricas...</div>;
-  }
+  const metaTurnaround = getMetaByTipo(KPI_META_TIPO_TURNAROUND);
+  const metaRetrabalho = getMetaByTipo(KPI_META_TIPO_RETRABALHO);
+  const metaDocumentacao = getMetaByTipo(KPI_META_TIPO_DOCUMENTACAO);
 
-  const getMetricColor = (value: number, threshold: number, isPercentage: boolean = true) => {
-    if (isPercentage) {
-      return value >= threshold ? 'text-green-600' : 'text-red-600';
-    }
-    return value <= threshold ? 'text-green-600' : 'text-red-600';
-  };
+  const kpiErr = kpiError?.message ?? null;
+  const alertsErr = alertsError?.message ?? null;
+  const metasErr = metasError instanceof Error ? metasError.message : metasError ? String(metasError) : null;
+
+  const dataLabel = useMemo(() => formatKpiDate(kpi?.data), [kpi?.data]);
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* Turnaround */}
-        <div className="rounded-lg border p-6">
-          <div className="text-sm font-medium text-gray-600">Turnaround Médio</div>
-          <div className={`mt-2 text-3xl font-bold ${getMetricColor(kpi.sla_limite_horas - kpi.turnaround_media_horas, 0)}`}>
-            {kpi.turnaround_media_horas.toFixed(1)}h
+    <div className="rounded-xl border border-white/10 bg-[#141417] p-6 shadow-lg">
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-white">Indicadores de Performance</h2>
+        <div className="text-xs text-white/45">{dataLabel}</div>
+      </div>
+
+      {kpiErr ? (
+        <div
+          role="alert"
+          className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+        >
+          Não foi possível carregar os KPIs. {kpiErr}
+        </div>
+      ) : null}
+      {alertsErr ? (
+        <div
+          role="alert"
+          className="mb-4 rounded-lg border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100"
+        >
+          Alertas indisponíveis. {alertsErr}
+        </div>
+      ) : null}
+      {metasErr ? (
+        <div
+          role="alert"
+          className="mb-4 rounded-lg border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100"
+        >
+          Metas indisponíveis. {metasErr}
+        </div>
+      ) : null}
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+          <div className="text-xs font-medium uppercase tracking-wide text-white/45">Turnaround</div>
+          <div className="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-white">
+            {kpiLoading ? (
+              <span className="inline-block h-9 w-20 animate-pulse rounded bg-white/10" aria-hidden />
+            ) : (
+              `${kpi?.turnaround_media_horas?.toFixed(1) ?? '—'}h`
+            )}
           </div>
-          <div className="mt-1 text-xs text-gray-500">
-            SLA: {kpi.sla_limite_horas}h {kpi.sla_atendido ? '✓' : '✗'}
-          </div>
-          <div className="mt-2 text-xs text-gray-500">
-            P95: {kpi.turnaround_percentil_95.toFixed(1)}h
-          </div>
+          {kpi && !kpiLoading ? (
+            <KpiValueMetaBar
+              label="Posição vs meta"
+              value={kpi.turnaround_media_horas}
+              valueSuffix="h"
+              mode="lower-is-better"
+              metaValor={metaTurnaround?.valor}
+              metaUnidade={metaTurnaround?.unidade}
+              expectedUnidade="hours"
+              metaLabel={`Meta turnaround: ${metaTurnaround?.valor?.toFixed(1) ?? ''}h`}
+              fallbackReference={kpi.sla_limite_horas}
+              fallbackLabel="SLA do dia"
+            />
+          ) : null}
         </div>
 
-        {/* Retrabalho */}
-        <div className="rounded-lg border p-6">
-          <div className="text-sm font-medium text-gray-600">Taxa de Retrabalho</div>
-          <div className={`mt-2 text-3xl font-bold ${getMetricColor(kpi.retrabalho_percentual, 10)}`}>
-            {kpi.retrabalho_percentual.toFixed(1)}%
+        <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+          <div className="text-xs font-medium uppercase tracking-wide text-white/45">Retrabalho</div>
+          <div className="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-white">
+            {kpiLoading ? (
+              <span className="inline-block h-9 w-20 animate-pulse rounded bg-white/10" aria-hidden />
+            ) : (
+              `${kpi?.retrabalho_percentual?.toFixed(1) ?? '—'}%`
+            )}
           </div>
-          <div className="mt-1 text-xs text-gray-500">
-            {kpi.retrabalho_total} de {kpi.runs_total} corridas
-          </div>
-          <div className="mt-2 text-xs text-gray-500">
-            Meta: &lt;10%
-          </div>
+          {kpi && !kpiLoading ? (
+            <KpiValueMetaBar
+              label="Posição vs meta"
+              value={kpi.retrabalho_percentual}
+              valueSuffix="%"
+              mode="lower-is-better"
+              metaValor={metaRetrabalho?.valor}
+              metaUnidade={metaRetrabalho?.unidade}
+              expectedUnidade="percent"
+              metaLabel={`Meta retrabalho: ${metaRetrabalho?.valor?.toFixed(1) ?? ''}%`}
+            />
+          ) : null}
         </div>
 
-        {/* Documentação de Corridas (KPI-FIX-4: era "Conformidade", renomeado para evitar erro auditorial) */}
-        <div className="rounded-lg border p-6">
-          <div className="text-sm font-medium text-gray-600">Documentação de Corridas</div>
-          <div className={`mt-2 text-3xl font-bold ${getMetricColor(kpi.documentacao_percentual, 95)}`}>
-            {kpi.documentacao_percentual.toFixed(1)}%
+        <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+          <div className="text-xs font-medium uppercase tracking-wide text-white/45">Documentação</div>
+          <div className="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-white">
+            {kpiLoading ? (
+              <span className="inline-block h-9 w-20 animate-pulse rounded bg-white/10" aria-hidden />
+            ) : (
+              `${kpi?.documentacao_percentual?.toFixed(1) ?? '—'}%`
+            )}
           </div>
-          <div className="mt-1 text-xs text-gray-500">
-            {kpi.runs_documentados} de {kpi.runs_total} com POP+Equip+Op
-          </div>
-          <div className="mt-2 text-xs text-gray-500">
-            Meta: 95%+
-          </div>
+          {kpi && !kpiLoading ? (
+            <KpiValueMetaBar
+              label="Posição vs meta"
+              value={kpi.documentacao_percentual}
+              valueSuffix="%"
+              mode="higher-is-better"
+              metaValor={metaDocumentacao?.valor}
+              metaUnidade={metaDocumentacao?.unidade}
+              expectedUnidade="percent"
+              metaLabel={`Meta documentação: ${metaDocumentacao?.valor?.toFixed(1) ?? ''}%`}
+            />
+          ) : null}
         </div>
       </div>
 
-      {/* NC Origins */}
-      <div className="rounded-lg border p-6">
-        <h3 className="text-sm font-medium text-gray-600">Origens de NC</h3>
-        <div className="mt-4 space-y-2">
-          {Object.entries(kpi.nc_por_origem).length > 0 ? (
-            Object.entries(kpi.nc_por_origem)
-              .sort(([, a], [, b]) => b - a)
-              .map(([modulo, count]) => (
-                <div key={modulo} className="flex items-center justify-between">
-                  <div className="text-sm">{modulo}</div>
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-32 rounded-full bg-gray-200">
-                      <div
-                        className="h-full rounded-full bg-red-500"
-                        style={{
-                          width: `${(count / kpi.nc_total_abertas) * 100}%`,
-                        }}
-                      />
-                    </div>
-                    <div className="text-sm font-medium">{count}</div>
-                  </div>
+      {metasLoading ? (
+        <p className="mt-4 text-xs text-white/40">Carregando metas…</p>
+      ) : null}
+
+      {!alertsLoading && alerts.length > 0 ? (
+        <div className="mt-6 border-t border-white/10 pt-6">
+          <h3 className="mb-3 text-sm font-semibold text-white">Alertas recentes</h3>
+          <div className="space-y-2">
+            {alerts.map((alert) => (
+              <div
+                key={alert.id}
+                className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-3"
+              >
+                <div
+                  className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${
+                    alert.severidade === 'critical'
+                      ? 'bg-red-500'
+                      : alert.severidade === 'warning'
+                        ? 'bg-amber-400'
+                        : 'bg-emerald-400'
+                  }`}
+                  aria-hidden
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-medium text-white">{ALERT_TIPO_LABEL[alert.tipo]}</div>
+                  <div className="mt-0.5 text-xs text-white/55">{alert.mensagem}</div>
+                  <div className="mt-1 text-[11px] tabular-nums text-white/35">{formatAlertTime(alert.acionada_em)}</div>
                 </div>
-              ))
-          ) : (
-            <div className="text-sm text-gray-500">Nenhuma NC aberta</div>
-          )}
-        </div>
-      </div>
-
-      {/* Alerts */}
-      {alerts.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium text-gray-600">Alertas Ativos</h3>
-          {alerts.map((alert) => (
-            <div
-              key={alert.id}
-              className={`rounded-lg p-4 ${
-                alert.severidade === 'critical'
-                  ? 'border border-red-200 bg-red-50'
-                  : alert.severidade === 'warning'
-                  ? 'border border-yellow-200 bg-yellow-50'
-                  : 'border border-blue-200 bg-blue-50'
-              }`}
-            >
-              <div className={`text-sm font-medium ${
-                alert.severidade === 'critical'
-                  ? 'text-red-900'
-                  : alert.severidade === 'warning'
-                  ? 'text-yellow-900'
-                  : 'text-blue-900'
-              }`}>
-                {alert.tipo.toUpperCase().replace(/_/g, ' ')}
               </div>
-              <div className="mt-1 text-sm text-gray-700">{alert.mensagem}</div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Summary */}
-      <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-        <div className="text-sm text-green-900">
-          <strong>Resumo do Período:</strong>
-          <div className="mt-2 ml-4 space-y-1">
-            <div>Total de corridas: {kpi.runs_total}</div>
-            <div>NCs abertas: {kpi.nc_total_abertas}</div>
-            <div>SLA: {kpi.sla_atendido ? 'ATENDIDO ✓' : 'NÃO ATENDIDO ✗'}</div>
+            ))}
           </div>
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }

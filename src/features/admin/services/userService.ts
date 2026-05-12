@@ -140,20 +140,90 @@ export async function setUserDisabledViaFunction(uid: string, disabled: boolean)
 
 // ─── Labs ─────────────────────────────────────────────────────────────────────
 
-export async function fetchAllLabs(): Promise<AdminLabRecord[]> {
-  const snap = await getDocs(collection(db, COLLECTIONS.LABS));
+/**
+ * Fallback quando `fetchAllLabs()` falha ou retorna vazio: lê cada lab por ID.
+ * `match /labs/{labId}` permite **get** público; assim o admin ainda monta o dropdown
+ * mesmo sem permissão de **list** na coleção ou sem listar `members` de todos os labs.
+ */
+export async function fetchLabsByIds(labIds: string[]): Promise<AdminLabRecord[]> {
+  const unique = [...new Set(labIds.filter(Boolean))];
+  const out: AdminLabRecord[] = [];
 
-  const labs = await Promise.all(
-    snap.docs.map(async (d) => {
+  for (const labId of unique) {
+    try {
+      const s = await getDoc(doc(db, COLLECTIONS.LABS, labId));
+      if (!s.exists()) continue;
+
+      let memberCount = 0;
+      try {
+        const membersSnap = await getDocs(
+          collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.MEMBERS),
+        );
+        memberCount = membersSnap.size;
+      } catch {
+        memberCount = 0;
+      }
+
+      try {
+        out.push({
+          ...normalizeLab({ ...s.data(), id: labId }),
+          memberCount,
+        });
+      } catch {
+        out.push({
+          ...normalizeLab({
+            id: labId,
+            name: typeof s.data()?.name === 'string' ? s.data().name : labId,
+          } as Record<string, unknown> & { id: string }),
+          memberCount,
+        });
+      }
+    } catch {
+      // skip lab inacessível
+    }
+  }
+
+  return out.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export async function fetchAllLabs(): Promise<AdminLabRecord[]> {
+  let snap;
+  try {
+    snap = await getDocs(collection(db, COLLECTIONS.LABS));
+  } catch (e) {
+    console.error('[fetchAllLabs] list /labs failed', e);
+    return [];
+  }
+
+  const labs: AdminLabRecord[] = [];
+
+  for (const d of snap.docs) {
+    let memberCount = 0;
+    try {
       const membersSnap = await getDocs(
         collection(db, COLLECTIONS.LABS, d.id, SUBCOLLECTIONS.MEMBERS),
       );
-      return {
+      memberCount = membersSnap.size;
+    } catch {
+      memberCount = 0;
+    }
+
+    try {
+      labs.push({
         ...normalizeLab({ ...d.data(), id: d.id }),
-        memberCount: membersSnap.size,
-      } satisfies AdminLabRecord;
-    }),
-  );
+        memberCount,
+      });
+    } catch (e) {
+      console.warn('[fetchAllLabs] lab documento inválido, usando stub', d.id, e);
+      labs.push({
+        ...normalizeLab({
+          id: d.id,
+          name: typeof d.data()?.name === 'string' ? d.data().name : d.id,
+        } as Record<string, unknown> & { id: string }),
+        memberCount,
+      });
+    }
+  }
 
   return labs.sort((a, b) => a.name.localeCompare(b.name));
 }

@@ -1,5 +1,7 @@
 # v1.4 Final Closure — Orchestration Guide for MP-2 through MP-8
 
+**See also:** [Orchestration — Staging (Preview Channel)](./ORCHESTRATION-GUIDE-STAGING.md) — deploy até URL isolada sem Hosting/functions prod live.
+
 **Current Status:** MP-0 + MP-1 complete (10/91 SAs). Ready for parallel wave execution.
 
 **Token Budget Status:** ~100K remaining of 200K. Recommend autonomous agent dispatch for remaining 81 SAs.
