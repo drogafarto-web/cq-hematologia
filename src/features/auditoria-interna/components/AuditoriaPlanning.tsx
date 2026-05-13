@@ -1,33 +1,50 @@
 import React, { useState } from 'react';
+import { httpsCallable } from 'firebase/functions';
+import { useActiveLabId, useUser } from '../../../store/useAuthStore';
+import { functions } from '../../../shared/services/firebase';
 import type { Auditoria } from '../types';
-
-/**
- * AuditoriaPlanning — Form and list for annual audit plans
- *
- * Allows auditors to:
- * - Create new annual audit plan (year + frequency + responsible)
- * - View existing plans with next scheduled date
- * - Calendar view of planned audits
- */
 
 interface AuditoriaPlanningProps {
   auditorias: Auditoria[];
 }
 
 export function AuditoriaPlanning({ auditorias }: AuditoriaPlanningProps) {
+  const labId = useActiveLabId();
+  const user = useUser();
   const [showModal, setShowModal] = useState(false);
   const [ano, setAno] = useState(new Date().getFullYear().toString());
   const [frequencia, setFrequencia] = useState<'anual' | 'semestral' | 'trimestral' | 'mensal'>('anual');
+  const [proximaData, setProximaData] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const currentYear = new Date().getFullYear();
   const auditoriasThisYear = auditorias.filter((a) => a.ano === currentYear);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Call Cloud Function callable to create auditoria
-    // This will be wired in Phase 05-03 (Functions)
-    console.log('Create auditoria:', { ano: Number(ano), frequencia });
-    setShowModal(false);
+    if (!labId || !user) return;
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const callable = httpsCallable(functions, 'createAuditoria');
+      await callable({
+        labId,
+        ano: Number(ano),
+        frequencia,
+        responsavelTecnico: user.uid,
+        proximaAuditoriaPlanejada: new Date(proximaData).getTime(),
+      });
+      setShowModal(false);
+      setProximaData('');
+    } catch (err: any) {
+      const msg = err?.message || 'Erro ao criar auditoria';
+      setSubmitError(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -112,6 +129,12 @@ export function AuditoriaPlanning({ auditorias }: AuditoriaPlanningProps) {
             </div>
 
             <form onSubmit={handleCreate} className="p-6 space-y-6">
+              {submitError && (
+                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-300 text-sm">
+                  {submitError}
+                </div>
+              )}
+
               {/* Ano */}
               <div>
                 <label className="block text-sm font-medium mb-2">Ano</label>
@@ -139,20 +162,34 @@ export function AuditoriaPlanning({ auditorias }: AuditoriaPlanningProps) {
                 </select>
               </div>
 
+              {/* Próxima Auditoria */}
+              <div>
+                <label className="block text-sm font-medium mb-2">Data da Próxima Auditoria</label>
+                <input
+                  type="date"
+                  value={proximaData}
+                  onChange={(e) => setProximaData(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-violet-500 transition"
+                />
+              </div>
+
               {/* Buttons */}
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
+                  onClick={() => { setShowModal(false); setSubmitError(null); }}
                   className="flex-1 px-4 py-2 rounded-lg border border-white/10 hover:bg-white/5 text-white transition"
+                  disabled={isSubmitting}
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium transition"
+                  disabled={isSubmitting || !proximaData}
+                  className="flex-1 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium transition"
                 >
-                  Criar Plano
+                  {isSubmitting ? 'Criando...' : 'Criar Plano'}
                 </button>
               </div>
             </form>
