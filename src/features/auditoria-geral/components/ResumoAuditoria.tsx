@@ -7,6 +7,8 @@ import { useAuditoriaGeral } from '../hooks/useAuditoriaGeral';
 import { useScoreCalculator } from '../hooks/useScoreCalculator';
 import { finalizarAuditoria } from '../services/auditoriaGeralService';
 import { getPercentColor } from '../utils/scoreUtils';
+import { IASummaryPanel } from './IASummaryPanel';
+import { PlanoAcaoPanel } from './PlanoAcaoPanel';
 import { ScoreBlocoChart } from './ScoreBlocoChart';
 
 interface ResumoAuditoriaProps {
@@ -155,6 +157,18 @@ export function ResumoAuditoria({ auditoriaId, onBack, onFinalize }: ResumoAudit
           </div>
         )}
       </section>
+
+      {/* Plano de Acao */}
+      <section className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-5">
+        <PlanoAcaoPanel auditoriaId={auditoriaId} respostas={respostas} />
+      </section>
+
+      {/* IA Summary */}
+      {isFinalizada && (
+        <section className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-5">
+          <IASummaryPanel auditoriaId={auditoriaId} />
+        </section>
+      )}
 
       {/* Actions */}
       <section className="flex items-center gap-4 pt-4 border-t border-white/[0.06]">

@@ -34,6 +34,7 @@ import type {
   AuditoriaGeralInput,
   BlocoId,
   FotoEvidencia,
+  PlanoAcao,
   RespostaIndicador,
   ScoresPorBloco,
 } from '../types';
@@ -104,6 +105,7 @@ export function mapDocToResposta(snap: DocumentSnapshot): RespostaIndicador {
     naoAplica: data.naoAplica,
     observacoes: data.observacoes,
     fotos: data.fotos ?? [],
+    comprovacaoLink: data.comprovacaoLink ?? null,
     respondidoEm: data.respondidoEm,
     respondidoPor: data.respondidoPor,
   };
@@ -327,6 +329,76 @@ export function subscribeRespostas(
     (snap) => {
       const respostas = snap.docs.map(mapDocToResposta);
       callback(respostas);
+    },
+    (err) => {
+      if (onError) onError(err as Error);
+    }
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// Planos de Ação
+// ──────────────────────────────────────────────────────────────────────────
+
+export function planosAcaoCol(labId: string, auditoriaId: string) {
+  return collection(
+    db,
+    `auditoria-geral/${labId}/auditorias/${auditoriaId}/planos-acao`
+  );
+}
+
+export function planoAcaoDoc(
+  labId: string,
+  auditoriaId: string,
+  indicadorId: string
+) {
+  return doc(
+    db,
+    `auditoria-geral/${labId}/auditorias/${auditoriaId}/planos-acao/${indicadorId}`
+  );
+}
+
+export async function savePlanoAcao(
+  labId: string,
+  auditoriaId: string,
+  indicadorId: string,
+  data: Omit<PlanoAcao, 'indicadorId' | 'criadoEm'>
+): Promise<void> {
+  const ref = planoAcaoDoc(labId, auditoriaId, indicadorId);
+  await setDoc(
+    ref,
+    { ...data, indicadorId, criadoEm: Timestamp.now() },
+    { merge: true }
+  );
+}
+
+export function subscribePlanosAcao(
+  labId: string,
+  auditoriaId: string,
+  callback: (planos: PlanoAcao[]) => void,
+  onError?: (err: Error) => void
+): Unsubscribe {
+  const col = planosAcaoCol(labId, auditoriaId);
+
+  return onSnapshot(
+    col,
+    (snap) => {
+      const planos = snap.docs.map((d) => {
+        const data = d.data() as any;
+        return {
+          indicadorId: d.id,
+          numero: data.numero,
+          indicador: data.indicador,
+          bloco: data.bloco,
+          score: data.score,
+          acaoCorretiva: data.acaoCorretiva ?? '',
+          responsavel: data.responsavel ?? '',
+          prazo: data.prazo ?? null,
+          status: data.status ?? 'pendente',
+          criadoEm: data.criadoEm,
+        } as PlanoAcao;
+      });
+      callback(planos);
     },
     (err) => {
       if (onError) onError(err as Error);

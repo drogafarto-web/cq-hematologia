@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuditoriasGeral } from '../hooks/useAuditoriasGeral';
+import { ComparativoAuditorias } from './ComparativoAuditorias';
 import { NovaAuditoriaDialog } from './NovaAuditoriaDialog';
 import type { AuditoriaGeral, StatusAuditoria } from '../types';
 
@@ -21,6 +22,10 @@ function formatDate(ts: { toDate: () => Date } | null): string {
 export function AuditoriasDashboard({ onSelect }: Props) {
   const { auditorias, isLoading, error } = useAuditoriasGeral();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [showComparativo, setShowComparativo] = useState(false);
+
+  const finalizadas = auditorias.filter((a) => a.status === 'finalizada');
+  const hasComparativo = finalizadas.length >= 2;
 
   const stats = {
     total: auditorias.length,
@@ -41,13 +46,28 @@ export function AuditoriasDashboard({ onSelect }: Props) {
           <h1 className="text-2xl font-semibold tracking-tight">Auditoria Geral</h1>
           <p className="text-sm text-white/40 mt-1">57 indicadores · Escala 0-5 · 12 blocos</p>
         </div>
-        <button
-          onClick={() => setDialogOpen(true)}
-          className="px-4 py-2 rounded-lg bg-violet-500 hover:bg-violet-400 text-white text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500/50"
-          aria-label="Criar nova auditoria"
-        >
-          Nova Auditoria
-        </button>
+        <div className="flex items-center gap-2">
+          {hasComparativo && (
+            <button
+              onClick={() => setShowComparativo((v) => !v)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500/50 ${
+                showComparativo
+                  ? 'bg-violet-500/20 text-violet-400'
+                  : 'bg-white/[0.04] text-white/60 hover:text-white/80'
+              }`}
+              aria-label="Ver comparativo entre auditorias"
+            >
+              Comparativo
+            </button>
+          )}
+          <button
+            onClick={() => setDialogOpen(true)}
+            className="px-4 py-2 rounded-lg bg-violet-500 hover:bg-violet-400 text-white text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+            aria-label="Criar nova auditoria"
+          >
+            Nova Auditoria
+          </button>
+        </div>
       </header>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -56,6 +76,10 @@ export function AuditoriasDashboard({ onSelect }: Props) {
         <StatCard value={stats.finalizadas} label="Finalizadas" />
         <StatCard value={`${stats.scoreMedio}%`} label="Score medio" />
       </div>
+
+      {showComparativo && hasComparativo && (
+        <ComparativoAuditorias auditorias={auditorias} />
+      )}
 
       {error && (
         <div className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg p-3">

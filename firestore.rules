@@ -3087,6 +3087,13 @@ service cloud.firestore {
         allow update: if isAuthenticated() && isActiveMemberOfLab(labId);
         allow delete: if false;
       }
+
+      match /planos-acao/{planoId} {
+        allow read: if isAuthenticated() && isActiveMemberOfLab(labId);
+        allow create: if isAuthenticated() && isActiveMemberOfLab(labId);
+        allow update: if isAuthenticated() && isActiveMemberOfLab(labId);
+        allow delete: if false;
+      }
     }
 
 }

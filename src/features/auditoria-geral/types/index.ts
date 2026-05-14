@@ -46,6 +46,7 @@ export interface RespostaIndicador {
   naoAplica: boolean;
   observacoes: string;
   fotos: FotoEvidencia[];
+  comprovacaoLink: string | null;
   respondidoEm: Timestamp | null;
   respondidoPor: string | null;
 }
@@ -65,4 +66,28 @@ export interface BlocoMeta {
   id: BlocoId;
   nome: string;
   indicadores: number[];
+}
+
+export interface PlanoAcao {
+  indicadorId: string;
+  numero: number;
+  indicador: string;
+  bloco: BlocoId;
+  score: number;
+  acaoCorretiva: string;
+  responsavel: string;
+  prazo: Timestamp | null;
+  status: 'pendente' | 'em_andamento' | 'concluido';
+  criadoEm: Timestamp;
+}
+
+export interface QualificacaoAuditor {
+  uid: string;
+  nome: string;
+  email: string;
+  totalAuditorias: number;
+  mediaScore: number;
+  ultimaAuditoria: Timestamp | null;
+  certificacoes: string[];
+  status: 'qualificado' | 'em_treinamento' | 'inativo';
 }

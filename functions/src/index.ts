@@ -433,6 +433,8 @@ export {
 
 // ─── auditoriaGeral module ────────────────────────────────────────────────────
 export { generateAuditoriaGeralPDF } from './callables/auditoriaGeral/generateAuditoriaGeralPDF';
+export { generateAuditoriaSummary } from './callables/auditoriaGeral/generateAuditoriaSummary';
+export { transcribeAuditoriaAudio } from './callables/auditoriaGeral/transcribeAuditoriaAudio';
 
 // ─── equipamentos module (ADR 0007 — Equipment Calibration Gate) ──────────────
 // Equipment qualifications: calibration + maintenance scheduling

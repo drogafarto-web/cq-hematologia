@@ -1,8 +1,10 @@
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import { useUser } from '../../../store/useAuthStore';
 import { saveResposta, uploadFotoEvidencia } from '../services/auditoriaGeralService';
 import type { Indicador, RespostaIndicador } from '../types';
+import { AudioRecorder } from './AudioRecorder';
+import { ModuleLinkBadge } from './ModuleLinkBadge';
 import { ScoreSelector } from './ScoreSelector';
 
 interface IndicadorCardProps {
@@ -27,6 +29,16 @@ export function IndicadorCard({
   const [showObs, setShowObs] = useState(Boolean(resposta?.observacoes));
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleTranscription = useCallback((text: string) => {
+    const updated = obs ? `${obs}\n${text}` : text;
+    setObs(updated);
+    setShowObs(true);
+    saveResposta(labId, auditoriaId, indicador.id, {
+      observacoes: updated,
+      respondidoPor: user?.uid ?? null,
+    });
+  }, [obs, labId, auditoriaId, indicador.id, user?.uid]);
 
   const handleScoreChange = (score: number | null, naoAplica: boolean) => {
     saveResposta(labId, auditoriaId, indicador.id, {
@@ -87,6 +99,7 @@ export function IndicadorCard({
         <span className="text-[10px] text-white/50 bg-white/[0.04] px-2 py-0.5 rounded-full">
           {indicador.marcoRegulatorio}
         </span>
+        <ModuleLinkBadge moduloVinculado={indicador.moduloVinculado} />
       </div>
 
       <ScoreSelector
@@ -107,13 +120,24 @@ export function IndicadorCard({
           className="w-full bg-white/[0.02] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-white/70 placeholder:text-white/20 resize-none focus:outline-none focus:border-violet-500/40"
         />
       ) : (
-        <button
-          type="button"
-          onClick={() => setShowObs(true)}
-          className="text-xs text-white/50 hover:text-white/70 transition-colors"
-        >
-          + Adicionar nota
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setShowObs(true)}
+            className="text-xs text-white/50 hover:text-white/70 transition-colors"
+          >
+            + Adicionar nota
+          </button>
+          {user && (
+            <AudioRecorder
+              labId={labId}
+              auditoriaId={auditoriaId}
+              indicadorId={indicador.id}
+              uid={user.uid}
+              onTranscription={handleTranscription}
+            />
+          )}
+        </div>
       )}
 
       {/* Fotos */}
