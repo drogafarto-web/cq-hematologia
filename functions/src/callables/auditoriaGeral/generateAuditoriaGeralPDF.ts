@@ -70,7 +70,7 @@ function computeScores(respostas: Resposta[]) {
   const respondidos = respostas.filter(r => r.score !== null && r.score > 0);
   const naCount = respostas.filter(r => r.score === null || r.score === 0).length;
   const totalScore = respondidos.reduce((sum, r) => sum + (r.score ?? 0), 0);
-  const maxPossible = respondidos.length * 4;
+  const maxPossible = respondidos.length * 5;
   const scorePercent = maxPossible > 0 ? Math.round((totalScore / maxPossible) * 100) : 0;
   const belowThree = respondidos.filter(r => (r.score ?? 0) <= 2).length;
 
@@ -185,7 +185,7 @@ async function buildPdfBuffer(
     const blocoKeys = Object.keys(BLOCOS);
     for (const key of blocoKeys) {
       const bs = stats.blocoScores[key];
-      const pct = bs ? Math.round((bs.total / (bs.count * 4)) * 100) : 0;
+      const pct = bs ? Math.round((bs.total / (bs.count * 5)) * 100) : 0;
       const barLen = Math.round(pct / 5);
       const bar = '█'.repeat(barLen) + '░'.repeat(Math.max(0, 20 - barLen));
       const nome = BLOCOS[key].length > 38 ? BLOCOS[key].slice(0, 36) + '..' : BLOCOS[key];
