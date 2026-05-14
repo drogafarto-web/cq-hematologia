@@ -49,7 +49,7 @@ export function useAuditReportExport(): UseAuditReportExportResult {
       setMessage('Gerando relatório de auditoria...');
 
       try {
-        const callable = httpsCallable(functions, 'generateAuditReportPDF');
+        const callable = httpsCallable(functions, 'generateAuditInternaPDF');
         const result = await callable({
           labId,
           auditoriaId,

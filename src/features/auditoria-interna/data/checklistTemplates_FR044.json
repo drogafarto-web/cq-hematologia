@@ -1,0 +1,971 @@
+[
+  {
+    "id": "fr044-01",
+    "numero": 1,
+    "indicador": "Alvará de Licenciamento",
+    "marcoRegulatorio": "Art. 63 da RDC 978/2025",
+    "moduloVinculado": "sgd",
+    "categoria": "documentacao-legal",
+    "bloco": "A",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem alvará de licenciamento ou equivalente.",
+      "2": "Alvará de licenciamento vencido, sem pedido de renovação ou em processo inicial de licenciamento.",
+      "3": "Alvará de licenciamento vencido, com pedido de renovação.",
+      "4": "Dispõe de alvará de licenciamento ou equivalente, expedido pelo órgão sanitário competente, indicando as atividades relacionadas ao EAC.",
+      "5": "Solicitou a renovação do alvará de licenciamento antes do vencimento nos últimos dois anos."
+    }
+  },
+  {
+    "id": "fr044-02",
+    "numero": 2,
+    "indicador": "Inscrição no CNES",
+    "marcoRegulatorio": "Art. 63-64 da RDC 978/2025 + Portaria MS 1.646/2015",
+    "moduloVinculado": "sgd",
+    "categoria": "documentacao-legal",
+    "bloco": "A",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem inscrição no CNES.",
+      "2": "Inscrição no CNES desatualizada há mais de 12 meses ou com dados incompletos.",
+      "3": "Inscrição no CNES desatualizada há menos de 12 meses, com processo de atualização em andamento.",
+      "4": "Inscrição no CNES atualizada, com todos os dados obrigatórios preenchidos corretamente.",
+      "5": "Inscrição no CNES atualizada com revisão periódica documentada e processo sistemático de verificação semestral."
+    }
+  },
+  {
+    "id": "fr044-03",
+    "numero": 3,
+    "indicador": "PBA e Memorial Descritivo",
+    "marcoRegulatorio": "Art. 63 da RDC 978/2025",
+    "moduloVinculado": "sgd",
+    "categoria": "documentacao-legal",
+    "bloco": "A",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem Projeto Básico de Arquitetura (PBA) ou Memorial Descritivo.",
+      "2": "PBA ou Memorial Descritivo incompleto ou desatualizado, sem aprovação do órgão competente.",
+      "3": "PBA e Memorial Descritivo existentes, porém com divergências em relação à estrutura física atual.",
+      "4": "PBA e Memorial Descritivo aprovados pelo órgão competente, compatíveis com a estrutura física atual.",
+      "5": "PBA e Memorial Descritivo atualizados proativamente a cada modificação estrutural, com histórico de revisões documentado."
+    }
+  },
+  {
+    "id": "fr044-04",
+    "numero": 4,
+    "indicador": "Responsável Técnico",
+    "marcoRegulatorio": "Art. 64 da RDC 978/2025",
+    "moduloVinculado": "personnel",
+    "categoria": "gestao-pessoal",
+    "bloco": "A",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem Responsável Técnico (RT) designado ou sem habilitação legal.",
+      "2": "RT designado, porém sem registro no conselho de classe ou com registro irregular.",
+      "3": "RT com registro regular no conselho de classe, mas sem documentação formal de designação no estabelecimento.",
+      "4": "RT legalmente habilitado, com registro regular e documentação formal de designação, cumprindo carga horária compatível.",
+      "5": "RT com programa de atualização profissional contínua documentado e substituto técnico formalmente designado."
+    }
+  },
+  {
+    "id": "fr044-05",
+    "numero": 5,
+    "indicador": "EAC Itinerante Tipo III",
+    "marcoRegulatorio": "Art. 40-42 da RDC 978/2025 + RDC 50/2002",
+    "moduloVinculado": null,
+    "categoria": "infraestrutura",
+    "bloco": "A",
+    "aplicavel": true,
+    "niveis": {
+      "1": "EAC itinerante operando sem atender aos requisitos mínimos de infraestrutura da RDC 50/2002.",
+      "2": "EAC itinerante com infraestrutura parcialmente adequada, sem documentação de conformidade.",
+      "3": "EAC itinerante com infraestrutura adequada, porém sem vínculo formal com laboratório de apoio ou supervisão documentada.",
+      "4": "EAC itinerante Tipo III em conformidade com Art. 40-42, com infraestrutura adequada e vínculo formal documentado.",
+      "5": "EAC itinerante com sistema de monitoramento contínuo das condições de operação e auditorias periódicas documentadas."
+    }
+  },
+  {
+    "id": "fr044-06",
+    "numero": 6,
+    "indicador": "Contratualização das Atividades",
+    "marcoRegulatorio": "Art. 75 da RDC 978/2025",
+    "moduloVinculado": "fornecedores",
+    "categoria": "contratos",
+    "bloco": "B",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Atividades terceirizadas sem contrato formal.",
+      "2": "Contratos existentes, porém sem cláusulas obrigatórias ou com vigência expirada.",
+      "3": "Contratos formalizados com cláusulas básicas, mas sem critérios de avaliação de desempenho do contratado.",
+      "4": "Contratos formalizados conforme Art. 75, com todas as cláusulas obrigatórias e vigência regular.",
+      "5": "Contratos com avaliação periódica documentada de desempenho dos contratados e plano de contingência formalizado."
+    }
+  },
+  {
+    "id": "fr044-07",
+    "numero": 7,
+    "indicador": "Conteúdo do Contrato",
+    "marcoRegulatorio": "Art. 54-56 da RDC 978/2025",
+    "moduloVinculado": "fornecedores",
+    "categoria": "contratos",
+    "bloco": "B",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Contratos sem conteúdo mínimo exigido pela regulamentação.",
+      "2": "Contratos com conteúdo parcial, faltando elementos essenciais como responsabilidades ou prazos.",
+      "3": "Contratos com conteúdo adequado, porém sem definição clara de indicadores de qualidade ou penalidades.",
+      "4": "Contratos com todo o conteúdo exigido nos Art. 54-56, incluindo responsabilidades, prazos e critérios de qualidade.",
+      "5": "Contratos com revisão jurídica periódica, indicadores de desempenho monitorados e cláusulas de melhoria contínua."
+    }
+  },
+  {
+    "id": "fr044-08",
+    "numero": 8,
+    "indicador": "Contrato de Supervisão",
+    "marcoRegulatorio": "Art. 79-81 da RDC 978/2025",
+    "moduloVinculado": "fornecedores",
+    "categoria": "contratos",
+    "bloco": "B",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem contrato de supervisão quando aplicável.",
+      "2": "Contrato de supervisão existente, porém sem definição de periodicidade ou escopo das supervisões.",
+      "3": "Contrato de supervisão com periodicidade definida, mas sem registros de execução das supervisões.",
+      "4": "Contrato de supervisão conforme Art. 79-81, com periodicidade, escopo e registros de execução adequados.",
+      "5": "Contrato de supervisão com indicadores de efetividade monitorados e plano de ação para não conformidades identificadas."
+    }
+  },
+  {
+    "id": "fr044-09",
+    "numero": 9,
+    "indicador": "Conteúdo do Contrato de Supervisão",
+    "marcoRegulatorio": "Art. 82 da RDC 978/2025",
+    "moduloVinculado": "fornecedores",
+    "categoria": "contratos",
+    "bloco": "B",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Contrato de supervisão sem o conteúdo mínimo exigido pelo Art. 82.",
+      "2": "Contrato com conteúdo parcial, sem definição de competências do supervisor ou critérios de avaliação.",
+      "3": "Contrato com conteúdo adequado, porém sem cronograma detalhado ou metodologia de supervisão.",
+      "4": "Contrato de supervisão com todo o conteúdo exigido no Art. 82, incluindo competências, cronograma e metodologia.",
+      "5": "Contrato com mecanismos de feedback bidirecional, relatórios periódicos de supervisão e evidências de melhoria."
+    }
+  },
+  {
+    "id": "fr044-10",
+    "numero": 10,
+    "indicador": "Gerenciamento de Tecnologias",
+    "marcoRegulatorio": "Art. 83 da RDC 978/2025",
+    "moduloVinculado": "equipamentos",
+    "categoria": "tecnologia",
+    "bloco": "C",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem programa de gerenciamento de tecnologias em saúde.",
+      "2": "Inventário parcial de equipamentos, sem plano de gerenciamento formalizado.",
+      "3": "Inventário completo com plano de gerenciamento, porém sem execução sistemática.",
+      "4": "Programa de gerenciamento de tecnologias implementado conforme Art. 83, com inventário, plano e execução documentados.",
+      "5": "Programa com análise de ciclo de vida dos equipamentos, planejamento de substituição e indicadores de desempenho tecnológico."
+    }
+  },
+  {
+    "id": "fr044-11",
+    "numero": 11,
+    "indicador": "Notificações (Incidentes, eventos adversos e queixas técnicas)",
+    "marcoRegulatorio": "Art. 83 da RDC 978/2025",
+    "moduloVinculado": "notivisa-portal",
+    "categoria": "tecnovigilancia",
+    "bloco": "C",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem processo de notificação de incidentes, eventos adversos ou queixas técnicas.",
+      "2": "Processo de notificação informal, sem registros sistemáticos ou fluxo definido.",
+      "3": "Processo de notificação definido, porém com registros incompletos ou notificações fora do prazo regulamentar.",
+      "4": "Processo de notificação implementado conforme Art. 83, com registros completos e notificações dentro do prazo ao SNVS.",
+      "5": "Sistema de notificação com análise de tendências, ações preventivas implementadas e cultura de notificação disseminada."
+    }
+  },
+  {
+    "id": "fr044-12",
+    "numero": 12,
+    "indicador": "Manutenções dos Instrumentos",
+    "marcoRegulatorio": "Art. 88-90 da RDC 978/2025",
+    "moduloVinculado": "equipamentos",
+    "categoria": "equipamentos",
+    "bloco": "C",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem programa de manutenção preventiva ou corretiva dos instrumentos.",
+      "2": "Manutenções realizadas apenas de forma corretiva, sem planejamento preventivo.",
+      "3": "Programa de manutenção preventiva definido, porém com execução irregular ou registros incompletos.",
+      "4": "Programa de manutenção preventiva e corretiva implementado conforme Art. 88-90, com cronograma cumprido e registros completos.",
+      "5": "Programa de manutenção com análise de indicadores de disponibilidade, MTBF e planejamento preditivo baseado em dados históricos."
+    }
+  },
+  {
+    "id": "fr044-13",
+    "numero": 13,
+    "indicador": "Verificação de Conformidade dos Instrumentos",
+    "marcoRegulatorio": "Art. 107 da RDC 978/2025",
+    "moduloVinculado": "equipamentos",
+    "categoria": "equipamentos",
+    "bloco": "C",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem verificação de conformidade dos instrumentos antes do uso.",
+      "2": "Verificação de conformidade realizada esporadicamente, sem procedimento padronizado.",
+      "3": "Procedimento de verificação definido, porém sem registros sistemáticos ou com periodicidade inadequada.",
+      "4": "Verificação de conformidade realizada conforme Art. 107, com procedimento padronizado, periodicidade adequada e registros completos.",
+      "5": "Verificação com critérios de aceitação documentados, análise de tendências e ações proativas quando detectados desvios."
+    }
+  },
+  {
+    "id": "fr044-14",
+    "numero": 14,
+    "indicador": "Calibração dos Instrumentos",
+    "marcoRegulatorio": "Art. 92 da RDC 978/2025",
+    "moduloVinculado": "calibracao",
+    "categoria": "equipamentos",
+    "bloco": "C",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem programa de calibração dos instrumentos.",
+      "2": "Calibração realizada sem periodicidade definida ou por laboratório sem acreditação.",
+      "3": "Programa de calibração definido, porém com certificados vencidos ou sem rastreabilidade metrológica.",
+      "4": "Programa de calibração implementado conforme Art. 92, com rastreabilidade metrológica e certificados válidos.",
+      "5": "Programa de calibração com análise de estabilidade dos instrumentos, intervalos otimizados e gestão proativa de vencimentos."
+    }
+  },
+  {
+    "id": "fr044-15",
+    "numero": 15,
+    "indicador": "Gerenciamento de Risco",
+    "marcoRegulatorio": "Art. 93-94 da RDC 978/2025",
+    "moduloVinculado": "risks",
+    "categoria": "gestao-risco",
+    "bloco": "D",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem processo de gerenciamento de risco implementado.",
+      "2": "Identificação de riscos realizada de forma pontual, sem metodologia definida ou plano de tratamento.",
+      "3": "Metodologia de gerenciamento de risco definida, porém sem aplicação sistemática ou revisão periódica.",
+      "4": "Gerenciamento de risco implementado conforme Art. 93-94, com identificação, análise, avaliação e tratamento dos riscos documentados.",
+      "5": "Gerenciamento de risco integrado aos processos, com revisão periódica, indicadores de eficácia e cultura de gestão de riscos disseminada."
+    }
+  },
+  {
+    "id": "fr044-16",
+    "numero": 16,
+    "indicador": "Gestão de Documentos",
+    "marcoRegulatorio": "Art. 95 da RDC 978/2025",
+    "moduloVinculado": "sgq",
+    "categoria": "documentacao",
+    "bloco": "D",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem sistema de gestão de documentos.",
+      "2": "Documentos existentes sem controle de versão, aprovação ou distribuição.",
+      "3": "Sistema de gestão de documentos parcialmente implementado, com documentos desatualizados ou sem controle de obsolescência.",
+      "4": "Sistema de gestão de documentos implementado conforme Art. 95, com controle de elaboração, revisão, aprovação e distribuição.",
+      "5": "Sistema eletrônico de gestão documental com controle automático de revisões, alertas de vencimento e indicadores de conformidade."
+    }
+  },
+  {
+    "id": "fr044-17",
+    "numero": 17,
+    "indicador": "Gestão de Pessoal",
+    "marcoRegulatorio": "Art. 84-87 da RDC 978/2025",
+    "moduloVinculado": "personnel",
+    "categoria": "gestao-pessoal",
+    "bloco": "D",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem registros de qualificação ou competência do pessoal técnico.",
+      "2": "Registros parciais de qualificação, sem avaliação de competência ou descrição de cargos.",
+      "3": "Descrição de cargos e registros de qualificação existentes, porém sem avaliação periódica de competência.",
+      "4": "Gestão de pessoal conforme Art. 84-87, com descrição de cargos, qualificação documentada e avaliação de competência.",
+      "5": "Programa de desenvolvimento de competências com avaliação periódica, plano de carreira e indicadores de desempenho individual."
+    }
+  },
+  {
+    "id": "fr044-18",
+    "numero": 18,
+    "indicador": "Programa de Educação Permanente",
+    "marcoRegulatorio": "Art. 133-136 da RDC 978/2025",
+    "moduloVinculado": "treinamentos",
+    "categoria": "educacao",
+    "bloco": "D",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem programa de educação permanente.",
+      "2": "Treinamentos realizados de forma esporádica, sem planejamento ou registro formal.",
+      "3": "Programa de educação permanente definido, porém com execução parcial ou sem avaliação de eficácia.",
+      "4": "Programa de educação permanente implementado conforme Art. 133-136, com planejamento anual, execução e registros completos.",
+      "5": "Programa com levantamento de necessidades baseado em indicadores, avaliação de eficácia e impacto nos processos laboratoriais."
+    }
+  },
+  {
+    "id": "fr044-19",
+    "numero": 19,
+    "indicador": "Conteúdo das Capacitações e Treinamentos",
+    "marcoRegulatorio": "Art. 86 da RDC 978/2025",
+    "moduloVinculado": "treinamentos",
+    "categoria": "educacao",
+    "bloco": "D",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem conteúdo programático definido para capacitações e treinamentos.",
+      "2": "Conteúdo programático genérico, sem relação com as atividades específicas do colaborador.",
+      "3": "Conteúdo programático relacionado às atividades, porém sem avaliação de aprendizagem ou carga horária adequada.",
+      "4": "Capacitações com conteúdo conforme Art. 86, incluindo biossegurança, procedimentos técnicos e sistema da qualidade.",
+      "5": "Conteúdo programático personalizado por função, com avaliação de aprendizagem, reciclagem programada e trilhas de desenvolvimento."
+    }
+  },
+  {
+    "id": "fr044-20",
+    "numero": 20,
+    "indicador": "Infraestrutura",
+    "marcoRegulatorio": "Art. 96-100 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "infraestrutura",
+    "bloco": "E",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Infraestrutura física inadequada, sem condições mínimas para realização das atividades laboratoriais.",
+      "2": "Infraestrutura com deficiências significativas em áreas críticas (climatização, iluminação ou instalações).",
+      "3": "Infraestrutura adequada na maioria dos aspectos, porém com pendências em manutenção ou monitoramento ambiental.",
+      "4": "Infraestrutura conforme Art. 96-100, com áreas adequadas, monitoramento ambiental e manutenção predial em dia.",
+      "5": "Infraestrutura com monitoramento ambiental contínuo automatizado, plano de manutenção preditiva e indicadores de desempenho predial."
+    }
+  },
+  {
+    "id": "fr044-21",
+    "numero": 21,
+    "indicador": "Biossegurança",
+    "marcoRegulatorio": "Art. 101-103 da RDC 978/2025",
+    "moduloVinculado": "biosseguranca",
+    "categoria": "biosseguranca",
+    "bloco": "E",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem programa de biossegurança ou mapa de risco.",
+      "2": "Programa de biossegurança parcial, sem mapa de risco atualizado ou EPIs adequados.",
+      "3": "Programa de biossegurança definido com mapa de risco, porém com adesão parcial às práticas ou EPIs insuficientes.",
+      "4": "Programa de biossegurança implementado conforme Art. 101-103, com mapa de risco, EPIs adequados e treinamento documentado.",
+      "5": "Programa com monitoramento de indicadores de acidentes biológicos, cultura de segurança disseminada e revisão proativa dos riscos."
+    }
+  },
+  {
+    "id": "fr044-22",
+    "numero": 22,
+    "indicador": "PGRSS",
+    "marcoRegulatorio": "Art. 104-106 da RDC 978/2025",
+    "moduloVinculado": "pgrss",
+    "categoria": "pgrss",
+    "bloco": "E",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem Plano de Gerenciamento de Resíduos de Serviços de Saúde (PGRSS).",
+      "2": "PGRSS elaborado, porém desatualizado ou sem implementação efetiva.",
+      "3": "PGRSS implementado parcialmente, com segregação inadequada ou sem treinamento dos colaboradores.",
+      "4": "PGRSS implementado conforme Art. 104-106, com segregação correta, acondicionamento adequado e destinação final documentada.",
+      "5": "PGRSS com indicadores de geração de resíduos, programa de minimização e auditorias internas periódicas do gerenciamento."
+    }
+  },
+  {
+    "id": "fr044-23",
+    "numero": 23,
+    "indicador": "Fase Pré-Analítica - Coleta",
+    "marcoRegulatorio": "Art. 108-112 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "pre-analitica",
+    "bloco": "F",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem procedimentos padronizados para coleta de amostras biológicas.",
+      "2": "Procedimentos de coleta existentes, porém incompletos ou sem padronização de técnicas e materiais.",
+      "3": "Procedimentos de coleta padronizados, porém sem verificação de conformidade ou com não conformidades recorrentes.",
+      "4": "Procedimentos de coleta implementados conforme Art. 108-112, com identificação positiva do paciente, técnica padronizada e registros completos.",
+      "5": "Processo de coleta com indicadores de qualidade monitorados, taxa de recoleta controlada e melhoria contínua documentada."
+    }
+  },
+  {
+    "id": "fr044-24",
+    "numero": 24,
+    "indicador": "Fase Pré-Analítica - Transporte",
+    "marcoRegulatorio": "Art. 113-115 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "pre-analitica",
+    "bloco": "F",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem procedimentos para transporte de amostras ou transporte em condições inadequadas.",
+      "2": "Transporte realizado sem controle de temperatura ou tempo, sem embalagens adequadas.",
+      "3": "Procedimentos de transporte definidos, porém sem monitoramento contínuo de temperatura ou registros de tempo.",
+      "4": "Transporte conforme Art. 113-115, com embalagens adequadas, controle de temperatura e tempo, e registros de rastreabilidade.",
+      "5": "Sistema de transporte com monitoramento em tempo real, indicadores de conformidade e plano de contingência para intercorrências."
+    }
+  },
+  {
+    "id": "fr044-25",
+    "numero": 25,
+    "indicador": "Fase Pré-Analítica - Recebimento",
+    "marcoRegulatorio": "Art. 116-118 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "pre-analitica",
+    "bloco": "F",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem procedimentos de recebimento e conferência de amostras.",
+      "2": "Recebimento sem critérios de verificação ou sem registro de condições de chegada das amostras.",
+      "3": "Procedimentos de recebimento definidos, porém sem verificação sistemática de integridade ou temperatura.",
+      "4": "Recebimento conforme Art. 116-118, com verificação de identificação, integridade, temperatura e registro de horários.",
+      "5": "Processo de recebimento com rastreabilidade completa, indicadores de não conformidade no recebimento e ações corretivas documentadas."
+    }
+  },
+  {
+    "id": "fr044-26",
+    "numero": 26,
+    "indicador": "Fase Pré-Analítica - Critérios de Aceitação/Rejeição",
+    "marcoRegulatorio": "Art. 119-120 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "pre-analitica",
+    "bloco": "F",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem critérios definidos para aceitação ou rejeição de amostras.",
+      "2": "Critérios de aceitação/rejeição informais, sem documentação ou aplicação consistente.",
+      "3": "Critérios documentados, porém sem registro sistemático das amostras rejeitadas ou sem comunicação ao solicitante.",
+      "4": "Critérios de aceitação/rejeição conforme Art. 119-120, documentados, aplicados sistematicamente e com registro de rejeições.",
+      "5": "Critérios com análise periódica de taxas de rejeição, identificação de causas raiz e ações para redução de rejeições."
+    }
+  },
+  {
+    "id": "fr044-27",
+    "numero": 27,
+    "indicador": "Fase Analítica - Validação de Métodos",
+    "marcoRegulatorio": "Art. 121-124 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "analitica",
+    "bloco": "G",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem validação ou verificação de métodos analíticos.",
+      "2": "Validação parcial, sem documentação de parâmetros essenciais (precisão, exatidão, linearidade).",
+      "3": "Validação realizada, porém com documentação incompleta ou sem revisão periódica dos parâmetros.",
+      "4": "Validação de métodos conforme Art. 121-124, com todos os parâmetros documentados e critérios de aceitação definidos.",
+      "5": "Programa de revalidação periódica com análise de tendências, comparação interlaboratorial e documentação de incerteza expandida."
+    }
+  },
+  {
+    "id": "fr044-28",
+    "numero": 28,
+    "indicador": "Fase Analítica - Procedimentos Operacionais",
+    "marcoRegulatorio": "Art. 125-127 da RDC 978/2025",
+    "moduloVinculado": "sgq",
+    "categoria": "analitica",
+    "bloco": "G",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem procedimentos operacionais padrão (POP) para os ensaios realizados.",
+      "2": "POPs existentes, porém desatualizados, incompletos ou inacessíveis aos operadores.",
+      "3": "POPs atualizados e acessíveis, porém sem evidência de treinamento dos operadores ou sem controle de cópias.",
+      "4": "POPs conforme Art. 125-127, atualizados, controlados, acessíveis e com evidência de treinamento dos operadores.",
+      "5": "POPs com revisão periódica programada, integrados ao sistema de gestão documental e com verificação de adesão em auditorias."
+    }
+  },
+  {
+    "id": "fr044-29",
+    "numero": 29,
+    "indicador": "Fase Analítica - Controle Interno da Qualidade",
+    "marcoRegulatorio": "Art. 128-130 da RDC 978/2025",
+    "moduloVinculado": "ciq-imuno",
+    "categoria": "analitica",
+    "bloco": "G",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem controle interno da qualidade (CIQ) implementado.",
+      "2": "CIQ realizado de forma irregular, sem regras de aceitação definidas ou sem ações para resultados fora de controle.",
+      "3": "CIQ realizado regularmente, porém sem análise estatística adequada ou com regras de Westgard parcialmente aplicadas.",
+      "4": "CIQ implementado conforme Art. 128-130, com regras de aceitação definidas, análise estatística e ações documentadas para desvios.",
+      "5": "CIQ com análise de tendências, sigma métrico calculado, metas de desempenho e melhoria contínua dos processos analíticos."
+    }
+  },
+  {
+    "id": "fr044-30",
+    "numero": 30,
+    "indicador": "Fase Analítica - Controle Externo da Qualidade",
+    "marcoRegulatorio": "Art. 131-132 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "analitica",
+    "bloco": "G",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem participação em programa de controle externo da qualidade (ensaio de proficiência).",
+      "2": "Participação em ensaio de proficiência, porém sem análise dos resultados ou com desempenho insatisfatório recorrente.",
+      "3": "Participação regular com análise de resultados, porém sem ações corretivas para desempenhos insatisfatórios.",
+      "4": "Participação conforme Art. 131-132, com análise de resultados, ações corretivas documentadas e desempenho satisfatório.",
+      "5": "Participação em múltiplos programas, com análise comparativa de desempenho, tendências e uso dos resultados para melhoria de processos."
+    }
+  },
+  {
+    "id": "fr044-31",
+    "numero": 31,
+    "indicador": "Fase Pós-Analítica - Liberação de Resultados",
+    "marcoRegulatorio": "Art. 137-140 da RDC 978/2025",
+    "moduloVinculado": "liberacao",
+    "categoria": "pos-analitica",
+    "bloco": "H",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem processo definido para liberação de resultados.",
+      "2": "Liberação de resultados sem revisão técnica ou sem critérios de liberação definidos.",
+      "3": "Processo de liberação definido, porém sem verificação de consistência ou com liberação por profissional não habilitado.",
+      "4": "Liberação conforme Art. 137-140, com revisão técnica, critérios de consistência e profissional habilitado responsável.",
+      "5": "Sistema de liberação com regras automáticas de verificação, autoverificação validada e indicadores de tempo de liberação."
+    }
+  },
+  {
+    "id": "fr044-32",
+    "numero": 32,
+    "indicador": "Fase Pós-Analítica - Valores Críticos",
+    "marcoRegulatorio": "Art. 141-143 da RDC 978/2025",
+    "moduloVinculado": "criticos",
+    "categoria": "pos-analitica",
+    "bloco": "H",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem definição de valores críticos ou procedimento de comunicação.",
+      "2": "Lista de valores críticos existente, porém sem procedimento de comunicação urgente ao médico solicitante.",
+      "3": "Procedimento de comunicação definido, porém sem registro de comunicação ou sem confirmação de recebimento.",
+      "4": "Valores críticos definidos conforme Art. 141-143, com comunicação imediata, registro e confirmação de recebimento documentados.",
+      "5": "Sistema com alertas automáticos, monitoramento de tempo de comunicação, análise de frequência e revisão periódica da lista."
+    }
+  },
+  {
+    "id": "fr044-33",
+    "numero": 33,
+    "indicador": "Fase Pós-Analítica - Laudo",
+    "marcoRegulatorio": "Art. 144-150 da RDC 978/2025",
+    "moduloVinculado": "liberacao",
+    "categoria": "pos-analitica",
+    "bloco": "H",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Laudos sem informações mínimas obrigatórias ou sem assinatura do responsável técnico.",
+      "2": "Laudos com informações parciais, sem dados do paciente completos ou sem método analítico informado.",
+      "3": "Laudos com informações adequadas, porém sem valores de referência atualizados ou sem unidades padronizadas.",
+      "4": "Laudos conforme Art. 144-150, com todas as informações obrigatórias, valores de referência e assinatura do RT.",
+      "5": "Laudos com comentários interpretativos quando aplicável, rastreabilidade completa e sistema de controle de emissão de laudos retificados."
+    }
+  },
+  {
+    "id": "fr044-34",
+    "numero": 34,
+    "indicador": "Fase Pós-Analítica - Notificação Compulsória",
+    "marcoRegulatorio": "Art. 151-153 da RDC 978/2025",
+    "moduloVinculado": "notivisa-portal",
+    "categoria": "pos-analitica",
+    "bloco": "H",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem conhecimento ou processo para notificação compulsória de doenças e agravos.",
+      "2": "Conhecimento da obrigatoriedade, porém sem procedimento formalizado ou lista de doenças de notificação.",
+      "3": "Procedimento definido, porém com notificações fora do prazo ou sem registro de comunicação à vigilância epidemiológica.",
+      "4": "Notificação compulsória conforme Art. 151-153, com lista atualizada, procedimento formalizado e notificações dentro do prazo.",
+      "5": "Sistema com alertas automáticos para resultados de notificação compulsória, rastreabilidade de notificações e treinamento periódico da equipe."
+    }
+  },
+  {
+    "id": "fr044-35",
+    "numero": 35,
+    "indicador": "Fase Pós-Analítica - Retenção de Amostras",
+    "marcoRegulatorio": "Art. 154-156 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "pos-analitica",
+    "bloco": "H",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem procedimento de retenção de amostras ou descarte imediato após análise.",
+      "2": "Retenção de amostras sem critérios definidos de tempo ou condições de armazenamento.",
+      "3": "Procedimento de retenção definido, porém sem monitoramento de condições de armazenamento ou com prazos inadequados.",
+      "4": "Retenção conforme Art. 154-156, com prazos definidos, condições de armazenamento monitoradas e descarte documentado.",
+      "5": "Sistema de retenção com rastreabilidade completa, monitoramento automatizado de temperatura e gestão de espaço otimizada."
+    }
+  },
+  {
+    "id": "fr044-36",
+    "numero": 36,
+    "indicador": "Sistema de Informação Laboratorial",
+    "marcoRegulatorio": "Art. 157-160 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "informatica",
+    "bloco": "I",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem sistema de informação laboratorial (LIS) ou uso exclusivo de registros manuais sem controle.",
+      "2": "Sistema de informação parcialmente implementado, sem integração com equipamentos ou com falhas frequentes.",
+      "3": "LIS implementado, porém sem validação de funcionalidades críticas ou sem controle de acesso adequado.",
+      "4": "LIS conforme Art. 157-160, validado, com controle de acesso, trilha de auditoria e integração com equipamentos.",
+      "5": "LIS com validação periódica documentada, integração bidirecional completa, dashboards de gestão e plano de continuidade."
+    }
+  },
+  {
+    "id": "fr044-37",
+    "numero": 37,
+    "indicador": "Confidencialidade e LGPD",
+    "marcoRegulatorio": "Art. 161-163 da RDC 978/2025",
+    "moduloVinculado": "lgpd",
+    "categoria": "informatica",
+    "bloco": "I",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem política de confidencialidade ou proteção de dados pessoais.",
+      "2": "Política de confidencialidade informal, sem adequação à LGPD ou sem treinamento dos colaboradores.",
+      "3": "Política definida, porém sem mapeamento de dados pessoais ou sem encarregado de proteção de dados designado.",
+      "4": "Confidencialidade conforme Art. 161-163 e LGPD, com política implementada, mapeamento de dados e encarregado designado.",
+      "5": "Programa de privacidade com avaliação de impacto, auditorias de conformidade LGPD e cultura de proteção de dados disseminada."
+    }
+  },
+  {
+    "id": "fr044-38",
+    "numero": 38,
+    "indicador": "Backup e Recuperação de Dados",
+    "marcoRegulatorio": "Art. 164-166 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "informatica",
+    "bloco": "I",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem procedimento de backup ou recuperação de dados.",
+      "2": "Backup realizado de forma irregular, sem teste de recuperação ou sem armazenamento externo.",
+      "3": "Backup regular, porém sem teste periódico de recuperação ou sem política de retenção definida.",
+      "4": "Backup conforme Art. 164-166, com periodicidade definida, armazenamento externo, teste de recuperação e política de retenção.",
+      "5": "Sistema de backup automatizado com redundância geográfica, teste de recuperação periódico documentado e RTO/RPO definidos e monitorados."
+    }
+  },
+  {
+    "id": "fr044-39",
+    "numero": 39,
+    "indicador": "Rastreabilidade de Resultados",
+    "marcoRegulatorio": "Art. 167-169 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "informatica",
+    "bloco": "I",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem rastreabilidade dos resultados desde a coleta até a emissão do laudo.",
+      "2": "Rastreabilidade parcial, com lacunas em etapas do processo ou sem registro de operadores.",
+      "3": "Rastreabilidade implementada, porém sem trilha de auditoria completa ou sem registro de alterações.",
+      "4": "Rastreabilidade conforme Art. 167-169, com registro completo de todas as etapas, operadores e alterações.",
+      "5": "Rastreabilidade com trilha de auditoria inviolável, timestamps automáticos e capacidade de reconstrução completa do processo."
+    }
+  },
+  {
+    "id": "fr044-40",
+    "numero": 40,
+    "indicador": "Indicadores da Qualidade",
+    "marcoRegulatorio": "Art. 170-172 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "qualidade",
+    "bloco": "J",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Sem indicadores da qualidade definidos ou monitorados.",
+      "2": "Indicadores definidos, porém sem coleta sistemática de dados ou sem metas estabelecidas.",
+      "3": "Indicadores coletados regularmente, porém sem análise crítica ou sem ações para indicadores fora da meta.",
+      "4": "Indicadores conforme Art. 170-172, com metas definidas, coleta sistemática, análise crítica e ações para desvios.",
+      "5": "Painel de indicadores com benchmarking externo, análise de tendências, metas progressivas e integração com planejamento estratégico."
+    }
+  },
+  {
+    "id": "fr044-41",
+    "numero": 41,
+    "indicador": "Pesquisa de Satisfação",
+    "marcoRegulatorio": "Art. 173-175 da RDC 978/2025",
+    "moduloVinculado": "reclamacoes",
+    "categoria": "qualidade",
+    "bloco": "J",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Não realiza pesquisa de satisfação dos clientes.",
+      "2": "Pesquisa realizada esporadicamente, sem metodologia definida ou sem análise dos resultados.",
+      "3": "Pesquisa realizada periodicamente, porém sem plano de ação para os pontos negativos identificados.",
+      "4": "Pesquisa de satisfação conforme Art. 173-175, com metodologia definida, periodicidade, análise crítica e ações de melhoria.",
+      "5": "Pesquisa multicanal com análise de tendências, benchmarking e integração com indicadores da qualidade."
+    }
+  },
+  {
+    "id": "fr044-42",
+    "numero": 42,
+    "indicador": "Gestão de Reclamações",
+    "marcoRegulatorio": "Art. 176-178 da RDC 978/2025",
+    "moduloVinculado": "reclamacoes",
+    "categoria": "qualidade",
+    "bloco": "J",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Não possui sistemática para recebimento e tratamento de reclamações.",
+      "2": "Reclamações são recebidas, porém sem registro formal ou sem análise.",
+      "3": "Reclamações registradas e analisadas, porém sem retorno ao reclamante ou sem ações corretivas.",
+      "4": "Gestão de reclamações conforme Art. 176-178, com registro, análise, ações corretivas e retorno ao reclamante.",
+      "5": "Sistema integrado de gestão de reclamações com classificação, análise de tendências e melhoria proativa."
+    }
+  },
+  {
+    "id": "fr044-43",
+    "numero": 43,
+    "indicador": "Não Conformidades",
+    "marcoRegulatorio": "Art. 179-181 da RDC 978/2025",
+    "moduloVinculado": "nao-conformidades",
+    "categoria": "qualidade",
+    "bloco": "J",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Não possui sistemática para identificação e controle de não conformidades.",
+      "2": "NCs identificadas esporadicamente, sem registro formal ou sem análise de causa raiz.",
+      "3": "NCs registradas com análise de causa, porém sem verificação de eficácia das ações ou com atrasos significativos.",
+      "4": "Gestão de NCs conforme Art. 179-181, com identificação, registro, análise de causa raiz, ações corretivas e verificação de eficácia.",
+      "5": "Sistema integrado com detecção proativa, análise de recorrência, escalação automática e indicadores de desempenho."
+    }
+  },
+  {
+    "id": "fr044-44",
+    "numero": 44,
+    "indicador": "Ações Corretivas e Preventivas (CAPA)",
+    "marcoRegulatorio": "Art. 182-184 da RDC 978/2025",
+    "moduloVinculado": "capa-tracking",
+    "categoria": "qualidade",
+    "bloco": "J",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Não implementa ações corretivas ou preventivas.",
+      "2": "Ações corretivas implementadas apenas para NCs críticas, sem ações preventivas.",
+      "3": "Ações corretivas e preventivas implementadas, porém sem verificação de eficácia ou com prazos não cumpridos.",
+      "4": "CAPA conforme Art. 182-184, com análise de causa raiz, ações proporcionais, prazos definidos e verificação de eficácia.",
+      "5": "Sistema CAPA integrado com gestão de riscos, análise de tendências e melhoria contínua documentada."
+    }
+  },
+  {
+    "id": "fr044-45",
+    "numero": 45,
+    "indicador": "Auditoria Interna",
+    "marcoRegulatorio": "Art. 185-187 da RDC 978/2025",
+    "moduloVinculado": "auditoria-interna",
+    "categoria": "qualidade",
+    "bloco": "J",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Não realiza auditorias internas.",
+      "2": "Auditorias realizadas sem periodicidade definida ou sem auditores qualificados.",
+      "3": "Auditorias realizadas periodicamente, porém sem cobertura de todos os setores ou sem acompanhamento das ações.",
+      "4": "Auditoria interna conforme Art. 185-187, com programa anual, auditores qualificados, cobertura total, relatório e acompanhamento de ações.",
+      "5": "Programa de auditoria com abordagem baseada em risco, auditores certificados, benchmarking e melhoria contínua do processo."
+    }
+  },
+  {
+    "id": "fr044-46",
+    "numero": 46,
+    "indicador": "Análise Crítica pela Direção",
+    "marcoRegulatorio": "Art. 188-190 da RDC 978/2025",
+    "moduloVinculado": "management-review",
+    "categoria": "qualidade",
+    "bloco": "J",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Não realiza análise crítica pela direção.",
+      "2": "Análise crítica realizada sem periodicidade definida ou sem os 15 inputs obrigatórios.",
+      "3": "Análise crítica realizada periodicamente, porém sem registro formal de decisões ou sem acompanhamento das ações.",
+      "4": "Análise crítica conforme Art. 188-190, com periodicidade definida, 15 inputs obrigatórios, ata com decisões e acompanhamento.",
+      "5": "Análise crítica com dashboard automatizado, indicadores em tempo real e integração com planejamento estratégico."
+    }
+  },
+  {
+    "id": "fr044-47",
+    "numero": 47,
+    "indicador": "Melhoria Contínua",
+    "marcoRegulatorio": "Art. 191-193 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "qualidade",
+    "bloco": "J",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Não possui evidências de ações de melhoria contínua.",
+      "2": "Melhorias implementadas de forma reativa, apenas após NCs ou reclamações.",
+      "3": "Programa de melhoria existente, porém sem metas definidas ou sem medição de resultados.",
+      "4": "Melhoria contínua conforme Art. 191-193, com programa estruturado, metas, medição de resultados e ciclo PDCA.",
+      "5": "Cultura de melhoria contínua com inovação, benchmarking, projetos de melhoria documentados e reconhecimento."
+    }
+  },
+  {
+    "id": "fr044-48",
+    "numero": 48,
+    "indicador": "Controle de Registros",
+    "marcoRegulatorio": "Art. 194-196 da RDC 978/2025",
+    "moduloVinculado": "sgq",
+    "categoria": "documentacao",
+    "bloco": "D",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Não possui sistemática de controle de registros.",
+      "2": "Registros mantidos parcialmente, sem definição de tempo de guarda ou forma de descarte.",
+      "3": "Registros mantidos com tempo de guarda definido, porém sem proteção adequada ou sem backup.",
+      "4": "Controle de registros conforme Art. 194-196, com identificação, armazenamento, proteção, recuperação, tempo de guarda (mínimo 5 anos) e descarte definidos.",
+      "5": "Sistema eletrônico de gestão de registros com backup automático, controle de acesso e auditoria de alterações."
+    }
+  },
+  {
+    "id": "fr044-49",
+    "numero": 49,
+    "indicador": "Identificação de Amostras do Paciente",
+    "marcoRegulatorio": "Art. 197-199 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "pre-analitica",
+    "bloco": "F",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Não possui sistemática de identificação de amostras ou identificação inadequada.",
+      "2": "Identificação realizada, porém sem rastreabilidade completa ou com falhas frequentes.",
+      "3": "Identificação com rastreabilidade, porém sem verificação em múltiplos pontos do processo.",
+      "4": "Identificação conforme Art. 197-199, com rastreabilidade completa, verificação em cada etapa e procedimento documentado.",
+      "5": "Sistema automatizado de identificação com código de barras/RFID, verificação eletrônica e alertas de discrepância."
+    }
+  },
+  {
+    "id": "fr044-50",
+    "numero": 50,
+    "indicador": "Orientações ao Paciente",
+    "marcoRegulatorio": "Art. 200-202 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "pre-analitica",
+    "bloco": "F",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Não fornece orientações de preparo ao paciente.",
+      "2": "Orientações fornecidas verbalmente, sem padronização ou sem registro.",
+      "3": "Orientações padronizadas disponíveis, porém não atualizadas ou não acessíveis a todos os pacientes.",
+      "4": "Orientações conforme Art. 200-202, padronizadas, atualizadas, acessíveis e com verificação de compreensão pelo paciente.",
+      "5": "Orientações multicanal (impresso, digital, app) com confirmação de recebimento e atualização automática."
+    }
+  },
+  {
+    "id": "fr044-51",
+    "numero": 51,
+    "indicador": "Consentimento Informado",
+    "marcoRegulatorio": "Art. 203-205 da RDC 978/2025",
+    "moduloVinculado": "lgpd",
+    "categoria": "pre-analitica",
+    "bloco": "F",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Não obtém consentimento informado quando necessário.",
+      "2": "Consentimento obtido, porém sem formulário padronizado ou sem registro adequado.",
+      "3": "Formulário padronizado existente, porém não aplicado em todos os casos necessários.",
+      "4": "Consentimento informado conforme Art. 203-205, com formulário padronizado, aplicação em todos os casos e arquivo adequado.",
+      "5": "Consentimento digital com assinatura eletrônica, integrado ao sistema e com controle de versões."
+    }
+  },
+  {
+    "id": "fr044-52",
+    "numero": 52,
+    "indicador": "Incerteza de Medição",
+    "marcoRegulatorio": "Art. 206-208 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "analitica",
+    "bloco": "G",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Não estima incerteza de medição para exames quantitativos.",
+      "2": "Incerteza estimada apenas para alguns analitos ou com metodologia inadequada.",
+      "3": "Incerteza estimada para analitos relevantes, porém sem revisão periódica ou sem uso na interpretação clínica.",
+      "4": "Incerteza de medição conforme Art. 206-208, estimada para todos os analitos quantitativos, revisada periodicamente e disponível para interpretação.",
+      "5": "Incerteza integrada ao laudo quando clinicamente relevante, com monitoramento contínuo e melhoria dos componentes."
+    }
+  },
+  {
+    "id": "fr044-53",
+    "numero": 53,
+    "indicador": "Intervalos de Referência",
+    "marcoRegulatorio": "Art. 209-211 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "analitica",
+    "bloco": "G",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Não possui intervalos de referência definidos ou utiliza valores inadequados.",
+      "2": "Intervalos de referência adotados de literatura, sem verificação para a população atendida.",
+      "3": "Intervalos verificados para a população, porém sem revisão periódica ou sem critérios de estratificação.",
+      "4": "Intervalos de referência conforme Art. 209-211, verificados/estabelecidos para a população, com estratificação adequada e revisão periódica.",
+      "5": "Intervalos de referência próprios estabelecidos com estudo populacional, revisão anual e atualização automática no sistema."
+    }
+  },
+  {
+    "id": "fr044-54",
+    "numero": 54,
+    "indicador": "Comparabilidade de Resultados",
+    "marcoRegulatorio": "Art. 212-214 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "analitica",
+    "bloco": "G",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Não realiza estudos de comparabilidade entre equipamentos ou métodos.",
+      "2": "Comparabilidade avaliada apenas na instalação, sem monitoramento contínuo.",
+      "3": "Estudos de comparabilidade realizados, porém sem critérios de aceitação definidos ou sem ações para desvios.",
+      "4": "Comparabilidade conforme Art. 212-214, com estudos periódicos, critérios de aceitação e ações corretivas para desvios.",
+      "5": "Monitoramento contínuo de comparabilidade com alertas automáticos e harmonização de resultados entre sistemas."
+    }
+  },
+  {
+    "id": "fr044-55",
+    "numero": 55,
+    "indicador": "Laboratório de Apoio",
+    "marcoRegulatorio": "Art. 215-217 da RDC 978/2025",
+    "moduloVinculado": "lab-apoio",
+    "categoria": "contratos",
+    "bloco": "B",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Utiliza laboratório de apoio sem contrato formal ou sem verificação de competência.",
+      "2": "Contrato existente, porém sem critérios de seleção documentados ou sem monitoramento de desempenho.",
+      "3": "Seleção e contrato adequados, porém sem avaliação periódica de desempenho ou sem rastreabilidade completa.",
+      "4": "Laboratório de apoio conforme Art. 215-217, com seleção criteriosa, contrato formal, monitoramento de desempenho e rastreabilidade.",
+      "5": "Programa de avaliação contínua com auditorias periódicas, indicadores de desempenho e plano de contingência."
+    }
+  },
+  {
+    "id": "fr044-56",
+    "numero": 56,
+    "indicador": "Transporte de Amostras Externo",
+    "marcoRegulatorio": "Art. 218-220 da RDC 978/2025",
+    "moduloVinculado": null,
+    "categoria": "pre-analitica",
+    "bloco": "F",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Transporte de amostras sem procedimento definido ou sem condições adequadas.",
+      "2": "Procedimento existente, porém sem monitoramento de temperatura ou sem embalagem adequada.",
+      "3": "Transporte com condições adequadas, porém sem registro de monitoramento ou sem critérios de rejeição.",
+      "4": "Transporte conforme Art. 218-220, com procedimento, embalagem adequada, monitoramento de temperatura, registro e critérios de aceitação.",
+      "5": "Rastreamento em tempo real com alertas automáticos de desvio e sistema de contingência para falhas no transporte."
+    }
+  },
+  {
+    "id": "fr044-57",
+    "numero": 57,
+    "indicador": "Descarte de Resíduos (PGRSS)",
+    "marcoRegulatorio": "Art. 221-223 da RDC 978/2025",
+    "moduloVinculado": "pgrss",
+    "categoria": "infraestrutura",
+    "bloco": "E",
+    "aplicavel": true,
+    "niveis": {
+      "1": "Não possui PGRSS ou descarte inadequado de resíduos.",
+      "2": "PGRSS em elaboração ou desatualizado, com segregação parcial de resíduos.",
+      "3": "PGRSS implementado, porém sem treinamento da equipe ou sem monitoramento de conformidade.",
+      "4": "PGRSS conforme Art. 221-223, com segregação adequada, treinamento da equipe, coleta por empresa licenciada e registros completos.",
+      "5": "PGRSS com indicadores de geração, programa de minimização, auditorias internas específicas e certificação ambiental."
+    }
+  }
+]

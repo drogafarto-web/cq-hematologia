@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
+import { FileSearch } from 'lucide-react';
 import type { ChecklistItem } from '../types';
 import { AchadoForm } from './AchadoForm';
+import { EvidencePanel } from './EvidencePanel';
+import { ConformityScale } from './ConformityScale';
 
 interface ChecklistResponse {
   resposta: string;
   severidade?: string;
+  nivelConformidade?: number;
   timestamp: number;
 }
 
@@ -12,10 +16,31 @@ interface ChecklistItemCardProps {
   item: ChecklistItem;
   response?: ChecklistResponse;
   onChange: (itemId: string, resposta: string, severidade?: string) => void;
+  onConformityChange?: (itemId: string, nivel: number) => void;
+  labId?: string;
+  auditoriaId?: string;
+  sessaoId?: string;
+  templateType?: string;
+  fr044Niveis?: Record<string, string>;
+  indicadorId?: string;
 }
 
-export function ChecklistItemCard({ item, response, onChange }: ChecklistItemCardProps) {
+export function ChecklistItemCard({
+  item,
+  response,
+  onChange,
+  onConformityChange,
+  labId,
+  auditoriaId,
+  sessaoId,
+  templateType,
+  fr044Niveis,
+  indicadorId,
+}: ChecklistItemCardProps) {
   const [showAchadoForm, setShowAchadoForm] = useState(false);
+  const [showEvidencePanel, setShowEvidencePanel] = useState(false);
+
+  const isFR044 = templateType === 'FR-044';
 
   const handleResposta = (resposta: string) => {
     onChange(item.id, resposta);
@@ -28,11 +53,28 @@ export function ChecklistItemCard({ item, response, onChange }: ChecklistItemCar
     onChange(item.id, response?.resposta || 'não-conforme', severidade);
   };
 
+  const handleConformityChange = (nivel: number) => {
+    onConformityChange?.(item.id, nivel);
+  };
+
   return (
     <div className="border border-white/10 rounded-lg p-4 space-y-3 bg-white/5 hover:bg-white/10 transition">
-      {/* Item number + description */}
+      {/* Item number + description + evidence button */}
       <div className="space-y-1">
-        <div className="text-sm text-violet-500 font-mono">{item.numeroDICQ}</div>
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-violet-500 font-mono">{item.numeroDICQ}</div>
+          {labId && indicadorId && (
+            <button
+              type="button"
+              onClick={() => setShowEvidencePanel(true)}
+              aria-label="Ver evidências deste item"
+              className="p-1.5 rounded-lg hover:bg-white/10 text-white/50 hover:text-violet-400 transition"
+              title="Ver evidências"
+            >
+              <FileSearch className="w-4 h-4" />
+            </button>
+          )}
+        </div>
         <h3 className="text-base font-medium">{item.descricao}</h3>
         {item.categoria && <p className="text-sm text-white/60">{item.categoria}</p>}
       </div>
@@ -115,8 +157,32 @@ export function ChecklistItemCard({ item, response, onChange }: ChecklistItemCar
             itemId={item.id}
             severity={response.severidade || ''}
             onSave={() => setShowAchadoForm(false)}
+            auditoriaId={auditoriaId}
+            sessaoId={sessaoId}
           />
         )}
+
+      {/* FR-044 Conformity Scale */}
+      {isFR044 && fr044Niveis && (
+        <div className="border-t border-white/10 pt-3">
+          <div className="text-sm text-white/70 mb-2">Nível de conformidade:</div>
+          <ConformityScale
+            niveis={fr044Niveis}
+            value={response?.nivelConformidade ?? null}
+            onChange={handleConformityChange}
+          />
+        </div>
+      )}
+
+      {/* Evidence Panel (side panel) */}
+      {labId && indicadorId && (
+        <EvidencePanel
+          indicadorId={indicadorId}
+          labId={labId}
+          isOpen={showEvidencePanel}
+          onClose={() => setShowEvidencePanel(false)}
+        />
+      )}
     </div>
   );
 }

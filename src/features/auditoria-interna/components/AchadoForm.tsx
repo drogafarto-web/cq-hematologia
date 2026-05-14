@@ -6,9 +6,11 @@ interface AchadoFormProps {
   itemId: string;
   severity: string;
   onSave: () => void;
+  auditoriaId?: string;
+  sessaoId?: string;
 }
 
-export function AchadoForm({ itemId, severity, onSave }: AchadoFormProps) {
+export function AchadoForm({ itemId, severity, onSave, auditoriaId, sessaoId }: AchadoFormProps) {
   const labId = useActiveLabId();
   const { registerAchado, isLoading } = useAchadoMutation();
   const [descricao, setDescricao] = useState('');
@@ -38,8 +40,8 @@ export function AchadoForm({ itemId, severity, onSave }: AchadoFormProps) {
       // TODO: Wire sessionId and auditoriaId from parent context
       await registerAchado({
         labId,
-        auditoriaId: 'placeholder-auditoria-id',
-        sessaoId: 'placeholder-sessao-id',
+        auditoriaId: auditoriaId || 'placeholder-auditoria-id',
+        sessaoId: sessaoId || 'placeholder-sessao-id',
         checklistItemId: itemId,
         descricao,
         severidade: severity as any,

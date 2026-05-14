@@ -4,6 +4,7 @@ import { useAuditorias } from '../hooks/useAuditorias';
 import { AuditoriaPlanning } from './AuditoriaPlanning';
 import { SessoesList } from './SessoesList';
 import { AuditoriasList } from './AuditoriasList';
+import { SessaoExecucaoPanel } from './SessaoExecucaoPanel';
 
 /**
  * AuditoriaView — main entry point for auditoria-interna module
@@ -16,6 +17,7 @@ export function AuditoriaView() {
   const { auditorias, isLoading, error } = useAuditorias();
   const [currentTab, setCurrentTab] = useState<'planejamento' | 'em-execucao' | 'historico'>('planejamento');
   const [selectedAuditoria, setSelectedAuditoria] = useState<string | null>(null);
+  const [selectedSessao, setSelectedSessao] = useState<string | null>(null);
 
   if (!labId) {
     return (
@@ -44,6 +46,19 @@ export function AuditoriaView() {
           <p className="text-sm text-white/60">{error.message}</p>
         </div>
       </div>
+    );
+  }
+
+  if (selectedAuditoria && selectedSessao) {
+    return (
+      <SessaoExecucaoPanel
+        auditoriaId={selectedAuditoria}
+        sessaoId={selectedSessao}
+        onBack={() => {
+          setSelectedAuditoria(null);
+          setSelectedSessao(null);
+        }}
+      />
     );
   }
 
@@ -81,7 +96,13 @@ export function AuditoriaView() {
           <AuditoriaPlanning auditorias={auditorias} />
         )}
         {currentTab === 'em-execucao' && (
-          <SessoesList auditorias={auditorias.filter((a) => a.status === 'em_execução')} />
+          <SessoesList
+            auditorias={auditorias.filter((a) => a.status === 'em_execução')}
+            onSelectSessao={(auditoriaId, sessaoId) => {
+              setSelectedAuditoria(auditoriaId);
+              setSelectedSessao(sessaoId);
+            }}
+          />
         )}
         {currentTab === 'historico' && (
           <AuditoriasList auditorias={auditorias.filter((a) => a.status === 'finalizada')} />

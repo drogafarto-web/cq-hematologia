@@ -134,6 +134,10 @@ export function SessaoExecucaoPanel({ auditoriaId, sessaoId, onBack }: SessaoExe
             item={item}
             response={draftResponses[item.id]}
             onChange={handleItemResponse}
+            labId={labId || undefined}
+            auditoriaId={auditoriaId}
+            sessaoId={sessaoId}
+            indicadorId={item.numeroDICQ}
           />
         ))}
       </div>
