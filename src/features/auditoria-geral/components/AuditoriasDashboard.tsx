@@ -77,8 +77,8 @@ export function AuditoriasDashboard({ onSelect }: Props) {
         </div>
       ) : auditorias.length === 0 ? (
         <div className="text-center py-16">
-          <p className="text-white/30 text-sm">Nenhuma auditoria registrada</p>
-          <p className="text-white/20 text-xs mt-1">
+          <p className="text-white/50 text-sm">Nenhuma auditoria registrada</p>
+          <p className="text-white/40 text-xs mt-1">
             Clique em "Nova Auditoria" para iniciar
           </p>
         </div>
@@ -105,7 +105,7 @@ export function AuditoriasDashboard({ onSelect }: Props) {
 function StatCard({ value, label }: { value: number | string; label: string }) {
   return (
     <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-4">
-      <p className="text-xl font-semibold font-mono tabular-nums">{value}</p>
+      <p className="text-3xl font-semibold font-mono tabular-nums">{value}</p>
       <p className="text-xs text-white/40 mt-0.5">{label}</p>
     </div>
   );

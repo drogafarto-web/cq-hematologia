@@ -41,7 +41,7 @@ export function IndicadorCard({
   };
 
   return (
-    <div className="bg-white/[0.02] border border-white/[0.06] rounded-lg p-5 space-y-4">
+    <div className="bg-white/[0.02] border border-white/[0.08] rounded-lg p-5 space-y-4">
       <div className="flex items-center gap-3 flex-wrap">
         <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-violet-500/10 text-violet-400 text-xs font-mono font-medium">
           {indicador.numero}
@@ -49,7 +49,7 @@ export function IndicadorCard({
         <span className="text-sm font-medium text-white/90">
           {indicador.indicador}
         </span>
-        <span className="text-[10px] text-white/30 bg-white/[0.04] px-2 py-0.5 rounded-full">
+        <span className="text-[10px] text-white/50 bg-white/[0.04] px-2 py-0.5 rounded-full">
           {indicador.marcoRegulatorio}
         </span>
       </div>
@@ -75,7 +75,7 @@ export function IndicadorCard({
         <button
           type="button"
           onClick={() => setShowObs(true)}
-          className="text-xs text-white/30 hover:text-white/50 transition-colors"
+          className="text-xs text-white/50 hover:text-white/70 transition-colors"
         >
           + Adicionar nota
         </button>

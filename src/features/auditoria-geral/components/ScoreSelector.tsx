@@ -49,7 +49,7 @@ export function ScoreSelector({
           type="button"
           aria-label="Nao aplicavel"
           aria-pressed={naoAplica}
-          className={`px-3 h-9 rounded-lg text-xs font-medium border transition-all duration-150 ml-2 ${
+          className={`px-3 h-9 rounded-lg text-xs font-medium border transition-all duration-150 ml-4 ${
             naoAplica
               ? 'bg-violet-500/20 border-violet-500/40 text-violet-400'
               : 'bg-white/[0.04] border-white/[0.08] text-white/40 hover:bg-white/[0.08]'
