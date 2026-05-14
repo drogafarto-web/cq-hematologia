@@ -61,6 +61,7 @@ export function WizardAuditoria({ auditoriaId, onBack }: WizardAuditoriaProps) {
     const newIndex = currentBlocoIndex - 1;
     setCurrentBlocoIndex(newIndex);
     await updateBlocoAtual(labId, auditoriaId, BLOCOS[newIndex].id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleProximo = async () => {
@@ -76,6 +77,7 @@ export function WizardAuditoria({ auditoriaId, onBack }: WizardAuditoriaProps) {
     const newIndex = currentBlocoIndex + 1;
     setCurrentBlocoIndex(newIndex);
     await updateBlocoAtual(labId, auditoriaId, BLOCOS[newIndex].id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (isLoading) {

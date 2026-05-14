@@ -56,7 +56,7 @@ export function NovaAuditoriaDialog({ open, onClose, onCreated }: Props) {
       aria-labelledby="nova-auditoria-title"
     >
       <div
-        className="bg-[#141417] border border-white/[0.08] rounded-2xl shadow-2xl w-full max-w-md p-6"
+        className="bg-[#141417] border border-white/[0.08] rounded-xl shadow-2xl w-full max-w-md p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id="nova-auditoria-title" className="text-lg font-semibold mb-5">

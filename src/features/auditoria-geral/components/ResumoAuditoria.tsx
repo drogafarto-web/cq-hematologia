@@ -87,7 +87,7 @@ export function ResumoAuditoria({ auditoriaId, onBack, onFinalize }: ResumoAudit
     <div className="max-w-3xl mx-auto space-y-8 py-8 px-4">
       {/* Score Total */}
       <section className="text-center">
-        <p className={`text-6xl font-bold tracking-tight ${getPercentColor(scoreTotal)}`}>
+        <p className={`text-5xl font-bold font-mono tracking-tight ${getPercentColor(scoreTotal)}`}>
           {scoreTotal}%
         </p>
         <p className="text-sm text-white/40 mt-2">Score Geral de Conformidade</p>
@@ -95,22 +95,22 @@ export function ResumoAuditoria({ auditoriaId, onBack, onFinalize }: ResumoAudit
 
       {/* Stats */}
       <section className="grid grid-cols-3 gap-3">
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-white">{totalRespondidos}/57</p>
+        <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-4 text-center">
+          <p className="text-2xl font-bold font-mono text-white">{totalRespondidos}/57</p>
           <p className="text-xs text-white/40 mt-1">Respondidos</p>
         </div>
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-white">{totalNaoAplica}</p>
+        <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-4 text-center">
+          <p className="text-2xl font-bold font-mono text-white">{totalNaoAplica}</p>
           <p className="text-xs text-white/40 mt-1">Nao Aplica</p>
         </div>
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-white">{abaixoDe3}</p>
+        <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-4 text-center">
+          <p className={`text-2xl font-bold font-mono ${abaixoDe3 > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>{abaixoDe3}</p>
           <p className="text-xs text-white/40 mt-1">Abaixo de 3</p>
         </div>
       </section>
 
       {/* Block Chart */}
-      <section className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-5">
+      <section className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-5">
         <h2 className="text-sm font-medium text-white/60 mb-4">Score por Bloco</h2>
         <ScoreBlocoChart scoresPorBloco={scoresPorBloco} />
       </section>

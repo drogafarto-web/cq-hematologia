@@ -68,7 +68,7 @@ export function AuditoriasDashboard({ onSelect }: Props) {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5 animate-pulse"
+              className="bg-white/[0.02] border border-white/[0.06] rounded-lg p-5 animate-pulse"
             >
               <div className="h-4 bg-white/[0.06] rounded w-1/3 mb-3" />
               <div className="h-3 bg-white/[0.04] rounded w-1/4" />
@@ -104,8 +104,8 @@ export function AuditoriasDashboard({ onSelect }: Props) {
 
 function StatCard({ value, label }: { value: number | string; label: string }) {
   return (
-    <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4">
-      <p className="text-xl font-semibold tabular-nums">{value}</p>
+    <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-4">
+      <p className="text-xl font-semibold font-mono tabular-nums">{value}</p>
       <p className="text-xs text-white/40 mt-0.5">{label}</p>
     </div>
   );
@@ -124,7 +124,7 @@ function AuditoriaCard({
     <li>
       <button
         onClick={() => onSelect(auditoria.id)}
-        className="w-full text-left bg-white/[0.02] border border-white/[0.06] rounded-xl p-5 hover:border-white/[0.12] transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-500/40"
+        className="w-full text-left bg-white/[0.02] border border-white/[0.06] rounded-lg p-5 hover:border-white/[0.12] transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-500/40"
         aria-label={`Abrir auditoria: ${auditoria.titulo}`}
       >
         <div className="flex items-center justify-between gap-4">

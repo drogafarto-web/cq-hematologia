@@ -18,6 +18,7 @@ export function IndicadorCard({
   auditoriaId,
 }: IndicadorCardProps) {
   const [obs, setObs] = useState(resposta?.observacoes ?? '');
+  const [showObs, setShowObs] = useState(Boolean(resposta?.observacoes));
 
   const handleScoreChange = (score: number | null, naoAplica: boolean) => {
     saveResposta(labId, auditoriaId, indicador.id, {
@@ -40,7 +41,7 @@ export function IndicadorCard({
   };
 
   return (
-    <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5 space-y-4">
+    <div className="bg-white/[0.02] border border-white/[0.06] rounded-lg p-5 space-y-4">
       <div className="flex items-center gap-3 flex-wrap">
         <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-violet-500/10 text-violet-400 text-xs font-mono font-medium">
           {indicador.numero}
@@ -60,14 +61,25 @@ export function IndicadorCard({
         onChange={handleScoreChange}
       />
 
-      <textarea
-        placeholder="Observacoes (opcional)"
-        rows={2}
-        value={obs}
-        onChange={(e) => setObs(e.target.value)}
-        onBlur={handleObsBlur}
-        className="w-full bg-white/[0.02] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-white/70 placeholder:text-white/20 resize-none focus:outline-none focus:border-violet-500/40"
-      />
+      {showObs ? (
+        <textarea
+          placeholder="Observacoes (opcional)"
+          rows={2}
+          value={obs}
+          onChange={(e) => setObs(e.target.value)}
+          onBlur={handleObsBlur}
+          autoFocus
+          className="w-full bg-white/[0.02] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-white/70 placeholder:text-white/20 resize-none focus:outline-none focus:border-violet-500/40"
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={() => setShowObs(true)}
+          className="text-xs text-white/30 hover:text-white/50 transition-colors"
+        >
+          + Adicionar nota
+        </button>
+      )}
     </div>
   );
 }
