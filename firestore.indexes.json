@@ -4,1044 +4,2220 @@
       "collectionGroup": "items",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "analyteId", "order": "ASCENDING" },
-        { "fieldPath": "ageGroup", "order": "ASCENDING" },
-        { "fieldPath": "sex", "order": "ASCENDING" },
-        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+        {
+          "fieldPath": "analyteId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ageGroup",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sex",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "items",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "analyteId", "order": "ASCENDING" },
-        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+        {
+          "fieldPath": "analyteId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "accessRequests",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "lgpd-solicitacoes",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "data_prazo", "order": "ASCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "data_prazo",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "accessRequests",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "accessRequests",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "runs",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "dataRealizacao", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dataRealizacao",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "runs",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "testType", "order": "ASCENDING" },
-        { "fieldPath": "dataRealizacao", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "testType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dataRealizacao",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "runs",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "resultadoObtido", "order": "ASCENDING" },
-        { "fieldPath": "dataRealizacao", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "resultadoObtido",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dataRealizacao",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "insumos",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "validadeReal", "order": "ASCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "validadeReal",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "insumos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "tipo", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "tipo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "insumos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "modulo", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "modulo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "insumos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "modulos", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "modulos",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "insumos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "tipo", "order": "ASCENDING" },
-        { "fieldPath": "modulos", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "tipo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "modulos",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "insumos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "insumos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "tipo", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "tipo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "insumo-movimentacoes",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "insumoId", "order": "ASCENDING" },
-        { "fieldPath": "timestamp", "order": "DESCENDING" }
+        {
+          "fieldPath": "insumoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "insumo-transitions",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "module", "order": "ASCENDING" },
-        { "fieldPath": "timestamp", "order": "DESCENDING" }
+        {
+          "fieldPath": "module",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "produtos-insumos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "tipo", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "tipo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "produtos-insumos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "modulos", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "modulos",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "equipamentos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "module", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "module",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "equipamentos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "module", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "module",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "equipamentos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "equipamentos",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "retencaoAte", "order": "ASCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "retencaoAte",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "equipamentos-audit",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "equipamentoId", "order": "ASCENDING" },
-        { "fieldPath": "timestamp", "order": "DESCENDING" }
+        {
+          "fieldPath": "equipamentoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "insumos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "equipamentoId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "equipamentoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "insumos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "equipamentosPermitidos", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "equipamentosPermitidos",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "fornecedores",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "ativo", "order": "ASCENDING" },
-        { "fieldPath": "razaoSocial", "order": "ASCENDING" }
+        {
+          "fieldPath": "ativo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "razaoSocial",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "notas-fiscais",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "fornecedorId", "order": "ASCENDING" },
-        { "fieldPath": "dataEmissao", "order": "DESCENDING" }
+        {
+          "fieldPath": "fornecedorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dataEmissao",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "ciq-audit",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "severity", "order": "ASCENDING" },
-        { "fieldPath": "timestamp", "order": "ASCENDING" }
+        {
+          "fieldPath": "severity",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "ciq-audit",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "moduleId", "order": "ASCENDING" },
-        { "fieldPath": "timestamp", "order": "ASCENDING" }
+        {
+          "fieldPath": "moduleId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "colaboradores",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "ativo", "order": "ASCENDING" },
-        { "fieldPath": "nome", "order": "ASCENDING" }
+        {
+          "fieldPath": "ativo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "nome",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "treinamentos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "ativo", "order": "ASCENDING" },
-        { "fieldPath": "titulo", "order": "ASCENDING" }
+        {
+          "fieldPath": "ativo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "titulo",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "analytics-aggregates",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "timestamp", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "export-jobs",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "export-jobs",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "initiatedAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "initiatedAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "naoConformidades",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "dataAbertura", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dataAbertura",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "entries",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "entries",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "deletadoEm", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "ASCENDING" }
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "records",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "records",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
-        { "fieldPath": "deletadoEm", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" }
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "auditorias-internas",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "auditorias-internas",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "ano", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" }
+        {
+          "fieldPath": "ano",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "auditorias-internas",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "deletadoEm", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "sessoes",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "dataInicio", "order": "DESCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dataInicio",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "sessoes",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "deletadoEm", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "ASCENDING" }
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "achados",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "severidade", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "severidade",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "achados",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "statusNC", "order": "ASCENDING" },
-        { "fieldPath": "severidade", "order": "ASCENDING" }
+        {
+          "fieldPath": "statusNC",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "severidade",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "lgpd",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "criadoEm", "order": "DESCENDING" },
-        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "politicas",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "criadoEm", "order": "DESCENDING" },
-        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "privacyAceites",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "policyVersionId", "order": "ASCENDING" },
-        { "fieldPath": "aceiteEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "policyVersionId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "aceiteEm",
+          "order": "DESCENDING"
+        }
       ]
     },
-
     {
       "collectionGroup": "analitos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "ativo", "order": "ASCENDING" },
-        { "fieldPath": "nome", "order": "ASCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ativo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "nome",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "runs",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "analitoId", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "analitoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "runs",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "equipmentId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "equipmentId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "runs",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "equipmentId", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "equipmentId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "runs",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "lotId", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lotId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "lotes",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "bulaPendente", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "bulaPendente",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "traceability-events",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "equipmentId", "order": "ASCENDING" },
-        { "fieldPath": "examCodeNum", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "equipmentId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "examCodeNum",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "laudos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "laudos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "criticoFlag", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criticoFlag",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "laudos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "medicoSolicitanteId", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "medicoSolicitanteId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "laudo-versions",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "laudoId", "order": "ASCENDING" },
-        { "fieldPath": "version", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laudoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "version",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "comunicacoes",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "laudoId", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
-      ]
-    },
-
-    {
-      "collectionGroup": "reclamacoes",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "reclamacoes",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "classificacao.severidade", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laudoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "reclamacoes",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "reclamante.cpf", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "reclamacoes",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "slaPrazo", "order": "ASCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "classificacao.severidade",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
-
+    {
+      "collectionGroup": "reclamacoes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reclamante.cpf",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "reclamacoes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "slaPrazo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
     {
       "collectionGroup": "sugestoes",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "sugestoes",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "categoria", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "categoria",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
       ]
     },
-
     {
       "collectionGroup": "satisfacao-respostas",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "origem", "order": "ASCENDING" },
-        { "fieldPath": "respondidoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "origem",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "respondidoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "satisfacao-respostas",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "categoria", "order": "ASCENDING" },
-        { "fieldPath": "respondidoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "categoria",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "respondidoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
-
     {
       "collectionGroup": "turnos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "data", "order": "DESCENDING" },
-        { "fieldPath": "periodo", "order": "ASCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "data",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "periodo",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "turnos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "supervisorId", "order": "ASCENDING" },
-        { "fieldPath": "data", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "supervisorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "data",
+          "order": "DESCENDING"
+        }
       ]
     },
-
     {
       "collectionGroup": "lab-apoio",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "ativo", "order": "ASCENDING" },
-        { "fieldPath": "vigenciaFim", "order": "ASCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ativo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vigenciaFim",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "lab-apoio",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "ativo", "order": "ASCENDING" },
-        { "fieldPath": "criticidade", "order": "ASCENDING" },
-        { "fieldPath": "vigenciaFim", "order": "ASCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ativo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criticidade",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vigenciaFim",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "risks",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "deletadoEm", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "npr", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "npr",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "risks",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "deletadoEm", "order": "ASCENDING" },
-        { "fieldPath": "reviewDate", "order": "ASCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reviewDate",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "sgq-documentos",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
-        { "fieldPath": "codigo", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" }
+        {
+          "fieldPath": "codigo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "risks",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
-        { "fieldPath": "deletadoEm", "order": "ASCENDING" },
-        { "fieldPath": "reviewDate", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" }
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reviewDate",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "notivisa-outbox",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "notivisa-drafts",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "notivisa-drafts",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "laudoId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" }
+        {
+          "fieldPath": "laudoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "notivisa-queue",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "nextRetry", "order": "ASCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "nextRetry",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "events",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "nextRetry", "order": "ASCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "nextRetry",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "notivisa-outbox",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "escalatedToSupervisor", "order": "ASCENDING" },
-        { "fieldPath": "notificationDeadline", "order": "ASCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "escalatedToSupervisor",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "notificationDeadline",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "criticos-escalacoes",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "imuno-ias-dev",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "model_version", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "model_version",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "laudos-draft",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "laudo_id", "order": "ASCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laudo_id",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "laudos-draft",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "locked_until_ts", "order": "ASCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "locked_until_ts",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "criticos-thresholds",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "analitoId", "order": "ASCENDING" },
-        { "fieldPath": "ativo", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "analitoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ativo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "criticos-thresholds",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "analitoId", "order": "ASCENDING" },
-        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+        {
+          "fieldPath": "analitoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "criticos-routing",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "ativo", "order": "ASCENDING" },
-        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+        {
+          "fieldPath": "ativo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "criticos-escalacoes",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "laudoId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "laudoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "criticos-escalacoes",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "sla_status", "order": "ASCENDING" },
-        { "fieldPath": "reconhecido_em", "order": "ASCENDING" }
+        {
+          "fieldPath": "sla_status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reconhecido_em",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "criticos-escalacoes",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "nextRetry", "order": "ASCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "nextRetry",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "criticos-log-eventos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "escalacaoId", "order": "ASCENDING" },
-        { "fieldPath": "timestamp", "order": "DESCENDING" }
+        {
+          "fieldPath": "escalacaoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "laudos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "patientId", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "patientId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "patient-auth-sessions",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "patientId", "order": "ASCENDING" },
-        { "fieldPath": "expiresAt", "order": "ASCENDING" }
+        {
+          "fieldPath": "patientId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "expiresAt",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "patient-nps-feedback",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "extractions",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "extractedAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "extractedAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "rt-presenca",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "lastUpdated", "order": "DESCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lastUpdated",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "images",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "images",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "flaggedForManualReview", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "flaggedForManualReview",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "images",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "geminiClassification.confidence", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "geminiClassification.confidence",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "cost",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "dateKey", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dateKey",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "imuno-ias-dev",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "manualVerdict", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "manualVerdict",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "imuno-ia-exports",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "exportMonth", "order": "ASCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "exportMonth",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "imuno-ia-exports",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "exportedAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "exportedAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "imuno-ia-feedback",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "receivedAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "receivedAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "capa",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "acoes",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "responsavel", "order": "ASCENDING" },
-        { "fieldPath": "dataVencimento", "order": "ASCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "responsavel",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dataVencimento",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "capa",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "dataPrazo", "order": "ASCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dataPrazo",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "entries",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "operatorId", "order": "ASCENDING" },
-        { "fieldPath": "timestamp", "order": "DESCENDING" }
+        {
+          "fieldPath": "operatorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "entries",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "action", "order": "ASCENDING" },
-        { "fieldPath": "timestamp", "order": "DESCENDING" }
+        {
+          "fieldPath": "action",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "alerts",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "severity", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "severity",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "alerts",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "reports",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "period", "order": "ASCENDING" },
-        { "fieldPath": "generatedAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "period",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "generatedAt",
+          "order": "DESCENDING"
+        }
       ]
     },
-
     {
       "collectionGroup": "reunioes",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
-        { "fieldPath": "auditoriaId", "order": "ASCENDING" },
-        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "auditoriaId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "planos-acao",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "prazo", "order": "ASCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "prazo",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "auditorias-internas",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "labId", "order": "ASCENDING" },
-        { "fieldPath": "ano", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" }
+        {
+          "fieldPath": "labId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ano",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "ceq-participacoes",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
-        { "fieldPath": "ativo", "order": "ASCENDING" },
-        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+        {
+          "fieldPath": "ativo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "ceq-amostras",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
-        { "fieldPath": "ceqParticipacaoId", "order": "ASCENDING" },
-        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+        {
+          "fieldPath": "ceqParticipacaoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "ceq-resultados",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
-        { "fieldPath": "ceqAmostraId", "order": "ASCENDING" },
-        { "fieldPath": "deletadoEm", "order": "ASCENDING" }
+        {
+          "fieldPath": "ceqAmostraId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "naoConformidades",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "abertaEm",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "naoConformidades",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "origem",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "abertaEm",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "naoConformidades",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "capaStatus",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "abertaEm",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "naoConformidades",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "severidade",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "abertaEm",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "nao-conformidades",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "origem",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "nao-conformidades",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "audit-alerts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "audit-trail",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "operatorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "audit-trail",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "operatorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "cargos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "titulo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "competencias",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "colaboradorNome",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "designacoes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dataInicio",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "supervisoes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "ciencias",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dataAssinatura",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "autorizacoes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dataConcessao",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "escalas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "data",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "auditorias",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "deletadoEm",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     }
   ],
