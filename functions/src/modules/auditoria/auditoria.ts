@@ -59,9 +59,9 @@ type UpdateChecklistResponseInputType = z.infer<typeof UpdateChecklistResponseIn
 
 async function isActiveMemberOfLab(labId: string, uid: string): Promise<boolean> {
   try {
-    const userLabsRef = db.collection('users').doc(uid).collection('labs').doc(labId);
-    const snap = await userLabsRef.get();
-    return snap.exists && snap.data()?.ativo === true;
+    const memberRef = db.collection(`labs/${labId}/members`).doc(uid);
+    const snap = await memberRef.get();
+    return snap.exists && snap.data()?.active === true;
   } catch {
     return false;
   }
