@@ -22,12 +22,18 @@ import {
   updateDoc,
   where,
 } from 'firebase/firestore';
+import {
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+} from 'firebase/storage';
 
-import { db } from '../../../shared/services/firebase';
+import { db, storage } from '../../../shared/services/firebase';
 import type {
   AuditoriaGeral,
   AuditoriaGeralInput,
   BlocoId,
+  FotoEvidencia,
   RespostaIndicador,
   ScoresPorBloco,
 } from '../types';
@@ -97,6 +103,7 @@ export function mapDocToResposta(snap: DocumentSnapshot): RespostaIndicador {
     score: data.score,
     naoAplica: data.naoAplica,
     observacoes: data.observacoes,
+    fotos: data.fotos ?? [],
     respondidoEm: data.respondidoEm,
     respondidoPor: data.respondidoPor,
   };
@@ -149,6 +156,40 @@ export async function saveResposta(
 ): Promise<void> {
   const ref = respostaDoc(labId, auditoriaId, indicadorId);
   await setDoc(ref, { ...data, respondidoEm: Timestamp.now() }, { merge: true });
+}
+
+/**
+ * Upload a photo to Storage and append its metadata to the resposta's fotos array.
+ * Storage path: auditoria-geral/{labId}/{auditoriaId}/{indicadorId}/{uuid}.{ext}
+ */
+export async function uploadFotoEvidencia(
+  labId: string,
+  auditoriaId: string,
+  indicadorId: string,
+  file: File,
+  uid: string,
+  existingFotos: FotoEvidencia[]
+): Promise<FotoEvidencia> {
+  const ext = file.name.split('.').pop() ?? 'jpg';
+  const uuid = crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const path = `auditoria-geral/${labId}/${auditoriaId}/${indicadorId}/${uuid}.${ext}`;
+  const fileRef = storageRef(storage, path);
+
+  await uploadBytes(fileRef, file, { contentType: file.type });
+  const url = await getDownloadURL(fileRef);
+
+  const foto: FotoEvidencia = {
+    url,
+    path,
+    nome: file.name,
+    uploadedAt: Timestamp.now(),
+    uploadedBy: uid,
+  };
+
+  const ref = respostaDoc(labId, auditoriaId, indicadorId);
+  await setDoc(ref, { fotos: [...existingFotos, foto] }, { merge: true });
+
+  return foto;
 }
 
 /**

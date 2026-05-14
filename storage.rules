@@ -426,5 +426,56 @@ service firebase.storage {
       // Delete: admin/owner or superAdmin only
       allow delete: if isSuperAdmin() || (isActiveMember() && isAdminOrOwner());
     }
+
+    // ── Auditoria Geral: evidencias fotograficas por indicador ────────────────
+    // Path: auditoria-geral/{labId}/{auditoriaId}/{indicadorId}/{filename}
+    // Active lab members can upload images (JPEG/PNG/WebP ≤5MB).
+    // Delete: admin/owner only. Fotos são evidência regulatória.
+    match /auditoria-geral/{labId}/{auditoriaId}/{indicadorId}/{filename} {
+
+      function isAuth() {
+        return request.auth != null;
+      }
+
+      function isSuperAdmin() {
+        return isAuth() &&
+          firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
+          firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isSuperAdmin == true;
+      }
+
+      function isActiveMember() {
+        let memberPath = /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid);
+        return isAuth() &&
+          firestore.exists(memberPath) &&
+          firestore.get(memberPath).data.active == true;
+      }
+
+      function getMemberRole() {
+        return firestore.get(
+          /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid)
+        ).data.role;
+      }
+
+      function isAdminOrOwner() {
+        let role = getMemberRole();
+        return role == 'admin' || role == 'owner';
+      }
+
+      function isImageType() {
+        return request.resource.contentType == 'image/jpeg'
+            || request.resource.contentType == 'image/png'
+            || request.resource.contentType == 'image/webp';
+      }
+
+      function isSizeValid() {
+        return request.resource.size <= 5 * 1024 * 1024;
+      }
+
+      allow read: if isSuperAdmin() || isActiveMember();
+      allow create, update: if (isSuperAdmin() || isActiveMember())
+                            && isImageType()
+                            && isSizeValid();
+      allow delete: if isSuperAdmin() || (isActiveMember() && isAdminOrOwner());
+    }
   }
 }

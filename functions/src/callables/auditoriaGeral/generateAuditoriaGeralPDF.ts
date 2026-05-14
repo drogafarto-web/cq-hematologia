@@ -35,6 +35,7 @@ interface Resposta {
   bloco: string;
   score: number | null;
   observacoes: string;
+  fotos: { url: string; nome: string }[];
 }
 
 function labDisplayName(d: Record<string, unknown> | undefined): string {
@@ -57,12 +58,17 @@ function parseResposta(data: Record<string, unknown>): Resposta {
   const score = typeof data['score'] === 'number' && Number.isFinite(data['score'] as number)
     ? data['score'] as number
     : null;
+  const rawFotos = Array.isArray(data['fotos']) ? data['fotos'] : [];
+  const fotos = rawFotos
+    .filter((f: any) => typeof f?.url === 'string')
+    .map((f: any) => ({ url: f.url as string, nome: (f.nome as string) || 'foto' }));
   return {
     numero: typeof data['numero'] === 'number' ? data['numero'] as number : 0,
     nome: str(data['nome'] || data['indicador'] || data['descricao'], 'Indicador'),
     bloco: str(data['bloco'], '?'),
     score,
     observacoes: str(data['observacoes'], ''),
+    fotos,
   };
 }
 
@@ -85,11 +91,33 @@ function computeScores(respostas: Resposta[]) {
   return { respondidos: respondidos.length, naCount, totalScore, maxPossible, scorePercent, belowThree, blocoScores };
 }
 
+async function fetchImageBuffer(url: string): Promise<Buffer | null> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const arrayBuf = await res.arrayBuffer();
+    return Buffer.from(arrayBuf);
+  } catch {
+    return null;
+  }
+}
+
 async function buildPdfBuffer(
   labName: string,
   auditoria: Record<string, unknown>,
   respostas: Resposta[],
 ): Promise<Buffer> {
+  // Pre-fetch all photo buffers before building the PDF
+  const imageCache = new Map<string, Buffer | null>();
+  const respostasComFoto = respostas.filter(r => r.fotos.length > 0);
+  for (const r of respostasComFoto) {
+    for (const foto of r.fotos) {
+      if (!imageCache.has(foto.url)) {
+        imageCache.set(foto.url, await fetchImageBuffer(foto.url));
+      }
+    }
+  }
+
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 50, size: 'A4', bufferPages: true });
     const chunks: Buffer[] = [];
@@ -260,6 +288,43 @@ async function buildPdfBuffer(
       doc.moveDown(0.1);
     }
 
+    // === EVIDENCIAS FOTOGRAFICAS ===
+    const fotosRespostas = sorted.filter(r => r.fotos.length > 0);
+    if (fotosRespostas.length > 0) {
+      doc.addPage();
+      doc.fillColor('#000000');
+      const fotoSection = criticos.length > 0 ? '5' : '4';
+      doc.fontSize(16).font('Helvetica-Bold').text(`${fotoSection}. Evidencias Fotograficas`);
+      doc.moveDown(0.5);
+      doc.fontSize(8).font('Helvetica').fillColor('#555555');
+      doc.text(`${fotosRespostas.length} indicador(es) com evidencia fotografica anexada.`);
+      doc.moveDown(0.8);
+
+      for (const r of fotosRespostas) {
+        if (doc.y > doc.page.height - 200) doc.addPage();
+        doc.fillColor('#000000').fontSize(9).font('Helvetica-Bold');
+        doc.text(`#${r.numero} — ${r.nome}`);
+        doc.moveDown(0.3);
+
+        for (const foto of r.fotos) {
+          if (doc.y > doc.page.height - 180) doc.addPage();
+          const imgBuf = imageCache.get(foto.url);
+          if (imgBuf) {
+            try {
+              doc.image(imgBuf, { width: 180, height: 135 });
+              doc.moveDown(0.2);
+            } catch {
+              doc.fontSize(7).fillColor('#999999').font('Helvetica').text(`[Imagem: ${foto.nome}]`);
+            }
+          } else {
+            doc.fontSize(7).fillColor('#999999').font('Helvetica').text(`[Imagem indisponivel: ${foto.nome}]`);
+          }
+          doc.moveDown(0.3);
+        }
+        doc.moveDown(0.5);
+      }
+    }
+
     // === RODAPE ===
     const pages = doc.bufferedPageRange();
     for (let i = 0; i < pages.count; i++) {
@@ -283,7 +348,7 @@ async function buildPdfBuffer(
 }
 
 export const generateAuditoriaGeralPDF = onCall(
-  { memory: '512MiB' },
+  { memory: '1GiB', timeoutSeconds: 120 },
   async (request) => {
     const auth = request.auth;
     if (!auth) throw new HttpsError('unauthenticated', 'Autenticacao necessaria.');

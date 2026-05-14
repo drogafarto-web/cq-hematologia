@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
-import { saveResposta } from '../services/auditoriaGeralService';
+import { useUser } from '../../../store/useAuthStore';
+import { saveResposta, uploadFotoEvidencia } from '../services/auditoriaGeralService';
 import type { Indicador, RespostaIndicador } from '../types';
 import { ScoreSelector } from './ScoreSelector';
 
@@ -11,14 +12,21 @@ interface IndicadorCardProps {
   auditoriaId: string;
 }
 
+const MAX_FOTOS = 5;
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
 export function IndicadorCard({
   indicador,
   resposta,
   labId,
   auditoriaId,
 }: IndicadorCardProps) {
+  const user = useUser();
   const [obs, setObs] = useState(resposta?.observacoes ?? '');
   const [showObs, setShowObs] = useState(Boolean(resposta?.observacoes));
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const handleScoreChange = (score: number | null, naoAplica: boolean) => {
     saveResposta(labId, auditoriaId, indicador.id, {
@@ -28,8 +36,7 @@ export function IndicadorCard({
       score,
       naoAplica,
       observacoes: obs,
-      respondidoEm: null,
-      respondidoPor: null,
+      respondidoPor: user?.uid ?? null,
     });
   };
 
@@ -37,8 +44,36 @@ export function IndicadorCard({
     if (obs === (resposta?.observacoes ?? '')) return;
     saveResposta(labId, auditoriaId, indicador.id, {
       observacoes: obs,
+      respondidoPor: user?.uid ?? null,
     });
   };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!ALLOWED_TYPES.includes(file.type)) return;
+    if (file.size > MAX_FILE_SIZE) return;
+
+    setUploading(true);
+    try {
+      await uploadFotoEvidencia(
+        labId,
+        auditoriaId,
+        indicador.id,
+        file,
+        user.uid,
+        resposta?.fotos ?? []
+      );
+    } catch (err) {
+      console.error('Upload failed:', err);
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  };
+
+  const fotos = resposta?.fotos ?? [];
+  const canUpload = fotos.length < MAX_FOTOS;
 
   return (
     <div className="bg-white/[0.02] border border-white/[0.08] rounded-lg p-5 space-y-4">
@@ -80,6 +115,41 @@ export function IndicadorCard({
           + Adicionar nota
         </button>
       )}
+
+      {/* Fotos */}
+      <div className="flex items-center gap-2 flex-wrap">
+        {fotos.map((foto, i) => (
+          <a
+            key={i}
+            href={foto.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-12 h-12 rounded-md overflow-hidden border border-white/[0.08] hover:border-violet-500/40 transition-colors"
+          >
+            <img src={foto.url} alt={foto.nome} className="w-full h-full object-cover" />
+          </a>
+        ))}
+        {canUpload && (
+          <label
+            className={`w-12 h-12 rounded-md border border-dashed border-white/[0.12] flex items-center justify-center cursor-pointer hover:border-violet-500/40 transition-colors ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+          >
+            {uploading ? (
+              <div className="w-4 h-4 border-2 border-white/20 border-t-violet-400 rounded-full animate-spin" />
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/40">
+                <path d="M8 3v10M3 8h10" />
+              </svg>
+            )}
+            <input
+              ref={fileRef}
+              type="file"
+              hidden
+              accept={ALLOWED_TYPES.join(',')}
+              onChange={handleFileChange}
+            />
+          </label>
+        )}
+      </div>
     </div>
   );
 }

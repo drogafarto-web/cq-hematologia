@@ -39,6 +39,8 @@ export function ResumoAuditoria({ auditoriaId, onBack, onFinalize }: ResumoAudit
     (r) => r.score !== null && r.score <= 2 && !r.naoAplica,
   );
 
+  const totalFotos = respostas.reduce((sum, r) => sum + (r.fotos?.length ?? 0), 0);
+
   const isFinalizada = auditoria?.status === 'finalizada';
   const canFinalize = totalRespondidos >= 29;
 
@@ -94,7 +96,7 @@ export function ResumoAuditoria({ auditoriaId, onBack, onFinalize }: ResumoAudit
       </section>
 
       {/* Stats */}
-      <section className="grid grid-cols-3 gap-3">
+      <section className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-4 text-center">
           <p className="text-2xl font-bold font-mono text-white">{totalRespondidos}/57</p>
           <p className="text-xs text-white/40 mt-1">Respondidos</p>
@@ -106,6 +108,10 @@ export function ResumoAuditoria({ auditoriaId, onBack, onFinalize }: ResumoAudit
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-4 text-center">
           <p className={`text-2xl font-bold font-mono ${abaixoDe3 > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>{abaixoDe3}</p>
           <p className="text-xs text-white/40 mt-1">Abaixo de 3</p>
+        </div>
+        <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-4 text-center">
+          <p className="text-2xl font-bold font-mono text-violet-400">{totalFotos}</p>
+          <p className="text-xs text-white/40 mt-1">Fotos</p>
         </div>
       </section>
 

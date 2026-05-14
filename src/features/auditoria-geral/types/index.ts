@@ -29,6 +29,14 @@ export interface AuditoriaGeral {
 
 export type AuditoriaGeralInput = Pick<AuditoriaGeral, 'titulo' | 'auditor' | 'dataInicio'>;
 
+export interface FotoEvidencia {
+  url: string;
+  path: string;
+  nome: string;
+  uploadedAt: Timestamp;
+  uploadedBy: string;
+}
+
 export interface RespostaIndicador {
   readonly id: string;
   numero: number;
@@ -37,6 +45,7 @@ export interface RespostaIndicador {
   score: number | null;
   naoAplica: boolean;
   observacoes: string;
+  fotos: FotoEvidencia[];
   respondidoEm: Timestamp | null;
   respondidoPor: string | null;
 }
