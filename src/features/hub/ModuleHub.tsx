@@ -477,19 +477,6 @@ const MODULES: ModuleDef[] = [
     category: 'analitico',
     view: 'turnos' as View,
   },
-  {
-    id: 'risks',
-    name: 'Gestão de Riscos',
-    tagline: 'DICQ 4.14.6 · FMEA-Lite (P×S×D, NPR 1–125)',
-    bullets: ['Matriz 5×5 heatmap', 'NPR server-side', 'Revisão periódica (cron)', 'Assinatura + auditoria'],
-    icon: <AlertTriIcon />,
-    bloco: 'Bloco 2',
-    iconBg: 'bg-amber-500/15',
-    iconColor: 'text-amber-400',
-    status: 'active',
-    category: 'analitico',
-    view: 'risks' as View,
-  },
 
   // ── DICQ Sistema de Gestão da Qualidade ──────────────────────────────────
   {
@@ -558,8 +545,21 @@ const MODULES: ModuleDef[] = [
     view: 'auditoria-interna' as View,
   },
   {
+    id: 'auditoria-geral',
+    name: 'Auditoria Geral',
+    tagline: '57 indicadores RDC 978/2025 com escala 0-5',
+    bullets: ['Wizard por blocos A-L', 'Score automatico por bloco', 'PDF executivo premium'],
+    icon: <DocsIcon />,
+    bloco: 'Bloco 6',
+    iconBg: 'bg-violet-500/15',
+    iconColor: 'text-violet-400',
+    status: 'active',
+    category: 'sgq',
+    view: 'auditoria-geral' as View,
+  },
+  {
     id: 'auditoria-trail',
-    name: 'Auditoria — Trilha de Eventos',
+    name: 'Trilha de Auditoria',
     tagline: 'RDC 978 5.3 · DICQ 4.4 · Eventos com assinatura criptográfica',
     bullets: ['ChainHash + LogicalSignature', 'Filtros por módulo/operador', 'Verificação de integridade'],
     icon: <ShieldCheckIcon />,
@@ -571,43 +571,17 @@ const MODULES: ModuleDef[] = [
     view: 'auditoria-trail' as View,
   },
   {
-    id: 'qualidade-avancada',
-    name: 'Auditoria Avançada',
-    tagline: 'RDC 978 Art. 107 · DICQ 4.4 · Detecção de anomalias + IA',
-    bullets: ['Detecção em tempo real', 'Relatórios com IA', 'Dashboard de conformidade'],
-    icon: <AlertOctaIcon />,
-    bloco: 'Bloco 4',
-    iconBg: 'bg-violet-500/15',
-    iconColor: 'text-violet-400',
-    status: 'active',
-    category: 'sgq',
-    view: 'qualidade' as View,
-  },
-  {
-    id: 'nao-conformidades',
-    name: 'Não Conformidades',
-    tagline: 'RNCs, causa-raiz e CAPA',
-    bullets: ['Ishikawa + 5-porquês', 'Ação corretiva + preventiva', 'Análise de eficácia'],
+    id: 'tratamento-nc',
+    name: 'Tratamento de Não Conformidades',
+    tagline: 'Registro, investigação, CAPA e rastreabilidade',
+    bullets: ['Workflow completo NC→CAPA', 'Ishikawa + 5 porquês', 'RDC 978 Art. 134'],
     icon: <AlertOctaIcon />,
     bloco: 'Bloco 5',
-    iconBg: 'bg-red-500/10',
-    iconColor: 'text-red-400/60',
+    iconBg: 'bg-red-500/15',
+    iconColor: 'text-red-400',
     status: 'active',
     category: 'sgq',
-    view: 'sgq-capa' as View,
-  },
-  {
-    id: 'capa-closure',
-    name: 'CAPA Closure',
-    tagline: 'Rastreamento de ações corretivas com auditor',
-    bullets: ['RFI auditor', 'Upload de evidências', 'Sign-off com assinatura'],
-    icon: <ShieldCheckIcon />,
-    bloco: 'Bloco 5',
-    iconBg: 'bg-violet-500/15',
-    iconColor: 'text-violet-400',
-    status: 'active',
-    category: 'sgq',
-    view: 'capa-tracking' as View,
+    view: 'tratamento-nc' as View,
   },
   {
     id: 'indicadores',
@@ -1016,19 +990,35 @@ export function ModuleHub() {
               </div>
             </section>
 
-            {/* Module grid — SGQ */}
+            {/* Module grid — Sistema de Gestão da Qualidade (Active) */}
             <section>
               <SectionHeading
-                eyebrow="Roadmap"
-                title="Sistema da Qualidade"
-                subtitle="Blocos normativos DICQ 8ª ed. / ISO 15189:2015"
+                eyebrow="Em produção"
+                title="Sistema de Gestão da Qualidade"
+                subtitle="Gestão documental, pessoal, equipamentos e auditoria — DICQ / ISO 15189"
               />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {MODULES.filter((m) => m.category === 'sgq').map((mod) => (
+                {MODULES.filter((m) => m.category === 'sgq' && m.status === 'active').map((mod) => (
                   <ModuleCard key={mod.id} mod={mod} onNavigate={setCurrentView} />
                 ))}
               </div>
             </section>
+
+            {/* Module grid — Roadmap / Soon */}
+            {MODULES.some((m) => m.status === 'soon') && (
+              <section>
+                <SectionHeading
+                  eyebrow="Roadmap"
+                  title="Próximos Lançamentos"
+                  subtitle="Módulos em fase final de homologação"
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {MODULES.filter((m) => m.status === 'soon').map((mod) => (
+                    <ModuleCard key={mod.id} mod={mod} onNavigate={setCurrentView} />
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         </div>
       </main>

@@ -447,7 +447,9 @@ export type View =
   | 'risks'
   | 'kpis'
   | 'lab-apoio'
-  | 'pre-pos-analitico';
+  | 'pre-pos-analitico'
+  | 'tratamento-nc'
+  | 'auditoria-geral';
 
 // ─── Traceability ─────────────────────────────────────────────────────────────
 

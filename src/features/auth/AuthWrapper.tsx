@@ -86,6 +86,14 @@ const QualidadeView = React.lazy(() =>
   import('../qualidade/AuditoriaView').then((m) => ({ default: m.default })),
 );
 
+// Módulo unificado: Tratamento de Não Conformidades
+const NCView = React.lazy(() =>
+  import('../nao-conformidades/NCView').then((m) => ({ default: m.default })),
+);
+
+// Auditoria Geral — 57 indicadores RDC 978/2025
+const AuditoriaGeralView = React.lazy(() => import('../auditoria-geral'));
+
 import { useBrowserHistorySync } from '../../shared/hooks/useBrowserHistorySync';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
@@ -228,6 +236,12 @@ function AppRouter() {
     view = <CEQDashboard />;
   } else if (currentView === 'auditoria-interna') {
     view = <AuditoriaView />;
+  } else if (currentView === 'auditoria-geral') {
+    view = (
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <AuditoriaGeralView />
+      </React.Suspense>
+    );
   } else if (currentView === 'auditoria-trail') {
     view = (
       <React.Suspense fallback={<FullScreenLoader />}>
@@ -244,6 +258,12 @@ function AppRouter() {
     view = (
       <React.Suspense fallback={<FullScreenLoader />}>
         <CAPATrackingHome />
+      </React.Suspense>
+    );
+  } else if (currentView === 'tratamento-nc') {
+    view = (
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <NCView />
       </React.Suspense>
     );
   } else if (currentView === 'calibracao') {

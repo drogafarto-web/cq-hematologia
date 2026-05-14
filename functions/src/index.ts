@@ -191,6 +191,11 @@ export { ci_signDesignacao } from './modules/controle-interno/index';
 //   turnos_supervisorCheckin        — supervisor presencial check-in (RDC 978 Art. 122)
 //   turnos_supervisorCheckout       — supervisor presencial check-out (RDC 978 Art. 122)
 //   onTurnoEventCreated             — Firestore trigger, computes chainHash per event
+//   turnos_createEscala             — create escala planejada (callable)
+//   turnos_updateEscala             — update escala planejada
+//   turnos_softDeleteEscala         — soft-delete escala
+//   turnos_saveEscalaPadrao         — upsert template semanal
+//   turnos_applyEscalaPadrao        — batch apply template to week
 export {
   turnos_createTurno,
   turnos_updateTurno,
@@ -199,6 +204,11 @@ export {
   turnos_supervisorCheckin,
   turnos_supervisorCheckout,
   onTurnoEventCreated,
+  turnos_createEscala,
+  turnos_updateEscala,
+  turnos_softDeleteEscala,
+  turnos_saveEscalaPadrao,
+  turnos_applyEscalaPadrao,
 } from './modules/turnos/index';
 
 // ─── rt-presence module (Phase 6 / Wave 3-4 — RDC 978 Art. 22) ───────────────
@@ -261,6 +271,7 @@ export {
   risks_registrarRevisao,
   risks_vincularNcAoRisco,
   risks_aprovarRisco,
+  risks_seedFromXlsx,
   onRiskEventCreated,
   scheduledReview,
 } from './modules/risks/index';
@@ -277,7 +288,23 @@ export {
   updateNaoConformidade,
   addAcao,
   scheduledAuditReportJob,
+  dismissAuditAlert,
+  investigateAuditAlert,
 } from './modules/qualidade';
+
+// ─── NC Migration (one-shot) ─────────────────────────────────────────────────
+export { migrateNCsCollection } from './modules/qualidade/migrateNCsCollection';
+
+// ─── NC Integrations (auto-create NCs from other modules) ────────────────────
+// DICQ 4.9 + RDC 978 Art. 134 — módulos conversam entre si
+export {
+  nc_equipamentosVencidos,
+  nc_temperaturaForaFaixa,
+  nc_insumoVencido,
+  nc_reclamacaoProcedente,
+  nc_criticoSLAVencido,
+  nc_treinamentoVencido,
+} from './modules/nc-integrations';
 
 // ─── procedimentos module (ADR 0004 — POP Versioning & RT Signatures) ────────
 // Standard Operating Procedure (POP) versioning with RT cryptographic signatures.
@@ -397,7 +424,15 @@ export {
   updateChecklistResponses,
   generateInternalAuditReportPDF,
   generateAuditReportPDF,
+  updateChecklistResponse,
+  batchSaveResponses,
+  finalizeSession,
+  emailAuditReport,
+  archiveAuditReport,
 } from './modules/auditoria/index';
+
+// ─── auditoriaGeral module ────────────────────────────────────────────────────
+export { generateAuditoriaGeralPDF } from './callables/auditoriaGeral/generateAuditoriaGeralPDF';
 
 // ─── equipamentos module (ADR 0007 — Equipment Calibration Gate) ──────────────
 // Equipment qualifications: calibration + maintenance scheduling
@@ -2332,3 +2367,49 @@ export { exportOutbox as notivisaExportOutbox } from './modules/notivisa/exportO
 export { processQueue as notivisaProcessQueue } from './modules/notivisa/processQueue';
 
 export { aprovarBatchImport } from './sgq/aprovarBatchImport';
+
+// ─── CEQ module (PNCQ PDF parsing + confirm results + manual resultado) ─────
+// parsePNCQReport: callable que parseia PDFs do PNCQ enviados ao Storage.
+// confirmCEQResults: callable que grava resultados parseados no Firestore + auto-NC.
+// lacarCEQResultado: callable que grava resultado manual + auto-NC quando |Z| >= 3.
+export { parsePNCQReport, confirmCEQResults } from './modules/ceq/parsePNCQReport';
+export { lacarCEQResultado } from './modules/ceq/ceq';
+
+// ─── Gemini Quality Assistant (NC/CAPA tools) ────────────────────────────────
+
+export const geminiQualityAssistant = onCall(
+  { secrets: [geminiApiKey], region: 'southamerica-east1', memory: '256MiB' },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Autenticação necessária.');
+    }
+
+    const { prompt, context } = request.data as { prompt?: string; context?: string };
+    if (!prompt || !context) {
+      throw new HttpsError('invalid-argument', 'prompt e context são obrigatórios.');
+    }
+
+    const key = geminiApiKey.value();
+    if (!key) {
+      throw new HttpsError('failed-precondition', 'GEMINI_API_KEY não configurada.');
+    }
+
+    const genAI = new GoogleGenAI({ apiKey: key });
+
+    const systemPrompt = `Você é um especialista em gestão da qualidade laboratorial (ISO 15189, DICQ/SBAC, RDC 978/2025 ANVISA).
+Ajude o operador a preencher ferramentas da qualidade para tratamento de não conformidades.
+Responda em português brasileiro, de forma prática e objetiva.
+Use linguagem técnica de laboratório clínico.
+Formate a resposta com tópicos claros para facilitar a cópia para o formulário.
+Não invente dados — sugira exemplos realistas baseados no contexto fornecido.`;
+
+    const response = await genAI.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [{ role: 'user', parts: [{ text: `${systemPrompt}\n\nContexto:\n${context}\n\nInstrução:\n${prompt}` }] }],
+      config: { maxOutputTokens: 1500, temperature: 0.7 },
+    });
+
+    const text = response.text ?? '';
+    return { text };
+  }
+);
