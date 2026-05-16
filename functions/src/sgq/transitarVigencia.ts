@@ -85,8 +85,13 @@ export const transitarVigencia = onCall<TransitionPayload>(
     }
 
     // 3. Validate lab membership
-    if (!claims?.['labs']?.includes(data.labId)) {
-      throw new HttpsError('permission-denied', `Acesso negado ao lab ${data.labId}`);
+    const isSuperAdmin = claims?.['isSuperAdmin'] === true;
+    if (!isSuperAdmin) {
+      const memberRef = db.collection(`labs/${data.labId}/members`).doc(request.auth!.uid);
+      const memberSnap = await memberRef.get();
+      if (!memberSnap.exists || memberSnap.data()?.active !== true) {
+        throw new HttpsError('permission-denied', `Acesso negado ao lab ${data.labId}`);
+      }
     }
 
     // 4. Verify PIN

@@ -25,8 +25,9 @@ import {
   updateDoc,
   where,
   writeBatch,
+  httpsCallable,
 } from '../../../shared/services/firebase';
-import { db } from '../../../shared/services/firebase';
+import { db, functions } from '../../../shared/services/firebase';
 import type {
   Documento,
   DocumentoAuditEvent,
@@ -64,7 +65,22 @@ interface DocumentoSnapshot {
   substituidoPor?: string;
   substitui?: string;
   observacoes?: string;
+  elaboradoPor?: string;
+  revisadoPor?: string;
+  dataElaboracao?: Timestamp;
+  referencias?: string[];
+  prazoGuarda?: number;
+  formaArmazenamento?: 'fisico' | 'digital' | 'ambos';
+  localArmazenamento?: string;
+  numeroPaginas?: number;
+  setorResponsavel?: string;
   listaDistribuicao?: string[];
+  googleDocId?: string;
+  googleDocUrl?: string;
+  snapshotPdfUrl?: string;
+  snapshotPdfHash?: string;
+  publicadoEm?: Timestamp;
+  publicadoPor?: string;
   criadoEm: Timestamp;
   criadoPor: string;
   criadoPorName: string;
@@ -109,6 +125,7 @@ export async function createDocumento({
 
   const payload = {
     ...input,
+    url: input.url ?? null,
     labId,
     versao: 1,
     status: 'em_revisao' as StatusDocumento,
@@ -119,6 +136,10 @@ export async function createDocumento({
     atualizadoPor: operator.uid,
     atualizadoPorName: operator.name,
     deletadoEm: null,
+    googleDocId: null,
+    googleDocUrl: null,
+    snapshotPdfUrl: null,
+    snapshotPdfHash: null,
   };
 
   const batch = writeBatch(db);
@@ -249,14 +270,15 @@ export interface EmitirRevisaoArgs {
 }
 
 /**
- * Emite uma nova versão. Atomic em batch:
- *   1) Documento anterior vai para `obsoleto` + grava `substituidoPor`.
- *   2) Cria novo doc com versão N+1, status `vigente`, `substitui` apontando
- *      para o anterior.
- *   3) Grava 2 entradas no audit log (`status-changed` + `revisao-emitida`).
+ * Emite uma nova versão (rascunho). O anterior permanece `vigente` até que
+ * a nova revisão seja publicada — só então vai para `obsoleto`.
  *
- * Caller (hook) DEVE validar que o anterior está em `vigente`. Permitir
- * revisão a partir de `em_revisao` é abuso — auditor acharia estranho.
+ * Atomic em batch:
+ *   1) Cria novo doc com versão N+1, status `em_revisao`, `substitui` apontando
+ *      para o anterior.
+ *   2) Grava entrada no audit log (`revisao-emitida`).
+ *
+ * Caller (hook) DEVE validar que o anterior está em `vigente`.
  */
 export async function emitirRevisao({
   labId,
@@ -269,21 +291,13 @@ export async function emitirRevisao({
   const now = serverTimestamp();
   const batch = writeBatch(db);
 
-  // 1) Anterior → obsoleto
-  batch.update(docRef(labId, documentoAnterior.id), {
-    status: 'obsoleto' as StatusDocumento,
-    substituidoPor: novoRef.id,
-    atualizadoEm: now,
-    atualizadoPor: operator.uid,
-    atualizadoPorName: operator.name,
-  });
-
-  // 2) Novo doc — vigente, mesmo código, versão +1
+  // 1) Novo doc — em_revisao, mesmo código, versão +1
   batch.set(novoRef, {
     ...novaInput,
+    url: novaInput.url ?? null,
     labId,
     versao: novaVersao,
-    status: 'vigente' as StatusDocumento,
+    status: 'em_revisao' as StatusDocumento,
     substitui: documentoAnterior.id,
     criadoEm: now,
     criadoPor: operator.uid,
@@ -292,24 +306,13 @@ export async function emitirRevisao({
     atualizadoPor: operator.uid,
     atualizadoPorName: operator.name,
     deletadoEm: null,
+    googleDocId: null,
+    googleDocUrl: null,
+    snapshotPdfUrl: null,
+    snapshotPdfHash: null,
   });
 
-  // 3a) Audit do anterior
-  batch.set(doc(colAudit(labId)), {
-    labId,
-    documentoId: documentoAnterior.id,
-    codigoSnapshot: documentoAnterior.codigo,
-    versaoSnapshot: documentoAnterior.versao,
-    type: 'status-changed' as DocumentoAuditEventType,
-    fromStatus: 'vigente',
-    toStatus: 'obsoleto',
-    motivo: `Substituído pela versão ${novaVersao}`,
-    timestamp: now,
-    operadorId: operator.uid,
-    operadorName: operator.name,
-  });
-
-  // 3b) Audit do novo
+  // 2) Audit do novo
   batch.set(doc(colAudit(labId)), {
     labId,
     documentoId: novoRef.id,
@@ -342,12 +345,27 @@ export async function softDeleteDocumento({
   id,
   operator,
 }: SoftDeleteArgs): Promise<void> {
-  await updateDoc(docRef(labId, id), {
-    deletadoEm: serverTimestamp(),
-    atualizadoEm: serverTimestamp(),
+  const now = serverTimestamp();
+  const batch = writeBatch(db);
+
+  batch.update(docRef(labId, id), {
+    deletadoEm: now,
+    atualizadoEm: now,
     atualizadoPor: operator.uid,
     atualizadoPorName: operator.name,
   });
+
+  const auditRef = doc(colAudit(labId));
+  batch.set(auditRef, {
+    labId,
+    documentoId: id,
+    type: 'deleted' as DocumentoAuditEventType,
+    operadorId: operator.uid,
+    operadorName: operator.name,
+    timestamp: now,
+  });
+
+  await batch.commit();
 }
 
 // ─── Subscribe ───────────────────────────────────────────────────────────────
@@ -356,6 +374,7 @@ export function subscribeDocumentos(
   labId: string,
   filters: DocumentoFilters,
   callback: (documentos: Documento[]) => void,
+  onError?: (err: Error) => void,
 ): () => void {
   // Sem orderBy composto — ordenação no client. Mantém indexação simples.
   const q = query(
@@ -388,6 +407,8 @@ export function subscribeDocumentos(
     });
 
     callback(filtered);
+  }, (err) => {
+    onError?.(err);
   });
 }
 
@@ -472,6 +493,7 @@ export function subscribeAuditDocumento(
   labId: string,
   documentoId: string,
   callback: (events: DocumentoAuditEvent[]) => void,
+  onError?: (err: Error) => void,
 ): () => void {
   const q = query(
     colAudit(labId),
@@ -485,7 +507,39 @@ export function subscribeAuditDocumento(
       ...(d.data() as Omit<DocumentoAuditEvent, 'id'>),
     }));
     callback(events);
+  }, (err) => {
+    onError?.(err);
   });
+}
+
+// ─── Google Docs integration ────────────────────────────────────────────────
+
+/**
+ * Cria Google Doc vinculado ao documento via Cloud Function.
+ * Documento deve estar em `em_revisao`.
+ */
+export async function criarDocumentoGDocs(
+  labId: string,
+  documentoId: string,
+): Promise<{ googleDocId: string; googleDocUrl: string }> {
+  const callable = httpsCallable(functions, 'criarDocumentoGDocs');
+  const result = await callable({ labId, documentoId });
+  return result.data as { googleDocId: string; googleDocUrl: string };
+}
+
+/**
+ * Publica documento oficialmente via Cloud Function.
+ * Gera snapshot PDF, transita para vigente, grava audit.
+ */
+export async function publicarDocumento(
+  labId: string,
+  documentoId: string,
+  pin: string,
+  razao?: string,
+): Promise<{ pdfUrl: string; pdfHash: string; versao: number; publicadoEm: string }> {
+  const callable = httpsCallable(functions, 'publicarDocumento');
+  const result = await callable({ labId, documentoId, pin, razao });
+  return result.data as { pdfUrl: string; pdfHash: string; versao: number; publicadoEm: string };
 }
 
 // ─── Export agregador para teste ─────────────────────────────────────────────
@@ -499,6 +553,8 @@ export const documentoService = {
   subscribe: subscribeDocumentos,
   subscribeAudit: subscribeAuditDocumento,
   existeCodigoDuplicado,
+  criarGDocs: criarDocumentoGDocs,
+  publicar: publicarDocumento,
 };
 
 // Re-export Timestamp para conveniência do hook (escrita de datas).

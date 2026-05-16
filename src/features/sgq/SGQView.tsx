@@ -12,12 +12,13 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import { useAppStore } from '../../store/useAppStore';
+import { useActiveLabId } from '../../store/useAuthStore';
+import { httpsCallable, functions } from '../../shared/services/firebase';
 import { DocumentoFormModal } from './components/DocumentoFormModal';
 import { DocumentosListView } from './components/DocumentosListView';
 import { DocumentosObrigatoriosBadge } from './components/DocumentosObrigatoriosBadge';
 import { ImportarLM01Modal } from './components/ImportarLM01Modal';
 import POPsList from './pops/components/POPsList';
-import AuditoriaList from './auditoria/components/AuditoriaList';
 import { useDocumentos } from './hooks/useDocumentos';
 import {
   isVencido,
@@ -32,7 +33,7 @@ import {
 
 type FiltroTipo = TipoDocumento | 'todos';
 type FiltroStatus = StatusDocumento | 'todos';
-type SGQTab = 'documentos' | 'procedimentos' | 'auditorias';
+type SGQTab = 'documentos' | 'procedimentos';
 
 interface ConfirmacaoState {
   doc: Documento;
@@ -42,6 +43,7 @@ interface ConfirmacaoState {
 
 export function SGQView() {
   const setCurrentView = useAppStore((s) => s.setCurrentView);
+  const labId = useActiveLabId();
 
   const [tab, setTab] = useState<SGQTab>('documentos');
   const [filtroTipo, setFiltroTipo] = useState<FiltroTipo>('todos');
@@ -88,6 +90,17 @@ export function SGQView() {
   const [motivoConfirmacao, setMotivoConfirmacao] = useState('');
 
   const handleToggleObsoletos = useCallback(() => setIncluirObsoletos((v) => !v), []);
+
+  const handleAutorizarDrive = useCallback(async () => {
+    if (!labId) return;
+    try {
+      const callable = httpsCallable<{ labId: string }, { authUrl: string }>(functions, 'iniciarOAuthDrive');
+      const result = await callable({ labId });
+      window.open(result.data.authUrl, '_blank');
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Erro ao iniciar autorização do Drive.');
+    }
+  }, [labId]);
 
   const codigoSugerido = useMemo(() => {
     if (!criando) return undefined;
@@ -178,11 +191,11 @@ export function SGQView() {
               <>
                 <button
                   type="button"
-                  onClick={() => setImporting(true)}
-                  className="px-3 py-1.5 rounded-md text-sm font-medium text-white/65 hover:text-white/90 hover:bg-white/[0.05] transition-all"
-                  title="Importa LM-01 (Lista Mestra) do Drive em bulk via TSV"
+                  onClick={handleAutorizarDrive}
+                  className="px-3 py-1.5 rounded-md text-sm font-medium text-violet-300 hover:text-violet-200 hover:bg-violet-500/10 transition-all border border-violet-500/20"
+                  title="Autorizar acesso ao Google Drive para edição de documentos"
                 >
-                  Importar LM-01
+                  Autorizar Drive
                 </button>
                 <details className="relative">
                   <summary className="list-none cursor-pointer px-3 py-1.5 rounded-md bg-emerald-500 text-slate-950 text-sm font-semibold hover:bg-emerald-400">
@@ -206,7 +219,7 @@ export function SGQView() {
             )}
           </div>
           <div className="flex items-center gap-1">
-            {(['documentos', 'procedimentos', 'auditorias'] as const).map((t) => (
+            {(['documentos', 'procedimentos'] as const).map((t) => (
               <button
                 key={t}
                 type="button"
@@ -217,7 +230,7 @@ export function SGQView() {
                     : 'border-transparent text-white/50 hover:text-white/70'
                 }`}
               >
-                {t === 'documentos' ? 'Documentos' : t === 'procedimentos' ? 'Procedimentos' : 'Auditorias'}
+                {t === 'documentos' ? 'Documentos' : 'Procedimentos'}
               </button>
             ))}
           </div>
@@ -304,10 +317,6 @@ export function SGQView() {
 
         {tab === 'procedimentos' && (
           <POPsList />
-        )}
-
-        {tab === 'auditorias' && (
-          <AuditoriaList />
         )}
       </main>
 

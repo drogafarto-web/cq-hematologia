@@ -435,6 +435,7 @@ export {
 export { generateAuditoriaGeralPDF } from './callables/auditoriaGeral/generateAuditoriaGeralPDF';
 export { generateAuditoriaSummary } from './callables/auditoriaGeral/generateAuditoriaSummary';
 export { transcribeAuditoriaAudio } from './callables/auditoriaGeral/transcribeAuditoriaAudio';
+export { validateEvidenciaIA } from './callables/auditoriaGeral/validateEvidenciaIA';
 
 // ─── equipamentos module (ADR 0007 — Equipment Calibration Gate) ──────────────
 // Equipment qualifications: calibration + maintenance scheduling
@@ -2315,6 +2316,8 @@ Responda APENAS com JSON válido, sem markdown:
 // OAuth callback and Drive import callables for Document Management System
 export { transitarVigencia } from './sgq/transitarVigencia';
 export { oauthCallbackDrive } from './sgq/oauthCallbackDrive';
+export { iniciarOAuthDrive } from './sgq/iniciarOAuthDrive';
+export { onMemberCreatedCopyOAuth } from './sgq/onMemberCreatedCopyOAuth';
 export { listarDocsDrive } from './sgq/listarDocsDrive';
 export { previewDocDrive } from './sgq/previewDocDrive';
 export { classificarDocAuto } from './sgq/classificarDocAuto';
@@ -2369,6 +2372,8 @@ export { exportOutbox as notivisaExportOutbox } from './modules/notivisa/exportO
 export { processQueue as notivisaProcessQueue } from './modules/notivisa/processQueue';
 
 export { aprovarBatchImport } from './sgq/aprovarBatchImport';
+export { criarDocumentoGDocs } from './sgq/criarDocumentoGDocs';
+export { publicarDocumento } from './sgq/publicarDocumento';
 
 // ─── CEQ module (PNCQ PDF parsing + confirm results + manual resultado) ─────
 // parsePNCQReport: callable que parseia PDFs do PNCQ enviados ao Storage.
