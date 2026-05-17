@@ -1,0 +1,304 @@
+HC
+
+hc-quality
+
+SGQ · Acreditação DICQ
+
+PAINEL
+
+Visão Geral
+
+QUALIDADE ANALÍTICA
+
+Hematologia
+Coagulação
+Uroanálise
+CIQ-Imuno
+Bioquímica
+Controle de Temperatura
+Valores Críticos
+Educação Continuada
+Turnos & Supervisão
+
+SISTEMA DA QUALIDADE
+
+Gestão Documental
+Gestão de Pessoal
+Gestão de Equipamentos
+CQ Externo (CEQ)
+Auditoria Interna
+Trilha de Auditoria
+Tratamento de Não Conformidades
+Indicadores & Melhoria
+Gestão de Riscos
+Pré & Pós-analítico
+Apoio & Fornecedores
+Analytics
+Exportações
+
+FERRAMENTAS
+
+Analytics
+Exportações
+Importar bula PDF
+Rastreabilidade
+Relatórios
+Insumos
+Configurações
+Super Admin
+Sair
+Painel do SGQ
+DICQ 8ª ED.
+BR
+Olá, bruno
+
+LabClin Rio Pomba MGAdministrador
+
+PRONTIDÃO PARA AUDITORIA
+
+Em construção
+
+—
+
+Não Conformidades
+
+Aguardando módulo SGQ — Bloco 5
+
+—
+
+Documentos
+
+Aguardando módulo SGQ — Bloco 1
+
+—
+
+CQ Externo (CEQ)
+
+Participações interlaboratoriais · Z-score
+
+BANCADA · 1 SETUP VINCULADO
+
+Lotes em uso na rotina
+
+Setup oficial e validações paralelas dos módulos analíticos
+
+COAGULAÇÃO
+OFICIAL
+
+Nível I
+
+7281/26
+
+0 corridas · Val. 2027-07-01
+
+EM PRODUÇÃO
+
+Módulos analíticos
+
+Controle interno da qualidade — DICQ Bloco 4
+
+BLOCO 4
+Hematologia
+
+CIQ quantitativo · 17 analitos · Yumizen H550
+
+Levey-Jennings
+Westgard 1-3s/2-2s/R-4s
+Multi-nível
+Ativo
+BLOCO 4
+Coagulação
+
+CIQ quantitativo · AP · RNI · TTPA
+
+Clotimer Duo
+Níveis 1/2/3
+Westgard
+Ativo
+BLOCO 4
+Uroanálise
+
+CIQ híbrido · tiras reagentes · 10 analitos
+
+CLSI GP16
+Multi-nível
+Glicose, cetonas, pH...
+Ativo
+BLOCO 4
+CIQ-Imuno
+
+Imunoensaios rápidos · IA strip + análise acurácia
+
+HIV, Dengue, HCG, Sífilis, COVID
+IA classification + upload manual
+Dashboard acurácia + metrô visualização
+Ativo
+BLOCO 4
+Bioquímica
+
+CIQ quantitativo · 17 analitos · multi-instrumento
+
+Westgard CLSI (1-2s · 1-3s · 2-2s · R-4s)
+Bula PDF + estatística interna
+Levey-Jennings multi-equipamento
+Foundation
+BLOCO 3
+Controle de Temperatura
+
+Monitoramento térmico · IoT
+
+FR-11 · PQ-06
+ISO 15189 cl. 5.3
+Alertas em tempo real
+Ativo
+BLOCO 4
+Valores Críticos
+
+Comunicação de resultados críticos · Escalações
+
+Detecção e escalação
+Limites por analito
+RDC 978 Art. 5.7.1
+Ativo
+BLOCO 2
+Educação Continuada
+
+Treinamentos · Avaliação de competência
+
+FR-001/013/027
+Dossiê de competência
+Programa anual
+Ativo
+BLOCO 2
+Turnos & Supervisão
+
+RDC 978 Art. 122 · Registro de supervisor por turno
+
+Supervisor presente por turno
+Cobertura 90 dias
+Audit trail com chainHash
+Ativo
+
+EM PRODUÇÃO
+
+Sistema de Gestão da Qualidade
+
+Gestão documental, pessoal, equipamentos e auditoria — DICQ / ISO 15189
+
+BLOCO 1
+Gestão Documental
+
+Controle de documentos do SGQ
+
+Manual da Qualidade
+POPs, IT, Lista mestra
+Versionamento + obsoletos
+Ativo
+BLOCO 2
+Gestão de Pessoal
+
+Dossiês, competência e saúde ocupacional
+
+Organograma + cargos
+Dossiê por colaborador
+Qualificações vinculadas
+Ativo
+BLOCO 3
+Gestão de Equipamentos
+
+Inventário, calibração e manutenção
+
+Cadastro com 12 campos DICQ
+Calibração + rastreabilidade
+Manutenção preventiva
+Ativo
+BLOCO 4
+CQ Externo (CEQ)
+
+Ensaios interlaboratoriais · Z-score · ISO 17043
+
+Controllab · BIPEA · PNCQ
+Z-score por analito · NC automática
+DICQ 4.5 · RDC 978
+Ativo
+BLOCO 6
+Auditoria Interna
+
+Planejamento e execução de auditorias DICQ 4.3
+
+Plano anual de auditorias
+Sessões de execução in-loco
+Registro de achados
+Ativo
+BLOCO 4
+Trilha de Auditoria
+
+RDC 978 5.3 · DICQ 4.4 · Eventos com assinatura criptográfica
+
+ChainHash + LogicalSignature
+Filtros por módulo/operador
+Verificação de integridade
+Ativo
+BLOCO 5
+Tratamento de Não Conformidades
+
+Registro, investigação, CAPA e rastreabilidade
+
+Workflow completo NC→CAPA
+Ishikawa + 5 porquês
+RDC 978 Art. 134
+Ativo
+BLOCO 6
+Indicadores & Melhoria
+
+KPIs, auditoria interna, análise crítica
+
+Painel pré/analítico/pós
+Auditoria interna
+Análise crítica da direção
+Ativo
+BLOCO 7
+Gestão de Riscos
+
+Mapeamento, matriz e plano
+
+Probabilidade × gravidade
+Plano de desastres
+Eventos adversos
+Ativo
+BLOCO 8
+Pré & Pós-analítico
+
+Cadastro, coleta, laudos
+
+Order entry + consentimento
+Triagem + valores críticos
+Laudos + revisão
+Ativo
+BLOCO 9
+Apoio & Fornecedores
+
+Qualificação, estoque, terceirização
+
+Qualificação + monitoramento
+Lotes + rastreabilidade
+Laboratórios de apoio
+Ativo
+CROSS
+Analytics
+
+Inteligência analítica · tendências · conformidade
+
+KPIs de conformidade
+Tendências CIQ
+NC heatmap
+Ativo
+CROSS
+Exportações
+
+XLSX, relatórios PDF, histórico de exports
+
+Export XLSX multi-módulo
+Relatórios PDF
+Histórico de jobs
+Ativo
