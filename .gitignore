@@ -201,3 +201,4 @@ response.json
 cors.json
 firestore.indexes.json.tmp
 *.mjs.bak
+e2e/screenshots/
