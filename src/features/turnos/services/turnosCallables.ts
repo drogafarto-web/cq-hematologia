@@ -13,6 +13,74 @@
 import { functions, httpsCallable, type HttpsCallable } from '../../../shared/services/firebase';
 import type { LabId } from '../types/shared_refs';
 
+// ─── Escala result types ───────────────────────────────────────────────────
+
+export interface CallCreateEscalaResult {
+  ok: true;
+  escalaId: string;
+}
+
+export interface CallUpdateEscalaResult {
+  ok: true;
+}
+
+export interface CallSoftDeleteEscalaResult {
+  ok: true;
+}
+
+export interface CallSaveEscalaPadraoResult {
+  ok: true;
+}
+
+export interface CallApplyEscalaPadraoResult {
+  ok: true;
+  created: number;
+  skipped: number;
+}
+
+// ─── Escala payload types ──────────────────────────────────────────────────
+
+export interface CreateEscalaPayload {
+  labId: string;
+  data: string; // ISO YYYY-MM-DD
+  periodo: string;
+  colaboradores: { id: string; nome: string; cargo: string }[];
+  rtPresente: boolean;
+  rtSubstitutoPresente: boolean;
+  observacoes?: string | null;
+}
+
+export interface UpdateEscalaPayload {
+  labId: string;
+  escalaId: string;
+  periodo?: string;
+  colaboradores?: { id: string; nome: string; cargo: string }[];
+  rtPresente?: boolean;
+  rtSubstitutoPresente?: boolean;
+  observacoes?: string | null;
+}
+
+export interface SoftDeleteEscalaPayload {
+  labId: string;
+  escalaId: string;
+}
+
+export interface SaveEscalaPadraoPayload {
+  labId: string;
+  diasAtivos: number[];
+  turnos: {
+    periodo: string;
+    colaboradores: { id: string; nome: string; cargo: string }[];
+    rtPresente: boolean;
+    rtSubstitutoPresente: boolean;
+  }[];
+}
+
+export interface ApplyEscalaPadraoPayload {
+  labId: string;
+  weekStartISO: string; // ISO YYYY-MM-DD (Monday)
+}
+
 // ─── Result types ──────────────────────────────────────────────────────────
 
 export interface CallCreateTurnoResult {
@@ -251,6 +319,80 @@ export async function callSupervisorCheckout(
 ): Promise<CallSupervisorCheckoutResult> {
   try {
     const result = await getCallSupervisorCheckout()(payload);
+    return result.data;
+  } catch (error) {
+    throw translateError(error);
+  }
+}
+
+// ─── Escala lazy-loaded callables ───────────────────────────────────────────
+
+let _callCreateEscala: HttpsCallable<CreateEscalaPayload, CallCreateEscalaResult> | null = null;
+let _callUpdateEscala: HttpsCallable<UpdateEscalaPayload, CallUpdateEscalaResult> | null = null;
+let _callSoftDeleteEscala: HttpsCallable<SoftDeleteEscalaPayload, CallSoftDeleteEscalaResult> | null = null;
+let _callSaveEscalaPadrao: HttpsCallable<SaveEscalaPadraoPayload, CallSaveEscalaPadraoResult> | null = null;
+let _callApplyEscalaPadrao: HttpsCallable<ApplyEscalaPadraoPayload, CallApplyEscalaPadraoResult> | null = null;
+
+function getCallCreateEscala() {
+  if (!_callCreateEscala) _callCreateEscala = httpsCallable(functions, 'turnos_createEscala');
+  return _callCreateEscala;
+}
+function getCallUpdateEscala() {
+  if (!_callUpdateEscala) _callUpdateEscala = httpsCallable(functions, 'turnos_updateEscala');
+  return _callUpdateEscala;
+}
+function getCallSoftDeleteEscala() {
+  if (!_callSoftDeleteEscala) _callSoftDeleteEscala = httpsCallable(functions, 'turnos_softDeleteEscala');
+  return _callSoftDeleteEscala;
+}
+function getCallSaveEscalaPadrao() {
+  if (!_callSaveEscalaPadrao) _callSaveEscalaPadrao = httpsCallable(functions, 'turnos_saveEscalaPadrao');
+  return _callSaveEscalaPadrao;
+}
+function getCallApplyEscalaPadrao() {
+  if (!_callApplyEscalaPadrao) _callApplyEscalaPadrao = httpsCallable(functions, 'turnos_applyEscalaPadrao');
+  return _callApplyEscalaPadrao;
+}
+
+export async function callCreateEscala(payload: CreateEscalaPayload): Promise<CallCreateEscalaResult> {
+  try {
+    const result = await getCallCreateEscala()(payload);
+    return result.data;
+  } catch (error) {
+    throw translateError(error);
+  }
+}
+
+export async function callUpdateEscala(payload: UpdateEscalaPayload): Promise<CallUpdateEscalaResult> {
+  try {
+    const result = await getCallUpdateEscala()(payload);
+    return result.data;
+  } catch (error) {
+    throw translateError(error);
+  }
+}
+
+export async function callSoftDeleteEscala(payload: SoftDeleteEscalaPayload): Promise<CallSoftDeleteEscalaResult> {
+  try {
+    const result = await getCallSoftDeleteEscala()(payload);
+    return result.data;
+  } catch (error) {
+    throw translateError(error);
+  }
+}
+
+export async function callSaveEscalaPadrao(payload: SaveEscalaPadraoPayload): Promise<CallSaveEscalaPadraoResult> {
+  try {
+    const result = await getCallSaveEscalaPadrao()(payload);
+    return result.data;
+  } catch (error) {
+    throw translateError(error);
+  }
+}
+
+export async function callApplyEscalaPadrao(payload: ApplyEscalaPadraoPayload): Promise<CallApplyEscalaPadraoResult> {
+  try {
+    const result = await getCallApplyEscalaPadrao()(payload);
     return result.data;
   } catch (error) {
     throw translateError(error);
