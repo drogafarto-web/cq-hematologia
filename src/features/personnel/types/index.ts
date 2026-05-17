@@ -1,7 +1,7 @@
 /**
  * personnel/types/index.ts
  *
- * Tipos de domínio do módulo Personnel (Cargos + Designações).
+ * Tipos de domínio do módulo Personnel (Cargos + Designações + Competências).
  * Rastreabilidade: DICQ 5.1.3 (Descrição de Cargos) + DICQ 4.1.2.7 (GQ Designação).
  *
  * Multi-tenant: toda entidade carrega `labId` redundante no payload.
@@ -9,6 +9,13 @@
  */
 
 import type { Timestamp } from '../../../shared/services/firebase';
+
+// ─── Re-exports ──────────────────────────────────────────────────────────────
+
+export type { CompetenciaTecnica, CompetenciaTecnicaInput, CategoriaCompetencia, NivelCompetencia } from './CompetenciaMatriz';
+export { NIVEL_LABEL, NIVEL_ORDER, CATEGORIA_LABEL } from './CompetenciaMatriz';
+export type { EscalaDiaria, EscalaDiariaInput, EscalaColaborador, Turno } from './Escala';
+export { TURNO_LABEL } from './Escala';
 
 // ─── Enums e tipos primitivos ──────────────────────────────────────────────────
 
@@ -117,6 +124,15 @@ export interface Qualificacao {
 
 export type QualificacaoInput = Omit<Qualificacao, 'id' | 'labId' | 'criadoEm' | 'deletadoEm'>;
 
+// ─── CertificacaoRegistro (structured certification entry) ───────────────────
+
+export interface CertificacaoRegistro {
+  readonly nome: string;
+  readonly numero: string;
+  readonly dataEmissao: Timestamp;
+  readonly dataValidade: Timestamp | null;
+}
+
 // ─── PersonnelDossier (REQ-403 — dossiê por colaborador) ─────────────────────
 
 /** Documento: `/labs/{labId}/personnel/dossiers/{colaboradorId}` (id = Colaborador.id da educação continuada). */
@@ -128,7 +144,11 @@ export interface PersonnelDossier {
   readonly registroCRF: string | null;
   readonly registroCRBM: string | null;
   readonly registroCREF: string | null;
+  readonly registroCRFValidade: Timestamp | null;
+  readonly registroCRBMValidade: Timestamp | null;
+  readonly registroCREFValidade: Timestamp | null;
   readonly certificacoesNotas: string | null;
+  readonly certificacoes: CertificacaoRegistro[];
   readonly criadoEm: Timestamp;
   readonly updatedAt: Timestamp;
 }
@@ -136,7 +156,16 @@ export interface PersonnelDossier {
 /** Campos editáveis no cliente (sem audit fields). Limites alinhados a `firestore.rules`. */
 export type PersonnelDossierEditable = Pick<
   PersonnelDossier,
-  'cvUrl' | 'cvResumo' | 'registroCRF' | 'registroCRBM' | 'registroCREF' | 'certificacoesNotas'
+  | 'cvUrl'
+  | 'cvResumo'
+  | 'registroCRF'
+  | 'registroCRBM'
+  | 'registroCREF'
+  | 'registroCRFValidade'
+  | 'registroCRBMValidade'
+  | 'registroCREFValidade'
+  | 'certificacoesNotas'
+  | 'certificacoes'
 >;
 
 // ─── Re-exports ───────────────────────────────────────────────────────────────

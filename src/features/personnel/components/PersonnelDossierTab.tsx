@@ -1,5 +1,5 @@
 /**
- * PersonnelDossierTab — REQ-403 fatia 1
+ * PersonnelDossierTab — REQ-403 fatia 1 + Point 5 (validade) + Point 7 (timeline)
  *
  * Dossiê por colaborador (CV, registros, certificações em texto) + lista de qualificações
  * (`OperatorQualificacoesTab`), usando `Colaborador.id` como chave (mesmo que `operadorId` em qualificações).
@@ -7,12 +7,17 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { Timestamp } from '../../../shared/services/firebase';
 import { useColaboradores } from '../../educacao-continuada/hooks/useColaboradores';
 import { useActiveLabId } from '../../../store/useAuthStore';
 import { toast } from '../../../shared/store/useToastStore';
 import { usePersonnelDossier } from '../hooks/usePersonnelDossier';
 import { normalizePersonnelDossierInput } from '../services/personnelDossierService';
 import { OperatorQualificacoesTab } from './OperatorQualificacoesTab';
+import { DossieTreinamentosSection } from './DossieTreinamentosSection';
+import { AlertasCertificacoesCard } from './AlertasCertificacoesCard';
+import { DesignacaoTimeline } from './DesignacaoTimeline';
+import type { CertificacaoRegistro } from '../types';
 
 interface FormState {
   cvUrl: string;
@@ -20,7 +25,11 @@ interface FormState {
   registroCRF: string;
   registroCRBM: string;
   registroCREF: string;
+  registroCRFValidade: Timestamp | null;
+  registroCRBMValidade: Timestamp | null;
+  registroCREFValidade: Timestamp | null;
   certificacoesNotas: string;
+  certificacoes: CertificacaoRegistro[];
 }
 
 const emptyForm: FormState = {
@@ -29,7 +38,11 @@ const emptyForm: FormState = {
   registroCRF: '',
   registroCRBM: '',
   registroCREF: '',
+  registroCRFValidade: null,
+  registroCRBMValidade: null,
+  registroCREFValidade: null,
   certificacoesNotas: '',
+  certificacoes: [],
 };
 
 interface PersonnelDossierTabProps {
@@ -76,7 +89,11 @@ export function PersonnelDossierTab({ canEdit }: PersonnelDossierTabProps): Reac
       registroCRF: dossier.registroCRF ?? '',
       registroCRBM: dossier.registroCRBM ?? '',
       registroCREF: dossier.registroCREF ?? '',
+      registroCRFValidade: dossier.registroCRFValidade ?? null,
+      registroCRBMValidade: dossier.registroCRBMValidade ?? null,
+      registroCREFValidade: dossier.registroCREFValidade ?? null,
       certificacoesNotas: dossier.certificacoesNotas ?? '',
+      certificacoes: dossier.certificacoes ?? [],
     });
   }, [dossier]);
 
@@ -201,6 +218,13 @@ export function PersonnelDossierTab({ canEdit }: PersonnelDossierTabProps): Reac
                   onChange={(v) => setForm((f) => ({ ...f, registroCRF: v }))}
                   disabled={!canEdit}
                 />
+                <DateField
+                  label="Validade CRF"
+                  id="dossier-crf-validade"
+                  value={form.registroCRFValidade}
+                  onChange={(v) => setForm((f) => ({ ...f, registroCRFValidade: v }))}
+                  disabled={!canEdit}
+                />
                 <Field
                   label="CRBM"
                   id="dossier-crbm"
@@ -208,11 +232,25 @@ export function PersonnelDossierTab({ canEdit }: PersonnelDossierTabProps): Reac
                   onChange={(v) => setForm((f) => ({ ...f, registroCRBM: v }))}
                   disabled={!canEdit}
                 />
+                <DateField
+                  label="Validade CRBM"
+                  id="dossier-crbm-validade"
+                  value={form.registroCRBMValidade}
+                  onChange={(v) => setForm((f) => ({ ...f, registroCRBMValidade: v }))}
+                  disabled={!canEdit}
+                />
                 <Field
                   label="CREF"
                   id="dossier-cref"
                   value={form.registroCREF}
                   onChange={(v) => setForm((f) => ({ ...f, registroCREF: v }))}
+                  disabled={!canEdit}
+                />
+                <DateField
+                  label="Validade CREF"
+                  id="dossier-cref-validade"
+                  value={form.registroCREFValidade}
+                  onChange={(v) => setForm((f) => ({ ...f, registroCREFValidade: v }))}
                   disabled={!canEdit}
                 />
                 <div className="md:col-span-2">
@@ -238,6 +276,31 @@ export function PersonnelDossierTab({ canEdit }: PersonnelDossierTabProps): Reac
               Qualificações e treinamentos registrados
             </h2>
             <OperatorQualificacoesTab operadorId={selectedId} labId={labId} canEdit={canEdit} />
+          </section>
+
+          <section aria-labelledby="personnel-dossier-trein-heading" className="space-y-4 border-t border-white/10 pt-8">
+            <h2 id="personnel-dossier-trein-heading" className="text-lg font-semibold text-white">
+              Histórico de Treinamentos
+            </h2>
+            <DossieTreinamentosSection colaboradorId={selectedId} />
+          </section>
+
+          {/* Point 5: Alertas de Vencimento */}
+          {dossier && (
+            <section aria-labelledby="personnel-dossier-alertas-heading" className="space-y-4 border-t border-white/10 pt-8">
+              <h2 id="personnel-dossier-alertas-heading" className="text-lg font-semibold text-white">
+                Alertas de Vencimento
+              </h2>
+              <AlertasCertificacoesCard dossier={dossier} />
+            </section>
+          )}
+
+          {/* Point 7: Histórico de Funções (Timeline) */}
+          <section aria-labelledby="personnel-dossier-timeline-heading" className="space-y-4 border-t border-white/10 pt-8">
+            <h2 id="personnel-dossier-timeline-heading" className="text-lg font-semibold text-white">
+              Histórico de Funções
+            </h2>
+            <DesignacaoTimeline colaboradorId={selectedId} />
           </section>
         </>
       )}
@@ -285,6 +348,43 @@ function Field(props: {
           className={base}
         />
       )}
+    </div>
+  );
+}
+
+function DateField(props: {
+  label: string;
+  id: string;
+  value: Timestamp | null;
+  onChange: (v: Timestamp | null) => void;
+  disabled: boolean;
+}) {
+  const { label, id, value, onChange, disabled } = props;
+  const base =
+    'w-full rounded-lg border border-white/10 bg-[#1a1a1f] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-violet-500 focus:ring-1 focus:ring-violet-500 disabled:cursor-not-allowed disabled:opacity-60';
+
+  const dateStr = value ? value.toDate().toISOString().split('T')[0] : '';
+
+  return (
+    <div>
+      <label htmlFor={id} className="mb-2 block text-xs font-medium text-white/50">
+        {label}
+      </label>
+      <input
+        id={id}
+        type="date"
+        value={dateStr}
+        onChange={(e) => {
+          const v = e.target.value;
+          if (!v) {
+            onChange(null);
+          } else {
+            onChange(Timestamp.fromDate(new Date(v + 'T00:00:00')));
+          }
+        }}
+        disabled={disabled}
+        className={base}
+      />
     </div>
   );
 }

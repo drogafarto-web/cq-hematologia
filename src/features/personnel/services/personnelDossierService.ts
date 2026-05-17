@@ -1,13 +1,13 @@
 /**
- * personnelDossierService — REQ-403 fatia 1
+ * personnelDossierService — REQ-403 fatia 1 + Point 5 (validade registros + certificações)
  *
- * `/labs/{labId}/personnel/dossiers/{colaboradorId}`
+ * `/labs/{labId}/personnelDossiers/{colaboradorId}`
  * Leitura/escrita client-side com rules: superadmin OU (membro ativo + admin|owner|rt).
  */
 
 import { z } from 'zod';
 
-import type { LabId, PersonnelDossier, PersonnelDossierEditable } from '../types';
+import type { CertificacaoRegistro, LabId, PersonnelDossier, PersonnelDossierEditable } from '../types';
 import {
   db,
   doc,
@@ -15,12 +15,20 @@ import {
   onSnapshot,
   serverTimestamp,
   setDoc,
+  Timestamp,
   type DocumentSnapshot,
   type Unsubscribe,
 } from '../../../shared/services/firebase';
 
 const dossierDocRef = (labId: LabId, colaboradorId: string) =>
-  doc(db, 'labs', labId, 'personnel', 'dossiers', colaboradorId);
+  doc(db, 'labs', labId, 'personnelDossiers', colaboradorId);
+
+const certificacaoSchema = z.object({
+  nome: z.string().min(1).max(256),
+  numero: z.string().max(128),
+  dataEmissao: z.instanceof(Timestamp),
+  dataValidade: z.union([z.instanceof(Timestamp), z.null()]),
+});
 
 export const personnelDossierEditableSchema = z.object({
   cvUrl: z.union([z.string().max(2048), z.null()]),
@@ -28,7 +36,11 @@ export const personnelDossierEditableSchema = z.object({
   registroCRF: z.union([z.string().max(128), z.null()]),
   registroCRBM: z.union([z.string().max(128), z.null()]),
   registroCREF: z.union([z.string().max(128), z.null()]),
+  registroCRFValidade: z.union([z.instanceof(Timestamp), z.null()]),
+  registroCRBMValidade: z.union([z.instanceof(Timestamp), z.null()]),
+  registroCREFValidade: z.union([z.instanceof(Timestamp), z.null()]),
   certificacoesNotas: z.union([z.string().max(8000), z.null()]),
+  certificacoes: z.array(certificacaoSchema).max(50).default([]),
 });
 
 function mapPersonnelDossier(snap: DocumentSnapshot): PersonnelDossier | null {
@@ -42,7 +54,13 @@ function mapPersonnelDossier(snap: DocumentSnapshot): PersonnelDossier | null {
     registroCRF: d.registroCRF != null ? String(d.registroCRF) : null,
     registroCRBM: d.registroCRBM != null ? String(d.registroCRBM) : null,
     registroCREF: d.registroCREF != null ? String(d.registroCREF) : null,
+    registroCRFValidade: d.registroCRFValidade ?? null,
+    registroCRBMValidade: d.registroCRBMValidade ?? null,
+    registroCREFValidade: d.registroCREFValidade ?? null,
     certificacoesNotas: d.certificacoesNotas != null ? String(d.certificacoesNotas) : null,
+    certificacoes: Array.isArray(d.certificacoes)
+      ? (d.certificacoes as CertificacaoRegistro[])
+      : [],
     criadoEm: d.criadoEm,
     updatedAt: d.updatedAt,
   };
@@ -78,7 +96,11 @@ export function normalizePersonnelDossierInput(raw: {
   registroCRF: string;
   registroCRBM: string;
   registroCREF: string;
+  registroCRFValidade: Timestamp | null;
+  registroCRBMValidade: Timestamp | null;
+  registroCREFValidade: Timestamp | null;
   certificacoesNotas: string;
+  certificacoes: CertificacaoRegistro[];
 }): PersonnelDossierEditable {
   return personnelDossierEditableSchema.parse({
     cvUrl: emptyToNull(raw.cvUrl),
@@ -86,7 +108,11 @@ export function normalizePersonnelDossierInput(raw: {
     registroCRF: emptyToNull(raw.registroCRF),
     registroCRBM: emptyToNull(raw.registroCRBM),
     registroCREF: emptyToNull(raw.registroCREF),
+    registroCRFValidade: raw.registroCRFValidade,
+    registroCRBMValidade: raw.registroCRBMValidade,
+    registroCREFValidade: raw.registroCREFValidade,
     certificacoesNotas: emptyToNull(raw.certificacoesNotas),
+    certificacoes: raw.certificacoes,
   });
 }
 
@@ -107,7 +133,11 @@ export async function upsertPersonnelDossier(
     registroCRF: editable.registroCRF,
     registroCRBM: editable.registroCRBM,
     registroCREF: editable.registroCREF,
+    registroCRFValidade: editable.registroCRFValidade,
+    registroCRBMValidade: editable.registroCRBMValidade,
+    registroCREFValidade: editable.registroCREFValidade,
     certificacoesNotas: editable.certificacoesNotas,
+    certificacoes: editable.certificacoes,
     updatedAt: ts,
     ...(snap.exists() ? {} : { criadoEm: ts }),
   };
