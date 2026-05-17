@@ -1,9 +1,10 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { defineSecret } from 'firebase-functions/params';
 import * as admin from 'firebase-admin';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { z } from 'zod';
 import { logger } from 'firebase-functions';
+import { createAIClient } from '../../shared/ai/aiClient';
+import { AUDIT_SUMMARY_PROMPT, AuditSummaryContext } from '../../shared/ai/prompts/auditSummary';
 
 const db = admin.firestore();
 const geminiApiKey = defineSecret('GEMINI_API_KEY');
@@ -78,46 +79,35 @@ export const generateAuditoriaSummary = onCall(
     const criticos = respostas.filter((r) => r.score !== null && r.score <= 2);
     const scoresPorBloco = auditoria.scoresPorBloco ?? {};
 
-    const criticosJson = JSON.stringify(
-      criticos.map((r) => ({
+    const ctx: AuditSummaryContext = {
+      scoreTotal: auditoria.scoreTotal,
+      scoresPorBloco,
+      criticalIndicators: criticos.map((r) => ({
         numero: r.numero,
         indicador: r.indicador,
         bloco: r.blocoNome,
         score: r.score,
         obs: r.observacoes,
-      }))
-    );
-
-    const prompt = [
-      'Voce e um auditor de qualidade laboratorial especialista em RDC 978/2025 e DICQ.',
-      'Analise os resultados desta auditoria geral e gere um resumo executivo em portugues com:',
-      '',
-      '1) Visao geral do nivel de conformidade (score total: ' + auditoria.scoreTotal + '%)',
-      '2) Pontos fortes identificados (blocos com score acima de 80%)',
-      '3) Pontos criticos que requerem acao imediata (' + criticos.length + ' indicadores com score <= 2)',
-      '4) Recomendacoes priorizadas por urgencia',
-      '',
-      'Dados da auditoria:',
-      '- Titulo: ' + auditoria.titulo,
-      '- Score total: ' + auditoria.scoreTotal + '%',
-      '- Scores por bloco: ' + JSON.stringify(scoresPorBloco),
-      '- Indicadores criticos: ' + criticosJson,
-      '- Total respondidos: ' + auditoria.totalRespondidos + '/57',
-      '',
-      'Seja objetivo, use linguagem tecnica de qualidade laboratorial. Maximo 500 palavras.',
-    ].join('\n');
+      })),
+      totalRespondidos: auditoria.totalRespondidos,
+      totalIndicadores: 57,
+      titulo: auditoria.titulo,
+    };
 
     try {
-      const genAI = new GoogleGenerativeAI(geminiApiKey.value());
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-      const result = await model.generateContent(prompt);
-      const summary = result.response.text();
+      const client = createAIClient({ apiKey: geminiApiKey.value(), model: 'gemini-2.5-flash' });
+      const result = await client.generateText({
+        systemPrompt: AUDIT_SUMMARY_PROMPT.system,
+        prompt: AUDIT_SUMMARY_PROMPT.template(ctx),
+      });
+      const summary = result.text;
 
       logger.info('generateAuditoriaSummary success', { labId, auditoriaId, summaryLength: summary.length });
 
       return { summary };
-    } catch (err: any) {
-      logger.error('generateAuditoriaSummary Gemini error', { labId, auditoriaId, error: err.message });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.error('generateAuditoriaSummary Gemini error', { labId, auditoriaId, error: message });
       throw new HttpsError('internal', 'Erro ao gerar resumo com IA.');
     }
   },
