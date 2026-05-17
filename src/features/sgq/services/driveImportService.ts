@@ -34,7 +34,11 @@ export function initiateOAuthFlow(labId: string): string {
   authUrl.searchParams.append('client_id', import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID);
   authUrl.searchParams.append('redirect_uri', `${window.location.origin}/api/sgq/oauth-callback`);
   authUrl.searchParams.append('response_type', 'code');
-  authUrl.searchParams.append('scope', 'https://www.googleapis.com/auth/drive.readonly');
+  authUrl.searchParams.append('scope', [
+    'https://www.googleapis.com/auth/drive.readonly',
+    'https://www.googleapis.com/auth/drive.file',
+    'https://www.googleapis.com/auth/documents',
+  ].join(' '));
   authUrl.searchParams.append('state', generateStateToken());
 
   return authUrl.toString();

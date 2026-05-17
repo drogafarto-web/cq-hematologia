@@ -68,6 +68,10 @@ export interface UseDocumentosResult {
   emitirRevisao: (anteriorId: string, novaInput: DocumentoInput) => Promise<string>;
   /** Soft-delete — só permitido em `em_revisao`. */
   remover: (id: string) => Promise<void>;
+  /** Cria Google Doc vinculado ao documento. */
+  criarGDocs: (documentoId: string) => Promise<{ googleDocUrl: string }>;
+  /** Publica documento oficialmente (snapshot + vigente). */
+  publicar: (documentoId: string, pin: string, razao?: string) => Promise<{ pdfUrl: string }>;
 }
 
 export function useDocumentos(
@@ -94,6 +98,10 @@ export function useDocumentos(
     setIsLoading(true);
     const unsub = documentoService.subscribe(labId, filters, (docs) => {
       setDocumentos(docs);
+      setIsLoading(false);
+      setError(null);
+    }, (err) => {
+      setError(err.message);
       setIsLoading(false);
     });
 
@@ -225,6 +233,16 @@ export function useDocumentos(
         );
       }
 
+      // Impede criar segunda revisão se já existe rascunho do mesmo código
+      const revisaoExistente = documentos.find(
+        (d) => d.codigo === anterior.codigo && d.status === 'em_revisao' && d.substitui === anteriorId,
+      );
+      if (revisaoExistente) {
+        throw new Error(
+          `Já existe uma revisão em andamento (v${revisaoExistente.versao}). Conclua ou remova antes de criar outra.`,
+        );
+      }
+
       if (novaInput.codigo !== anterior.codigo) {
         throw new Error(
           'Revisão deve manter o mesmo código do documento original.',
@@ -272,6 +290,58 @@ export function useDocumentos(
     [labId, operator, documentos],
   );
 
+  const criarGDocs = useCallback(
+    async (documentoId: string) => {
+      if (!labId) throw new Error('Sem laboratório ativo.');
+      if (!operator) throw new Error('Sem usuário autenticado.');
+
+      const doc = documentos.find((d) => d.id === documentoId);
+      if (!doc) throw new Error('Documento não encontrado.');
+
+      if (doc.status !== 'em_revisao') {
+        throw new Error('Apenas documentos em revisão podem ser vinculados ao Google Docs.');
+      }
+
+      if (doc.googleDocId) {
+        return { googleDocUrl: doc.googleDocUrl! };
+      }
+
+      try {
+        const result = await documentoService.criarGDocs(labId, documentoId);
+        return { googleDocUrl: result.googleDocUrl };
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Erro ao criar Google Doc.';
+        setError(msg);
+        throw e;
+      }
+    },
+    [labId, operator, documentos],
+  );
+
+  const publicar = useCallback(
+    async (documentoId: string, pin: string, razao?: string) => {
+      if (!labId) throw new Error('Sem laboratório ativo.');
+      if (!operator) throw new Error('Sem usuário autenticado.');
+
+      const doc = documentos.find((d) => d.id === documentoId);
+      if (!doc) throw new Error('Documento não encontrado.');
+
+      if (doc.status !== 'em_revisao') {
+        throw new Error('Apenas documentos em revisão podem ser publicados.');
+      }
+
+      try {
+        const result = await documentoService.publicar(labId, documentoId, pin, razao);
+        return { pdfUrl: result.pdfUrl };
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Erro ao publicar documento.';
+        setError(msg);
+        throw e;
+      }
+    },
+    [labId, operator, documentos],
+  );
+
   return {
     documentos,
     isLoading,
@@ -281,5 +351,7 @@ export function useDocumentos(
     mudarStatus,
     emitirRevisao,
     remover,
+    criarGDocs,
+    publicar,
   };
 }

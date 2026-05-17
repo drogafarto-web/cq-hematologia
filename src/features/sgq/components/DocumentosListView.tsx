@@ -13,7 +13,7 @@
  * (audit log) é feita expandindo a linha — fora do MVP, vai pra v2.
  */
 
-import { memo, useMemo } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 
 import {
   isProximoVencimento,
@@ -24,6 +24,10 @@ import {
   type StatusDocumento,
   type TipoDocumento,
 } from '../types/Documento';
+import { criarDocumentoGDocs, publicarDocumento } from '../services/documentoService';
+import { PublicarDocumentoModal } from './PublicarDocumentoModal';
+import { useActiveLabId } from '../../../store/useAuthStore';
+import { storage, getDownloadURL, ref } from '../../../shared/services/firebase';
 
 const TIPOS: TipoDocumento[] = ['MQ', 'PQ', 'IT', 'FR', 'POL'];
 const STATUSES: StatusDocumento[] = ['em_revisao', 'vigente', 'obsoleto'];
@@ -57,6 +61,14 @@ export function DocumentosListView({
   onMudarStatus,
   onRemover,
 }: Props) {
+  const [publishTarget, setPublishTarget] = useState<Documento | null>(null);
+  const labId = useActiveLabId();
+
+  async function handlePublicar(pin: string, razao?: string) {
+    if (!publishTarget || !labId) return;
+    await publicarDocumento(labId, publishTarget.id, pin, razao);
+  }
+
   // Ordenação: vigentes primeiro, dentro de cada grupo ordena por código.
   const sorted = useMemo(() => {
     const order: Record<StatusDocumento, number> = {
@@ -143,16 +155,28 @@ export function DocumentosListView({
                 <DocumentoRow
                   key={d.id}
                   doc={d}
+                  labId={labId}
                   onEditar={onEditar}
                   onRevisar={onRevisar}
                   onMudarStatus={onMudarStatus}
                   onRemover={onRemover}
+                  onPublicar={setPublishTarget}
                 />
               ))
             )}
           </tbody>
         </table>
       </div>
+
+      {/* ── Modal Publicar ───────────────────────────────────────────── */}
+      {publishTarget && (
+        <PublicarDocumentoModal
+          isOpen={!!publishTarget}
+          onClose={() => setPublishTarget(null)}
+          documento={publishTarget}
+          onPublicar={handlePublicar}
+        />
+      )}
     </div>
   );
 }
@@ -186,17 +210,35 @@ function FiltroChip({
 
 const DocumentoRow = memo(function DocumentoRow({
   doc,
+  labId,
   onEditar,
   onRevisar,
   onMudarStatus,
   onRemover,
+  onPublicar,
 }: {
   doc: Documento;
+  labId: string | null;
   onEditar: (doc: Documento) => void;
   onRevisar: (doc: Documento) => void;
   onMudarStatus: (doc: Documento, toStatus: StatusDocumento) => void;
   onRemover: (doc: Documento) => void;
+  onPublicar: (doc: Documento) => void;
 }) {
+  const [creatingGDocs, setCreatingGDocs] = useState(false);
+
+  const handleOpenPdf = useCallback(async () => {
+    if (!doc.snapshotPdfUrl) return;
+    if (doc.snapshotPdfUrl.startsWith('gs://')) {
+      const path = doc.snapshotPdfUrl.replace(/^gs:\/\/[^/]+\//, '');
+      const storageRef = ref(storage, path);
+      const url = await getDownloadURL(storageRef);
+      window.open(url, '_blank');
+    } else {
+      window.open(doc.snapshotPdfUrl, '_blank');
+    }
+  }, [doc.snapshotPdfUrl]);
+
   const vencido = isVencido(doc);
   const proximo = isProximoVencimento(doc);
 
@@ -240,22 +282,96 @@ const DocumentoRow = memo(function DocumentoRow({
       </td>
       <td className="px-4 py-2.5 text-right">
         <div className="inline-flex items-center gap-1 justify-end">
-          <a
-            href={doc.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[11px] text-white/50 hover:text-white/85 px-2 py-1 rounded hover:bg-white/[0.05]"
-            title="Abrir documento"
-          >
-            Abrir
-          </a>
+          {/* Criar no Google Docs */}
+          {!doc.googleDocId && doc.status === 'em_revisao' && labId && (
+            <button
+              type="button"
+              onClick={async () => {
+                setCreatingGDocs(true);
+                try {
+                  await criarDocumentoGDocs(labId, doc.id);
+                } finally {
+                  setCreatingGDocs(false);
+                }
+              }}
+              disabled={creatingGDocs}
+              className="text-[11px] text-white/50 hover:text-white/85 px-2 py-1 rounded hover:bg-white/[0.05] disabled:opacity-40"
+              title="Criar no Google Docs"
+            >
+              {creatingGDocs ? (
+                <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="12" y1="18" x2="12" y2="12" />
+                  <line x1="9" y1="15" x2="15" y2="15" />
+                </svg>
+              )}
+            </button>
+          )}
+
+          {/* Abrir no Google Docs */}
+          {doc.googleDocId && doc.status === 'em_revisao' && doc.googleDocUrl && (
+            <button
+              type="button"
+              onClick={() => window.open(doc.googleDocUrl!, '_blank')}
+              className="text-[11px] text-white/50 hover:text-white/85 px-2 py-1 rounded hover:bg-white/[0.05]"
+              title="Abrir no Google Docs"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+                <polyline points="15 3 21 3 21 9" />
+                <line x1="10" y1="14" x2="21" y2="3" />
+              </svg>
+            </button>
+          )}
+
+          {/* Ver PDF */}
+          {doc.snapshotPdfUrl && (
+            <button
+              type="button"
+              onClick={handleOpenPdf}
+              className="text-[11px] text-white/50 hover:text-white/85 px-2 py-1 rounded hover:bg-white/[0.05]"
+              title="Ver PDF"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <path d="M9 15h6" />
+                <path d="M9 11h6" />
+              </svg>
+            </button>
+          )}
+
+          {/* Abrir URL */}
+          {doc.url && doc.url.startsWith('http') && (
+            <a
+              href={doc.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] text-white/50 hover:text-white/85 px-2 py-1 rounded hover:bg-white/[0.05]"
+              title="Abrir documento"
+            >
+              Abrir
+            </a>
+          )}
+
           {doc.status === 'em_revisao' && (
             <>
+              {/* Publicar */}
               <button
                 type="button"
-                onClick={() => onMudarStatus(doc, 'vigente')}
-                className="text-[11px] text-emerald-400 hover:text-emerald-300 px-2 py-1 rounded hover:bg-emerald-500/10"
+                onClick={() => onPublicar(doc)}
+                className="inline-flex items-center gap-1 text-[11px] text-emerald-400 hover:text-emerald-300 px-2 py-1 rounded bg-emerald-600/20 hover:bg-emerald-600/30"
+                title="Publicar documento"
               >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
                 Publicar
               </button>
               <button

@@ -16,7 +16,9 @@ import { useCAPADetail } from '../hooks/useCAPADetail';
 import { updateCAPAStatus } from '../services/capaService';
 import ActionCard from './ActionCard';
 import VerificationForm from './VerificationForm';
+import { QualityToolsPanel } from './tools/QualityToolsPanel';
 import type { CAPAStatus } from '../types';
+import type { QualityToolType } from '../types/qualityTools';
 
 interface CAPADetailViewProps {
   capaId?: string;
@@ -53,6 +55,8 @@ export default function CAPADetailView({ capaId: providedCapaId, onBack }: CAPAD
   const [showVerificationForm, setShowVerificationForm] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [statusError, setStatusError] = useState<string | null>(null);
+  const [showTools, setShowTools] = useState(false);
+  const [usedTools, setUsedTools] = useState<QualityToolType[]>([]);
 
   if (isLoading) {
     return (
@@ -146,6 +150,38 @@ export default function CAPADetailView({ capaId: providedCapaId, onBack }: CAPAD
             <div className="mt-4 px-3 py-2 bg-red-900/20 border border-red-700/50 rounded text-red-200 text-xs">
               {statusError}
             </div>
+          )}
+        </div>
+
+        {/* Quality Tools Section */}
+        <div className="p-6 bg-white/[0.02] border border-white/10 rounded-lg space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-white">Ferramentas da Qualidade</h2>
+            <button
+              type="button"
+              onClick={() => setShowTools(!showTools)}
+              className="text-xs px-3 py-1.5 bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/20 text-violet-300 rounded-lg transition-colors"
+            >
+              {showTools ? 'Fechar' : '+ Usar ferramenta'}
+            </button>
+          </div>
+          {!showTools && usedTools.length === 0 && (
+            <p className="text-xs text-white/40">
+              Nenhuma ferramenta utilizada ainda. Use ferramentas como 5 Porquês, Ishikawa ou 5W2H para investigar e tratar esta NC.
+            </p>
+          )}
+          {showTools && (
+            <QualityToolsPanel
+              labId={labId || ''}
+              capaId={capa.id}
+              capaTitle={capa.titulo}
+              capaDescription={capa.descricao}
+              usedTools={usedTools}
+              onToolSaved={() => {
+                setUsedTools([...usedTools]);
+                setShowTools(false);
+              }}
+            />
           )}
         </div>
 

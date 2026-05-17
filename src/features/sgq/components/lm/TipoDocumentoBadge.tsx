@@ -6,7 +6,8 @@
  */
 
 export type TipoDocumento =
-  | 'MQ' | 'PQ' | 'IT' | 'FR' | 'POL'
+  | 'MQ' | 'CDC' | 'PQ' | 'PQ-ANA' | 'PQ-EQP' | 'IT' | 'ITA' | 'FR' | 'POL'
+  | 'DC' | 'LM' | 'EXT'
   | 'ROP' | 'AP' | 'EP' | 'DOC' | 'REL'
   | 'CER' | 'AUD' | 'REC' | 'FORM' | 'OUT';
 
@@ -23,15 +24,35 @@ const TIPO_CONFIG: Record<TipoDocumento, { label: string; colorClass: string; de
     colorClass: 'bg-yellow-700/90 text-yellow-100',
     description: 'Manual da Qualidade',
   },
+  'CDC': {
+    label: 'CDC',
+    colorClass: 'bg-amber-600/90 text-amber-100',
+    description: 'Código de Ética e Conduta',
+  },
   'PQ': {
     label: 'PQ',
     colorClass: 'bg-blue-700/90 text-blue-100',
     description: 'Procedimento de Qualidade',
   },
+  'PQ-ANA': {
+    label: 'PQ-ANA',
+    colorClass: 'bg-blue-600/90 text-blue-100',
+    description: 'Procedimento da Qualidade - Analitos',
+  },
+  'PQ-EQP': {
+    label: 'PQ-EQP',
+    colorClass: 'bg-cyan-700/90 text-cyan-100',
+    description: 'Procedimento da Qualidade - Equipamentos',
+  },
   'IT': {
     label: 'IT',
     colorClass: 'bg-emerald-700/90 text-emerald-100',
     description: 'Instrução Técnica',
+  },
+  'ITA': {
+    label: 'ITA',
+    colorClass: 'bg-indigo-700/90 text-indigo-100',
+    description: 'Instrução Técnica Analítica',
   },
   'FR': {
     label: 'FR',
@@ -43,9 +64,24 @@ const TIPO_CONFIG: Record<TipoDocumento, { label: string; colorClass: string; de
     colorClass: 'bg-purple-700/90 text-purple-100',
     description: 'Política',
   },
+  'DC': {
+    label: 'DC',
+    colorClass: 'bg-slate-700/90 text-slate-100',
+    description: 'Descrição de Cargos',
+  },
+  'LM': {
+    label: 'LM',
+    colorClass: 'bg-fuchsia-700/90 text-fuchsia-100',
+    description: 'Lista Mestra',
+  },
+  'EXT': {
+    label: 'EXT',
+    colorClass: 'bg-slate-600/90 text-slate-200',
+    description: 'Documento Externo',
+  },
   'ROP': {
     label: 'ROP',
-    colorClass: 'bg-indigo-700/90 text-indigo-100',
+    colorClass: 'bg-indigo-600/90 text-indigo-100',
     description: 'Relatório Operacional',
   },
   'AP': {
@@ -55,17 +91,17 @@ const TIPO_CONFIG: Record<TipoDocumento, { label: string; colorClass: string; de
   },
   'EP': {
     label: 'EP',
-    colorClass: 'bg-cyan-700/90 text-cyan-100',
+    colorClass: 'bg-teal-700/90 text-teal-100',
     description: 'Evidência de Processo',
   },
   'DOC': {
     label: 'DOC',
-    colorClass: 'bg-slate-700/90 text-slate-100',
+    colorClass: 'bg-gray-700/90 text-gray-100',
     description: 'Documento Geral',
   },
   'REL': {
     label: 'REL',
-    colorClass: 'bg-fuchsia-700/90 text-fuchsia-100',
+    colorClass: 'bg-violet-700/90 text-violet-100',
     description: 'Relatório',
   },
   'CER': {
@@ -75,7 +111,7 @@ const TIPO_CONFIG: Record<TipoDocumento, { label: string; colorClass: string; de
   },
   'AUD': {
     label: 'AUD',
-    colorClass: 'bg-teal-700/90 text-teal-100',
+    colorClass: 'bg-teal-600/90 text-teal-100',
     description: 'Auditoria',
   },
   'REC': {
@@ -90,7 +126,7 @@ const TIPO_CONFIG: Record<TipoDocumento, { label: string; colorClass: string; de
   },
   'OUT': {
     label: 'OUT',
-    colorClass: 'bg-slate-600/90 text-slate-200',
+    colorClass: 'bg-neutral-600/90 text-neutral-200',
     description: 'Outro',
   },
 };

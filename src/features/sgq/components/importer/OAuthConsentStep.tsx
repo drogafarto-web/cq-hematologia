@@ -28,7 +28,7 @@ export function OAuthConsentStep({
           Autorizar acesso ao Google Drive
         </h3>
         <p className="text-sm text-neutral-400">
-          Para importar documentos, precisamos acessar seu Google Drive em modo de leitura.
+          Para gerenciar documentos, precisamos acessar seu Google Drive e Google Docs.
         </p>
       </div>
 
@@ -44,8 +44,12 @@ export function OAuthConsentStep({
             <span>Visualização de metadados (nome, tamanho, última modificação)</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-red-400 mt-0.5">✗</span>
-            <span>Nenhuma permissão de escrita ou exclusão</span>
+            <span className="text-green-400 mt-0.5">✓</span>
+            <span>Criar e editar documentos do Google Docs</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-green-400 mt-0.5">✓</span>
+            <span>Gerenciar arquivos criados pelo HC Quality</span>
           </li>
         </ul>
       </div>

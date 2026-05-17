@@ -38,14 +38,18 @@ import type { Timestamp } from 'firebase/firestore';
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
 export type TipoDocumento =
-  | 'MQ'   // Manual da Qualidade
-  | 'PQ'   // Procedimento da Qualidade (substituiu o termo antigo "POP")
-  | 'IT'   // Instrução de Trabalho (procedimento técnico de bancada/setor)
-  | 'FR'   // Formulário / Registro
-  | 'POL'  // Política
-  | 'DC'   // Descrição de Cargos (DICQ 4.5 — cargos definidos)
-  | 'LM'   // Lista Mestra (meta-documento — LM-01, LM-02, LM-03)
-  | 'EXT'; // Documento Externo (RDC ANVISA, ABNT NBR, bulas, FISPQs)
+  | 'MQ'     // Manual da Qualidade
+  | 'CDC'    // Código de Ética e Conduta
+  | 'DC'     // Descrição de Cargos (DICQ 4.5 — cargos definidos)
+  | 'PQ'     // Procedimento da Qualidade (substituiu o termo antigo "POP")
+  | 'PQ-ANA' // Procedimento da Qualidade - Analitos
+  | 'PQ-EQP' // Procedimento da Qualidade - Equipamentos
+  | 'IT'     // Instrução de Trabalho (procedimento técnico de bancada/setor)
+  | 'ITA'    // Instrução Técnica Analítica
+  | 'FR'     // Formulário / Registro
+  | 'POL'    // Política
+  | 'LM'     // Lista Mestra (meta-documento — LM-01, LM-02, LM-03)
+  | 'EXT';   // Documento Externo (RDC ANVISA, ABNT NBR, bulas, FISPQs)
 
 export type StatusDocumento =
   | 'em_revisao'  // Em rascunho — não é evidência ainda
@@ -54,11 +58,15 @@ export type StatusDocumento =
 
 export const TIPO_LABEL: Record<TipoDocumento, string> = {
   MQ: 'Manual da Qualidade',
+  CDC: 'Código de Ética e Conduta',
+  DC: 'Descrição de Cargos',
   PQ: 'Procedimento da Qualidade',
+  'PQ-ANA': 'Procedimento da Qualidade - Analitos',
+  'PQ-EQP': 'Procedimento da Qualidade - Equipamentos',
   IT: 'Instrução de Trabalho',
+  ITA: 'Instrução Técnica Analítica',
   FR: 'Formulário / Registro',
   POL: 'Política',
-  DC: 'Descrição de Cargos',
   LM: 'Lista Mestra',
   EXT: 'Documento Externo',
 };
@@ -95,10 +103,10 @@ export interface Documento {
   versao: number;
 
   /**
-   * URL do PDF/documento. MVP aceita URL externa (Drive/Storage manual). v2
-   * adicionará upload direto ao Firebase Storage com path imutável.
+   * URL do PDF/documento. Opcional quando o documento será criado via
+   * integração Google Docs (o sistema preenche googleDocUrl automaticamente).
    */
-  url: string;
+  url?: string;
 
   /**
    * Autoridade que aprovou e emitiu este documento (ex: "Diretor Técnico —
@@ -139,6 +147,25 @@ export interface Documento {
 
   observacoes?: string;
 
+  /** Workflow de aprovação (PQ-026 §4.2) */
+  elaboradoPor?: string;
+  revisadoPor?: string;
+  dataElaboracao?: Timestamp;
+
+  /** Referências cruzadas — códigos de docs relacionados (PQ-014 §4.1.3 rodapé "Vide") */
+  referencias?: string[];
+
+  /** Controle de registros (PQ-026 §4.8-4.9) */
+  prazoGuarda?: number;
+  formaArmazenamento?: 'fisico' | 'digital' | 'ambos';
+  localArmazenamento?: string;
+
+  /** Paginação (PQ-014 §4.1.7) */
+  numeroPaginas?: number;
+
+  /** Setor responsável pela manutenção do documento */
+  setorResponsavel?: string;
+
   /**
    * Setores/locais onde este documento é distribuído (lista controlada por
    * lab — Labclin opera 17 setores entre matriz + 2 postos). Auditor DICQ
@@ -149,6 +176,14 @@ export interface Documento {
    * `/labs/{labId}/sgq-setores/{id}` quando o módulo de setores nascer.
    */
   listaDistribuicao?: string[];
+
+  /** Integração Google Docs */
+  googleDocId?: string;
+  googleDocUrl?: string;
+  snapshotPdfUrl?: string;
+  snapshotPdfHash?: string;
+  publicadoEm?: Timestamp;
+  publicadoPor?: string;
 
   // ── Auditoria básica ──────────────────────────────────────────────────────
 
@@ -167,6 +202,7 @@ export interface Documento {
 export type DocumentoAuditEventType =
   | 'created'
   | 'updated'
+  | 'deleted'
   | 'status-changed'
   | 'revisao-emitida'; // Nova versão substitui a anterior
 
@@ -213,6 +249,12 @@ export type DocumentoInput = Omit<
   | 'deletadoEm'
   | 'substituidoPor'
   | 'substitui'
+  | 'googleDocId'
+  | 'googleDocUrl'
+  | 'snapshotPdfUrl'
+  | 'snapshotPdfHash'
+  | 'publicadoEm'
+  | 'publicadoPor'
 >;
 
 // ─── Filters ─────────────────────────────────────────────────────────────────
@@ -264,7 +306,7 @@ export function sugerirProximoCodigo(
   const numeros = existentes
     .filter((d) => d.codigo.startsWith(prefix))
     .map((d) => {
-      const match = d.codigo.match(/^[A-Z]+-(\d+)$/);
+      const match = d.codigo.match(/^.+-(\d+)$/);
       return match ? Number.parseInt(match[1], 10) : 0;
     })
     .filter((n) => Number.isFinite(n) && n > 0);

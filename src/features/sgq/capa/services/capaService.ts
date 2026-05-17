@@ -14,6 +14,8 @@ import {
   onSnapshot,
   getDoc,
   getDocs,
+  setDoc,
+  serverTimestamp,
   type Unsubscribe,
 } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
@@ -70,41 +72,45 @@ const softDeleteCAPACallable = httpsCallable<any, { success: boolean }>(
 
 /**
  * Create a new CAPA document
- * Routed through Cloud Function callable for audit sealing
+ * Direct Firestore write (callable not yet deployed — TODO: migrate to callable)
  */
 export async function createCAPA(
   labId: string,
-  input: CreateCAPAInput
+  input: CreateCAPAInput,
+  userId?: string
 ): Promise<string> {
-  try {
-    // Minimal validation
-    if (!input.titulo || input.titulo.trim().length < 5) {
-      throw new Error('Título deve ter pelo menos 5 caracteres');
-    }
-    if (!input.descricao || input.descricao.trim().length < 10) {
-      throw new Error('Descrição deve ter pelo menos 10 caracteres');
-    }
-    if (!input.dataPrazo) {
-      throw new Error('Data de prazo é obrigatória');
-    }
-
-    const result = await createCAPACallable({
-      labId,
-      titulo: input.titulo,
-      descricao: input.descricao,
-      encontroId: input.encontroId || null,
-      encontroTipo: input.encontroTipo || null,
-      status: input.status || 'aberta',
-      prioridade: input.prioridade || 3,
-      dataPrazo: input.dataPrazo,
-    });
-
-    return result.data.capaId;
-  } catch (error: any) {
-    throw new Error(
-      error.message || 'Erro ao criar CAPA. Por favor, tente novamente.'
-    );
+  if (!input.titulo || input.titulo.trim().length < 5) {
+    throw new Error('Título deve ter pelo menos 5 caracteres');
   }
+  if (!input.descricao || input.descricao.trim().length < 10) {
+    throw new Error('Descrição deve ter pelo menos 10 caracteres');
+  }
+  if (!input.dataPrazo) {
+    throw new Error('Data de prazo é obrigatória');
+  }
+
+  const colRef = capaCollection(labId);
+  const docRef = doc(colRef);
+
+  await setDoc(docRef, {
+    id: docRef.id,
+    labId,
+    titulo: input.titulo.trim(),
+    descricao: input.descricao.trim(),
+    setor: input.setor || null,
+    origem: input.origem || null,
+    encontroId: input.encontroId || null,
+    encontroTipo: input.encontroTipo || null,
+    status: input.status || 'aberta',
+    prioridade: input.prioridade || 3,
+    dataPrazo: input.dataPrazo,
+    criadoEm: serverTimestamp(),
+    criadoPor: userId || '',
+    deletadoEm: null,
+    deletadoPor: null,
+  });
+
+  return docRef.id;
 }
 
 // ─── READ ───────────────────────────────────────────────────────────────────

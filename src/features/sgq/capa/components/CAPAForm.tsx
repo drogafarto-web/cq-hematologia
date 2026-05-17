@@ -1,18 +1,54 @@
 /**
  * CAPAForm — Create new CAPA with validation
  *
- * Fields: titulo, descricao, prioridade (dropdown), dataPrazo (date picker)
- * Validation: Zod via CreateCAPAInput DTO
- * Submit: calls registerCriticoDetection callable
+ * Fields: titulo, descricao, setor, origem, prioridade, dataPrazo
+ * Setor/Origem populated from labs/{labId}/nc-config/settings
  * Dark-first design: bg-[#141417], text-white/90, violet accents
  * WCAG AA: contrast ≥4.5:1, focus rings, keyboard navigation
+ *
+ * RDC 978/2025 Art. 86 (PGQ) + DICQ 4.9/4.10
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../../../shared/services/firebase';
 import { useActiveLabId } from '../../../../store/useAuthStore';
 import { useUser } from '../../../../store/useAuthStore';
 import { createCAPA } from '../services/capaService';
 import type { CreateCAPAInput } from '../types';
+
+interface NCConfig {
+  setores: string[];
+  origens: string[];
+  prazos: Record<string, number>;
+}
+
+const DEFAULT_CONFIG: NCConfig = {
+  setores: ['Hematologia', 'Bioquímica', 'Coagulação', 'Uroanálise', 'Imunologia', 'Microbiologia', 'Recepção', 'Coleta', 'Administrativo'],
+  origens: ['Auditoria interna', 'Reclamação de cliente', 'Controle de qualidade', 'Desvio de processo', 'Inspeção', 'Evento adverso', 'Indicador fora da meta'],
+  prazos: { critica: 7, grave: 15, moderada: 30, leve: 60 },
+};
+
+function useNCConfig(labId: string | null): NCConfig {
+  const [config, setConfig] = useState<NCConfig>(DEFAULT_CONFIG);
+
+  useEffect(() => {
+    if (!labId) return;
+    const configRef = doc(db, 'labs', labId, 'nc-config', 'settings');
+    getDoc(configRef).then((snap) => {
+      if (snap.exists()) {
+        const data = snap.data() as Partial<NCConfig>;
+        setConfig({
+          setores: data.setores || DEFAULT_CONFIG.setores,
+          origens: data.origens || DEFAULT_CONFIG.origens,
+          prazos: data.prazos || DEFAULT_CONFIG.prazos,
+        });
+      }
+    }).catch(() => {});
+  }, [labId]);
+
+  return config;
+}
 
 interface CAPAFormProps {
   onSuccess?: (capaId: string) => void;
@@ -22,19 +58,34 @@ interface CAPAFormProps {
 export default function CAPAForm({ onSuccess, onCancel }: CAPAFormProps) {
   const labId = useActiveLabId();
   const user = useUser();
+  const ncConfig = useNCConfig(labId);
 
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
+  const [setor, setSetor] = useState('');
+  const [origem, setOrigem] = useState('');
   const [prioridade, setPrioridade] = useState<1 | 2 | 3 | 4 | 5>(3);
   const [dataPrazo, setDataPrazo] = useState('');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Validation
+  // Auto-suggest deadline based on priority + configured prazos
+  useEffect(() => {
+    if (dataPrazo) return; // don't override manual selection
+    const prazoMap: Record<number, string> = { 5: 'critica', 4: 'grave', 3: 'moderada', 2: 'leve', 1: 'leve' };
+    const key = prazoMap[prioridade];
+    const dias = ncConfig.prazos[key] ?? 30;
+    const target = new Date();
+    target.setDate(target.getDate() + dias);
+    setDataPrazo(target.toISOString().split('T')[0]);
+  }, [prioridade, ncConfig.prazos]);
+
   const isValid =
     titulo.trim().length >= 5 &&
     descricao.trim().length >= 10 &&
+    setor.length > 0 &&
+    origem.length > 0 &&
     dataPrazo.length > 0;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -54,7 +105,6 @@ export default function CAPAForm({ onSuccess, onCancel }: CAPAFormProps) {
     setError(null);
 
     try {
-      // Convert date string to Firestore Timestamp
       const date = new Date(dataPrazo);
       const timestamp = {
         seconds: Math.floor(date.getTime() / 1000),
@@ -64,15 +114,19 @@ export default function CAPAForm({ onSuccess, onCancel }: CAPAFormProps) {
       const input: CreateCAPAInput = {
         titulo: titulo.trim(),
         descricao: descricao.trim(),
+        setor,
+        origem,
         prioridade,
-        dataPrazo: timestamp as any, // Type coercion needed for client-side
+        dataPrazo: timestamp as any,
         status: 'aberta',
         encontroId: null,
       };
 
-      const capaId = await createCAPA(labId, input);
+      const capaId = await createCAPA(labId, input, user?.uid);
       setTitulo('');
       setDescricao('');
+      setSetor('');
+      setOrigem('');
       setPrioridade(3);
       setDataPrazo('');
 
@@ -125,7 +179,6 @@ export default function CAPAForm({ onSuccess, onCancel }: CAPAFormProps) {
           onChange={(e) => setTitulo(e.target.value)}
           placeholder="Ex: Desempenho inadequado do analisador"
           className="px-3 py-2 bg-white/5 border border-white/10 rounded text-white placeholder:text-white/40 focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-          aria-label="Título da CAPA"
           aria-describedby="titulo-hint"
           disabled={isSubmitting}
         />
@@ -146,13 +199,51 @@ export default function CAPAForm({ onSuccess, onCancel }: CAPAFormProps) {
           placeholder="Descreva a não-conformidade encontrada..."
           rows={4}
           className="px-3 py-2 bg-white/5 border border-white/10 rounded text-white placeholder:text-white/40 focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
-          aria-label="Descrição da CAPA"
           aria-describedby="descricao-hint"
           disabled={isSubmitting}
         />
         <p id="descricao-hint" className="text-xs text-white/50">
           Mínimo 10 caracteres
         </p>
+      </div>
+
+      {/* Setor + Origem (2 cols) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="setor" className="text-sm font-medium text-white/90">
+            Setor <span className="text-red-400">*</span>
+          </label>
+          <select
+            id="setor"
+            value={setor}
+            onChange={(e) => setSetor(e.target.value)}
+            className="px-3 py-2 bg-white/5 border border-white/10 rounded text-white focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+            disabled={isSubmitting}
+          >
+            <option value="" disabled>Selecione o setor</option>
+            {ncConfig.setores.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="origem" className="text-sm font-medium text-white/90">
+            Origem <span className="text-red-400">*</span>
+          </label>
+          <select
+            id="origem"
+            value={origem}
+            onChange={(e) => setOrigem(e.target.value)}
+            className="px-3 py-2 bg-white/5 border border-white/10 rounded text-white focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+            disabled={isSubmitting}
+          >
+            <option value="" disabled>Selecione a origem</option>
+            {ncConfig.origens.map((o) => (
+              <option key={o} value={o}>{o}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Prioridade Field */}
@@ -163,17 +254,22 @@ export default function CAPAForm({ onSuccess, onCancel }: CAPAFormProps) {
         <select
           id="prioridade"
           value={prioridade}
-          onChange={(e) => setPrioridade(parseInt(e.target.value) as any)}
+          onChange={(e) => {
+            setPrioridade(parseInt(e.target.value) as any);
+            setDataPrazo(''); // reset to trigger auto-calc
+          }}
           className="px-3 py-2 bg-white/5 border border-white/10 rounded text-white focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-          aria-label="Nível de prioridade"
           disabled={isSubmitting}
         >
-          <option value="1">1 — Baixa</option>
-          <option value="2">2 — Média-Baixa</option>
-          <option value="3">3 — Média</option>
-          <option value="4">4 — Média-Alta</option>
-          <option value="5">5 — Alta</option>
+          <option value="5">5 — Crítica (prazo: {ncConfig.prazos.critica ?? 7} dias)</option>
+          <option value="4">4 — Grave (prazo: {ncConfig.prazos.grave ?? 15} dias)</option>
+          <option value="3">3 — Moderada (prazo: {ncConfig.prazos.moderada ?? 30} dias)</option>
+          <option value="2">2 — Leve (prazo: {ncConfig.prazos.leve ?? 60} dias)</option>
+          <option value="1">1 — Informativa</option>
         </select>
+        <p className="text-xs text-white/40">
+          Prazo sugerido automaticamente conforme configuração
+        </p>
       </div>
 
       {/* Data Prazo Field */}
@@ -187,7 +283,6 @@ export default function CAPAForm({ onSuccess, onCancel }: CAPAFormProps) {
           value={dataPrazo}
           onChange={(e) => setDataPrazo(e.target.value)}
           className="px-3 py-2 bg-white/5 border border-white/10 rounded text-white focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-          aria-label="Data de prazo para fechamento da CAPA"
           disabled={isSubmitting}
           min={new Date().toISOString().split('T')[0]}
         />

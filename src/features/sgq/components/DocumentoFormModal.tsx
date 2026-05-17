@@ -19,8 +19,9 @@ import {
   type DocumentoInput,
   type TipoDocumento,
 } from '../types/Documento';
+import { SECOES_POR_TIPO } from '../constants/secoesObrigatorias';
 
-const TIPOS: TipoDocumento[] = ['MQ', 'PQ', 'IT', 'FR', 'POL'];
+const TIPOS: TipoDocumento[] = ['MQ', 'CDC', 'DC', 'PQ', 'PQ-ANA', 'PQ-EQP', 'IT', 'ITA', 'FR', 'POL', 'LM', 'EXT'];
 
 export interface DocumentoFormModalProps {
   /** Quando presente, modal abre em modo edição. */
@@ -81,7 +82,9 @@ export function DocumentoFormModal({
     initialDoc?.codigo ?? codigoSugerido ?? '',
   );
   const [titulo, setTitulo] = useState<string>(initialDoc?.titulo ?? '');
-  const [url, setUrl] = useState<string>(initialDoc?.url ?? '');
+  const [url, setUrl] = useState<string>(
+    initialDoc?.url && !initialDoc.url.startsWith('gs://') ? initialDoc.url : '',
+  );
   const [autoridadeEmitente, setAutoridadeEmitente] = useState<string>(
     initialDoc?.autoridadeEmitente ?? '',
   );
@@ -97,6 +100,31 @@ export function DocumentoFormModal({
       : toDateInput(Timestamp.fromDate(defaultProximaRevisao(today))),
   );
   const [observacoes, setObservacoes] = useState<string>(initialDoc?.observacoes ?? '');
+
+  const [elaboradoPor, setElaboradoPor] = useState<string>(initialDoc?.elaboradoPor ?? '');
+  const [revisadoPor, setRevisadoPor] = useState<string>(initialDoc?.revisadoPor ?? '');
+  const [dataElaboracao, setDataElaboracao] = useState<string>(
+    initialDoc?.dataElaboracao ? toDateInput(initialDoc.dataElaboracao) : '',
+  );
+  const [referencias, setReferencias] = useState<string>(
+    initialDoc?.referencias?.join(', ') ?? '',
+  );
+  const [prazoGuarda, setPrazoGuarda] = useState<string>(
+    initialDoc?.prazoGuarda?.toString() ?? '5',
+  );
+  const [formaArmazenamento, setFormaArmazenamento] = useState<string>(
+    initialDoc?.formaArmazenamento ?? '',
+  );
+  const [localArmazenamento, setLocalArmazenamento] = useState<string>(
+    initialDoc?.localArmazenamento ?? '',
+  );
+  const [numeroPaginas, setNumeroPaginas] = useState<string>(
+    initialDoc?.numeroPaginas?.toString() ?? '',
+  );
+  const [setorResponsavel, setSetorResponsavel] = useState<string>(
+    initialDoc?.setorResponsavel ?? '',
+  );
+  const [metadataOpen, setMetadataOpen] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -118,13 +146,13 @@ export function DocumentoFormModal({
     e.preventDefault();
     setErr(null);
 
-    if (!codigo.trim() || !titulo.trim() || !url.trim() || !autoridadeEmitente.trim()) {
+    if (!codigo.trim() || !titulo.trim() || !autoridadeEmitente.trim()) {
       setErr('Preencha todos os campos obrigatórios.');
       return;
     }
 
-    if (!/^[A-Z]+-\d+$/.test(codigo.trim())) {
-      setErr('Código deve seguir o padrão TIPO-NNN (ex: IT-013).');
+    if (!/^.+-\d+$/.test(codigo.trim())) {
+      setErr('Código deve seguir o padrão TIPO-NNN (ex: IT-013, PQ-ANA-001).');
       return;
     }
 
@@ -141,13 +169,24 @@ export function DocumentoFormModal({
       codigo: codigo.trim(),
       tipo,
       titulo: titulo.trim(),
-      url: url.trim(),
+      url: url.trim() || undefined,
       autoridadeEmitente: autoridadeEmitente.trim(),
       dataEmissao: dataEmissaoTs,
       dataRevisao: dataRevisaoTs,
       proximaRevisao: proximaRevisaoTs,
       status: documento?.status ?? 'em_revisao',
       observacoes: observacoes.trim() || undefined,
+      elaboradoPor: elaboradoPor.trim() || undefined,
+      revisadoPor: revisadoPor.trim() || undefined,
+      dataElaboracao: dataElaboracao ? fromDateInput(dataElaboracao) : undefined,
+      referencias: referencias.trim()
+        ? referencias.split(',').map((r) => r.trim()).filter(Boolean)
+        : undefined,
+      prazoGuarda: prazoGuarda ? Number(prazoGuarda) || undefined : undefined,
+      formaArmazenamento: (formaArmazenamento as 'fisico' | 'digital' | 'ambos') || undefined,
+      localArmazenamento: localArmazenamento.trim() || undefined,
+      numeroPaginas: numeroPaginas ? Number(numeroPaginas) || undefined : undefined,
+      setorResponsavel: setorResponsavel.trim() || undefined,
     };
 
     setSubmitting(true);
@@ -235,6 +274,34 @@ export function DocumentoFormModal({
             </Field>
           </div>
 
+          {SECOES_POR_TIPO[tipo].length > 0 && (
+            <div className="rounded-lg border border-white/[0.06] bg-white/[0.03] px-3 py-2.5">
+              <div className="flex items-start gap-2">
+                <svg
+                  className="w-3.5 h-3.5 mt-0.5 shrink-0 text-white/40"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <p className="text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-1">
+                    Seções obrigatórias (PQ-014)
+                  </p>
+                  <ul className="flex flex-wrap gap-x-3 gap-y-0.5">
+                    {SECOES_POR_TIPO[tipo].map((secao) => (
+                      <li key={secao} className="text-xs text-white/40 before:content-['•'] before:mr-1 before:text-white/20">
+                        {secao}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
           <Field label="Título" required>
             <input
               type="text"
@@ -246,20 +313,20 @@ export function DocumentoFormModal({
             />
           </Field>
 
-          <Field
-            label="URL do documento"
-            required
-            hint="URL externa (Drive, Storage manual). Upload direto chega na v2."
-          >
-            <input
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://drive.google.com/…"
-              className="input"
-              required
-            />
-          </Field>
+          {!initialDoc?.googleDocUrl && (
+            <Field
+              label="URL do documento"
+              hint="Opcional — deixe vazio para criar via Google Docs após salvar."
+            >
+              <input
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://drive.google.com/… (opcional)"
+                className="input"
+              />
+            </Field>
+          )}
 
           <Field
             label="Autoridade emitente"
@@ -314,6 +381,124 @@ export function DocumentoFormModal({
               placeholder="Contexto adicional, vinculações com outros docs, etc."
             />
           </Field>
+
+          <div className="border border-white/[0.08] rounded-lg overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setMetadataOpen(!metadataOpen)}
+              className="w-full flex items-center justify-between px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-white/50 hover:bg-white/[0.03] transition-colors duration-150"
+            >
+              <span>Metadados Adicionais</span>
+              <svg
+                className={`w-3.5 h-3.5 transition-transform duration-150 ${metadataOpen ? 'rotate-180' : ''}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {metadataOpen && (
+              <div className="px-4 pb-4 pt-2 space-y-3 border-t border-white/[0.06]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Field label="Elaborado por">
+                    <input
+                      type="text"
+                      value={elaboradoPor}
+                      onChange={(e) => setElaboradoPor(e.target.value)}
+                      className="input"
+                      placeholder="Nome do elaborador"
+                    />
+                  </Field>
+                  <Field label="Revisado por">
+                    <input
+                      type="text"
+                      value={revisadoPor}
+                      onChange={(e) => setRevisadoPor(e.target.value)}
+                      className="input"
+                      placeholder="Nome do revisor"
+                    />
+                  </Field>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <Field label="Data de Elaboração">
+                    <input
+                      type="date"
+                      value={dataElaboracao}
+                      onChange={(e) => setDataElaboracao(e.target.value)}
+                      className="input"
+                    />
+                  </Field>
+                  <Field label="Prazo de Guarda (anos)">
+                    <input
+                      type="number"
+                      min={1}
+                      value={prazoGuarda}
+                      onChange={(e) => setPrazoGuarda(e.target.value)}
+                      className="input"
+                      placeholder="5"
+                    />
+                  </Field>
+                  <Field label="Nº Páginas">
+                    <input
+                      type="number"
+                      min={1}
+                      value={numeroPaginas}
+                      onChange={(e) => setNumeroPaginas(e.target.value)}
+                      className="input"
+                    />
+                  </Field>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Field label="Forma de Armazenamento">
+                    <select
+                      value={formaArmazenamento}
+                      onChange={(e) => setFormaArmazenamento(e.target.value)}
+                      className="input"
+                    >
+                      <option value="">— Selecionar —</option>
+                      <option value="fisico">Físico</option>
+                      <option value="digital">Digital</option>
+                      <option value="ambos">Ambos</option>
+                    </select>
+                  </Field>
+                  <Field label="Local de Armazenamento">
+                    <input
+                      type="text"
+                      value={localArmazenamento}
+                      onChange={(e) => setLocalArmazenamento(e.target.value)}
+                      className="input"
+                      placeholder="Ex: Arquivo central, Drive"
+                    />
+                  </Field>
+                </div>
+
+                <Field label="Setor Responsável">
+                  <input
+                    type="text"
+                    value={setorResponsavel}
+                    onChange={(e) => setSetorResponsavel(e.target.value)}
+                    className="input"
+                    placeholder="Ex: Qualidade, Hematologia"
+                  />
+                </Field>
+
+                <Field label="Referências (Vide)" hint="Códigos separados por vírgula (ex: PQ-014, IT-003)">
+                  <input
+                    type="text"
+                    value={referencias}
+                    onChange={(e) => setReferencias(e.target.value)}
+                    className="input"
+                    placeholder="PQ-014, IT-003"
+                  />
+                </Field>
+              </div>
+            )}
+          </div>
 
           {err && (
             <p role="alert" className="text-xs text-red-400">

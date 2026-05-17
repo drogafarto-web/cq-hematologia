@@ -22,6 +22,12 @@ export interface CAPA {
   /** Detailed description of the deviation/finding */
   descricao: string;
 
+  /** Setor where the NC occurred (from nc-config/settings) — DICQ 4.9 */
+  setor?: string;
+
+  /** Origin/source of detection (from nc-config/settings) — DICQ 4.9 */
+  origem?: string;
+
   /**
    * Link to source finding (audit, laudo, complaint, risk).
    * Immutable once set — cannot reassign CAPA to different finding.

@@ -10,9 +10,9 @@ import type { TipoDocumento } from './TipoDocumentoBadge';
 import type { StatusVigencia } from './StatusVigenciaBadge';
 import { TipoDocumentoBadge } from './TipoDocumentoBadge';
 import { StatusVigenciaBadge } from './StatusVigenciaBadge';
+import { SETORES_MATRIZ, UNIDADES, ALL_SETORES } from '../distribuicao/DistribuicaoMatrix';
 
 const TIPOS: TipoDocumento[] = ['MQ', 'PQ', 'IT', 'FR', 'POL', 'ROP', 'AP', 'EP', 'DOC', 'REL', 'CER', 'AUD', 'REC', 'FORM', 'OUT'];
-const SETORES = ['Bioquímica', 'Hematologia', 'Imunologia', 'Coagulação', 'Microbiologia', 'Citologia', 'Histopatologia', 'Uroanálise', 'Endocrinologia', 'Farmácia', 'Recepção', 'Financeiro', 'TI', 'Qualidade', 'Direção', 'RH', 'Almoxarifado'];
 const STATUSES: StatusVigencia[] = ['draft', 'em-revisao', 'vigente', 'obsoleto'];
 
 interface ListaMestraFiltersProps {
@@ -99,9 +99,16 @@ export function ListaMestraFilters({ onFiltersChange }: ListaMestraFiltersProps)
           className="mt-2 w-full px-3 py-2 bg-[#141417] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50"
         >
           <option value="">Todos os setores</option>
-          {SETORES.map(setor => (
-            <option key={setor} value={setor}>{setor}</option>
-          ))}
+          <optgroup label="Matriz">
+            {SETORES_MATRIZ.map(setor => (
+              <option key={setor} value={setor}>{setor}</option>
+            ))}
+          </optgroup>
+          <optgroup label="Unidades">
+            {UNIDADES.map(setor => (
+              <option key={setor} value={setor}>{setor}</option>
+            ))}
+          </optgroup>
         </select>
       </div>
 

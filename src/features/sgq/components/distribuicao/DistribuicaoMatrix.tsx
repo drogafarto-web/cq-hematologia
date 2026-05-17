@@ -1,7 +1,7 @@
 /**
  * DistribuicaoMatrix.tsx
  *
- * Matrix: rows = docs, columns = 17 setores.
+ * Matrix: rows = docs, columns = 19 setores (16 Matriz + 3 Unidades).
  * Cell highlight when doc distributed.
  * Virtual scroll for >50 rows.
  */
@@ -12,11 +12,16 @@ import { TipoDocumentoBadge, type TipoDocumento } from '../lm/TipoDocumentoBadge
 import { MeusDocsAlert } from './MeusDocsAlert';
 import type { FilterState } from '../lm/ListaMestraFilters';
 
-const SETORES = [
-  'Bioquímica', 'Hematologia', 'Imunologia', 'Coagulação', 'Microbiologia',
-  'Citologia', 'Histopatologia', 'Uroanálise', 'Endocrinologia', 'Farmácia',
-  'Recepção', 'Financeiro', 'TI', 'Qualidade', 'Direção', 'RH', 'Almoxarifado',
+export const SETORES_MATRIZ = [
+  'Qualidade', 'Direção', 'Faturamento', 'Recepção', 'Coleta',
+  'Bioquímica', 'Hematologia', 'Microbiologia', 'Uroanálise',
+  'Parasitologia', 'Imunologia', 'Triagem', 'Área Técnica',
+  'Estoque', 'Serviços Gerais', 'RH',
 ];
+
+export const UNIDADES = ['Mercês', 'Silveirânia', 'Guarani'];
+
+export const ALL_SETORES = [...SETORES_MATRIZ, ...UNIDADES];
 
 interface DocumentoDistribuicao {
   id: string;
@@ -72,12 +77,12 @@ export function DistribuicaoMatrix({
   };
 
   const handleExportCSV = () => {
-    const headers = ['Código', 'Título', 'Tipo', ...SETORES];
+    const headers = ['Código', 'Título', 'Tipo', ...ALL_SETORES];
     const rows = filtered.map(doc => [
       doc.codigo,
       doc.titulo,
       doc.tipo,
-      ...SETORES.map(s => doc.setoresDistribuidos.includes(s) ? '✓' : ''),
+      ...ALL_SETORES.map(s => doc.setoresDistribuidos.includes(s) ? '✓' : ''),
     ]);
     const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -139,20 +144,28 @@ export function DistribuicaoMatrix({
             <div className="w-32 px-3 py-2 border-r border-white/10 text-xs font-semibold text-white/70 uppercase tracking-wide sticky left-0 bg-white/5">
               Documento
             </div>
-            {SETORES.map(setor => (
-              <div
-                key={setor}
-                onClick={() => setFocusedSetor(focusedSetor === setor ? null : setor)}
-                className={`w-12 px-2 py-2 text-center text-xs font-semibold uppercase tracking-wide cursor-pointer transition-colors border-r border-white/10 ${
-                  focusedSetor === setor
-                    ? 'bg-violet-500/20 text-violet-300'
-                    : 'text-white/70 hover:bg-white/5'
-                }`}
-                title={setor}
-              >
-                {setor.substring(0, 3)}
-              </div>
-            ))}
+            {ALL_SETORES.map((setor) => {
+              const isUnidade = UNIDADES.includes(setor);
+              const isFirstUnidade = setor === UNIDADES[0];
+              return (
+                <div
+                  key={setor}
+                  onClick={() => setFocusedSetor(focusedSetor === setor ? null : setor)}
+                  className={`w-12 px-2 py-2 text-center text-xs font-semibold uppercase tracking-wide cursor-pointer transition-colors border-r border-white/10 ${
+                    isFirstUnidade ? 'border-l-2 border-l-violet-500/40' : ''
+                  } ${
+                    focusedSetor === setor
+                      ? 'bg-violet-500/20 text-violet-300'
+                      : isUnidade
+                        ? 'bg-violet-500/5 text-white/70 hover:bg-violet-500/10'
+                        : 'text-white/70 hover:bg-white/5'
+                  }`}
+                  title={setor}
+                >
+                  {setor.substring(0, 3)}
+                </div>
+              );
+            })}
           </div>
 
           {/* Rows */}
@@ -168,7 +181,7 @@ export function DistribuicaoMatrix({
                     <MatrixRow
                       key={doc.id}
                       doc={doc}
-                      setores={SETORES}
+                      setores={ALL_SETORES}
                       focusedSetor={focusedSetor}
                       onDocumentClick={onDocumentClick}
                       isVirtual
@@ -180,7 +193,7 @@ export function DistribuicaoMatrix({
                 <MatrixRow
                   key={doc.id}
                   doc={doc}
-                  setores={SETORES}
+                  setores={ALL_SETORES}
                   focusedSetor={focusedSetor}
                   onDocumentClick={onDocumentClick}
                 />
@@ -223,15 +236,21 @@ function MatrixRow({
       {setores.map(setor => {
         const isDistributed = doc.setoresDistribuidos.includes(setor);
         const isFocused = focusedSetor === setor;
+        const isUnidade = UNIDADES.includes(setor);
+        const isFirstUnidade = setor === UNIDADES[0];
         return (
           <div
             key={setor}
             className={`w-12 px-2 py-2 text-center border-r border-white/10 transition-colors ${
+              isFirstUnidade ? 'border-l-2 border-l-violet-500/40' : ''
+            } ${
               isFocused
                 ? 'bg-violet-500/10'
                 : isDistributed
                   ? 'bg-emerald-500/10'
-                  : ''
+                  : isUnidade
+                    ? 'bg-violet-500/[0.03]'
+                    : ''
             }`}
             title={isDistributed ? `${doc.codigo} distribuído para ${setor}` : ''}
           >
