@@ -74,10 +74,11 @@ export const transcribeAuditoriaAudio = onCall(
 
       logger.info('Audio transcribed', { labId, audioPath, length: transcription.length });
       return { transcription };
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (err instanceof HttpsError) throw err;
-      logger.error('Transcription failed', { error: err.message, audioPath });
-      throw new HttpsError('internal', 'Transcription failed: ' + err.message);
+      const message = err instanceof Error ? err.message : String(err);
+      logger.error('Transcription failed', { error: message, audioPath });
+      throw new HttpsError('internal', 'Transcription failed: ' + message);
     }
   }
 );

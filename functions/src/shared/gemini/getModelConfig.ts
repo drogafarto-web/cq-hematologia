@@ -32,7 +32,10 @@ export async function getGeminiModel(labId?: string): Promise<string> {
       cacheTs = now;
       return model;
     }
-  } catch { /* fallback */ }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn('[getGeminiModel] fallback to default model', { error: message });
+  }
 
   cachedModel = DEFAULT_MODEL;
   cacheTs = now;

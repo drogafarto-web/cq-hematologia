@@ -61,8 +61,9 @@ export const validateEvidenciaIA = onCall(
       const buffer = Buffer.from(await response.arrayBuffer());
       imageBase64 = buffer.toString('base64');
       mimeType = response.headers.get('content-type') || 'image/jpeg';
-    } catch (err: any) {
-      logger.error('validateEvidenciaIA: fetch failed', { evidenciaUrl, error: err.message });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.error('validateEvidenciaIA: fetch failed', { evidenciaUrl, error: message });
       throw new HttpsError('internal', 'Erro ao acessar evidencia.');
     }
 
@@ -135,8 +136,9 @@ Retorne APENAS o JSON, sem markdown.`;
       });
 
       return output;
-    } catch (err: any) {
-      logger.error('validateEvidenciaIA Gemini error', { error: err.message });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.error('validateEvidenciaIA Gemini error', { error: message });
       throw new HttpsError('internal', 'Erro ao validar evidencia com IA.');
     }
   },

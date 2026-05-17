@@ -571,8 +571,9 @@ export const generateAISuggestion = onCall(
     let input: GenerateAISuggestionInputType;
     try {
       input = GenerateAISuggestionInput.parse(request.data);
-    } catch (err: any) {
-      throw new HttpsError('invalid-argument', err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      throw new HttpsError('invalid-argument', message);
     }
 
     // Verify lab membership
