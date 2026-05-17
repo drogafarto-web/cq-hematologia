@@ -4,3 +4,6 @@ export { NCSeveridade, type NaoConformidade, type CAPAStatus, type NCOrigem } fr
 export type { NCBlockingCheckResult } from './naoConformidade';
 export { qualidade_exportAuditTrail } from './exportAuditTrail';
 export { scheduledAuditReportJob } from './scheduledAuditReportJob';
+export { dismissAuditAlert } from './dismissAuditAlert';
+export { investigateAuditAlert } from './investigateAuditAlert';
+export { onAuditTrailEntry } from './cfAuditTrigger';

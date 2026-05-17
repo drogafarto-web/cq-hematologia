@@ -88,6 +88,44 @@ export const risks_updateRisk = onCall(
       changes.status = { from: existingRisk.status, to: input.status };
     }
 
+    // Extended domain fields
+    if (input.descricao !== undefined) {
+      updates.descricao = input.descricao;
+      changes.descricao = { from: existingRisk.descricao, to: input.descricao };
+    }
+    if (input.processo !== undefined) {
+      updates.processo = input.processo;
+      changes.processo = { from: existingRisk.processo, to: input.processo };
+    }
+    if (input.categoria !== undefined) {
+      updates.categoria = input.categoria;
+      changes.categoria = { from: existingRisk.categoria, to: input.categoria };
+    }
+    if (input.causaPotencial !== undefined) {
+      updates.causaPotencial = input.causaPotencial;
+      changes.causaPotencial = { from: existingRisk.causaPotencial, to: input.causaPotencial };
+    }
+    if (input.efeitoPotencial !== undefined) {
+      updates.efeitoPotencial = input.efeitoPotencial;
+      changes.efeitoPotencial = { from: existingRisk.efeitoPotencial, to: input.efeitoPotencial };
+    }
+    if (input.responsavel !== undefined) {
+      updates.responsavel = input.responsavel;
+      changes.responsavel = { from: existingRisk.responsavel, to: input.responsavel };
+    }
+    if (input.setor !== undefined) {
+      updates.setor = input.setor;
+      changes.setor = { from: existingRisk.setor, to: input.setor };
+    }
+    if (input.evidencias !== undefined) {
+      updates.evidencias = input.evidencias;
+      changes.evidencias = { from: existingRisk.evidencias, to: input.evidencias };
+    }
+    if (input.eficacia !== undefined) {
+      updates.eficacia = input.eficacia;
+      changes.eficacia = { from: existingRisk.eficacia, to: input.eficacia };
+    }
+
     // Tratamento (append-only acoes)
     if (input.tratamento) {
       const newTratamento = {

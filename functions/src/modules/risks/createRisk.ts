@@ -117,6 +117,12 @@ export const risks_createRisk = onCall(
       npr,
       nivel,
       status: input.status || 'aberto',
+      causaPotencial: input.causaPotencial || null,
+      efeitoPotencial: input.efeitoPotencial || null,
+      responsavel: input.responsavel || null,
+      setor: input.setor || null,
+      evidencias: input.evidencias || [],
+      eficacia: input.eficacia || 'pendente',
       tratamento: input.tratamento || {
         estrategia: 'mitigar',
         acoes: [],

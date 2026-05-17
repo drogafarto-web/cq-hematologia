@@ -16,7 +16,7 @@
 
 import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import * as admin from 'firebase-admin';
-import { detectAnomalies } from '../../shared/anomalyDetector';
+import { detectAnomalies, getOperatorBaseline } from '../../shared/anomalyDetector';
 import { generateAlert } from '../../shared/alertEngine';
 import type { AuditEntry, AnomalyScore } from '../../types/anomalyTypes';
 
@@ -56,26 +56,23 @@ export const onAuditTrailEntry = onDocumentCreated(
     console.log('[cfAuditTrigger] Processing entry', { labId, entryId });
 
     try {
-      // 1. Detect anomalies
+      // 1. Fetch operator baseline
+      const operatorId = entry.operatorId || 'unknown';
+      const baseline = await getOperatorBaseline(labId, operatorId);
+
+      // 2. Detect anomalies
       let anomalyScore: AnomalyScore;
       try {
-        const detectionResult = await detectAnomalies(entry, {
-          operationCounts: {},
-          moduleFrequency: {},
-          hourlyPattern: new Array(24).fill(0),
-          totalEntries: 0,
-          entropyScore: 0,
-        });
+        const detectionResult = await detectAnomalies(entry, baseline);
         anomalyScore = {
           entryId,
           labId,
-          operatorId: entry.operatorId || 'unknown',
+          operatorId,
           overall: detectionResult.overall,
           dimensions: detectionResult.dimensions,
           computedAt: Date.now(),
         };
       } catch (detectionErr) {
-        // Graceful degradation: create baseline anomaly score if detection fails
         console.warn('[cfAuditTrigger] Anomaly detection failed', {
           labId,
           entryId,
@@ -85,14 +82,14 @@ export const onAuditTrailEntry = onDocumentCreated(
         anomalyScore = {
           entryId,
           labId,
-          operatorId: entry.operatorId || 'unknown',
+          operatorId,
           overall: 0,
           dimensions: [],
           computedAt: Date.now(),
         };
       }
 
-      // 2. Save anomaly score
+      // 3. Save anomaly score
       await db
         .collection('labs')
         .doc(labId)
@@ -106,10 +103,14 @@ export const onAuditTrailEntry = onDocumentCreated(
         score: anomalyScore.overall,
       });
 
-      // 3. Generate alert if threshold exceeded
-      if (anomalyScore.overall >= 0.85) {
+      // 4. Generate alert if threshold exceeded
+      if (anomalyScore.overall >= 0.70) {
         try {
-          await generateAlert({ entryId, overall: anomalyScore.overall, dimensions: [], flags: [] }, labId);
+          await generateAlert(
+            { entryId, overall: anomalyScore.overall, dimensions: anomalyScore.dimensions, flags: [] },
+            labId,
+            operatorId
+          );
           console.log('[cfAuditTrigger] Alert generated', {
             labId,
             entryId,

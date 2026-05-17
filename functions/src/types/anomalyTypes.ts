@@ -50,7 +50,7 @@ export interface BaselineStats {
 }
 
 export type AlertSeverity = 'critical' | 'high' | 'medium';
-export type AlertStatus = 'active' | 'dismissed' | 'resolved';
+export type AlertStatus = 'active' | 'investigating' | 'dismissed' | 'resolved';
 
 export interface AuditAlert {
   id: string;

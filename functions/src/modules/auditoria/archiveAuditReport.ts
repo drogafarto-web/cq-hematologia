@@ -149,7 +149,8 @@ export const archiveAuditReport = onCall(
       throw new HttpsError('invalid-argument', err.message);
     }
 
-    const isMember = await isActiveMemberOfLab(input.labId, request.auth.uid);
+    const isSuperAdmin = !!request.auth.token.superAdmin || !!request.auth.token.isSuperAdmin;
+    const isMember = isSuperAdmin || (await isActiveMemberOfLab(input.labId, request.auth.uid));
     if (!isMember) {
       throw new HttpsError('permission-denied', 'Not a lab member');
     }

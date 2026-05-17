@@ -131,10 +131,14 @@ const CategoriaSchema = z.enum([
   'outro',
 ]);
 const ProcessoSchema = z.enum([
+  'atendimento',
   'coleta',
+  'transporte',
   'armazenamento',
   'analise',
+  'pos_analitico',
   'liberacao',
+  'administrativo',
   'rastreabilidade',
 ]);
 const StatusSchema = z.enum(['aberto', 'mitigando', 'monitorado', 'fechado']);
@@ -151,6 +155,12 @@ export const CreateRiskInputSchema = z.object({
   deteccao: DeteccaoSchema,
   // Server recomputes NPR, but client can send it (server overrides)
   status: StatusSchema.optional().default('aberto'),
+  causaPotencial: z.string().max(500).optional(),
+  efeitoPotencial: z.string().max(500).optional(),
+  responsavel: z.string().max(100).optional(),
+  setor: z.string().max(100).optional(),
+  evidencias: z.array(z.string()).optional(),
+  eficacia: z.enum(['pendente', 'eficaz', 'parcial', 'ineficaz']).optional(),
   tratamento: z.object({
     estrategia: EstrategiaSchema,
     acoes: z.array(z.object({
@@ -170,10 +180,19 @@ export type CreateRiskInput = z.infer<typeof CreateRiskInputSchema>;
 export const UpdateRiskInputSchema = z.object({
   labId: z.string().min(1),
   riskId: z.string().min(1),
+  descricao: z.string().min(10).max(500).optional(),
+  processo: ProcessoSchema.optional(),
+  categoria: CategoriaSchema.optional(),
   probabilidade: ProbabilidadeSchema.optional(),
   severidade: SeveridadeSchema.optional(),
   deteccao: DeteccaoSchema.optional(),
   status: StatusSchema.optional(),
+  causaPotencial: z.string().max(500).optional(),
+  efeitoPotencial: z.string().max(500).optional(),
+  responsavel: z.string().max(100).optional(),
+  setor: z.string().max(100).optional(),
+  evidencias: z.array(z.string()).optional(),
+  eficacia: z.enum(['pendente', 'eficaz', 'parcial', 'ineficaz']).optional(),
   tratamento: z.object({
     estrategia: EstrategiaSchema.optional(),
     acoes: z.array(z.any()).optional(),

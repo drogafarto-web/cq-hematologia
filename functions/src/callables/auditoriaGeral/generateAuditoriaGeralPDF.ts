@@ -34,6 +34,7 @@ interface Resposta {
   nome: string;
   bloco: string;
   score: number | null;
+  naoAplica: boolean;
   observacoes: string;
   fotos: { url: string; nome: string }[];
 }
@@ -67,14 +68,15 @@ function parseResposta(data: Record<string, unknown>): Resposta {
     nome: str(data['nome'] || data['indicador'] || data['descricao'], 'Indicador'),
     bloco: str(data['bloco'], '?'),
     score,
+    naoAplica: data['naoAplica'] === true,
     observacoes: str(data['observacoes'], ''),
     fotos,
   };
 }
 
 function computeScores(respostas: Resposta[]) {
-  const respondidos = respostas.filter(r => r.score !== null && r.score > 0);
-  const naCount = respostas.filter(r => r.score === null || r.score === 0).length;
+  const respondidos = respostas.filter(r => r.score !== null && !r.naoAplica);
+  const naCount = respostas.filter(r => r.naoAplica).length;
   const totalScore = respondidos.reduce((sum, r) => sum + (r.score ?? 0), 0);
   const maxPossible = respondidos.length * 5;
   const scorePercent = maxPossible > 0 ? Math.round((totalScore / maxPossible) * 100) : 0;

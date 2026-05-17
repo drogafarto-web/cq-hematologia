@@ -3,13 +3,13 @@
  *
  * Cloud Function HTTP handler for OAuth2 callback from Google Drive
  *
- * GET /api/sgq/oauth-callback?code=..&state=..&labId=..&userId=..
+ * GET /api/sgq/oauth-callback?code=..&state=..
  *
  * Flow:
  * 1. User clicks "Authorize Drive" in ImporterWizard step 1
  * 2. Web app calls generateStateToken(labId, userId) → state stored in Firestore
  * 3. User redirected to Google OAuth consent
- * 4. Google redirects here with ?code=...&state=...&labId=...&userId=...
+ * 4. Google redirects here with ?code=...&state=...
  * 5. SECURITY: Validate state token (CSRF guard) — must match stored labId+userId,
  *    not expired, one-time use (deleted on validation)
  * 6. Exchange code for tokens
@@ -30,6 +30,27 @@ import {
 import { enforcePublicRateLimit } from '../shared/rateLimit';
 
 const FRONTEND_BASE = 'https://hmatologia2.web.app/sgq/importar-drive';
+
+/**
+ * Find a state token across all labs.
+ * Returns { labId, userId } if found, null otherwise.
+ */
+async function findStateToken(
+  state: string,
+): Promise<{ labId: string; userId: string } | null> {
+  // Iterate through all labs and check their sgq-oauth-pending collections
+  const labsSnap = await admin.firestore().collection('labs').listDocuments();
+  
+  for (const labRef of labsSnap) {
+    const stateDoc = await labRef.collection('sgq-oauth-pending').doc(state).get();
+    if (stateDoc.exists) {
+      const data = stateDoc.data();
+      return { labId: labRef.id, userId: data!.userId };
+    }
+  }
+  
+  return null;
+}
 
 function setSecurityHeaders(res: Response): void {
   // SECURITY_AUDIT.md #19 — security headers
@@ -80,34 +101,36 @@ export const oauthCallbackDrive = functions.https.onRequest(async (req, res) => 
   }
 
   try {
-    const { code, state, labId, userId } = req.query as Record<string, string>;
+    const { code, state } = req.query as Record<string, string>;
 
-    if (!code || !state || !labId || !userId) {
+    if (!code || !state) {
       res.status(400).json({
-        error: 'Missing required parameters: code, state, labId, userId',
+        error: 'Missing required parameters: code, state',
       });
       return;
     }
 
     // Length sanity (prevents abuse via huge query strings)
-    if (
-      code.length > 2048 ||
-      state.length > 256 ||
-      labId.length > 100 ||
-      userId.length > 100
-    ) {
+    if (code.length > 2048 || state.length > 256) {
       res.status(400).json({ error: 'Parameter length out of bounds' });
       return;
     }
 
-    // ─── 2. Validate CSRF state token ─────────────────────────────────────
-    // Throws on invalid/expired/mismatched. Logs invalid attempts.
+    // ─── 2. Look up state token to get labId + userId ─────────────────────
+    const stateTokenDoc = await findStateToken(state);
+    if (!stateTokenDoc) {
+      redirectError(res, 'invalid_state');
+      return;
+    }
+    const { labId, userId } = stateTokenDoc;
+
+    // ─── 3. Validate CSRF state token ─────────────────────────────────────
     await validateStateToken(state, labId, userId);
 
-    // ─── 3. Exchange code for tokens ──────────────────────────────────────
+    // ─── 4. Exchange code for tokens ──────────────────────────────────────
     const { expiresIn } = await exchangeCodeForTokens(code, labId, userId);
 
-    // ─── 4. Audit log: successful authorization ───────────────────────────
+    // ─── 5. Audit log: successful authorization ───────────────────────────
     await admin
       .firestore()
       .collection('labs')
@@ -121,7 +144,7 @@ export const oauthCallbackDrive = functions.https.onRequest(async (req, res) => 
         ipAddress: clientIp,
       });
 
-    // ─── 5. Redirect back to frontend ─────────────────────────────────────
+    // ─── 6. Redirect back to frontend ─────────────────────────────────────
     const redirectUrl = new URL(FRONTEND_BASE);
     redirectUrl.searchParams.append('oauth', 'success');
     redirectUrl.searchParams.append('labId', labId);
@@ -129,7 +152,6 @@ export const oauthCallbackDrive = functions.https.onRequest(async (req, res) => 
   } catch (error) {
     console.error('[oauthCallbackDrive] error:', error);
 
-    // Don't leak internal error details to the redirect URL — use generic msg
     const userMessage =
       error instanceof Error && error.message.includes('state')
         ? 'invalid_state'

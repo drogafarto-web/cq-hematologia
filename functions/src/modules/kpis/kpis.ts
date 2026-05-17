@@ -112,7 +112,7 @@ export const aggregateKPIs = onSchedule(
         // KPI-FIX-2: nc_total_abertas = NCs with status 'aberta' (cumulative open),
         // NOT NCs created in the last 24h. Removed criadoEm >= yesterdayTs filter.
         const ncAbertas = await db
-          .collectionGroup('nao-conformidades')
+          .collectionGroup('naoConformidades')
           .where('labId', '==', labId)
           .where('status', '==', 'aberta')
           .where('deletadoEm', '==', null)

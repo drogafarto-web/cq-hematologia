@@ -139,7 +139,7 @@ async function generateXlsxNC(
   startDate: Date,
   endDate: Date,
 ): Promise<Buffer> {
-  const col = db.collection('labs').doc(labId).collection('nao-conformidades');
+  const col = db.collection('labs').doc(labId).collection('naoConformidades');
 
   const snap = await col
     .where('criadoEm', '>=', startDate)

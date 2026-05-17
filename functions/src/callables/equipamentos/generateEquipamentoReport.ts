@@ -229,12 +229,19 @@ export const generateEquipamentoReport = onCall<
         labId,
         equipamentoId,
         kind: 'equipamento-report',
+        firebaseStorageDownloadTokens: crypto.randomUUID
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
       },
     },
   });
 
-  const expiresAt = Date.now() + 60 * 60 * 1000;
-  const [url] = await file.getSignedUrl({ action: 'read', expires: expiresAt });
+  // Use download token instead of getSignedUrl (avoids iam.serviceAccounts.signBlob permission)
+  const [metadata] = await file.getMetadata();
+  const downloadToken = metadata?.metadata?.firebaseStorageDownloadTokens;
+  const bucketName = bucket.name;
+  const encodedPath = encodeURIComponent(objectPath);
+  const url = `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodedPath}?alt=media&token=${downloadToken}`;
 
   logger.info('generateEquipamentoReport ok', { labId, equipamentoId });
 

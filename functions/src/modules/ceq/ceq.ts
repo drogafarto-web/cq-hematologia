@@ -20,7 +20,6 @@ import {
 import {
   initializeApp,
   getApps,
-  cert,
 } from 'firebase-admin/app';
 import {
   getFirestore,
@@ -36,9 +35,7 @@ import type {
 
 // Initialize Firebase Admin
 if (!getApps().length) {
-  initializeApp({
-    credential: cert(process.env.GOOGLE_APPLICATION_CREDENTIALS!),
-  });
+  initializeApp();
 }
 
 const db = getFirestore();
@@ -74,6 +71,7 @@ function calcularZScore(
 /**
  * Auto-create critical NC when |Z| >= 3
  * Integrates with ADR 0003 (Nao-Conformidade)
+ * Saves to /labs/{labId}/naoConformidades (same collection as NC module)
  */
 async function criarNCAutomatica(
   labId: string,
@@ -96,34 +94,38 @@ async function criarNCAutomatica(
     const ano = new Date().getFullYear();
     const ncNumero = `NC-${ano}-${String(nextSeq).padStart(4, '0')}`;
 
-    // Create NC document
-    const ncRef = db.collection('labs').doc(labId).collection('nao-conformidades').doc();
+    // Create NC document in naoConformidades (camelCase — same as frontend)
+    const ncRef = db.collection('labs').doc(labId).collection('naoConformidades').doc();
 
     const ncDoc = {
-      numero: ncNumero,
+      id: ncRef.id,
       labId,
-      origem: 'controle',
-      origemId: resultado.ceqAmostraId,
-      moduloOrigemId: 'ceq',
-      descricao: `CEQ insatisfatória: ${resultado.analyteName} | Z-Score: ${zScore.toFixed(2)} | Amostra ${resultado.ceqAmostraId}`,
-      severidade: 'grave',
-      status: 'aberta',
-      statusHistory: [
+      codigo: ncNumero,
+      titulo: `CEQ Insatisfatória: ${resultado.analyteName} (Z=${zScore.toFixed(2)})`,
+      descricao: `Resultado insatisfatório no Controle de Qualidade Externo.\n\nAnalito: ${resultado.analyteName}\nZ-Score: ${zScore.toFixed(2)}\nValor obtido: ${resultado.valorObtido} ${resultado.unidade || ''}\nValor referência: ${resultado.valorReferencia}\nDesvio estimado: ${resultado.desvioEstimado}\nAmostra: ${resultado.ceqAmostraId}`,
+      severidade: Math.abs(zScore) >= 4 ? 'critica' : 'grave',
+      origem: 'modulo',
+      moduloOrigem: 'ceq',
+      auditoriaId: null,
+      bloqueiaOperacoes: true,
+      modulosBloqueados: ['ceq'],
+      capaStatus: 'nao_iniciada',
+      capaHistorico: [
         {
-          timestamp: FieldValue.serverTimestamp(),
-          novoStatus: 'aberta',
-          mudadoPor: uid,
-          motivo: 'Auto-criada por resultado CEQ insatisfatório (|Z| ≥ 3)',
+          status: 'nao_iniciada',
+          timestamp: Timestamp.now(),
+          realizadoPor: 'system',
+          realizadoPorName: 'Sistema CEQ',
+          descricao: `NC auto-criada: resultado CEQ insatisfatório (|Z| ≥ 3). DICQ 4.5 / ISO 17043.`,
+          evidencias: [],
         },
       ],
-      bloqueiaOperacoes: true,
-      aberta: {
-        timestamp: FieldValue.serverTimestamp(),
-        uid,
-        motivo: 'Resultado CEQ fora dos limites de aceitabilidade',
-      },
-      createdAt: FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp(),
+      abertaEm: Timestamp.now(),
+      abertaPor: uid,
+      prazoClosure: Timestamp.fromMillis(Date.now() + 15 * 24 * 60 * 60 * 1000), // 15 dias
+      fechadaEm: null,
+      fechadaPor: null,
+      deletadoEm: null,
     };
 
     await ncRef.set(ncDoc);
@@ -228,11 +230,17 @@ export const receiveCEQAmostra = onCall(async (request) => {
  * lacarCEQResultado — Record result + calculate Z-score + auto-create NC
  * Called from client after calcularZScore client-side (server validates)
  */
-export const lacarCEQResultado = onCall(async (request) => {
+export const lacarCEQResultado = onCall({ region: 'southamerica-east1' }, async (request) => {
   const req = request.data as LancarCEQResultadoRequest;
 
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'User not authenticated');
+  }
+
+  // Multi-tenant guard
+  const memberSnap = await db.doc(`labs/${req.labId}/members/${request.auth.uid}`).get();
+  if (!memberSnap.exists || memberSnap.data()?.status !== 'active') {
+    throw new HttpsError('permission-denied', 'Sem acesso a este laboratório.');
   }
 
   try {

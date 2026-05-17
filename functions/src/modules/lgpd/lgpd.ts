@@ -124,7 +124,7 @@ export const processarExclusao = onCall(
         { colecao: 'ciq-imuno', campo: 'operadorId' },
         { colecao: 'uroanalise', campo: 'operadorId' },
         { colecao: 'treinamentos', campo: 'colaboradorId' },
-        { colecao: 'nao-conformidades', campo: 'operadorId' },
+        { colecao: 'naoConformidades', campo: 'operadorId' },
         { colecao: 'pops', campo: 'criadoPor' },
         { colecao: 'lots', campo: 'operadorId' },
         { colecao: 'pgrss-geracao', campo: 'operadorId' },

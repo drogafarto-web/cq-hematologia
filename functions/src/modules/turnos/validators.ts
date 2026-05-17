@@ -78,6 +78,20 @@ export function turnosCollection(
   return db.collection(`labs/${labId}/turnos`);
 }
 
+export function escalasCollection(
+  db: admin.firestore.Firestore,
+  labId: string,
+) {
+  return db.collection(`personnel/${labId}/escalas`);
+}
+
+export function escalaPadraoDoc(
+  db: admin.firestore.Firestore,
+  labId: string,
+) {
+  return db.doc(`labs/${labId}/turnos-config/escala-padrao`);
+}
+
 export async function ensureTurnosLabRoot(
   db: admin.firestore.Firestore,
   labId: string,
@@ -92,6 +106,64 @@ export async function ensureTurnosLabRoot(
 // ─── Zod schemas ─────────────────────────────────────────────────────────────
 
 const PeriodoSchema = z.enum(['manha', 'tarde', 'noite', 'plantao']);
+const PeriodoEscalaSchema = z.enum(['manha', 'tarde', 'noite', 'integral', 'plantao']);
+
+const EscalaColaboradorSchema = z.object({
+  id: z.string().min(1),
+  nome: z.string().min(1),
+  cargo: z.string().min(1),
+});
+
+export const CreateEscalaInputSchema = z.object({
+  labId: z.string().min(1),
+  data: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  periodo: PeriodoEscalaSchema,
+  colaboradores: z.array(EscalaColaboradorSchema).default([]),
+  rtPresente: z.boolean(),
+  rtSubstitutoPresente: z.boolean(),
+  observacoes: z.string().max(500).optional().nullable(),
+});
+
+export type CreateEscalaInput = z.infer<typeof CreateEscalaInputSchema>;
+
+export const UpdateEscalaInputSchema = z.object({
+  labId: z.string().min(1),
+  escalaId: z.string().min(1),
+  periodo: PeriodoEscalaSchema.optional(),
+  colaboradores: z.array(EscalaColaboradorSchema).optional(),
+  rtPresente: z.boolean().optional(),
+  rtSubstitutoPresente: z.boolean().optional(),
+  observacoes: z.string().max(500).optional().nullable(),
+});
+
+export type UpdateEscalaInput = z.infer<typeof UpdateEscalaInputSchema>;
+
+export const SoftDeleteEscalaInputSchema = z.object({
+  labId: z.string().min(1),
+  escalaId: z.string().min(1),
+});
+
+export type SoftDeleteEscalaInput = z.infer<typeof SoftDeleteEscalaInputSchema>;
+
+export const SaveEscalaPadraoInputSchema = z.object({
+  labId: z.string().min(1),
+  diasAtivos: z.array(z.number().int().min(0).max(6)),
+  turnos: z.array(z.object({
+    periodo: PeriodoEscalaSchema,
+    colaboradores: z.array(EscalaColaboradorSchema),
+    rtPresente: z.boolean(),
+    rtSubstitutoPresente: z.boolean(),
+  })),
+});
+
+export type SaveEscalaPadraoInput = z.infer<typeof SaveEscalaPadraoInputSchema>;
+
+export const ApplyEscalaPadraoInputSchema = z.object({
+  labId: z.string().min(1),
+  weekStartISO: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+});
+
+export type ApplyEscalaPadraoInput = z.infer<typeof ApplyEscalaPadraoInputSchema>;
 
 export const CreateTurnoInputSchema = z.object({
   labId: z.string().min(1),

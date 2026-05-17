@@ -74,7 +74,7 @@ async function isActiveMemberOfLab(labId: string, uid: string): Promise<boolean>
  * Caller: admin/RT
  */
 export const createAuditoria = onCall(
-  { region: 'southamerica-east1', cors: true },
+  { region: 'southamerica-east1', cors: true, memory: '256MiB', maxInstances: 10, concurrency: 80 },
   async (request: CallableRequest<any>) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Auth token required');
@@ -89,7 +89,12 @@ export const createAuditoria = onCall(
       );
     }
 
-    const isMember = await isActiveMemberOfLab(labId, request.auth.uid);
+    const isSuperAdmin = !!request.auth.token.superAdmin || !!request.auth.token.isSuperAdmin;
+    console.log('createAuditoria: uid:', request.auth.uid, 'isSuperAdmin:', isSuperAdmin, 'token:', request.auth.token);
+    
+    const isMember = isSuperAdmin || (await isActiveMemberOfLab(labId, request.auth.uid));
+    console.log('createAuditoria: isMember:', isMember, 'labId:', labId);
+    
     if (!isMember) {
       throw new HttpsError('permission-denied', 'Not a lab member');
     }
@@ -139,7 +144,7 @@ export const createAuditoria = onCall(
  * Se severidade >= grave, cria NC automaticamente.
  */
 export const registerAchado = onCall(
-  { region: 'southamerica-east1', cors: true },
+  { region: 'southamerica-east1', cors: true, memory: '256MiB', maxInstances: 10, concurrency: 80 },
   async (request: CallableRequest<RegisterAchadoInputType>) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Auth token required');
@@ -156,7 +161,9 @@ export const registerAchado = onCall(
     }
 
     // Check lab membership
-    const isMember = await isActiveMemberOfLab(input.labId, operatorId);
+    const isSuperAdmin = !!request.auth.token.superAdmin || !!request.auth.token.isSuperAdmin;
+    const isMember = isSuperAdmin || (await isActiveMemberOfLab(input.labId, operatorId));
+    
     if (!isMember) {
       throw new HttpsError('permission-denied', 'Not a lab member');
     }
@@ -307,7 +314,7 @@ export const registerAchado = onCall(
  * Creates sessão + checklist items in atomic batch.
  */
 export const installChecklistTemplate = onCall(
-  { region: 'southamerica-east1', cors: true },
+  { region: 'southamerica-east1', cors: true, memory: '256MiB', maxInstances: 10, concurrency: 80 },
   async (request: CallableRequest<InstallChecklistTemplateInputType>) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Auth required');
@@ -320,7 +327,9 @@ export const installChecklistTemplate = onCall(
       throw new HttpsError('invalid-argument', err.message);
     }
 
-    const isMember = await isActiveMemberOfLab(input.labId, request.auth.uid);
+    const isSuperAdmin = !!request.auth.token.superAdmin;
+    const isMember = isSuperAdmin || (await isActiveMemberOfLab(input.labId, request.auth.uid));
+    
     if (!isMember) {
       throw new HttpsError('permission-denied', 'Not a lab member');
     }
@@ -431,7 +440,7 @@ export const installChecklistTemplate = onCall(
  * Called when auditor finalizes session (syncs offline draft responses).
  */
 export const updateChecklistResponses = onCall(
-  { region: 'southamerica-east1', cors: true },
+  { region: 'southamerica-east1', cors: true, memory: '256MiB', maxInstances: 10, concurrency: 80 },
   async (request: CallableRequest<UpdateChecklistResponseInputType>) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Auth required');
@@ -444,7 +453,9 @@ export const updateChecklistResponses = onCall(
       throw new HttpsError('invalid-argument', err.message);
     }
 
-    const isMember = await isActiveMemberOfLab(input.labId, request.auth.uid);
+    const isSuperAdmin = !!request.auth.token.superAdmin;
+    const isMember = isSuperAdmin || (await isActiveMemberOfLab(input.labId, request.auth.uid));
+    
     if (!isMember) {
       throw new HttpsError('permission-denied', 'Not a lab member');
     }
@@ -508,7 +519,7 @@ export const updateChecklistResponses = onCall(
  * closeAuditoria: Finaliza auditoria (marca como finalizada).
  */
 export const closeAuditoria = onCall(
-  { region: 'southamerica-east1', cors: true },
+  { region: 'southamerica-east1', cors: true, memory: '256MiB', maxInstances: 10, concurrency: 80 },
   async (request: CallableRequest<any>) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Auth required');
@@ -523,7 +534,9 @@ export const closeAuditoria = onCall(
       );
     }
 
-    const isMember = await isActiveMemberOfLab(labId, request.auth.uid);
+    const isSuperAdmin = !!request.auth.token.superAdmin || !!request.auth.token.isSuperAdmin;
+    const isMember = isSuperAdmin || (await isActiveMemberOfLab(labId, request.auth.uid));
+    
     if (!isMember) {
       throw new HttpsError('permission-denied', 'Not a lab member');
     }

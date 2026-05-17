@@ -20,7 +20,7 @@ import {
   type Incident,
   type IncidentAction,
   type PostMortemAction,
-} from '../../../src/features/admin/incident-response/types';
+} from './incident.types';
 
 // ─── Error Handling ────────────────────────────────────────────────────────
 

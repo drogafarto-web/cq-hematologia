@@ -21,11 +21,17 @@
 import { OAuth2Client } from 'google-auth-library';
 import * as admin from 'firebase-admin';
 import * as crypto from 'crypto';
+import { defineSecret } from 'firebase-functions/params';
+
+export const OAUTH_CLIENT_ID = defineSecret('GOOGLE_OAUTH_CLIENT_ID');
+export const OAUTH_CLIENT_SECRET = defineSecret('GOOGLE_OAUTH_CLIENT_SECRET');
 
 const REDIRECT_URI = 'https://hmatologia2.web.app/api/sgq/oauth-callback';
 const SCOPES = [
   'https://www.googleapis.com/auth/drive.readonly',
   'https://www.googleapis.com/auth/drive.metadata.readonly',
+  'https://www.googleapis.com/auth/drive.file',
+  'https://www.googleapis.com/auth/documents',
 ];
 
 // CSRF state token TTL: 10 minutes (per SECURITY_AUDIT.md #1)
@@ -35,16 +41,15 @@ export const STATE_TOKEN_TTL_MS = 10 * 60 * 1000;
 const ACCESS_TOKEN_REFRESH_THRESHOLD_MS = 5 * 60 * 1000;
 
 /**
- * Create OAuth2 client from environment variables
- * (set via Firebase Cloud Console or functions/src/.env)
+ * Create OAuth2 client using secrets from Firebase Secret Manager.
  */
 export function createOAuth2Client(): OAuth2Client {
-  const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
+  const clientId = OAUTH_CLIENT_ID.value();
+  const clientSecret = OAUTH_CLIENT_SECRET.value();
 
   if (!clientId || !clientSecret) {
     throw new Error(
-      'Missing GOOGLE_OAUTH_CLIENT_ID or GOOGLE_OAUTH_CLIENT_SECRET env vars',
+      'Missing GOOGLE_OAUTH_CLIENT_ID or GOOGLE_OAUTH_CLIENT_SECRET secrets',
     );
   }
 

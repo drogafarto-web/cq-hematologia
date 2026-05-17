@@ -11,9 +11,7 @@
 
 import { onCall } from 'firebase-functions/v2/https';
 import { defineSecret } from 'firebase-functions/params';
-import type { AcceptanceOutput } from '../../../../src/features/bioquimica/services/acceptanceEngine';
-import type { OCRValidationReport } from '../../../../src/features/bioquimica/types/ocrResults';
-import type { WestgardViolationCLSI8 } from '../../../../src/features/bioquimica/types/westgardCLSI';
+import type { AcceptanceOutput, OCRValidationReport, WestgardViolationCLSI8 } from './bioquimica.types';
 
 const geminiApiKey = defineSecret('GEMINI_API_KEY');
 

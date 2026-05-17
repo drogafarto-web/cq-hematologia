@@ -44,6 +44,7 @@ const ALL_MODULES = [
   'lgpd',
   'lab-apoio',
   'risks',
+  'ceq',
 ] as const;
 
 type ModuleKey = (typeof ALL_MODULES)[number];
@@ -64,6 +65,7 @@ function fullAccess(): ModulesClaim {
     lgpd: true,
     'lab-apoio': true,
     risks: true,
+    ceq: true,
   };
 }
 
@@ -82,6 +84,7 @@ function noAccess(): ModulesClaim {
     lgpd: false,
     'lab-apoio': false,
     risks: false,
+    ceq: false,
   };
 }
 

@@ -45,7 +45,8 @@ export const createReAuditoria = onCall(
 
     const { labId, auditoriaOriginalId, proximaAuditoriaPlanejada, responsavelTecnico, motivacao } = input;
 
-    const isMember = await isActiveMemberOfLab(labId, request.auth.uid);
+    const isSuperAdmin = !!request.auth.token.superAdmin || !!request.auth.token.isSuperAdmin;
+    const isMember = isSuperAdmin || (await isActiveMemberOfLab(labId, request.auth.uid));
     if (!isMember) {
       throw new HttpsError('permission-denied', 'Você não é membro ativo deste laboratório');
     }

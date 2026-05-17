@@ -13,7 +13,7 @@
 import { onCall } from 'firebase-functions/v2/https';
 import { defineSecret } from 'firebase-functions/params';
 import * as crypto from 'crypto';
-import type { OCRParsedResult } from '../../../../src/features/bioquimica/types/ocrResults';
+import type { OCRParsedResult } from './bioquimica.types';
 
 const geminiApiKey = defineSecret('GEMINI_API_KEY');
 

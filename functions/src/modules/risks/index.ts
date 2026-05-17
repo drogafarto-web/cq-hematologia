@@ -16,5 +16,4 @@ export { risks_aprovarRisco } from './aprovarRisco';
 export { onRiskEventCreated } from './onRiskEventCreated';
 export { scheduledReview } from './scheduledReview';
 
-// Later tasks will add:
-//   - risks_seedFromCsv (stretch, T5 optional)
+export { risks_seedFromXlsx } from './seedFromXlsx';
