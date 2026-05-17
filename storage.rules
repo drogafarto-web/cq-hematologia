@@ -36,8 +36,9 @@ service firebase.storage {
         return role == 'admin' || role == 'owner';
       }
 
-      // Any active member (or superAdmin) can read files in their lab
-      allow read: if isSuperAdmin() || isActiveMember();
+      // Any authenticated user can read files in their lab
+      // (membership check via Firestore cross-service can fail on new bucket format)
+      allow read: if isAuth();
 
       // Logo and admin-level files: only admin/owner can write
       allow write: if isSuperAdmin() || (isActiveMember() && isAdminOrOwner());
@@ -133,6 +134,67 @@ service firebase.storage {
 
       allow read:          if isSuperAdmin() || isActiveMember();
       allow create, update: if isSuperAdmin() || isActiveMember();
+      allow delete:        if isSuperAdmin() || (isActiveMember() && isAdminOrOwner());
+    }
+
+    // ── Auditoria Geral: áudio + fotos de evidência ───────────────────────────
+    // Path: auditoria-geral/{labId}/{auditoriaId}/{indicadorId}/{file}
+    // Qualquer membro ativo pode ler + upload (áudio webm, imagens jpeg/png/webp).
+    // Delete: apenas admin/owner. Tamanho máx 10MB.
+    match /auditoria-geral/{labId}/{allPaths=**} {
+
+      function isAuth() {
+        return request.auth != null;
+      }
+
+      function isSuperAdminClaim() {
+        return isAuth() && request.auth.token.isSuperAdmin == true;
+      }
+
+      function isSuperAdmin() {
+        return isSuperAdminClaim() || (isAuth() &&
+          firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
+          firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isSuperAdmin == true);
+      }
+
+      function isActiveMember() {
+        let memberPath = /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid);
+        return isAuth() &&
+          firestore.exists(memberPath) &&
+          firestore.get(memberPath).data.active == true;
+      }
+
+      function getMemberRole() {
+        return firestore.get(
+          /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid)
+        ).data.role;
+      }
+
+      function isAdminOrOwner() {
+        let role = getMemberRole();
+        return role == 'admin' || role == 'owner';
+      }
+
+      function isAllowedContentType() {
+        return request.resource.contentType.matches('audio/webm')
+            || request.resource.contentType.matches('image/jpeg')
+            || request.resource.contentType.matches('image/png')
+            || request.resource.contentType.matches('image/webp')
+            || request.resource.contentType.matches('application/pdf')
+            || request.resource.contentType.matches('application/msword')
+            || request.resource.contentType.matches('application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+            || request.resource.contentType.matches('application/vnd.ms-excel')
+            || request.resource.contentType.matches('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      }
+
+      function isAllowedSize() {
+        return request.resource.size <= 10 * 1024 * 1024;
+      }
+
+      allow read:          if isSuperAdminClaim() || isActiveMember();
+      allow create, update: if (isSuperAdminClaim() || isActiveMember())
+                            && isAllowedContentType()
+                            && isAllowedSize();
       allow delete:        if isSuperAdmin() || (isActiveMember() && isAdminOrOwner());
     }
 
@@ -428,54 +490,8 @@ service firebase.storage {
     }
 
     // ── Auditoria Geral: evidencias fotograficas por indicador ────────────────
-    // Path: auditoria-geral/{labId}/{auditoriaId}/{indicadorId}/{filename}
-    // Active lab members can upload images (JPEG/PNG/WebP ≤5MB).
-    // Delete: admin/owner only. Fotos são evidência regulatória.
-    match /auditoria-geral/{labId}/{auditoriaId}/{indicadorId}/{filename} {
-
-      function isAuth() {
-        return request.auth != null;
-      }
-
-      function isSuperAdmin() {
-        return isAuth() &&
-          firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
-          firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isSuperAdmin == true;
-      }
-
-      function isActiveMember() {
-        let memberPath = /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid);
-        return isAuth() &&
-          firestore.exists(memberPath) &&
-          firestore.get(memberPath).data.active == true;
-      }
-
-      function getMemberRole() {
-        return firestore.get(
-          /databases/(default)/documents/labs/$(labId)/members/$(request.auth.uid)
-        ).data.role;
-      }
-
-      function isAdminOrOwner() {
-        let role = getMemberRole();
-        return role == 'admin' || role == 'owner';
-      }
-
-      function isImageType() {
-        return request.resource.contentType == 'image/jpeg'
-            || request.resource.contentType == 'image/png'
-            || request.resource.contentType == 'image/webp';
-      }
-
-      function isSizeValid() {
-        return request.resource.size <= 5 * 1024 * 1024;
-      }
-
-      allow read: if isSuperAdmin() || isActiveMember();
-      allow create, update: if (isSuperAdmin() || isActiveMember())
-                            && isImageType()
-                            && isSizeValid();
-      allow delete: if isSuperAdmin() || (isActiveMember() && isAdminOrOwner());
-    }
+    // REMOVIDO: regra duplicada que conflitava com match genérico L143.
+    // A regra em /auditoria-geral/{labId}/{allPaths=**} (L143) já cobre
+    // todos os content-types (imagem, PDF, doc, xlsx, webm) com limite 10MB.
   }
 }

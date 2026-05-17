@@ -136,7 +136,7 @@ export const MODULE_CLAIMS = {
   imunologia: 'imunologia',
   coagulacao: 'coagulacao',
   uroanalise: 'uroanalise',
-  // bioquimica: 'bioquimica',
+  ceq: 'ceq',
 } as const;
 
 export type ModuleClaim = (typeof MODULE_CLAIMS)[keyof typeof MODULE_CLAIMS];

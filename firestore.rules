@@ -162,6 +162,13 @@ service cloud.firestore {
                        (isAdminOrOwner(labId) || dataPath == 'appState');
       }
 
+      // ── /settings — Per-lab configuration (AI model, etc.) ───────────────
+      match /settings/{settingId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow write: if isSuperAdmin() || isAdminOrOwner(labId);
+        allow delete: if false;
+      }
+
       // ── /lots (Hematologia) — STRICT ─────────────────────────────────────
       match /lots/{lotId} {
         allow read: if isSuperAdmin() ||
@@ -652,14 +659,13 @@ service cloud.firestore {
         function sgqValidNew(d) {
           return d.labId == labId
               && d.codigo is string
-              && d.codigo.matches('^[A-Z]+-[0-9]+$')
-              && d.tipo in ['MQ', 'PQ', 'IT', 'FR', 'POL']
+              && d.codigo.matches('^[A-Z]+([-][A-Z0-9]+)*[-][0-9]+$')
+              && d.tipo in ['MQ', 'CDC', 'DC', 'PQ', 'PQ-ANA', 'PQ-EQP', 'IT', 'ITA', 'FR', 'POL', 'LM', 'EXT']
               && d.titulo is string
               && d.titulo.size() > 0
               && d.versao is int
               && d.versao >= 1
-              && d.url is string
-              && d.url.size() > 0
+              && (d.url == null || d.url is string)
               && d.autoridadeEmitente is string
               && d.dataEmissao is timestamp
               && d.dataRevisao is timestamp
@@ -694,7 +700,7 @@ service cloud.firestore {
         allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId))
                       && request.resource.data.labId == labId
                       && request.resource.data.documentoId is string
-                      && request.resource.data.type in ['created', 'updated', 'status-changed', 'revisao-emitida']
+                      && request.resource.data.type in ['created', 'updated', 'deleted', 'status-changed', 'revisao-emitida']
                       && request.resource.data.operadorId == request.auth.uid
                       && request.resource.data.timestamp is timestamp;
         allow update, delete: if false;

@@ -9,6 +9,15 @@
         "--only",
         "firestore,auth,storage"
       ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp",
+        "--browser",
+        "chrome",
+        "--headless"
+      ]
     }
   }
 }

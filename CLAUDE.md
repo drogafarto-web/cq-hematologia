@@ -30,6 +30,7 @@ O contexto do projeto vive em **camadas** — carrega só o que precisa para a t
 - **Input DTOs via `Omit<Entidade, 'id'|'labId'|'criadoEm'|'deletadoEm'>`** — service é a única fonte de audit fields.
 - **Auth e módulos protegidos**: não tocar `auth`, `admin`, `shared` sem autorização explícita.
 - **Design dark-first, world-class**: Apple/Linear/Stripe de referência; sem templates genéricos; tipografia editorial; sensibilidade cinematográfica (ver `~/.claude/CLAUDE.md` global).
+- **Design System v2.0**: [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) — norte visual obrigatório para toda evolução de UI. Tokens semânticos, tipografia Inter/JetBrains Mono, componentes (Shell, KPI, Card, Badge, Table, PageHeader), padrões de tela. Protótipos interativos em [`docs/design-prototypes/`](docs/design-prototypes/). Inspiração: Linear, Stripe, Vercel, Datadog. Migração gradual — novos componentes seguem o DS; módulos existentes migram quando tocados.
 
 Regras com escopo mais estreito vivem em `.claude/rules/`:
 
@@ -117,7 +118,7 @@ Use: `bash scripts/monitor-cloud-logs.sh 24 30` (or `.ps1` equiv.) imediatamente
 | `sgq` | Em prod · Documentos da Qualidade (DICQ 4.3) — MQ/PQ/IT/FR/POL + versionamento + audit + POL-LGPD-001 + IT-LGPD-DPIA-001 (Phase 0) | 2026-05-07 |
 | `pops` | Em prod · Procedimentos Operacionais Padrão (DICQ 4.3) — versionamento + treinamento + assinatura RT | 2026-05-03 |
 | `auditoria` | Em prod · Phase 7 W4-W6 (advanced — alerts, anomaly timeline, PDF archive, email, ExportWizard) — RDC 978 5.3 + DICQ 4.4 | 2026-05-09 |
-| `auditoria-interna` | Em prod · Phase 11 PQ-24 (planos de ação + presença reuniões + re-auditoria com chain de NCs fechadas) — RDC 978 Art. 107 + DICQ 4.4 | 2026-05-09 |
+| `auditoria-interna` | Em prod · Phase 11 PQ-24 (planos de ação + presença reuniões + re-auditoria com chain de NCs fechadas + callable createAuditoria wired) — RDC 978 Art. 107 + DICQ 4.4 | 2026-05-13 |
 | `sgd` | Em prod · Sistema de Gestão Documental (DICQ 4.3) — Lista Mestra, hierarquia, distribuição, Drive importer + Riopomba migration (80 docs) | 2026-05-06 |
 | `treinamentos` | Em prod · Sistema de registro de treinamentos com vínculo a POPs + certificação + revalidação | 2026-05-05 |
 | `biosseguranca` | Em prod · Gestão de áreas de risco, níveis NB1-NB4, EPE + inspeções com ISO 14644 | 2026-05-05 |
