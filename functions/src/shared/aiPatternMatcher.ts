@@ -9,7 +9,9 @@
  * DICQ 4.4 — Monitoring interpretation
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { createAIClient } from './ai/aiClient';
+import { PATTERN_ANALYSIS_PROMPT } from './ai/prompts';
+import type { PatternAnalysisContext } from './ai/prompts';
 import type { BaselineStats } from './normalizeBaseline';
 
 /**
@@ -53,9 +55,34 @@ export async function analyzePattern(
   historicalContext: BaselineStats
 ): Promise<AiInsight> {
   try {
-    const prompt = buildPrompt(anomalyScore, historicalContext);
-    const insight = await callGemini(prompt);
-    return parseInsight(insight);
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return buildFallbackInsight(anomalyScore);
+    }
+
+    const client = createAIClient({ apiKey, model: 'gemini-2.5-flash' });
+    const ctx = buildPromptContext(anomalyScore, historicalContext);
+    const result = await client.generateJSON<AiInsight>({
+      systemPrompt: PATTERN_ANALYSIS_PROMPT.system,
+      prompt: PATTERN_ANALYSIS_PROMPT.template(ctx),
+    });
+
+    // Validate required fields
+    if (
+      !Array.isArray(result.parsed.patterns) ||
+      typeof result.parsed.riskLevel !== 'string' ||
+      typeof result.parsed.summary !== 'string'
+    ) {
+      return buildFallbackInsight(anomalyScore);
+    }
+
+    return {
+      patterns: result.parsed.patterns.slice(0, 5),
+      riskLevel: (['low', 'medium', 'high'].includes(result.parsed.riskLevel)
+        ? result.parsed.riskLevel
+        : 'medium') as 'low' | 'medium' | 'high',
+      summary: result.parsed.summary.substring(0, 200),
+    };
   } catch (error) {
     // Graceful fallback if Gemini fails
     return buildFallbackInsight(anomalyScore);
@@ -63,21 +90,13 @@ export async function analyzePattern(
 }
 
 /**
- * Build prompt for Gemini analysis
- * Includes anomaly dimensions, baseline context, and analysis instructions
- *
- * @param anomalyScore The computed anomaly score
- * @param baseline Historical baseline model
- * @returns Formatted prompt for Gemini
+ * Build prompt context from anomaly score and baseline stats
+ * Transforms raw data into the shape expected by PATTERN_ANALYSIS_PROMPT.template
  */
-function buildPrompt(
+function buildPromptContext(
   anomalyScore: AnomalyScore,
   baseline: BaselineStats
-): string {
-  const dimensionLines = anomalyScore.dimensions
-    .map((d) => `- ${d.dimension}: ${d.score}/100 (${d.evidence})`)
-    .join('\n');
-
+): PatternAnalysisContext {
   const topOps = Object.entries(baseline.operationCounts)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 3)
@@ -90,37 +109,20 @@ function buildPrompt(
 
   const peakHours = getPeakHours(baseline.hourlyPattern).join(', ');
 
-  return `
-Analyze this laboratory operator behavior anomaly (RDC 978 Art. 107, DICQ 4.4):
-
-**Anomaly Details:**
-- Operator: ${anomalyScore.operatorId}
-- Lab: ${anomalyScore.labId}
-- Overall Score: ${anomalyScore.overallScore}/100
-- Timestamp: ${new Date(anomalyScore.computedAt).toISOString()}
-
-**Dimension Breakdown:**
-${dimensionLines}
-
-**Historical Baseline:**
-- Total Entries: ${baseline.totalEntries}
-- Common Operations: ${topOps}
-- Module Distribution: ${modules}
-- Peak Hours: ${peakHours}
-- Entropy (Behavior Diversity): ${baseline.entropyScore.toFixed(2)}
-
-**Task:**
-Identify specific patterns, assess risk level (low/medium/high), and provide a 1-line summary.
-
-**Response format (JSON only, no markdown):**
-{
-  "patterns": ["pattern1", "pattern2", "pattern3"],
-  "riskLevel": "low|medium|high",
-  "summary": "1-line summary for audit trail"
-}
-
-Patterns should be specific to laboratory compliance context (e.g., "unusual_time_of_day", "operator_jump_to_new_module", "burst_activity", "result_manipulation_signal").
-`;
+  return {
+    operatorId: anomalyScore.operatorId,
+    labId: anomalyScore.labId,
+    overallScore: anomalyScore.overallScore,
+    computedAt: anomalyScore.computedAt,
+    dimensions: anomalyScore.dimensions,
+    baseline: {
+      totalEntries: baseline.totalEntries,
+      topOperations: topOps,
+      moduleDistribution: modules,
+      peakHours,
+      entropyScore: baseline.entropyScore,
+    },
+  };
 }
 
 /**
@@ -134,67 +136,6 @@ function getPeakHours(hourlyPattern: number[]): number[] {
   return hourlyPattern
     .map((p, hour) => (p > mean ? hour : -1))
     .filter((h) => h !== -1);
-}
-
-/**
- * Call Gemini 2.5 Flash API with the prompt
- * Uses project's Google Generative AI SDK
- *
- * @param prompt Formatted analysis prompt
- * @returns Raw Gemini response text
- */
-async function callGemini(prompt: string): Promise<string> {
-  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-  if (!apiKey) {
-    throw new Error('GOOGLE_GENERATIVE_AI_API_KEY not configured');
-  }
-
-  const client = new GoogleGenerativeAI(apiKey);
-  const model = client.getGenerativeModel({ model: 'gemini-2.5-flash' });
-
-  const response = await model.generateContent(prompt);
-  const text = response.response.text();
-
-  return text;
-}
-
-/**
- * Parse Gemini response into typed AiInsight
- * Expects JSON response, falls back to generic insight on parse failure
- *
- * @param geminResponse Raw text response from Gemini
- * @returns Parsed AiInsight object
- */
-function parseInsight(geminResponse: string): AiInsight {
-  try {
-    // Extract JSON from response (Gemini might wrap it in markdown or other text)
-    const jsonMatch = geminResponse.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error('No JSON found in response');
-    }
-
-    const parsed = JSON.parse(jsonMatch[0]);
-
-    // Validate required fields
-    if (!Array.isArray(parsed.patterns) || typeof parsed.riskLevel !== 'string' || typeof parsed.summary !== 'string') {
-      throw new Error('Invalid response structure');
-    }
-
-    return {
-      patterns: parsed.patterns.slice(0, 5),  // Limit to 5 patterns
-      riskLevel: (['low', 'medium', 'high'].includes(parsed.riskLevel)
-        ? parsed.riskLevel
-        : 'medium') as 'low' | 'medium' | 'high',
-      summary: parsed.summary.substring(0, 200),  // Limit summary length
-    };
-  } catch (error) {
-    // Return generic insight if parsing fails
-    return {
-      patterns: ['unknown_pattern'],
-      riskLevel: 'medium',
-      summary: 'Anomaly detected; manual review recommended',
-    };
-  }
 }
 
 /**
