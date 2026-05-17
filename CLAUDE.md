@@ -163,6 +163,16 @@ Módulos com documentação dedicada: `educacao-continuada` (próprio CLAUDE.md)
 - **PWA**: `vite-plugin-pwa` com `registerType: 'autoUpdate'` — deploy novo exige hard reload no browser.
 - **Functions**: Node 22 em `southamerica-east1`, callables regionalmente.
 
+## AI Integration Architecture
+
+- **Provider:** Gemini 2.5 Flash (via `@google/generative-ai` SDK)
+- **Abstraction:** `functions/src/shared/ai/aiClient.ts` — provider-agnostic interface (`generateText`, `generateJSON`, `generateVision`)
+- **Prompts:** `functions/src/shared/ai/prompts/` — versioned templates com separação system/user (5 templates: strip, laudo, audit, reclamação, pattern)
+- **Retry:** Exponential backoff com jitter, 3 tentativas, detecção de erros não-retryable (`INVALID_ARGUMENT`, `PERMISSION_DENIED`)
+- **Pattern obrigatório:** Toda chamada de IA passa pelo AIClient. Nunca instanciar `GoogleGenerativeAI` diretamente.
+- **Testing:** Mockar `createAIClient` nos testes, não o SDK diretamente.
+- **Nova feature de IA:** Criar prompt em `prompts/`, chamar via `createAIClient()` + `generateText|generateJSON|generateVision`.
+
 ## Project IDs
 
 - Firebase: `hmatologia2` · Hosting: `hmatologia2.web.app`
