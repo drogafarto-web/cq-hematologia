@@ -66,7 +66,7 @@ export type AlertSeverity = 'critical' | 'high' | 'medium';
 /**
  * Status lifecycle for alerts
  */
-export type AlertStatus = 'active' | 'dismissed' | 'resolved';
+export type AlertStatus = 'active' | 'investigating' | 'dismissed' | 'resolved';
 
 /**
  * Alert generated when anomaly score exceeds threshold

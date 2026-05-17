@@ -2,7 +2,7 @@
  * AuditoriaView.tsx
  *
  * Main entry point for advanced auditoria module (Phase 7).
- * Renders the full audit dashboard with alerts, drill-down, and reporting.
+ * 4-tab dashboard: Anomalias | Conformidade | Integrações | Relatórios
  *
  * RDC 978 Art. 107 — Anomaly detection + audit trail monitoring
  * DICQ 4.4 — Compliance audit reporting
@@ -13,16 +13,20 @@ import { useActiveLab, useUser } from '../../store/useAuthStore';
 import { AlertCenter } from './components/AlertCenter';
 import { AlertDrillDown } from './components/AlertDrillDown';
 import { ReportBuilder } from './components/ReportBuilder';
+import { ComplianceTab } from './components/ComplianceTab';
+import { IntegrationsTab } from './components/IntegrationsTab';
 import type { AuditAlert } from './types/anomalyTypes';
+
+type Tab = 'anomalias' | 'conformidade' | 'integracoes' | 'relatorios';
 
 export default function AuditoriaView() {
   const activeLab = useActiveLab();
   const user = useUser();
   const labId = activeLab?.id ?? '';
 
+  const [activeTab, setActiveTab] = useState<Tab>('anomalias');
   const [selectedAlert, setSelectedAlert] = useState<AuditAlert | null>(null);
   const [drillDownOpen, setDrillDownOpen] = useState(false);
-  const [reportBuilderOpen, setReportBuilderOpen] = useState(false);
 
   if (!labId || !user) {
     return (
@@ -34,46 +38,77 @@ export default function AuditoriaView() {
     );
   }
 
+  const tabs: { id: Tab; label: string }[] = [
+    { id: 'anomalias', label: 'Anomalias' },
+    { id: 'conformidade', label: 'Conformidade' },
+    { id: 'integracoes', label: 'Integrações' },
+    { id: 'relatorios', label: 'Relatórios' },
+  ];
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0c0c0c]">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         {/* Header */}
         <div>
           <p className="text-[10px] font-bold tracking-widest uppercase text-violet-400/80 mb-1">
             Conformidade
           </p>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
-                Auditoria Avançada
-              </h1>
-              <p className="text-sm text-slate-600 dark:text-white/40 mt-1">
-                Detecção de anomalias, relatórios e trilha de auditoria
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setReportBuilderOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-500 hover:bg-violet-600 text-white text-sm font-medium transition-colors dark:bg-violet-600 dark:hover:bg-violet-500"
-            >
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden>
-                <path d="M2 3a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3Z" stroke="currentColor" strokeWidth="1.5" />
-                <path d="M6 9h8M6 5h8M6 13h5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-              Novo Relatório
-            </button>
-          </div>
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
+            Auditoria Avançada
+          </h1>
+          <p className="text-sm text-slate-600 dark:text-white/40 mt-1">
+            Detecção de anomalias, conformidade DICQ e trilha de auditoria
+          </p>
         </div>
 
-        {/* Alert Center */}
-        <div className="bg-white dark:bg-[#141417] rounded-xl border border-slate-200 dark:border-white/[0.08] p-6">
-          <AlertCenter
-            labId={labId}
-            onDrillDown={(alert) => {
-              setSelectedAlert(alert);
-              setDrillDownOpen(true);
-            }}
-          />
+        {/* Tabs */}
+        <div className="border-b border-slate-200 dark:border-white/10">
+          <nav className="flex gap-6" aria-label="Abas de auditoria">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`pb-3 border-b-2 text-sm font-medium transition-colors ${
+                  activeTab === tab.id
+                    ? 'border-violet-500 text-violet-600 dark:text-violet-400'
+                    : 'border-transparent text-slate-500 dark:text-white/50 hover:text-slate-700 dark:hover:text-white/80'
+                }`}
+                aria-selected={activeTab === tab.id}
+                role="tab"
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Tab Content */}
+        <div role="tabpanel">
+          {activeTab === 'anomalias' && (
+            <div className="bg-white dark:bg-[#141417] rounded-xl border border-slate-200 dark:border-white/[0.08] p-6">
+              <AlertCenter
+                labId={labId}
+                onDrillDown={(alert) => {
+                  setSelectedAlert(alert);
+                  setDrillDownOpen(true);
+                }}
+              />
+            </div>
+          )}
+
+          {activeTab === 'conformidade' && (
+            <ComplianceTab labId={labId} />
+          )}
+
+          {activeTab === 'integracoes' && (
+            <IntegrationsTab labId={labId} />
+          )}
+
+          {activeTab === 'relatorios' && (
+            <div className="bg-white dark:bg-[#141417] rounded-xl border border-slate-200 dark:border-white/[0.08] p-6">
+              <ReportBuilder labId={labId} />
+            </div>
+          )}
         </div>
 
         {/* Info Cards */}
@@ -105,24 +140,10 @@ export default function AuditoriaView() {
           setSelectedAlert(null);
         }}
         onDismiss={async (alertId: string, reason: string) => {
-          // Call dismissAlert service
-          // For now, just close modal
           setDrillDownOpen(false);
           setSelectedAlert(null);
         }}
       />
-
-      {/* Report Builder Modal */}
-      {reportBuilderOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#0c0c0c] border border-slate-200 dark:border-white/[0.08] rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <ReportBuilder
-              labId={labId}
-              onComplete={() => setReportBuilderOpen(false)}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

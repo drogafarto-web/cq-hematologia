@@ -175,20 +175,10 @@ export function ReportBuilder({ labId: propLabId, onComplete }: ReportBuilderPro
 
     try {
       await generate(filter, formState.format);
-      // Reset form after successful generation
-      reset();
-      setStep(1);
-      setFormState({
-        period: '',
-        startDate: '',
-        endDate: '',
-        includeAnomalies: true,
-        includeCompliance: true,
-        operatorIds: [],
-        modules: [],
-        format: 'pdf',
-      });
+      // Only reset after confirmed success
+      if (onComplete) onComplete('report-generated');
     } catch (err) {
+      // Error is already set in the hook — don't reset form
       console.error('[ReportBuilder] Generation error:', err);
     }
   };

@@ -22,6 +22,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../../../shared/services/firebase';
 import type { AuditAlert } from '../types/anomalyTypes';
 
 interface AlertDrillDownProps {
@@ -39,6 +41,13 @@ export function AlertDrillDown({
 }: AlertDrillDownProps) {
   const [dismissing, setDismissing] = useState(false);
   const [dismissError, setDismissError] = useState<string | null>(null);
+  const [showInvestigateForm, setShowInvestigateForm] = useState(false);
+  const [investigating, setInvestigating] = useState(false);
+  const [conclusion, setConclusion] = useState('');
+  const [ncGenerated, setNcGenerated] = useState(false);
+  const [notes, setNotes] = useState('');
+  const [investigateError, setInvestigateError] = useState<string | null>(null);
+  const [investigateSuccess, setInvestigateSuccess] = useState(false);
 
   if (!open || !alert) {
     return null;
@@ -94,6 +103,47 @@ export function AlertDrillDown({
     } finally {
       setDismissing(false);
     }
+  };
+
+  // Handle investigate action
+  const handleInvestigate = async () => {
+    if (!conclusion.trim()) {
+      setInvestigateError('Conclusão é obrigatória.');
+      return;
+    }
+
+    setInvestigating(true);
+    setInvestigateError(null);
+
+    try {
+      const callable = httpsCallable(functions, 'investigateAuditAlert');
+      await callable({
+        labId: alert.labId,
+        alertId: alert.id,
+        conclusion: conclusion.trim(),
+        ncGenerated,
+        notes: notes.trim() || undefined,
+      });
+      setInvestigateSuccess(true);
+      setTimeout(() => {
+        onClose();
+        resetInvestigateForm();
+      }, 1500);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Erro ao investigar';
+      setInvestigateError(msg);
+    } finally {
+      setInvestigating(false);
+    }
+  };
+
+  const resetInvestigateForm = () => {
+    setShowInvestigateForm(false);
+    setConclusion('');
+    setNcGenerated(false);
+    setNotes('');
+    setInvestigateError(null);
+    setInvestigateSuccess(false);
   };
 
   // Handle close on Escape
@@ -259,6 +309,81 @@ export function AlertDrillDown({
                 <p className="text-sm text-red-400">{dismissError}</p>
               </div>
             )}
+
+            {/* Investigation Form */}
+            {showInvestigateForm && (
+              <div className="rounded-lg border border-violet-500/30 bg-violet-500/5 p-4 space-y-4">
+                <h3 className="text-sm font-semibold text-white">Investigar Anomalia</h3>
+
+                {investigateSuccess ? (
+                  <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
+                    <p className="text-sm text-emerald-400 font-medium">Investigação registrada com sucesso</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <label htmlFor="conclusion" className="text-xs font-medium text-white/70 block">
+                        Conclusão *
+                      </label>
+                      <textarea
+                        id="conclusion"
+                        value={conclusion}
+                        onChange={(e) => setConclusion(e.target.value)}
+                        placeholder="Descreva a conclusão da investigação..."
+                        rows={3}
+                        className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-sm placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="notes" className="text-xs font-medium text-white/70 block">
+                        Observações (opcional)
+                      </label>
+                      <textarea
+                        id="notes"
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="Notas adicionais..."
+                        rows={2}
+                        className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-sm placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none"
+                      />
+                    </div>
+
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={ncGenerated}
+                        onChange={(e) => setNcGenerated(e.target.checked)}
+                        className="w-4 h-4 accent-violet-500 rounded"
+                      />
+                      <span className="text-sm text-white/80">Gerar Não Conformidade automaticamente</span>
+                    </label>
+
+                    {investigateError && (
+                      <div className="rounded bg-red-500/10 border border-red-500/30 p-3">
+                        <p className="text-xs text-red-400">{investigateError}</p>
+                      </div>
+                    )}
+
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setShowInvestigateForm(false)}
+                        className="px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white/70 text-sm hover:bg-white/20 transition-colors"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        onClick={handleInvestigate}
+                        disabled={investigating || !conclusion.trim()}
+                        className="px-4 py-2 rounded-lg bg-violet-600 text-white text-sm font-medium hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {investigating ? 'Registrando...' : 'Concluir Investigação'}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Footer */}
@@ -270,14 +395,25 @@ export function AlertDrillDown({
             >
               Fechar
             </button>
-            <button
-              onClick={handleDismiss}
-              disabled={dismissing}
-              className="px-4 py-2 rounded-lg bg-emerald-600/20 border border-emerald-600/50 text-emerald-400 text-sm hover:bg-emerald-600/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              aria-label="Descartar anomalia"
-            >
-              {dismissing ? 'Descartando...' : 'Descartar'}
-            </button>
+            {!showInvestigateForm && (
+              <>
+                <button
+                  onClick={() => setShowInvestigateForm(true)}
+                  className="px-4 py-2 rounded-lg bg-violet-600/20 border border-violet-600/50 text-violet-400 text-sm hover:bg-violet-600/30 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  aria-label="Investigar anomalia"
+                >
+                  Investigar
+                </button>
+                <button
+                  onClick={handleDismiss}
+                  disabled={dismissing}
+                  className="px-4 py-2 rounded-lg bg-emerald-600/20 border border-emerald-600/50 text-emerald-400 text-sm hover:bg-emerald-600/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  aria-label="Descartar anomalia"
+                >
+                  {dismissing ? 'Descartando...' : 'Descartar'}
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -50,7 +50,7 @@ export function useAuditReportExport(): UseAuditReportExportReturn {
       const callable = httpsCallable<
         { labId: string; filter: ReportFilter },
         AuditReport
-      >(functions, 'generateAuditReport');
+      >(functions, 'generateAuditReportPDF');
 
       const result = await callable({
         labId: filter.labId,
@@ -60,10 +60,7 @@ export function useAuditReportExport(): UseAuditReportExportReturn {
       const generatedReport = result.data;
       setReport(generatedReport);
 
-      console.log('[useAuditReportExport] Report generated', {
-        reportId: generatedReport.id,
-        format,
-      });
+
 
       // Trigger download (basic implementation)
       // In Wave 5, PDF/CSV generation will be implemented server-side
