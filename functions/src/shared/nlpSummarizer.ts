@@ -8,13 +8,13 @@
  * RDC 978 Art. 107 — Audit trail documentation
  * DICQ 4.4 — Audit monitoring
  *
- * API: Gemini 2.5 Flash
- * Timeout: 8s
+ * API: Gemini 2.5 Flash (via AIClient abstraction)
  * Fallback: Basic template if Gemini fails
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { defineSecret } from 'firebase-functions/params';
+import * as logger from 'firebase-functions/logger';
+import { createAIClient } from './ai/aiClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -31,30 +31,14 @@ export interface AuditSummarizationParams {
 
 const geminiSecret = defineSecret('GEMINI_API_KEY');
 
-// ─── Function ──────────────────────────────────────────────────────────────────
+// ─── Prompts ──────────────────────────────────────────────────────────────────
 
-/**
- * summarizeAuditFindings
- *
- * Generates a Gemini-powered NLP summary of audit findings.
- * Returns 150-200 word executive summary in Portuguese.
- *
- * @param params Audit findings summary data
- * @returns Professional audit summary (PT-BR)
- * @throws Error if Gemini call fails (caught and fallback applied)
- */
-export async function summarizeAuditFindings(params: AuditSummarizationParams): Promise<string> {
-  const {
-    entryCount,
-    anomalyCount,
-    period,
-    topModules,
-    criticalCount,
-    highCount,
-  } = params;
+const SYSTEM_PROMPT =
+  'Voce e um especialista em qualidade laboratorial. Gere resumos executivos profissionais em portugues brasileiro, apropriados para documentacao regulatoria (RDC 978 / DICQ).';
 
-  const prompt = `
-Gere um resumo executivo para um relatório de auditoria de qualidade laboratorial. Use os dados abaixo:
+function buildUserPrompt(params: AuditSummarizationParams): string {
+  const { entryCount, anomalyCount, period, topModules, criticalCount, highCount } = params;
+  return `Gere um resumo executivo para um relatório de auditoria de qualidade laboratorial. Use os dados abaixo:
 
 - Operações analisadas: ${entryCount}
 - Anomalias detectadas: ${anomalyCount}
@@ -70,28 +54,36 @@ Requisitos:
 - Foco em conformidade RDC 978 / DICQ
 - Inclua recomendações de próximos passos
 
-Responda apenas com o resumo, sem cabeçalho ou formatação extra.
-`;
+Responda apenas com o resumo, sem cabeçalho ou formatação extra.`;
+}
 
+// ─── Function ──────────────────────────────────────────────────────────────────
+
+/**
+ * summarizeAuditFindings
+ *
+ * Generates a Gemini-powered NLP summary of audit findings.
+ * Returns 150-200 word executive summary in Portuguese.
+ *
+ * @param params Audit findings summary data
+ * @returns Professional audit summary (PT-BR)
+ */
+export async function summarizeAuditFindings(params: AuditSummarizationParams): Promise<string> {
   try {
     const apiKey = geminiSecret.value();
     if (!apiKey) {
       return fallbackSummary(params);
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const client = createAIClient({ apiKey, model: 'gemini-2.5-flash' });
+    const result = await client.generateText({
+      prompt: buildUserPrompt(params),
+      systemPrompt: SYSTEM_PROMPT,
+    });
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
-
-    if (text && text.trim().length > 0) {
-      return text.trim();
-    }
-
-    return fallbackSummary(params);
+    return result.text;
   } catch (err) {
-    console.warn('[nlpSummarizer] Gemini call failed, using fallback', {
+    logger.warn('[nlpSummarizer] Gemini call failed, using fallback', {
       error: err instanceof Error ? err.message : String(err),
     });
     return fallbackSummary(params);

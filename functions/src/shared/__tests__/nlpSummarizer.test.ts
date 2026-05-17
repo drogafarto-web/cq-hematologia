@@ -3,32 +3,34 @@
  *
  * Tests for nlpSummarizer function.
  * Test cases:
- * 1. Successful Gemini summary generation
+ * 1. Successful Gemini summary generation via AIClient
  * 2. Gemini timeout → fallback to template
  * 3. Gemini error → fallback to template
  * 4. Empty/missing API key → fallback to template
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+const mockGenerateText = jest.fn();
+
+jest.mock('../ai/aiClient', () => ({
+  createAIClient: jest.fn(() => ({
+    generateText: mockGenerateText,
+    generateJSON: jest.fn(),
+    generateVision: jest.fn(),
+  })),
+}));
+
+jest.mock('firebase-functions/params', () => ({
+  defineSecret: jest.fn(() => ({
+    value: jest.fn().mockReturnValue('mock-api-key'),
+  })),
+}));
+
+jest.mock('firebase-functions/logger', () => ({
+  warn: jest.fn(),
+}));
+
 import { summarizeAuditFindings } from '../nlpSummarizer';
-
-// Mock Google Generative AI
-vi.mock('@google/generative-ai', () => ({
-  GoogleGenerativeAI: vi.fn().mockImplementation(() => ({
-    getGenerativeModel: vi.fn().mockReturnValue({
-      generateContent: vi.fn(),
-    }),
-  })),
-}));
-
-// Mock Firebase secrets
-vi.mock('firebase-functions/params', () => ({
-  defineSecret: vi.fn((name) => ({
-    value: vi.fn().mockReturnValue('mock-api-key'),
-  })),
-}));
-
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { createAIClient } from '../ai/aiClient';
 
 describe('nlpSummarizer', () => {
   const mockParams = {
@@ -41,47 +43,41 @@ describe('nlpSummarizer', () => {
   };
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
+    // Re-wire default mock for createAIClient
+    (createAIClient as jest.Mock).mockReturnValue({
+      generateText: mockGenerateText,
+      generateJSON: jest.fn(),
+      generateVision: jest.fn(),
+    });
   });
 
-  it('should generate valid Gemini summary', async () => {
+  it('should generate valid Gemini summary via AIClient', async () => {
     const mockSummary =
       'Relatório de auditoria com análise de 1000 operações, identificando 15 anomalias com 2 críticas.';
 
-    const mockResponse = {
-      text: () => mockSummary,
-    };
-
-    const mockGenerateContent = vi
-      .fn()
-      .mockResolvedValue(mockResponse);
-
-    vi.mocked(GoogleGenerativeAI).mockImplementation(() => ({
-      getGenerativeModel: () => ({
-        generateContent: mockGenerateContent,
-      }),
-    }) as any);
+    mockGenerateText.mockResolvedValue({ text: mockSummary, model: 'gemini-2.5-flash' });
 
     const result = await summarizeAuditFindings(mockParams);
 
     expect(result).toBe(mockSummary);
-    expect(mockGenerateContent).toHaveBeenCalled();
+    expect(createAIClient).toHaveBeenCalledWith({
+      apiKey: 'mock-api-key',
+      model: 'gemini-2.5-flash',
+    });
+    expect(mockGenerateText).toHaveBeenCalledWith(
+      expect.objectContaining({
+        prompt: expect.stringContaining('1000'),
+        systemPrompt: expect.stringContaining('qualidade laboratorial'),
+      }),
+    );
   });
 
   it('should fallback on Gemini timeout', async () => {
-    const mockGenerateContent = vi
-      .fn()
-      .mockRejectedValue(new Error('Timeout'));
-
-    vi.mocked(GoogleGenerativeAI).mockImplementation(() => ({
-      getGenerativeModel: () => ({
-        generateContent: mockGenerateContent,
-      }),
-    }) as any);
+    mockGenerateText.mockRejectedValue(new Error('Timeout'));
 
     const result = await summarizeAuditFindings(mockParams);
 
-    // Should return fallback summary containing key metrics
     expect(result).toContain('janeiro/2026');
     expect(result).toContain('1000');
     expect(result).toContain('15');
@@ -89,56 +85,26 @@ describe('nlpSummarizer', () => {
   });
 
   it('should fallback on Gemini error', async () => {
-    const mockGenerateContent = vi
-      .fn()
-      .mockRejectedValue(new Error('API error'));
-
-    vi.mocked(GoogleGenerativeAI).mockImplementation(() => ({
-      getGenerativeModel: () => ({
-        generateContent: mockGenerateContent,
-      }),
-    }) as any);
+    mockGenerateText.mockRejectedValue(new Error('API error'));
 
     const result = await summarizeAuditFindings(mockParams);
 
-    // Fallback should be a valid string
     expect(typeof result).toBe('string');
     expect(result.length).toBeGreaterThan(50);
   });
 
   it('should fallback on empty response', async () => {
-    const mockResponse = {
-      text: () => '',
-    };
-
-    const mockGenerateContent = vi
-      .fn()
-      .mockResolvedValue(mockResponse);
-
-    vi.mocked(GoogleGenerativeAI).mockImplementation(() => ({
-      getGenerativeModel: () => ({
-        generateContent: mockGenerateContent,
-      }),
-    }) as any);
+    mockGenerateText.mockRejectedValue(new Error('Empty response from AI provider'));
 
     const result = await summarizeAuditFindings(mockParams);
 
-    // Should fallback gracefully
     expect(typeof result).toBe('string');
     expect(result.length).toBeGreaterThan(50);
     expect(result).toContain('janeiro/2026');
   });
 
   it('fallback summary should contain all key metrics', async () => {
-    const mockGenerateContent = vi
-      .fn()
-      .mockRejectedValue(new Error('Fail'));
-
-    vi.mocked(GoogleGenerativeAI).mockImplementation(() => ({
-      getGenerativeModel: () => ({
-        generateContent: mockGenerateContent,
-      }),
-    }) as any);
+    mockGenerateText.mockRejectedValue(new Error('Fail'));
 
     const result = await summarizeAuditFindings(mockParams);
 
