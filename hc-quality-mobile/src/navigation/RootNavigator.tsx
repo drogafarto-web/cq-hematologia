@@ -14,6 +14,9 @@ import { NCDetailScreen } from '../screens/NCDetailScreen';
 import { ReadingsScreen } from '../screens/ReadingsScreen';
 import { TrainingScreen } from '../screens/TrainingScreen';
 import { OfflineQueueScreen } from '../screens/OfflineQueueScreen';
+import { AuditListScreen } from '../screens/AuditListScreen';
+import { AuditExecutionScreen } from '../screens/AuditExecutionScreen';
+import { AuditSummaryScreen } from '../screens/AuditSummaryScreen';
 
 /**
  * NavigationContainer, createNativeStackNavigator, createBottomTabNavigator
@@ -37,7 +40,10 @@ type ScreenName =
   | 'NCDetail'
   | 'Readings'
   | 'Training'
-  | 'OfflineQueue';
+  | 'OfflineQueue'
+  | 'AuditList'
+  | 'AuditExecution'
+  | 'AuditSummary';
 
 interface NavParams {
   runId?: string;
@@ -45,6 +51,12 @@ interface NavParams {
   equipmentId?: string;
   description?: string;
   trainingId?: string;
+  auditId?: string;
+  findings?: string;
+  totalItems?: number;
+  conformeCount?: number;
+  ncCount?: number;
+  naCount?: number;
 }
 
 interface NavigationState {
@@ -66,11 +78,12 @@ const AUTHENTICATED_TABS: { name: ScreenName; label: string }[] = [
   { name: 'Home', label: 'Dashboard' },
   { name: 'CIQ', label: 'CIQ' },
   { name: 'NC', label: 'NCs' },
+  { name: 'AuditList', label: 'Auditorias' },
   { name: 'Readings', label: 'Leituras' },
   { name: 'Training', label: 'Treinamento' },
 ];
 
-const TAB_SCREENS: ScreenName[] = ['Home', 'CIQ', 'NC', 'Readings', 'Training'];
+const TAB_SCREENS: ScreenName[] = ['Home', 'CIQ', 'NC', 'AuditList', 'Readings', 'Training'];
 
 /**
  * RootNavigator — App-level navigation router.
@@ -154,6 +167,31 @@ export function RootNavigator(): React.JSX.Element {
         return <TrainingScreen route={route} />;
       case 'OfflineQueue':
         return <OfflineQueueScreen navigation={navigation} />;
+      case 'AuditList':
+        return <AuditListScreen navigation={navigation} />;
+      case 'AuditExecution':
+        return (
+          <AuditExecutionScreen
+            route={{ params: { auditId: currentState.params?.auditId } }}
+            navigation={navigation}
+          />
+        );
+      case 'AuditSummary':
+        return (
+          <AuditSummaryScreen
+            route={{
+              params: {
+                auditId: currentState.params?.auditId,
+                findings: currentState.params?.findings,
+                totalItems: currentState.params?.totalItems,
+                conformeCount: currentState.params?.conformeCount,
+                ncCount: currentState.params?.ncCount,
+                naCount: currentState.params?.naCount,
+              },
+            }}
+            navigation={navigation}
+          />
+        );
       default:
         return <HomeScreen />;
     }
@@ -186,6 +224,8 @@ export function RootNavigator(): React.JSX.Element {
               {currentState.screen === 'CIQDetail' ? 'Detalhes da Corrida' : ''}
               {currentState.screen === 'NCDetail' ? 'Atualizar NC' : ''}
               {currentState.screen === 'OfflineQueue' ? 'Fila Offline' : ''}
+              {currentState.screen === 'AuditExecution' ? 'Execução de Auditoria' : ''}
+              {currentState.screen === 'AuditSummary' ? 'Resumo da Auditoria' : ''}
             </Text>
           </View>
           <View style={styles.headerRight} />
