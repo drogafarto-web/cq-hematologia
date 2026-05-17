@@ -1,0 +1,158 @@
+/* ─── Design tokens — hc-quality unified prototypes ─────────────────────────── */
+
+:root {
+  /* Typography — overridable via Tweaks */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Accent — overridable via Tweaks; defaults to blue-600 / blue-500 */
+  --accent-600: #2563EB;
+  --accent-700: #1D4ED8;
+  --accent-500: #3B82F6;
+  --accent-400: #60A5FA;
+  --accent-50:  #EFF4FF;
+  --accent-tint: rgba(37, 99, 235, 0.10);
+
+  /* Density — overridable */
+  --density-row: 12px;
+  --density-page-y: 24px;
+  --density-page-x: 32px;
+
+  /* Light surface tokens */
+  --surface-page: #F8FAFC;
+  --surface-card: #FFFFFF;
+  --surface-sidebar: #FFFFFF;
+  --surface-muted: #F1F5F9;
+  --border-soft: #E2E8F0;
+  --border-hairline: #EEF2F6;
+  --text-strong: #0F172A;
+  --text-body: #334155;
+  --text-muted: #64748B;
+  --text-faint: #94A3B8;
+
+  /* Status */
+  --success-500: #10B981;
+  --success-50: #ECFDF5;
+  --warning-500: #F59E0B;
+  --warning-50: #FFFBEB;
+  --danger-500: #EF4444;
+  --danger-50: #FEF2F2;
+
+  /* Easing (matches existing system) */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-spring-soft: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Dark surface tokens — applied when .dark on an ancestor */
+.dark {
+  --surface-page: #0B0F14;
+  --surface-card: #11161D;
+  --surface-sidebar: #0F1318;
+  --surface-muted: #161B23;
+  --border-soft: rgba(255, 255, 255, 0.06);
+  --border-hairline: rgba(255, 255, 255, 0.04);
+  --text-strong: #FFFFFF;
+  --text-body: rgba(255, 255, 255, 0.82);
+  --text-muted: #94A3B8;
+  --text-faint: #64748B;
+
+  --success-50: rgba(16, 185, 129, 0.12);
+  --warning-50: rgba(245, 158, 11, 0.12);
+  --danger-50: rgba(239, 68, 68, 0.12);
+  --accent-50: rgba(37, 99, 235, 0.16);
+  --accent-tint: rgba(37, 99, 235, 0.16);
+}
+
+/* Density variants */
+[data-density="compact"] {
+  --density-row: 8px;
+  --density-page-y: 16px;
+  --density-page-x: 24px;
+}
+[data-density="comfortable"] {
+  --density-row: 16px;
+  --density-page-y: 32px;
+  --density-page-x: 40px;
+}
+
+/* ─── Helpers used across screens ───────────────────────────────────────────── */
+
+body { font-family: var(--font-sans); }
+
+.font-mono, code, kbd, .tabular { font-family: var(--font-mono); font-feature-settings: "tnum" 1; }
+
+.tabular-nums { font-variant-numeric: tabular-nums; }
+
+.brand-mark {
+  width: 26px; height: 26px;
+  border-radius: 7px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: -0.02em;
+  background: var(--accent-600);
+  color: #fff;
+}
+
+.scrollshadow {
+  background:
+    linear-gradient(var(--surface-card), var(--surface-card)) 0 0 / 100% 24px no-repeat,
+    linear-gradient(rgba(0,0,0,.05), transparent) 0 0 / 100% 8px no-repeat;
+}
+
+.lj-grid {
+  background-image:
+    repeating-linear-gradient(90deg, var(--border-hairline) 0px, var(--border-hairline) 1px, transparent 1px, transparent 40px),
+    repeating-linear-gradient(0deg,  var(--border-hairline) 0px, var(--border-hairline) 1px, transparent 1px, transparent 40px);
+}
+
+.dot-grid {
+  background-image: radial-gradient(circle, color-mix(in oklab, var(--accent-600) 18%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.matrix-grid > div { transition: transform 120ms var(--ease-spring-soft); }
+.matrix-grid > div:hover { transform: scale(1.04); }
+
+/* Subtle KPI accent line */
+.kpi-accent {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-top-left-radius: inherit; border-bottom-left-radius: inherit;
+}
+
+/* Mobile frame */
+.mobile-frame {
+  border-radius: 36px; padding: 12px;
+  background: linear-gradient(180deg, #1a1f27 0%, #0b0f14 100%);
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.04) inset;
+}
+.mobile-frame > .screen { border-radius: 26px; overflow: hidden; }
+
+/* Tablet frame */
+.tablet-frame {
+  border-radius: 22px; padding: 10px;
+  background: #0b0f14;
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,0.25);
+}
+.tablet-frame > .screen { border-radius: 14px; overflow: hidden; }
+
+/* Tiny sparkline */
+.spark-bars { display: flex; align-items: flex-end; gap: 2px; height: 28px; }
+.spark-bars > span { display: block; width: 4px; background: currentColor; opacity: 0.45; border-radius: 1px; }
+.spark-bars > span.hi { opacity: 0.9; }
+
+/* Westgard chip */
+.wg {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid;
+  display: inline-flex; align-items: center;
+}
+
+/* Reduce default focus ring noise in screenshots */
+button:focus, a:focus, input:focus { outline: none; }
+button:focus-visible, a:focus-visible, input:focus-visible {
+  outline: 2px solid var(--accent-500); outline-offset: 2px; border-radius: 6px;
+}
