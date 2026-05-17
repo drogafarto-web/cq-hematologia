@@ -110,6 +110,63 @@ export interface Equipamento {
    */
   observacoes?: string;
 
+  // ── DICQ 5.3.1.7 — Campos obrigatórios de registro ───────────────────────
+
+  /** TAG patrimonial interna do laboratório. */
+  patrimonio?: string;
+
+  /** Localização física: sala, bancada, setor. */
+  localizacao?: string;
+
+  /** Data em que o equipamento foi instalado e entrou em operação. */
+  dataInstalacao?: Timestamp;
+
+  /** Contrato de manutenção/assistência técnica vigente. */
+  contratoManutencao?: {
+    numero: string;
+    empresa: string;
+    vigenciaInicio: Timestamp;
+    vigenciaFim: Timestamp;
+  };
+
+  /** URL do manual do fabricante (Storage path ou link externo). */
+  manualFabricanteUrl?: string;
+
+  /** Condições ambientais requeridas para operação. */
+  condicoesAmbientais?: {
+    temperaturaMin?: number;
+    temperaturaMax?: number;
+    umidadeMin?: number;
+    umidadeMax?: number;
+    voltagem?: string;
+  };
+
+  /** Periodicidade definida para manutenção preventiva. */
+  frequenciaManutencao?: 'mensal' | 'trimestral' | 'semestral' | 'anual';
+
+  /** Periodicidade definida para calibração. */
+  frequenciaCalibracao?: 'mensal' | 'trimestral' | 'semestral' | 'anual';
+
+  /** Responsável técnico designado para este equipamento. */
+  responsavelTecnicoId?: string;
+  responsavelTecnicoNome?: string;
+
+  // ── Gate CIQ pós-manutenção/calibração (RDC 978 Art. 183) ─────────────────
+
+  /**
+   * True quando o equipamento saiu de manutenção e ainda não teve CIQ aprovado.
+   * Bloqueia uso em corridas de pacientes até CIQ ser executado e aprovado.
+   */
+  ciqPendenteAposManutencao?: boolean;
+
+  /**
+   * True quando o equipamento recebeu calibração e ainda não teve CIQ aprovado.
+   */
+  ciqPendenteAposCalibracao?: boolean;
+
+  /** Timestamp da última corrida CIQ aprovada neste equipamento. */
+  ultimaCiqAprovadaEm?: Timestamp;
+
   // ── Ciclo de vida ─────────────────────────────────────────────────────────
 
   status: EquipamentoStatus;

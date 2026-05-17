@@ -77,6 +77,28 @@ export interface CreateEquipamentoPayload {
   anoAquisicao?: number;
   registroAnvisa?: string;
   observacoes?: string;
+  // DICQ 5.3.1.7 campos obrigatórios
+  patrimonio?: string;
+  localizacao?: string;
+  dataInstalacao?: Date;
+  contratoManutencao?: {
+    numero: string;
+    empresa: string;
+    vigenciaInicio: Date;
+    vigenciaFim: Date;
+  };
+  manualFabricanteUrl?: string;
+  condicoesAmbientais?: {
+    temperaturaMin?: number;
+    temperaturaMax?: number;
+    umidadeMin?: number;
+    umidadeMax?: number;
+    voltagem?: string;
+  };
+  frequenciaManutencao?: 'mensal' | 'trimestral' | 'semestral' | 'anual';
+  frequenciaCalibracao?: 'mensal' | 'trimestral' | 'semestral' | 'anual';
+  responsavelTecnicoId?: string;
+  responsavelTecnicoNome?: string;
   createdBy: string;
   createdByName?: string;
 }
@@ -91,6 +113,28 @@ export interface UpdateEquipamentoPayload {
   anoAquisicao?: number;
   registroAnvisa?: string;
   observacoes?: string;
+  // DICQ 5.3.1.7 campos
+  patrimonio?: string;
+  localizacao?: string;
+  dataInstalacao?: Date;
+  contratoManutencao?: {
+    numero: string;
+    empresa: string;
+    vigenciaInicio: Date;
+    vigenciaFim: Date;
+  } | null;
+  manualFabricanteUrl?: string;
+  condicoesAmbientais?: {
+    temperaturaMin?: number;
+    temperaturaMax?: number;
+    umidadeMin?: number;
+    umidadeMax?: number;
+    voltagem?: string;
+  } | null;
+  frequenciaManutencao?: 'mensal' | 'trimestral' | 'semestral' | 'anual' | null;
+  frequenciaCalibracao?: 'mensal' | 'trimestral' | 'semestral' | 'anual' | null;
+  responsavelTecnicoId?: string;
+  responsavelTecnicoNome?: string;
   updatedBy: string;
   updatedByName?: string;
 }
@@ -395,6 +439,7 @@ export async function leaveManutencao(
       status: 'ativo',
       manutencaoDesde: null,
       motivoManutencao: null,
+      ciqPendenteAposManutencao: true, // RDC 978 Art. 183 — exige CIQ antes de liberar
       updatedAt: serverTimestamp(),
       updatedBy: input.operadorId,
     });

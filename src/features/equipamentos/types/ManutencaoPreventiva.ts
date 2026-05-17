@@ -21,6 +21,14 @@ export interface ManutencaoPreventiva {
   dataRealizada?: Timestamp;
   status: ManutencaoStatus;
   observacoes?: string;
+  /** ID do fornecedor qualificado que executou/executará a manutenção (DICQ 4.6). */
+  fornecedorId?: string;
+  /** Nome do fornecedor (denormalizado para exibição). */
+  fornecedorNome?: string;
+  /** Custo da manutenção (R$) — para indicadores de gestão. */
+  custo?: number;
+  /** Peças/componentes substituídos. */
+  pecasSubstituidas?: string;
   logicalSignature?: LogicalSignature;
   criadoEm: Timestamp;
   updatedAt: Timestamp;

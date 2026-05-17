@@ -68,6 +68,19 @@ export function EquipamentoFormModal({
   const [registroAnvisa, setRegistro] = useState(equipamento?.registroAnvisa ?? '');
   const [observacoes, setObservacoes] = useState(equipamento?.observacoes ?? '');
 
+  // DICQ 5.3.1.7 — campos obrigatórios
+  const [patrimonio, setPatrimonio] = useState(equipamento?.patrimonio ?? '');
+  const [localizacao, setLocalizacao] = useState(equipamento?.localizacao ?? '');
+  const [frequenciaManutencao, setFreqManut] = useState(equipamento?.frequenciaManutencao ?? '');
+  const [frequenciaCalibracao, setFreqCalib] = useState(equipamento?.frequenciaCalibracao ?? '');
+  const [responsavelTecnicoNome, setRespTecNome] = useState(equipamento?.responsavelTecnicoNome ?? '');
+  const [condicoesVoltagem, setCondicoesVoltagem] = useState(equipamento?.condicoesAmbientais?.voltagem ?? '');
+  const [condicoesTempMin, setCondicoesTempMin] = useState<number | ''>(equipamento?.condicoesAmbientais?.temperaturaMin ?? '');
+  const [condicoesTempMax, setCondicoesTempMax] = useState<number | ''>(equipamento?.condicoesAmbientais?.temperaturaMax ?? '');
+  const [condicoesUmidMin, setCondicoesUmidMin] = useState<number | ''>(equipamento?.condicoesAmbientais?.umidadeMin ?? '');
+  const [condicoesUmidMax, setCondicoesUmidMax] = useState<number | ''>(equipamento?.condicoesAmbientais?.umidadeMax ?? '');
+  const [showDicqFields, setShowDicqFields] = useState(false);
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -108,6 +121,20 @@ export function EquipamentoFormModal({
           ...(typeof anoAquisicao === 'number' && { anoAquisicao }),
           ...(registroAnvisa.trim() && { registroAnvisa: registroAnvisa.trim() }),
           ...(observacoes.trim() && { observacoes: observacoes.trim() }),
+          ...(patrimonio.trim() && { patrimonio: patrimonio.trim() }),
+          ...(localizacao.trim() && { localizacao: localizacao.trim() }),
+          ...(frequenciaManutencao && { frequenciaManutencao: frequenciaManutencao as any }),
+          ...(frequenciaCalibracao && { frequenciaCalibracao: frequenciaCalibracao as any }),
+          ...(responsavelTecnicoNome.trim() && { responsavelTecnicoNome: responsavelTecnicoNome.trim() }),
+          ...((condicoesVoltagem || typeof condicoesTempMin === 'number' || typeof condicoesTempMax === 'number') && {
+            condicoesAmbientais: {
+              ...(typeof condicoesTempMin === 'number' && { temperaturaMin: condicoesTempMin }),
+              ...(typeof condicoesTempMax === 'number' && { temperaturaMax: condicoesTempMax }),
+              ...(typeof condicoesUmidMin === 'number' && { umidadeMin: condicoesUmidMin }),
+              ...(typeof condicoesUmidMax === 'number' && { umidadeMax: condicoesUmidMax }),
+              ...(condicoesVoltagem.trim() && { voltagem: condicoesVoltagem.trim() }),
+            },
+          }),
           updatedBy: user.uid,
           updatedByName: user.displayName ?? user.email ?? user.uid,
         });
@@ -124,6 +151,20 @@ export function EquipamentoFormModal({
           ...(typeof anoAquisicao === 'number' && { anoAquisicao }),
           ...(registroAnvisa.trim() && { registroAnvisa: registroAnvisa.trim() }),
           ...(observacoes.trim() && { observacoes: observacoes.trim() }),
+          ...(patrimonio.trim() && { patrimonio: patrimonio.trim() }),
+          ...(localizacao.trim() && { localizacao: localizacao.trim() }),
+          ...(frequenciaManutencao && { frequenciaManutencao: frequenciaManutencao as any }),
+          ...(frequenciaCalibracao && { frequenciaCalibracao: frequenciaCalibracao as any }),
+          ...(responsavelTecnicoNome.trim() && { responsavelTecnicoNome: responsavelTecnicoNome.trim() }),
+          ...((condicoesVoltagem || typeof condicoesTempMin === 'number' || typeof condicoesTempMax === 'number') && {
+            condicoesAmbientais: {
+              ...(typeof condicoesTempMin === 'number' && { temperaturaMin: condicoesTempMin }),
+              ...(typeof condicoesTempMax === 'number' && { temperaturaMax: condicoesTempMax }),
+              ...(typeof condicoesUmidMin === 'number' && { umidadeMin: condicoesUmidMin }),
+              ...(typeof condicoesUmidMax === 'number' && { umidadeMax: condicoesUmidMax }),
+              ...(condicoesVoltagem.trim() && { voltagem: condicoesVoltagem.trim() }),
+            },
+          }),
           createdBy: user.uid,
           createdByName: user.displayName ?? user.email ?? user.uid,
         });
@@ -299,6 +340,152 @@ export function EquipamentoFormModal({
               autoComplete="off"
             />
           </Field>
+
+          {/* Seção DICQ 5.3.1.7 — Campos obrigatórios de registro */}
+          <div className="border border-slate-200 dark:border-white/[0.08] rounded-xl overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setShowDicqFields(!showDicqFields)}
+              className="w-full px-4 py-3 flex items-center justify-between bg-slate-50 dark:bg-white/[0.03] hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-colors"
+            >
+              <span className="text-xs font-semibold text-slate-600 dark:text-white/55">
+                Campos DICQ 5.3.1.7 — Localização, Manutenção e Ambiente
+              </span>
+              <svg
+                className={`w-4 h-4 text-slate-400 transition-transform ${showDicqFields ? 'rotate-180' : ''}`}
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {showDicqFields && (
+              <div className="p-4 space-y-4 border-t border-slate-200 dark:border-white/[0.06]">
+                <div className="grid grid-cols-2 gap-4">
+                  <Field id="patrimonio" label="Patrimônio / TAG" hint="Etiqueta patrimonial interna">
+                    <input
+                      id="patrimonio"
+                      className={INPUT_CLS}
+                      value={patrimonio}
+                      onChange={(e) => setPatrimonio(e.target.value)}
+                      placeholder="PAT-0042"
+                      autoComplete="off"
+                    />
+                  </Field>
+                  <Field id="localizacao" label="Localização" hint="Sala / bancada / setor">
+                    <input
+                      id="localizacao"
+                      className={INPUT_CLS}
+                      value={localizacao}
+                      onChange={(e) => setLocalizacao(e.target.value)}
+                      placeholder="Sala Hematologia — Bancada 2"
+                      autoComplete="off"
+                    />
+                  </Field>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <Field id="freqManut" label="Frequência Manutenção Preventiva">
+                    <select
+                      id="freqManut"
+                      className={INPUT_CLS}
+                      value={frequenciaManutencao}
+                      onChange={(e) => setFreqManut(e.target.value)}
+                    >
+                      <option value="">— Selecione —</option>
+                      <option value="mensal">Mensal</option>
+                      <option value="trimestral">Trimestral</option>
+                      <option value="semestral">Semestral</option>
+                      <option value="anual">Anual</option>
+                    </select>
+                  </Field>
+                  <Field id="freqCalib" label="Frequência Calibração">
+                    <select
+                      id="freqCalib"
+                      className={INPUT_CLS}
+                      value={frequenciaCalibracao}
+                      onChange={(e) => setFreqCalib(e.target.value)}
+                    >
+                      <option value="">— Selecione —</option>
+                      <option value="mensal">Mensal</option>
+                      <option value="trimestral">Trimestral</option>
+                      <option value="semestral">Semestral</option>
+                      <option value="anual">Anual</option>
+                    </select>
+                  </Field>
+                </div>
+
+                <Field id="respTec" label="Responsável Técnico pelo Equipamento">
+                  <input
+                    id="respTec"
+                    className={INPUT_CLS}
+                    value={responsavelTecnicoNome}
+                    onChange={(e) => setRespTecNome(e.target.value)}
+                    placeholder="Nome do responsável técnico"
+                    autoComplete="off"
+                  />
+                </Field>
+
+                <div>
+                  <p className="text-xs font-medium text-slate-500 dark:text-white/45 mb-2 ml-0.5">
+                    Condições Ambientais Requeridas
+                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <Field id="tempMin" label="Temp. Mín (°C)">
+                      <input
+                        id="tempMin"
+                        type="number"
+                        className={INPUT_CLS}
+                        value={condicoesTempMin === '' ? '' : condicoesTempMin}
+                        onChange={(e) => setCondicoesTempMin(e.target.value === '' ? '' : Number(e.target.value))}
+                        placeholder="15"
+                      />
+                    </Field>
+                    <Field id="tempMax" label="Temp. Máx (°C)">
+                      <input
+                        id="tempMax"
+                        type="number"
+                        className={INPUT_CLS}
+                        value={condicoesTempMax === '' ? '' : condicoesTempMax}
+                        onChange={(e) => setCondicoesTempMax(e.target.value === '' ? '' : Number(e.target.value))}
+                        placeholder="30"
+                      />
+                    </Field>
+                    <Field id="voltagem" label="Voltagem">
+                      <input
+                        id="voltagem"
+                        className={INPUT_CLS}
+                        value={condicoesVoltagem}
+                        onChange={(e) => setCondicoesVoltagem(e.target.value)}
+                        placeholder="220V / 60Hz"
+                        autoComplete="off"
+                      />
+                    </Field>
+                    <Field id="umidMin" label="Umidade Mín (%)">
+                      <input
+                        id="umidMin"
+                        type="number"
+                        className={INPUT_CLS}
+                        value={condicoesUmidMin === '' ? '' : condicoesUmidMin}
+                        onChange={(e) => setCondicoesUmidMin(e.target.value === '' ? '' : Number(e.target.value))}
+                        placeholder="20"
+                      />
+                    </Field>
+                    <Field id="umidMax" label="Umidade Máx (%)">
+                      <input
+                        id="umidMax"
+                        type="number"
+                        className={INPUT_CLS}
+                        value={condicoesUmidMax === '' ? '' : condicoesUmidMax}
+                        onChange={(e) => setCondicoesUmidMax(e.target.value === '' ? '' : Number(e.target.value))}
+                        placeholder="80"
+                      />
+                    </Field>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
 
           <Field id="obs" label="Observações" hint="Contrato de manutenção, calibração especial, etc">
             <textarea
