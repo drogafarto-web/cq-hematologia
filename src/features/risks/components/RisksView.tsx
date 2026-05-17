@@ -16,7 +16,7 @@ import { toast } from '../../../shared/store/useToastStore';
 import { subscribeRisks } from '../services/risksService';
 import type { Risk } from '../types/Risk';
 import { RiskRegister } from './RiskRegister';
-import { RiskMatrix } from './RiskMatrix';
+import { RiskHeatmap } from './RiskHeatmap';
 import { RiskDashboard } from './RiskDashboard';
 import { Top5RisksWidget } from './Top5RisksWidget';
 import { ReviewHistory } from './ReviewHistory';
@@ -203,7 +203,9 @@ export const RisksView: React.FC = () => {
           />
         )}
         {activeTab === 'matriz' && (
-          <RiskMatrix risks={risks} />
+          <div className="p-4">
+            <RiskHeatmap risks={risks} />
+          </div>
         )}
         {activeTab === 'top5' && (
           <Top5RisksWidget risks={risks} onRiskClick={setSelectedRisk} />
@@ -215,14 +217,54 @@ export const RisksView: React.FC = () => {
                 onClick={() => setSelectedRisk(null)}
                 className="text-sm text-white/60 hover:text-white/80"
               >
-                ← Voltar para Top 5
+                ← Voltar
               </button>
             </div>
             <ReviewHistory risk={selectedRisk} />
           </div>
         ) : activeTab === 'revisoes' ? (
-          <div className="p-4 text-center text-white/50">
-            Selecione um risco em "Top 5" para ver histórico de revisões
+          <div className="p-4 space-y-3">
+            <p className="text-xs text-white/50 mb-3">
+              Riscos com revisão periódica próxima ou vencida. Clique para ver histórico.
+            </p>
+            {risks
+              .filter(r => !r.deletadoEm && r.status !== 'fechado')
+              .sort((a, b) => {
+                const aDate = a.reviewDate instanceof Date ? a.reviewDate : (a.reviewDate as any)?.toDate?.() || new Date('2099-01-01');
+                const bDate = b.reviewDate instanceof Date ? b.reviewDate : (b.reviewDate as any)?.toDate?.() || new Date('2099-01-01');
+                return aDate.getTime() - bDate.getTime();
+              })
+              .slice(0, 10)
+              .map(risk => {
+                const reviewDateObj = risk.reviewDate instanceof Date
+                  ? risk.reviewDate
+                  : (risk.reviewDate as any)?.toDate?.() || null;
+                const isOverdue = reviewDateObj && reviewDateObj < new Date();
+                return (
+                  <div
+                    key={risk.id}
+                    onClick={() => setSelectedRisk(risk)}
+                    className={`rounded-lg border p-3 cursor-pointer transition-colors hover:bg-white/[0.03] ${
+                      isOverdue ? 'border-red-500/30 bg-red-500/[0.04]' : 'border-white/10 bg-white/[0.01]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-mono text-white/50">{risk.codigo}</span>
+                        <span className="text-sm text-white/80 truncate max-w-xs">{risk.descricao}</span>
+                      </div>
+                      <div className="text-right shrink-0">
+                        {reviewDateObj && (
+                          <span className={`text-xs ${isOverdue ? 'text-red-400 font-medium' : 'text-white/50'}`}>
+                            {isOverdue ? 'Vencida: ' : 'Próxima: '}
+                            {reviewDateObj.toLocaleDateString('pt-BR')}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
           </div>
         ) : null}
       </div>

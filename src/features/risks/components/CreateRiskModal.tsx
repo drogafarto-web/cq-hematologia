@@ -19,10 +19,14 @@ interface CreateRiskModalProps {
 }
 
 const PROCESSO_OPTIONS: Array<{ label: string; value: string }> = [
+  { label: 'Atendimento', value: 'atendimento' },
   { label: 'Coleta', value: 'coleta' },
+  { label: 'Transporte', value: 'transporte' },
   { label: 'Armazenamento', value: 'armazenamento' },
   { label: 'Análise', value: 'analise' },
+  { label: 'Pós-Analítico', value: 'pos_analitico' },
   { label: 'Liberação', value: 'liberacao' },
+  { label: 'Administrativo', value: 'administrativo' },
   { label: 'Rastreabilidade', value: 'rastreabilidade' },
 ];
 
@@ -54,6 +58,9 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
     probabilidade: 3,
     severidade: 3,
     deteccao: 3,
+    causaPotencial: '',
+    efeitoPotencial: '',
+    responsavel: '',
     status: 'aberto',
     tratamento: { estrategia: 'mitigar', acoes: [], observacoes: '' },
     reviewHistory: [],
@@ -139,6 +146,9 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
         probabilidade: form.probabilidade || 3,
         severidade: form.severidade || 3,
         deteccao: form.deteccao || 3,
+        causaPotencial: (form as any).causaPotencial?.trim() || undefined,
+        efeitoPotencial: (form as any).efeitoPotencial?.trim() || undefined,
+        responsavel: (form as any).responsavel?.trim() || undefined,
         status: 'aberto',
         tratamento: { estrategia: 'mitigar', acoes: [], observacoes: '' },
         reviewHistory: [],
@@ -231,8 +241,53 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
               onChange={(e) => handleChange('descricao', e.target.value)}
               placeholder="Descreva o risco..."
               disabled={isSubmitting}
-              rows={3}
+              rows={2}
               className="w-full px-3 py-2 bg-white/[0.05] border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 disabled:opacity-50 resize-none"
+            />
+          </div>
+
+          {/* Causa Potencial */}
+          <div>
+            <label className="block text-sm font-medium text-white/70 mb-1.5">
+              Causa Potencial
+            </label>
+            <textarea
+              value={(form as any).causaPotencial || ''}
+              onChange={(e) => handleChange('causaPotencial' as any, e.target.value)}
+              placeholder="O que pode causar este risco..."
+              disabled={isSubmitting}
+              rows={2}
+              className="w-full px-3 py-2 bg-white/[0.05] border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 disabled:opacity-50 resize-none"
+            />
+          </div>
+
+          {/* Efeito Potencial */}
+          <div>
+            <label className="block text-sm font-medium text-white/70 mb-1.5">
+              Efeito Potencial
+            </label>
+            <textarea
+              value={(form as any).efeitoPotencial || ''}
+              onChange={(e) => handleChange('efeitoPotencial' as any, e.target.value)}
+              placeholder="Consequências se o risco se materializar..."
+              disabled={isSubmitting}
+              rows={2}
+              className="w-full px-3 py-2 bg-white/[0.05] border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 disabled:opacity-50 resize-none"
+            />
+          </div>
+
+          {/* Responsável */}
+          <div>
+            <label className="block text-sm font-medium text-white/70 mb-1.5">
+              Responsável
+            </label>
+            <input
+              type="text"
+              value={(form as any).responsavel || ''}
+              onChange={(e) => handleChange('responsavel' as any, e.target.value)}
+              placeholder="Nome do responsável pelo risco"
+              disabled={isSubmitting}
+              className="w-full px-3 py-2 bg-white/[0.05] border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 disabled:opacity-50"
             />
           </div>
 

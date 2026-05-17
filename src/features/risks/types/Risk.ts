@@ -18,10 +18,14 @@ export type Categoria =
   | 'outro';
 
 export type Processo =
+  | 'atendimento'
   | 'coleta'
+  | 'transporte'
   | 'armazenamento'
   | 'analise'
+  | 'pos_analitico'
   | 'liberacao'
+  | 'administrativo'
   | 'rastreabilidade';
 
 export type Status = 'aberto' | 'mitigando' | 'monitorado' | 'fechado';
@@ -122,6 +126,14 @@ export interface Risk {
   deteccao: Deteccao;
   npr: number; // P × S × D; recomputed server-side
   nivel: Nivel;
+
+  // Extended domain fields (optional — backward-compatible with existing docs)
+  causaPotencial?: string;
+  efeitoPotencial?: string;
+  responsavel?: string; // owner/responsible person
+  setor?: string; // lab sector
+  evidencias?: readonly string[]; // evidence document IDs or descriptions
+  eficacia?: 'pendente' | 'eficaz' | 'parcial' | 'ineficaz'; // treatment efficacy
 
   status: Status;
   tratamento: Tratamento;

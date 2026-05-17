@@ -17,6 +17,7 @@ import {
 } from '../services/risksService';
 import { ConfirmModal } from '../../../shared/components/ConfirmModal';
 import { CreateRiskModal } from './CreateRiskModal';
+import { EditRiskModal } from './EditRiskModal';
 
 const NIVEL_CONFIG: Record<string, { dot: string; cls: string }> = {
   baixo: {
@@ -245,6 +246,16 @@ export const RiskRegister: React.FC<RiskRegisterProps> = ({
           labId={labId}
           onSuccess={onRefresh}
           onCancel={() => setShowCreateModal(false)}
+        />
+      )}
+
+      {/* Edit risk modal */}
+      {editingRisk && (
+        <EditRiskModal
+          risk={editingRisk}
+          labId={labId}
+          onSuccess={onRefresh}
+          onCancel={() => setEditingRisk(null)}
         />
       )}
     </div>
