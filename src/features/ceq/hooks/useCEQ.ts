@@ -228,6 +228,25 @@ export function useCEQ() {
       setCeqErrorCategory('none');
       setCeqErrorTitle(null);
       await auth.currentUser?.getIdToken(true);
+
+      const ceqClaim = await readTokenModulesCeq();
+      if (ceqClaim !== true) {
+        const { body } = formatCeqUserFacingError({ category: 'rbac' });
+        setCeqErrorCategory('rbac');
+        setCeqErrorTitle('Permissão CEQ ausente no token');
+        const detail =
+          ceqClaim === false
+            ? 'O token foi renovado, mas modules.ceq está false. Peça ao administrador para executar o provisionamento de claims (ex.: provisionModulesClaims para o seu UID) ou revisar a associação ao laboratório.'
+            : 'O token foi renovado, mas a claim modules não veio no JWT (null). Peça ao administrador para re-provisionar o usuário.';
+        setState((s) => ({ ...s, error: `${body} ${detail}` }));
+        toast.error(
+          ceqClaim === false
+            ? 'Token atualizado — modules.ceq = false. Re-provisionamento necessário.'
+            : 'Token atualizado — claim modules ausente. Re-provisionamento necessário.',
+        );
+        return;
+      }
+
       setState((s) => ({ ...s, error: null }));
       setListenerEpoch((e) => e + 1);
     } catch {

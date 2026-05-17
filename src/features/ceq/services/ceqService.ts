@@ -24,7 +24,8 @@ import {
   orderBy,
   limit,
 } from 'firebase/firestore';
-import { db } from '../../../config/firebase.config';
+import { httpsCallable } from 'firebase/functions';
+import { db, functions } from '../../../config/firebase.config';
 import type {
   CEQParticipacao,
   CEQAmostra,
@@ -263,62 +264,62 @@ export function calcularZScore(
 }
 
 /**
- * Record CEQResultado with automatic Z-score calculation
- * If |Z| > 3: Automatically create critical NC (grave, blocking)
- *
- * Cloud Function will:
- * 1. Calculate Z-score
- * 2. If |Z| > 3, call openNaoConformidade() with severity=grave
- * 3. Store NC ID in resultado
+ * Record CEQResultado via Cloud Function callable
+ * Server-side: calculates Z-score, creates resultado, auto-creates NC if |Z| >= 3
  */
 export async function lancarCEQResultado(
   labId: string,
   input: CEQResultadoInput,
   uid: string,
 ): Promise<CEQResultado> {
-  // Calculate Z-score client-side
-  const { zScore, interpretacao } = calcularZScore(
-    input.valorObtido,
-    input.valorReferencia,
-    input.desvioEstimado,
-  );
+  const callable = httpsCallable<
+    {
+      labId: string;
+      ceqAmostraId: string;
+      ceqParticipacaoId: string;
+      analyteId: string;
+      analyteName: string;
+      valorObtido: number;
+      unidade: string;
+      valorReferencia: number;
+      desvioEstimado: number;
+    },
+    {
+      success: boolean;
+      resultadoId: string;
+      zScore: number;
+      interpretacao: 'satisfatoria' | 'questionavel' | 'insatisfatoria';
+      ncAutomaticaCriadaId?: string;
+      ncNumero?: string;
+    }
+  >(functions, 'lacarCEQResultado');
 
-  const temNCGrave = Math.abs(zScore) >= 3;
+  const result = await callable({
+    labId,
+    ceqAmostraId: input.ceqAmostraId,
+    ceqParticipacaoId: input.ceqParticipacaoId,
+    analyteId: input.analyteId || input.analyteName.toLowerCase().replace(/\s+/g, '-'),
+    analyteName: input.analyteName,
+    valorObtido: input.valorObtido,
+    unidade: input.unidade || '',
+    valorReferencia: input.valorReferencia,
+    desvioEstimado: input.desvioEstimado,
+  });
 
-  const resultado: CEQResultado = {
-    id: '', // Set by Firestore
+  const { resultadoId, zScore, interpretacao, ncAutomaticaCriadaId } = result.data;
+
+  return {
+    id: resultadoId,
     labId,
     ...input,
     zScore,
     interpretacao,
-    temNCGrave,
+    temNCGrave: Math.abs(zScore) >= 3,
+    ncAutomaticaCriadaId,
     status: 'lancado',
     criadoEm: new Date(),
     criadoPor: uid,
-  };
-
-  // Add to Firestore
-  const ref = await addDoc(getCEQResultadoRef(labId), {
-    ...resultado,
-    criadoEm: Timestamp.fromDate(resultado.criadoEm),
-    atualizadoEm: Timestamp.fromDate(new Date()),
-    atualizadoPor: uid,
-    investigacao: resultado.investigacao
-      ? {
-          ...resultado.investigacao,
-          dataInicio: Timestamp.fromDate(resultado.investigacao.dataInicio),
-          dataFim: resultado.investigacao.dataFim
-            ? Timestamp.fromDate(resultado.investigacao.dataFim)
-            : null,
-        }
-      : null,
-  });
-
-  resultado.id = ref.id;
-
-  // If |Z| >= 3, Cloud Function (trigger) will create critical NC
-  // Caller should poll or use real-time listener to detect ncAutomaticaCriadaId
-  return resultado;
+  } as CEQResultado;
 }
 
 /**

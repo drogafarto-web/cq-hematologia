@@ -11,6 +11,8 @@ import { useState } from 'react';
 import { useCEQ } from '../hooks/useCEQ';
 import { CEQParticipacaoForm } from './CEQParticipacaoForm';
 import { CEQResultadoEntry } from './CEQResultadoEntry';
+import { CEQOverviewDashboard } from './CEQOverviewDashboard';
+import { CEQPdfUpload } from './CEQPdfUpload';
 import type { CEQParticipacao, CEQAmostra, CEQResultado } from '../types/CEQ';
 
 /* ─── Inline SVG icons ────────────────────────────────────────────────────── */
@@ -448,6 +450,12 @@ export function CEQDashboard() {
             Nova participação
           </button>
         </div>
+
+        {/* ── Overview Dashboard (consolidated view) ───────────────────── */}
+        <CEQOverviewDashboard />
+
+        {/* ── Upload de PDFs PNCQ ──────────────────────────────────────── */}
+        <CEQPdfUpload />
 
         {/* ── Error banner (omit when full access panel is shown below) ─ */}
         {error && (!showCeqAccessPanel || participacoes.length > 0 || loading) && (
