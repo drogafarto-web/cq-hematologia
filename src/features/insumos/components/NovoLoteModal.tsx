@@ -586,11 +586,12 @@ function LoteForm({
     if (showTraceability && !traceExamCode.trim()) {
       e.traceExamCode = 'Informe o código do primeiro atendimento (Worklab).';
     }
-    // ADR 0002 — notaFiscalId é obrigatório por Firestore rules (exceto legado com _legacyMigrated).
-    // UI valida para guiar o usuário; o Firestore é a source-of-truth de enforcement.
-    if (!notaFiscalId) {
-      e.notaFiscalId = 'Informe a nota fiscal (obrigatória por RDC 786/2023).';
-    }
+    // ADR 0002 — notaFiscalId será obrigatório quando módulo fornecedores estiver completo.
+    // Temporariamente opcional para não bloquear cadastro de insumos.
+    // TODO: reativar validação após módulo fornecedores em produção.
+    // if (!notaFiscalId) {
+    //   e.notaFiscalId = 'Informe a nota fiscal (obrigatória por RDC 786/2023).';
+    // }
     const diasNum = diasEstab.trim() === '' ? 0 : Number(diasEstab);
     if (!Number.isFinite(diasNum) || diasNum < 0 || diasNum > 365) {
       e.diasEstab = 'Estabilidade deve ficar entre 0 e 365 dias.';
@@ -783,15 +784,14 @@ function LoteForm({
           )}
         </div>
 
-        {/* Nota fiscal — obrigatória em tiras (RDC 786 art. 42 — rastreabilidade
-            fiscal de insumos de diagnóstico); opcional em reagente/controle. */}
+        {/* Nota fiscal — opcional até módulo fornecedores estar completo. */}
         <div className="col-span-2">
           <NotaFiscalPicker
             labId={labId}
             notaFiscalId={notaFiscalId}
             onSelect={setNotaFiscalId}
             onCreateNew={() => setShowNovaNota(true)}
-            required={true}
+            required={false}
             error={errors.notaFiscalId}
           />
         </div>

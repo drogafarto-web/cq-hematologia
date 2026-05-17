@@ -126,8 +126,7 @@ function CAPACard({ capa }: { capa: CAPAWithDeadlineStatus }) {
         isOpen={showTransition}
         onClose={() => setShowTransition(false)}
         onSubmit={async (toStatus, notes) => {
-          // TODO: Call Cloud Function callable
-          console.log('Transition', { capaId: capa.id, toStatus, notes });
+          // TODO: Call Cloud Function callable for transition
         }}
       />
     </>

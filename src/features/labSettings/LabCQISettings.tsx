@@ -5,6 +5,7 @@ import { db } from '../../shared/services/firebase';
 import { functions } from '../../config/firebase.config';
 import { useActiveLab, useUserRole, useIsSuperAdmin } from '../../store/useAuthStore';
 import { useAppStore } from '../../store/useAppStore';
+import { AIModelConfig } from './AIModelConfig';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -626,6 +627,9 @@ export function LabCQISettings() {
                 )}
               </section>
             )}
+
+            {/* ── Modelo de IA ── */}
+            <AIModelConfig />
 
             {/* ── Permissão ── */}
             {!canEdit && (
