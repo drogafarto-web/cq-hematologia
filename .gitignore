@@ -186,3 +186,18 @@ modulo educa*/*.docx
 Thumbs.db
 
 .claude/worktrees/
+
+# Temp/scratch files
+*.mp4
+scratch/
+audit-screenshots/
+.playwright-mcp/
+temp-*.xlsx
+temp-*.json
+tmp-*.json
+audit-dom.txt
+audit-results.json
+response.json
+cors.json
+firestore.indexes.json.tmp
+*.mjs.bak
