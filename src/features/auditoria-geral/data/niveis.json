@@ -1,0 +1,458 @@
+{
+  "1": {
+    "0": "Sem alvará de licenciamento ou equivalente.",
+    "1": "Alvará de licenciamento vencido, sem pedido de renovação ou em processo inicial de licenciamento.",
+    "2": "Alvará de licenciamento vencido, com pedido de renovação.",
+    "3": "Dispõe de alvará de licenciamento ou equivalente, expedido pelo órgão sanitário competente, indicando as atividades relacionadas ao EAC.",
+    "4": "Alvará de licenciamento atualizado, com pedido de renovação.",
+    "5": "Solicitou a renovação do alvará de licenciamento antes do vencimento nos últimos dois anos."
+  },
+  "2": {
+    "0": "Não possui inscrição no CNES",
+    "1": "Inscrito com informações inconsistentes com as atividades.",
+    "2": "Inscrito  com dados incompletos ou desatualizados.",
+    "3": "Inscrito no CNES com informações completas e atualizadas ou com protocolo de inscrição.",
+    "4": "As Informações opcionais estão preenchidas.",
+    "5": "Há protocolo de atualização e verificação anual da inscrição no CNES."
+  },
+  "3": {
+    "0": "Não possui PBA e/ou memorial descritivo.",
+    "1": "O serviço realizou modificações, sem solicitar a VISA e/ou sem atualizar o PBA ou memorial descritivo.",
+    "2": "O serviço possui PBA e memorial descritivo atualizados e protocolado na VISA para avaliação.",
+    "3": "O serviço possui Projeto Básico de Arquitetura (PBA) e memorial descritivo atualizados e aprovado pela Vigilância Sanitária.",
+    "4": "PBA e memorial descritivo revisados anualmente para verificação de possíveis adequações.",
+    "5": "Existe procedimento interno estabelecendo a necessidade de atualização e aprovação do PBA e do memorial descritivo na VISA antes de qualquer intervenção no serviço."
+  },
+  "4": {
+    "0": "Não possui Responsável Técnico, nem substituto formalmente designados.",
+    "1": "Possui Responsável Técnico, porém não dispõe de substituto ou o Responsável Técnico não desempenha a função.",
+    "2": "O Responsável Técnico ou substituto, designado formalmente, difere daquele que desempenha na prática a função.",
+    "3": "Possui Responsável Técnico legalmente habilitado e em caso de impedimento deste, dispõe de profissional legalmente habilitado para substituí-lo.",
+    "4": "RT é exclusivo do serviço.",
+    "5": "RT e substituto são exclusivos do serviço e presentes no estabelecimento em seu funcionamento."
+  },
+  "5": {
+    "0": "Presta assistência com sua estrutura física em movimento ou não realiza as medidas e verificações após montagem do instrumento no local de parada.",
+    "1": "As medidas e verificações após a montagem do instrumento, são realizadas apenas em algumas paradas.",
+    "2": "Não apresenta registros de todas as medidas e verificações após a montagem do instrumento no local de parada para atendimento.",
+    "3": "Presta assistência com sua estrutura física apenas quando não está em movimento. Realiza medidas e verificações após a montagem do instrumento no local de parada para atendimento, mantendo os registros.",
+    "4": "Possui protocolo para início das atividades após a parada, indicando que todas as medidas e verificações foram realizadas.",
+    "5": "Possui sistema informatizado, com supervisão, autorizando o início das atividades."
+  },
+  "6": {
+    "0": "Não há contratualizaçã o ou as partes não comprovam a regularidade sanitária.",
+    "1": "Há contratualização, mas não constam as obrigações, responsabilidades ou funções das partes.",
+    "2": "Há contratualização, porém não estabelece os critérios de controle de qualidade e/ou de qualificação das etapas da cadeia do EAC.",
+    "3": "As contratualizações das atividades relacionadas aos EAC estabelecem as responsabilidades das Partes envolvidas e os critérios de controle e de qualificação das etapas da cadeia do EAC. As partes requisitam documento que comprova a regularidade sanitária da outra parte. Há contrato escrito onde constam as obrigações, responsabilidades e funções das partes.",
+    "4": "O contrato possui período de validade e está vigente.",
+    "5": "Existe protocolo para revisão e atualização periódica dos contratos."
+  },
+  "7": {
+    "0": "Contrato não possui nenhum dos 8 requisitos estabelecidos no artigo 48 da RDC 786/2023.",
+    "1": "Contrato prevê até 4 dos 8 requisitos estabelecidos.",
+    "2": "Contrato prevê de 5 a 7 dos 8 requisitos estabelecidos.",
+    "3": "Está previsto no contrato: I autorização expressa para que as Partes promovam auditorias para fins de verificação do cumprimento da RDC 786/2023; II- o fluxo de registros para controle de rastreabilidade; III- o cumprimento de todos os requisitos das fases analíticas, pré-analíticas e pós analítica da RDC 786/2023; IV-que as Partes comuniquem entre si desvios de qualidade e riscos identificados em tempo hábil para implementação de medidas corretivas; V- que as Partes forneçam todas as informações necessárias à outra Parte para garantia de uma operação segura e com redução de riscos; VI- a Parte responsável pela notificação das Doenças de Notificação Compulsórias; VII- que as Partes monitorem e revisem o desempenho, requerendo à outra Parte a implementação de melhorias necessárias; VIII- que as Partes cumpram os requisitos dispostos na RDC 786/2023.",
+    "4": "Possui profissional designado para a gestão do contrato. Verificar possibilidade de atender",
+    "5": "Existe previsão de auditorias periódicas para verificar o cumprimento contratual. Verificar possibilidade de atender"
+  },
+  "8": {
+    "0": "Não existe contrato de Supervisão.",
+    "1": "Contrato de supervisão em elaboração.",
+    "2": "Contrato de supervisão com período de vigência expirado.",
+    "3": "Caso o EAC possua serviços Tipo I ou II vinculado, existe contrato de supervisão.",
+    "4": "O contrato possui período de validade e está vigente.",
+    "5": "Existe protocolo para revisão e atualização periódica dos contratos."
+  },
+  "9": {
+    "0": "Contrato de supervisão não possui nenhum dos 5 requisitos estabelecidos no artigo 49 da RDC 786/2023.",
+    "1": "Contrato de supervisão prevê até 3 dos 5 requisitos estabelecidos.",
+    "2": "Contrato de supervisão prevê 4 dos 5 requisitos estabelecidos.",
+    "3": "O contrato de supervisão contem, minimamente: I - a obrigação das Partes de definirem as responsabilidades de modo a garantir a gestão da qualidade, o gerenciamento dos processos operacionais e a gestão do controle da qualidade nos termos desta Resolução; II - a obrigação das Partes de fornecerem todas as informações necessárias à outra Parte para garantir uma operação segura e com redução de riscos; III - a obrigação das Partes de monitorarem e revisarem o desempenho, requerendo à outra Parte medidas para implementação de qualquer melhoria necessária; IV - a competência do Serviço Tipo III em promover os controles de desempenho para a outra Parte; e V - a obrigação de cada Parte para assegurar o cumprimento dos requisitos de controle interno e externo de qualidade.",
+    "4": "Possui profissional designado para a gestão do contrato.",
+    "5": "Existe previsão de auditorias periódicas para verificar o cumprimento contratual."
+  },
+  "10": {
+    "0": "Não possui PGT ou utiliza produtos sujeitos à vigilância sanitária que não estão regularizados junto à Anvisa ou não realiza o gerenciamento de suas tecnologias.",
+    "1": "PGT em elaboração.",
+    "2": "PGT não esta atualizado.",
+    "3": "Possui Plano de Gerenciamento de Tecnologias, contemplando inclusive os instrumentos dos serviços tipo I e tipo II com o qual mantém contrato de supervisão.(quando aplicável). Todos os produtos sujeitos à vigilância sanitária, utilizados pelo Serviço que executa EAC estão regularizados junto à Anvisa e são utilizados exclusivamente para os fins a que se destinam. Realiza o gerenciamento de suas tecnologias, no que diz respeito às condições de seleção, aquisição, transporte, recebimento, armazenamento, distribuição, instalação, calibração, funcionamento ou uso, descarte e rastreabilidade.",
+    "4": "O Plano é avaliado sistematicamente quando da introdução de novas tecnologias no setor e ações de conformidade e prevenção de recorrência são registradas.",
+    "5": "O plano e sua implementação recebem auditoria externa anualmente."
+  },
+  "11": {
+    "0": "Não notificam incidentes, eventos adversos e queixas técnicas ocorridos.",
+    "1": "Não realiza as notificações sistematicamente, tendo sido verificada ocorrência não notificada.",
+    "2": "Monitora o desempenho e segurança dos produtos sob vigilância sanitária e oferta de serviços, bem como adotam estratégias para identificar e notificar, através do Notivisa, incidentes, eventos adversos e queixas técnicas ocorridos. Porém, não investiga as ocorrências e/ ou não adota medidas para prevenir a recorrência.",
+    "3": "Monitora o desempenho e segurança dos produtos sob vigilância sanitária e oferta de serviços, bem como adotam estratégias para identificar e notificar, através do Notivisa, incidentes, eventos adversos e queixas técnicas ocorridos. Investiga as ocorrências e adota medidas para prevenir a recorrência.",
+    "4": "Possui procedimento operacional padrão ou instrução técnica para notificações (incidentes, eventos adversos e queixas técnicas).",
+    "5": "Realiza avaliação da efetividade das medidas implantadas para prevenir repetição de recorrência."
+  },
+  "12": {
+    "0": "Não são realizadas manutenções preventivas nem corretivas.",
+    "1": "As manutenções não são realizadas em alguns dos instrumentos, ou realiza apenas manutenções corretivas e não há calendário para manutenções preventivas.",
+    "2": "Há registro da manutenção corretiva e preventiva, porém em periodicidade diferente do indicado pelo fabricante ou superior a um ano (instrumentos cujo fabricante não delimita a periodicidade).",
+    "3": "Mantém registro da manutenção preventiva e corretiva dos instrumentos de acordo com as instruções de uso. Na ausência de definição do fabricante do instrumento quanto à periodicidade de manutenção preventiva e corretiva, o Serviço estabelece a periodicidade, devendo ser executada com frequência, no mínimo, anual.",
+    "4": "Planejamento com calendário de manutenção e registros informatizados.",
+    "5": "Existe um sistema de gerenciamento das manutenções dos instrumentos com profissional designado para coordenação. Participam de Comissão de Tecnovigilância."
+  },
+  "13": {
+    "0": "Não realiza medidas e verificações dos instrumentos ou realizou apenas as medidas de aceitação.",
+    "1": "Realiza medidas de aceitação e desempenho apenas de alguns instrumentos.",
+    "2": "Realiza as medidas e verificações conforme periodicidade definida, porém não realizou as medidas iniciais após a montagem.",
+    "3": "Realiza medidas e verificações após a montagem do instrumento no ambiente para atestar a conformidade com as características de projeto e de desempenho declaradas pelo fabricante (aceitação), bem como determina sua periodicidade de execução (desempenho), mantendo os registros.",
+    "4": "Monitora a evolução temporal de todas as avaliações, com alerta para valores fora das tolerâncias.",
+    "5": "Possui sistema informatizado de gerenciamento das medidas e verificações."
+  },
+  "14": {
+    "0": "Instrumentos não são calibrados.",
+    "1": "Os instrumentos são calibrados conforme a periodicidade recomendada pelo fabricante, porém em laboratórios que não são acreditados por organismos de acreditação signatários de acordos de reconhecimento mútuo.",
+    "2": "Os instrumentos são calibrados em laboratórios acreditados por organismos de acreditação signatários de acordos de reconhecimento mútuo, porém em desacordo a periodicidade recomendada pelo fabricante.",
+    "3": "Os instrumentos são calibrados em laboratórios acreditados por organismos de acreditação signatários de acordos de reconhecimento mútuo, conforme a periodicidade recomendada pelo fabricante. Na ausência da indicação de periodicidade por parte do fabricante, esta é estabelecida pelo serviço que executa EAC, sendo executada com frequência, no mínimo, anual.",
+    "4": "Realiza análise crítica dos certificados de calibração, estabelecendo os parâmetros de aceitação.",
+    "5": "Possui sistema informatizado de gerenciamento das calibrações."
+  },
+  "15": {
+    "0": "Não realiza gerenciamento de risco.",
+    "1": "Gerenciamento de risco não contempla pelo menos dois dos quatro tópicos descritos.",
+    "2": "Gerenciamento de risco não contempla pelo menos um dos quatro tópicos descritos.",
+    "3": "O gerenciamento de riscos contempla, no mínimo: I identificação, análise, avaliação, tratamento, monitoramento e comunicação dos riscos; II Identificação de possíveis falhas de instrumentos e erros humanos que possam resultar em incidentes relacionados à assistência à saúde e promoção das medidas preventivas necessárias; III- investigação documentada que determine as causas das possíveis falhas de instrumento, erros humanos ou descumprimento das normativas em vigor, suas consequências e as ações preventivas e corretivas necessária; e IV- execução das ações preventivas e corretivas identificadas durante as investigações.",
+    "4": "Registros das ações de Gerenciamento de Riscos em meio digital, com cópia de segurança (backup).",
+    "5": "Registros das ações de Gerenciamento de Riscos em meio digital, com cópia de segurança (backup)e monitora o gerenciamento de risco através d eindicadores estabelecidos na instituição."
+  },
+  "16": {
+    "0": "Não dispõe dos documentos atualizados e disponíveis.",
+    "1": "Dispõe de parte dos documentos atualizados e disponíveis.",
+    "2": "Mantém atualizados e disponíveis em meio físico ou eletrônico todos os documentos, porém não há controle das alterações nos registros contendo data, nome ou assinatura legalmente válida do responsável pela alteração, preservando o dado original.",
+    "3": "Mantém atualizados e disponíveis em meio físico ou eletrônico: I- PBA e memorial descritivo aprovados pela autoridade sanitária competente; II-relação e registros de todos os procedimentos realizados; III- inventário dos produtos sujeitos à vigilância sanitária; IV- relação nominal de toda a equipe, suas atribuições, qualificação e cargas horárias; V- registros que evidenciam a execução dos Programas de Educação Permanente e Garantia de Qualidade; e VI- registros de resultados dos programas de Ensaios de Proficiência e Controle Interno da Qualidade. Toda a documentação e registros de que trata a RDC 786/2022 são mantidos e arquivados pelo prazo mínimo de cinco anos. As alterações nos registros contém data, nome ou assinatura legalmente válida do responsável pela alteração, preservando o dado original.",
+    "4": "Possui protocolo para revisão anual dos documentos.",
+    "5": "Documentos disponíveis em meio digital, com cópia de segurança (backup)."
+  },
+  "17": {
+    "0": "Equipe subdimensiona da para o perfil de demanda e/ou não possui profissional legalmente habilitado como supervisor do pessoal.",
+    "1": "Possui equipe dimensionada de acordo com seu perfil de demanda e em conformidade com o estabelecido nas demais normativas aplicáveis. Dispõe de profissional legalmente habilitado como supervisor do pessoal técnico, porém somente durante parte do período de funcionamento e/ou não dispõe de substituto.",
+    "2": "Equipe dimensionada de acordo com seu perfil de demanda. Dispõe de profissional legalmente habilitado como supervisor do pessoal técnico durante todo seu período de funcionamento, em caso de impedimento, possui profissional legalmente habilitado para substituí-lo. Porém, não mantém registro da formação e qualificação de seus profissionais compatíveis com as funções desempenhadas.",
+    "3": "Possui equipe dimensionada de acordo com seu perfil de demanda e em conformidade com o estabelecido nas demais normativas aplicáveis. Dispõe de profissional legalmente habilitado como supervisor do pessoal técnico durante todo seu período de funcionamento, em caso de impedimento, possui profissional legalmente habilitado para substituí lo. Mantém registro da formação e qualificação de seus profissionais compatíveis com as funções desempenhadas.",
+    "4": "Possui cadastro de reserva de profissionais, para atendimento de possíveis aumento de demanda ou ausências não previstas.",
+    "5": "Possui cadastro de reserva de profissionais com capacitação atualizada, para atendimento de possíveis aumento de demanda ou ausências não previstas."
+  },
+  "18": {
+    "0": "Não implementa Programa de Educação Permanente.",
+    "1": "Implementa o Programa de Educação Permanente apenas para parte da equipe ou não realiza anualmente.",
+    "2": "Realiza as capacitações com frequência mínima de um ano, porém não realizam avaliações para demonstrar a eficácia das ações de capacitação e treinamento.",
+    "3": "Implementa Programa de Educação Permanente para toda a equipe, contemplando: I- capacitações e treinamentos inicial e periódicos, com frequência mínima anual; II capacitações e treinamentos teóricos e práticos baseados em abordagens de riscos, sempre que novos processos, técnicas ou tecnologias forem implementados, ou antes de novas pessoas integrarem o processo; e III metodologia de avaliação de forma a demonstrar eficácia das ações de capacitação e treinamento.",
+    "4": "O Programa de Educação Permanente é valorizado na instituição, sendo item determinante na avaliação de desempenho dos profissionais.",
+    "5": "O serviço promove a participação dos profissionais em cursos e eventos externos na área de atuação e disponibiliza materiais didáticos para estudos complementares."
+  },
+  "19": {
+    "0": "Não há registros.",
+    "1": "Há registros das capacitações e treinamentos, porém com informações incompletas.",
+    "2": "Há registros contendo data, horário, carga horária, conteúdo ministrado, nome e a formação ou capacitação profissional do instrutor e dos trabalhadores envolvidos, porém as capacitações e treinamentos não contemplam todos os tópicos exigidos.",
+    "3": "As capacitações e treinamentos periódicos contemplam, no mínimo, os seguintes tópicos: I- instruções escritas; II- segurança do paciente; III- gerenciamento dos riscos inerentes às tecnologias utilizadas; e IV- Programa de Garantia de Qualidade. Há registros contendo data, horário, carga horária, conteúdo ministrado, nome e a formação ou capacitação profissional do instrutor e dos trabalhadores envolvidos.",
+    "4": "Revisa o Plano de Capacitação anualmente, atualizando o conteúdo.",
+    "5": "Realiza as capacitações com periodicidade inferior a um ano."
+  },
+  "20": {
+    "0": "A infraestrutura do serviço de EAC não está de acordo com a RDC 50 ou a sala de execução de EAC não dispõe de climatização ou a iluminação prejudica a avaliação da coloração da pele do paciente.",
+    "1": "A infraestrutura do serviço de EAC está de acordo com a RDC 50 e existe sistema de climatização, porém visivelmente em más condições de limpeza, manutenção, operação e controle.",
+    "2": "A infraestrutura do serviço de EAC está de acordo com a RDC 50 e o sistema de climatização em condições adequadas de limpeza, manutenção, operação e controle, porém sem os devidos registros e/ou não existe controle da qualidade do ar conforme normas regulamentadoras.",
+    "3": "A infraestrutura está de acordo com a RDC 50. A sala de execução de EAC dispõe de sistema de climatização em condições adequadas de limpeza, manutenção, operação e controle com registro. Existe controle da qualidade do ar interno seguindo normas regulamentadoras e Plano de Manutenção, Operação e Controle (PMOC).",
+    "4": "Mantém PMOC atualizado e cumpre as atividades estipuladas dentro da periodicidade estabelecida, bem como as recomendações a serem adotadas em situações de falha do equipamento e de emergência com os devidos registros.",
+    "5": "Existe um programa de gerenciamento das condições de climatização do serviço de saúde, com relatórios de análise técnica e registro de análise de problemas e ações de melhorias adotadas."
+  },
+  "21": {
+    "0": "Não possui Plano de Gerenciamento de Resíduos de Serviços de Saúde.",
+    "1": "O PGRSS está em elaboração.",
+    "2": "O PGRSS está incompleto ou desatualizado e/ou não possui cópia do contrato e licença ambiental vigentes da empresa terceirizada responsável pela destinação final dos RSS.",
+    "3": "Possui Plano de Gerenciamento de Resíduos, implementado efetivamente e dispõe de cópia do contrato e licença ambiental vigentes da empresa terceirizada responsável pela destinação final dos RSS.",
+    "4": "O PGRSS está disponível em formato físico e eletrônico para consulta no serviço. É sistematicamente avaliado e ações de conformidades são registradas.",
+    "5": "O laboratório clínico dispõe de Licença Ambiental."
+  },
+  "22": {
+    "0": "Não há registro do controle sendo verificada a presença significativa de pragas/vetores no serviço.",
+    "1": "Realiza terceirização do serviço, com empresa sem licença sanitária.",
+    "2": "Realiza ações de controle, mas foi verificada a presença eventual de pragas/vetores.",
+    "3": "Garante ações eficazes e contínuas de controle de vetores e pragas. Quando necessário, o controle químico é realizado por empresa habilitada, possuidora de licença sanitária e ambiental, com produtos desinfestantes regularizados pela Anvisa. Mantém disponível documentação e registro referente ao controle de vetores e pragas urbanas.",
+    "4": "Realiza em periodicidade definida as ações de controle.",
+    "5": "Possui rotina de verificação da efetividade do controle, implementando possíveis ações corretivas."
+  },
+  "23": {
+    "0": "Não há controle de qualidade da água ou registro de limpeza dos reservatórios de água.",
+    "1": "Existem alguns registros de limpeza dos reservatórios e controle de qualidade, mas sem periodicidade.",
+    "2": "Existem os registros de controle de qualidade da água, mas a limpeza dos reservatórios não foi realizada nos últimos seis meses.",
+    "3": "Realiza a limpeza dos reservatórios de água a cada seis meses, mantendo o registro da capacidade e da limpeza periódica. Existe documentação e registro referente ao controle da qualidade da água (laudo de análise).",
+    "4": "Possui sistema de monitoramento da qualidade da água e limpeza dos reservatórios.",
+    "5": "Possui sistema informatizado de monitoramento da qualidade da água e limpeza dos reservatórios, com indicação de alertas."
+  },
+  "24": {
+    "0": "Estrutura física apresenta-se degradada com presença de mofo, infiltrações ou desgastes que comprometem a segurança dos processos. e não há registro de manutenção.",
+    "1": "Estrutura física apresenta-se degradada em algumas áreas. Apresentaram registro de manutenções corretivas.",
+    "2": "Estrutura física conservada, mas não há registro de manutenções preventivas, apenas das manutenções corretivas.",
+    "3": "Serviço de saúde mantém as instalações físicas em boas condições de conservação e realiza ações de manutenção preventiva e corretiva das instalações prediais, de forma própria ou terceirizada e existem registros.",
+    "4": "Existe plano de manutenção predial.",
+    "5": "Possui sistema informatizado de manutenção predial preventiva e corretiva."
+  },
+  "25": {
+    "0": "Não garante meios eficazes para o armazenamento dos produtos para diagnóstico in vitro e do material biológico.",
+    "1": "Não possui sistema para garantir as condições de armazenamento em caso de falha de fornecimento de energia elétrica.",
+    "2": "Não possui as informações sobre as condições de armazenamento de todos os produtos.",
+    "3": "Garante meios eficazes para o armazenamento dos produtos para diagnóstico in vitro e do material biológico, garantindo sua conservação, eficácia e segurança, mesmo diante de falha de fornecimento de energia elétrica.",
+    "4": "Possui relação nominal de todas especificações de armazenamento de todos os produtos armazenados.",
+    "5": "Possui protocolo para verificação periódica das condições de armazenamento."
+  },
+  "26": {
+    "0": "Não realiza as medições das temperaturas dos instrumentos que necessitam funcionar com controle de temperatura.",
+    "1": "Realiza medições das temperaturas dos instrumentos que necessitam funcionar com temperatura controlada, porém os registros no início e no fim da operação estão incompletos.",
+    "2": "Realiza medições das temperaturas dos instrumentos que necessitam funcionar com temperatura controlada e registra no início e no fim da operação. Porém, com relação aos instrumentos de operação contínua, o registro não monitora a operação do instrumento durante todo o processo.",
+    "3": "Realiza medições das temperaturas dos instrumentos que necessitam funcionar com temperatura controlada e registra no início e no fim da operação. Para os instrumentos de operação contínua, o registro é realizado de forma a monitorar a operação do instrumento durante todo o processo.",
+    "4": "Monitora e registra eletronicamente, em tempo real, a temperatura.",
+    "5": "Possui sistema de alerta para variações de temperatura fora das tolerâncias."
+  },
+  "27": {
+    "0": "Não dispõe dos instrumentos necessários de acordo com sua complexidade e demanda de atendimento.",
+    "1": "Dispõe de instrumentos de acordo com sua complexidade e demanda de atendimento, porém não mantém instruções escritas em português referentes aos instrumentos ou manual do fabricante. Ou não registra o recebimento dos produtos para diagnóstico de uso in vitro, reagentes e insumos.",
+    "2": "Os registros dos recebimento dos produtos para diagnóstico de uso in vitro , reagentes e insumos não possuem informações completas (lote, conformidade das condições de transporte, data de recebimento) para garantir sua rastreabilidade e qualidade.",
+    "3": "O serviço dispõe de instrumentos de acordo com sua complexidade e demanda de atendimento. Mantém instruções escritas em português referentes aos instrumentos ou manual do fabricante. Registra o recebimento dos produtos para diagnóstico de uso in vitro , reagentes e insumos contendo número de lote, conformidade das condições de transporte, data de recebimento e outras informações para garantir sua rastreabilidade e qualidade.",
+    "4": "Possui sistema eletrônico de registro.",
+    "5": "Possui sistema eletrônico de registro, com alerta."
+  },
+  "28": {
+    "0": "Comercializa os reagentes e/ou insumos fracionados ou preparados pelo serviço. E/ou não há rotulagem.",
+    "1": "Foram encontrados reagentes e/ou insumos com rótulos contendo informações não legíveis.",
+    "2": "O reagente e insumo fracionados ou preparados pelo serviço e por ele utilizados são identificados com rótulo, porém com informações incompletas.",
+    "3": "O reagente e insumo fracionados ou preparados pelo serviço e por ele utilizados são identificados com rótulo contendo: I- nome do reagente ou insumo; II- concentração ou especificação; III- número do lote, quando aplicável. IV- data de preparação; V- nome do responsável pelo fracionamento ou preparo; VI data de validade; VII- condições de armazenamento; e VIII- informações referentes a riscos potenciais.",
+    "4": "Além das informações no rótulo, possui código de barra para identificação, gerenciamento e rastreamento.",
+    "5": "Realiza auditoria periódica para verificação do cumprimento dos requisitos de rotulagem."
+  },
+  "29": {
+    "0": "Não possui sistema de informação.",
+    "1": "Não realiza avaliação e verificação do sistema ou programa de informática antes de sua implementação.",
+    "2": "Define uma política e responsabilidades, mas estão incompletas ou desatualizadas.",
+    "3": "Define uma política e responsabilidades para estabelecer: I- sistemática de acesso a dados e informações dos pacientes e dos profissionais do serviço; II- controle de acesso a lançamento e alterações de dados e resultados dos exames de pacientes, contendo históricos com datas, horários, usuário e local em que ocorrei o cadastro ou alteração das informações; III- processo sistematizado para liberação de resultados dos exames e laudos de pacientes, automática ou manual; IV política de privacidade e confidencialidade da informação; e V sistemática definida e documentada de proteção contra acessos não autorizados. Avalia e verifica o sistema ou programa de informática antes de sua implementação e documenta com as informações referentes à disponibilidade, confiabilidade, integridade dos dados e responsabilidades das instituições e usuários.",
+    "4": "Utiliza sistema de informação computadorizado.",
+    "5": "Possui protocolo de validação do sistema de informação utilizado."
+  },
+  "30": {
+    "0": "Não dispõe de instruções escritas de biossegurança.",
+    "1": "Dispõe de instruções escritas de biossegurança, porém estão desatualizadas ou não contemplam todos os IV itens.",
+    "2": "Mantém atualizadas as instruções escritas de biossegurança contemplando os IV itens, porém não estão disponíveis a todos os funcionários.",
+    "3": "Mantém atualizadas as instruções escritas de biossegurança e disponibilizada a todos os funcionários, contemplando, no mínimo: I- instruções escritas de biossegurança biológica, química, física, ocupacional e ambiental, de acordo com os procedimentos realizados, instrumentos e microrganismos envolvidos , adotando as medidas compatíveis; II instruções de uso para EPI e EPC; III procedimentos em casos de acidentes; e IV- manuseio e transporte de material biológico, quando aplicável.",
+    "4": "Realiza, periodicamente, simulações dos possíveis casos relacionados à biossegurança.",
+    "5": "Implanta ações de biossegurança, para além das Normas Sanitárias, utilizando publicações reconhecidas nacional ou internacionalmente."
+  },
+  "31": {
+    "0": "Não possui instruções escritas para limpeza, desinfecção e esterilização das superfícies, instalações, artigos e materiais.",
+    "1": "Possui instruções escritas para limpeza, desinfecção e esterilização das superfícies, instalações, artigos e materiais, no entanto, há sujidade nos ambientes.",
+    "2": "Possui instruções escritas para limpeza, desinfeção e esterilização das superfícies, instalações, artigos e materiais, porém, a limpeza do ambiente onde é realizado o EAC não é registrada diariamente no início e no término do horário de funcionamento.",
+    "3": "Possui instruções escritas para limpeza, desinfeção e esterilização das superfícies, instalações, artigos e materiais. Assegura a higienização dos ambientes de forma a garantir a segurança do paciente e dos profissionais. A limpeza do ambiente onde é realizado o EAC tem sua execução registrada diariamente no início e no término do horário de funcionamento.",
+    "4": "Realiza a limpeza do ambiente onde é realizado o EAC, em outros horários além do início e no término do horário de funcionamento.",
+    "5": "Possui rotina de supervisão diária da higienização."
+  },
+  "32": {
+    "0": "Saneantes e/ou produtos usados nos processos de limpeza e desinfecção não estão regularizados junto à Anvisa.",
+    "1": "Foi encontrado algum saneante ou produto sem regularização junto a ANVISA ou são diluídos/fracionados sem identificação.",
+    "2": "Produtos e/ou saneantes utilizados nos processos de limpeza e desinfeção estão regularizados junto à Anvisa, porém seu uso não segue as especificações dos fabricantes.",
+    "3": "Os saneantes e os produtos usados nos processos de limpeza e desinfeção estão regularizados junto à Anvisa e são utilizados segundo as especificações do fabricante.",
+    "4": "Possui sistema automatizado para diluição.",
+    "5": "Possui sistema automatizado para diluição e registro com rastreabilidade de cada lote."
+  },
+  "33": {
+    "0": "Não possui procedimentos documentados",
+    "1": "Não disponibiliza nos locais de execução.",
+    "2": "Os procedimentos documentados estão incompletos ou desatualizados.",
+    "3": "Disponibiliza nos locais de execução do exame, procedimentos documentados orientando com relação às suas atividades, incluindo: I- sistemática de registro e liberação de resultados; II procedimentos para resultados potencialmente críticos; e III sistemática de revisão de resultados e liberação de laudos por profissional legalmente habilitado.",
+    "4": "Revisa anualmente os procedimento ou após modificações das atividades.",
+    "5": "Realiza auditorias periódicas nas práticas dos procedimentos."
+  },
+  "34": {
+    "0": "Não garante a rastreabilidade.",
+    "1": "Os registros não possibilitam a rastreabilidade completa.",
+    "2": "Realiza todos os registros, mas de forma que dificulta a rastreabilidade completa.",
+    "3": "Garante e evidencia a rastreabilidade de todas as atividades relacionadas ao material biológico, desde sua coleta até o seu descarte.",
+    "4": "Possui sistema de dupla verificação.",
+    "5": "Existe processo de gerenciamento da rastreabilidade."
+  },
+  "35": {
+    "0": "O serviço que executa EAC não dispõe de meios que permitem a rastreabilidade.",
+    "1": "Os registros não possibilitam a rastreabilidade completa.",
+    "2": "Realiza todos os registros, mas de forma que dificulta a rastreabilidade completa.",
+    "3": "O serviço que executa EAC dispõe de meios que permitem a rastreabilidade de toda a fase analítica.",
+    "4": "Possui sistema de dupla verificação.",
+    "5": "Existe processo de gerenciamento da rastreabilidade."
+  },
+  "36": {
+    "0": "Não disponibiliza ao paciente ou responsável, instruções sobre o preparo e coleta de material ou não solicita documento válido com foto para comprovar sua identificação.",
+    "1": "Disponibiliza informações não completas aos pacientes e/ou responsável.",
+    "2": "Disponibiliza ao paciente ou responsável, instruções (físicas, digitais ou verbais) orientando sobre o preparo e coleta de material biológico, porém a linguagem utilizada é complexa e dificulta a compreensão pelo paciente.",
+    "3": "Disponibiliza ao paciente ou responsável, instruções (físicas, digitais ou verbais), em linguagem acessível, orientando sobre o preparo e coleta de material biológico, tendo como objetivo a compreensão do paciente; e solicita ao paciente documento válido com foto que comprove a sua identificação. Para pacientes em atendimento de urgência/internação, a comprovação dos dados pode ser obtida no prontuário.",
+    "4": "Informa ao paciente e/ou responsável, por mais de um meio de comunicação.",
+    "5": "Registra a ciência do paciente e/ou responsável."
+  },
+  "37": {
+    "0": "Todos os cadastro possuem informações incompletas.",
+    "1": "Alguns cadastros estão com as informações incompletas.",
+    "2": "Cadastros com informações inconsistentes.",
+    "3": "O serviço é responsável pelo cadastro do paciente, que inclui as seguintes informações: I- número do registro de identificação do paciente; II-nome completo; III- nome social, quando aplicável; IV- data de nascimento; V- sexo biológico; VI nome da mãe; VII- telefone ou endereço do paciente; e VIII nome e contato do responsável em caso de menor de idade ou de incapaz.",
+    "4": "Possui cadastro com informações completares do paciente, úteis aos exames, a exemplo de alergia.",
+    "5": "Registra confirmação do paciente nas informações cadastradas."
+  },
+  "38": {
+    "0": "O serviço que executa o EAC não realiza o cadastro do exame.",
+    "1": "Realiza o cadastro sem todas as informações.",
+    "2": "Cadastros com informações inconsistentes.",
+    "3": "Serviço que executa EAC é responsável pelo cadastro do exame, incluindo: I- nome do solicitante; II- data e horário do atendimento; III- horário da coleta do material biológico, quando aplicável; IV- nome e número do cadastro CNES da unidade responsável pela coleta; V- exames solicitados e tipo do material biológico; VI informações adicionais; VII- nome do profissional que executou o exame; VIII- nome do profissional que executou a coleta do material biológico, quando aplicável; IX nome do profissional que validou o recebimento do material biológico, quando aplicável; X data prevista para entrega do laudo, quando aplicável; XI- indicação de urgência, quando aplicável; e XII- informações adicionais do paciente relevantes para o EAC, como uso de medicamentos, vitaminas e condições de saúde.",
+    "4": "Realiza, periodicamente, supervisão in loco dos procedimentos de cadastro do EAC.",
+    "5": "Possui dupla verificação das informações cadastradas."
+  },
+  "39": {
+    "0": "Não fornece comprovante de atendimento.",
+    "1": "Fornece ao paciente ou ao seu responsável um comprovante de atendimento com informações incompletas ou inconsistentes.",
+    "2": "Fornece ao paciente ou ao seu responsável um comprovante de atendimento com informações ilegíveis.",
+    "3": "Fornece ao paciente ou ao seu responsável um comprovante de atendimento contendo: I- número do registro; II- nome do paciente; III data do atendimento; IV-data prevista de entrega do laudo; V relação de exames solicitados; e VI dados do contato do serviço que executa o EAC. Obs.: O comprovante pode ser dispensado no casos de EAC cuja execução ocorra no ato da coleta, mediante a entrega de laudo.",
+    "4": "Fornece ao paciente ou ao seu responsável o comprovante de atendimento em meio físico e digital.",
+    "5": "Disponibiliza aplicativo com todas as informações."
+  },
+  "40": {
+    "0": "Material biológico não é identificado no ato da coleta ou do recebimento.",
+    "1": "Material biológico é identificado no ato da coleta ou do recebimento, porém não contem todas as informações.",
+    "2": "Material biológico é identificado no ato da coleta ou do recebimento, contem todas as informações porém há rasura.",
+    "3": "O material biológico é identificado no ato da coleta ou do recebimento, contendo, no mínimo: I- nome do paciente; II- data de nascimento ou idade; III- tipo do material biológico; e IV- data e horário da coleta.",
+    "4": "Além das informações de identificação, possui código de barra para rastreamento.",
+    "5": "Realiza supervisão periódica para verificação da identificação do material biológico."
+  },
+  "41": {
+    "0": "O serviço não define os critérios para aceitação, rejeição, identificação e realização de EAC em material biológico com restrições.",
+    "1": "Possui critérios definidos, mas não estão compatíveis com os exames realizados.",
+    "2": "Possui critérios definidos, mas não possui práticas de verificação.",
+    "3": "O serviço que executa EAC define os critérios para aceitação, rejeição, identificação e realização de EAC em material biológico com restrições.",
+    "4": "Os critérios são estabelecidos conforme protocolos nacionais/internacion ais.",
+    "5": "Registra, avalia e implanta ações corretivas nos casos identificados de aceitação indevida de material."
+  },
+  "42": {
+    "0": "Material biológico transportado sem informações.",
+    "1": "Material biológico transportado com informações rasuradas.",
+    "2": "Material biológico transportado com informações incompletas.",
+    "3": "Todo material biológico transportado contem, em sua embalagem terciária, dados dos exames solicitados, do material biológico coletado, do paciente e do solicitante.",
+    "4": "Possui registro e rastreabilidade de todo material biológico transportado.",
+    "5": "Possui registro e rastreabilidade de todo material biológico transportado, com monitoramento georreferenciado em tempo real."
+  },
+  "43": {
+    "0": "O serviço que executa EAC não dispõe de instruções escritas para todos os processos analíticos.",
+    "1": "Possui instruções escritas para todos os processos analíticos, porém não estão atualizadas.",
+    "2": "Possui instruções escritas para todos os processos analíticos, estão atualizadas, porém não estão disponíveis.",
+    "3": "O serviço que executa EAC dispõe de instruções escritas, disponíveis e atualizadas para todos os processos analíticos, podendo utilizar as instruções de uso do fabricante.",
+    "4": "Possui controle de versão das instruções, com rastreabilidade.",
+    "5": "Avalia sistematicamente as instruções, com ações de melhoria."
+  },
+  "44": {
+    "0": "Não define limites de Risco, Valores Críticos e Alertas.",
+    "1": "Para alguns exames com resultados que necessitam de tomada imediata de decisão, não define limites de Risco, Valores Críticos e Alertas.",
+    "2": "Define limites de Risco, Valores Críticos e Alertas, mas não define o fluxo de comunicação.",
+    "3": "O serviço que executa EAC define limites de risco, valores críticos ou de alerta, para os exames com resultados que necessitam de tomada imediata de decisão bem como define fluxo de comunicação ao profissional de saúde responsável ou paciente quando for necessário decisão imediata.",
+    "4": "Sistema de alerta informatizado, identificando em tempo real os resultados dos exames.",
+    "5": "Avalia sistematicamente os resultados dos exames, verificando a efetividade dos alertas, implantando ações de melhoria."
+  },
+  "45": {
+    "0": "Não define o grau de pureza da água reagente.",
+    "1": "Define o grau de pureza da água reagente, porém não implementa as avaliações e testes necessários para assegurar a conformidade.",
+    "2": "Define o grau de pureza da água reagente, porém não realiza as avaliações e testes necessários para assegurar a conformidade, na periodicidade definida.",
+    "3": "O serviço que executa EAC, quando aplicável, define o grau de pureza da água reagente utilizada na realização de exames e nos controles de qualidade e implementa as avaliações e testes necessários para assegurar a conformidade do grau de pureza da água reagente.",
+    "4": "Utiliza apenas água reagente disponível comercialmente.",
+    "5": "Utiliza apenas água reagente disponível comercialmente, realizando controle de qualidade por lote."
+  },
+  "46": {
+    "0": "Não possui contrato ou não avalia a qualidade dos serviços prestados.",
+    "1": "Não avalia todos os serviços prestados.",
+    "2": "Avalia todos os serviços prestados, mas em periodicidade superior a um ano.",
+    "3": "O Serviço possui formalizada a prestação de serviços através de contratos e avalia anualmente a qualidade dos serviços prestados pelo Laboratório de Apoio.",
+    "4": "O contrato de prestação de serviço é renovado e revisado anualmente.",
+    "5": "Avalia, em periodicidade menor que anual, a qualidade dos serviços prestados pelo Laboratório de Apoio."
+  },
+  "47": {
+    "0": "Comercializa, repassa, doa ou entrega para consumo reagentes ou qualquer produto proveniente de Metodologia Própria. ( Não se aplica à disponibilização de reagentes e materiais para uso na fase pré analítica pelo Serviço Tipo II vinculado.",
+    "1": "Utiliza metodologia própria, porém não está completamente documentada.",
+    "2": "Não especifica no laudo quais resultados foram obtidos por Metodologia Própria.",
+    "3": "Utiliza metodologia própria documentada contendo: I- descrição das etapas do processo; II rastreabilidade de todos os produtos e insumos utilizados; III especificação e sistemática de aprovação de insumos, reagentes, equipamentos e instrumentos; IV sistemática de validação de etapas e procedimentos, volume de reagentes, tipos de material biológico, materiais necessários, forma de interpretação e resultados; e V- determinação da sensibilidade e especificidade das metodologias. Especifica no laudo quais resultados foram obtidos por Metodologia Própria.",
+    "4": "Realiza avaliação e revisão sistemática, implantando e validando melhorias.",
+    "5": "Valida, com auditoria externa, todas as metodologias próprias utilizadas."
+  },
+  "48": {
+    "0": "Não elabora relatório de validação.",
+    "1": "Elabora relatório de validação com descrição dos procedimentos, materiais necessários e utilizados, parâmetros analíticos, critérios de aceitação e resultados, porém com detalhamento insuficiente para sua reprodução.",
+    "2": "Elabora relatório de validação com descrição dos procedimentos, materiais necessários e utilizados, parâmetros analíticos, critérios de aceitação e resultados, com detalhamento que possibilita sua reprodução, porém sem avaliação estatística, mesmo quando aplicável.",
+    "3": "Elabora relatório de validação com descrição dos procedimentos, materiais necessários e utilizados, parâmetros analíticos, critérios de aceitação e resultados, com detalhamento que possibilita sua reprodução e, quando aplicável, sua avaliação estatística.",
+    "4": "Possui protocolo de reavaliação periódica das validações.",
+    "5": "Relatório de validação possui avaliação de auditor externo."
+  },
+  "49": {
+    "0": "Não possui instruções escritas para liberação dos resultados ou assinatura legalmente válida dos laudos.",
+    "1": "Possui instruções escritas para liberação dos resultados e assinatura válida dos laudos, porém contempla apenas as situações de rotina.",
+    "2": "As instruções escritas, não estão atualizadas.",
+    "3": "Possui instruções escritas para liberação dos resultados e assinatura legalmente válida dos laudos, contemplando as situações de rotina, plantões, urgências e emergências.",
+    "4": "Possui controle de versão das instruções, com rastreabilidade.",
+    "5": "Avalia sistematicamente as instruções, com ações de melhoria."
+  },
+  "50": {
+    "0": "Laudo ilegível ou escrito em língua distinta do português ou não possui assinatura de profissional de nível superior legalmente habilitado.",
+    "1": "O laudo é legível, sem rasuras de transcrição, escrito em língua portuguesa, assinado por profissional de nível superior legalmente habilitado, porém não contem todas as informações obrigatórias.",
+    "2": "Utiliza assinatura digital, sem validade legal.",
+    "3": "O laudo é legível, sem rasuras de transcrição, escrito em língua portuguesa, assinado por profissional de nível superior legalmente habilitado e contem, no mínimo: I- nome do serviço que executa EAC responsável pela análise, com nº do CNES; II endereço e telefone de contato do Serviço que executa EAC responsável pela análise; III- nome e número do registro do RT, no conselho de classe; IV- nome e número do registro no conselho de classe do profissional legalmente habilitado que assina o laudo do exame; V- nome e registro de identificação do paciente; VI- idade ou data de nascimento; VII- data da coleta do material biológico; VIII nome do exame, tipo de material biológico e método analítico; IX resultado do exame e unidade de medição; X- valores de referência, limitações técnicas da metodologia e dados para interpretação; XI especificação de metodologia própria, quando aplicável; XII quando aceito material biológico com restrição, essa condição consta no laudo; XIII- data de emissão do laudo; e XIV- assinatura legalmente válida.",
+    "4": "Laudo apresenta valores históricos possibilitando acompanhamento dos exames realizados.",
+    "5": "Avalia periodicamente os laudos, implantando melhorias na apresentação dos resultados."
+  },
+  "51": {
+    "0": "Não garante a fidedignidade na transcrição dos laudos emitidos pelo Laboratório de Apoio.",
+    "1": "Garante a fidedignidade na transcrição dos laudos, mas não informa o nome do Laboratório de Apoio.",
+    "2": "Garante a fidedignidade na transcrição dos laudos, porém, inclui comentários sem informar que não são do Laboratório de Apoio.",
+    "3": "Caso opte pela transcrição dos laudos emitidos pelo Laboratório de Apoio, o Serviço de EAC garante a fidedignidade dos mesmos, podendo adicionar comentários de interpretação ao texto do Laboratório de Apoio, considerando o estado do paciente e o contexto global dos exames. O laudo contem o nome do Laboratório de Apoio que realizou o exame.",
+    "4": "Possui dupla verificação das transcrições.",
+    "5": "Possui sistema informatizado para transmissão direta entre os sistemas, dos resultados, minimizando a possibilidade de erro."
+  },
+  "52": {
+    "0": "Não realiza CIQ e CEQ.",
+    "1": "Realiza CIQ ou CEQ, porém os registros dos controles de qualidade ou as instruções escritas para sua realização estão indisponíveis.",
+    "2": "Realiza CIQ e CEQ, mantém os registros dos controles de qualidade, bem como das instruções escritas para sua realização. Porém os registros estão incompletos.",
+    "3": "O serviço realiza Controle Interno de Qualidade e Controle Externo da Qualidade. Mantém os registros dos controles de qualidade, bem como das instruções escritas para sua realização. Os registros contemplam: I-lista de todos os exames realizados; II- forma de controle e frequência de utilização; III- limites e critérios de aceitabilidade para os resultados dos controles; e IV- avaliação e registro dos resultados dos controles.",
+    "4": "Utiliza sistema informatizado, com representação gráfica e unificada de todos os resultados, possibilitando avaliações mais rápidas.",
+    "5": "Possui sistema de alerta para variações fora das tolerâncias de todos os parâmetros."
+  },
+  "53": {
+    "0": "Não realiza CIQ.",
+    "1": "Realiza CIQ para alguns analitos.",
+    "2": "Realiza CIQ para todos os analitos executados, porém não contempla todos os V tópicos.",
+    "3": "Realiza CIQ para todos os analitos executados e contempla: I monitoramento da fase analítica pela análise da amostra de controle, com registro do resultado obtido e análise de dados; II- definição dos critérios de aceitação e rejeição dos resultados por tipo de analito e de acordo com a metodologia utilizada; III- liberação ou rejeição das análises após validação dos resultados das amostras de controle; IV- registro das inadequações, investigação de causas e ações tomadas para os resultados rejeitados de amostras de controle; e V- critério de avaliação dos resultados das amostras de controle.",
+    "4": "Utiliza sistema informatizado, com representação gráfica e unificada de todos os resultados.",
+    "5": "Possui sistema de alerta para variações fora das tolerâncias de todos os parâmetros."
+  },
+  "54": {
+    "0": "Utiliza amostras de controle comerciais não regularizadas junto à Anvisa ou não dispõe de amostras de controle.",
+    "1": "Utiliza amostras de controle comerciais, regularizadas junto à Anvisa ou amostras controle comerciais obtidas por comparação interlaboratorial, porém as amostras controle são analisadas de forma diferente das amostras dos pacientes.",
+    "2": "Utiliza formas alternativas, descritas na literatura cientifica, porém não avaliam a precisão do sistema analítico.",
+    "3": "Utiliza amostras de controle comerciais, regularizadas junto à Anvisa ou amostras controle comerciais obtidas por comparação interlaboratorial. As amostras controle são analisadas da mesma forma que as amostras dos pacientes. Caso utilize formas alternativas descritas na literatura cientifica, essas devem permitir a avaliação da precisão do sistema analítico.",
+    "4": "Realiza qualificação periódica dos fornecedores de amostra.",
+    "5": "Participa de dois programas de controle da qualidade."
+  },
+  "55": {
+    "0": "Não realiza CIQ em nenhum dos instrumentos em uso.",
+    "1": "Realiza CIQ em alguns dos instrumentos em uso.",
+    "2": "Realiza CIQ em todos os instrumentos em uso, mas não segue periodicidade definida.",
+    "3": "Realiza CIQ em todos os instrumentos em uso.",
+    "4": "Utiliza sistema informatizado, com representação gráfica e unificada de todos os resultados.",
+    "5": "Possui sistema de alerta para variações fora das tolerâncias de todos os parâmetros."
+  },
+  "56": {
+    "0": "Não realiza CIQ dos produtos de diagnóstico in vitro de leitura direta.",
+    "1": "Realiza CIQ apenas a cada troca de lote ou a cada remessa.",
+    "2": "Realiza para cada troca de lote e cada remessa, mas os registros não estão completos.",
+    "3": "Realiza CIQ, no mínimo, a cada troca de lote e a cada remessa dos produtos para diagnóstico in vitro que não necessitam de instrumento para leitura, interpretação ou visualização do resultado.",
+    "4": "Realiza mais de um teste para cada lote ou remessa.",
+    "5": "Realiza teste para cada lote ou remessa, por quantidade ou tempo definidos."
+  },
+  "57": {
+    "0": "Não participa ou não realiza os controles externos de qualidade.",
+    "1": "Participa de CEQ, porém não contempla todos os instrumentos em uso ou não contempla todos os exames nem por formas alternativas.",
+    "2": "O Serviço participa de CEQ contemplando todos os instrumentos em uso. No entanto, não participa anualmente de todos os ensaios de proficiência, disponibilizados pelos provedores de ensaio de proficiência e fornecedores.",
+    "3": "O Serviço participa de CEQ, contemplando todos os instrumentos em uso. Para os exames não contemplados no CEQ, o serviço utiliza formas alternativas descritas em literatura científica, para avaliação da exatidão do sistema analítico. O serviço participa anualmente de todos os ensaios de proficiência, disponibilizados pelos provedores de ensaio de proficiência e fornecedores.",
+    "4": "Participa de CEQ em periodicidade menor que um ano.",
+    "5": "Participa de CEQ em periodicidade anual, mas com limites de tolerância mais restritos que os recomendados."
+  }
+}

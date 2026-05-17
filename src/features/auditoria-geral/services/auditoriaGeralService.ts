@@ -13,6 +13,7 @@ import {
   collection,
   doc,
   DocumentSnapshot,
+  limit,
   onSnapshot,
   orderBy,
   query,
@@ -74,7 +75,7 @@ export function respostaDoc(
 // ──────────────────────────────────────────────────────────────────────────
 
 export function mapDocToAuditoria(snap: DocumentSnapshot): AuditoriaGeral {
-  const data = snap.data() as any;
+  const data = snap.data()!;
   return {
     id: snap.id,
     labId: data.labId,
@@ -95,16 +96,19 @@ export function mapDocToAuditoria(snap: DocumentSnapshot): AuditoriaGeral {
 }
 
 export function mapDocToResposta(snap: DocumentSnapshot): RespostaIndicador {
-  const data = snap.data() as any;
+  const data = snap.data()!;
   return {
     id: snap.id,
     numero: data.numero,
     indicador: data.indicador,
     bloco: data.bloco,
     score: data.score,
+    critica: data.critica ?? null,
     naoAplica: data.naoAplica,
+    justificativaNA: data.justificativaNA ?? null,
     observacoes: data.observacoes,
     fotos: data.fotos ?? [],
+    audios: data.audios ?? [],
     comprovacaoLink: data.comprovacaoLink ?? null,
     respondidoEm: data.respondidoEm,
     respondidoPor: data.respondidoPor,
@@ -170,7 +174,8 @@ export async function uploadFotoEvidencia(
   indicadorId: string,
   file: File,
   uid: string,
-  existingFotos: FotoEvidencia[]
+  existingFotos: FotoEvidencia[],
+  indicadorMeta?: { numero: number; indicador: string; bloco: string }
 ): Promise<FotoEvidencia> {
   const ext = file.name.split('.').pop() ?? 'jpg';
   const uuid = crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -189,7 +194,13 @@ export async function uploadFotoEvidencia(
   };
 
   const ref = respostaDoc(labId, auditoriaId, indicadorId);
-  await setDoc(ref, { fotos: [...existingFotos, foto] }, { merge: true });
+  const docData: Record<string, unknown> = { fotos: [...existingFotos, foto] };
+  if (indicadorMeta) {
+    docData.numero = indicadorMeta.numero;
+    docData.indicador = indicadorMeta.indicador;
+    docData.bloco = indicadorMeta.bloco;
+  }
+  await setDoc(ref, docData, { merge: true });
 
   return foto;
 }
@@ -272,7 +283,8 @@ export function subscribeAuditorias(
   const q = query(
     auditoriaGeralCol(labId),
     where('deletadoEm', '==', null),
-    orderBy('criadoEm', 'desc')
+    orderBy('criadoEm', 'desc'),
+    limit(50)
   );
 
   return onSnapshot(
@@ -384,7 +396,7 @@ export function subscribePlanosAcao(
     col,
     (snap) => {
       const planos = snap.docs.map((d) => {
-        const data = d.data() as any;
+        const data = d.data()!;
         return {
           indicadorId: d.id,
           numero: data.numero,

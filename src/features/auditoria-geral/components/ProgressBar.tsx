@@ -9,10 +9,10 @@ export function ProgressBar({ currentStep, totalSteps, blocoNome }: ProgressBarP
 
   return (
     <div className="space-y-2">
-      <span className="text-xs text-white/60">
+      <span className="text-xs text-slate-500 dark:text-white/60">
         Bloco {currentStep} de {totalSteps} — {blocoNome}
       </span>
-      <div className="h-1.5 rounded-full bg-white/[0.06] w-full">
+      <div className="h-1.5 rounded-full bg-slate-200 dark:bg-white/[0.06] w-full">
         <div
           className="h-1.5 rounded-full bg-violet-500 transition-all duration-300"
           style={{ width: `${percent}%` }}

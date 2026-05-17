@@ -74,14 +74,22 @@ export function ComparativoAuditorias({ auditorias }: Props) {
     });
   }, [finalizadas]);
 
-  if (finalizadas.length < 2) return null;
+  if (finalizadas.length < 2) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-sm text-slate-500 dark:text-white/50">
+          Necessario ao menos 2 auditorias finalizadas para comparativo.
+        </p>
+      </div>
+    );
+  }
 
   const recentForRadar = finalizadas.slice(-3);
 
   return (
     <div className="space-y-8">
-      <div className="bg-white/[0.02] border border-white/[0.08] rounded-lg p-6">
-        <h3 className="text-sm font-medium text-white/90 mb-4">Evolucao do Score Geral</h3>
+      <div className="bg-white border border-slate-200 dark:bg-white/[0.02] dark:border-white/[0.08] rounded-lg p-6">
+        <h3 className="text-sm font-medium text-slate-900 dark:text-white/90 mb-4">Evolucao do Score Geral</h3>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={lineData} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
@@ -120,8 +128,8 @@ export function ComparativoAuditorias({ auditorias }: Props) {
         </div>
       </div>
 
-      <div className="bg-white/[0.02] border border-white/[0.08] rounded-lg p-6">
-        <h3 className="text-sm font-medium text-white/90 mb-4">Comparativo por Bloco (ultimas 3)</h3>
+      <div className="bg-white border border-slate-200 dark:bg-white/[0.02] dark:border-white/[0.08] rounded-lg p-6">
+        <h3 className="text-sm font-medium text-slate-900 dark:text-white/90 mb-4">Comparativo por Bloco (ultimas 3)</h3>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="70%">

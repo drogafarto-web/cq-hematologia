@@ -34,7 +34,7 @@ export function IASummaryPanel({ auditoriaId }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-white/60">Resumo Executivo (IA)</h3>
+        <h3 className="text-sm font-medium text-slate-600 dark:text-white/60">Resumo Executivo (IA)</h3>
         <button
           onClick={handleGenerate}
           disabled={loading}
@@ -46,25 +46,25 @@ export function IASummaryPanel({ auditoriaId }: Props) {
 
       {loading && (
         <div className="space-y-3">
-          <div className="h-4 bg-white/[0.04] rounded animate-pulse w-full" />
-          <div className="h-4 bg-white/[0.04] rounded animate-pulse w-5/6" />
-          <div className="h-4 bg-white/[0.04] rounded animate-pulse w-4/6" />
-          <div className="h-4 bg-white/[0.04] rounded animate-pulse w-full" />
-          <div className="h-4 bg-white/[0.04] rounded animate-pulse w-3/4" />
+          <div className="h-4 bg-slate-200 dark:bg-white/[0.04] rounded animate-pulse w-full" />
+          <div className="h-4 bg-slate-200 dark:bg-white/[0.04] rounded animate-pulse w-5/6" />
+          <div className="h-4 bg-slate-200 dark:bg-white/[0.04] rounded animate-pulse w-4/6" />
+          <div className="h-4 bg-slate-200 dark:bg-white/[0.04] rounded animate-pulse w-full" />
+          <div className="h-4 bg-slate-200 dark:bg-white/[0.04] rounded animate-pulse w-3/4" />
         </div>
       )}
 
       {error && (
-        <div className="bg-red-500/5 border border-red-500/10 rounded-lg p-4">
-          <p className="text-sm text-red-400">{error}</p>
+        <div className="bg-red-50 border border-red-200 dark:bg-red-500/5 dark:border-red-500/10 rounded-lg p-4">
+          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
         </div>
       )}
 
       {summary && !loading && (
-        <div className="bg-violet-500/5 border border-violet-500/10 rounded-lg p-5">
-          <div className="prose prose-sm prose-invert max-w-none">
+        <div className="bg-violet-50 border border-violet-200 dark:bg-violet-500/5 dark:border-violet-500/10 rounded-lg p-5">
+          <div className="prose prose-sm max-w-none">
             {summary.split('\n').map((line, i) => (
-              <p key={i} className="text-sm text-white/70 leading-relaxed mb-2 last:mb-0">
+              <p key={i} className="text-sm text-slate-700 dark:text-white/70 leading-relaxed mb-2 last:mb-0">
                 {line}
               </p>
             ))}

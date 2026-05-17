@@ -9,11 +9,11 @@ interface Props {
 function getStatusBadge(status: QualificacaoAuditor['status']) {
   switch (status) {
     case 'qualificado':
-      return <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Qualificado</span>;
+      return <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-100 text-emerald-700 border border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">Qualificado</span>;
     case 'em_treinamento':
-      return <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-400/10 text-amber-400 border border-amber-400/20">Em Treinamento</span>;
+      return <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-700 border border-amber-300 dark:bg-amber-400/10 dark:text-amber-400 dark:border-amber-400/20">Em Treinamento</span>;
     case 'inativo':
-      return <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-white/5 text-white/40 border border-white/10">Inativo</span>;
+      return <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-500 border border-slate-200 dark:bg-white/5 dark:text-white/40 dark:border-white/10">Inativo</span>;
   }
 }
 
@@ -58,30 +58,30 @@ export function QualificacaoAuditoresPanel({ auditorias }: Props) {
   if (qualificacoes.length === 0) return null;
 
   return (
-    <section className="bg-white/[0.02] border border-white/[0.06] rounded-lg p-6">
-      <h2 className="text-sm font-medium text-white/60 mb-4">Qualificacao de Auditores</h2>
+    <section className="bg-white border border-slate-200 dark:bg-white/[0.02] dark:border-white/[0.06] rounded-lg p-6">
+      <h2 className="text-sm font-medium text-slate-600 dark:text-white/60 mb-4">Qualificacao de Auditores</h2>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-white/[0.06]">
-              <th className="text-left py-2 text-white/40 font-medium text-xs">Auditor</th>
-              <th className="text-center py-2 text-white/40 font-medium text-xs">Auditorias</th>
-              <th className="text-center py-2 text-white/40 font-medium text-xs">Media</th>
-              <th className="text-center py-2 text-white/40 font-medium text-xs">Ultima</th>
-              <th className="text-center py-2 text-white/40 font-medium text-xs">Status</th>
+            <tr className="border-b border-slate-200 dark:border-white/[0.06]">
+              <th className="text-left py-2 text-slate-500 dark:text-white/40 font-medium text-xs">Auditor</th>
+              <th className="text-center py-2 text-slate-500 dark:text-white/40 font-medium text-xs">Auditorias</th>
+              <th className="text-center py-2 text-slate-500 dark:text-white/40 font-medium text-xs">Media</th>
+              <th className="text-center py-2 text-slate-500 dark:text-white/40 font-medium text-xs">Ultima</th>
+              <th className="text-center py-2 text-slate-500 dark:text-white/40 font-medium text-xs">Status</th>
             </tr>
           </thead>
           <tbody>
             {qualificacoes.map((q) => (
-              <tr key={q.uid} className="border-b border-white/[0.03] last:border-0">
-                <td className="py-3 text-white/80">{q.nome}</td>
-                <td className="py-3 text-center font-mono text-white/60">{q.totalAuditorias}</td>
+              <tr key={q.uid} className="border-b border-slate-100 dark:border-white/[0.03] last:border-0">
+                <td className="py-3 text-slate-800 dark:text-white/80">{q.nome}</td>
+                <td className="py-3 text-center font-mono text-slate-600 dark:text-white/60">{q.totalAuditorias}</td>
                 <td className="py-3 text-center">
-                  <span className={`font-mono font-medium ${q.mediaScore >= 70 ? 'text-emerald-400' : q.mediaScore >= 50 ? 'text-amber-400' : 'text-red-400'}`}>
+                  <span className={`font-mono font-medium ${q.mediaScore >= 70 ? 'text-emerald-600 dark:text-emerald-400' : q.mediaScore >= 50 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>
                     {q.mediaScore}%
                   </span>
                 </td>
-                <td className="py-3 text-center text-white/40 text-xs">
+                <td className="py-3 text-center text-slate-500 dark:text-white/40 text-xs">
                   {q.ultimaAuditoria?.toDate().toLocaleDateString('pt-BR') ?? '—'}
                 </td>
                 <td className="py-3 text-center">{getStatusBadge(q.status)}</td>

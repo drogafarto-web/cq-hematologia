@@ -37,19 +37,33 @@ export interface FotoEvidencia {
   uploadedBy: string;
 }
 
+export interface AudioEvidencia {
+  url: string;
+  path: string;
+  duration: number;
+  transcription: string | null;
+  uploadedAt: Timestamp;
+  uploadedBy: string;
+}
+
 export interface RespostaIndicador {
   readonly id: string;
   numero: number;
   indicador: string;
   bloco: BlocoId;
   score: number | null;
+  critica: CriticaStatus | null;
   naoAplica: boolean;
+  justificativaNA: string | null;
   observacoes: string;
   fotos: FotoEvidencia[];
+  audios: AudioEvidencia[];
   comprovacaoLink: string | null;
   respondidoEm: Timestamp | null;
   respondidoPor: string | null;
 }
+
+export type CriticaStatus = 'CONFORME' | 'NÃO CONFORME' | 'NÃO APLICA';
 
 export interface Indicador {
   id: string;
@@ -59,6 +73,7 @@ export interface Indicador {
   categoria: string;
   marcoRegulatorio: string;
   moduloVinculado: string | null;
+  criticaDefault: CriticaStatus | null;
   niveis: Record<number, string>;
 }
 
@@ -79,6 +94,39 @@ export interface PlanoAcao {
   prazo: Timestamp | null;
   status: 'pendente' | 'em_andamento' | 'concluido';
   criadoEm: Timestamp;
+}
+
+export type TipoAchado = 'nc-critica' | 'nc-maior' | 'nc-menor' | 'oportunidade-melhoria' | 'observacao';
+
+export interface Achado {
+  id: string;
+  auditoriaId: string;
+  indicadorId: string;
+  numero: number;
+  indicador: string;
+  bloco: BlocoId;
+  tipo: TipoAchado;
+  descricao: string;
+  evidenciaObjetiva: string;
+  causaRaiz: string;
+  metodoCausaRaiz: '5-porques' | 'ishikawa' | 'outro' | '';
+  status: 'aberto' | 'em-tratamento' | 'fechado';
+  acaoCorretiva: string;
+  responsavel: string;
+  prazo: Timestamp | null;
+  dataConclusao: Timestamp | null;
+  verificacaoEficacia: VerificacaoEficacia | null;
+  criadoEm: Timestamp;
+  criadoPor: string;
+}
+
+export interface VerificacaoEficacia {
+  verificadorUid: string;
+  verificadorNome: string;
+  data: Timestamp;
+  resultado: 'eficaz' | 'parcialmente-eficaz' | 'ineficaz';
+  evidencia: string;
+  observacoes: string;
 }
 
 export interface QualificacaoAuditor {
