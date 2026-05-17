@@ -34,7 +34,7 @@ export function AuditoriaPlanning({ auditorias }: AuditoriaPlanningProps) {
         labId,
         ano: Number(ano),
         frequencia,
-        responsavelTecnico: user.uid,
+        responsavelTecnico: user.displayName || user.email || user.uid,
         proximaAuditoriaPlanejada: new Date(proximaData).getTime(),
       });
       setShowModal(false);
