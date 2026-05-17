@@ -17,8 +17,9 @@
 
 import * as functions from 'firebase-functions/v2';
 import * as admin from 'firebase-admin';
-import { GoogleGenAI } from '@google/genai';
 import { z } from 'zod';
+import { createAIClient } from '../../shared/ai/aiClient';
+import { RECLAMACAO_CLASSIFICATION_PROMPT } from '../../shared/ai/prompts';
 
 type LabId = string;
 
@@ -64,47 +65,6 @@ const GeminiClassificationResponse = z.object({
 type GeminiClassification = z.infer<typeof GeminiClassificationResponse>;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Prompt Engineering
-// ─────────────────────────────────────────────────────────────────────────────
-
-function buildClassificationPrompt(descricao: string): string {
-  return `Você é um assistente especializado em qualidade laboratorial. Classifique a reclamação de paciente abaixo seguindo rigorosamente os critérios brasileiros (DICQ, RDC 978/2025, CDC Lei 8.078/90).
-
-RECLAMAÇÃO:
-"${descricao}"
-
-TIPOS PERMITIDOS:
-- "laudo-errado": Resultado incorreto, cálculo errado, amostra trocada
-- "demora": Entrega atrasada do laudo (>SLA 30 dias)
-- "atendimento": Comportamento inadequado do staff, falta de empatia
-- "valor-cobrado": Cobrança indevida, fraude, erro de fatura
-- "amostra-hemolisada": Qualidade comprometida (hemólise, contaminação)
-- "outro": Não se enquadra em acima
-
-SEVERIDADES:
-- "alta": Potencial dano clínico, laudo errado, agressão verbal, infração regulatória
-- "media": Demora significativa (7-30d), valor cobrado errado, amostra rejeitada
-- "baixa": Sugestões, comentários gerais, insatisfação menor
-
-ÁREAS RESPONSÁVEIS:
-- "analitico": Análise, resultado, metodologia
-- "pre-analitico": Coleta, amostragem, transporte, armazenamento
-- "pos-analitico": Entrega, comunicação, laudista
-- "comercial": Fatura, cobrança, relacionamento
-- "recepcao": Acolhimento, triagem, cadastro
-- "outro": Não identificado
-
-RESPONDA APENAS COM JSON VÁLIDO (sem markdown, sem explicação):
-{
-  "tipo": "...",
-  "severidade": "...",
-  "areaResponsavel": "...",
-  "confidence": 0.0-1.0,
-  "justificativa": "Máx 150 caracteres explicando a classificação"
-}`;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Callable: classificarReclamacaoIA (internal, via queue)
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -129,37 +89,29 @@ export const classificarReclamacaoIA = functions.tasks.onTaskDispatched(
     const startTime = Date.now();
 
     try {
-      // 1. Initialize Gemini
+      // 1. Initialize AI client
       const apiKey = process.env.GEMINI_API_KEY;
       if (!apiKey) {
         logger.error('GEMINI_API_KEY not configured');
         return;
       }
 
-      const genAI = new GoogleGenAI({
-        apiKey,
+      const client = createAIClient({ apiKey, model: 'gemini-2.5-flash' });
+
+      // 2. Call AI with structured output
+      const result = await client.generateJSON<GeminiClassification>({
+        systemPrompt: RECLAMACAO_CLASSIFICATION_PROMPT.system,
+        prompt: RECLAMACAO_CLASSIFICATION_PROMPT.template(descricao),
       });
 
-      // 2. Call Gemini with structured output
-      const prompt = buildClassificationPrompt(descricao);
-      const result = await genAI.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      });
+      const responseText = result.raw;
 
-      const responseText = result.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-
-      if (!responseText) {
-        throw new Error('Empty response from Gemini');
-      }
-
-      // 3. Parse and validate response
+      // 3. Validate response with Zod
       let classification: GeminiClassification;
       try {
-        const parsed = JSON.parse(responseText);
-        classification = GeminiClassificationResponse.parse(parsed);
+        classification = GeminiClassificationResponse.parse(result.parsed);
       } catch (parseErr) {
-        logger.warn('Failed to parse Gemini response', { responseText, error: parseErr });
+        logger.warn('Failed to validate AI response', { responseText, error: parseErr });
         return;
       }
 
