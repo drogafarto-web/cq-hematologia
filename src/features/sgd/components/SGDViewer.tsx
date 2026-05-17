@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { useSGDDocumento } from '../hooks/useSGDDocumentos'
-import { SGDDocumento } from '../types/SGDDocumento'
+import { SGDDocumento, SIGLA_LABEL } from '../types/SGDDocumento'
 import { cn } from '../../../utils/cn'
 
 interface SGDViewerProps {
@@ -109,6 +109,23 @@ export const SGDViewer: React.FC<SGDViewerProps> = ({
                   <span className="inline-block bg-violet-900/30 text-violet-200 px-2 py-1 rounded text-xs font-medium">
                     Bloco {doc.categoriaICQ}
                   </span>
+                </div>
+              )}
+
+              {/* Sigla (External Document Classification) */}
+              {doc.sigla && (
+                <div>
+                  <h3 className="text-xs font-semibold text-white/60 uppercase tracking-wide mb-2">Classificação</h3>
+                  <span className="inline-block bg-emerald-900/30 text-emerald-200 px-2 py-1 rounded text-xs font-medium">
+                    {doc.sigla}
+                  </span>
+                  <p className="text-xs text-white/50 mt-1">{SIGLA_LABEL[doc.sigla]}</p>
+                  {doc.codigoExterno && (
+                    <p className="text-sm text-white/80 mt-1 font-mono">{doc.codigoExterno}</p>
+                  )}
+                  {doc.orgaoEmissor && (
+                    <p className="text-xs text-white/50 mt-1">{doc.orgaoEmissor}</p>
+                  )}
                 </div>
               )}
 

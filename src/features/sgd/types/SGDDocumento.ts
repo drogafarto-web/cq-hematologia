@@ -2,6 +2,29 @@ import { Timestamp } from 'firebase/firestore'
 
 export type DICABloco = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J'
 
+export type SiglaDocExterno =
+  | 'RDC'   // Resolução da Diretoria Colegiada (ANVISA)
+  | 'NR'    // Norma Regulamentadora (MTE)
+  | 'RF'    // Documento Normativo Federal
+  | 'DE'    // Documento Externo Técnico (certificados, laudos)
+  | 'ME'    // Manual de Equipamento
+  | 'FDS'   // Ficha de Dados de Segurança
+  | 'PF'    // Portaria Federal
+  | 'LE'    // Legislação Estadual
+  | 'LMU';  // Legislação Municipal
+
+export const SIGLA_LABEL: Record<SiglaDocExterno, string> = {
+  RDC: 'Resolução da Diretoria Colegiada',
+  NR: 'Norma Regulamentadora',
+  RF: 'Documento Normativo Federal',
+  DE: 'Documento Externo Técnico',
+  ME: 'Manual de Equipamento',
+  FDS: 'Ficha de Dados de Segurança',
+  PF: 'Portaria Federal',
+  LE: 'Legislação Estadual',
+  LMU: 'Legislação Municipal',
+};
+
 export interface LogicalSignature {
   hash: string // SHA-256 hex, 64 chars
   operatorId: string // user UID
@@ -34,6 +57,13 @@ export interface SGDDocumento {
   driveFolderId: string
   fileSize?: number // bytes
   categoriaICQ?: DICABloco | null
+  sigla?: SiglaDocExterno;
+  codigoExterno?: string;
+  orgaoEmissor?: string;
+  dataEmissaoDoc?: Timestamp;
+  dataRevisaoDoc?: Timestamp;
+  situacao?: 'ativo' | 'inativo';
+  versaoExterna?: string;
   linksSugeridos?: LinkSuggestion[]
   linksConfirmados?: ModuleLink[]
   criadoEm: Timestamp

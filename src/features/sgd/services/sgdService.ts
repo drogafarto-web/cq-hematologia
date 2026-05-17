@@ -19,6 +19,7 @@ import {
   SGDDocumento,
   LogicalSignature,
   DICABloco,
+  SiglaDocExterno,
   LinkSuggestion,
   ModuleLink
 } from '../types/SGDDocumento'
@@ -137,6 +138,7 @@ export const sgdService = {
     labId: string,
     filters?: {
       categoria?: DICABloco
+      sigla?: SiglaDocExterno
       includeDeleted?: boolean
     }
   ): Promise<SGDDocumento[]> {
@@ -151,6 +153,10 @@ export const sgdService = {
 
     if (filters?.categoria) {
       q = query(q, where('categoriaICQ', '==', filters.categoria))
+    }
+
+    if (filters?.sigla) {
+      q = query(q, where('sigla', '==', filters.sigla))
     }
 
     const snap = await getDocs(q)
