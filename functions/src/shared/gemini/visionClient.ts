@@ -11,8 +11,10 @@
  * LGPD Art.9 — sensitive health data requires explicit consent
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import * as functions from 'firebase-functions';
+import { createAIClient, AIClient } from '../ai/aiClient';
+import { STRIP_CLASSIFICATION_PROMPT } from '../ai/prompts/stripClassification';
+import { LAUDO_EXTRACTION_PROMPT } from '../ai/prompts/laudoExtraction';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -65,11 +67,17 @@ interface LaudoOCRResult {
   };
 }
 
+// ─── Helpers ───────────────────────────────────────────────────────────────
+
+/** Strip markdown code fences from vision responses */
+function cleanJSON(raw: string): string {
+  return raw.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
+}
+
 // ─── Client Class ───────────────────────────────────────────────────────────
 
 export class GeminiVisionClient {
-  private client: GoogleGenerativeAI;
-  private model: ReturnType<GoogleGenerativeAI['getGenerativeModel']>;
+  private aiClient: AIClient;
   private confidenceThreshold: number = 0.85;
   private modelVersion: string = 'gemini-2.5-flash';
 
@@ -85,8 +93,7 @@ export class GeminiVisionClient {
       );
     }
 
-    this.client = new GoogleGenerativeAI(apiKey);
-    this.model = this.client.getGenerativeModel({ model: modelVersion });
+    this.aiClient = createAIClient({ apiKey, model: modelVersion, maxRetries: 3 });
     this.confidenceThreshold = confidenceThreshold;
     this.modelVersion = modelVersion;
   }
@@ -113,56 +120,25 @@ export class GeminiVisionClient {
     stripId: string
   ): Promise<Omit<ImunoIAClassification, 'id' | 'labId' | 'hash' | 'createdAt'>> {
     try {
-      const prompt = `
-You are an immunology laboratory assistant. Analyze this immunology strip image and classify the result.
+      const prompt = STRIP_CLASSIFICATION_PROMPT.template({
+        confidenceThreshold: this.confidenceThreshold,
+      });
 
-Return a JSON object with EXACTLY these fields:
-{
-  "analyte": "<name of the antigen being tested, e.g. 'HIV', 'Syphilis', 'Hepatitis B'>",
-  "result": "<one of: 'positive', 'negative', 'inconclusive'>",
-  "confidence": <0.0 to 1.0 float representing your certainty>,
-  "rawText": "<any visible text or markers on the strip>"
-}
-
-Important:
-- Confidence should be 0.90+ for clear results, 0.50-0.80 for ambiguous strips
-- If the image is unclear or band positions are ambiguous, return 'inconclusive'
-- confidence < 0.85 will trigger manual review
-- Return ONLY the JSON object, no additional text or markdown
-
-Analyze now:
-`;
-
-      const response = await this.model.generateContent([
-        {
-          inlineData: {
-            mimeType: 'image/jpeg',
-            data: imageBase64,
-          },
-        },
+      const response = await this.aiClient.generateVision({
         prompt,
-      ]);
+        imageBase64,
+        mimeType: 'image/jpeg',
+      });
 
-      const responseText = response.response.text();
-      if (!responseText || responseText.trim().length === 0) {
-        throw new Error(
-          'Gemini Vision returned empty response'
-        );
-      }
-
-      // Parse JSON response
+      // Parse JSON response (vision responses may still have markdown fences)
       let parsed: GeminiVisionResponse;
       try {
-        // Clean response of markdown code blocks if present
-        const cleanedText = responseText
-          .replace(/^```json\n?/, '')
-          .replace(/\n?```$/, '')
-          .trim();
+        const cleanedText = cleanJSON(response.text);
         parsed = JSON.parse(cleanedText);
       } catch (jsonErr) {
         functions.logger.warn(
           `[${labId}:${stripId}] Failed to parse Gemini JSON response`,
-          { rawResponse: responseText, error: String(jsonErr) }
+          { rawResponse: response.text, error: String(jsonErr) }
         );
         throw new Error(
           `Invalid JSON in Gemini response: ${String(jsonErr)}`
@@ -175,7 +151,7 @@ Analyze now:
       const rawConfidence = this.parseConfidenceScore(parsed);
 
       // Enforce confidence threshold
-      let finalConfidence = rawConfidence;
+      const finalConfidence = rawConfidence;
       if (rawConfidence < this.confidenceThreshold) {
         functions.logger.info(
           `[${labId}:${stripId}] Confidence below threshold`,
@@ -227,54 +203,21 @@ Analyze now:
     imageBase64: string
   ): Promise<LaudoOCRResult> {
     try {
-      const prompt = `
-Extract structured fields from this laboratory report (laudo) image.
+      const prompt = LAUDO_EXTRACTION_PROMPT.template();
 
-Return a JSON object with these fields (include only if visible):
-{
-  "patientName": "<patient full name>",
-  "patientId": "<patient registration ID or CPF>",
-  "testDate": "<date of test in YYYY-MM-DD format>",
-  "analyte": "<test/analyte name>",
-  "result": "<test result value or interpretation>",
-  "laboratory": "<laboratory name or stamp>",
-  "referenceRange": "<reference range if visible>"
-}
-
-Important:
-- Be precise; extract exactly what you see
-- If a field is not visible or unclear, omit it
-- Return ONLY the JSON object, no additional text or markdown
-- Preserve original formatting for dates and numbers
-
-Extract now:
-`;
-
-      const response = await this.model.generateContent([
-        {
-          inlineData: {
-            mimeType: 'image/jpeg',
-            data: imageBase64,
-          },
-        },
+      const response = await this.aiClient.generateVision({
         prompt,
-      ]);
-
-      const responseText = response.response.text();
-      if (!responseText || responseText.trim().length === 0) {
-        throw new Error('Gemini Vision returned empty response');
-      }
+        imageBase64,
+        mimeType: 'image/jpeg',
+      });
 
       let fields: Record<string, unknown>;
       try {
-        const cleanedText = responseText
-          .replace(/^```json\n?/, '')
-          .replace(/\n?```$/, '')
-          .trim();
+        const cleanedText = cleanJSON(response.text);
         fields = JSON.parse(cleanedText);
       } catch (jsonErr) {
         functions.logger.warn('Failed to parse laudo OCR JSON', {
-          rawResponse: responseText,
+          rawResponse: response.text,
           error: String(jsonErr),
         });
         throw new Error(`Invalid JSON in laudo OCR: ${String(jsonErr)}`);
