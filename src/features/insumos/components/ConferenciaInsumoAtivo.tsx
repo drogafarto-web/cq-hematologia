@@ -129,8 +129,10 @@ export function ConferenciaInsumoAtivo({
 }: ConferenciaInsumoAtivoProps) {
   // Fase D: se equipamentoId fornecido, usa como docId do setup. Caso contrário
   // mantém o docId legado (= module) — comportamento pré-Fase D preservado.
+  // Fallback pro module quando o doc do equipamento não existe (migração Fase A→D).
   const setupDocId = equipamentoId ?? module;
-  const { setup, isLoading } = useEquipmentSetup(setupDocId);
+  const fallbackDocId = equipamentoId ? module : null;
+  const { setup, isLoading } = useEquipmentSetup(setupDocId, fallbackDocId);
   const { insumos: allAtivos } = useInsumos({ status: 'ativo' });
   const insumos = equipamentoId
     ? allAtivos.filter((i) => insumoCobreEquipamento(i, equipamentoId))

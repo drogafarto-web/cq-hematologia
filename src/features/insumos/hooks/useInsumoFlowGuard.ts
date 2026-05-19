@@ -122,8 +122,10 @@ export function useInsumoFlowGuard({
 }: UseInsumoFlowGuardParams): UseInsumoFlowGuardResult {
   const activeLab = useActiveLab();
   // Fase D: se equipamentoId foi passado, lê o setup dele; senão cai no docId=module (Fase A).
+  // Fallback pro module quando o doc do equipamento não existe (migração Fase A→D).
   const setupDocId = equipamentoId ?? module;
-  const { setup, isLoading } = useEquipmentSetup(setupDocId);
+  const fallbackDocId = equipamentoId ? module : null;
+  const { setup, isLoading } = useEquipmentSetup(setupDocId, fallbackDocId);
   const { insumos: allAtivos } = useInsumos({ status: 'ativo' });
   // Filtra só insumos que cobrem o equipamento ativo (reagente 1:1, controle N:1).
   // Sem equipamentoId, passa tudo (backward-compat).

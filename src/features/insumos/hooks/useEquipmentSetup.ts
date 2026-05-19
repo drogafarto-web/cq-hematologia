@@ -22,7 +22,16 @@ interface UseEquipmentSetupResult {
   error: string | null;
 }
 
-export function useEquipmentSetup(setupDocId: string | null): UseEquipmentSetupResult {
+/**
+ * @param setupDocId - Primary doc ID (equipamentoId in Fase D, or module in legacy).
+ * @param fallbackDocId - Optional fallback doc ID to try when primary doc doesn't exist.
+ *   Used during Fase A→D migration: equipment ID doc may not exist yet if insumos
+ *   were configured under the legacy module-level doc.
+ */
+export function useEquipmentSetup(
+  setupDocId: string | null,
+  fallbackDocId?: string | null,
+): UseEquipmentSetupResult {
   const labId = useActiveLabId();
   const [setup, setSetup] = useState<EquipmentSetup | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,14 +49,29 @@ export function useEquipmentSetup(setupDocId: string | null): UseEquipmentSetupR
     setError(null);
 
     let firstSnapshot = true;
+    let unsubFallback: (() => void) | null = null;
+
     const unsub = subscribeToSetupById(
       labId,
       setupDocId,
       (incoming) => {
-        setSetup(incoming);
-        if (firstSnapshot) {
-          setIsLoading(false);
-          firstSnapshot = false;
+        if (incoming) {
+          if (unsubFallback) { unsubFallback(); unsubFallback = null; }
+          setSetup(incoming);
+          if (firstSnapshot) { setIsLoading(false); firstSnapshot = false; }
+        } else if (fallbackDocId && fallbackDocId !== setupDocId) {
+          unsubFallback = subscribeToSetupById(
+            labId,
+            fallbackDocId,
+            (fallbackSetup) => {
+              setSetup(fallbackSetup);
+              if (firstSnapshot) { setIsLoading(false); firstSnapshot = false; }
+            },
+            (err) => { setError(err.message); setIsLoading(false); },
+          );
+        } else {
+          setSetup(null);
+          if (firstSnapshot) { setIsLoading(false); firstSnapshot = false; }
         }
       },
       (err) => {
@@ -56,8 +80,11 @@ export function useEquipmentSetup(setupDocId: string | null): UseEquipmentSetupR
       },
     );
 
-    return unsub;
-  }, [labId, setupDocId]);
+    return () => {
+      unsub();
+      if (unsubFallback) unsubFallback();
+    };
+  }, [labId, setupDocId, fallbackDocId]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   return { setup, isLoading, error };

@@ -63,7 +63,7 @@ export const URO_CRITERIOS: Record<UroNivel, Record<UroAnalitoId, UroCriterio>> 
     nitrito: ['NEGATIVO'],
     ph: { min: 5.0, max: 6.0 },
     sangue: ['NEGATIVO'],
-    densidade: { min: 1.005, max: 1.02 },
+    densidade: { min: 1.005, max: 1.025 },
     leucocitos: ['NEGATIVO'],
   },
   P: {
@@ -126,7 +126,7 @@ export const URO_ANALITO_LABELS: Record<UroAnalitoId, string> = {
   bilirrubina: 'Bilirrubina',
   proteina: 'Proteína',
   nitrito: 'Nitrito',
-  sangue: 'Sangue oculto',
+  sangue: 'Hemoglobina',
   leucocitos: 'Leucócitos',
   ph: 'pH',
   densidade: 'Densidade',
