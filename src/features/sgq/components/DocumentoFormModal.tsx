@@ -202,7 +202,7 @@ export function DocumentoFormModal({
   const titleByMode: Record<typeof mode, string> = {
     criar: 'Novo documento',
     editar: 'Editar documento',
-    revisao: `Emitir revisão · ${revisaoDe?.codigo ?? ''} v${(revisaoDe?.versao ?? 0) + 1}`,
+    revisao: `Emitir revisão · ${revisaoDe?.codigo ?? ''} (próxima versão)`,
   };
 
   return (
@@ -264,10 +264,10 @@ export function DocumentoFormModal({
                 disabled
                 value={
                   mode === 'revisao'
-                    ? `${(revisaoDe?.versao ?? 0) + 1} (próxima)`
+                    ? `${revisaoDe?.versao ?? '1.0'} → próxima`
                     : documento
                       ? `${documento.versao}`
-                      : '1 (inicial)'
+                      : '1.0 (inicial)'
                 }
                 className="input opacity-60"
               />

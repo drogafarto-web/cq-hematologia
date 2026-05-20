@@ -3,9 +3,7 @@ import * as admin from 'firebase-admin';
 import {
   createDocument,
   createDocumentFromSource,
-  insertHeader,
   shareWithUsers,
-  HeaderContent,
 } from './_drive/docsClient';
 import { getAccessToken, OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET } from './_drive/oauthClient';
 import { logger } from 'firebase-functions/v2';
@@ -29,10 +27,6 @@ interface CustomClaims {
   admin?: boolean;
   isSuperAdmin?: boolean;
 }
-
-const MOTES: Record<string, string> = {
-  MQ: 'Documento mestre do SGQ: política, objetivos e estrutura documental.',
-};
 
 const SHARE_BATCH_SIZE = 5;
 
@@ -175,29 +169,8 @@ export const criarDocumentoGDocs = onCall<CriarDocGDocsInput>(
       );
     }
 
-    // 9. Insert header
-    const labSnap = await db.doc(`/labs/${labId}`).get();
-    const labName = labSnap.data()?.nome ?? labId;
-
-    const headerContent: HeaderContent = {
-      labName,
-      tipo: docData.tipo ?? 'DOC',
-      codigo: docData.codigo,
-      titulo: docData.titulo,
-      versao: docData.versao ?? 1,
-      status: 'EM REVISÃO',
-      dataEmissao: new Date().toISOString().split('T')[0],
-      mote: MOTES[docData.tipo] ?? undefined,
-    };
-
-    try {
-      await insertHeader(accessToken, docId, headerContent);
-    } catch (err) {
-      throw new HttpsError(
-        'internal',
-        `Falha ao inserir cabeçalho no documento: ${(err as Error).message}`,
-      );
-    }
+    // 9. Header is NOT injected into the document body (carimbo virtual).
+    // Metadata lives in Firestore; rendered by the client viewer and PDF export.
 
     // 10. Share with active lab members (batched to avoid rate limits)
     const membersSnap = await db

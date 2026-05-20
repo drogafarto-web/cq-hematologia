@@ -49,7 +49,9 @@ export type TipoDocumento =
   | 'FR'     // Formulário / Registro
   | 'POL'    // Política
   | 'LM'     // Lista Mestra (meta-documento — LM-01, LM-02, LM-03)
-  | 'EXT';   // Documento Externo (RDC ANVISA, ABNT NBR, bulas, FISPQs)
+  | 'EXT'    // Documento Externo (RDC ANVISA, ABNT NBR, bulas, FISPQs)
+  | 'ATA'    // Ata de Reunião (DICQ 4.4 — registros de reuniões da qualidade)
+  | 'RAI';   // Relatório de Auditoria Interna (DICQ 4.14 — evidência de auditoria)
 
 export type StatusDocumento =
   | 'em_revisao'  // Em rascunho — não é evidência ainda
@@ -69,6 +71,8 @@ export const TIPO_LABEL: Record<TipoDocumento, string> = {
   POL: 'Política',
   LM: 'Lista Mestra',
   EXT: 'Documento Externo',
+  ATA: 'Ata de Reunião',
+  RAI: 'Relatório de Auditoria Interna',
 };
 
 export const STATUS_LABEL: Record<StatusDocumento, string> = {
@@ -97,10 +101,11 @@ export interface Documento {
   titulo: string;
 
   /**
-   * Versão monotônica incremental. Documento original começa em 1; cada
-   * revisão sobe +1 (e gera novo doc Firestore preservando o anterior).
+   * Versão semântica "X.Y". Major (X) sobe em mudança estrutural/método;
+   * Minor (Y) sobe em correção pontual (nome, typo, formatação).
+   * Documento original começa em "1.0".
    */
-  versao: number;
+  versao: string;
 
   /**
    * URL do PDF/documento. Opcional quando o documento será criado via
@@ -212,7 +217,7 @@ export interface DocumentoAuditEvent {
   readonly documentoId: string;
   /** Snapshot do código no momento — sobrevive a edições posteriores. */
   codigoSnapshot: string;
-  versaoSnapshot: number;
+  versaoSnapshot: string;
 
   type: DocumentoAuditEventType;
 
@@ -231,6 +236,32 @@ export interface DocumentoAuditEvent {
   readonly timestamp: Timestamp;
   readonly operadorId: string;
   readonly operadorName: string;
+}
+
+// ─── Versionamento Semântico ─────────────────────────────────────────────────
+
+export type TipoAlteracao = 'major' | 'minor';
+
+// ─── Histórico de Versões ────────────────────────────────────────────────────
+
+/**
+ * Histórico de versões de um documento (DICQ 4.3 — rastreabilidade de revisões).
+ * Firestore path: /labs/{labId}/sgq-documentos/{docId}/historico-versoes/{id}
+ * Append-only — nunca editar ou deletar entradas existentes.
+ */
+export interface VersaoHistorico {
+  readonly id: string;
+  versao: string;
+  tipoAlteracao: TipoAlteracao;
+  diffPercent?: number;
+  data: Timestamp;
+  elaboradoPor: string;
+  elaboradoPorId: string;
+  aprovadoPor: string;
+  aprovadoPorId: string;
+  alteracao: string;
+  documentoId: string;
+  substituidaPorVersao?: string;
 }
 
 // ─── Input DTO ───────────────────────────────────────────────────────────────
@@ -268,6 +299,36 @@ export interface DocumentoFilters {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/**
+ * Parses semantic version string "X.Y" into major and minor components.
+ */
+export function parseVersao(v: string | number): { major: number; minor: number } {
+  if (typeof v === 'number') return { major: v, minor: 0 };
+  const parts = String(v).split('.');
+  return {
+    major: parseInt(parts[0], 10) || 1,
+    minor: parseInt(parts[1], 10) || 0,
+  };
+}
+
+/**
+ * Increments version based on tipo de alteração.
+ * major: 4.1 → 5.0 | minor: 4.1 → 4.2
+ */
+export function incrementVersao(current: string | number, tipo: TipoAlteracao): string {
+  const { major, minor } = parseVersao(current);
+  if (tipo === 'major') return `${major + 1}.0`;
+  return `${major}.${minor + 1}`;
+}
+
+/**
+ * Formats version for display: "1.0" → "v01.0", "4.2" → "v04.2"
+ */
+export function formatVersao(v: string | number): string {
+  const { major, minor } = parseVersao(v);
+  return `v${String(major).padStart(2, '0')}.${minor}`;
+}
 
 /**
  * Documento vencido = `proximaRevisao < hoje` E status `vigente`. Sinal de

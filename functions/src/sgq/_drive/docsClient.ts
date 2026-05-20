@@ -217,6 +217,45 @@ export async function exportAsPdf(accessToken: string, docId: string): Promise<B
   return Buffer.from(res.data as ArrayBuffer);
 }
 
+/**
+ * Extracts plain text content from a Google Doc for diff comparison.
+ * Returns concatenated text from all structural elements.
+ */
+export async function getDocContent(accessToken: string, docId: string): Promise<string> {
+  const docs = getDocsService(accessToken);
+  const res = await docs.documents.get({ documentId: docId });
+  const body = res.data.body;
+  if (!body?.content) return '';
+
+  const parts: string[] = [];
+  for (const element of body.content) {
+    if (element.paragraph?.elements) {
+      for (const el of element.paragraph.elements) {
+        if (el.textRun?.content) {
+          parts.push(el.textRun.content);
+        }
+      }
+    }
+    if (element.table) {
+      for (const row of element.table.tableRows ?? []) {
+        for (const cell of row.tableCells ?? []) {
+          for (const cellContent of cell.content ?? []) {
+            if (cellContent.paragraph?.elements) {
+              for (const el of cellContent.paragraph.elements) {
+                if (el.textRun?.content) {
+                  parts.push(el.textRun.content);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return parts.join('');
+}
+
 export async function shareWithUsers(
   accessToken: string,
   docId: string,

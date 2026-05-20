@@ -255,6 +255,7 @@ export function useDocumentos(
           documentoAnterior: anterior,
           novaInput,
           operator,
+          tipoAlteracao: 'major',
         });
       } catch (e) {
         const msg = e instanceof Error ? e.message : 'Erro ao emitir revisão.';
@@ -319,7 +320,7 @@ export function useDocumentos(
   );
 
   const publicar = useCallback(
-    async (documentoId: string, pin: string, razao?: string) => {
+    async (documentoId: string, pin: string, tipoAlteracao?: string, razao?: string) => {
       if (!labId) throw new Error('Sem laboratório ativo.');
       if (!operator) throw new Error('Sem usuário autenticado.');
 
@@ -331,7 +332,7 @@ export function useDocumentos(
       }
 
       try {
-        const result = await documentoService.publicar(labId, documentoId, pin, razao);
+        const result = await documentoService.publicar(labId, documentoId, pin, (tipoAlteracao as 'major' | 'minor') ?? 'minor', razao);
         return { pdfUrl: result.pdfUrl };
       } catch (e) {
         const msg = e instanceof Error ? e.message : 'Erro ao publicar documento.';

@@ -2374,6 +2374,8 @@ export { processQueue as notivisaProcessQueue } from './modules/notivisa/process
 export { aprovarBatchImport } from './sgq/aprovarBatchImport';
 export { criarDocumentoGDocs } from './sgq/criarDocumentoGDocs';
 export { publicarDocumento } from './sgq/publicarDocumento';
+export { exportDocumentoPdfA4 } from './sgq/exportDocumentoPdfA4';
+export { exportFormularioXlsx } from './sgq/exportFormularioXlsx';
 
 // ─── CEQ module (PNCQ PDF parsing + confirm results + manual resultado) ─────
 // parsePNCQReport: callable que parseia PDFs do PNCQ enviados ao Storage.

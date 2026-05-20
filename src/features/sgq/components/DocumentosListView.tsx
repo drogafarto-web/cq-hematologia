@@ -20,16 +20,20 @@ import {
   isVencido,
   STATUS_LABEL,
   TIPO_LABEL,
+  formatVersao,
   type Documento,
   type StatusDocumento,
+  type TipoAlteracao,
   type TipoDocumento,
 } from '../types/Documento';
-import { criarDocumentoGDocs, publicarDocumento } from '../services/documentoService';
+import { criarDocumentoGDocs, publicarDocumento, exportDocumentoPdfA4, exportFormularioXlsx } from '../services/documentoService';
 import { PublicarDocumentoModal } from './PublicarDocumentoModal';
-import { useActiveLabId } from '../../../store/useAuthStore';
+import { CarimboVirtual } from './CarimboVirtual';
+import { useHistoricoVersoes } from '../hooks/useHistoricoVersoes';
+import { useActiveLabId, useActiveLab } from '../../../store/useAuthStore';
 import { storage, getDownloadURL, ref } from '../../../shared/services/firebase';
 
-const TIPOS: TipoDocumento[] = ['MQ', 'PQ', 'IT', 'FR', 'POL'];
+const TIPOS: TipoDocumento[] = ['MQ', 'PQ', 'PQ-ANA', 'PQ-EQP', 'IT', 'ITA', 'FR', 'POL', 'ATA', 'RAI'];
 const STATUSES: StatusDocumento[] = ['em_revisao', 'vigente', 'obsoleto'];
 
 interface Props {
@@ -64,9 +68,9 @@ export function DocumentosListView({
   const [publishTarget, setPublishTarget] = useState<Documento | null>(null);
   const labId = useActiveLabId();
 
-  async function handlePublicar(pin: string, razao?: string) {
+  async function handlePublicar(pin: string, tipoAlteracao: TipoAlteracao, razao?: string) {
     if (!publishTarget || !labId) return;
-    await publicarDocumento(labId, publishTarget.id, pin, razao);
+    await publicarDocumento(labId, publishTarget.id, pin, tipoAlteracao, razao);
   }
 
   // Ordenação: vigentes primeiro, dentro de cada grupo ordena por código.
@@ -226,6 +230,7 @@ const DocumentoRow = memo(function DocumentoRow({
   onPublicar: (doc: Documento) => void;
 }) {
   const [creatingGDocs, setCreatingGDocs] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const handleOpenPdf = useCallback(async () => {
     if (!doc.snapshotPdfUrl) return;
@@ -261,11 +266,15 @@ const DocumentoRow = memo(function DocumentoRow({
         : STATUS_LABEL[doc.status];
 
   return (
-    <tr className="hover:bg-white/[0.02] transition-colors">
+    <>
+    <tr
+      className="hover:bg-white/[0.02] transition-colors cursor-pointer"
+      onClick={() => setExpanded((prev) => !prev)}
+    >
       <td className="px-4 py-2.5 font-mono text-xs text-white/85">{doc.codigo}</td>
       <td className="px-4 py-2.5 text-white/85 truncate max-w-xs">{doc.titulo}</td>
       <td className="px-4 py-2.5 text-white/50 text-xs">{TIPO_LABEL[doc.tipo]}</td>
-      <td className="px-4 py-2.5 text-white/50 text-xs">v{doc.versao}</td>
+      <td className="px-4 py-2.5 text-white/50 text-xs">{formatVersao(doc.versao)}</td>
       <td className="px-4 py-2.5">
         <span
           className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${statusBadge}`}
@@ -280,7 +289,7 @@ const DocumentoRow = memo(function DocumentoRow({
             ? doc.proximaRevisao.toLocaleDateString('pt-BR')
             : '—')}
       </td>
-      <td className="px-4 py-2.5 text-right">
+      <td className="px-4 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
         <div className="inline-flex items-center gap-1 justify-end">
           {/* Criar no Google Docs */}
           {!doc.googleDocId && doc.status === 'em_revisao' && labId && (
@@ -411,8 +420,100 @@ const DocumentoRow = memo(function DocumentoRow({
         </div>
       </td>
     </tr>
+    {expanded && <ExpandedCarimboRow doc={doc} />}
+    </>
   );
 });
+
+function ExpandedCarimboRow({ doc }: { doc: Documento }) {
+  const { versoes, isLoading } = useHistoricoVersoes(doc.id);
+  const lab = useActiveLab();
+  const labId = useActiveLabId();
+  const [exporting, setExporting] = useState(false);
+  const [exportingXlsx, setExportingXlsx] = useState(false);
+
+  async function handleExportPdf() {
+    if (!labId) return;
+    setExporting(true);
+    try {
+      const { pdfUrl } = await exportDocumentoPdfA4(labId, doc.id);
+      window.open(pdfUrl, '_blank');
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  async function handleExportXlsx() {
+    if (!labId) return;
+    setExportingXlsx(true);
+    try {
+      const { xlsxUrl } = await exportFormularioXlsx(labId, doc.id, [], []);
+      window.open(xlsxUrl, '_blank');
+    } finally {
+      setExportingXlsx(false);
+    }
+  }
+
+  return (
+    <tr>
+      <td colSpan={7} className="px-4 py-3 bg-white/[0.01]">
+        <div className="flex items-start gap-4">
+          <CarimboVirtual
+            documento={doc}
+            versoes={versoes}
+            labName={lab?.name ?? ''}
+            isLoading={isLoading}
+          />
+          <div className="flex flex-col gap-2 shrink-0">
+            {doc.googleDocId && (
+              <button
+                type="button"
+                onClick={handleExportPdf}
+                disabled={exporting}
+                className="inline-flex items-center gap-1.5 text-[11px] text-violet-400 hover:text-violet-300 px-3 py-1.5 rounded-md border border-violet-500/20 bg-violet-500/10 hover:bg-violet-500/15 transition-colors disabled:opacity-40"
+              >
+                {exporting ? (
+                  <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                ) : (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <path d="M12 18v-6M9 15l3 3 3-3" />
+                  </svg>
+                )}
+                Exportar PDF A4
+              </button>
+            )}
+            {doc.tipo === 'FR' && (
+              <button
+                type="button"
+                onClick={handleExportXlsx}
+                disabled={exportingXlsx}
+                className="inline-flex items-center gap-1.5 text-[11px] text-emerald-400 hover:text-emerald-300 px-3 py-1.5 rounded-md border border-emerald-500/20 bg-emerald-500/10 hover:bg-emerald-500/15 transition-colors disabled:opacity-40"
+              >
+                {exportingXlsx ? (
+                  <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                ) : (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <path d="M9 3v18M3 9h18M3 15h18" />
+                  </svg>
+                )}
+                Exportar XLSX
+              </button>
+            )}
+          </div>
+        </div>
+      </td>
+    </tr>
+  );
+}
 
 function SkeletonRows() {
   return (

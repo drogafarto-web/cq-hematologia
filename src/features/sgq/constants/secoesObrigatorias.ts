@@ -17,4 +17,6 @@ export const SECOES_POR_TIPO: Record<TipoDocumento, string[]> = {
   POL: ['Objetivo', 'Definições', 'Áreas Envolvidas', 'Descrição', 'Controle de Registros'],
   LM: [],
   EXT: [],
+  ATA: ['Pauta', 'Participantes', 'Deliberações', 'Encaminhamentos'],
+  RAI: ['Objetivo', 'Escopo', 'Critérios', 'Constatações', 'Não Conformidades', 'Conclusão'],
 };

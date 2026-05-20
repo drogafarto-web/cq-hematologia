@@ -35,8 +35,10 @@ import type {
   DocumentoFilters,
   DocumentoInput,
   StatusDocumento,
+  TipoAlteracao,
   TipoDocumento,
 } from '../types/Documento';
+import { incrementVersao } from '../types/Documento';
 
 // ─── Path helpers ────────────────────────────────────────────────────────────
 
@@ -55,7 +57,7 @@ interface DocumentoSnapshot {
   codigo: string;
   tipo: TipoDocumento;
   titulo: string;
-  versao: number;
+  versao: string;
   url: string;
   autoridadeEmitente: string;
   dataEmissao: Timestamp;
@@ -127,7 +129,7 @@ export async function createDocumento({
     ...input,
     url: input.url ?? null,
     labId,
-    versao: 1,
+    versao: '1.0',
     status: 'em_revisao' as StatusDocumento,
     criadoEm: now,
     criadoPor: operator.uid,
@@ -151,7 +153,7 @@ export async function createDocumento({
     labId,
     documentoId: newRef.id,
     codigoSnapshot: input.codigo,
-    versaoSnapshot: 1,
+    versaoSnapshot: '1.0',
     type: 'created' as DocumentoAuditEventType,
     timestamp: now,
     operadorId: operator.uid,
@@ -211,7 +213,7 @@ export interface TransitionStatusArgs {
   fromStatus: StatusDocumento;
   toStatus: StatusDocumento;
   codigo: string;
-  versao: number;
+  versao: string;
   motivo?: string;
   operator: OperatorContext;
 }
@@ -267,6 +269,7 @@ export interface EmitirRevisaoArgs {
   documentoAnterior: Documento;
   novaInput: DocumentoInput;
   operator: OperatorContext;
+  tipoAlteracao: TipoAlteracao;
 }
 
 /**
@@ -285,8 +288,9 @@ export async function emitirRevisao({
   documentoAnterior,
   novaInput,
   operator,
+  tipoAlteracao,
 }: EmitirRevisaoArgs): Promise<string> {
-  const novaVersao = documentoAnterior.versao + 1;
+  const novaVersao = incrementVersao(documentoAnterior.versao, tipoAlteracao);
   const novoRef = doc(colDocs(labId));
   const now = serverTimestamp();
   const batch = writeBatch(db);
@@ -535,11 +539,33 @@ export async function publicarDocumento(
   labId: string,
   documentoId: string,
   pin: string,
+  tipoAlteracao: TipoAlteracao,
   razao?: string,
-): Promise<{ pdfUrl: string; pdfHash: string; versao: number; publicadoEm: string }> {
+): Promise<{ pdfUrl: string; pdfHash: string; versao: string; publicadoEm: string }> {
   const callable = httpsCallable(functions, 'publicarDocumento');
-  const result = await callable({ labId, documentoId, pin, razao });
-  return result.data as { pdfUrl: string; pdfHash: string; versao: number; publicadoEm: string };
+  const result = await callable({ labId, documentoId, pin, tipoAlteracao, razao });
+  return result.data as { pdfUrl: string; pdfHash: string; versao: string; publicadoEm: string };
+}
+
+export async function exportDocumentoPdfA4(
+  labId: string,
+  documentoId: string,
+): Promise<{ pdfUrl: string; pdfHash: string }> {
+  const callable = httpsCallable(functions, 'exportDocumentoPdfA4');
+  const result = await callable({ labId, documentoId });
+  return result.data as { pdfUrl: string; pdfHash: string };
+}
+
+export async function exportFormularioXlsx(
+  labId: string,
+  documentoId: string,
+  colunas: string[],
+  dados: Record<string, unknown>[],
+  titulo?: string,
+): Promise<{ xlsxUrl: string; orientation: 'portrait' | 'landscape' }> {
+  const callable = httpsCallable(functions, 'exportFormularioXlsx');
+  const result = await callable({ labId, documentoId, colunas, dados, titulo });
+  return result.data as { xlsxUrl: string; orientation: 'portrait' | 'landscape' };
 }
 
 // ─── Export agregador para teste ─────────────────────────────────────────────
@@ -555,6 +581,8 @@ export const documentoService = {
   existeCodigoDuplicado,
   criarGDocs: criarDocumentoGDocs,
   publicar: publicarDocumento,
+  exportPdfA4: exportDocumentoPdfA4,
+  exportXlsx: exportFormularioXlsx,
 };
 
 // Re-export Timestamp para conveniência do hook (escrita de datas).

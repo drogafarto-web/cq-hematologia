@@ -2,19 +2,21 @@
  * publicarDocumento.ts
  *
  * Cloud Function callable that publishes an SGQ document:
+ * - Accepts tipoAlteracao (major/minor) from operator
+ * - Calculates diff % between current and previous version content
+ * - Increments version semantically (X.Y)
  * - Transitions status atomically in Firestore (source of truth)
  * - Generates official PDF snapshot from Google Doc
- * - Updates Google Doc header to VIGENTE
+ * - Writes historico-versoes entry with tipoAlteracao + diffPercent
  * - Revokes edit access post-publication
  *
  * Requires RT or admin claim.
- * Uses OAuth2 user token for Google Docs/Drive operations.
  */
 
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import * as crypto from 'crypto';
-import { updateHeaderStatus, exportAsPdf, revokeEditAccess } from './_drive/docsClient';
+import { exportAsPdf, revokeEditAccess, getDocContent } from './_drive/docsClient';
 import { getAccessToken, OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET } from './_drive/oauthClient';
 import { generateLogicalSignature } from '../shared/auditHash';
 import { logger } from 'firebase-functions/v2';
@@ -23,10 +25,13 @@ const db = admin.firestore();
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
+type TipoAlteracao = 'major' | 'minor';
+
 interface PublicarDocumentoInput {
   labId: string;
   documentoId: string;
   pin: string;
+  tipoAlteracao: TipoAlteracao;
   razao?: string;
 }
 
@@ -34,24 +39,65 @@ interface PublicarDocumentoOutput {
   success: boolean;
   pdfUrl: string;
   pdfHash: string;
-  versao: number;
+  versao: string;
   publicadoEm: string;
+  diffPercent: number;
 }
 
 interface SGQDocData {
   status: string;
-  versao: number;
+  versao: string;
   codigo: string;
   titulo: string;
   googleDocId?: string;
   substitui?: string;
   url?: string;
+  elaboradoPor?: string;
 }
 
 interface CustomClaims {
   labs?: string[];
   'rt-member'?: boolean;
   admin?: boolean;
+}
+
+// ─── Version helpers ────────────────────────────────────────────────────────
+
+function parseVersao(v: string | number): { major: number; minor: number } {
+  if (typeof v === 'number') return { major: v, minor: 0 };
+  const parts = String(v).split('.');
+  return {
+    major: parseInt(parts[0], 10) || 1,
+    minor: parseInt(parts[1], 10) || 0,
+  };
+}
+
+function incrementVersao(current: string | number, tipo: TipoAlteracao): string {
+  const { major, minor } = parseVersao(current);
+  if (tipo === 'major') return `${major + 1}.0`;
+  return `${major}.${minor + 1}`;
+}
+
+// ─── Diff calculation ───────────────────────────────────────────────────────
+
+function calculateDiffPercent(oldText: string, newText: string): number {
+  if (!oldText && !newText) return 0;
+  if (!oldText) return 100;
+  if (!newText) return 100;
+
+  const oldLines = oldText.split('\n');
+  const newLines = newText.split('\n');
+  const maxLen = Math.max(oldLines.length, newLines.length);
+  if (maxLen === 0) return 0;
+
+  let changedLines = 0;
+  for (let i = 0; i < maxLen; i++) {
+    if ((oldLines[i] ?? '') !== (newLines[i] ?? '')) {
+      changedLines++;
+    }
+  }
+
+  return (changedLines / maxLen) * 100;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -69,17 +115,18 @@ function validatePin(pin: string): void {
 }
 
 function validateDocData(data: FirebaseFirestore.DocumentData | undefined): SGQDocData {
-  if (!data || !data.codigo || typeof data.versao !== 'number') {
+  if (!data || !data.codigo) {
     throw new HttpsError('internal', 'Documento com dados incompletos no Firestore');
   }
   return {
     status: data.status,
-    versao: data.versao,
+    versao: typeof data.versao === 'number' ? `${data.versao}.0` : (data.versao ?? '1.0'),
     codigo: data.codigo,
     titulo: data.titulo ?? '',
     googleDocId: data.googleDocId ?? undefined,
     substitui: data.substitui ?? undefined,
     url: data.url ?? undefined,
+    elaboradoPor: data.elaboradoPor ?? undefined,
   };
 }
 
@@ -105,6 +152,8 @@ export const publicarDocumento = onCall<PublicarDocumentoInput>(
     const claims = request.auth.token as unknown as CustomClaims;
     validateRTClaim(claims);
     validatePin(data.pin);
+
+    const tipoAlteracao: TipoAlteracao = data.tipoAlteracao === 'major' ? 'major' : 'minor';
 
     const isSuperAdmin = (claims as any)?.isSuperAdmin === true;
     if (!isSuperAdmin) {
@@ -132,11 +181,33 @@ export const publicarDocumento = onCall<PublicarDocumentoInput>(
       );
     }
 
-    const { versao, codigo, googleDocId } = doc;
+    const novaVersao = incrementVersao(doc.versao, tipoAlteracao);
+    const { codigo, googleDocId } = doc;
     const now = admin.firestore.Timestamp.now();
-    const today = now.toDate().toISOString().split('T')[0];
 
-    // 4. Firestore atomic batch FIRST (source of truth)
+    // 4. Calculate diff % (best-effort)
+    let diffPercent = 0;
+    if (googleDocId && doc.substitui) {
+      try {
+        const accessToken = await getAccessToken(data.labId, userId);
+        const prevDocSnap = await db.doc(`/labs/${data.labId}/sgq-documentos/${doc.substitui}`).get();
+        const prevGoogleDocId = prevDocSnap.data()?.googleDocId;
+
+        if (prevGoogleDocId) {
+          const [currentContent, prevContent] = await Promise.all([
+            getDocContent(accessToken, googleDocId),
+            getDocContent(accessToken, prevGoogleDocId),
+          ]);
+          diffPercent = calculateDiffPercent(prevContent, currentContent);
+        }
+      } catch (err) {
+        logger.warn('Diff calculation failed, defaulting to 0%', {
+          error: (err as Error).message,
+        });
+      }
+    }
+
+    // 5. Firestore atomic batch (source of truth)
     let pdfUrl = doc.url || '';
     let pdfHash = '';
 
@@ -144,6 +215,7 @@ export const publicarDocumento = onCall<PublicarDocumentoInput>(
 
     batch.update(docRef, {
       status: 'vigente',
+      versao: novaVersao,
       publicadoEm: now,
       publicadoPor: userId,
       dataEmissao: now,
@@ -152,6 +224,7 @@ export const publicarDocumento = onCall<PublicarDocumentoInput>(
         operatorId: userId,
         hash: generateLogicalSignature({
           status: 'vigente',
+          versao: novaVersao,
           publicadoEm: now.toDate(),
           publicadoPor: userId,
         }),
@@ -167,17 +240,16 @@ export const publicarDocumento = onCall<PublicarDocumentoInput>(
         ultimaAtualizacao: now,
       });
 
-      // Audit: anterior → obsoleto
       const prevAuditRef = db.collection(`/labs/${data.labId}/sgq-documentos-audit`).doc();
       batch.set(prevAuditRef, {
         labId: data.labId,
         documentoId: doc.substitui,
         codigoSnapshot: codigo,
-        versaoSnapshot: versao - 1,
+        versaoSnapshot: doc.versao,
         type: 'status-changed',
         fromStatus: 'vigente',
         toStatus: 'obsoleto',
-        motivo: `Substituído pela versão ${versao}`,
+        motivo: `Substituído pela versão ${novaVersao}`,
         timestamp: now,
         operadorId: userId,
         operadorName: '',
@@ -189,21 +261,41 @@ export const publicarDocumento = onCall<PublicarDocumentoInput>(
       event: 'publicado',
       documentoId: data.documentoId,
       codigo,
-      versao,
+      versao: novaVersao,
+      tipoAlteracao,
+      diffPercent,
       operatorId: userId,
       razao: data.razao || null,
       ts: now,
       hash: generateLogicalSignature({
         event: 'publicado',
         documentoId: data.documentoId,
+        versao: novaVersao,
         operatorId: userId,
         ts: now.toDate(),
       }),
     });
 
+    // Historico-versoes entry (append-only, DICQ 4.3)
+    const historicoRef = db
+      .collection(`/labs/${data.labId}/sgq-documentos/${data.documentoId}/historico-versoes`)
+      .doc();
+    batch.set(historicoRef, {
+      versao: novaVersao,
+      tipoAlteracao,
+      diffPercent,
+      data: now,
+      elaboradoPor: doc.elaboradoPor ?? '',
+      elaboradoPorId: userId,
+      aprovadoPor: '',
+      aprovadoPorId: userId,
+      alteracao: data.razao || `Publicação da versão ${novaVersao}`,
+      documentoId: data.documentoId,
+    });
+
     await batch.commit();
 
-    // 5. Google Docs operations (best-effort after Firestore commit)
+    // 6. Google Docs operations (best-effort after Firestore commit)
     if (googleDocId) {
       let accessToken: string;
       try {
@@ -212,17 +304,15 @@ export const publicarDocumento = onCall<PublicarDocumentoInput>(
         logger.warn('OAuth token unavailable for GDoc update post-publication', {
           documentoId: data.documentoId,
         });
-        return { success: true, pdfUrl, pdfHash, versao, publicadoEm: now.toDate().toISOString() };
+        return { success: true, pdfUrl, pdfHash, versao: novaVersao, publicadoEm: now.toDate().toISOString(), diffPercent };
       }
 
       try {
-        await updateHeaderStatus(accessToken, googleDocId, 'VIGENTE', today);
-
         const pdfBuffer = await exportAsPdf(accessToken, googleDocId);
         pdfHash = crypto.createHash('sha256').update(pdfBuffer).digest('hex');
 
         const bucket = admin.storage().bucket();
-        const storagePath = `labs/${data.labId}/sgq/snapshots/${codigo}_v${versao}.pdf`;
+        const storagePath = `labs/${data.labId}/sgq/snapshots/${codigo}_v${novaVersao}.pdf`;
         const file = bucket.file(storagePath);
 
         await file.save(pdfBuffer, {
@@ -231,27 +321,25 @@ export const publicarDocumento = onCall<PublicarDocumentoInput>(
             metadata: {
               documentoId: data.documentoId,
               codigo,
-              versao: String(versao),
+              versao: novaVersao,
+              tipoAlteracao,
               publicadoPor: userId,
               publicadoEm: now.toDate().toISOString(),
             },
           },
         });
 
-        // 7-day signed URL (regenerate on demand via client)
         const [signedUrl] = await file.getSignedUrl({
           action: 'read',
           expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
         });
         pdfUrl = signedUrl;
 
-        // Update Firestore with PDF data
         await docRef.update({
           snapshotPdfUrl: pdfUrl,
           snapshotPdfHash: pdfHash,
         });
 
-        // Update audit entry with PDF hash
         await auditRef.update({ pdfHash, pdfUrl });
       } catch (err) {
         logger.error('Google Docs post-publication operations failed', {
@@ -283,8 +371,9 @@ export const publicarDocumento = onCall<PublicarDocumentoInput>(
       success: true,
       pdfUrl,
       pdfHash,
-      versao,
+      versao: novaVersao,
       publicadoEm: now.toDate().toISOString(),
+      diffPercent,
     };
   },
 );

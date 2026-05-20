@@ -29,7 +29,11 @@
       "Skill(gsd-manager)",
       "Skill(gsd-resume-work)",
       "Skill(gsd-help)",
-      "Skill(gsd-discuss-phase)"
+      "Skill(gsd-discuss-phase)",
+      "Bash(bash scripts/preflight-secrets-check.sh)",
+      "Bash(Select-Object -First 40)",
+      "PowerShell(curl -s -o $null -w \"%{http_code}\" https://hmatologia2.web.app)",
+      "PowerShell($r = Invoke-WebRequest -Uri \"https://hmatologia2.web.app\" -UseBasicParsing; \"$\\($r.StatusCode\\) - $\\($r.Content.Length\\) bytes\")"
     ]
   },
   "enableAllProjectMcpServers": false,
