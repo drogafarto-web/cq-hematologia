@@ -18,10 +18,14 @@ import {
 import { COAG_ANALYTES, COAG_ANALYTE_IDS } from '../CoagAnalyteConfig';
 import { LeveyJenningsChart } from '../../chart/LeveyJenningsChart';
 import { useChartData } from '../../chart/hooks/useChartData';
+import { useStatsByMode } from '../../chart/hooks/useStatsByMode';
+import { StatsSourceToggle } from '../../chart/StatsSourceToggle';
 import type { CoagulacaoFormData } from './CoagulacaoForm.schema';
 import type { CoagulacaoLot, CoagulacaoRun } from '../types/Coagulacao';
 import type { CoagAnalyteId, CoagLotStatus, CoagNivel, CoagStatus } from '../types/_shared_refs';
 import type { Analyte, ControlLot, Run, AnalyteResult } from '../../../types';
+import { CoagLevelPills } from './CoagLevelPills';
+import { formatCoagNivelLabel } from '../utils/coagNivelLabels';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -278,6 +282,7 @@ function buildChartLot(coagLot: CoagulacaoLot, coagRuns: CoagulacaoRun[]): Contr
       results,
       manualOverride: r.isEdited,
       createdBy: r.createdBy,
+      aproveitamento: (r as any).aproveitamento,
     };
   });
 
@@ -319,6 +324,9 @@ interface CoagulacaoContentProps {
   setActiveLotId: (id: string | null) => void;
   /** Sinal externo para abrir o modal de Nova corrida (incrementado pelo sidebar). */
   newRunTrigger: number;
+  /** Nível pré-selecionado ao abrir pela pill vazia (Nível I / II). */
+  newRunNivel?: CoagNivel;
+  onNewRunForNivel?: (nivel: CoagNivel) => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -328,6 +336,8 @@ export function CoagulacaoContent({
   activeLotId,
   setActiveLotId,
   newRunTrigger,
+  newRunNivel,
+  onNewRunForNivel,
 }: CoagulacaoContentProps) {
   const user = useUser();
   const userRole = useUserRole();
@@ -375,7 +385,8 @@ export function CoagulacaoContent({
     () => (activeLot ? buildChartLot(activeLot, runs) : null),
     [activeLot, runs],
   );
-  const chartData = useChartData(chartLot, selectedAnalyte, 'internal');
+  const statsMode = useStatsByMode(chartLot, selectedAnalyte);
+  const chartData = useChartData(chartLot, selectedAnalyte, statsMode.mode);
   const chartAnalyte = toAnalyte(selectedAnalyte);
 
   // ── Empty state ───────────────────────────────────────────────────────────
@@ -396,8 +407,10 @@ export function CoagulacaoContent({
           Nenhum lote de coagulação registrado
         </h2>
         <p className="text-sm text-slate-500 dark:text-white/40 mb-5 max-w-md">
-          Registre a primeira corrida para iniciar o controle de qualidade. Um lote é criado
-          automaticamente a cada combinação de lote de controle + nível.
+          Troque o lote em uso na barra superior ou use as pills{' '}
+          <strong className="font-medium text-slate-600 dark:text-white/55">Nível I</strong> /{' '}
+          <strong className="font-medium text-slate-600 dark:text-white/55">Nível II</strong> (como na
+          hematologia), ou clique abaixo para registrar a primeira corrida.
         </p>
         <button
           type="button"
@@ -421,6 +434,7 @@ export function CoagulacaoContent({
             }}
             isSaving={isSaving}
             error={saveError}
+            initialNivel={newRunNivel ?? 'I'}
             {...(formPrefill && { prefillFromLot: formPrefill })}
           />
         )}
@@ -553,7 +567,7 @@ export function CoagulacaoContent({
                         {isPrincipal ? 'Setup Oficial' : 'Em Validação'}
                       </span>
                       <span className="text-[10px] text-slate-400 dark:text-white/30">
-                        Nível {l.nivel}
+                        {formatCoagNivelLabel(l.nivel)}
                       </span>
                     </div>
                     <p className="text-sm font-semibold text-slate-800 dark:text-white/85 truncate">
@@ -588,39 +602,23 @@ export function CoagulacaoContent({
         </section>
       )}
 
-      {/* ── Lot tabs ────────────────────────────────────────────────────── */}
-      {lots.length > 1 && (
-        <div className="flex flex-wrap gap-2">
-          {lots.map((l) => {
-            const isActive = l.id === activeLot.id;
-            return (
-              <button
-                key={l.id}
-                type="button"
-                onClick={() => setActiveLotId(l.id)}
-                className={[
-                  'px-3.5 py-2 rounded-xl border text-xs font-medium transition-all',
-                  isActive
-                    ? 'bg-rose-500/10 border-rose-500/35 text-rose-700 dark:text-rose-300'
-                    : 'bg-white dark:bg-white/[0.03] border-slate-200 dark:border-white/[0.08] text-slate-500 dark:text-white/45 hover:border-slate-300 dark:hover:border-white/20',
-                ].join(' ')}
-              >
-                Nível {l.nivel} · {l.loteControle}
-                <span className="ml-2 font-mono text-[10px] opacity-60">
-                  {l.runCount} run{l.runCount !== 1 ? 's' : ''}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      )}
+      {/* ── Nível I / II (paridade hematologia) ───────────────────────────── */}
+      <CoagLevelPills
+        lots={lots}
+        activeLot={activeLot}
+        onSelectLot={(id) => setActiveLotId(id)}
+        onSelectEmptyNivel={(nivel) => {
+          if (onNewRunForNivel) onNewRunForNivel(nivel);
+          else setShowForm(true);
+        }}
+      />
 
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-start gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight">
-              Coagulação · Nível {activeLot.nivel}
+              Coagulação · {formatCoagNivelLabel(activeLot.nivel)}
             </h1>
             <LotStatusBadge status={lotStatus} />
             {activeLot.coagDecision && <DecisionPill decision={activeLot.coagDecision} />}
@@ -786,19 +784,19 @@ export function CoagulacaoContent({
       <CoagulacaoIndicadores runs={runs} lotStatus={lotStatus} />
 
       {/* ── Analyte tabs + Chart ────────────────────────────────────────── */}
-      <section>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex gap-1">
+      <section className="bg-white dark:bg-[#0F1318] border border-slate-200 dark:border-white/[0.08] rounded-2xl p-5 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5 border-b border-slate-100 dark:border-white/[0.06] pb-4">
+          <div className="flex flex-wrap gap-1">
             {COAG_ANALYTE_IDS.map((id) => (
               <button
                 key={id}
                 type="button"
                 onClick={() => setSelectedAnalyte(id)}
                 className={[
-                  'px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
+                  'px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all border',
                   selectedAnalyte === id
-                    ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/30'
-                    : 'text-slate-500 dark:text-white/45 hover:text-slate-800 dark:hover:text-white/80 border border-transparent hover:border-slate-200 dark:hover:border-white/[0.08]',
+                    ? 'bg-rose-500/10 text-rose-700 dark:text-rose-450 border-rose-500/30'
+                    : 'text-slate-500 dark:text-white/45 hover:text-slate-800 dark:hover:text-white/80 border-transparent hover:border-slate-200 dark:hover:border-white/[0.08]',
                 ].join(' ')}
               >
                 {COAG_ANALYTES[id].label}
@@ -806,7 +804,52 @@ export function CoagulacaoContent({
             ))}
           </div>
         </div>
-        <LeveyJenningsChart chartData={chartData} analyte={chartAnalyte} />
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3 min-w-0">
+            <LeveyJenningsChart chartData={chartData} analyte={chartAnalyte} />
+          </div>
+          <div className="lg:col-span-1 border-t lg:border-t-0 lg:border-l border-slate-100 dark:border-white/[0.06] pt-6 lg:pt-0 lg:pl-6 space-y-5">
+            {chartLot && selectedAnalyte && (
+              <StatsSourceToggle
+                value={statsMode.mode}
+                onChange={statsMode.setMode}
+                hasEnoughForInternal={statsMode.hasEnoughForInternal}
+                approvedRuns={statsMode.approvedRuns}
+                warning={statsMode.warning}
+              />
+            )}
+
+            {/* Custom Coag Stats Panel */}
+            {statsMode.activeStats && (
+              <div className="rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.05] p-3.5 space-y-3">
+                <p className="text-[10px] font-bold text-slate-400 dark:text-white/30 uppercase tracking-widest">
+                  Parâmetros Ativos
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="block text-[10px] text-slate-500 dark:text-white/40">Média (x̄)</span>
+                    <span className="text-base font-semibold text-slate-900 dark:text-white/85">
+                      {statsMode.activeStats.mean.toFixed(COAG_ANALYTES[selectedAnalyte].decimals)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="block text-[10px] text-slate-500 dark:text-white/40">DP (SD)</span>
+                    <span className="text-base font-semibold text-slate-900 dark:text-white/85">
+                      {statsMode.activeStats.sd.toFixed(COAG_ANALYTES[selectedAnalyte].decimals + 1)}
+                    </span>
+                  </div>
+                </div>
+                <div className="border-t border-slate-200/60 dark:border-white/[0.05] pt-2 flex items-center justify-between">
+                  <span className="text-[10px] text-slate-500 dark:text-white/40">CV (%)</span>
+                  <span className="text-xs font-semibold text-slate-900 dark:text-white/85">
+                    {statsMode.activeStats.cv.toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </section>
 
       {/* ── Runs table ──────────────────────────────────────────────────── */}
@@ -851,7 +894,7 @@ export function CoagulacaoContent({
           }}
           isSaving={isSaving}
           error={saveError}
-          initialNivel={activeLot.nivel}
+          initialNivel={newRunNivel ?? activeLot.nivel}
           {...(formPrefill && { prefillFromLot: formPrefill })}
         />
       )}
@@ -1227,7 +1270,7 @@ function DeleteLotModal({
       <div className="space-y-4">
         <div className="rounded-xl border border-red-500/25 bg-red-500/[0.07] text-red-700 dark:text-red-400 px-4 py-3 text-xs">
           Esta ação exclui o lote{' '}
-          <span className="font-mono font-semibold">{lot.loteControle}</span> (Nível {lot.nivel}) e
+          <span className="font-mono font-semibold">{lot.loteControle}</span> ({formatCoagNivelLabel(lot.nivel)}) e
           todas as suas <strong>{runCount}</strong> corrida{runCount !== 1 ? 's' : ''}. Um registro
           de auditoria é preservado em nível-lab.
         </div>

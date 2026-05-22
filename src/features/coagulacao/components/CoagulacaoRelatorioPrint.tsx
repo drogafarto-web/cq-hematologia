@@ -4,6 +4,7 @@ import { useActiveLab, useUser } from '../../../store/useAuthStore';
 import { COAG_ANALYTES } from '../CoagAnalyteConfig';
 import type { CoagulacaoLot, CoagulacaoRun } from '../types/Coagulacao';
 import type { CoagLotStatus } from '../types/_shared_refs';
+import { formatCoagNivelDetail } from '../utils/coagNivelLabels';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -209,7 +210,7 @@ export function CoagulacaoRelatorioPrint({
                 Lote de Controle
               </h2>
               <div className="grid grid-cols-3 gap-x-6 gap-y-2 text-[10.5px]">
-                <Field label="Nível" value={lot.nivel === 'I' ? 'I (Normal)' : 'II (Patológico)'} />
+                <Field label="Nível" value={formatCoagNivelDetail(lot.nivel)} />
                 <Field
                   label="Lote controle"
                   value={<span className="font-mono">{lot.loteControle}</span>}

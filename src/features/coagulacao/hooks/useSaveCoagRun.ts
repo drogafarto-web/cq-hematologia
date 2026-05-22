@@ -100,17 +100,17 @@ export function useSaveCoagRun() {
 
         if (!lotId) {
           // Constrói os defaults de mean/sd a partir do COAG_ANALYTES se não vierem do form
-          const defaultMean: Record<CoagAnalyteId, number> = {
-            atividadeProtrombinica:
-              COAG_ANALYTES.atividadeProtrombinica.levels[formData.nivel].mean,
-            rni: COAG_ANALYTES.rni.levels[formData.nivel].mean,
-            ttpa: COAG_ANALYTES.ttpa.levels[formData.nivel].mean,
-          };
-          const defaultSd: Record<CoagAnalyteId, number> = {
-            atividadeProtrombinica: COAG_ANALYTES.atividadeProtrombinica.levels[formData.nivel].sd,
-            rni: COAG_ANALYTES.rni.levels[formData.nivel].sd,
-            ttpa: COAG_ANALYTES.ttpa.levels[formData.nivel].sd,
-          };
+          // Dinâmico: só gera defaults para os analatos presentes em resultados
+          const resultAnalytes = Object.keys(formData.resultados) as CoagAnalyteId[];
+          const defaultMean: Record<string, number> = {};
+          const defaultSd: Record<string, number> = {};
+          for (const id of resultAnalytes) {
+            const cfg = COAG_ANALYTES[id];
+            if (cfg) {
+              defaultMean[id] = cfg.levels[formData.nivel].mean;
+              defaultSd[id] = cfg.levels[formData.nivel].sd;
+            }
+          }
 
           lotId = await createCoagLot(labId, {
             labId,

@@ -15,7 +15,7 @@
  * Compliance: RDC 302/2005 · RDC 978/2025 · CLSI H21-A5 · CLSI H47-A2
  */
 
-import type { CoagAnalyteId, CoagNivel } from './types/_shared_refs';
+import type { CoagAnalyteId, CoagEquipamento, CoagNivel } from './types/_shared_refs';
 import type { AnalyteStats, WestgardViolation } from '../../types';
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
@@ -111,17 +111,17 @@ export const COAG_ANALYTES: Record<CoagAnalyteId, CoagAnalyteConfig> = {
     westgardRules: CLSI_WESTGARD_RULES,
     levels: {
       I: {
-        mean: 98,
-        low: 82,
-        high: 114,
-        sd: estimateSd(82, 114), // (114 - 82) / 4 = 8.0
+        mean: 100,
+        low: 80,
+        high: 120,
+        sd: 10.0,
         unit: '%',
       },
       II: {
-        mean: 67,
-        low: 53,
-        high: 81,
-        sd: estimateSd(53, 81), // (81 - 53) / 4 = 7.0
+        mean: 39,
+        low: 31,
+        high: 47,
+        sd: estimateSd(31, 47), // (47 - 31) / 4 = 4.0
         unit: '%',
       },
     },
@@ -134,17 +134,17 @@ export const COAG_ANALYTES: Record<CoagAnalyteId, CoagAnalyteConfig> = {
     westgardRules: CLSI_WESTGARD_RULES,
     levels: {
       I: {
-        mean: 0.98,
-        low: 0.82,
-        high: 1.14,
-        sd: estimateSd(0.82, 1.14), // (1.14 - 0.82) / 4 = 0.08
+        mean: 0.97,
+        low: 0.83,
+        high: 1.11,
+        sd: 0.07,
         unit: '',
       },
       II: {
-        mean: 1.2,
-        low: 0.96,
-        high: 1.44,
-        sd: estimateSd(0.96, 1.44), // (1.44 - 0.96) / 4 = 0.12
+        mean: 1.57,
+        low: 1.25,
+        high: 1.89,
+        sd: estimateSd(1.25, 1.89), // (1.89 - 1.25) / 4 = 0.16
         unit: '',
       },
     },
@@ -157,21 +157,33 @@ export const COAG_ANALYTES: Record<CoagAnalyteId, CoagAnalyteConfig> = {
     westgardRules: CLSI_WESTGARD_RULES,
     levels: {
       I: {
-        mean: 39,
-        low: 31,
-        high: 47,
-        sd: estimateSd(31, 47), // (47 - 31) / 4 = 4.0
+        mean: 33,
+        low: 27,
+        high: 39,
+        sd: 3.0,
         unit: 's',
       },
       II: {
-        mean: 43,
-        low: 35,
-        high: 51,
-        sd: estimateSd(35, 51), // (51 - 35) / 4 = 4.0
+        mean: 64,
+        low: 50,
+        high: 78,
+        sd: estimateSd(50, 78), // (78 - 50) / 4 = 7.0
         unit: 's',
       },
     },
   },
+};
+
+/**
+ * Mapeamento de analitos suportados por equipamento de coagulação.
+ * Cada equipamento pode medir um subconjunto diferente dos analitos
+ * definidos em CoagAnalyteId.
+ *
+ * Clotimer Duo: mede AP (atividade de protrombina) + RNI derivado + TTPA.
+ *   - Fibrinogênio: NÃO é medido pelo Clotimer Duo (ex: CA-6600, CS-series).
+ */
+export const EQUIP_ANALYTES: Record<CoagEquipamento, readonly CoagAnalyteId[]> = {
+  'Clotimer Duo': ['atividadeProtrombinica', 'rni', 'ttpa'] as const,
 };
 
 /**

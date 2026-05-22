@@ -23,11 +23,10 @@ export function daysToExpiry(dateStr: string): number {
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const dateField = (msg = 'Formato inválido (YYYY-MM-DD)') => z.string().regex(DATE_REGEX, msg);
 
-const analytesBaseline = z.object({
-  atividadeProtrombinica: z.coerce.number().positive(),
-  rni: z.coerce.number().positive(),
-  ttpa: z.coerce.number().positive(),
-});
+const resultadosRecord = z.record(
+  z.string(),
+  z.coerce.number().positive('Valor do resultado deve ser positivo.'),
+);
 
 export const CoagulacaoFormSchema = z
   .object({
@@ -67,13 +66,13 @@ export const CoagulacaoFormSchema = z
       .max(100, 'Umidade inválida.')
       .optional(),
 
-    // ── Resultados (sempre os 3 analitos — Clotimer Duo mede TP + TTPA) ────────
-    resultados: analytesBaseline,
+    // ── Resultados (dinâmicos — filtrados por equipamento + setup no form) ─────
+    resultados: resultadosRecord,
 
     // ── Alvos opcionais (mean/SD do fabricante — sobrescreve default COAG_ANALYTES) ──
-    /** Se fornecidos, devem conter os 3 analitos completos (ou omitir tudo para usar default). */
-    mean: analytesBaseline.optional(),
-    sd: analytesBaseline.optional(),
+    /** Se fornecidos, devem conter os mesmos analitos dos resultados. */
+    mean: resultadosRecord.optional(),
+    sd: resultadosRecord.optional(),
 
     // ── Data de realização ─────────────────────────────────────────────────────
     dataRealizacao: dateField('Data de realização inválida.'),

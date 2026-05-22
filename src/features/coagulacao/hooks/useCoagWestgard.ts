@@ -15,7 +15,7 @@
 
 import { useMemo } from 'react';
 import { checkWestgardRules, isRejection } from '../../chart/utils/westgardRules';
-import { COAG_ANALYTES, COAG_ANALYTE_IDS, getCoagStats } from '../CoagAnalyteConfig';
+import { COAG_ANALYTES, getCoagStats } from '../CoagAnalyteConfig';
 import type { CoagulacaoRun } from '../types/Coagulacao';
 import type { CoagAnalyteId, CoagNivel, CoagLotStatus } from '../types/_shared_refs';
 import type { WestgardViolation } from '../../../types';
@@ -133,13 +133,18 @@ export function computeCoagWestgard(
     (a, b) => new Date(a.dataRealizacao).getTime() - new Date(b.dataRealizacao).getTime(),
   );
 
-  // ── Step 3: histórico por analito (newest-first, cap: HISTORY_WINDOW) ────────
-  // Inicializado vazio; cresce a cada run processado.
-  const historyByAnalyte: Record<CoagAnalyteId, number[]> = {
-    atividadeProtrombinica: [],
-    rni: [],
-    ttpa: [],
-  };
+  // ── Step 3: descobre analitos dos runs + histórico (newest-first, cap: HISTORY_WINDOW) ──
+  // Dinâmico: usa os analitos realmente presentes nos resultados, não um set fixo
+  const activeAnalyteIds = new Set<CoagAnalyteId>();
+  for (const run of sorted) {
+    for (const key of Object.keys(run.resultados)) {
+      activeAnalyteIds.add(key as CoagAnalyteId);
+    }
+  }
+  const historyByAnalyte: Record<string, number[]> = {};
+  for (const id of activeAnalyteIds) {
+    historyByAnalyte[id] = [];
+  }
 
   // ── Step 4: mapa de resultados por corrida ────────────────────────────────────
   const byRun = new Map<string, CoagRunViolations>();
@@ -147,10 +152,10 @@ export function computeCoagWestgard(
   for (const run of sorted) {
     const violationsByAnalyte = {} as Record<CoagAnalyteId, WestgardViolation[]>;
 
-    for (const analyteId of COAG_ANALYTE_IDS) {
+    for (const analyteId of activeAnalyteIds) {
       const value = run.resultados[analyteId];
       const stats = getCoagStats(analyteId, nivel);
-      const history = historyByAnalyte[analyteId];
+      const history = historyByAnalyte[analyteId] ?? [];
 
       // Filtra apenas as regras configuradas para este analito
       const applicableRules = COAG_ANALYTES[analyteId].westgardRules;
@@ -159,7 +164,7 @@ export function computeCoagWestgard(
         (applicableRules as readonly string[]).includes(v),
       );
 
-      violationsByAnalyte[analyteId] = filtered;
+      violationsByAnalyte[analyteId as CoagAnalyteId] = filtered;
 
       // Atualizar histórico: adicionar valor no início (newest-first), limitar a HISTORY_WINDOW
       history.unshift(value);
@@ -174,7 +179,7 @@ export function computeCoagWestgard(
     const allViolations = [...new Set(allViolsSets)] as WestgardViolation[];
 
     const analitosComViolacao = (Object.keys(violationsByAnalyte) as CoagAnalyteId[]).filter((id) =>
-      isRejection(violationsByAnalyte[id]),
+      isRejection(violationsByAnalyte[id] ?? []),
     );
 
     const conformidade: 'A' | 'R' = analitosComViolacao.length > 0 ? 'R' : 'A';

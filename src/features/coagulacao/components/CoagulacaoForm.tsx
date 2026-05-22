@@ -2,8 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { CoagulacaoFormSchema, daysToExpiry } from './CoagulacaoForm.schema';
 import type { CoagulacaoFormData } from './CoagulacaoForm.schema';
 import { useUser } from '../../../store/useAuthStore';
-import { COAG_ANALYTES, COAG_ANALYTE_IDS } from '../CoagAnalyteConfig';
-import type { CoagAnalyteId, CoagNivel } from '../types/_shared_refs';
+import { COAG_ANALYTES, EQUIP_ANALYTES } from '../CoagAnalyteConfig';
+import { COAG_NIVEIS, type CoagAnalyteId, type CoagNivel } from '../types/_shared_refs';
 import { RegulatoryReferencesBar } from '../../insumos/components/RegulatoryReferencesBar';
 import { ConferenciaInsumoAtivo } from '../../insumos/components/ConferenciaInsumoAtivo';
 import { OverrideModal } from '../../insumos/components/OverrideModal';
@@ -14,6 +14,8 @@ import type { Equipamento } from '../../equipamentos/types/Equipamento';
 import { useAppStore } from '../../../store/useAppStore';
 import type { SaveCoagRunOptions } from '../hooks/useSaveCoagRun';
 import type { CoagulacaoLot } from '../types/Coagulacao';
+import { useCoagLots } from '../hooks/useCoagLots';
+import { formatCoagNivelDetail, formatCoagNivelLabel } from '../utils/coagNivelLabels';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -89,44 +91,24 @@ function SectionTitle({ children, hint }: { children: React.ReactNode; hint?: st
   );
 }
 
-/** Toggle I / II — nivel do controle */
-function NivelToggle({
-  value,
-  onChange,
-  error,
-}: {
-  value: CoagNivel | undefined;
-  onChange: (v: CoagNivel) => void;
-  error?: string;
-}) {
+/** Badge de nível — apenas informativo, herdado do lote */
+function NivelBadge({ value }: { value: CoagNivel }) {
+  const label = value === 'I' ? 'I — Normal' : 'II — Patológico';
+  const sub =
+    value === 'I'
+      ? 'valores dentro do intervalo terapêutico'
+      : 'anticoagulado / protrombótico';
   return (
-    <div>
-      <div className="flex gap-2">
-        {(['I', 'II'] as const).map((opt) => {
-          const label = opt === 'I' ? 'I — Normal' : 'II — Patológico';
-          const sub =
-            opt === 'I'
-              ? 'valores dentro do intervalo terapêutico'
-              : 'anticoagulado / protrombótico';
-          return (
-            <button
-              key={opt}
-              type="button"
-              onClick={() => onChange(opt)}
-              className={[
-                'flex-1 py-3 px-3.5 rounded-xl text-left border transition-all',
-                value === opt
-                  ? 'bg-rose-500/10 border-rose-500/40 text-rose-700 dark:text-rose-300'
-                  : 'border-slate-200 dark:border-white/[0.09] text-slate-400 dark:text-white/30 hover:border-slate-300 dark:hover:border-white/20',
-              ].join(' ')}
-            >
-              <p className="text-sm font-semibold">{label}</p>
-              <p className="text-[10px] mt-0.5 opacity-60">{sub}</p>
-            </button>
-          );
-        })}
-      </div>
-      <FieldError msg={error} />
+    <div
+      className={[
+        'py-3 px-3.5 rounded-xl border text-left',
+        value === 'I'
+          ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300'
+          : 'bg-blue-500/10 border-blue-500/30 text-blue-700 dark:text-blue-300',
+      ].join(' ')}
+    >
+      <p className="text-sm font-semibold">{label}</p>
+      <p className="text-[10px] mt-0.5 opacity-60">{sub}</p>
     </div>
   );
 }
@@ -233,10 +215,10 @@ export function CoagulacaoForm({
   const [equipamentoSel, setEquipamentoSel] = useState<Equipamento | null>(null);
 
   // ── Fase B1-etapa2 — Conferência obrigatória do setup ────────────────────
-  // Coagulação: reagente + controle obrigatórios por corrida.
+  // Coagulação: reagente TP + reagente TTPA + controle obrigatórios por corrida.
   const insumoGuard = useInsumoFlowGuard({
     module: 'coagulacao',
-    requiredSlots: { reagente: true, controle: true },
+    requiredSlots: { reagente: true, reagenteTtpa: true, controle: true },
     equipamentoId,
   });
 
@@ -253,8 +235,21 @@ export function CoagulacaoForm({
       validadeControle: prefillFromLot.validadeControle,
     }),
   }));
+
   // Fase 6 — quando o form é aberto a partir de um lote vinculado, identificadores ficam bloqueados.
   const lockedFromLot = !!prefillFromLot;
+
+  // ── Determinação se o lote é novo para exibir campos de Média/DP customizados
+  const { lots: existingLots } = useCoagLots(form.nivel);
+  const isNewLot = useMemo(() => {
+    if (lockedFromLot) return false;
+    const currentLote = form.loteControle?.trim().toLowerCase();
+    if (!form.nivel || !currentLote) return false;
+    const exists = existingLots.some(
+      (l) => l.nivel === form.nivel && l.loteControle.trim().toLowerCase() === currentLote
+    );
+    return !exists;
+  }, [form.nivel, form.loteControle, existingLots, lockedFromLot]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   function toIsoDate(ts: { toDate: () => Date } | null): string {
@@ -310,7 +305,7 @@ export function CoagulacaoForm({
     setForm((prev) => ({
       ...prev,
       resultados: {
-        ...(prev.resultados ?? { atividadeProtrombinica: 0, rni: 0, ttpa: 0 }),
+        ...(prev.resultados ?? {}),
         [analyte]: num ?? 0,
       },
     }));
@@ -327,16 +322,22 @@ export function CoagulacaoForm({
   const ctrlDays = form.validadeControle ? daysToExpiry(form.validadeControle) : null;
   const reagDays = form.validadeReagente ? daysToExpiry(form.validadeReagente) : null;
 
+  /** Analitos suportados pelo equipamento selecionado. */
+  const activeAnalytes = useMemo<CoagAnalyteId[]>(() => {
+    return [...(EQUIP_ANALYTES[form.equipamento ?? 'Clotimer Duo'] ?? [])];
+  }, [form.equipamento]);
+
   /** Lista de analitos fora do intervalo [low, high] do fabricante. Soft-gate. */
   const outOfRange = useMemo<CoagAnalyteId[]>(() => {
     if (!form.nivel || !form.resultados) return [];
-    return COAG_ANALYTE_IDS.filter((id) => {
+    return activeAnalytes.filter((id) => {
       const v = form.resultados?.[id];
       if (typeof v !== 'number' || Number.isNaN(v)) return false;
-      const baseline = COAG_ANALYTES[id].levels[form.nivel!];
+      const baseline = COAG_ANALYTES[id]?.levels[form.nivel!];
+      if (!baseline) return false;
       return v < baseline.low || v > baseline.high;
     });
-  }, [form.nivel, form.resultados]);
+  }, [form.nivel, form.resultados, activeAnalytes]);
 
   const naoConforme = outOfRange.length > 0;
   const requireCorrect = naoConforme && !form.acaoCorretiva?.trim();
@@ -344,7 +345,29 @@ export function CoagulacaoForm({
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const submitForm = { ...form, dataRealizacao: today() };
+    const cleanMean: Record<string, number> = {};
+    const cleanSd: Record<string, number> = {};
+    if (form.mean) {
+      for (const [k, v] of Object.entries(form.mean)) {
+        if (typeof v === 'number' && !Number.isNaN(v)) {
+          cleanMean[k] = v;
+        }
+      }
+    }
+    if (form.sd) {
+      for (const [k, v] of Object.entries(form.sd)) {
+        if (typeof v === 'number' && !Number.isNaN(v)) {
+          cleanSd[k] = v;
+        }
+      }
+    }
+
+    const submitForm = {
+      ...form,
+      dataRealizacao: today(),
+      mean: Object.keys(cleanMean).length > 0 ? cleanMean : undefined,
+      sd: Object.keys(cleanSd).length > 0 ? cleanSd : undefined,
+    };
     const result = CoagulacaoFormSchema.safeParse(submitForm);
 
     if (!result.success) {
@@ -430,7 +453,8 @@ export function CoagulacaoForm({
           </span>
           <div className="text-xs leading-relaxed">
             <p className="font-semibold">
-              Corrida vinculada · Nível {prefillFromLot.nivel} · Lote {prefillFromLot.loteControle}
+              Corrida vinculada · {formatCoagNivelLabel(prefillFromLot.nivel)} · Lote{' '}
+              {prefillFromLot.loteControle}
             </p>
             <p className="opacity-80 mt-0.5">
               {prefillFromLot.setupType === 'principal'
@@ -509,15 +533,45 @@ export function CoagulacaoForm({
         </div>
       </section>
 
-      {/* ── Nível + Frequência + Equipamento ───────────────────────────────── */}
+      {/* ─ Nível (selecionável quando não vinculado) + Frequência + Equipamento ── */}
       <section>
         <SectionTitle hint="Clotimer Duo · CLSI H47-A2">Corrida</SectionTitle>
         <div className="space-y-3">
-          <NivelToggle
-            value={form.nivel}
-            onChange={(v) => !lockedFromLot && set('nivel', v)}
-            error={errors.nivel}
-          />
+          {/* Seletor de nível — obrigatório */}
+          {!lockedFromLot ? (
+            <div className="grid grid-cols-2 gap-3">
+              {COAG_NIVEIS.map((n) => {
+                const active = form.nivel === n;
+                return (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => set('nivel', n)}
+                    className={[
+                      'py-3 px-3.5 rounded-xl border text-left transition-all',
+                      active
+                        ? n === 'I'
+                          ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/30'
+                          : 'bg-blue-500/15 border-blue-500/40 text-blue-700 dark:text-blue-300 ring-1 ring-blue-500/30'
+                        : 'bg-slate-50 dark:bg-white/[0.04] border-slate-200 dark:border-white/[0.09] text-slate-500 dark:text-white/40 hover:border-slate-300 dark:hover:border-white/[0.15]',
+                    ].join(' ')}
+                  >
+                    <p className="text-sm font-semibold">
+                      {formatCoagNivelDetail(n)}
+                    </p>
+                    <p className="text-[10px] mt-0.5 opacity-60">
+                      {n === 'I'
+                        ? 'valores dentro do intervalo terapêutico'
+                        : 'anticoagulado / protrombótico'}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <NivelBadge value={form.nivel!} />
+          )}
+          {errors.nivel && <FieldError msg={errors.nivel} />}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -582,7 +636,7 @@ export function CoagulacaoForm({
         <SectionTitle>Insumos em uso</SectionTitle>
         <ConferenciaInsumoAtivo
           module="coagulacao"
-          requiredSlots={{ reagente: true, controle: true }}
+          requiredSlots={{ reagente: true, reagenteTtpa: true, controle: true }}
           equipamentoId={equipamentoId}
           confirmed={insumoGuard.confirmed}
           onConfirmedChange={insumoGuard.setConfirmed}
@@ -663,6 +717,84 @@ export function CoagulacaoForm({
           </div>
         </div>
       </section>
+
+      {/* ── Calibração da Bula do Novo Lote (Variação Mensal PNCQ / RDC 978 Art. 128) ── */}
+      {isNewLot && (
+        <section className="rounded-xl border border-violet-500/25 bg-violet-500/[0.02] p-4 space-y-4">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center shrink-0 text-violet-600 dark:text-violet-400">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white/90">
+                Lote novo detectado: Calibração de Bula (Opcional)
+              </h3>
+              <p className="text-[11px] text-slate-500 dark:text-white/40 mt-0.5">
+                Altere os valores de Média e Desvio Padrão para corresponder à bula do seu lote mensal PNCQ/fabricante. Deixe em branco para usar os padrões estáticos da plataforma.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+            {activeAnalytes.map((analyteId) => {
+              const cfg = COAG_ANALYTES[analyteId];
+              if (!cfg) return null;
+              const baseline = cfg.levels[form.nivel ?? 'I'];
+              return (
+                <div key={analyteId} className="rounded-lg border border-slate-100 dark:border-white/[0.04] bg-white dark:bg-[#080B10] p-3 space-y-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-white/30">
+                    {cfg.label}
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] text-slate-500 dark:text-white/45 mb-1">Média (x̄)</label>
+                      <input
+                        type="number"
+                        step="any"
+                        placeholder={`Padrão: ${baseline?.mean}`}
+                        value={form.mean?.[analyteId] ?? ''}
+                        onChange={(e) => {
+                          const val = e.target.value === '' ? undefined : Number(e.target.value);
+                          setForm((prev) => ({
+                            ...prev,
+                            mean: {
+                              ...(prev.mean ?? {}),
+                              [analyteId]: val as any,
+                            },
+                          }));
+                        }}
+                        className="w-full px-2 py-1 rounded-md text-xs bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] text-slate-900 dark:text-white/90"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-slate-500 dark:text-white/45 mb-1">DP (SD)</label>
+                      <input
+                        type="number"
+                        step="any"
+                        placeholder={`Padrão: ${baseline?.sd}`}
+                        value={form.sd?.[analyteId] ?? ''}
+                        onChange={(e) => {
+                          const val = e.target.value === '' ? undefined : Number(e.target.value);
+                          setForm((prev) => ({
+                            ...prev,
+                            sd: {
+                              ...(prev.sd ?? {}),
+                              [analyteId]: val as any,
+                            },
+                          }));
+                        }}
+                        className="w-full px-2 py-1 rounded-md text-xs bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] text-slate-900 dark:text-white/90"
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* ── Reagente ───────────────────────────────────────────────────────── */}
       <section>
@@ -822,13 +954,13 @@ export function CoagulacaoForm({
       {/* ── Resultados ────────────────────────────────────────────────────── */}
       <section>
         <SectionTitle
-          hint={form.nivel ? `baseline Nível ${form.nivel}` : 'selecione o nível primeiro'}
+          hint={form.nivel ? `baseline ${formatCoagNivelLabel(form.nivel)}` : 'selecione o nível primeiro'}
         >
           Resultados da Corrida
         </SectionTitle>
 
         <div className="space-y-3">
-          {COAG_ANALYTE_IDS.map((id) => {
+          {activeAnalytes.map((id) => {
             const cfg = COAG_ANALYTES[id];
             const baseline = form.nivel ? cfg.levels[form.nivel] : null;
             const value = form.resultados?.[id];
@@ -869,7 +1001,7 @@ export function CoagulacaoForm({
         </div>
 
         {/* Derived conformidade badge */}
-        {form.nivel && form.resultados && Object.keys(form.resultados).length >= 3 && (
+        {form.nivel && form.resultados && Object.keys(form.resultados).length > 0 && (
           <div className="mt-4">
             <RangeBadge outOfRange={outOfRange} />
           </div>

@@ -1,5 +1,6 @@
 import Papa from 'papaparse';
 import type { CoagulacaoRun } from '../types/Coagulacao';
+import { formatCoagNivelDetail } from '../utils/coagNivelLabels';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -74,7 +75,7 @@ export function exportCoagRunsToCSV(
     'Data Realização': r.dataRealizacao,
     Frequência: r.frequencia === 'DIARIA' ? 'Diária' : 'Por lote',
     Equipamento: r.equipamento,
-    Nível: r.nivel === 'I' ? 'I (Normal)' : 'II (Patológico)',
+    Nível: formatCoagNivelDetail(r.nivel),
     // Controle
     'Lote Controle': r.loteControle,
     'Fabricante Controle': r.fabricanteControle,

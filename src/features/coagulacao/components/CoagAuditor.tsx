@@ -2,6 +2,7 @@ import React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { AUDIT_BASE_URL } from '../../../constants';
 import type { CoagulacaoRun } from '../types/Coagulacao';
+import { formatCoagNivelLabel } from '../utils/coagNivelLabels';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -49,7 +50,7 @@ export function CoagAuditor({ run, lotId, size = 128 }: CoagAuditorProps) {
           SIG: {sigShort}…
         </p>
         <p className="text-[9px] text-slate-300 dark:text-white/20">
-          Nível {run.nivel} · {run.dataRealizacao}
+          {formatCoagNivelLabel(run.nivel)} · {run.dataRealizacao}
         </p>
       </div>
     </div>

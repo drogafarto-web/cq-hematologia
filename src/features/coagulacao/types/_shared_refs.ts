@@ -20,6 +20,9 @@
  */
 export type CoagNivel = 'I' | 'II';
 
+/** Níveis exibidos na UI (pills + switcher) — sempre I e II, como hematologia com NV1–3. */
+export const COAG_NIVEIS: readonly CoagNivel[] = ['I', 'II'];
+
 // ─── Analitos Suportados ──────────────────────────────────────────────────────
 
 /**
@@ -31,7 +34,7 @@ export type CoagNivel = 'I' | 'II';
  *                           Calculada automaticamente a partir de TP, ISI e MNPT do lab.
  *  ttpa                   — Tempo de Tromboplastina Parcial Ativada (TTPA), em segundos.
  *
- * Analitos opcionais (Fibrinogênio, D-dímero, Fatores V/VII/VIII/IX) são v2.
+ * @todo Adicionar fibrinogenio quando houver equipamento com suporte (ex: CA-6600).
  */
 export type CoagAnalyteId = 'atividadeProtrombinica' | 'rni' | 'ttpa';
 
