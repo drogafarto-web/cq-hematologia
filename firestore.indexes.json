@@ -1495,6 +1495,20 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "criticos-escalacoes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
           "fieldPath": "sla_status",
           "order": "ASCENDING"
         },

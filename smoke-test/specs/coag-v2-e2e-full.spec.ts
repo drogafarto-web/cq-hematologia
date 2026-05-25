@@ -659,11 +659,80 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
     }
   });
 
-  // ─── Phase 6: Curve — SKIPPED (no Levey-Jennings chart in v2 yet) ───────
+  // ─── Phase 6: Curve — Levey-Jennings chart data validation ────────────
 
-  test('Phase 6 — Curve (Levey-Jennings) — SKIPPED', async () => {
-    CTX.phaseResults.push({ phaseId: 6, name: 'Curve Verification', status: 'skipped', duration: 0, details: 'Levey-Jennings chart not implemented in Coag v2 yet' });
-    test.skip();
+  test('Phase 6 — Curve (Levey-Jennings) data validation', async () => {
+    const start = Date.now();
+
+    try {
+      const BASELINES: Record<string, { mean: number; sd: number }> = {
+        atividadeProtrombinica: { mean: 100, sd: 10 },
+        rni: { mean: 0.97, sd: 0.07 },
+        ttpa: { mean: 33, sd: 3 },
+      };
+
+      const analyteKeys: Array<keyof typeof BASELINES> = ['atividadeProtrombinica', 'rni', 'ttpa'];
+
+      for (const log of CTX.attemptLogs) {
+        const res = await firestoreGet(`labs/${CTX.labId}/attempts/${log.id}`, CTX.operatorToken);
+        const data = parseFirestoreDoc(res);
+        expect(data).toBeTruthy();
+        const resultados = data.resultados;
+        expect(resultados).toBeTruthy();
+
+        for (const key of analyteKeys) {
+          const raw = resultados[key];
+          const val = typeof raw === 'number'
+            ? raw
+            : raw?.doubleValue !== undefined
+              ? raw.doubleValue
+              : raw?.integerValue !== undefined
+                ? parseInt(raw.integerValue, 10)
+                : Number(raw);
+          expect(typeof val).toBe('number');
+          expect(isNaN(val)).toBe(false);
+          const { mean, sd } = BASELINES[key];
+          const zScore = (val - mean) / sd;
+          const expectedVal = key === 'atividadeProtrombinica' ? log.ap : key === 'rni' ? log.rni : log.ttpa;
+          const expectedZ = (expectedVal - mean) / sd;
+          expect(Math.abs(zScore - expectedZ)).toBeLessThan(
+            0.01,
+            `attempt ${log.index}/${key} z=${zScore.toFixed(3)} ≠ expected ${expectedZ.toFixed(3)}`,
+          );
+        }
+      }
+
+      const sampleMean: Record<string, number[]> = { atividadeProtrombinica: [], rni: [], ttpa: [] };
+      for (const log of CTX.attemptLogs) {
+        const plan = ATTEMPT_PLAN[log.index - 1];
+        sampleMean.atividadeProtrombinica.push(plan.ap);
+        sampleMean.rni.push(plan.rni);
+        sampleMean.ttpa.push(plan.ttpa);
+      }
+      for (const key of analyteKeys) {
+        const vals = sampleMean[key];
+        const m = vals.reduce((a, b) => a + b, 0) / vals.length;
+        const variance = vals.reduce((a, b) => a + (b - m) ** 2, 0) / (vals.length - 1);
+        const sd = Math.sqrt(variance);
+        expect(Math.abs(m - BASELINES[key].mean)).toBeLessThan(
+          BASELINES[key].mean * 0.02,
+          `${key} sample mean ${m.toFixed(4)} deviates >2% from baseline ${BASELINES[key].mean}`,
+        );
+        expect(Math.abs(sd - BASELINES[key].sd)).toBeLessThan(
+          BASELINES[key].sd * 0.4,
+          `${key} sample sd ${sd.toFixed(4)} deviates >40% from baseline ${BASELINES[key].sd}`,
+        );
+        console.log(`[phase 6] ${key}: sample mean=${m.toFixed(3)} sd=${sd.toFixed(3)} (baseline mean=${BASELINES[key].mean} sd=${BASELINES[key].sd})`);
+      }
+
+      console.log(`[phase 6] ${CTX.attemptLogs.length} attempts × 3 analytes chart data verified`);
+
+      CTX.phaseResults.push({ phaseId: 6, name: 'Curve (Levey-Jennings)', status: 'passed', duration: Date.now() - start, details: `${CTX.attemptLogs.length} attempts × 3 analytes, z-scores + stats verified` });
+    } catch (err: any) {
+      CTX.errors.push({ phaseId: 6, step: 'curve', message: err.message });
+      CTX.phaseResults.push({ phaseId: 6, name: 'Curve (Levey-Jennings)', status: 'failed', duration: Date.now() - start, details: err.message });
+      throw err;
+    }
   });
 
   // ─── Phase 7: Cleanup (REST API) — ALWAYS RUNS ──────────────────────────
