@@ -78,7 +78,7 @@ async function main() {
 
   // Snapshot pra rollback
   const ts = Date.now();
-  const snapRef = db.doc(`temp/role-changes/${ts}_${uid}`);
+  const snapRef = db.doc(`temp_role_changes/${ts}_${uid}`);
   await snapRef.set({
     labId,
     uid,
@@ -89,7 +89,7 @@ async function main() {
   });
 
   await memberRef.update({ role });
-  console.log(`✅ Aplicado. Snapshot em temp/role-changes/${ts}_${uid}.\n`);
+  console.log(`✅ Aplicado. Snapshot em temp_role_changes/${ts}_${uid}.\n`);
 }
 
 main()

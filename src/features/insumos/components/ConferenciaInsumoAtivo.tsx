@@ -14,9 +14,12 @@
  * via hooks próprios no submit. Aqui só exibimos + capturamos confirmação.
  */
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useEquipmentSetup } from '../hooks/useEquipmentSetup';
 import { useInsumos } from '../hooks/useInsumos';
+import { useActiveLab, useUser } from '../../../store/useAuthStore';
+import { setActiveInsumo } from '../services/equipmentSetupService';
+import { openInsumo } from '../services/insumosFirebaseService';
 import { DEFAULT_EQUIPAMENTO_POR_MODULO } from '../../../constants';
 import { validadeStatus, diasAteVencer } from '../utils/validadeReal';
 import { evaluateInsumoUsability } from '../utils/insumoUsability';
@@ -33,6 +36,7 @@ interface ConferenciaInsumoAtivoProps {
    */
   requiredSlots: {
     reagente?: boolean;
+    reagenteTtpa?: boolean;
     controle?: boolean;
     tira?: boolean;
   };
@@ -119,6 +123,249 @@ function SlotLine({
   );
 }
 
+// ─── QuickSetupInline ────────────────────────────────────────────────────────
+
+/**
+ * Permite ao operador vincular reagente/controle ao equipamento diretamente
+ * no form de corrida, sem precisar navegar para a tela de Insumos.
+ * Aparece quando o setup não existe ou está incompleto E há insumos
+ * compatíveis disponíveis (ativos OU fechados — fechados são abertos
+ * automaticamente antes de vincular).
+ */
+function QuickSetupInline({
+  module,
+  equipamentoId,
+  insumos,
+  insumosFechados,
+  requiredSlots,
+  reagente,
+  reagenteTtpa,
+  controle,
+  tira,
+}: {
+  module: InsumoModulo;
+  equipamentoId: string | null;
+  insumos: Insumo[];
+  insumosFechados: Insumo[];
+  requiredSlots: ConferenciaInsumoAtivoProps['requiredSlots'];
+  reagente: Insumo | null;
+  reagenteTtpa?: Insumo | null;
+  controle: Insumo | null;
+  tira: Insumo | null;
+}) {
+  const activeLab = useActiveLab();
+  const user = useUser();
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const allDisponiveis = useMemo(
+    () => [...insumos, ...insumosFechados],
+    [insumos, insumosFechados],
+  );
+
+  const reagentesDisponiveis = useMemo(
+    () => allDisponiveis.filter((i) => i.tipo === 'reagente' && i.modulo === module),
+    [allDisponiveis, module],
+  );
+  const controlesDisponiveis = useMemo(
+    () => allDisponiveis.filter((i) => i.tipo === 'controle' && i.modulo === module),
+    [allDisponiveis, module],
+  );
+  const tirasDisponiveis = useMemo(
+    () => allDisponiveis.filter((i) => i.tipo === 'tira-uro' && i.modulo === module),
+    [allDisponiveis, module],
+  );
+
+  const needsReagente = requiredSlots.reagente && !reagente && reagentesDisponiveis.length > 0;
+  const needsReagenteTtpa = requiredSlots.reagenteTtpa && !reagenteTtpa && reagentesDisponiveis.length > 0;
+  const needsControle = requiredSlots.controle && !controle && controlesDisponiveis.length > 0;
+  const needsTira = requiredSlots.tira && !tira && tirasDisponiveis.length > 0;
+
+  const [selReagente, setSelReagente] = useState('');
+  const [selReagenteTtpa, setSelReagenteTtpa] = useState('');
+  const [selControle, setSelControle] = useState('');
+  const [selTira, setSelTira] = useState('');
+
+  if (!needsReagente && !needsReagenteTtpa && !needsControle && !needsTira) return null;
+  if (!activeLab || !user) return null;
+
+  const fechadosById = new Map(insumosFechados.map((i) => [i.id, i]));
+
+  const openIfNeeded = async (insumoId: string) => {
+    const fechado = fechadosById.get(insumoId);
+    if (!fechado) return;
+    await openInsumo(
+      activeLab.id,
+      insumoId,
+      fechado,
+      user.uid,
+      user.displayName ?? user.email ?? 'Operador',
+    );
+  };
+
+  const handleQuickSetup = async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      if (selReagente) {
+        await openIfNeeded(selReagente);
+        await setActiveInsumo(activeLab.id, {
+          module,
+          slot: 'activeReagenteId',
+          newInsumoId: selReagente,
+          operadorId: user.uid,
+          operadorName: user.displayName ?? user.email ?? 'Operador',
+          equipamentoId: equipamentoId ?? undefined,
+        });
+      }
+      if (selReagenteTtpa) {
+        await openIfNeeded(selReagenteTtpa);
+        await setActiveInsumo(activeLab.id, {
+          module,
+          slot: 'activeReagenteTtpaId',
+          newInsumoId: selReagenteTtpa,
+          operadorId: user.uid,
+          operadorName: user.displayName ?? user.email ?? 'Operador',
+          equipamentoId: equipamentoId ?? undefined,
+        });
+      }
+      if (selControle) {
+        await openIfNeeded(selControle);
+        await setActiveInsumo(activeLab.id, {
+          module,
+          slot: 'activeControleId',
+          newInsumoId: selControle,
+          operadorId: user.uid,
+          operadorName: user.displayName ?? user.email ?? 'Operador',
+          equipamentoId: equipamentoId ?? undefined,
+        });
+      }
+      if (selTira) {
+        await openIfNeeded(selTira);
+        await setActiveInsumo(activeLab.id, {
+          module,
+          slot: 'activeTiraUroId',
+          newInsumoId: selTira,
+          operadorId: user.uid,
+          operadorName: user.displayName ?? user.email ?? 'Operador',
+          equipamentoId: equipamentoId ?? undefined,
+        });
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao configurar setup.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const canSave =
+    (!needsReagente || selReagente) &&
+    (!needsReagenteTtpa || selReagenteTtpa) &&
+    (!needsControle || selControle) &&
+    (!needsTira || selTira);
+
+  return (
+    <div className="mb-3 p-3 rounded-lg bg-violet-500/[0.06] border border-violet-500/20">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-400 mb-2">
+        Setup rápido — vincular insumos ao equipamento
+      </p>
+      <div className="space-y-2">
+        {needsReagente && (
+          <div>
+            <label className="block text-[11px] text-slate-500 dark:text-white/40 mb-0.5">
+              {module === 'coagulacao' ? 'Reagente TP' : 'Reagente'}
+            </label>
+            <select
+              value={selReagente}
+              onChange={(e) => setSelReagente(e.target.value)}
+              className="w-full px-2.5 py-1.5 rounded-lg text-sm bg-white dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.09] text-slate-900 dark:text-white/90"
+            >
+              <option value="">Selecione…</option>
+              {reagentesDisponiveis.map((i) => (
+                <option key={i.id} value={i.id}>
+                  {i.nomeComercial} · Lote {i.lote} · {i.fabricante}
+                  {fechadosById.has(i.id) ? ' (fechado — será aberto)' : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        {needsReagenteTtpa && (
+          <div>
+            <label className="block text-[11px] text-slate-500 dark:text-white/40 mb-0.5">
+              Reagente TTPA
+            </label>
+            <select
+              value={selReagenteTtpa}
+              onChange={(e) => setSelReagenteTtpa(e.target.value)}
+              className="w-full px-2.5 py-1.5 rounded-lg text-sm bg-white dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.09] text-slate-900 dark:text-white/90"
+            >
+              <option value="">Selecione…</option>
+              {reagentesDisponiveis.map((i) => (
+                <option key={i.id} value={i.id}>
+                  {i.nomeComercial} · Lote {i.lote} · {i.fabricante}
+                  {fechadosById.has(i.id) ? ' (fechado — será aberto)' : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        {needsControle && (
+          <div>
+            <label className="block text-[11px] text-slate-500 dark:text-white/40 mb-0.5">
+              Controle
+            </label>
+            <select
+              value={selControle}
+              onChange={(e) => setSelControle(e.target.value)}
+              className="w-full px-2.5 py-1.5 rounded-lg text-sm bg-white dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.09] text-slate-900 dark:text-white/90"
+            >
+              <option value="">Selecione…</option>
+              {controlesDisponiveis.map((i) => (
+                <option key={i.id} value={i.id}>
+                  {i.nomeComercial} · Lote {i.lote} · {i.fabricante}
+                  {fechadosById.has(i.id) ? ' (fechado — será aberto)' : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        {needsTira && (
+          <div>
+            <label className="block text-[11px] text-slate-500 dark:text-white/40 mb-0.5">
+              Tira
+            </label>
+            <select
+              value={selTira}
+              onChange={(e) => setSelTira(e.target.value)}
+              className="w-full px-2.5 py-1.5 rounded-lg text-sm bg-white dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.09] text-slate-900 dark:text-white/90"
+            >
+              <option value="">Selecione…</option>
+              {tirasDisponiveis.map((i) => (
+                <option key={i.id} value={i.id}>
+                  {i.nomeComercial} · Lote {i.lote} · {i.fabricante}
+                  {fechadosById.has(i.id) ? ' (fechado — será aberto)' : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+      {error && (
+        <p className="text-[11px] text-red-600 dark:text-red-400 mt-1.5">{error}</p>
+      )}
+      <button
+        type="button"
+        onClick={handleQuickSetup}
+        disabled={!canSave || saving}
+        className="mt-2.5 w-full py-2 rounded-lg text-xs font-semibold text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+      >
+        {saving ? 'Salvando…' : 'Abrir (se necessário) e vincular ao equipamento'}
+      </button>
+    </div>
+  );
+}
+
 export function ConferenciaInsumoAtivo({
   module,
   requiredSlots,
@@ -134,12 +381,17 @@ export function ConferenciaInsumoAtivo({
   const fallbackDocId = equipamentoId ? module : null;
   const { setup, isLoading } = useEquipmentSetup(setupDocId, fallbackDocId);
   const { insumos: allAtivos } = useInsumos({ status: 'ativo' });
+  const { insumos: allFechados } = useInsumos({ status: 'fechado' });
   const insumos = equipamentoId
     ? allAtivos.filter((i) => insumoCobreEquipamento(i, equipamentoId))
     : allAtivos;
+  const insumosFechados = equipamentoId
+    ? allFechados.filter((i) => insumoCobreEquipamento(i, equipamentoId))
+    : allFechados;
 
   const byId = new Map(insumos.map((i) => [i.id, i]));
   const reagente = setup?.activeReagenteId ? byId.get(setup.activeReagenteId) ?? null : null;
+  const reagenteTtpa = setup?.activeReagenteTtpaId ? byId.get(setup.activeReagenteTtpaId) ?? null : null;
   const controle = setup?.activeControleId ? byId.get(setup.activeControleId) ?? null : null;
   const tira = setup?.activeTiraUroId ? byId.get(setup.activeTiraUroId) ?? null : null;
 
@@ -148,6 +400,7 @@ export function ConferenciaInsumoAtivo({
 
   const slotsFaltando =
     (requiredSlots.reagente && !reagente) ||
+    (requiredSlots.reagenteTtpa && !reagenteTtpa) ||
     (requiredSlots.controle && !controle) ||
     (requiredSlots.tira && !tira);
 
@@ -186,7 +439,10 @@ export function ConferenciaInsumoAtivo({
 
       <ul className="space-y-1.5 mb-3">
         {requiredSlots.reagente !== undefined && (
-          <SlotLine label="Reagente" insumo={reagente} required={!!requiredSlots.reagente} />
+          <SlotLine label={module === 'coagulacao' ? "Reagente TP" : "Reagente"} insumo={reagente} required={!!requiredSlots.reagente} />
+        )}
+        {requiredSlots.reagenteTtpa !== undefined && (
+          <SlotLine label="Reagente TTPA" insumo={reagenteTtpa} required={!!requiredSlots.reagenteTtpa} />
         )}
         {requiredSlots.controle !== undefined && (
           <SlotLine label="Controle" insumo={controle} required={!!requiredSlots.controle} />
@@ -202,6 +458,20 @@ export function ConferenciaInsumoAtivo({
             Há insumo obrigatório não configurado. Configure no Setup do equipamento antes de salvar.
           </p>
         </div>
+      )}
+
+      {slotsFaltando && (
+        <QuickSetupInline
+          module={module}
+          equipamentoId={equipamentoId ?? null}
+          insumos={insumos}
+          insumosFechados={insumosFechados}
+          requiredSlots={requiredSlots}
+          reagente={reagente}
+          reagenteTtpa={reagenteTtpa}
+          controle={controle}
+          tira={tira}
+        />
       )}
 
       <label className="flex items-start gap-2.5 cursor-pointer select-none p-2.5 rounded-lg border border-slate-200 dark:border-white/[0.06] hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-all">

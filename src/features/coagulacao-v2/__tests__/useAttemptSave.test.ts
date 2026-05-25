@@ -3,7 +3,8 @@ import { renderHook, waitFor } from '@testing-library/react';
 
 vi.mock('../../../shared/services/firebase', () => ({ db: {} }));
 vi.mock('../../coagulacao/hooks/useCoagSignature', () => ({
-  useCoagSignature: () => ({ signPayload: vi.fn(() => Promise.resolve('a'.repeat(64))) }),
+  useCoagSignature: () => ({ sign: vi.fn(() => Promise.resolve({ logicalSignature: 'a'.repeat(64), signedBy: 'user-001', signedAt: '2026-05-25T01:00:00.000Z' })), isReady: true }),
+  canonicalizeCoagResultados: vi.fn((r: Record<string, number>) => JSON.stringify(r)),
 }));
 vi.mock('../../coagulacao/hooks/useCoagWestgard', () => ({
   computeCoagWestgard: () => ({

@@ -62,6 +62,12 @@ export interface EquipmentSetup {
    */
   activeReagenteId: string | null;
 
+  /**
+   * Insumo reagente TTPA ativo (específico para coagulação / Clotimer Duo).
+   * `null` nos demais módulos ou se não configurado.
+   */
+  activeReagenteTtpaId?: string | null;
+
   /** Insumo controle ativo — `null` até primeira configuração. */
   activeControleId: string | null;
 
@@ -83,5 +89,6 @@ export interface EquipmentSetup {
  */
 export type EquipmentSetupSlot =
   | 'activeReagenteId'
+  | 'activeReagenteTtpaId'
   | 'activeControleId'
   | 'activeTiraUroId';

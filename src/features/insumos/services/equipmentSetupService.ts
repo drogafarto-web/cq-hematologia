@@ -222,6 +222,7 @@ export async function setActiveInsumo(
       ...(equipamentoModelo && { equipamentoModelo }),
       ...(input.equipamentoId && { equipamentoId: input.equipamentoId }),
       activeReagenteId: prev?.activeReagenteId ?? null,
+      activeReagenteTtpaId: prev?.activeReagenteTtpaId ?? null,
       activeControleId: prev?.activeControleId ?? null,
       activeTiraUroId: prev?.activeTiraUroId ?? null,
       [input.slot]: toInsumoId,

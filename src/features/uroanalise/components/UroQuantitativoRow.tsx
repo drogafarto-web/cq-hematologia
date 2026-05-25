@@ -103,10 +103,15 @@ export function UroQuantitativoRow({
       onChange(null);
       return;
     }
-    const parsed = parseFloat(raw);
+    let parsed = parseFloat(raw);
     if (Number.isNaN(parsed)) {
       onChange(null);
       return;
+    }
+    // Densidade: operador pode digitar formato inteiro (1015) em vez de decimal (1.015).
+    // Normaliza automaticamente quando o valor está na faixa típica de inteiros de tira.
+    if (analitoId === 'densidade' && parsed >= 1000 && parsed <= 1100) {
+      parsed = parsed / 1000;
     }
     onChange(parsed);
   };

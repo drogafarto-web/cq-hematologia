@@ -41,6 +41,7 @@ import {
 
 export interface RequiredSlots {
   reagente?: boolean;
+  reagenteTtpa?: boolean;
   controle?: boolean;
   tira?: boolean;
 }
@@ -69,13 +70,14 @@ export interface InsumoFlowOverrideFlags {
 export interface UseInsumoFlowGuardResult {
   // ── Estado ─────────────────────────────────────────────────────────────────
   reagente: Insumo | null;
+  reagenteTtpa: Insumo | null;
   controle: Insumo | null;
   tira: Insumo | null;
   setupLoaded: boolean;
   /** true se todos os `requiredSlots` obrigatórios têm insumo configurado. */
   setupComplete: boolean;
   /** Lista dos slots obrigatórios ainda não preenchidos. UI usa pra mensagem. */
-  slotsFaltando: Array<'reagente' | 'controle' | 'tira'>;
+  slotsFaltando: Array<'reagente' | 'reagenteTtpa' | 'controle' | 'tira'>;
 
   // ── Conferência ────────────────────────────────────────────────────────────
   confirmed: boolean;
@@ -148,16 +150,18 @@ export function useInsumoFlowGuard({
   // ── Resolução dos insumos ativos ─────────────────────────────────────────
   const byId = useMemo(() => new Map(insumos.map((i) => [i.id, i])), [insumos]);
   const reagente = setup?.activeReagenteId ? byId.get(setup.activeReagenteId) ?? null : null;
+  const reagenteTtpa = setup?.activeReagenteTtpaId ? byId.get(setup.activeReagenteTtpaId) ?? null : null;
   const controle = setup?.activeControleId ? byId.get(setup.activeControleId) ?? null : null;
   const tira = setup?.activeTiraUroId ? byId.get(setup.activeTiraUroId) ?? null : null;
 
   const slotsFaltando = useMemo(() => {
-    const out: Array<'reagente' | 'controle' | 'tira'> = [];
+    const out: Array<'reagente' | 'reagenteTtpa' | 'controle' | 'tira'> = [];
     if (requiredSlots.reagente && !reagente) out.push('reagente');
+    if (requiredSlots.reagenteTtpa && !reagenteTtpa) out.push('reagenteTtpa');
     if (requiredSlots.controle && !controle) out.push('controle');
     if (requiredSlots.tira && !tira) out.push('tira');
     return out;
-  }, [requiredSlots.reagente, requiredSlots.controle, requiredSlots.tira, reagente, controle, tira]);
+  }, [requiredSlots.reagente, requiredSlots.reagenteTtpa, requiredSlots.controle, requiredSlots.tira, reagente, reagenteTtpa, controle, tira]);
 
   const setupComplete = slotsFaltando.length === 0;
 
@@ -165,10 +169,11 @@ export function useInsumoFlowGuard({
   const getSnapshots = useCallback((): InsumosSnapshotSet => {
     const snap: InsumosSnapshotSet = {};
     if (reagente) snap.reagente = buildInsumoSnapshot(reagente);
+    if (reagenteTtpa) snap.reagenteTtpa = buildInsumoSnapshot(reagenteTtpa);
     if (controle) snap.controle = buildInsumoSnapshot(controle);
     if (tira) snap.tira = buildInsumoSnapshot(tira);
     return snap;
-  }, [reagente, controle, tira]);
+  }, [reagente, reagenteTtpa, controle, tira]);
 
   // ── Override resolution ──────────────────────────────────────────────────
   const closeOverride = useCallback(() => {
@@ -235,7 +240,7 @@ export function useInsumoFlowGuard({
 
     // 3. Validar usabilidade de cada slot configurado.
     const bloqueios: OverrideContext['bloqueios'] = [];
-    const addIf = (slot: 'reagente' | 'controle' | 'tira', insumo: Insumo | null) => {
+    const addIf = (slot: 'reagente' | 'reagenteTtpa' | 'controle' | 'tira', insumo: Insumo | null) => {
       if (!insumo) return;
       const u = evaluateInsumoUsability(insumo);
       if (!u.ok && u.motivo && u.mensagem) {
@@ -250,6 +255,7 @@ export function useInsumoFlowGuard({
       }
     };
     addIf('reagente', reagente);
+    addIf('reagenteTtpa', reagenteTtpa);
     addIf('controle', controle);
     addIf('tira', tira);
 
@@ -286,6 +292,10 @@ export function useInsumoFlowGuard({
         insumoIds.push(reagente.id);
         if (reagente.tipo === 'reagente') qcIds.push(reagente.id);
       }
+      if (reagenteTtpa) {
+        insumoIds.push(reagenteTtpa.id);
+        if (reagenteTtpa.tipo === 'reagente') qcIds.push(reagenteTtpa.id);
+      }
       if (controle) insumoIds.push(controle.id);
       if (tira) {
         insumoIds.push(tira.id);
@@ -300,11 +310,12 @@ export function useInsumoFlowGuard({
         await clearInsumoQCValidation(activeLab.id, qcIds);
       }
     },
-    [activeLab, reagente, controle, tira],
+    [activeLab, reagente, reagenteTtpa, controle, tira]
   );
 
   return {
     reagente,
+    reagenteTtpa,
     controle,
     tira,
     setupLoaded: !isLoading && !!setup,

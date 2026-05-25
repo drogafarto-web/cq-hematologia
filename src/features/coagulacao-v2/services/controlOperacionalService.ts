@@ -11,6 +11,7 @@ import {
   limit,
   serverTimestamp,
 } from 'firebase/firestore';
+import type { Timestamp } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
 import type { ControlOperacional, ControlOperacionalInput } from '../types/ControlOperacional';
 
@@ -52,10 +53,12 @@ export async function listControlOperacionals(
   labId: string,
   options?: { status?: ControlOperacional['status'] },
 ): Promise<ControlOperacional[]> {
-  const constraints = [orderBy('criadoEm', 'desc'), limit(50)];
+  const constraints: any[] = [];
   if (options?.status) {
-    constraints.unshift(where('status', '==', options.status));
+    constraints.push(where('status', '==', options.status));
   }
+  constraints.push(orderBy('criadoEm', 'desc'));
+  constraints.push(limit(50));
   const snap = await getDocs(query(COLLECTION(labId), ...constraints));
   return snap.docs.map((d) => ({ id: d.id, ...d.data() } as ControlOperacional));
 }

@@ -1,25 +1,39 @@
-# M001-CONTEXT — Coagulação: Correção do Modelo de Corrida
+# M001-CONTEXT (LEGADO)
 
-**Data:** 2026-05-21
-**Spec:** `docs/superpowers/specs/2026-05-21-coagulacao-run-model.md`
+**Status:** ARQUIVADO — substituído por [`docs/coag-v2/coag-v2-master.md`](../../docs/coag-v2/coag-v2-master.md)
+**Data de arquivamento:** 25/05/2026
 
 ---
 
-## Decisões do CTO
+## Por que arquivado
 
-1. **1 run = 1 nivel + 1 lote.** Usuário cria runs separadas para nível I e II.
-2. **Analitos por equipamento.** `EQUIP_ANALYTES` mapeia `CoagEquipamento → CoagAnalyteId[]`. Clotimer Duo = TP + RNI + TTPA (sem fibrinogênio).
-3. **Insumo como gate.** Se o setup não tem TTPA configurado, TTPA não aparece no form.
-4. **Schema dinâmico.** `resultados` muda de `analytesBaseline` fixo para `z.record(z.coerce.number().positive())`.
-5. **Sem migração retroativa.** Runs antigas mantêm a estrutura atual.
+O redesign do módulo Coagulação (v2) convergiu para arquitetura radicalmente diferente:
 
-## Referências
+- **Legado (este doc):** `CoagulacaoRun` + `CoagulacaoLot` + form 12-blocos
+- **v2:** `ControlOperacional` + `Attempt` + `RTAction` (3 entidades, 3 eventos, ≤6 campos)
 
-- `src/features/coagulacao/CoagAnalyteConfig.ts` — adicionar `EQUIP_ANALYTES`
-- `src/features/coagulacao/components/CoagulacaoForm.schema.ts` — resultados dinâmicos
-- `src/features/coagulacao/components/CoagulacaoForm.tsx` — nível obrigatório + filtro
-- `src/features/coagulacao/hooks/useCoagLots.ts` — filtrar por nível
-- `src/features/coagulacao/hooks/useSaveCoagRun.ts` — ajustar lookup de lote
+A engenharia legada tem mérito técnico (Westgard, snapshots, auditoria preservados), mas a arquitetura expunha complexidade em excesso ao operador.
 
-## Bloqueadores
-- Nenhum
+A nova arquitetura preserva **100% do valor regulatório** e esconde **100% da complexidade técnica** do operador.
+
+## O que permanece válido
+
+- Regras Westgard (6 CLSI C24-A3)
+- Snapshots imutáveis (insumo + reagente + equipamento)
+- LogicalSignature (SHA-256)
+- Audit Records imutáveis
+- Compatibilidade com RDC 978, CLSI H47-A2, DICQ sec. 2.4
+
+## O que foi descartado
+
+- `CoagulacaoLot` como entidade raiz
+- `CoagulacaoRun` como entidade (30+ campos)
+- Form de 12 blocos (~27 campos)
+- Nível I/II como seletor explícito no topo
+- Seção NOTIVISA no form
+- Calibração de bula heurística (isNewLot)
+- Calibração INR (ISI/MNPT) no form
+
+## Referência
+
+[`docs/coag-v2/coag-legacy-analysis.md`](../../docs/coag-v2/coag-legacy-analysis.md) documenta em detalhe o sistema legado para reaproveitamento seletivo no v2.

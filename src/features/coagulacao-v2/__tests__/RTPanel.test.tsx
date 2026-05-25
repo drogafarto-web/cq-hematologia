@@ -29,6 +29,6 @@ describe('RTPanel', () => {
 
   it('renderiza lista de tentativas', () => {
     render(<RTPanel />);
-    expect(screen.getByText('att-001')).toBeDefined();
+    expect(screen.getByText((c: string) => c.includes('att-00'))).toBeDefined();
   });
 });

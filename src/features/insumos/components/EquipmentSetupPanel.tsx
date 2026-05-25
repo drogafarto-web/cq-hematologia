@@ -124,7 +124,7 @@ function SlotSelector({
 }: SlotSelectorProps) {
   // Tipo derivado do slot — reagente/controle/tira.
   const tipo =
-    slot === 'activeReagenteId'
+    slot === 'activeReagenteId' || slot === 'activeReagenteTtpaId'
       ? ('reagente' as const)
       : slot === 'activeControleId'
         ? ('controle' as const)
@@ -158,9 +158,11 @@ function SlotSelector({
   const slotLabel =
     slot === 'activeReagenteId'
       ? 'Reagente'
-      : slot === 'activeControleId'
-        ? 'Controle'
-        : 'Tira';
+      : slot === 'activeReagenteTtpaId'
+        ? 'Reagente TTPA'
+        : slot === 'activeControleId'
+          ? 'Controle'
+          : 'Tira';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
@@ -259,6 +261,7 @@ interface ModuleRowProps {
   moduleLabel: string;
   setup: EquipmentSetup | null;
   reagente: Insumo | null;
+  reagenteTtpa?: Insumo | null;
   controle: Insumo | null;
   tira: Insumo | null;
   canMutate: boolean;
@@ -270,6 +273,7 @@ function ModuleRow({
   moduleLabel,
   setup,
   reagente,
+  reagenteTtpa,
   controle,
   tira,
   canMutate,
@@ -280,6 +284,7 @@ function ModuleRow({
   const lastChange = setup?.updatedAt ? setup.updatedAt.toDate() : null;
   const aggStatus = aggregateStatus([
     reagente,
+    module === 'coagulacao' ? (reagenteTtpa ?? null) : null,
     controle,
     module === 'uroanalise' ? tira : null,
   ]);
@@ -298,13 +303,21 @@ function ModuleRow({
         <StatusChip status={aggStatus} />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <div className={`grid grid-cols-1 ${module === 'coagulacao' ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-2`}>
         <SlotCard
-          label="Reagente"
+          label={module === 'coagulacao' ? "Reagente TP" : "Reagente"}
           insumo={reagente}
           canMutate={canMutate}
           onTrocar={() => onOpenSlot('activeReagenteId')}
         />
+        {module === 'coagulacao' && (
+          <SlotCard
+            label="Reagente TTPA"
+            insumo={reagenteTtpa ?? null}
+            canMutate={canMutate}
+            onTrocar={() => onOpenSlot('activeReagenteTtpaId')}
+          />
+        )}
         <SlotCard
           label="Controle"
           insumo={controle}
@@ -446,6 +459,7 @@ export function EquipmentSetupPanel({ canMutate }: EquipmentSetupPanelProps) {
               moduleLabel={m.label}
               setup={setup}
               reagente={resolve(setup?.activeReagenteId)}
+              reagenteTtpa={m.id === 'coagulacao' ? resolve(setup?.activeReagenteTtpaId) : null}
               controle={resolve(setup?.activeControleId)}
               tira={resolve(setup?.activeTiraUroId)}
               canMutate={canMutate}

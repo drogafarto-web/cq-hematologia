@@ -88,6 +88,7 @@ export function buildInsumoSnapshot(insumo: Insumo): InsumoSnapshot {
  */
 export interface InsumosSnapshotSet {
   reagente?: InsumoSnapshot;
+  reagenteTtpa?: InsumoSnapshot;
   controle?: InsumoSnapshot;
   tira?: InsumoSnapshot;
   /** Controle positivo do kit manual — esperado reagente ("R"). */

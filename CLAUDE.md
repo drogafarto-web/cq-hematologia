@@ -154,14 +154,69 @@ Módulos com documentação dedicada: `educacao-continuada` (próprio CLAUDE.md)
 
 ---
 
+## Comandos de desenvolvimento
+
+### Web (raiz do projeto)
+
+```bash
+npm run dev                          # Vite dev server em http://localhost:3000
+npm run build                        # tsc + vite build (produção)
+npm run typecheck                    # tsc --noEmit (type-check sem emitir)
+npm run lint                         # ESLint (ts + tsx + a11y)
+npm run lint:fix                     # ESLint com auto-fix
+npm run format                       # Prettier write
+npm run format:check                 # Prettier check (CI)
+
+# Testes (Vitest)
+npm run test:unit                    # Todos os testes unitários (run once)
+npm run test:unit:watch              # Watch mode
+npx vitest run test/unit/myFile.test.ts   # Teste individual
+npm run test:smoke                   # Smoke tests (Firebase integration)
+npm run test:coverage                # Coverage report (thresholds: 80/75/80/80)
+
+# Bundle analysis
+npm run analyze                      # Gera dist/stats.html (treemap interativo)
+npm run perf:validate                # Valida Web Vitals targets
+```
+
+### Cloud Functions (`functions/`)
+
+```bash
+cd functions
+npm run build                        # tsc + copia seeds → lib/
+npm test                             # Jest (todos)
+npx jest --testPathPattern=notivisa  # Teste de módulo específico
+npm run test:coverage                # Coverage
+npm run eval:ia-strip                # Promptfoo eval de IA strip OCR
+```
+
+### Firebase Emulator
+
+```bash
+npm run fb:emulator:firestore        # Só Firestore
+npm run fb:emulator:core             # Firestore + Auth
+npm run fb:emulator:seed             # Seed dados no emulador
+npm run fb:emulator:test             # Roda testes contra emulador
+```
+
+### Path alias
+
+`@/*` → `src/*` (configurado em `tsconfig.json` paths + Vite resolve).
+
+---
+
 ## Stack + arquitetura (essencial)
 
-- **Estrutura**: feature-based em `src/features/<módulo>/{components,hooks,services,types}`.
-- **Estado**: Zustand 5 para global (`useAuthStore`); hooks locais para cada módulo.
+- **Monorepo implícito**: raiz = web app (Vite); `functions/` = Cloud Functions (Node 22, CommonJS, Jest). Cada um tem seu `package.json`, `tsconfig.json` e test runner.
+- **Estrutura**: feature-based em `src/features/<módulo>/{components,hooks,services,types}`. ~58 módulos.
+- **Shared**: `src/shared/{components,hooks,services,store,utils}` — código reutilizado cross-módulo.
+- **Stores globais**: `src/store/useAuthStore.ts` (auth + claims), `src/store/useAppStore.ts` (UI state). Módulos usam hooks locais com Zustand ou `useState`.
 - **Queries Firebase**: `onSnapshot` via hook padrão (ver `useColaboradores.ts` em `educacao-continuada` como referência canônica).
 - **Validação**: Zod 3 nos payloads de IA e entradas críticas.
 - **PWA**: `vite-plugin-pwa` com `registerType: 'autoUpdate'` — deploy novo exige hard reload no browser.
-- **Functions**: Node 22 em `southamerica-east1`, callables regionalmente.
+- **Functions**: Node 22 em `southamerica-east1`, callables regionalmente. Estrutura: `functions/src/{callables,shared,modules,helpers,types,seeds}`.
+- **Testes web**: Vitest + jsdom + Testing Library. Arquivos em `test/{unit,smoke,integration,features}` e `src/**/__tests__/`.
+- **Testes functions**: Jest + ts-jest. Arquivos em `functions/src/**/__tests__/`.
 
 ## AI Integration Architecture
 

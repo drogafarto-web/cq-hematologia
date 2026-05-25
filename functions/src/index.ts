@@ -38,7 +38,7 @@ export {
 export { scheduledVerifyBackupIntegrity } from './modules/firestoreBackup/verifyIntegrity';
 
 // ─── Data migrations (one-time and scheduled) ────────────────────────────────
-export { scheduledMigrateNotaFiscalDates } from './scheduledMigrateNotaFiscalDates';
+// export { scheduledMigrateNotaFiscalDates } from './scheduledMigrateNotaFiscalDates';
 
 // ─── insumos module ──────────────────────────────────────────────────────────
 // Scheduled expiration: move insumos vencidos (validadeReal < now) de 'ativo'
@@ -51,14 +51,14 @@ export {
   triggerInsumosExpiration,
   onInsumoMovimentacaoCreate,
   validateFR10,
-  triggerBackfillInsumoModulos,
+  // triggerBackfillInsumoModulos,
 } from './modules/insumos/index';
 
 // ─── lotsMigration module (Fase B — 2026-04-28) ──────────────────────────────
 // Migração one-time idempotente /lots → /insumos com tipo='controle'.
 // Resolve a duplicação de modelo identificada na auditoria 2026-04-27.
 // Mantém /lots intacto como backup. SuperAdmin-only.
-export { triggerLotsMigration } from './modules/lotsMigration/index';
+// export { triggerLotsMigration } from './modules/lotsMigration/index';
 
 // ─── equipamentos module (Fase D — 2026-04-21) ───────────────────────────────
 // Note: Legacy equipment migration (Setups → Equipamentos) handled in backfill phase
@@ -70,10 +70,12 @@ export { triggerLotsMigration } from './modules/lotsMigration/index';
 // AUTORIZADA explicitamente para período de testes 2026-04-22. Snapshot
 // reversível em `temp/superadmin-grant/snapshots`.
 export { provisionModulesClaims } from './modules/admin/provisionModulesClaims';
+/*
 export {
   grantTemporarySuperAdminToAll,
   revokeTemporarySuperAdmin,
 } from './modules/admin/temporarySuperAdmin';
+*/
 
 // ─── audit module (ADR 0005 — cryptoAudit helper) ───────────────────────────
 // Centralizes HMAC-SHA256 + chain-hash validation. Resolves V-009 duplication.

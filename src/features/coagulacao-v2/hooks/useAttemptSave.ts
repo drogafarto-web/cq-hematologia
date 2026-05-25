@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useActiveLab } from '../../../store/useAuthStore';
-import { useCoagSignature } from '../../coagulacao/hooks/useCoagSignature';
+import { useCoagSignature, canonicalizeCoagResultados } from '../../coagulacao/hooks/useCoagSignature';
+import type { CoagSignaturePayload } from '../../coagulacao/hooks/useCoagSignature';
 import { computeCoagWestgard } from '../../coagulacao/hooks/useCoagWestgard';
 import { saveAttempt } from '../services/attemptService';
 import { buildAttemptSignaturePayload } from '../hooks/internal/buildSignaturePayload';
@@ -18,7 +19,7 @@ interface UseAttemptSaveResult {
 export function useAttemptSave(labId: string): UseAttemptSaveResult {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { signPayload } = useCoagSignature();
+  const { sign } = useCoagSignature();
 
   const save = useCallback(
     async (data: AttemptInput): Promise<Attempt> => {
@@ -26,13 +27,11 @@ export function useAttemptSave(labId: string): UseAttemptSaveResult {
       setError(null);
 
       try {
-        // 1 — Ler ControlOperacional (validação)
         const controle = await getControlOperacional(labId, data.controlOperacionalId);
         if (!controle || controle.status !== 'ativo') {
           throw new Error('Controle operacional não encontrado ou inativo');
         }
 
-        // 2 — Validar input
         if (!data.resultados || Object.keys(data.resultados).length === 0) {
           throw new Error('Pelo menos um resultado deve ser informado');
         }
@@ -40,27 +39,22 @@ export function useAttemptSave(labId: string): UseAttemptSaveResult {
           if (typeof v !== 'number' || v <= 0) throw new Error('Resultados devem ser números positivos');
         }
 
-        // 3 — Obter tentativas históricas para Westgard
         const { listAttempts } = await import('../services/attemptService');
         const historico = await listAttempts(labId, {
           controlOperacionalId: data.controlOperacionalId,
           limit: 10,
         });
 
-        // 4 — Simular tentativa atual para Westgard
         const simulatedRun = {
           id: '__simulated__',
           resultados: data.resultados,
           dataRealizacao: new Date().toISOString().split('T')[0],
         };
 
-        // 5 — Rodar Westgard
         const westgardResult = computeCoagWestgard(
           [...historico, simulatedRun] as any,
           controle.nivel,
           controle.validadeControle,
-          controle.mean,
-          controle.sd,
         );
 
         const currentViolations = westgardResult.byRun.get('__simulated__');
@@ -68,12 +62,10 @@ export function useAttemptSave(labId: string): UseAttemptSaveResult {
         const violacoes = currentViolations?.allViolations ?? [];
         const analitosComViolacao = currentViolations?.analitosComViolacao ?? [];
 
-        // 6 — Validar ação corretiva para tentativas não conformes
         if (conformidade === 'R' && !data.acaoCorretiva) {
           throw new Error('Ação corretiva é obrigatória para resultados não conformes');
         }
 
-        // 7 — Build snapshots
         const { buildInsumoSnapshot } = await import('../../insumos/types/InsumoSnapshot');
         const { buildEquipamentoSnapshot } = await import('../../equipamentos/types/Equipamento');
 
@@ -87,20 +79,20 @@ export function useAttemptSave(labId: string): UseAttemptSaveResult {
           equipamento: equipamentoSnapshot,
         };
 
-        // 8 — Build logicalSignature
-        const payload = buildAttemptSignaturePayload(
-          '',
-          data.controlOperacionalId,
-          data.resultados,
-          new Date().toISOString().split('T')[0],
-        );
-        const logicalSignature = await signPayload(payload);
+        const signPayload: CoagSignaturePayload = {
+          operatorDocument: '',
+          lotId: data.controlOperacionalId,
+          nivel: controle.nivel,
+          loteControle: controle.loteControle,
+          resultadosCanonical: canonicalizeCoagResultados(data.resultados),
+          dataRealizacao: new Date().toISOString().split('T')[0],
+        };
+        const signed = await sign(signPayload);
 
-        // 9 — Persistir
         const attempt = await saveAttempt(
           labId,
           '',
-          '',
+          signed.signedBy,
           {
             ...data,
             conformidade,
@@ -108,7 +100,7 @@ export function useAttemptSave(labId: string): UseAttemptSaveResult {
             analitosComViolacao,
             snapshot,
             overrides: { insumoVencido: false, qcNaoValidado: false, motivo: null },
-            logicalSignature,
+            logicalSignature: signed.logicalSignature,
           },
         );
 

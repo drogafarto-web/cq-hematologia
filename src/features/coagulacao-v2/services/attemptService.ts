@@ -10,6 +10,7 @@ import {
   limit,
   serverTimestamp,
 } from 'firebase/firestore';
+import type { Timestamp } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
 import type { Attempt, AttemptInput } from '../types/Attempt';
 
@@ -19,7 +20,7 @@ const COLLECTION = (labId: string) =>
 export async function saveAttempt(
   labId: string,
   operatorId: string,
-  operatorDoc: string,
+  operatorUid: string,
   data: AttemptInput & {
     conformidade: 'A' | 'R';
     violacoes: Attempt['violacoes'];
@@ -31,22 +32,24 @@ export async function saveAttempt(
 ): Promise<Attempt> {
   const docRef = await addDoc(COLLECTION(labId), {
     ...data,
+    acaoCorretiva: data.acaoCorretiva ?? null,
     labId,
     dataRealizacao: new Date().toISOString().split('T')[0],
-    signedBy: operatorId,
+    signedBy: operatorUid,
     signedAt: serverTimestamp(),
     criadoEm: serverTimestamp(),
-    criadoPor: operatorId,
+    criadoPor: operatorUid,
   });
   return {
     ...data,
+    acaoCorretiva: data.acaoCorretiva ?? null,
     id: docRef.id,
     labId,
     dataRealizacao: new Date().toISOString().split('T')[0],
-    signedBy: operatorId,
+    signedBy: operatorUid,
     signedAt: null as unknown as Timestamp,
     criadoEm: null as unknown as Timestamp,
-    criadoPor: operatorId,
+    criadoPor: operatorUid,
   };
 }
 
@@ -67,13 +70,14 @@ export async function listAttempts(
     conformidade?: 'A' | 'R';
   },
 ): Promise<Attempt[]> {
-  const constraints: any[] = [orderBy('criadoEm', 'desc')];
+  const constraints: any[] = [];
   if (options?.controlOperacionalId) {
-    constraints.unshift(where('controlOperacionalId', '==', options.controlOperacionalId));
+    constraints.push(where('controlOperacionalId', '==', options.controlOperacionalId));
   }
   if (options?.conformidade) {
-    constraints.unshift(where('conformidade', '==', options.conformidade));
+    constraints.push(where('conformidade', '==', options.conformidade));
   }
+  constraints.push(orderBy('criadoEm', 'desc'));
   constraints.push(limit(options?.limit ?? 50));
   const snap = await getDocs(query(COLLECTION(labId), ...constraints));
   return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Attempt));

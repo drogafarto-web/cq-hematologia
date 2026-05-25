@@ -1,8 +1,6 @@
 import {
   collection,
-  doc,
   addDoc,
-  getDoc,
   getDocs,
   query,
   where,
@@ -10,6 +8,7 @@ import {
   limit,
   serverTimestamp,
 } from 'firebase/firestore';
+import type { Timestamp } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
 import type { RTAction, RTActionInput } from '../types/RTAction';
 import { updateControlOperacional } from './controlOperacionalService';
@@ -22,9 +21,6 @@ export async function createRTAction(
   rtUid: string,
   data: RTActionInput,
 ): Promise<RTAction> {
-  const now = new Date();
-  const dataRealizacao = now.toISOString().split('T')[0];
-
   let targetRef: RTAction['targetRef'];
   if (data.tipo === 'notificar_notivisa') {
     targetRef = { type: 'Attempt', id: data.attemptId };
@@ -61,26 +57,24 @@ export async function listRTActionsByTarget(
   labId: string,
   targetRef: { type: 'ControlOperacional' | 'Attempt'; id: string },
 ): Promise<RTAction[]> {
-  const q = query(
-    COLLECTION(labId),
+  const constraints: any[] = [
     where('targetRef.type', '==', targetRef.type),
     where('targetRef.id', '==', targetRef.id),
     orderBy('criadoEm', 'desc'),
     limit(50),
-  );
-  const snap = await getDocs(q);
+  ];
+  const snap = await getDocs(query(COLLECTION(labId), ...constraints));
   return snap.docs.map((d) => ({ id: d.id, ...d.data() } as RTAction));
 }
 
 export async function listNotivisaPendentes(
   labId: string,
 ): Promise<RTAction[]> {
-  const q = query(
-    COLLECTION(labId),
+  const constraints: any[] = [
     where('tipo', '==', 'notificar_notivisa'),
     orderBy('criadoEm', 'desc'),
     limit(50),
-  );
-  const snap = await getDocs(q);
+  ];
+  const snap = await getDocs(query(COLLECTION(labId), ...constraints));
   return snap.docs.map((d) => ({ id: d.id, ...d.data() } as RTAction));
 }

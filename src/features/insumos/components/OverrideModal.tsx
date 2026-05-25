@@ -21,7 +21,7 @@ export interface OverrideContext {
   /** Lista de bloqueios que dispararam o override. Múltiplos são possíveis
    *  (ex: reagente vencido + controle com QC pendente). */
   bloqueios: Array<{
-    slot: 'reagente' | 'controle' | 'tira';
+    slot: 'reagente' | 'reagenteTtpa' | 'controle' | 'tira';
     insumoId: string;
     insumoNome: string;
     lote: string;
