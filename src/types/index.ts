@@ -449,7 +449,9 @@ export type View =
   | 'lab-apoio'
   | 'pre-pos-analitico'
   | 'tratamento-nc'
-  | 'auditoria-geral';
+  | 'auditoria-geral'
+  | 'coagulacao-v2'
+  | 'coagulacao-v2-rt';
 
 // ─── Traceability ─────────────────────────────────────────────────────────────
 

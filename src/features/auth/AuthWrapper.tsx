@@ -94,6 +94,11 @@ const NCView = React.lazy(() =>
 // Auditoria Geral — 57 indicadores RDC 978/2025
 const AuditoriaGeralView = React.lazy(() => import('../auditoria-geral'));
 
+// Coagulação v2 (Wave D+E)
+const CoagulacaoV2View = React.lazy(() =>
+  import('../coagulacao-v2/components/CoagulacaoV2View').then((m) => ({ default: m.CoagulacaoV2View })),
+);
+
 import { useBrowserHistorySync } from '../../shared/hooks/useBrowserHistorySync';
 
 // ─── Full-screen loader ───────────────────────────────────────────────────────
@@ -324,6 +329,21 @@ function AppRouter() {
     view = (
       <React.Suspense fallback={<FullScreenLoader />}>
         <LabApoioView />
+      </React.Suspense>
+    );
+  } else if (currentView === 'coagulacao-v2') {
+    view = (
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <CoagulacaoV2View />
+      </React.Suspense>
+    );
+  } else if (currentView === 'coagulacao-v2-rt') {
+    const RTPanel = React.lazy(() =>
+      import('../coagulacao-v2/components/RTPanel').then((m) => ({ default: m.RTPanel })),
+    );
+    view = (
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <RTPanel />
       </React.Suspense>
     );
   } else if (currentView === 'pre-pos-analitico') {
