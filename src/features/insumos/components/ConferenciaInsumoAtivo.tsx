@@ -25,6 +25,7 @@ import { validadeStatus, diasAteVencer } from '../utils/validadeReal';
 import { evaluateInsumoUsability } from '../utils/insumoUsability';
 import { insumoCobreEquipamento } from '../types/Insumo';
 import type { Insumo, InsumoModulo } from '../types/Insumo';
+import type { EquipmentSetupSlot } from '../types/EquipmentSetup';
 
 interface ConferenciaInsumoAtivoProps {
   module: InsumoModulo;
@@ -90,18 +91,40 @@ function SlotLine({
   label,
   insumo,
   required,
+  alternativas,
+  onTrocar,
 }: {
   label: string;
   insumo: Insumo | null;
   required: boolean;
+  alternativas?: Insumo[];
+  onTrocar?: (insumoId: string) => void;
 }) {
+  const [swapping, setSwapping] = useState(false);
+  const [selId, setSelId] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const podeTrocar = insumo && alternativas && alternativas.length > 0 && onTrocar;
+
+  const handleSwap = async () => {
+    if (!selId || !onTrocar) return;
+    setSaving(true);
+    try {
+      await onTrocar(selId);
+      setSwapping(false);
+      setSelId('');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <li className="flex items-center gap-3 py-2.5 px-3 rounded-lg bg-slate-50/70 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.05]">
       <div className="shrink-0 w-20 text-[11px] uppercase tracking-wider text-slate-500 dark:text-white/40 font-semibold">
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </div>
-      <div className="flex-1 min-w-0">
+      <div className={`flex-1 min-w-0 ${swapping ? 'hidden' : ''}`}>
         {insumo ? (
           <>
             <p className="text-sm font-medium text-slate-900 dark:text-white/85 truncate">
@@ -118,7 +141,47 @@ function SlotLine({
           </p>
         )}
       </div>
+      {swapping && (
+        <div className="flex-1 flex items-center gap-2 min-w-0">
+          <select
+            value={selId}
+            onChange={(e) => setSelId(e.target.value)}
+            className="flex-1 px-2 py-1 rounded-md text-xs bg-white dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.09] text-slate-900 dark:text-white/90"
+          >
+            <option value="">Selecione…</option>
+            {alternativas?.map((i) => (
+              <option key={i.id} value={i.id}>
+                {i.nomeComercial} · Lote {i.lote} · {i.fabricante}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={handleSwap}
+            disabled={!selId || saving}
+            className="px-2.5 py-1 rounded text-[10px] font-semibold text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-40 transition-colors"
+          >
+            {saving ? '…' : 'OK'}
+          </button>
+          <button
+            type="button"
+            onClick={() => { setSwapping(false); setSelId(''); }}
+            className="px-2 py-1 rounded text-[10px] text-slate-500 hover:text-slate-700 dark:text-white/40 dark:hover:text-white/60"
+          >
+            ✕
+          </button>
+        </div>
+      )}
       <div className="shrink-0">{insumoBadge(insumo)}</div>
+      {podeTrocar && !swapping && (
+        <button
+          type="button"
+          onClick={() => setSwapping(true)}
+          className="shrink-0 text-[10px] font-medium text-violet-600 dark:text-violet-400 hover:underline px-1"
+        >
+          Trocar
+        </button>
+      )}
     </li>
   );
 }
@@ -374,6 +437,9 @@ export function ConferenciaInsumoAtivo({
   onConfirmedChange,
   onConfigurarSetup,
 }: ConferenciaInsumoAtivoProps) {
+  const activeLab = useActiveLab();
+  const user = useUser();
+
   // Fase D: se equipamentoId fornecido, usa como docId do setup. Caso contrário
   // mantém o docId legado (= module) — comportamento pré-Fase D preservado.
   // Fallback pro module quando o doc do equipamento não existe (migração Fase A→D).
@@ -394,6 +460,36 @@ export function ConferenciaInsumoAtivo({
   const reagenteTtpa = setup?.activeReagenteTtpaId ? byId.get(setup.activeReagenteTtpaId) ?? null : null;
   const controle = setup?.activeControleId ? byId.get(setup.activeControleId) ?? null : null;
   const tira = setup?.activeTiraUroId ? byId.get(setup.activeTiraUroId) ?? null : null;
+
+  // Alternativas para troca inline — insumos ativos do mesmo tipo excluindo o atual
+  const alternativasReagente = useMemo(
+    () => allAtivos.filter((i) => i.tipo === 'reagente' && i.modulo === module && i.id !== setup?.activeReagenteId),
+    [allAtivos, module, setup?.activeReagenteId],
+  );
+  const alternativasReagenteTtpa = useMemo(
+    () => allAtivos.filter((i) => i.tipo === 'reagente' && i.modulo === module && i.id !== setup?.activeReagenteTtpaId),
+    [allAtivos, module, setup?.activeReagenteTtpaId],
+  );
+  const alternativasControle = useMemo(
+    () => allAtivos.filter((i) => i.tipo === 'controle' && i.modulo === module && i.id !== setup?.activeControleId),
+    [allAtivos, module, setup?.activeControleId],
+  );
+  const alternativasTira = useMemo(
+    () => allAtivos.filter((i) => i.tipo === 'tira-uro' && i.modulo === module && i.id !== setup?.activeTiraUroId),
+    [allAtivos, module, setup?.activeTiraUroId],
+  );
+
+  const handleTrocar = (slot: EquipmentSetupSlot) => async (novoInsumoId: string) => {
+    if (!activeLab || !user) return;
+    await setActiveInsumo(activeLab.id, {
+      module,
+      slot,
+      newInsumoId: novoInsumoId,
+      operadorId: user.uid,
+      operadorName: user.displayName ?? user.email ?? 'Operador',
+      equipamentoId: equipamentoId ?? undefined,
+    });
+  };
 
   const equipamento =
     setup?.equipamentoName ?? DEFAULT_EQUIPAMENTO_POR_MODULO[module]?.name ?? module;
@@ -439,16 +535,40 @@ export function ConferenciaInsumoAtivo({
 
       <ul className="space-y-1.5 mb-3">
         {requiredSlots.reagente !== undefined && (
-          <SlotLine label={module === 'coagulacao' ? "Reagente TP" : "Reagente"} insumo={reagente} required={!!requiredSlots.reagente} />
+          <SlotLine
+            label={module === 'coagulacao' ? "Reagente TP" : "Reagente"}
+            insumo={reagente}
+            required={!!requiredSlots.reagente}
+            alternativas={alternativasReagente}
+            onTrocar={handleTrocar('activeReagenteId')}
+          />
         )}
         {requiredSlots.reagenteTtpa !== undefined && (
-          <SlotLine label="Reagente TTPA" insumo={reagenteTtpa} required={!!requiredSlots.reagenteTtpa} />
+          <SlotLine
+            label="Reagente TTPA"
+            insumo={reagenteTtpa}
+            required={!!requiredSlots.reagenteTtpa}
+            alternativas={alternativasReagenteTtpa}
+            onTrocar={handleTrocar('activeReagenteTtpaId')}
+          />
         )}
         {requiredSlots.controle !== undefined && (
-          <SlotLine label="Controle" insumo={controle} required={!!requiredSlots.controle} />
+          <SlotLine
+            label="Controle"
+            insumo={controle}
+            required={!!requiredSlots.controle}
+            alternativas={alternativasControle}
+            onTrocar={handleTrocar('activeControleId')}
+          />
         )}
         {requiredSlots.tira !== undefined && (
-          <SlotLine label="Tira" insumo={tira} required={!!requiredSlots.tira} />
+          <SlotLine
+            label="Tira"
+            insumo={tira}
+            required={!!requiredSlots.tira}
+            alternativas={alternativasTira}
+            onTrocar={handleTrocar('activeTiraUroId')}
+          />
         )}
       </ul>
 

@@ -83,10 +83,10 @@ function FieldError({ msg }: { msg?: string }) {
 function SectionTitle({ children, hint }: { children: React.ReactNode; hint?: string }) {
   return (
     <div className="mb-3 flex items-baseline justify-between">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-white/30">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-white/45">
         {children}
       </p>
-      {hint && <p className="text-[10px] text-slate-400 dark:text-white/25">{hint}</p>}
+      {hint && <p className="text-[10px] text-slate-500 dark:text-white/45">{hint}</p>}
     </div>
   );
 }
@@ -167,7 +167,7 @@ function RangeBadge({ outOfRange }: { outOfRange: CoagAnalyteId[] }) {
         >
           {conforme ? 'Resultados dentro do intervalo' : 'Valores fora do intervalo do fabricante'}
         </p>
-        <p className="text-[10px] text-slate-400 dark:text-white/30 mt-0.5">
+        <p className="text-[10px] text-slate-500 dark:text-white/45 mt-0.5">
           {conforme
             ? 'Westgard será avaliado no momento do registro com o histórico do lote.'
             : `${outOfRange.length} analito${outOfRange.length !== 1 ? 's' : ''} fora do low/high — ação corretiva obrigatória.`}
@@ -485,7 +485,7 @@ export function CoagulacaoForm({
               <p className="text-sm font-medium text-slate-800 dark:text-white/80 truncate">
                 {user?.displayName ?? user?.email ?? 'Operador'}
               </p>
-              <p className="text-[10px] text-slate-400 dark:text-white/30 mt-0.5">
+              <p className="text-[10px] text-slate-500 dark:text-white/45 mt-0.5">
                 Data e hora registradas automaticamente ao salvar
               </p>
             </div>
@@ -744,7 +744,7 @@ export function CoagulacaoForm({
               const baseline = cfg.levels[form.nivel ?? 'I'];
               return (
                 <div key={analyteId} className="rounded-lg border border-slate-100 dark:border-white/[0.04] bg-white dark:bg-[#080B10] p-3 space-y-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-white/30">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-white/45">
                     {cfg.label}
                   </p>
                   <div className="grid grid-cols-2 gap-2">
@@ -974,10 +974,10 @@ export function CoagulacaoForm({
             return (
               <div key={id} className="grid grid-cols-[1fr_120px_90px] gap-3 items-start">
                 <div className="pt-2.5">
-                  <p className="text-sm font-medium text-slate-700 dark:text-white/75">
+                  <p className="text-sm font-medium text-slate-800 dark:text-white/85">
                     {cfg.label}
                   </p>
-                  <p className="text-[10px] text-slate-400 dark:text-white/25 mt-0.5">{hint}</p>
+                  <p className="text-[10px] text-slate-500 dark:text-white/50 mt-0.5">{hint}</p>
                 </div>
                 <div>
                   <input
@@ -992,7 +992,7 @@ export function CoagulacaoForm({
                   />
                   <FieldError msg={errMsg} />
                 </div>
-                <div className="pt-2.5 text-xs text-slate-400 dark:text-white/30 truncate">
+                <div className="pt-2.5 text-xs text-slate-500 dark:text-white/50 truncate">
                   {baseline?.unit ?? '—'}
                 </div>
               </div>

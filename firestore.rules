@@ -278,6 +278,13 @@ service cloud.firestore {
         allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
         allow delete: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+
+        match /runs/{runId} {
+          allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+          allow delete: if isSuperAdmin() ||
+            (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
+        }
       }
 
       match /equipment-setups/{module} {

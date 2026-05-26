@@ -52,6 +52,16 @@ Sistema CIQ (Controle Interno de Qualidade) laboratorial em produção: **https:
 | Package manager | npm |
 | Compliance | RDC 978 ANVISA + DICQ + LGPD |
 
+### 🚀 Projetos Satélites Ativos (Espaço Viva)
+
+Gerenciados no mesmo ecossistema de desenvolvimento e publicação:
+
+* **espacoviva-planos-experimento:** Landing page de rascunho do modelo de negócios da Musculação Premium ([Site Oficial](https://espacoviva-planos-experimento.netlify.app)).
+  * *Localização:* `C:\hc quality\espacoviva-planos-experimento\`
+  * *Deploy/Publicação:* Vinculado ao Netlify ID `472c3563-e745-426a-8738-fc6aeb37d036`. Para atualizar em produção, execute `netlify deploy --prod` dentro da pasta.
+* **espaco-viva:** Website institucional ([meuespacoviva.com.br](https://meuespacoviva.com.br)), vinculado ao repositório GitHub `drogafarto-web/viva-espaco-flow`.
+* **espacoviva:** Servidor Debian de áudio 24/7 (instalado em hardware Mac mini local na academia) e painel local, vinculado ao repositório `espacoviva-deploy`.
+
 ---
 
 ## 3. Guardrails inegociáveis
