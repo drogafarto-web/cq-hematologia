@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useAppStore } from '../../../store/useAppStore';
 import { useInsumosList } from '../hooks/useInsumosList';
 import { useEquipamentosList } from '../hooks/useEquipamentosList';
 import {
@@ -50,6 +51,7 @@ const STATUS_LABEL: Record<ControlOperacional['status'], string> = {
 };
 
 export function ControlHub({ labId }: ControlHubProps) {
+  const setCurrentView = useAppStore((s) => s.setCurrentView);
   const { insumos, loading: insumosLoading } = useInsumosList(labId);
   const { equipamentos, loading: equipamentosLoading } = useEquipamentosList(labId);
 
@@ -207,7 +209,10 @@ export function ControlHub({ labId }: ControlHubProps) {
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-[var(--cl-text-muted)]">Insumo (reagente)</label>
+                <div className="mb-1 flex items-center justify-between">
+                  <label className="text-xs font-medium uppercase tracking-wider text-[var(--cl-text-muted)]">Insumo (reagente)</label>
+                  <button type="button" onClick={() => setCurrentView('insumos')} className="text-[10px] text-[var(--cl-accent)] hover:underline">+ novo lote</button>
+                </div>
                 {insumosLoading ? (
                   <div className="py-2 text-xs text-[var(--cl-text-faint)]">Carregando...</div>
                 ) : (
@@ -228,7 +233,10 @@ export function ControlHub({ labId }: ControlHubProps) {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-[var(--cl-text-muted)]">Equipamento</label>
+              <div className="mb-1 flex items-center justify-between">
+                <label className="text-xs font-medium uppercase tracking-wider text-[var(--cl-text-muted)]">Equipamento</label>
+                <button type="button" onClick={() => setCurrentView('equipamentos')} className="text-[10px] text-[var(--cl-accent)] hover:underline">+ novo aparelho</button>
+              </div>
               {equipamentosLoading ? (
                 <div className="py-2 text-xs text-[var(--cl-text-faint)]">Carregando...</div>
               ) : (
