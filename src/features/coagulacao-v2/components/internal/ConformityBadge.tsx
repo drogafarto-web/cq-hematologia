@@ -7,8 +7,8 @@ export function ConformityBadge({ isConforme }: ConformityBadgeProps) {
     <div
       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm ${
         isConforme
-          ? 'bg-emerald-500/10 text-emerald-400'
-          : 'bg-red-500/10 text-red-400'
+          ? 'bg-[var(--cl-success-bg)] text-[var(--cl-success)]'
+          : 'bg-[var(--cl-danger-bg)] text-[var(--cl-danger)]'
       }`}
     >
       <span>{isConforme ? '✓' : '✕'}</span>

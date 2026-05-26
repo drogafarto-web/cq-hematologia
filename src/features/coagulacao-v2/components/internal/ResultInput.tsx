@@ -8,19 +8,27 @@ interface ResultInputProps {
 
 export function ResultInput({ label, value, unit, expectedRange, onChange }: ResultInputProps) {
   return (
-    <div className="flex items-center gap-4">
-      <label className="w-48 text-sm text-zinc-300">{label}</label>
-      <div className="flex items-center gap-2">
+    <div className="flex items-baseline gap-6 border-b border-[var(--cl-border)] py-4">
+      <label className="w-56 text-base font-medium text-[var(--cl-text-body)]">
+        {label}
+      </label>
+
+      <div className="flex items-baseline gap-2">
         <input
           type="number"
           step="any"
           value={value ?? ''}
           onChange={(e) => onChange(e.target.value ? Number(e.target.value) : undefined)}
-          className="w-24 rounded border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-right text-sm text-white focus:border-amber-500 focus:outline-none"
+          className="w-32 border-b border-transparent bg-transparent text-right font-mono text-3xl tabular-nums text-[var(--cl-text-strong)] placeholder-[var(--cl-text-faint)] focus:border-[var(--cl-border-focus)] focus:outline-none"
+          placeholder="—"
+          autoComplete="off"
         />
-        <span className="text-sm text-zinc-500">{unit}</span>
+        {unit && <span className="text-base text-[var(--cl-text-muted)]">{unit}</span>}
       </div>
-      <span className="text-xs text-zinc-600">esperado: {expectedRange}</span>
+
+      <div className="ml-auto flex items-baseline gap-2 text-sm text-[var(--cl-text-faint)]">
+        <span className="tabular-nums">{expectedRange}</span>
+      </div>
     </div>
   );
 }

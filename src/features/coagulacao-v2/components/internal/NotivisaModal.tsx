@@ -17,19 +17,19 @@ export function NotivisaModal({ isSaving, onConfirm, onClose }: NotivisaModalPro
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="w-full max-w-md rounded-lg border border-zinc-700 bg-zinc-900 p-6">
-        <h3 className="mb-2 text-base font-medium text-white">NOTIVISA — Tecnovigilância</h3>
-        <p className="mb-4 text-sm text-zinc-400">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card-elevated)] p-6 shadow-xl">
+        <h3 className="mb-2 text-base font-medium text-[var(--cl-text-strong)]">NOTIVISA — Tecnovigilância</h3>
+        <p className="mb-4 text-sm text-[var(--cl-text-muted)]">
           Notificar a ANVISA sobre evento adverso ou queixa técnica relacionada a esta tentativa.
         </p>
 
         <div className="mb-4">
-          <label className="mb-1 block text-sm text-zinc-400">Tipo de notificação</label>
+          <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-[var(--cl-text-muted)]">Tipo de notificação</label>
           <select
             value={tipo}
             onChange={(e) => setTipo(e.target.value as typeof tipo)}
-            className="w-full rounded border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white focus:border-amber-500 focus:outline-none"
+            className="w-full rounded border border-[var(--cl-border)] bg-[var(--cl-input)] px-3 py-2.5 text-sm text-[var(--cl-text-strong)] focus:border-[var(--cl-border-focus)] focus:outline-none"
           >
             <option value="queixa_tecnica">Queixa técnica</option>
             <option value="evento_adverso">Evento adverso</option>
@@ -41,7 +41,7 @@ export function NotivisaModal({ isSaving, onConfirm, onClose }: NotivisaModalPro
           onChange={(e) => setMotivo(e.target.value)}
           rows={3}
           placeholder="Descreva o motivo da notificação (mín. 20 caracteres)"
-          className="mb-4 w-full rounded border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-600 focus:border-amber-500 focus:outline-none"
+          className="mb-4 w-full rounded border border-[var(--cl-border)] bg-[var(--cl-input)] px-3 py-2.5 text-sm text-[var(--cl-text-strong)] placeholder-[var(--cl-text-faint)] focus:border-[var(--cl-border-focus)] focus:outline-none"
         />
 
         <div className="flex justify-end gap-3">
@@ -49,7 +49,7 @@ export function NotivisaModal({ isSaving, onConfirm, onClose }: NotivisaModalPro
             type="button"
             onClick={onClose}
             disabled={isSaving}
-            className="rounded border border-zinc-700 px-4 py-2 text-sm text-zinc-400 hover:bg-zinc-800"
+            className="rounded border border-[var(--cl-border)] px-4 py-2 text-sm text-[var(--cl-text-muted)] hover:bg-[var(--cl-card)]"
           >
             Cancelar
           </button>
@@ -57,7 +57,7 @@ export function NotivisaModal({ isSaving, onConfirm, onClose }: NotivisaModalPro
             type="button"
             onClick={handleSubmit}
             disabled={isSaving || motivo.trim().length < 20}
-            className="rounded bg-amber-600 px-4 py-2 text-sm font-medium text-black hover:bg-amber-500 disabled:opacity-50"
+            className="rounded bg-[var(--cl-accent)] px-4 py-2 text-sm font-medium text-[var(--cl-accent-text)] hover:bg-[var(--cl-accent-hover)] disabled:opacity-50"
           >
             {isSaving ? 'Notificando...' : 'Notificar ANVISA'}
           </button>

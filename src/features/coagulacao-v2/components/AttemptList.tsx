@@ -14,11 +14,11 @@ export function AttemptList({ labId, onAprovar, onRejeitar, onNotivisa }: Attemp
   const { attempts, isLoading } = useAttempts(labId);
 
   if (isLoading) {
-    return <div className="py-8 text-center text-sm text-zinc-500">Carregando...</div>;
+    return <div className="py-8 text-center text-sm text-[var(--cl-text-muted)]">Carregando...</div>;
   }
 
   if (attempts.length === 0) {
-    return <div className="py-8 text-center text-sm text-zinc-600">Nenhuma tentativa registrada</div>;
+    return <div className="py-8 text-center text-sm text-[var(--cl-text-faint)]">Nenhuma tentativa registrada</div>;
   }
 
   return (
@@ -26,12 +26,12 @@ export function AttemptList({ labId, onAprovar, onRejeitar, onNotivisa }: Attemp
       {attempts.map((att) => (
         <div
           key={att.id}
-          className="flex items-center justify-between rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3"
+          className="flex items-center justify-between rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)] px-4 py-3"
         >
           <div className="flex items-center gap-4">
-            <span className="text-sm text-zinc-500">#{att.id.slice(0, 6)}</span>
-            <span className="text-sm text-zinc-300">{att.controlOperacionalId}</span>
-            <div className="flex gap-3 text-xs text-zinc-400">
+            <span className="font-mono text-sm text-[var(--cl-text-faint)]">#{att.id.slice(0, 6)}</span>
+            <span className="text-sm text-[var(--cl-text-body)]">{att.controlOperacionalId}</span>
+            <div className="flex gap-3 font-mono text-xs tabular-nums text-[var(--cl-text-muted)]">
               <span>AP {att.resultados.atividadeProtrombinica}%</span>
               <span>RNI {att.resultados.rni}</span>
               <span>TTPA {att.resultados.ttpa}s</span>
@@ -42,21 +42,21 @@ export function AttemptList({ labId, onAprovar, onRejeitar, onNotivisa }: Attemp
             <button
               type="button"
               onClick={() => onAprovar(att)}
-              className="rounded bg-emerald-600/20 px-3 py-1 text-xs text-emerald-400 hover:bg-emerald-600/30"
+              className="rounded bg-[var(--cl-success-bg)] px-3 py-1 text-xs text-[var(--cl-success)] hover:opacity-80"
             >
               Aprovar
             </button>
             <button
               type="button"
               onClick={() => onRejeitar(att)}
-              className="rounded bg-red-600/20 px-3 py-1 text-xs text-red-400 hover:bg-red-600/30"
+              className="rounded bg-[var(--cl-danger-bg)] px-3 py-1 text-xs text-[var(--cl-danger)] hover:opacity-80"
             >
               Rejeitar
             </button>
             <button
               type="button"
               onClick={() => onNotivisa(att)}
-              className="rounded bg-amber-600/20 px-3 py-1 text-xs text-amber-400 hover:bg-amber-600/30"
+              className="rounded bg-[var(--cl-accent-muted)] px-3 py-1 text-xs text-[var(--cl-accent)] hover:opacity-80"
             >
               NOTIVISA
             </button>

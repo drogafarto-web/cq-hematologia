@@ -60,22 +60,22 @@ export function RTPanel() {
   return (
     <div className="space-y-6">
       <div className="flex gap-4">
-        <div className="flex-1 rounded-lg border border-zinc-700 bg-zinc-900 p-4 text-center">
-          <p className="text-2xl font-semibold text-white">{kpis.total}</p>
-          <p className="text-xs text-zinc-500">tentativas</p>
+        <div className="flex-1 rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)] p-4 text-center">
+          <p className="text-2xl font-semibold tabular-nums text-[var(--cl-text-strong)]">{kpis.total}</p>
+          <p className="text-xs text-[var(--cl-text-muted)]">tentativas</p>
         </div>
-        <div className="flex-1 rounded-lg border border-zinc-700 bg-zinc-900 p-4 text-center">
-          <p className="text-2xl font-semibold text-emerald-400">{pctConforme}%</p>
-          <p className="text-xs text-zinc-500">conformes</p>
+        <div className="flex-1 rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)] p-4 text-center">
+          <p className="text-2xl font-semibold tabular-nums text-[var(--cl-success)]">{pctConforme}%</p>
+          <p className="text-xs text-[var(--cl-text-muted)]">conformes</p>
         </div>
-        <div className="flex-1 rounded-lg border border-zinc-700 bg-zinc-900 p-4 text-center">
-          <p className="text-2xl font-semibold text-red-400">{kpis.rejeitadas}</p>
-          <p className="text-xs text-zinc-500">rejeitadas</p>
+        <div className="flex-1 rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)] p-4 text-center">
+          <p className="text-2xl font-semibold tabular-nums text-[var(--cl-danger)]">{kpis.rejeitadas}</p>
+          <p className="text-xs text-[var(--cl-text-muted)]">rejeitadas</p>
         </div>
       </div>
 
       <div>
-        <h3 className="mb-3 text-sm font-medium text-zinc-300">Tentativas recentes</h3>
+        <h3 className="mb-3 text-sm font-medium text-[var(--cl-text-body)]">Tentativas recentes</h3>
         <AttemptList
           labId={labId}
           onAprovar={(att) => setActionTarget({ type: 'aprovar', attempt: att })}

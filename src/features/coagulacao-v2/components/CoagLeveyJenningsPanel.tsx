@@ -129,7 +129,7 @@ export function CoagLeveyJenningsPanel({ labId, controls }: CoagLeveyJenningsPan
 
   if (isLoading) {
     return (
-      <div className="flex h-24 items-center justify-center text-sm text-zinc-500">
+      <div className="flex h-24 items-center justify-center text-sm text-[var(--cl-text-muted)]">
         Carregando histórico...
       </div>
     );
@@ -143,10 +143,10 @@ export function CoagLeveyJenningsPanel({ labId, controls }: CoagLeveyJenningsPan
         return (
           <div key={nivel} className="space-y-3">
             <div className="flex items-baseline gap-3 px-1">
-              <h2 className="text-sm font-semibold text-zinc-200">
+              <h2 className="text-sm font-semibold text-[var(--cl-text-strong)]">
                 Nível {nivel}
               </h2>
-              <span className="text-xs text-zinc-500">
+              <span className="text-xs text-[var(--cl-text-muted)]">
                 {bucket.attempts.length} tentativa{bucket.attempts.length === 1 ? '' : 's'}
                 {bucket.controls.length > 0 && ` · ${bucket.controls.length} controle${bucket.controls.length === 1 ? '' : 's'}`}
               </span>
@@ -163,15 +163,15 @@ export function CoagLeveyJenningsPanel({ labId, controls }: CoagLeveyJenningsPan
                 return (
                   <div
                     key={analyteId}
-                    className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-3"
+                    className="rounded-2xl border border-[var(--cl-border)] bg-[var(--cl-card)] p-3"
                   >
-                    <div className="mb-1 px-1 text-xs font-medium uppercase tracking-wide text-zinc-400">
+                    <div className="mb-1 px-1 text-xs font-medium uppercase tracking-wide text-[var(--cl-text-muted)]">
                       {analyte.name}
                     </div>
                     {chartsByControl.map(({ control, data }) => (
                       <div key={control.id} className="mt-1">
                         {chartsByControl.length > 1 && (
-                          <div className="mb-1 px-1 text-[10px] text-zinc-500">
+                          <div className="mb-1 px-1 text-[10px] text-[var(--cl-text-faint)]">
                             {control.nome}
                           </div>
                         )}
