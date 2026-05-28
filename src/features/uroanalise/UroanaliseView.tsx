@@ -373,15 +373,8 @@ export function UroanaliseView() {
 
   const userName = user?.displayName || user?.email?.split('@')[0] || 'Operador';
 
-  // ?ui=v2 — opt-in preview do redesign (não-disruptivo, zero impacto em produção)
-  const useRedesign = useMemo(() => {
-    if (typeof window === 'undefined') return false;
-    return new URLSearchParams(window.location.search).get('ui') === 'v2';
-  }, []);
-
-  if (useRedesign) {
-    return <UroanaliseRedesignedDemo />;
-  }
+  // Redesign habilitado por padrão em produção (tiro único)
+  return <UroanaliseRedesignedDemo />;
 
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-[#0B0F14] text-slate-900 dark:text-white overflow-hidden">
