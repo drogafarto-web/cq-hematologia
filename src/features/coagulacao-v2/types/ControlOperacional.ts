@@ -12,6 +12,8 @@ export interface ControlOperacional {
   equipamentoId: string;
   mean: Record<CoagAnalyteId, number>;
   sd: Record<CoagAnalyteId, number>;
+  low?: Record<CoagAnalyteId, number>;
+  high?: Record<CoagAnalyteId, number>;
   loteControle: string;
   fabricanteControle: string;
   validadeControle: string;

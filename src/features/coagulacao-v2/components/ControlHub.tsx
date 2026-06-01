@@ -27,15 +27,31 @@ const EMPTY_SD: Record<CoagAnalyteId, number> = {
   ttpa: 0,
 };
 
+const EMPTY_LOW: Record<CoagAnalyteId, number> = {
+  atividadeProtrombinica: 0,
+  rni: 0,
+  ttpa: 0,
+};
+
+const EMPTY_HIGH: Record<CoagAnalyteId, number> = {
+  atividadeProtrombinica: 0,
+  rni: 0,
+  ttpa: 0,
+};
+
 function defaultsForLevel(nivel: 'I' | 'II') {
   const mean = { ...EMPTY_MEAN };
   const sd = { ...EMPTY_SD };
+  const low = { ...EMPTY_LOW };
+  const high = { ...EMPTY_HIGH };
   for (const id of COAG_ANALYTE_IDS) {
     const lv = COAG_ANALYTES[id].levels[nivel];
     mean[id] = lv.mean;
     sd[id] = lv.sd;
+    low[id] = lv.low;
+    high[id] = lv.high;
   }
-  return { mean, sd };
+  return { mean, sd, low, high };
 }
 
 const STATUS_BADGE: Record<ControlOperacional['status'], string> = {
@@ -91,6 +107,8 @@ export function ControlHub({ labId }: ControlHubProps) {
   const [sdState, setSdState] = useState<Record<CoagAnalyteId, number>>(
     () => defaultsForLevel('I').sd,
   );
+  const [low, setLow] = useState<Record<CoagAnalyteId, number>>(() => defaultsForLevel('I').low);
+  const [high, setHigh] = useState<Record<CoagAnalyteId, number>>(() => defaultsForLevel('I').high);
 
   function resetForm() {
     setNome('');
@@ -104,6 +122,8 @@ export function ControlHub({ labId }: ControlHubProps) {
     const d = defaultsForLevel('I');
     setMean(d.mean);
     setSdState(d.sd);
+    setLow(d.low);
+    setHigh(d.high);
   }
 
   function handleNivelChange(n: 'I' | 'II') {
@@ -111,6 +131,8 @@ export function ControlHub({ labId }: ControlHubProps) {
     const d = defaultsForLevel(n);
     setMean(d.mean);
     setSdState(d.sd);
+    setLow(d.low);
+    setHigh(d.high);
   }
 
   async function handleCreate() {
@@ -129,6 +151,8 @@ export function ControlHub({ labId }: ControlHubProps) {
         equipamentoId,
         mean,
         sd: sdState,
+        low,
+        high,
         loteControle,
         fabricanteControle,
         validadeControle,
@@ -154,6 +178,10 @@ export function ControlHub({ labId }: ControlHubProps) {
     insumoId: string;
     reagenteTTPAId: string;
     equipamentoId: string;
+    mean: Record<CoagAnalyteId, number>;
+    sd: Record<CoagAnalyteId, number>;
+    low: Record<CoagAnalyteId, number>;
+    high: Record<CoagAnalyteId, number>;
   }>({
     loteControle: '',
     fabricanteControle: '',
@@ -161,6 +189,10 @@ export function ControlHub({ labId }: ControlHubProps) {
     insumoId: '',
     reagenteTTPAId: '',
     equipamentoId: '',
+    mean: { ...EMPTY_MEAN },
+    sd: { ...EMPTY_SD },
+    low: { ...EMPTY_LOW },
+    high: { ...EMPTY_HIGH },
   });
 
   function startEdit(c: ControlOperacional) {
@@ -172,6 +204,10 @@ export function ControlHub({ labId }: ControlHubProps) {
       insumoId: c.insumoId,
       reagenteTTPAId: c.reagenteTTPAId || '',
       equipamentoId: c.equipamentoId,
+      mean: c.mean,
+      sd: c.sd,
+      low: c.low ?? defaultsForLevel(c.nivel).low,
+      high: c.high ?? defaultsForLevel(c.nivel).high,
     });
     setActionMsg(null);
   }
@@ -187,6 +223,10 @@ export function ControlHub({ labId }: ControlHubProps) {
         insumoId: editFields.insumoId,
         reagenteTTPAId: editFields.reagenteTTPAId || undefined,
         equipamentoId: editFields.equipamentoId,
+        mean: editFields.mean,
+        sd: editFields.sd,
+        low: editFields.low,
+        high: editFields.high,
       });
       setActionMsg({ type: 'success', text: 'Controle atualizado.' });
       setEditingId(null);
@@ -412,13 +452,19 @@ export function ControlHub({ labId }: ControlHubProps) {
                 Valores por analito
               </h4>
               <div className="space-y-2 sm:space-y-3">
-                <div className="hidden grid-cols-[1fr_100px_100px] items-center gap-3 pb-1 sm:grid">
+                <div className="hidden grid-cols-[1fr_72px_72px_64px_64px] items-center gap-2 pb-1 sm:grid">
                   <span />
-                  <span className="text-center text-[11px] font-medium uppercase tracking-wider text-[var(--cl-text-faint)]">
+                  <span className="text-center text-[10px] font-medium uppercase tracking-wider text-[var(--cl-text-faint)]">
                     Média
                   </span>
-                  <span className="text-center text-[11px] font-medium uppercase tracking-wider text-[var(--cl-text-faint)]">
-                    Desvio-padrão
+                  <span className="text-center text-[10px] font-medium uppercase tracking-wider text-[var(--cl-text-faint)]">
+                    SD
+                  </span>
+                  <span className="text-center text-[10px] font-medium uppercase tracking-wider text-[var(--cl-text-faint)]">
+                    Mín.
+                  </span>
+                  <span className="text-center text-[10px] font-medium uppercase tracking-wider text-[var(--cl-text-faint)]">
+                    Máx.
                   </span>
                 </div>
                 {COAG_ANALYTE_IDS.map((id) => {
@@ -426,7 +472,7 @@ export function ControlHub({ labId }: ControlHubProps) {
                   return (
                     <div
                       key={id}
-                      className="grid grid-cols-1 items-center gap-2 sm:grid-cols-[1fr_100px_100px] sm:items-center sm:gap-3"
+                      className="grid grid-cols-1 items-center gap-2 sm:grid-cols-[1fr_72px_72px_64px_64px] sm:items-center sm:gap-2"
                     >
                       <span className="text-xs text-[var(--cl-text-muted)]">
                         {cfg.label}
@@ -439,7 +485,7 @@ export function ControlHub({ labId }: ControlHubProps) {
                         onChange={(e) =>
                           setMean((prev) => ({ ...prev, [id]: parseFloat(e.target.value) || 0 }))
                         }
-                        className="w-full rounded border border-[var(--cl-border)] bg-[var(--cl-input)] px-2 py-1.5 text-right font-mono text-sm tabular-nums text-[var(--cl-text-strong)] focus:border-[var(--cl-border-focus)] focus:outline-none sm:px-3 sm:py-2 sm:text-base"
+                        className="w-full rounded border border-[var(--cl-border)] bg-[var(--cl-input)] px-2 py-1.5 text-right font-mono text-xs tabular-nums text-[var(--cl-text-strong)] focus:border-[var(--cl-border-focus)] focus:outline-none sm:text-sm"
                         placeholder="Mean"
                       />
                       <input
@@ -449,8 +495,28 @@ export function ControlHub({ labId }: ControlHubProps) {
                         onChange={(e) =>
                           setSdState((prev) => ({ ...prev, [id]: parseFloat(e.target.value) || 0 }))
                         }
-                        className="w-full rounded border border-[var(--cl-border)] bg-[var(--cl-input)] px-2 py-1.5 text-right font-mono text-sm tabular-nums text-[var(--cl-text-strong)] focus:border-[var(--cl-border-focus)] focus:outline-none sm:px-3 sm:py-2 sm:text-base"
+                        className="w-full rounded border border-[var(--cl-border)] bg-[var(--cl-input)] px-2 py-1.5 text-right font-mono text-xs tabular-nums text-[var(--cl-text-strong)] focus:border-[var(--cl-border-focus)] focus:outline-none sm:text-sm"
                         placeholder="SD"
+                      />
+                      <input
+                        type="number"
+                        step="any"
+                        value={low[id]}
+                        onChange={(e) =>
+                          setLow((prev) => ({ ...prev, [id]: parseFloat(e.target.value) || 0 }))
+                        }
+                        className="w-full rounded border border-[var(--cl-border)] bg-[var(--cl-input)] px-2 py-1.5 text-right font-mono text-xs tabular-nums text-[var(--cl-text-strong)] focus:border-[var(--cl-border-focus)] focus:outline-none sm:text-sm"
+                        placeholder="Mín"
+                      />
+                      <input
+                        type="number"
+                        step="any"
+                        value={high[id]}
+                        onChange={(e) =>
+                          setHigh((prev) => ({ ...prev, [id]: parseFloat(e.target.value) || 0 }))
+                        }
+                        className="w-full rounded border border-[var(--cl-border)] bg-[var(--cl-input)] px-2 py-1.5 text-right font-mono text-xs tabular-nums text-[var(--cl-text-strong)] focus:border-[var(--cl-border-focus)] focus:outline-none sm:text-sm"
+                        placeholder="Máx"
                       />
                     </div>
                   );
@@ -655,6 +721,88 @@ export function ControlHub({ labId }: ControlHubProps) {
                           </option>
                         ))}
                       </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="mb-2 text-xs font-medium uppercase tracking-wider text-[var(--cl-text-muted)]">
+                      Valores por analito
+                    </h4>
+                    <div className="space-y-2 sm:space-y-2.5">
+                      <div className="hidden grid-cols-[1fr_64px_56px_56px_56px] items-center gap-1.5 pb-1 sm:grid">
+                        <span />
+                        <span className="text-center text-[10px] font-medium uppercase tracking-wider text-[var(--cl-text-faint)]">
+                          Média
+                        </span>
+                        <span className="text-center text-[10px] font-medium uppercase tracking-wider text-[var(--cl-text-faint)]">
+                          SD
+                        </span>
+                        <span className="text-center text-[10px] font-medium uppercase tracking-wider text-[var(--cl-text-faint)]">
+                          Mín.
+                        </span>
+                        <span className="text-center text-[10px] font-medium uppercase tracking-wider text-[var(--cl-text-faint)]">
+                          Máx.
+                        </span>
+                      </div>
+                      {COAG_ANALYTE_IDS.map((id) => {
+                        const cfg = COAG_ANALYTES[id];
+                        return (
+                          <div
+                            key={id}
+                            className="grid grid-cols-1 items-center gap-2 sm:grid-cols-[1fr_64px_56px_56px_56px] sm:items-center sm:gap-1.5"
+                          >
+                            <span className="text-xs text-[var(--cl-text-muted)]">{cfg.label}</span>
+                            <input
+                              type="number"
+                              step="any"
+                              value={editFields.mean[id]}
+                              onChange={(e) =>
+                                setEditFields((p) => ({
+                                  ...p,
+                                  mean: { ...p.mean, [id]: parseFloat(e.target.value) || 0 },
+                                }))
+                              }
+                              className="w-full rounded border border-[var(--cl-border)] bg-[var(--cl-input)] px-1.5 py-1 text-right font-mono text-[11px] tabular-nums text-[var(--cl-text-strong)] focus:border-[var(--cl-border-focus)] focus:outline-none sm:text-xs"
+                            />
+                            <input
+                              type="number"
+                              step="any"
+                              value={editFields.sd[id]}
+                              onChange={(e) =>
+                                setEditFields((p) => ({
+                                  ...p,
+                                  sd: { ...p.sd, [id]: parseFloat(e.target.value) || 0 },
+                                }))
+                              }
+                              className="w-full rounded border border-[var(--cl-border)] bg-[var(--cl-input)] px-1.5 py-1 text-right font-mono text-[11px] tabular-nums text-[var(--cl-text-strong)] focus:border-[var(--cl-border-focus)] focus:outline-none sm:text-xs"
+                            />
+                            <input
+                              type="number"
+                              step="any"
+                              value={editFields.low[id]}
+                              onChange={(e) =>
+                                setEditFields((p) => ({
+                                  ...p,
+                                  low: { ...p.low, [id]: parseFloat(e.target.value) || 0 },
+                                }))
+                              }
+                              className="w-full rounded border border-[var(--cl-border)] bg-[var(--cl-input)] px-1.5 py-1 text-right font-mono text-[11px] tabular-nums text-[var(--cl-text-strong)] focus:border-[var(--cl-border-focus)] focus:outline-none sm:text-xs"
+                            />
+                            <input
+                              type="number"
+                              step="any"
+                              value={editFields.high[id]}
+                              onChange={(e) =>
+                                setEditFields((p) => ({
+                                  ...p,
+                                  high: { ...p.high, [id]: parseFloat(e.target.value) || 0 },
+                                }))
+                              }
+                              className="w-full rounded border border-[var(--cl-border)] bg-[var(--cl-input)] px-1.5 py-1 text-right font-mono text-[11px] tabular-nums text-[var(--cl-text-strong)] focus:border-[var(--cl-border-focus)] focus:outline-none sm:text-xs"
+                            />
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
 

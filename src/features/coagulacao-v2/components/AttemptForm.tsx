@@ -37,7 +37,11 @@ export function AttemptForm({ labId, onSaved, onCancel }: AttemptFormProps) {
   const selectedControl = controls.find((c) => c.id === controlId);
   const nivel = selectedControl?.nivel ?? 'I';
 
-  const [equipamentoInfo, setEquipamentoInfo] = useState<{ name: string; modelo: string; fabricante?: string } | null>(null);
+  const [equipamentoInfo, setEquipamentoInfo] = useState<{
+    name: string;
+    modelo: string;
+    fabricante?: string;
+  } | null>(null);
   const [reagenteInfo, setReagenteInfo] = useState<{
     nomeComercial: string;
     lote: string;
@@ -63,7 +67,8 @@ export function AttemptForm({ labId, onSaved, onCancel }: AttemptFormProps) {
     let cancelled = false;
     (async () => {
       if (selectedControl.equipamentoId) {
-        const { getEquipamentoOnce } = await import('../../equipamentos/services/equipamentoService');
+        const { getEquipamentoOnce } =
+          await import('../../equipamentos/services/equipamentoService');
         const eq = await getEquipamentoOnce(labId, selectedControl.equipamentoId);
         if (!cancelled && eq) {
           setEquipamentoInfo({
@@ -116,18 +121,32 @@ export function AttemptForm({ labId, onSaved, onCancel }: AttemptFormProps) {
         if (!cancelled) setReagenteTtpaInfo(null);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [selectedControl?.id, labId]);
+
+  const baselines = useMemo(() => {
+    const res: Record<CoagAnalyteId, { low: number; high: number }> = {} as any;
+    for (const id of COAG_ANALYTE_IDS) {
+      const config = COAG_ANALYTES[id].levels[nivel];
+      res[id] = {
+        low: selectedControl?.low?.[id] ?? config.low,
+        high: selectedControl?.high?.[id] ?? config.high,
+      };
+    }
+    return res;
+  }, [selectedControl, nivel]);
 
   const isConforme = useMemo(() => {
     if (!selectedControl) return true;
     return COAG_ANALYTE_IDS.every((id) => {
       const val = resultados[id];
       if (val === undefined) return true;
-      const baseline = COAG_ANALYTES[id].levels[nivel];
-      return val >= baseline.low && val <= baseline.high;
+      const { low, high } = baselines[id];
+      return val >= low && val <= high;
     });
-  }, [resultados, selectedControl, nivel]);
+  }, [resultados, selectedControl, baselines]);
 
   const anyResult = Object.values(resultados).some((v) => v !== undefined);
 
@@ -149,11 +168,15 @@ export function AttemptForm({ labId, onSaved, onCancel }: AttemptFormProps) {
   return (
     <div className="space-y-6">
       <div className="rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)] p-4 sm:p-6">
-        <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-[var(--cl-text-muted)]">Controle</label>
+        <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-[var(--cl-text-muted)]">
+          Controle
+        </label>
         {controlsLoading ? (
           <div className="py-2 text-sm text-[var(--cl-text-faint)]">Carregando controles...</div>
         ) : controls.filter((c) => c.status === 'ativo').length === 0 ? (
-          <div className="py-2 text-sm text-[var(--cl-accent)]">Ative um controle na aba 'Lotes em uso' para começar.</div>
+          <div className="py-2 text-sm text-[var(--cl-accent)]">
+            Ative um controle na aba 'Lotes em uso' para começar.
+          </div>
         ) : (
           <select
             value={controlId}
@@ -175,11 +198,15 @@ export function AttemptForm({ labId, onSaved, onCancel }: AttemptFormProps) {
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[var(--cl-border)] pb-4 text-sm sm:gap-x-4 sm:text-base">
           <span className="font-medium text-[var(--cl-text-strong)]">{selectedControl.nome}</span>
           <span className="text-[var(--cl-text-faint)]">•</span>
-          <span className="text-[var(--cl-text-muted)]">Soro lote {selectedControl.loteControle || '—'}</span>
+          <span className="text-[var(--cl-text-muted)]">
+            Soro lote {selectedControl.loteControle || '—'}
+          </span>
           {selectedControl.validadeControle && (
             <>
               <span className="text-[var(--cl-text-faint)]">•</span>
-              <span className="text-[var(--cl-text-muted)]">Val. {selectedControl.validadeControle}</span>
+              <span className="text-[var(--cl-text-muted)]">
+                Val. {selectedControl.validadeControle}
+              </span>
             </>
           )}
           <span className="text-[var(--cl-text-faint)]">•</span>
@@ -196,17 +223,15 @@ export function AttemptForm({ labId, onSaved, onCancel }: AttemptFormProps) {
         )}
         {(['atividadeProtrombinica', 'rni'] as const).map((id) => {
           const cfg = COAG_ANALYTES[id];
-          const baseline = cfg.levels[nivel];
+          const baseline = baselines[id];
           return (
             <ResultInput
               key={id}
               label={cfg.label}
               value={resultados[id]}
-              unit={baseline.unit}
+              unit={cfg.levels[nivel].unit}
               expectedRange={`${baseline.low}–${baseline.high}`}
-              onChange={(v) =>
-                setResultados((prev) => ({ ...prev, [id]: v }))
-              }
+              onChange={(v) => setResultados((prev) => ({ ...prev, [id]: v }))}
             />
           );
         })}
@@ -223,17 +248,15 @@ export function AttemptForm({ labId, onSaved, onCancel }: AttemptFormProps) {
         {(() => {
           const id = 'ttpa' as const;
           const cfg = COAG_ANALYTES[id];
-          const baseline = cfg.levels[nivel];
+          const baseline = baselines[id];
           return (
             <ResultInput
               key={id}
               label={cfg.label}
               value={resultados[id]}
-              unit={baseline.unit}
+              unit={cfg.levels[nivel].unit}
               expectedRange={`${baseline.low}–${baseline.high}`}
-              onChange={(v) =>
-                setResultados((prev) => ({ ...prev, [id]: v }))
-              }
+              onChange={(v) => setResultados((prev) => ({ ...prev, [id]: v }))}
             />
           );
         })()}
@@ -247,9 +270,7 @@ export function AttemptForm({ labId, onSaved, onCancel }: AttemptFormProps) {
 
       {anyResult && !isConforme && (
         <div className="rounded-lg border border-[var(--cl-danger)]/30 bg-[var(--cl-danger-bg)] p-4 sm:p-6">
-          <label className="mb-2 block text-sm text-[var(--cl-danger)]">
-            O que foi feito?
-          </label>
+          <label className="mb-2 block text-sm text-[var(--cl-danger)]">O que foi feito?</label>
           <textarea
             value={acaoCorretiva}
             onChange={(e) => setAcaoCorretiva(e.target.value)}
@@ -290,5 +311,3 @@ export function AttemptForm({ labId, onSaved, onCancel }: AttemptFormProps) {
     </div>
   );
 }
-
-
