@@ -617,7 +617,7 @@ export function BulaProcessor() {
 
     try {
       // 1. Converter PDF para Imagem no Frontend (Opção A)
-      const { base64, mimeType } = await convertPdfToImage(file, 4, (p) => {
+      const { base64, mimeType } = await convertPdfToImage(file, 10, (p) => {
         setConvProgress({ current: p.current, total: p.total });
       });
 

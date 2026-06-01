@@ -531,7 +531,17 @@ function Sidebar({
               onClick={() => setCiqPage('bancada')}
               accent="emerald"
               icon={
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
                   <path d="M3 12h4l2-7 4 14 2-7h6" />
                 </svg>
               }
@@ -554,7 +564,17 @@ function Sidebar({
               onClick={() => setCurrentView('insumos')}
               accent="emerald"
               icon={
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
                   <path d="M3 7l9-4 9 4-9 4-9-4z" />
                   <path d="M3 12l9 4 9-4M3 17l9 4 9-4" />
                 </svg>
@@ -573,7 +593,17 @@ function Sidebar({
               onClick={() => setCiqPage('equipamentos')}
               accent="emerald"
               icon={
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
                   <circle cx="12" cy="12" r="3" />
                   <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
                 </svg>
@@ -585,7 +615,17 @@ function Sidebar({
               onClick={() => setCiqPage('tipos-teste')}
               accent="emerald"
               icon={
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
                   <path d="M9 11H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2h-4M9 11V7a3 3 0 016 0v4M9 11h6" />
                 </svg>
               }
@@ -867,6 +907,16 @@ export function AnalyzerView() {
     localStorage.setItem('hcq_page', page);
   }, [page]);
 
+  // ── Auto-open AddLotModal when pendingBulaData arrives from BulaProcessor ──
+  const pendingBulaData = useAppStore((s) => s.pendingBulaData);
+  const setPendingBulaData = useAppStore((s) => s.setPendingBulaData);
+  useEffect(() => {
+    if (pendingBulaData) {
+      setPage('lotes');
+      setShowAddLot(true);
+    }
+  }, [pendingBulaData]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (module !== 'analyzer') return;
@@ -908,7 +958,9 @@ export function AnalyzerView() {
   // Lote ativo derivado (escolha do usuário OU primeiro disponível).
   // Só "vira" real quando estamos no módulo ciq-imuno — outros módulos ignoram.
   const ciqActiveLotId =
-    module === 'ciq-imuno' ? (userSelectedCiqLotId ?? ciqLots[0]?.id ?? null) : userSelectedCiqLotId;
+    module === 'ciq-imuno'
+      ? (userSelectedCiqLotId ?? ciqLots[0]?.id ?? null)
+      : userSelectedCiqLotId;
 
   const userName = user?.displayName || user?.email?.split('@')[0] || 'Operador';
 
@@ -1027,7 +1079,10 @@ export function AnalyzerView() {
                         lots={lots}
                         activeLotId={activeLotId ?? null}
                         showAdd={showAddLot}
-                        onCloseAdd={() => setShowAddLot(false)}
+                        onCloseAdd={() => {
+                          setShowAddLot(false);
+                          setPendingBulaData(null);
+                        }}
                         onAdd={addLot}
                         onDelete={deleteLot}
                         onToggleHidden={toggleManualHidden}

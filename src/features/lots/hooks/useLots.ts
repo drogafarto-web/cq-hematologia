@@ -154,11 +154,62 @@ export function useLots() {
         throw err;
       }
 
+      const olderSameControl = lots.filter(
+        (l) =>
+          l.controlName === input.controlName && !l.archivedAt && l.startDate < input.startDate,
+      );
+      if (olderSameControl.length > 0) {
+        const ids = olderSameControl.map((l) => l.id);
+        const now = new Date();
+        setLots(
+          lots.map((l) => (ids.includes(l.id) ? { ...l, archivedAt: now } : l)).concat(newLot),
+        );
+        try {
+          await withSync(async (db) => {
+            for (const old of olderSameControl) {
+              await db.saveLot({ ...old, archivedAt: now });
+            }
+          });
+        } catch {
+          // não-bloqueante: lote novo já foi criado com sucesso
+        }
+        toast.info(
+          `${olderSameControl.length} lote${olderSameControl.length === 1 ? '' : 's'} anterior${olderSameControl.length === 1 ? '' : 'es'} arquivado${olderSameControl.length === 1 ? '' : 's'}.`,
+        );
+      }
+
       haptic.confirm();
       toast.success(`Lote "${input.controlName}" adicionado.`);
       return newLot.id;
     },
     [labId, user, lots, setLots, withSync],
+  );
+
+  const archiveLots = useCallback(
+    async (lotIds: string[]): Promise<void> => {
+      if (!lotIds.length) return;
+      const now = new Date();
+      const toArchive = lotIds
+        .map((id) => lots.find((l) => l.id === id))
+        .filter((l): l is ControlLot => !!l && !l.archivedAt);
+      if (!toArchive.length) return;
+
+      const prevLots = lots;
+      setLots(
+        lots.map((l) => (toArchive.some((a) => a.id === l.id) ? { ...l, archivedAt: now } : l)),
+      );
+      try {
+        await withSync(async (db) => {
+          for (const lot of toArchive) {
+            await db.saveLot({ ...lot, archivedAt: now });
+          }
+        });
+      } catch (err) {
+        setLots(prevLots);
+        throw err;
+      }
+    },
+    [lots, setLots, withSync],
   );
 
   /** Partially updates a lot's metadata fields. */
@@ -416,5 +467,6 @@ export function useLots() {
     setSelectedAnalyte,
     toggleManualHidden,
     applyBulaToLot,
+    archiveLots,
   } as const;
 }
