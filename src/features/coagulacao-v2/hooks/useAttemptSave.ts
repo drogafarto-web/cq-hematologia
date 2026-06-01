@@ -66,17 +66,21 @@ export function useAttemptSave(labId: string): UseAttemptSaveResult {
           throw new Error('Ação corretiva é obrigatória para resultados não conformes');
         }
 
+        const { getInsumoOnce } = await import('../../insumos/services/insumosFirebaseService');
+        const { getEquipamentoOnce } = await import('../../equipamentos/services/equipamentoService');
+
+        const insumoTP = controle.insumoId ? await getInsumoOnce(labId, controle.insumoId) : null;
+        const insumoTTPA = controle.reagenteTTPAId ? await getInsumoOnce(labId, controle.reagenteTTPAId) : null;
+        const equipamento = controle.equipamentoId ? await getEquipamentoOnce(labId, controle.equipamentoId) : null;
+
         const { buildInsumoSnapshot } = await import('../../insumos/types/InsumoSnapshot');
         const { buildEquipamentoSnapshot } = await import('../../equipamentos/types/Equipamento');
 
-        const insumoSnapshot = buildInsumoSnapshot({} as any);
-        const equipamentoSnapshot = buildEquipamentoSnapshot({} as any);
-
         const snapshot = {
-          controle: insumoSnapshot,
-          reagente: insumoSnapshot,
-          reagenteTtpa: null,
-          equipamento: equipamentoSnapshot,
+          controle: insumoTP ? buildInsumoSnapshot(insumoTP) : buildInsumoSnapshot({} as any),
+          reagente: insumoTP ? buildInsumoSnapshot(insumoTP) : buildInsumoSnapshot({} as any),
+          reagenteTtpa: insumoTTPA ? buildInsumoSnapshot(insumoTTPA) : null,
+          equipamento: equipamento ? buildEquipamentoSnapshot(equipamento) : buildEquipamentoSnapshot({} as any),
         };
 
         const signPayload: CoagSignaturePayload = {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 
 vi.mock('../../../shared/services/firebase', () => ({ db: {} }));
 vi.mock('../../coagulacao/hooks/useCoagSignature', () => ({
@@ -40,10 +40,13 @@ describe('useAttemptSave', () => {
   it('salva tentativa com sucesso e retorna resultado', async () => {
     const { result } = renderHook(() => useAttemptSave('lab-001'));
 
-    const attempt = await result.current.save({
-      controlOperacionalId: 'co-001',
-      equipamentoId: 'equip-001',
-      resultados: { atividadeProtrombinica: 98, rni: 1.02, ttpa: 33.5 },
+    let attempt;
+    await act(async () => {
+      attempt = await result.current.save({
+        controlOperacionalId: 'co-001',
+        equipamentoId: 'equip-001',
+        resultados: { atividadeProtrombinica: 98, rni: 1.02, ttpa: 33.5 },
+      });
     });
 
     expect(attempt).toBeDefined();

@@ -45,11 +45,19 @@ export function AttemptForm({ labId, onSaved, onCancel }: AttemptFormProps) {
     validade: string;
     dataAbertura: string | null;
   } | null>(null);
+  const [reagenteTtpaInfo, setReagenteTtpaInfo] = useState<{
+    nomeComercial: string;
+    lote: string;
+    fabricante: string;
+    validade: string;
+    dataAbertura: string | null;
+  } | null>(null);
 
   useEffect(() => {
     if (!selectedControl) {
       setEquipamentoInfo(null);
       setReagenteInfo(null);
+      setReagenteTtpaInfo(null);
       return;
     }
     let cancelled = false;
@@ -85,6 +93,28 @@ export function AttemptForm({ labId, onSaved, onCancel }: AttemptFormProps) {
           });
         }
       }
+      if (selectedControl.reagenteTTPAId) {
+        const { getInsumoOnce } = await import('../../insumos/services/insumosFirebaseService');
+        const insTtpa = await getInsumoOnce(labId, selectedControl.reagenteTTPAId);
+        if (!cancelled && insTtpa) {
+          const fmtTs = (t: any) => {
+            if (!t) return '?';
+            if (typeof t.toDate === 'function') {
+              return t.toDate().toISOString().slice(0, 10);
+            }
+            return String(t);
+          };
+          setReagenteTtpaInfo({
+            nomeComercial: insTtpa.nomeComercial,
+            lote: insTtpa.lote,
+            fabricante: insTtpa.fabricante,
+            validade: fmtTs(insTtpa.validade),
+            dataAbertura: insTtpa.dataAbertura ? fmtTs(insTtpa.dataAbertura) : null,
+          });
+        }
+      } else {
+        if (!cancelled) setReagenteTtpaInfo(null);
+      }
     })();
     return () => { cancelled = true; };
   }, [selectedControl?.id, labId]);
@@ -118,7 +148,7 @@ export function AttemptForm({ labId, onSaved, onCancel }: AttemptFormProps) {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)] p-4">
+      <div className="rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)] p-4 sm:p-6">
         <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-[var(--cl-text-muted)]">Controle</label>
         {controlsLoading ? (
           <div className="py-2 text-sm text-[var(--cl-text-faint)]">Carregando controles...</div>
@@ -128,7 +158,7 @@ export function AttemptForm({ labId, onSaved, onCancel }: AttemptFormProps) {
           <select
             value={controlId}
             onChange={(e) => setControlId(e.target.value)}
-            className="w-full rounded border border-[var(--cl-border)] bg-[var(--cl-input)] px-3 py-2.5 text-sm text-[var(--cl-text-strong)] focus:border-[var(--cl-border-focus)] focus:outline-none"
+            className="w-full rounded border border-[var(--cl-border)] bg-[var(--cl-input)] px-3 py-2.5 text-sm text-[var(--cl-text-strong)] focus:border-[var(--cl-border-focus)] focus:outline-none sm:text-base"
           >
             {controls
               .filter((c) => c.status === 'ativo')
@@ -142,25 +172,29 @@ export function AttemptForm({ labId, onSaved, onCancel }: AttemptFormProps) {
       </div>
 
       {selectedControl && (
-        <div className="flex items-center gap-2 border-b border-[var(--cl-border)] pb-4 text-sm">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[var(--cl-border)] pb-4 text-sm sm:gap-x-4 sm:text-base">
           <span className="font-medium text-[var(--cl-text-strong)]">{selectedControl.nome}</span>
           <span className="text-[var(--cl-text-faint)]">•</span>
-          <span className="text-[var(--cl-text-muted)]">Lote {selectedControl.loteControle || '—'}</span>
-          <span className="text-[var(--cl-text-faint)]">•</span>
-          <span className="text-[var(--cl-text-muted)]">{reagenteInfo?.nomeComercial || '—'}</span>
-          <span className="text-[var(--cl-text-faint)]">•</span>
-          <span className="text-[var(--cl-text-muted)]">{equipamentoInfo?.name || '—'}</span>
+          <span className="text-[var(--cl-text-muted)]">Soro lote {selectedControl.loteControle || '—'}</span>
           {selectedControl.validadeControle && (
             <>
               <span className="text-[var(--cl-text-faint)]">•</span>
               <span className="text-[var(--cl-text-muted)]">Val. {selectedControl.validadeControle}</span>
             </>
           )}
+          <span className="text-[var(--cl-text-faint)]">•</span>
+          <span className="text-[var(--cl-text-muted)]">{equipamentoInfo?.name || '—'}</span>
         </div>
       )}
 
-      <div>
-        {COAG_ANALYTE_IDS.map((id) => {
+      <div className="space-y-4 sm:space-y-6">
+        {/* Reagente TP chip + AP/RNI inputs */}
+        {reagenteInfo && (
+          <span className="text-xs text-[var(--cl-text-muted)] bg-[var(--cl-card-elevated)] rounded px-2 py-1 mb-2 inline-flex items-center gap-1 sm:text-sm sm:px-3 sm:py-1.5">
+            Reagente TP: {reagenteInfo.nomeComercial} — Lote {reagenteInfo.lote}
+          </span>
+        )}
+        {(['atividadeProtrombinica', 'rni'] as const).map((id) => {
           const cfg = COAG_ANALYTES[id];
           const baseline = cfg.levels[nivel];
           return (
@@ -176,16 +210,43 @@ export function AttemptForm({ labId, onSaved, onCancel }: AttemptFormProps) {
             />
           );
         })}
+
+        {/* Reagente TTPA chip + TTPA input */}
+        {(() => {
+          const ttpaDisplay = reagenteTtpaInfo || reagenteInfo;
+          return ttpaDisplay ? (
+            <span className="text-xs text-[var(--cl-text-muted)] bg-[var(--cl-card-elevated)] rounded px-2 py-1 mb-2 mt-4 inline-flex items-center gap-1 sm:text-sm sm:px-3 sm:py-1.5">
+              Reagente TTPA: {ttpaDisplay.nomeComercial} — Lote {ttpaDisplay.lote}
+            </span>
+          ) : null;
+        })()}
+        {(() => {
+          const id = 'ttpa' as const;
+          const cfg = COAG_ANALYTES[id];
+          const baseline = cfg.levels[nivel];
+          return (
+            <ResultInput
+              key={id}
+              label={cfg.label}
+              value={resultados[id]}
+              unit={baseline.unit}
+              expectedRange={`${baseline.low}–${baseline.high}`}
+              onChange={(v) =>
+                setResultados((prev) => ({ ...prev, [id]: v }))
+              }
+            />
+          );
+        })()}
       </div>
 
       {anyResult && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 sm:gap-3">
           <ConformityBadge isConforme={isConforme} />
         </div>
       )}
 
       {anyResult && !isConforme && (
-        <div className="rounded-lg border border-[var(--cl-danger)]/30 bg-[var(--cl-danger-bg)] p-4">
+        <div className="rounded-lg border border-[var(--cl-danger)]/30 bg-[var(--cl-danger-bg)] p-4 sm:p-6">
           <label className="mb-2 block text-sm text-[var(--cl-danger)]">
             O que foi feito?
           </label>
@@ -194,22 +255,22 @@ export function AttemptForm({ labId, onSaved, onCancel }: AttemptFormProps) {
             onChange={(e) => setAcaoCorretiva(e.target.value)}
             rows={3}
             placeholder="Descreva brevemente a ação tomada..."
-            className="w-full rounded border border-[var(--cl-danger)]/30 bg-[var(--cl-input)] px-3 py-2.5 text-sm text-[var(--cl-text-strong)] placeholder-[var(--cl-text-faint)] focus:border-[var(--cl-border-focus)] focus:outline-none"
+            className="w-full rounded border border-[var(--cl-danger)]/30 bg-[var(--cl-input)] px-3 py-2.5 text-sm text-[var(--cl-text-strong)] placeholder-[var(--cl-text-faint)] focus:border-[var(--cl-border-focus)] focus:outline-none sm:text-base"
           />
         </div>
       )}
 
       {error && (
-        <div className="rounded bg-[var(--cl-danger-bg)] px-3 py-2 text-sm text-[var(--cl-danger)]">
+        <div className="rounded bg-[var(--cl-danger-bg)] px-3 py-2 text-sm text-[var(--cl-danger)] sm:px-4 sm:py-3 sm:text-base">
           {error}
         </div>
       )}
 
-      <div className="flex justify-end gap-3">
+      <div className="flex justify-end gap-3 sm:gap-4">
         <button
           type="button"
           onClick={onCancel}
-          className="rounded border border-[var(--cl-border)] px-4 py-2 text-sm text-[var(--cl-text-muted)] hover:bg-[var(--cl-card-elevated)]"
+          className="rounded border border-[var(--cl-border)] px-4 py-2 text-sm text-[var(--cl-text-muted)] hover:bg-[var(--cl-card-elevated)] sm:text-base sm:px-6 sm:py-2.5"
         >
           Cancelar
         </button>
@@ -217,13 +278,13 @@ export function AttemptForm({ labId, onSaved, onCancel }: AttemptFormProps) {
           type="button"
           onClick={handleSave}
           disabled={isSaving || !controlId}
-          className="rounded bg-[var(--cl-accent)] px-6 py-2 text-sm font-medium text-[var(--cl-accent-text)] hover:bg-[var(--cl-accent-hover)] disabled:opacity-50"
+          className="rounded bg-[var(--cl-accent)] px-6 py-2 text-sm font-medium text-[var(--cl-accent-text)] hover:bg-[var(--cl-accent-hover)] disabled:opacity-50 sm:text-base sm:px-8 sm:py-2.5"
         >
           {isSaving ? 'Salvando...' : 'Salvar'}
         </button>
       </div>
 
-      <div className="pt-4">
+      <div className="pt-4 sm:pt-6">
         <CoagLeveyJenningsPanel labId={labId} controls={controls} />
       </div>
     </div>

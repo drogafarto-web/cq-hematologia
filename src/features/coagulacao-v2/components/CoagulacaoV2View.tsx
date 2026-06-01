@@ -10,6 +10,7 @@ type Tab = 'tentativa' | 'controles';
 
 export function CoagulacaoV2View() {
   const lab = useActiveLab();
+  const goBack = useAppStore((s) => s.goBack);
   const setCurrentView = useAppStore((s) => s.setCurrentView);
   const { isDark } = useTheme();
   const [saved, setSaved] = useState(false);
@@ -18,7 +19,11 @@ export function CoagulacaoV2View() {
   const wrapperCls = `coag-clinical${isDark ? '' : ' coag-light'}`;
 
   if (!lab) {
-    return <div className={`${wrapperCls} p-8 text-[var(--cl-text-muted)]`}>Selecione um laboratório</div>;
+    return (
+      <div className={`${wrapperCls} p-8 text-[var(--cl-text-muted)]`}>
+        Selecione um laboratório
+      </div>
+    );
   }
 
   if (saved) {
@@ -48,13 +53,23 @@ export function CoagulacaoV2View() {
   }
 
   return (
-    <div className={`${wrapperCls} mx-auto max-w-2xl p-8`}>
+    <div className={`${wrapperCls} mx-auto max-w-full p-4 sm:p-6 lg:max-w-2xl`}>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-lg font-medium text-[var(--cl-text-strong)]">Coagulação</h1>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={goBack}
+            className="text-sm text-[var(--cl-text-muted)] hover:text-[var(--cl-text-body)] transition-colors"
+            aria-label="Voltar ao contexto anterior"
+          >
+            ← Voltar
+          </button>
+          <h1 className="text-lg font-medium text-[var(--cl-text-strong)]">Coagulação</h1>
+        </div>
         <span className="text-xs text-[var(--cl-text-faint)]">Controle interno de qualidade</span>
       </div>
 
-      <div className="mb-6 flex gap-1 rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)] p-1">
+      <div className="mb-6 flex gap-1 rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)] p-1 sm:gap-2">
         <TabButton active={tab === 'tentativa'} onClick={() => setTab('tentativa')}>
           Execução
         </TabButton>

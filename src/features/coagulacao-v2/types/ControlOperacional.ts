@@ -7,6 +7,8 @@ export interface ControlOperacional {
   nome: string;
   nivel: 'I' | 'II';
   insumoId: string;
+  /** Reagente usado para TTPA (insumoId é o reagente de TP/AP+RNI) */
+  reagenteTTPAId?: string;
   equipamentoId: string;
   mean: Record<CoagAnalyteId, number>;
   sd: Record<CoagAnalyteId, number>;

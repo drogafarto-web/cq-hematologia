@@ -106,7 +106,7 @@ const CLSI_WESTGARD_RULES: readonly WestgardViolation[] = [
 export const COAG_ANALYTES: Record<CoagAnalyteId, CoagAnalyteConfig> = {
   atividadeProtrombinica: {
     id: 'atividadeProtrombinica',
-    label: 'Atividade de Protrombina (%)',
+    label: 'Atividade de Protrombina',
     decimals: 0,
     westgardRules: CLSI_WESTGARD_RULES,
     levels: {
@@ -152,7 +152,7 @@ export const COAG_ANALYTES: Record<CoagAnalyteId, CoagAnalyteConfig> = {
 
   ttpa: {
     id: 'ttpa',
-    label: 'TTPA (s)',
+    label: 'TTPA',
     decimals: 1,
     westgardRules: CLSI_WESTGARD_RULES,
     levels: {

@@ -235,7 +235,7 @@ export function measureTTFB(callback: (metric: WebVitalsMetric) => void): void {
 export function initWebVitals(onMetric?: (metric: WebVitalsMetric) => void): void {
   const handleMetric = (metric: WebVitalsMetric) => {
     // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.log(`[Web Vitals] ${metric.name}: ${metric.value}ms (${metric.rating})`);
     }
 

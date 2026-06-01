@@ -41,11 +41,11 @@ export type CoagAnalyteId = 'atividadeProtrombinica' | 'rni' | 'ttpa';
 /** Labels de exibição para cada CoagAnalyteId — usar em UI e relatórios. */
 export const COAG_ANALYTE_LABELS: Record<CoagAnalyteId, string> = {
   /** Atividade de Protrombina — resultado em percentual de atividade (%). */
-  atividadeProtrombinica: 'Atividade de Protrombina (%)',
+  atividadeProtrombinica: 'Atividade de Protrombina',
   /** Razão Normalizada Internacional — adimensional, derivado de TP+ISI+MNPT. */
   rni: 'RNI',
   /** Tempo de Tromboplastina Parcial Ativada — resultado em segundos (s). */
-  ttpa: 'TTPA (s)',
+  ttpa: 'TTPA',
 };
 
 // ─── Status de Decisão do Lote ────────────────────────────────────────────────

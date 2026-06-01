@@ -84,7 +84,7 @@ export class PerformanceTrace {
     }
 
     // Log in development
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.log(`[Trace] ${this.traceName}: ${Math.round(duration)}ms`, this.metrics);
     }
 

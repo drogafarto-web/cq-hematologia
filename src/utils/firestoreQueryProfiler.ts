@@ -46,7 +46,7 @@ export const profileQuery = async <T>(
       console.warn(
         `⚠️ [Firestore] Slow query: "${operation}" took ${duration.toFixed(0)}ms (threshold: ${WARN_THRESHOLD_MS}ms)`
       );
-    } else if (process.env.DEBUG_FIRESTORE === 'true') {
+    } else if (import.meta.env.VITE_DEBUG_FIRESTORE === 'true') {
       console.log(`✓ [Firestore] "${operation}": ${duration.toFixed(0)}ms`);
     }
 

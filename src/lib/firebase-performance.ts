@@ -49,7 +49,7 @@ export function initFirebasePerformance() {
       registerMetricAlertHandlers();
 
       // Log alert thresholds in development
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV) {
         console.log('[Performance] Alert thresholds configured:', PERFORMANCE_ALERT_THRESHOLDS);
       }
     }
@@ -70,7 +70,7 @@ function registerMetricAlertHandlers() {
   // 3. Send to logging service (Sentry, DataDog, etc)
   // 4. Create dashboard alerts
 
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     console.log('[Performance] Alert handlers registered');
   }
 }
@@ -168,8 +168,8 @@ export const MONITORING_CONFIG = {
   // Alert channels
   alert_channels: {
     email: 'drogafarto@gmail.com',
-    slack: process.env.VITE_SLACK_WEBHOOK_URL || null,
-    pagerduty: process.env.VITE_PAGERDUTY_KEY || null,
+    slack: import.meta.env.VITE_SLACK_WEBHOOK_URL || null,
+    pagerduty: import.meta.env.VITE_PAGERDUTY_KEY || null,
   },
 
   // Sampling configuration
@@ -188,8 +188,8 @@ export const MONITORING_CONFIG = {
  * Export performance-related environment variables for use in components
  */
 export const PERFORMANCE_ENV = {
-  ENABLE_WEB_VITALS: process.env.VITE_ENABLE_WEB_VITALS !== 'false',
-  ENABLE_FIREBASE_PERF: process.env.VITE_ENABLE_FIREBASE_PERF !== 'false',
-  ENABLE_CUSTOM_TRACES: process.env.VITE_ENABLE_CUSTOM_TRACES !== 'false',
-  DEBUG_PERFORMANCE: process.env.VITE_DEBUG_PERFORMANCE === 'true',
+  ENABLE_WEB_VITALS: import.meta.env.VITE_ENABLE_WEB_VITALS !== 'false',
+  ENABLE_FIREBASE_PERF: import.meta.env.VITE_ENABLE_FIREBASE_PERF !== 'false',
+  ENABLE_CUSTOM_TRACES: import.meta.env.VITE_ENABLE_CUSTOM_TRACES !== 'false',
+  DEBUG_PERFORMANCE: import.meta.env.VITE_DEBUG_PERFORMANCE === 'true',
 };

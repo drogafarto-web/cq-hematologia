@@ -187,7 +187,9 @@ export function LeveyJenningsChart({ chartData, analyte }: LeveyJenningsChartPro
             <span className="text-sm font-semibold text-slate-900 dark:text-white/80">
               {analyte.name}
             </span>
-            <span className="text-xs text-slate-400 dark:text-white/30 ml-1.5">{analyte.unit}</span>
+            {analyte.unit && (
+              <span className="text-xs text-slate-400 dark:text-white/30 ml-1.5">{analyte.unit}</span>
+            )}
           </div>
           <div className="text-right">
             <p className="text-xs text-slate-400 dark:text-white/40">
@@ -291,7 +293,7 @@ export function LeveyJenningsChart({ chartData, analyte }: LeveyJenningsChartPro
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-4 px-1">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-1">
         {[
           { color: 'bg-emerald-400', label: 'Aprovada' },
           { color: 'bg-amber-400', label: 'Aviso 1-2s' },

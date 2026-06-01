@@ -487,7 +487,10 @@ export function UroanaliseForm({
   }
 
   function setNumerico(id: 'ph' | 'densidade', raw: string) {
-    const num = raw === '' ? null : Number(raw);
+    let num = raw === '' ? null : Number(raw);
+    if (id === 'densidade' && num !== null && num >= 1000 && num <= 1100) {
+      num = num / 1000;
+    }
     setForm((prev) => {
       const prevField = prev.resultados?.[id] as UroFieldAuditado<number> | undefined;
       const origem: UroFieldOrigem =
