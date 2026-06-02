@@ -36,6 +36,8 @@ import { niveisDoModulo, NIVEIS_QUANTITATIVOS } from '../types/Insumo';
 import type { ProdutoInsumo } from '../types/ProdutoInsumo';
 import { useTraceability } from '../../traceability/hooks/useTraceability';
 import { UNIDADES, DEFAULT_EQUIPMENT_ID } from '../../traceability/constants';
+import { UroAberturaModal } from '../../uroanalise/components/UroAberturaModal';
+import type { UroLoteTipo } from '../../uroanalise/components/UroLoteTipoSelector';
 
 // ─── UI tokens ───────────────────────────────────────────────────────────────
 
@@ -185,8 +187,56 @@ export function NovoLoteModal({
     examCode?: string;
   } | null>(null);
 
+  // Fase Worklab (2026-06-02) — abertura de lote para uroanálise
+  const [showAberturaModal, setShowAberturaModal] = useState(false);
+  const [pendingUroLot, setPendingUroLot] = useState<{
+    id: string;
+    tipo?: UroLoteTipo;
+    nivel?: string;
+    loteControle: string;
+    fabricanteControle: string;
+    validadeControle: string;
+    loteTira?: string;
+    fabricanteTira?: string;
+    validadeTira?: string;
+    tiraNome?: string;
+  } | null>(null);
+
   async function handleLoteCreated(insumoId: string, produtoId: string, examCode?: string) {
     onCreated?.(insumoId, examCode);
+
+    // Fase Worklab (2026-06-02): se o lote for de uroanálise (tira-uro ou controle
+    // com módulo uroanalise), abre o modal de abertura antes de fechar.
+    if (produtoSelecionado) {
+      const isUroanalise =
+        produtoSelecionado.tipo === 'tira-uro' ||
+        produtoSelecionado.modulos.some((m) => m.toLowerCase() === 'uroanalise');
+      if (isUroanalise) {
+        // Busca o insumo recém-criado para obter os dados do lote
+        const novo = await getInsumoOnce(labId, insumoId);
+        if (novo) {
+          const isTira = produtoSelecionado.tipo === 'tira-uro';
+          const valDate = novo.validade ? novo.validade.toDate().toISOString().slice(0, 10) : '';
+          setPendingUroLot({
+            id: insumoId,
+            tipo: isTira ? 'tira' : 'controle',
+            nivel: (novo as { nivel?: unknown }).nivel as string | undefined,
+            loteControle: novo.lote,
+            fabricanteControle: novo.fabricante ?? produtoSelecionado.fabricante,
+            validadeControle: valDate,
+            ...(isTira && {
+              loteTira: novo.lote,
+              fabricanteTira: novo.fabricante ?? produtoSelecionado.fabricante,
+              validadeTira: valDate,
+              tiraNome: produtoSelecionado.nomeComercial,
+            }),
+          });
+          setShowAberturaModal(true);
+          return; // não fecha — o modal de abertura gerencia o fechamento
+        }
+      }
+    }
+
     // Busca ativo do mesmo produto (ignorando o recém-criado). Se retornar,
     // popula sugestão de rotação que mantém o NovoLoteModal montado até o
     // operador decidir. Se não houver, fecha direto.
@@ -364,7 +414,9 @@ function StepBadge({
       ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
       : 'bg-slate-100 dark:bg-white/[0.04] text-slate-400 dark:text-white/30 border-slate-200 dark:border-white/[0.06]';
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border font-medium ${cls}`}>
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border font-medium ${cls}`}
+    >
       <span className="w-4 h-4 rounded-full bg-current/15 flex items-center justify-center text-[9px] font-bold">
         {done ? '✓' : n}
       </span>
@@ -632,7 +684,8 @@ function LoteForm({
           return createInsumo(labId, {
             tipo: 'controle',
             produtoId: produto.id,
-            nivel: (nivel || (moduloPrimario === 'imunologia' ? 'positivo' : 'normal')) as InsumoNivel,
+            nivel: (nivel ||
+              (moduloPrimario === 'imunologia' ? 'positivo' : 'normal')) as InsumoNivel,
             modulo: moduloPrimario,
             modulos: produto.modulos,
             fabricante: produto.fabricante,
@@ -779,9 +832,7 @@ function LoteForm({
             value={validade}
             onChange={(e) => setValidade(e.target.value)}
           />
-          {errors.validade && (
-            <p className="text-xs text-red-500 mt-1">{errors.validade}</p>
-          )}
+          {errors.validade && <p className="text-xs text-red-500 mt-1">{errors.validade}</p>}
         </div>
 
         {/* Nota fiscal — opcional até módulo fornecedores estar completo. */}
@@ -798,7 +849,10 @@ function LoteForm({
 
         <div className="col-span-2">
           <div className="rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] p-3 space-y-2">
-            <label htmlFor="alreadyOpen" className="flex items-start gap-2.5 cursor-pointer select-none">
+            <label
+              htmlFor="alreadyOpen"
+              className="flex items-start gap-2.5 cursor-pointer select-none"
+            >
               <input
                 id="alreadyOpen"
                 type="checkbox"
@@ -812,9 +866,8 @@ function LoteForm({
                   Este lote já está em uso (abrir agora)
                 </span>
                 <span className="block text-[11px] text-slate-500 dark:text-white/40 mt-0.5 leading-relaxed">
-                  Por padrão, o lote é cadastrado como <strong>fechado</strong> e só fica
-                  utilizável após abertura formal. Marque apenas se o produto físico já
-                  foi aberto no lab.
+                  Por padrão, o lote é cadastrado como <strong>fechado</strong> e só fica utilizável
+                  após abertura formal. Marque apenas se o produto físico já foi aberto no lab.
                 </span>
               </span>
             </label>
@@ -893,8 +946,8 @@ function LoteForm({
                 Rastreabilidade Worklab
               </p>
               <p className="text-[11px] text-slate-400 dark:text-white/30 mt-0.5">
-                Obrigatório: registre o código do primeiro atendimento (exame) que será
-                processado com este lote. Consulte Worklab para obter o código.
+                Obrigatório: registre o código do primeiro atendimento (exame) que será processado
+                com este lote. Consulte Worklab para obter o código.
               </p>
             </div>
           </div>
@@ -919,14 +972,10 @@ function LoteForm({
               required
               aria-label="Código do primeiro atendimento (obrigatório)"
               placeholder={
-                traceSuggested
-                  ? `Sugestão: ${traceSuggested}`
-                  : 'Código do primeiro atendimento *'
+                traceSuggested ? `Sugestão: ${traceSuggested}` : 'Código do primeiro atendimento *'
               }
               value={traceExamCode}
-              onChange={(e) =>
-                setTraceExamCode(e.target.value.replace(/\D/g, '').slice(0, 10))
-              }
+              onChange={(e) => setTraceExamCode(e.target.value.replace(/\D/g, '').slice(0, 10))}
               className={`${INPUT_CLS} font-mono`}
             />
           </div>
@@ -1001,10 +1050,7 @@ function NotaFiscalPicker({
   error?: string;
 }) {
   const [search, setSearch] = useState('');
-  const filters = useMemo(
-    () => ({ query: search.trim() || undefined }),
-    [search],
-  );
+  const filters = useMemo(() => ({ query: search.trim() || undefined }), [search]);
   const { notas, isLoading } = useNotasFiscais(filters);
   const { fornecedores } = useFornecedores();
 
@@ -1142,9 +1188,7 @@ function NotaFiscalPicker({
         </div>
       )}
 
-      {error && (
-        <p className="text-xs text-red-500 dark:text-red-400/80 mt-1 ml-0.5">{error}</p>
-      )}
+      {error && <p className="text-xs text-red-500 dark:text-red-400/80 mt-1 ml-0.5">{error}</p>}
     </div>
   );
 }

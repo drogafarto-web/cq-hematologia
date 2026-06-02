@@ -14,7 +14,7 @@ import type { UroanaliseLot } from '../types/Uroanalise';
  * Uso:
  *   const { lots, isLoading, error } = useUroLots();
  */
-export function useUroLots() {
+export function useUroLots(tipo?: 'tira' | 'controle') {
   const labId = useActiveLabId();
 
   const [lots, setLots] = useState<UroanaliseLot[]>([]);
@@ -38,7 +38,10 @@ export function useUroLots() {
     const unsub = subscribeToUroLots(
       labId,
       (incoming) => {
-        setLots(incoming);
+        const filtered = tipo
+          ? incoming.filter((lot) => (lot.tipo ?? 'controle') === tipo)
+          : incoming;
+        setLots(filtered);
         if (firstSnapshot) {
           setIsLoading(false);
           firstSnapshot = false;

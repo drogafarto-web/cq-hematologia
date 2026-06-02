@@ -52,6 +52,12 @@ service cloud.firestore {
       return request.auth.token.get('modules', {})[module] == true;
     }
 
+    // ── Fase Worklab (2026-06-02) — valida ID sequencial de worklist ─────────
+    // Worklab IDs são numéricos, 1–10 dígitos, alinham com impressão do worklist.
+    function isValidWorklabId(wid) {
+      return wid is string && wid.matches('^\\d{1,10}$');
+    }
+
     // ── /users ────────────────────────────────────────────────────────────────
 
     match /users/{userId} {
@@ -216,6 +222,16 @@ service cloud.firestore {
             (isActiveMemberOfLab(labId) && hasModuleAccess('uroanalise'));
           allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
           allow update, delete: if false;
+        }
+
+        // ── Fase Worklab (2026-06-02) — aberturas append-only ─────────────────
+        match /aberturas/{aberturaId} {
+          allow read: if isActiveMemberOfLab(labId);
+          allow create: if isActiveMemberOfLab(labId)
+            && isValidWorklabId(request.resource.data.worklabId)
+            && request.resource.data.abertoPor == request.auth.uid
+            && request.resource.data.labId == labId;
+          allow update, delete: if false;  // append-only; correções via /ciq-audit
         }
       }
 

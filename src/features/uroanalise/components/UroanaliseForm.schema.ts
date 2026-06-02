@@ -79,14 +79,14 @@ export const UroanaliseFormSchema = z
     nivel: z.enum(['N', 'P'], { required_error: 'Selecione o nível do controle.' }),
     frequencia: z.enum(['DIARIA', 'LOTE'], { required_error: 'Selecione a frequência.' }),
 
-    // ── Controle ──────────────────────────────────────────────────────────────
-    loteControle: z.string().min(1, 'Lote do controle é obrigatório.'),
-    fabricanteControle: z.string().min(1, 'Fabricante do controle é obrigatório.'),
-    aberturaControle: dateField('Data de abertura do controle inválida.'),
-    validadeControle: dateField('Data de validade do controle inválida.'),
+    // ── Controle (preenchidos pelo picker no Slice 5) ────────────────────────
+    loteControle: z.string().optional(),
+    fabricanteControle: z.string().optional(),
+    aberturaControle: dateField('Data de abertura do controle inválida.').optional(),
+    validadeControle: dateField('Data de validade do controle inválida.').optional(),
 
-    // ── Tiras reagentes ───────────────────────────────────────────────────────
-    loteTira: z.string().min(1, 'Lote das tiras é obrigatório.'),
+    // ── Tiras reagentes (preenchidos pelo picker) ─────────────────────────────
+    loteTira: z.string().min(1, 'Selecione a tira reagente no picker.'),
     tiraMarca: z.string().optional(),
     fabricanteTira: z.string().optional(),
     validadeTira: z
@@ -94,6 +94,10 @@ export const UroanaliseFormSchema = z
       .regex(DATE_REGEX, 'Validade da tira inválida (YYYY-MM-DD).')
       .optional()
       .or(z.literal('')),
+
+    // ── Vínculo com AberturaLote (Fase Worklab — 2026-06-02) ──────────────────
+    aberturaTiraId: z.string().min(1, 'Selecione uma abertura de tira ativa.').optional(),
+    aberturaControleId: z.string().optional(),
 
     // ── Operador ──────────────────────────────────────────────────────────────
     operatorDocument: z.string().min(1, 'Documento profissional obrigatório.'),
@@ -130,18 +134,36 @@ export const UroanaliseFormSchema = z
       .or(z.literal('')),
     notivisaJustificativa: z.string().optional(),
   })
-  .refine((d) => d.dataRealizacao <= d.validadeControle, {
-    message: 'Data de realização posterior à validade do controle.',
-    path: ['dataRealizacao'],
-  })
-  .refine((d) => d.aberturaControle <= d.dataRealizacao, {
-    message: 'Data de abertura do controle não pode ser posterior à realização.',
-    path: ['aberturaControle'],
-  })
-  .refine((d) => !d.validadeTira || d.dataRealizacao <= d.validadeTira, {
-    message: 'Data de realização posterior à validade da tira.',
-    path: ['validadeTira'],
-  })
+  .refine(
+    (d) => {
+      if (d.validadeControle == null) return true;
+      return d.dataRealizacao <= d.validadeControle;
+    },
+    {
+      message: 'Data de realização posterior à validade do controle.',
+      path: ['dataRealizacao'],
+    },
+  )
+  .refine(
+    (d) => {
+      if (d.aberturaControle == null) return true;
+      return d.aberturaControle <= d.dataRealizacao;
+    },
+    {
+      message: 'Data de abertura do controle não pode ser posterior à realização.',
+      path: ['aberturaControle'],
+    },
+  )
+  .refine(
+    (d) => {
+      if (d.validadeTira == null || d.validadeTira === '') return true;
+      return d.dataRealizacao <= d.validadeTira;
+    },
+    {
+      message: 'Data de realização posterior à validade da tira.',
+      path: ['validadeTira'],
+    },
+  )
   .refine((d) => d.notivisaStatus !== 'notificado' || Boolean(d.notivisaProtocolo?.trim()), {
     message: 'Protocolo do NOTIVISA é obrigatório quando status = notificado.',
     path: ['notivisaProtocolo'],

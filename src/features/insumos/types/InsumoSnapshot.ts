@@ -41,13 +41,52 @@ export interface InsumoSnapshot {
 
   /** Registro ANVISA — exigido por RDC 786 em inspeções. */
   registroAnvisa?: string;
+
+  // ── Fase Worklab (2026-06-02) — vínculo com AberturaLote ────────────────────
+  /**
+   * ID da AberturaLote que originou o uso deste insumo (subcoleção
+   * `aberturas/` no módulo dono). Permite rastrear qual worklist/worklab
+   * ID estava ativo quando o insumo foi consumido, sem join.
+   */
+  aberturaId?: string;
+  /**
+   * Worklab ID da abertura (string numérica `^\d{1,10}$`).
+   * Desnormalizado para queries que filtram por worklab sem lookup da abertura.
+   */
+  worklabIdInicio?: string;
+  /**
+   * Timestamp Firestore de quando a abertura foi registrada — congela o momento
+   * de início do uso do insumo para fins de auditoria.
+   */
+  worklabIdAberturaEm?: import('firebase/firestore').Timestamp;
+}
+
+/**
+ * Contexto opcional passado ao `buildInsumoSnapshot` para popular os campos
+ * da Fase Worklab (2026-06-02). Origem típica: a `UroAberturaLote` selecionada
+ * no picker no momento da corrida.
+ */
+export interface BuildInsumoSnapshotContext {
+  /** ID do doc de AberturaLote (subcoleção `aberturas/`). */
+  aberturaId?: string;
+  /** Worklab ID numérico (`^\d{1,10}$`). */
+  worklabIdInicio?: string;
+  /** Timestamp Firestore de quando a abertura foi registrada. */
+  worklabIdAberturaEm?: import('firebase/firestore').Timestamp;
 }
 
 /**
  * Constrói um snapshot congelado a partir de um insumo mestre. Puro, sem IO —
  * chamado no save do run antes de gravar no Firestore.
+ *
+ * Aceita um `context` opcional para popular os campos da Fase Worklab
+ * (aberturaId, worklabIdInicio, worklabIdAberturaEm) quando a origem do insumo
+ * é uma `UroAberturaLote`.
  */
-export function buildInsumoSnapshot(insumo: Insumo): InsumoSnapshot {
+export function buildInsumoSnapshot(
+  insumo: Insumo,
+  context?: BuildInsumoSnapshotContext,
+): InsumoSnapshot {
   const snap: InsumoSnapshot = {
     id: insumo.id,
     tipo: insumo.tipo,
@@ -71,6 +110,11 @@ export function buildInsumoSnapshot(insumo: Insumo): InsumoSnapshot {
   }
 
   if (insumo.registroAnvisa) snap.registroAnvisa = insumo.registroAnvisa;
+
+  // Fase Worklab (2026-06-02) — popula vínculo com AberturaLote se fornecido.
+  if (context?.aberturaId) snap.aberturaId = context.aberturaId;
+  if (context?.worklabIdInicio) snap.worklabIdInicio = context.worklabIdInicio;
+  if (context?.worklabIdAberturaEm) snap.worklabIdAberturaEm = context.worklabIdAberturaEm;
 
   return snap;
 }

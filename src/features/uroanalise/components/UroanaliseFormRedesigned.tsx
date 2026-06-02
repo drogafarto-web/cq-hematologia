@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { UroFormIdentificationSection } from './UroFormIdentificationSection';
+import { UroFormIdentificationSectionV2 } from './UroFormIdentificationSectionV2';
 import { UroAnalyteRow } from './UroAnalyteRow';
 import { UroQuantitativoRow } from './UroQuantitativoRow';
 import { UroFormFooterSection } from './UroFormFooterSection';
@@ -45,7 +45,7 @@ export interface UroanaliseFormRedesignedProps {
 
 const QUANT_ANALITOS = ['ph', 'densidade'] as const;
 const CAT_ANALITOS = URO_ANALITOS.filter(
-  (a): a is UroAnalitoCategoricoId => a !== 'ph' && a !== 'densidade'
+  (a): a is UroAnalitoCategoricoId => a !== 'ph' && a !== 'densidade',
 );
 
 type FieldOrigem = 'MANUAL' | 'OCR_ACEITO' | 'OCR_EDITADO' | 'OCR_REJEITADO';
@@ -60,7 +60,7 @@ function readAuditado<T>(field: UroFieldAuditado<T> | undefined): T | null {
 
 function evalCategoricalConformidade(
   value: UroValorCategorico | null,
-  expected: UroValorCategorico | undefined
+  expected: UroValorCategorico | undefined,
 ): 'conforme' | 'desvio' | 'sem_avaliar' {
   if (!value) return 'sem_avaliar';
   if (!expected) return 'sem_avaliar';
@@ -69,7 +69,7 @@ function evalCategoricalConformidade(
 
 function evalNumericConformidade(
   value: number | null,
-  range: { min: number; max: number } | undefined
+  range: { min: number; max: number } | undefined,
 ): 'conforme' | 'desvio' | 'sem_avaliar' {
   if (value === null || value === undefined || Number.isNaN(value)) return 'sem_avaliar';
   if (!range) return 'sem_avaliar';
@@ -103,7 +103,7 @@ export function UroanaliseFormRedesigned({
       setValues((v) => ({ ...v, [key]: value }));
       setTouched((t) => new Set(t).add(String(key)));
     },
-    []
+    [],
   );
 
   const markBlurred = useCallback((key: string) => {
@@ -136,22 +136,19 @@ export function UroanaliseFormRedesigned({
       }));
       setTouched((t) => new Set(t).add(`resultados.${analito}`));
     },
-    []
+    [],
   );
 
-  const setQuantResultado = useCallback(
-    (analito: 'ph' | 'densidade', valor: number | null) => {
-      setValues((v) => ({
-        ...v,
-        resultados: {
-          ...v.resultados,
-          [analito]: makeAuditado<number>(valor, 'MANUAL'),
-        },
-      }));
-      setTouched((t) => new Set(t).add(`resultados.${analito}`));
-    },
-    []
-  );
+  const setQuantResultado = useCallback((analito: 'ph' | 'densidade', valor: number | null) => {
+    setValues((v) => ({
+      ...v,
+      resultados: {
+        ...v.resultados,
+        [analito]: makeAuditado<number>(valor, 'MANUAL'),
+      },
+    }));
+    setTouched((t) => new Set(t).add(`resultados.${analito}`));
+  }, []);
 
   // ── Per-row conformidade map ────────────────────────────────────────────
   const nivel = values.nivel;
@@ -211,8 +208,10 @@ export function UroanaliseFormRedesigned({
 
   const statusMessage = useMemo(() => {
     if (derivedLotStatus === 'sem_dados') return 'Aguardando preenchimento';
-    if (derivedLotStatus === 'reprovado') return `${summary.desvios} desvio${summary.desvios > 1 ? 's' : ''} detectado${summary.desvios > 1 ? 's' : ''}`;
-    if (derivedLotStatus === 'atencao') return `${summary.pendentes} analito${summary.pendentes > 1 ? 's' : ''} pendente${summary.pendentes > 1 ? 's' : ''}`;
+    if (derivedLotStatus === 'reprovado')
+      return `${summary.desvios} desvio${summary.desvios > 1 ? 's' : ''} detectado${summary.desvios > 1 ? 's' : ''}`;
+    if (derivedLotStatus === 'atencao')
+      return `${summary.pendentes} analito${summary.pendentes > 1 ? 's' : ''} pendente${summary.pendentes > 1 ? 's' : ''}`;
     return 'Todos os analitos conformes';
   }, [derivedLotStatus, summary]);
 
@@ -224,7 +223,7 @@ export function UroanaliseFormRedesigned({
   }, []);
   const timestamp = useMemo(
     () => new Date(now).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-    [now]
+    [now],
   );
 
   // ── Submit ──────────────────────────────────────────────────────────────
@@ -259,13 +258,10 @@ export function UroanaliseFormRedesigned({
         <div className="max-w-4xl mx-auto px-6 py-8 flex flex-col gap-10">
           {/* ── Identification ─────────────────────────────────────────────── */}
           <section aria-labelledby="ident-heading">
-            <h2
-              id="ident-heading"
-              className="sr-only"
-            >
+            <h2 id="ident-heading" className="sr-only">
               Identificação da corrida
             </h2>
-            <UroFormIdentificationSection
+            <UroFormIdentificationSectionV2
               values={values}
               errors={errors as Partial<Record<keyof UroanaliseFormData, string>>}
               onChange={setField}
@@ -317,7 +313,9 @@ export function UroanaliseFormRedesigned({
                 const field = values.resultados?.[analito];
                 const valor = readAuditado(field) as number | null;
                 const range = expectedSnapshot[analito];
-                const fallbackRange = nivel ? (URO_CRITERIOS[nivel][analito] as { min: number; max: number }) : undefined;
+                const fallbackRange = nivel
+                  ? (URO_CRITERIOS[nivel][analito] as { min: number; max: number })
+                  : undefined;
                 return (
                   <UroQuantitativoRow
                     key={analito}
@@ -360,10 +358,7 @@ export function UroanaliseFormRedesigned({
           />
 
           {submitError && (
-            <p
-              role="alert"
-              className="text-sm text-red-600 dark:text-red-400 text-right"
-            >
+            <p role="alert" className="text-sm text-red-600 dark:text-red-400 text-right">
               {submitError}
             </p>
           )}

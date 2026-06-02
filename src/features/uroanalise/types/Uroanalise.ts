@@ -83,6 +83,20 @@ export interface UroanaliseRun extends Omit<
   /** Frequência de realização do controle: diária ou vinculada à abertura de lote de tiras. */
   frequencia: UroFrequencia;
 
+  // ── Vínculo com AberturaLote (Fase Worklab — 2026-06-02) ──────────────────
+  /**
+   * ID da AberturaLote (subcoleção `aberturas/`) de tira ativa no momento.
+   * Quando presente, snapshotLote da abertura já carrega lote/fabricante/validade.
+   * Pipelines de save usam para resolver o `InsumoSnapshot.tira` sem lookup extra.
+   */
+  aberturaTiraId?: string;
+  /** ID da AberturaLote de controle ativa (opcional; depende de `requerControlePorCorrida`). */
+  aberturaControleId?: string;
+  /** Worklab ID da abertura de tira — desnormalizado para queries sem join. */
+  worklabIdTira?: string;
+  /** Worklab ID da abertura de controle — desnormalizado para queries sem join. */
+  worklabIdControle?: string;
+
   /**
    * Marca da tira reagente utilizada.
    * Determina quais parâmetros estão disponíveis e o formulário renderizado.
@@ -424,6 +438,115 @@ export interface UroanaliseLot {
     setupType?: 'principal' | 'validacao_paralela';
     prevSetupType?: 'principal' | 'validacao_paralela';
   }>;
+
+  // ── Fase Worklab (2026-06-02) — discriminador + metadados de tira ──────────
+
+  /**
+   * Discriminador de tipo de lote. Default = 'controle' para lotes legados.
+   * - 'controle': lote de material de controle urinário (N/P). Campos legacy
+   *   `loteControle/fabricanteControle/aberturaControle/validadeControle` ficam
+   *   populados. Tira é referenciada via `aberturaTiraId` na run.
+   * - 'tira': lote de tiras reagentes. Campos legacy ficam ausentes.
+   *   Metadados da tira abaixo são o snapshot de fábrica.
+   */
+  tipo?: 'tira' | 'controle';
+
+  /**
+   * ID sequencial do worklist (worklab ID) ativo no momento.
+   * Formato: string numérica de 1–10 dígitos (regex `^\d{1,10}$`).
+   * Validado em `firestore.rules::isValidWorklabId`.
+   */
+  worklabIdAtual?: string;
+
+  /** Nome comercial da tira (ex: "Combur-10 Test"). Apenas quando `tipo === 'tira'`. */
+  tiraNome?: string;
+  /** Fabricante da tira (ex: "Roche", "Siemens", "Bioeasy"). Apenas quando `tipo === 'tira'`. */
+  tiraFabricante?: string;
+  /** Referência/catálogo do fabricante (ex: "04580366190"). Apenas quando `tipo === 'tira'`. */
+  tiraReferencia?: string;
+  /** Quantidade de tiras no frasco (sanity check na abertura). Apenas quando `tipo === 'tira'`. */
+  tiraQuantidade?: number;
+}
+
+// ─── AberturaLote (Fase Worklab — 2026-06-02) ────────────────────────────────
+
+/**
+ * UroAberturaLote — registro de uma abertura de lote de tira ou controle
+ * vinculada a um worklab ID do analisador.
+ *
+ * Subcoleção: `labs/{labId}/ciq-uroanalise/{lotId}/aberturas/{aberturaId}`.
+ * Append-only: rules bloqueiam update/delete; correções passam por `/ciq-audit`.
+ *
+ * Cada abertura captura:
+ *  - Identificador sequencial (worklabId) — bate com o ID do worklist impresso.
+ *  - Snapshot imutável do insumo no momento da abertura (sobrevive a descarte).
+ *  - Operador que abriu, dispositivo usado, observações.
+ *  - Flag `ativa` — true enquanto a abertura está em uso; ao criar uma nova,
+ *    `createAbertura` desativa a anterior em transação (FIFO 1 ativa por lote).
+ *
+ * Compliance: RDC 786/2023 art. 42 (rastreabilidade) · RDC 978/2025.
+ */
+export interface UroAberturaLote {
+  /** UID do documento Firestore (gerado por `doc(collection)`). */
+  id: string;
+  /** UID do laboratório (multi-tenancy). */
+  labId: string;
+  /** UID do lote raiz em `ciq-uroanalise/`. */
+  lotId: string;
+
+  /**
+   * Worklab ID (ID do worklist) — string numérica de 1–10 dígitos.
+   * Validado por `firestore.rules::isValidWorklabId` e por
+   * `uroAberturaService.isValidWorklabId` no service.
+   */
+  worklabId: string;
+
+  /** Timestamp Firestore da abertura. */
+  abertoEm: import('firebase/firestore').Timestamp;
+  /** UID do operador que abriu. */
+  abertoPor: string;
+  /** Nome de exibição do operador (denormalizado p/ relatório). */
+  abertoPorNome: string;
+
+  /**
+   * Snapshot congelado do insumo no momento da abertura.
+   * Persiste o que foi aberto mesmo se o insumo mestre for descartado depois.
+   */
+  snapshotLote: {
+    /** Discriminador — espelha `UroanaliseLot.tipo`. */
+    tipo: 'tira' | 'controle';
+    /** Lote do fabricante. */
+    lote: string;
+    /** Fabricante. */
+    fabricante: string;
+    /** Validade de fábrica (YYYY-MM-DD). */
+    validade: string;
+    /** Apenas para `tipo === 'controle'`. */
+    nivel?: UroNivel;
+    /** Apenas para `tipo === 'tira'`. */
+    tiraNome?: string;
+    /** Apenas para `tipo === 'tira'`. */
+    tiraReferencia?: string;
+  };
+
+  /** Dispositivo onde o insumo foi instalado (leitor reflexométrico, por ex.). */
+  dispositivoFabricante?: string;
+  dispositivoModelo?: string;
+  dispositivoSerie?: string;
+
+  /** Observações livres do operador. */
+  observacoes?: string;
+
+  /**
+   * True enquanto a abertura está em uso. Apenas 1 abertura `ativa=true` por lote
+   * — invariante mantida por `createAbertura` em transação.
+   */
+  ativa: boolean;
+
+  /** Timestamp Firestore de criação. */
+  createdAt: import('firebase/firestore').Timestamp;
+  /** Timestamp Firestore da última atualização (normalmente = createdAt). */
+  updatedAt: import('firebase/firestore').Timestamp;
 }
 
 // ─── Re-exports para conveniência dos importers do módulo ─────────────────────

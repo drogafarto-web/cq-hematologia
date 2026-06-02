@@ -10,6 +10,7 @@ import {
   generateUroRunCode,
   uploadUroTiraImage,
 } from '../services/uroanaliseFirebaseService';
+import { getAberturaById } from '../services/uroAberturaService';
 import { useUroSignature, canonicalizeUroResultados } from './useUroSignature';
 import { computeUroValidator } from './useUroValidator';
 import type { UroanaliseRun } from '../types/Uroanalise';
@@ -54,6 +55,12 @@ export interface SaveUroRunOptions {
    * ManualKitPicker).
    */
   manual?: boolean;
+
+  /**
+   * Slice 5 — Abertura IDs para rastreabilidade worklab.
+   */
+  aberturaTiraId?: string | null;
+  aberturaControleId?: string | null;
 }
 
 export interface SaveUroRunResult {
@@ -98,16 +105,17 @@ export function useSaveUroRun() {
 
       try {
         // ── 1. Encontra ou cria o lote ─────────────────────────────────────
-        let lotId = (await findUroLot(labId, formData.nivel, formData.loteControle))?.id ?? null;
+        let lotId =
+          (await findUroLot(labId, formData.nivel, formData.loteControle ?? ''))?.id ?? null;
 
         if (!lotId) {
           lotId = await createUroLot(labId, {
             labId,
             nivel: formData.nivel,
-            loteControle: formData.loteControle,
-            fabricanteControle: formData.fabricanteControle,
-            aberturaControle: formData.aberturaControle,
-            validadeControle: formData.validadeControle,
+            loteControle: formData.loteControle ?? '',
+            fabricanteControle: formData.fabricanteControle ?? '',
+            aberturaControle: formData.aberturaControle ?? '',
+            validadeControle: formData.validadeControle ?? '',
             resultadosEsperados: formData.resultadosEsperadosRun,
             runCount: 0,
             lotStatus: 'sem_dados',
@@ -135,7 +143,7 @@ export function useSaveUroRun() {
         );
 
         const allRuns = [...existingRuns, simulatedRun];
-        const validatorResult = computeUroValidator(allRuns, formData.validadeControle);
+        const validatorResult = computeUroValidator(allRuns, formData.validadeControle ?? '');
         const simAvaliacao = validatorResult.byRun.get(simulatedId);
         const lotStatus = validatorResult.lotStatus;
 
@@ -154,11 +162,35 @@ export function useSaveUroRun() {
           operatorDocument: formData.operatorDocument,
           lotId,
           nivel: formData.nivel,
-          loteControle: formData.loteControle,
+          loteControle: formData.loteControle ?? '',
           loteTira: formData.loteTira,
           resultadosCanonical: canonicalizeUroResultados(formData.resultados),
           dataRealizacao: formData.dataRealizacao,
         });
+
+        // ── 5b. Resolve abertura IDs → worklabIds (Slice 5) ────────────────
+        const [aberturaTira, aberturaControle] = await Promise.all([
+          options.aberturaTiraId
+            ? getAberturaById(labId, formData.loteTira ?? '', options.aberturaTiraId)
+            : null,
+          options.aberturaControleId
+            ? getAberturaById(labId, formData.loteControle ?? '', options.aberturaControleId)
+            : null,
+        ]);
+        const worklabIdTira = aberturaTira?.worklabId?.toString() ?? undefined;
+        const worklabIdControle = aberturaControle?.worklabId?.toString() ?? undefined;
+        const saveOptions: SaveUroRunOptions & {
+          aberturaTiraResolved?: import('../types/Uroanalise').UroAberturaLote | null;
+          aberturaControleResolved?: import('../types/Uroanalise').UroAberturaLote | null;
+          worklabIdTira?: string;
+          worklabIdControle?: string;
+        } = {
+          ...options,
+          aberturaTiraResolved: aberturaTira,
+          aberturaControleResolved: aberturaControle,
+          worklabIdTira,
+          worklabIdControle,
+        };
 
         // ── 6. Monta e persiste o run ──────────────────────────────────────
         const run = buildRun(
@@ -172,7 +204,7 @@ export function useSaveUroRun() {
           alertas,
           conformidade,
           logicalSignature,
-          options,
+          saveOptions,
         );
 
         await saveUroRun(labId, lotId, run);
@@ -252,8 +284,35 @@ function buildRun(
   alertas: UroAlert[],
   conformidade: 'A' | 'R',
   logicalSignature: string,
-  options: SaveUroRunOptions = {},
+  options: SaveUroRunOptions & {
+    aberturaTiraResolved?: import('../types/Uroanalise').UroAberturaLote | null;
+    aberturaControleResolved?: import('../types/Uroanalise').UroAberturaLote | null;
+    worklabIdTira?: string;
+    worklabIdControle?: string;
+  } = {},
 ): UroanaliseRun {
+  // Enrich existing insumo snapshots with abertura context when available
+  const tiraSnapshot = options.insumosSnapshot?.tira
+    ? options.aberturaTiraResolved
+      ? {
+          ...options.insumosSnapshot.tira,
+          aberturaId: options.aberturaTiraResolved.id,
+          worklabIdInicio: options.worklabIdTira,
+          worklabIdAberturaEm: options.aberturaTiraResolved.abertoEm,
+        }
+      : options.insumosSnapshot.tira
+    : undefined;
+  const controleSnapshot = options.insumosSnapshot?.controle
+    ? options.aberturaControleResolved
+      ? {
+          ...options.insumosSnapshot.controle,
+          aberturaId: options.aberturaControleResolved.id,
+          worklabIdInicio: options.worklabIdControle,
+          worklabIdAberturaEm: options.aberturaControleResolved.abertoEm,
+        }
+      : options.insumosSnapshot.controle
+    : undefined;
+
   return {
     id: runId,
     runCode,
@@ -278,15 +337,20 @@ function buildRun(
     nivel: form.nivel,
     frequencia: form.frequencia,
     loteTira: form.loteTira,
-    loteControle: form.loteControle,
-    fabricanteControle: form.fabricanteControle,
-    aberturaControle: form.aberturaControle,
-    validadeControle: form.validadeControle,
-    // Tiras (opcional)
+    loteControle: form.loteControle ?? '',
+    fabricanteControle: form.fabricanteControle ?? '',
+    aberturaControle: form.aberturaControle ?? '',
+    validadeControle: form.validadeControle ?? '',
+    // Slice 5 — abertura + worklab tracking
+    aberturaTiraId: options.aberturaTiraResolved?.id,
+    aberturaControleId: options.aberturaControleResolved?.id,
+    worklabIdTira: options.worklabIdTira,
+    worklabIdControle: options.worklabIdControle,
+    // Tiras (optional)
     ...(form.tiraMarca && { tiraMarca: form.tiraMarca }),
     ...(form.fabricanteTira && { fabricanteTira: form.fabricanteTira }),
     ...(form.validadeTira && { validadeTira: form.validadeTira }),
-    // Ambiente (opcional)
+    // Ambiente (optional)
     ...(form.temperaturaAmbiente !== undefined && {
       temperaturaAmbiente: form.temperaturaAmbiente,
     }),
@@ -300,19 +364,30 @@ function buildRun(
     analitosNaoConformes,
     ...(alertas.length > 0 && { alertas }),
     ...(form.acaoCorretiva && { acaoCorretiva: form.acaoCorretiva }),
-    // Tecnovigilância (opcional)
+    // Tecnovigilância (optional)
     ...(form.notivisaTipo && { notivisaTipo: form.notivisaTipo }),
     ...(form.notivisaStatus && { notivisaStatus: form.notivisaStatus }),
     ...(form.notivisaProtocolo && { notivisaProtocolo: form.notivisaProtocolo }),
     ...(form.notivisaDataEnvio && { notivisaDataEnvio: form.notivisaDataEnvio }),
     ...(form.notivisaJustificativa && { notivisaJustificativa: form.notivisaJustificativa }),
-    // Fase B1-etapa2 — rastreabilidade de insumos
-    ...(options.insumosSnapshot && {
-      insumosSnapshot: {
-        ...(options.insumosSnapshot.tira && { tira: options.insumosSnapshot.tira }),
-        ...(options.insumosSnapshot.controle && { controle: options.insumosSnapshot.controle }),
-      },
-    }),
+    // Fase B1-etapa2 — rastreabilidade de insumos (enriched with abertura context)
+    ...(tiraSnapshot || controleSnapshot
+      ? {
+          insumosSnapshot: {
+            ...(tiraSnapshot && { tira: tiraSnapshot }),
+            ...(controleSnapshot && { controle: controleSnapshot }),
+          },
+        }
+      : options.insumosSnapshot
+        ? {
+            insumosSnapshot: {
+              ...(options.insumosSnapshot.tira && { tira: options.insumosSnapshot.tira }),
+              ...(options.insumosSnapshot.controle && {
+                controle: options.insumosSnapshot.controle,
+              }),
+            },
+          }
+        : {}),
     ...(options.insumoVencidoOverride && { insumoVencidoOverride: true }),
     ...(options.qcNaoValidado && { qcNaoValidado: true }),
     ...(options.overrideMotivo && { overrideMotivo: options.overrideMotivo }),
