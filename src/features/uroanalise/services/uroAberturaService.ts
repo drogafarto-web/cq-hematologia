@@ -63,6 +63,36 @@ export async function createAbertura(params: {
       }
     }
 
+    const parentRef = doc(db, 'labs', params.labId, 'ciq-uroanalise', params.lotId);
+    tx.set(
+      parentRef,
+      {
+        id: params.lotId,
+        labId: params.labId,
+        tipo: params.snapshotLote.tipo,
+        worklabIdAtual: params.worklabId,
+        lotStatus: 'valido',
+        runCount: 0,
+        createdAt: serverTimestamp(),
+        createdBy: params.abertoPor,
+        ...(params.snapshotLote.tipo === 'tira'
+          ? {
+              tiraNome: params.snapshotLote.tiraNome ?? '',
+              tiraFabricante: params.snapshotLote.fabricante,
+              tiraReferencia: params.snapshotLote.tiraReferencia ?? params.snapshotLote.lote,
+              validadeControle: params.snapshotLote.validade,
+            }
+          : {
+              nivel: params.snapshotLote.nivel ?? 'N',
+              loteControle: params.snapshotLote.lote,
+              fabricanteControle: params.snapshotLote.fabricante,
+              validadeControle: params.snapshotLote.validade,
+              aberturaControle: now.toDate ? now.toDate().toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
+            }),
+      },
+      { merge: true },
+    );
+
     const newRef = aberturaRef(params.labId, params.lotId, newId);
     tx.set(newRef, {
       labId: params.labId,

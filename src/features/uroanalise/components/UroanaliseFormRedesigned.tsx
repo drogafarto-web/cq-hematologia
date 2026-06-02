@@ -39,6 +39,9 @@ export interface UroanaliseFormRedesignedProps {
 
   /** Operator handle shown in the status bar timestamp area. */
   operadorDisplay?: string;
+
+  /** Callback to trigger registration of a new tira lot. */
+  onAddTiraLot?: () => void;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -85,6 +88,7 @@ export function UroanaliseFormRedesigned({
   disabled,
   lotStatus,
   operadorDisplay,
+  onAddTiraLot,
 }: UroanaliseFormRedesignedProps) {
   const [values, setValues] = useState<Partial<UroanaliseFormData>>(() => ({
     ...initialValues,
@@ -267,6 +271,7 @@ export function UroanaliseFormRedesigned({
               onChange={setField}
               onBlur={(k) => markBlurred(String(k))}
               disabled={disabled}
+              onAddTiraLot={onAddTiraLot}
             />
           </section>
 

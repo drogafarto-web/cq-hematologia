@@ -206,7 +206,8 @@ service cloud.firestore {
       match /ciq-uroanalise/{lotId} {
         allow read: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && hasModuleAccess('uroanalise'));
-        allow write: if isSuperAdmin() ||
+        allow create, update: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow delete: if isSuperAdmin() ||
           (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
 
         match /runs/{runId} {

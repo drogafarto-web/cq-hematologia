@@ -26,6 +26,8 @@ export interface UroInsumoPickerProps {
   disabled?: boolean;
   /** Custom placeholder for empty state. */
   emptyPlaceholder?: string;
+  /** Callback to trigger registration of a new tira lot. */
+  onAddTiraLot?: () => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -37,6 +39,7 @@ export function UroInsumoPicker({
   label,
   disabled = false,
   emptyPlaceholder,
+  onAddTiraLot,
 }: UroInsumoPickerProps) {
   const { lots, isLoading, error } = useUroLots(tipo);
   const [search, setSearch] = useState('');
@@ -139,10 +142,19 @@ export function UroInsumoPicker({
         <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-white/30">
           {label}
         </label>
-        <div className="rounded-lg border border-dashed border-slate-200 dark:border-white/[0.08] p-4 text-center">
+        <div className="rounded-lg border border-dashed border-slate-200 dark:border-white/[0.08] p-4 text-center flex flex-col items-center gap-2">
           <p className="text-sm text-slate-500 dark:text-white/45">
             {emptyPlaceholder ?? 'Nenhum lote cadastrado.'}
           </p>
+          {tipo === 'tira' && onAddTiraLot && (
+            <button
+              type="button"
+              onClick={onAddTiraLot}
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold bg-violet-600 hover:bg-violet-500 text-white transition-colors shadow-md shadow-violet-500/15"
+            >
+              + Adicionar lote de tiras
+            </button>
+          )}
         </div>
       </div>
     );
@@ -234,7 +246,7 @@ export function UroInsumoPicker({
                     role="option"
                     aria-selected={lot.id === value}
                     onClick={() => handleSelect(lot.id)}
-                    title={`Validade: ${expiryLabel(tipo === 'controle' ? lot.validadeControle : undefined)}`}
+                    title={`Validade: ${expiryLabel(lot.validadeControle)}`}
                     className={[
                       'w-full px-3 py-2 text-left text-sm flex items-center justify-between',
                       'transition-colors duration-100',
@@ -252,7 +264,7 @@ export function UroInsumoPicker({
                           : 'text-emerald-600 dark:text-emerald-400',
                       ].join(' ')}
                     >
-                      {expiryLabel(tipo === 'controle' ? lot.validadeControle : undefined)}
+                      {expiryLabel(lot.validadeControle)}
                     </span>
                   </button>
                 </li>

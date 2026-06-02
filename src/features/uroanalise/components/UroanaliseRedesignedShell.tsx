@@ -61,6 +61,8 @@ export interface UroanaliseRedesignedShellProps {
 
   // Optional cancel out of the whole module
   onCancel?: () => void;
+
+  onAddTiraLot?: () => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -91,6 +93,7 @@ export function UroanaliseRedesignedShell({
   headerActionsExtra,
   banner,
   onCancel,
+  onAddTiraLot,
 }: UroanaliseRedesignedShellProps) {
   const [activeTab, setActiveTab] = useState<UroTabKey>('corrida');
   const [auditTrailOpen, setAuditTrailOpen] = useState(false);
@@ -236,6 +239,7 @@ export function UroanaliseRedesignedShell({
               onCancel={onCancel}
               disabled={formDisabled}
               operadorDisplay={operadorDisplay}
+              onAddTiraLot={onAddTiraLot}
             />
           )}
 

@@ -14,6 +14,7 @@ export interface UroFormIdentificationSectionV2Props {
   onChange: <K extends keyof UroanaliseFormData>(key: K, value: UroanaliseFormData[K]) => void;
   onBlur?: (key: keyof UroanaliseFormData) => void;
   disabled?: boolean;
+  onAddTiraLot?: () => void;
 }
 
 // ─── Toggle option lists ─────────────────────────────────────────────────────
@@ -80,6 +81,7 @@ export function UroFormIdentificationSectionV2({
   onChange,
   onBlur,
   disabled,
+  onAddTiraLot,
 }: UroFormIdentificationSectionV2Props) {
   const validadeControleHint = expiryHint(values.validadeControle);
   const validadeTiraHint = expiryHint(values.validadeTira);
@@ -151,12 +153,14 @@ export function UroFormIdentificationSectionV2({
         return;
       }
       const { lot, abertura } = sel;
-      onChange('loteTira', lot.tiraReferencia ?? lot.id);
+      onChange('loteTira', abertura ? abertura.snapshotLote.lote : (lot.tiraReferencia ?? lot.id));
       onChange('tiraMarca', lot.tiraNome);
       onChange('fabricanteTira', lot.tiraFabricante);
-      onChange('validadeTira', '' as unknown as UroanaliseFormData['validadeTira']);
+      onChange('validadeTira', (abertura ? abertura.snapshotLote.validade : '') as unknown as UroanaliseFormData['validadeTira']);
       if (abertura) {
         onChange('aberturaTiraId', abertura.id);
+      } else {
+        onChange('aberturaTiraId', '');
       }
     },
     [onChange],
@@ -182,6 +186,13 @@ export function UroFormIdentificationSectionV2({
         'aberturaTiraId',
         (novaAbertura?.id ?? '') as UroanaliseFormData['aberturaTiraId'],
       );
+      if (novaAbertura) {
+        onChange('loteTira', novaAbertura.snapshotLote.lote);
+        onChange('validadeTira', novaAbertura.snapshotLote.validade as unknown as UroanaliseFormData['validadeTira']);
+      } else {
+        onChange('loteTira', '');
+        onChange('validadeTira', '' as unknown as UroanaliseFormData['validadeTira']);
+      }
     },
     [onChange],
   );
@@ -281,6 +292,7 @@ export function UroFormIdentificationSectionV2({
           onChange={handleTiraSelect}
           disabled={disabled}
           emptyPlaceholder="Nenhum lote de tira cadastrado."
+          onAddTiraLot={onAddTiraLot}
         />
         {tiraSel && (
           <div className="rounded-lg border border-slate-200 dark:border-white/[0.08] bg-slate-50/50 dark:bg-white/[0.02] px-3 py-2 text-xs">

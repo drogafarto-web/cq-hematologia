@@ -18,6 +18,7 @@ import {
 import { toast } from '../../../shared/store/useToastStore';
 import { UroanaliseRedesignedShell } from './UroanaliseRedesignedShell';
 import { NovaRunModal, RunDetailModal, QRModal } from './UroanaliseContent';
+import { NovoLoteModal } from '../../insumos/components/NovoLoteModal';
 import { daysToExpiry } from './UroanaliseForm.schema';
 import type { UroanaliseFormData } from './UroanaliseForm.schema';
 import type { UroLotSidebarItem } from './UroLotSidebar';
@@ -212,6 +213,7 @@ export function UroanaliseRedesignedDemo() {
   const [createPrefill, setCreatePrefill] = useState<UroanaliseLot | null>(null);
   const [detailRunId, setDetailRunId] = useState<string | null>(null);
   const [qrRunId, setQrRunId] = useState<string | null>(null);
+  const [showNovoLote, setShowNovoLote] = useState(false);
 
   const sidebarItems = useMemo(() => lots.map(lotToSidebarItem), [lots]);
   const auditRows = useMemo(() => runs.map(runToAuditRow), [runs]);
@@ -396,6 +398,7 @@ export function UroanaliseRedesignedDemo() {
         auditTrailSubtitle={selectedLot?.loteControle}
         headerActionsExtra={lotDecisionActions}
         banner={previewBanner}
+        onAddTiraLot={() => setShowNovoLote(true)}
       />
 
       {showCreateRun && (
@@ -427,6 +430,16 @@ export function UroanaliseRedesignedDemo() {
           run={qrRun}
           lotId={effectiveLotId}
           onClose={() => setQrRunId(null)}
+        />
+      )}
+
+      {showNovoLote && (
+        <NovoLoteModal
+          labId={labId ?? ''}
+          initialTipo="tira-uro"
+          initialModulo="uroanalise"
+          onClose={() => setShowNovoLote(false)}
+          onCreated={() => setShowNovoLote(false)}
         />
       )}
     </>
