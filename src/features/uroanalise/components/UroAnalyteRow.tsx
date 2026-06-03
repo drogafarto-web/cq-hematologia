@@ -9,7 +9,7 @@ interface UroAnalyteRowProps {
   label: string;
   scale: ReadonlyArray<UroValorCategorico>;
   value: UroValorCategorico | null | undefined;
-  expected?: UroValorCategorico;
+  expected?: string;
   onChange: (value: UroValorCategorico) => void;
   conformidade?: ConformidadeRow;
   required?: boolean;
@@ -62,7 +62,7 @@ export function UroAnalyteRow({
         </span>
         {expected && (
           <span className="text-[11px] font-mono text-slate-400 dark:text-white/35 leading-tight">
-            esperado: <span className="text-slate-500 dark:text-white/55">{formatScaleLabel(expected)}</span>
+            esperado: <span className="text-slate-500 dark:text-white/55">{expected}</span>
           </span>
         )}
         {isOcrLowConfidence && (

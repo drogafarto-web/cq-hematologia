@@ -16,8 +16,11 @@ import type {
   UroAnalitoCategoricoId,
   UroValorCategorico,
   UroLotStatus,
+  UroNivel,
 } from '../types/_shared_refs';
 import type { UroFieldAuditado } from '../types/Uroanalise';
+import { validateUroResultado } from '../hooks/useUroValidator';
+import { toast } from '../../../shared/store/useToastStore';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -61,22 +64,57 @@ function readAuditado<T>(field: UroFieldAuditado<T> | undefined): T | null {
   return field?.valor ?? null;
 }
 
+function getExpectedDisplay(
+  analito: UroAnalitoId,
+  nivel: UroNivel | undefined,
+  configuredExpected: any
+): string {
+  if (!nivel) return '';
+  if (nivel === 'N') {
+    if (analito === 'ph') return '5,0 - 6,0';
+    if (analito === 'densidade') return '1,005 - 1,025';
+    if (analito === 'urobilinogenio') return 'NORM';
+    return 'NEG';
+  }
+  // Level P (Patológico)
+  if (analito === 'ph') return '6,0 - 8,0';
+  if (analito === 'densidade') return '1,015 - 1,030';
+  if (analito === 'glicose') return '1+ a 4+';
+  if (analito === 'nitrito') return 'POS';
+  if (
+    analito === 'cetonas' ||
+    analito === 'bilirrubina' ||
+    analito === 'sangue' ||
+    analito === 'leucocitos' ||
+    analito === 'urobilinogenio'
+  ) {
+    return '1+ a 4+ / AUM / POS';
+  }
+  return configuredExpected ? String(configuredExpected) : '';
+}
+
 function evalCategoricalConformidade(
   value: UroValorCategorico | null,
-  expected: UroValorCategorico | undefined,
+  analito: UroAnalitoId,
+  nivel: UroNivel | undefined,
 ): 'conforme' | 'desvio' | 'sem_avaliar' {
   if (!value) return 'sem_avaliar';
-  if (!expected) return 'sem_avaliar';
-  return value === expected ? 'conforme' : 'desvio';
+  if (!nivel) return 'sem_avaliar';
+  const ok = validateUroResultado(analito, value, nivel);
+  if (ok === null) return 'sem_avaliar';
+  return ok ? 'conforme' : 'desvio';
 }
 
 function evalNumericConformidade(
   value: number | null,
-  range: { min: number; max: number } | undefined,
+  analito: UroAnalitoId,
+  nivel: UroNivel | undefined,
 ): 'conforme' | 'desvio' | 'sem_avaliar' {
   if (value === null || value === undefined || Number.isNaN(value)) return 'sem_avaliar';
-  if (!range) return 'sem_avaliar';
-  return value >= range.min && value <= range.max ? 'conforme' : 'desvio';
+  if (!nivel) return 'sem_avaliar';
+  const ok = validateUroResultado(analito, value, nivel);
+  if (ok === null) return 'sem_avaliar';
+  return ok ? 'conforme' : 'desvio';
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -169,16 +207,14 @@ export function UroanaliseFormRedesigned({
     if (!nivel) return out;
     for (const cat of CAT_ANALITOS) {
       const valor = readAuditado(values.resultados?.[cat]);
-      const expected = expectedSnapshot[cat];
-      out[cat] = evalCategoricalConformidade(valor, expected);
+      out[cat] = evalCategoricalConformidade(valor, cat, nivel);
     }
     for (const q of QUANT_ANALITOS) {
       const valor = readAuditado(values.resultados?.[q]);
-      const range = expectedSnapshot[q];
-      out[q] = evalNumericConformidade(valor as number | null, range);
+      out[q] = evalNumericConformidade(valor as number | null, q, nivel);
     }
     return out;
-  }, [values.resultados, expectedSnapshot, nivel]);
+  }, [values.resultados, nivel]);
 
   // ── Summary metrics for footer ──────────────────────────────────────────
   const summary = useMemo(() => {
@@ -242,6 +278,11 @@ export function UroanaliseFormRedesigned({
     setSubmitError(null);
     const parsed = UroanaliseFormSchema.safeParse(values);
     if (!parsed.success) {
+      console.error('Uroanalise validation failed:', parsed.error.format());
+      const firstError = parsed.error.errors[0];
+      const fieldPath = firstError.path.join('.');
+      const errorMsg = `${firstError.message} (${fieldPath})`;
+      toast.error(`Erro de validação: ${errorMsg}`);
       setSubmitError('Corrija os campos destacados antes de salvar.');
       return;
     }
@@ -309,7 +350,7 @@ export function UroanaliseFormRedesigned({
                     label={URO_ANALITO_LABELS[analito]}
                     scale={opcoes}
                     value={valor}
-                    expected={expected}
+                    expected={getExpectedDisplay(analito, nivel, expected)}
                     onChange={(v) => setCatResultado(analito, v)}
                     conformidade={rowConformidade[analito] ?? 'sem_avaliar'}
                     disabled={disabled}
