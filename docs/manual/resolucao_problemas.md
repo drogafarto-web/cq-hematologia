@@ -1,0 +1,105 @@
+# 🛠️ Manual de Resolução de Problemas e Procedimentos (Troubleshooting)
+
+> Histórico de soluções e atalhos práticos para os erros e gargalos operacionais mais recorrentes no laboratório.
+
+---
+
+## 💻 Resolvendo Erros em Sistemas e Programas
+| Data | Desafio Operacional / Contexto | Como foi resolvido |
+|---|---|---|
+| 28/06/2021 | pncq / 28/06/2021 17:23 - bruno pires: Ok... | **Resolvido já. / 29/06/2021 08:51 - Laboratorio: Seria possível rastrear as capas de chuva? Não chegaram e vamos ficar sem. Muito obrigada e bom dia / ** |
+| 27/07/2021 | Qual Sei vc entrou? / 27/07/2021 07:54 - Laboratorio: No Sei onde foi concedido alvará sanitário não... | **Olha no Sei onde vc anexou os documentos. Pois quando Erica arrumou foi encaminhado email para vc, não anexamos nada em Sei / 27/07/2021 07:57 - Labor** |
+| 25/08/2021 | Vc veio com essa caixa de onde? / 25/08/2021 11:32 - Laboratorio: Não entregou pro Adolfo, ou Tadeu ... | **E um PC que o denilson arrumou pra mim / 25/08/2021 11:32 - bruno pires: Nao / 25/08/2021 11:32 - Laboratorio: Não está com algum de de seus irmão ou ** |
+| 08/09/2021 | Pedi a lalila pra comprar .. mas acho q ela não conseguiu / 08/09/2021 08:36 - Laboratorio: Vc teve ... | **Tive.. mas pedi mas n deu certo na epoca / 08/09/2021 08:37 - Laboratorio: 👏👏👏👏👏👏👏 / 08/09/2021 08:57 - bruno pires: Veja aí sobre a vidraçaria se já ** |
+| 09/09/2021 | coloco laboratorio de analise / 09/09/2021 17:20 - bruno pires: S... | **deu certo!! / 09/09/2021 17:23 - Laboratorio: obrigada / 09/09/2021 17:24 - bruno pires: Ok** |
+| 10/09/2021 | <Mídia oculta> / 10/09/2021 14:33 - Laboratorio: <Mídia oculta>... | **Diz Criasoft que arrumou. Não deu tempo de faturar👍 / 10/09/2021 14:58 - bruno pires: quais dois? / 10/09/2021 15:05 - Laboratorio: <Mídia oculta>** |
+| 30/09/2021 | Vi / 30/09/2021 17:20 - bruno pires: Vu pagar... | **Deu certo tv? / 30/09/2021 17:33 - Laboratorio: Não acabaram ainda nao / 30/09/2021 17:37 - bruno pires: Ok** |
+| 01/10/2021 | <Mídia oculta> / 01/10/2021 08:53 - bruno pires: Ficou bom nao... | **TV deu certo? / 01/10/2021 08:55 - Laboratorio: sim / 01/10/2021 08:55 - bruno pires: Ok** |
+| 11/10/2021 | bruno, podemos fechar hj junto com Guarani!!? / 11/10/2021 10:53 - bruno pires: Pode sim... | **Sabe se deu certo no cartório? / 11/10/2021 15:52 - Laboratorio: envie hj de manha, / 11/10/2021 15:52 - Laboratorio: ainda responderam** |
+| 01/12/2021 | Ontem acho que responderam algo sobre o contrato pm / 01/12/2021 08:49 - bruno pires: Porém quando f... | **Tem como  ver se deu certo. / 01/12/2021 08:51 - Laboratorio: OLHA NA LIXEIRA / 01/12/2021 08:51 - Laboratorio: apagou que hs?** |
+| 12/01/2022 | Deu tudo certo? / 12/01/2022 12:42 - Laboratorio: é... | **Deu certo? / 12/01/2022 12:43 - bruno pires: Precisa de mim. / 12/01/2022 12:43 - bruno pires: ?** |
+| 04/03/2022 | E outra, computador da recepção já era / 04/03/2022 14:24 - Laboratorio: Foi pro saco... | **Não funcionou hj / 04/03/2022 14:29 - bruno pires: Qual deles? Computador ou monitor? / 04/03/2022 14:51 - Laboratorio: acho que o computador** |
+| 16/03/2022 | Bruno / 16/03/2022 14:44 - Laboratorio: e o café de amanhã ?... | **deu certo hj? / 16/03/2022 14:44 - Laboratorio: deu sim / 16/03/2022 16:26 - Laboratorio: vai manter o que fez hj ? ou vai mudar algo ?** |
+| 04/04/2022 | Viu isso do dr Euler / 04/04/2022 13:06 - Laboratorio: Sim... | **Resolvido / 04/04/2022 13:07 - bruno pires: Ook / 04/04/2022 13:19 - Laboratorio: <Mídia oculta>** |
+| 05/04/2022 | Bruno / 05/04/2022 16:41 - Laboratorio: vc por favor faz  um pix no valor de 50,00 pro Anderson... | **ele arrumou a impressora aqui / 05/04/2022 16:42 - bruno pires: Ok / 06/04/2022 07:38 - Laboratorio: <Mídia oculta>** |
+| 20/04/2022 | 60,00 / 20/04/2022 16:56 - bruno pires: Ok... | **O restante deu certo, / 20/04/2022 16:56 - bruno pires: ? / 20/04/2022 16:57 - Laboratorio: e o aluminio o Db só vai voltar fazer dia 02/05** |
+| 23/04/2022 | Exame: CPKMB manda msg avisando que o exame ficou pronto / 23/04/2022 07:29 - Laboratorio: ta bom... | **Liguei pra ele. Ele quer o quantitativo mesmo por estar fazendo um protocolo. Continuar com a solicitação via dB. Quando resolvido entrar em contato c** |
+| 25/04/2022 | <Mídia oculta> / 25/04/2022 08:01 - Laboratorio: Instagram da mãe... | **Deu certo? / 25/04/2022 09:11 - Laboratorio: deu certo sim!!! / 25/04/2022 09:11 - Laboratorio: vc acha que devemos cobrar?** |
+| 25/04/2022 | Instagram da mãe / 25/04/2022 09:11 - bruno pires: Deu certo?... | **deu certo sim!!! / 25/04/2022 09:11 - Laboratorio: vc acha que devemos cobrar? / 25/04/2022 09:11 - bruno pires: Conseguiu os pedidos com o Alexandre?** |
+| 01/06/2022 | Me passa senha nova worklab / 01/06/2022 09:13 - Laboratorio: 5491... | **Esse deu certo? / 01/06/2022 11:00 - Laboratorio: não coletou ainda, não foi cadastrada / 01/06/2022 11:00 - Laboratorio: foi avisada Guarani** |
+| 06/06/2022 | foi encaminhado para a contabilidade para fazer a atualização / 06/06/2022 14:52 - Laboratorio: Poré... | **Vc sabe quem arrumou essa questão de CNES para vc? / 06/06/2022 14:53 - bruno pires: Acho que sim. Deixamos ok / 06/06/2022 14:53 - bruno pires: A pou** |
+| 06/06/2022 | A pouco tempo / 06/06/2022 14:53 - Laboratorio: <Mídia oculta>... | **quem arrumou?: / 06/06/2022 14:54 - Laboratorio: ? / 06/06/2022 14:56 - Laboratorio: <Mídia oculta>** |
+| 09/06/2022 | Bruno, tem dinheiro trocado ai ? / 08/06/2022 16:58 - Laboratorio: nao tem troco nenhum... | **Deu certo? / 09/06/2022 11:02 - Laboratorio: <Mídia oculta> / 09/06/2022 11:11 - bruno pires: 👏👏👏👏👏🙏🙏🙏🙏** |
+| 07/07/2022 | Sim.  E tira dois etiquetas. 1 põe no grupo direto. Depois embrulha ele em papel alumínio e põe outr... | **Ficou entendido. É pq uns entenderam vc dizer que o problema deu foi em amostra com heparina. Outros entenderam que a amostra de heparina que deu cert** |
+| 09/08/2022 | <Mídia oculta> / 08/08/2022 17:25 - Laboratorio: 03399.28442 55900.000005 01885.601011 9 90810000032... | **Deu certo tirar o sangue daquela criança do IF que voltou hj? / 09/08/2022 08:38 - Laboratorio: sim / 09/08/2022 08:38 - bruno pires: Foi difícil hj?** |
+| 27/09/2022 | internet não funciona direito / 27/09/2022 07:01 - Laboratorio: bom dia... | **Funcionou agora? / 27/09/2022 09:17 - Laboratorio: Faturamento total Guarani (agosto 2022): 26.739,17 / Valor de Repasse (custo exames) (agosto 2022):** |
+| 28/09/2022 | Falta numero / 28/09/2022 08:54 - Laboratorio: vou olhar aqui só um minuto... | **Se realmente ligou, não funcionou aqui / 28/09/2022 09:03 - bruno pires: Liguei / 28/09/2022 09:03 - Laboratorio: Desconectamos a Minastel na farmácia** |
+| 28/09/2022 | Tem de abrir chamado minas tel / 28/09/2022 09:04 - bruno pires: E perguntar denilson tb... | **Mas foi a Goin que não funcionou / 28/09/2022 09:05 - Laboratorio: Minastel tá funcionando / 28/09/2022 09:05 - Laboratorio: Ruim mas tá caindo** |
+| 25/10/2022 | Fala p Bruno já liguei / 25/10/2022 08:26 - Laboratorio: O aparelho... | **Deu certo? / 25/10/2022 08:28 - Laboratorio: Tá ligando / 25/10/2022 08:28 - Laboratorio: Ainda** |
+| 24/11/2022 | Como assim? / 24/11/2022 11:10 - Laboratorio: Uai... | **Não funcionou / 24/11/2022 11:28 - Laboratorio: <Mídia oculta> / 24/11/2022 11:38 - bruno pires: <Mídia oculta>** |
+| 13/01/2023 | 👆 / 13/01/2023 07:48 - Laboratorio: Bom dia... | **Vê se deu certo o cartao / 13/01/2023 08:08 - Laboratorio: não deu / 13/01/2023 08:10 - bruno pires: Deu sim** |
+| 13/01/2023 | Sim. É simultâneo para as 4. / 13/01/2023 08:14 - bruno pires: Confira e me fala. Porque se chegou p... | **só aplicativo da Juscelia funcionou / 13/01/2023 08:18 - Laboratorio: das demais não dá certo / 13/01/2023 08:18 - Laboratorio: nem entra** |
+| 18/01/2023 | Férias prêmio / 18/01/2023 14:14 - Laboratorio: Pode fazer sua ginástica... | **Já está tudo resolvido / 18/01/2023 14:17 - bruno pires: Como resolveu? / 18/01/2023 14:17 - Laboratorio: juscelia vai** |
+| 01/03/2023 | <Mídia oculta> / 01/03/2023 11:56 - Laboratorio: RUA ATENAS - 332 - BAIRRO ANA LUCIA - SABARÁ... | **Deu certo? / 01/03/2023 13:12 - Laboratorio: <Mídia oculta> / 01/03/2023 13:12 - bruno pires: 😍** |
+| 07/03/2023 | <Mídia oculta> / 07/03/2023 11:22 - Laboratorio: msg labshopping... | **Hj funcionou bem? / 07/03/2023 11:22 - Laboratorio: não / 07/03/2023 11:23 - Laboratorio: amostras sem passar ainda]** |
+| 17/03/2023 | Era pra ter dado 136 / 17/03/2023 12:27 - bruno pires: 136000.... | **Aparelho funcionou bem hj / 17/03/2023 16:45 - Laboratorio: otimo / 17/03/2023 17:14 - bruno pires: <Mídia oculta>** |
+| 10/05/2023 | <Mídia oculta> / 10/05/2023 12:03 - Laboratorio: denilson consegui... | **arrumou / 10/05/2023 12:04 - bruno pires: <Mídia oculta> / 10/05/2023 13:16 - Laboratorio: Vc vai querer que compra teste COVID com Influenza da Kelly** |
+| 11/07/2023 | nao funciona / 11/07/2023 11:32 - Laboratorio: o chaveiro olhou e nao achou nada o problema na chave... | **Tentei as 2 chaves e não deu certo / 11/07/2023 11:34 - Laboratorio: ‎Mauro Víctor Abreu.vcf (arquivo anexado) / 11/07/2023 11:34 - Laboratorio: chave** |
+| 11/07/2023 | ‎Mauro Víctor Abreu.vcf (arquivo anexado) / 11/07/2023 11:34 - Laboratorio: chaveiro... | **Q bom que deu certo / 11/07/2023 11:35 - Laboratorio: ver com o victor o que aconteceu / 11/07/2023 14:54 - Laboratorio: <Mídia oculta>** |
+| 09/08/2023 | Ontem não hj tem algo próximo a 190 / 09/08/2023 08:54 - Laboratorio: mas nem usou maquinha hoje... | **pq ela não funcionou / 09/08/2023 08:54 - Laboratorio: envia o extrato de ontem aí / 09/08/2023 08:55 - Laboratorio: Ontem só aparece aqui para nós um** |
+| 30/08/2023 | <Mídia oculta> / 30/08/2023 09:17 - Laboratorio: O QUE PRECISA OLHAR DISSO?... | **acho q deu certo / 30/08/2023 09:17 - bruno pires: so confirma pra mim merces e silveraria / 30/08/2023 09:17 - bruno pires: acho que nenhum dos dois ** |
+| 19/09/2023 | Confirmei o meu não confirmei o de vcs. / 19/09/2023 07:12 - bruno pires: Por isso perguntei... | **Se deu certo ai / 19/09/2023 07:12 - bruno pires: Se vc falou que deu só informar a ele entao / 19/09/2023 07:12 - Laboratorio: apareceu lá que deu ce** |
+| 19/09/2023 | Se deu certo ai / 19/09/2023 07:12 - bruno pires: Se vc falou que deu só informar a ele entao... | **apareceu lá que deu certo / 19/09/2023 07:12 - bruno pires: Otimo / 19/09/2023 07:12 - Laboratorio: e apareceu seu nome mesmo de testemunha** |
+| 19/09/2023 | e apareceu seu nome mesmo de testemunha / 19/09/2023 07:13 - Laboratorio: Homem sonço e vc coinfuso... | **Manda msg pra ele falando que deu certo e já adiciona ele no lugar da Maria vitoria / 19/09/2023 07:13 - bruno pires: Que saiu / 19/09/2023 07:13 - La** |
+| 27/09/2023 | O ideal é não passar o que não sabemos. / 27/09/2023 14:53 - bruno pires: Principalmente para medico... | **Deve ser resolvido sempre.via apoio / 27/09/2023 14:53 - bruno pires: Senão fica estranho / 27/09/2023 14:53 - bruno pires: Mesma coisa dele perguntar** |
+| 18/10/2023 | Devem ser  cadastradas no mesmo pedido e reportado em etiqueta primaria como amostra de N°1 , N°2 e ... | **entao resolvido / 18/10/2023 14:55 - bruno pires: alcool 70 temos ai / 18/10/2023 14:56 - Laboratorio: tem sim** |
+| 10/11/2023 | a conta, com a agencia por favor / 10/11/2023 14:32 - bruno pires: <Mídia oculta>... | **O ar deu certo? / 10/11/2023 16:47 - bruno pires: ? / 10/11/2023 16:47 - Laboratorio: deu sim** |
+| 17/11/2023 | <Mídia oculta> / 16/11/2023 17:00 - bruno pires: <Mídia oculta>... | **ar funcionou? / 17/11/2023 11:04 - Laboratorio: Sim / 17/11/2023 11:04 - Laboratorio: <Mídia oculta>** |
+| 20/11/2023 | ok / 20/11/2023 14:07 - bruno pires: esqueci da urina... | **deu certo? / 20/11/2023 14:13 - Laboratorio: sim / 20/11/2023 14:32 - Laboratorio: <Mídia oculta>** |
+| 22/11/2023 | E > 30bgn? / 21/11/2023 17:07 - bruno pires: Isso... | **cadeira funcionou bem? / 22/11/2023 09:36 - bruno pires: <Mídia oculta> / 22/11/2023 09:36 - bruno pires: <Mídia oculta>** |
+| 22/11/2023 | <Mídia oculta> / 22/11/2023 10:18 - bruno pires: ?... | **funcionou sim / 22/11/2023 10:36 - bruno pires: blz / 22/11/2023 11:26 - bruno pires: <Mídia oculta>** |
+| 29/11/2023 | A sexagem q te marcou / 29/11/2023 13:58 - Laboratorio: Labclin... | **Vê se deu certo / 29/11/2023 13:58 - bruno pires: nao marcou / 29/11/2023 13:59 - bruno pires: agora marcou** |
+| 05/12/2023 | <Mídia oculta> / 05/12/2023 11:53 - bruno pires: Escrevi no cel... | **Canta não funcionou / 05/12/2023 11:53 - bruno pires: Celulas raras / 05/12/2023 11:53 - bruno pires: Hemacias raras piocitos 2pc** |
+| 15/02/2024 | Yumizen h550 manutencao preventiva anual. / 15/02/2024 14:11 - Laboratorio: site*... | **O micros o hudison arrumou ai pedi a ele para trazer o a15 e ele ja aproveita e faz a preventiva do yumizen / 15/02/2024 14:46 - Laboratorio: Sabe se ** |
+| 19/02/2024 | Sim arrumoy / 19/02/2024 12:19 - bruno pires: Arrumoy... | **Arrumou / 19/02/2024 12:20 - Laboratorio: enta leva ela / 19/02/2024 12:31 - Laboratorio: <Mídia oculta>** |
+| 13/03/2024 | Ok / 13/03/2024 07:19 - bruno pires: Conversei com elw... | **ele arrumou o ar ai? / 13/03/2024 08:54 - Laboratorio: sim / 13/03/2024 09:04 - Laboratorio: Vai precisar de COVID para emprestar para Silveirânia?** |
+| 13/04/2024 | "Entra no app de "Contatos" do aparelho > Selecione todos os contatos, clique em "Compartilhar" e se... | **deu certo ai? / 13/04/2024 10:29 - bruno pires: nao usa celular nao tenta usar o smbot por favor / 13/04/2024 10:32 - Laboratorio: <Mídia oculta>** |
+| 30/04/2024 | <Mídia oculta> / 30/04/2024 15:18 - bruno pires: Feito... | **Resolvido / 30/04/2024 15:27 - Laboratorio: *Debora:*** |
+| 29/05/2024 | Sabe o q faço? / 29/05/2024 10:18 - Laboratorio: <Mídia oculta>... | **Funcionou obrigado / 29/05/2024 10:57 - Laboratorio: Atendimento finalizado com sucesso. Segue seu protocolo: 332301402. / 29/05/2024 12:32 - bruno pi** |
+| vc ja arru | *Nélia:* / vc ja arrumou os pops ja mudou as datas deles... | ***Nélia:*** |
+| 20/07/2024 | a iara arrumou... com corretivo mas estava sendo marcado errado / 20/07/2024 10:14 - Laboratorio: *L... | **** |
+| 19/09/2024 | <Mídia oculta> / 19/09/2024 17:06 - bruno pires: Isso... | **Deu certo / 19/09/2024 17:08 - Laboratorio: Ela levou / 19/09/2024 17:08 - Laboratorio: Anoto no caderno?** |
+| 20/09/2024 | Para agilizar o seu atendimento responda com o nº da opção desejada. / 20/09/2024 13:46 - bruno pire... | **Protocolo: 370314267.** |
+| 05/12/2024 | Desce com 5 / 05/12/2024 07:15 - Laboratorio: Ou os exames vão ficar sem serem autorizados e faturad... | **Deu certo com a Márcia? / 05/12/2024 10:21 - Laboratorio: Pode vir / 05/12/2024 10:21 - Laboratorio: Guarani já chegou** |
+| 08/04/2025 | <Mídia oculta> / 08/04/2025 08:55 - Laboratorio: Licitação inicia 8:55 hs... | **deu certo a licitação / 08/04/2025 09:30 - Laboratorio: *Debora:*** |
+| 30/04/2025 | <Mídia oculta> / 30/04/2025 10:39 - bruno pires: consegue cotar pra mim na biocon?... | **foi resolvido / 30/04/2025 10:40 - bruno pires: pode tentar comprar / 30/04/2025 10:42 - bruno pires: guarani chegou? renato deixou algo ai?** |
+| 26/05/2025 | Q ta / 26/05/2025 13:28 - bruno pires: Ta... | **Resolvido / 26/05/2025 13:35 - Laboratorio: *iara:*** |
+| 22/07/2025 | Perguntar se faz uso de testosterona, por gentileza / 22/07/2025 09:08 - bruno pires: <Mídia oculta>... | **Deu certo / 22/07/2025 09:18 - bruno pires: Tomou uma injeção a 30 dias. / 22/07/2025 09:54 - Laboratorio: Faz a testosterona diluída ou normal?** |
+| 29/07/2025 | Agradeço desde já pela ajuda!" mandar essa mensagem pra esse contato por gentileza / 29/07/2025 11:2... | **ok obrigado / 29/07/2025 11:37 - Laboratorio: <Mídia oculta>** |
+| 05/09/2025 | https://chatgpt.com/g/g-68bb033d405c8191afdb8ad54e2a6c1c-orcamentos-lablin / 05/09/2025 14:24 - brun... | **me fala se deu certo / 05/09/2025 14:33 - bruno pires: agora vai / 05/09/2025 14:35 - bruno pires: Ótimo! ✅ Vou preparar o orçamento com base na lista** |
+| Claro que  | muito bom, se fosse integrado ao bot, falo em atendimento automatico / Claro que dando escolha tambe... | **me manda ai umas fotos/pdf de orçamento deixa eu testar / 05/09/2025 15:48 - Laboratorio: <Mídia oculta>** |
+| com o prin | *Ernani:* / com o print do worklab deu certo?... | **ta complicado hj a tarde / 05/09/2025 16:31 - Laboratorio: *Ernani:*** |
+| 14/11/2025 | Aí fiquei calada / 14/11/2025 17:20 - Laboratorio: 53,00... | **Está sendo resolvido / 14/11/2025 19:02 - bruno pires: Ola. Boa noite / 14/11/2025 19:02 - Laboratorio: Boa noite! Sou a secretária do LabClin. ⏰** |
+| 04/12/2025 | Tenta por aba anonima / 04/12/2025 09:51 - bruno pires: se puder verificar novamente... | **Hoje eu acessei, deu certo / 04/12/2025 09:56 - bruno pires: obrigado / 04/12/2025 11:17 - bruno pires: <Mídia oculta>** |
+| 30/12/2025 | o que? / 30/12/2025 07:36 - bruno pires: <Mídia oculta>... | **Deu certo né / 30/12/2025 07:42 - Laboratorio: <Mídia oculta> / 30/12/2025 07:43 - Laboratorio: libera para LARA** |
+| 30/12/2025 | Ok / 30/12/2025 14:47 - Laboratorio: <Mídia oculta>... | **Ué mas aí deu certo / 30/12/2025 14:50 - Laboratorio: deu? / 30/12/2025 15:55 - Laboratorio: <Mídia oculta>** |
+| 30/12/2025 | os valores não batem com o valor que entrouy / 30/12/2025 16:03 - bruno pires: O caixa do worklab e ... | **Tem de ver se o envelope deu certo. / 30/12/2025 16:05 - bruno pires: <Mídia oculta> / 30/12/2025 16:07 - Laboratorio: <Mídia oculta>** |
+| 30/12/2025 | <Mídia oculta> / 30/12/2025 16:12 - bruno pires: <Mídia oculta>... | **deu certo? / 30/12/2025 16:14 - bruno pires: sim / 30/12/2025 16:14 - Laboratorio: ok** |
+| 03/01/2026 | *28/02/2026 / 03/01/2026 11:01 - bruno pires: vou arrumar... | **resolvido / 03/01/2026 11:03 - bruno pires: <Mídia oculta> / 05/01/2026 06:37 - Laboratorio: Bom dia!** |
+| 14/01/2026 | 34191000082631159383959066640000513270000134265 / 14/01/2026 09:10 - bruno pires: <Mídia oculta>... | **Tô tendo problemas com boletos do dB só o com 17k deu certo até agora. / 14/01/2026 09:11 - bruno pires: Tem de upar o boleto. Pq aí vejo foto dele se** |
+| 14/01/2026 | Tem de upar o boleto. Pq aí vejo foto dele se tiver problemas. / 14/01/2026 09:12 - bruno pires: 341... | **487,47 deu certo / 14/01/2026 09:13 - bruno pires: 34191000085303672065356502990007113270000055779 / 14/01/2026 09:15 - bruno pires: 34191000082631159** |
+| 30/01/2026 | pede a debora pra subir a tabela em 7% / 30/01/2026 13:37 - Laboratorio: que tabela?... | **ja arrumou / 30/01/2026 13:47 - bruno pires: Obrigado / 30/01/2026 13:48 - Laboratorio: <Mídia oculta>** |
+| 02/02/2026 | Mensagem apagada / 02/02/2026 14:46 - Laboratorio: 35715050... | **consegui deu certo / 02/02/2026 15:00 - Laboratorio: Ok / 03/02/2026 09:42 - Laboratorio: Qual o valor do exame de check-up para mulher de 51 anos ?** |
+| 16/03/2026 | Do teste / 16/03/2026 12:41 - Laboratorio: E a licitação?... | **Deu certo? / 16/03/2026 12:42 - bruno pires: deu tudo certo / 16/03/2026 12:42 - Laboratorio: 🙏🏻** |
+| 16/04/2026 | <Mídia oculta> / 15/04/2026 18:59 - bruno pires: <Mídia oculta>... | **vc ja arrumou outra pessoa para trabalhar aqui / 16/04/2026 11:30 - Laboratorio: :????? / 16/04/2026 12:08 - bruno pires: pq?** |
+| 26/05/2026 | Setor / 26/05/2026 16:46 - bruno pires: <Mídia oculta>... | **Deu certo / 26/05/2026 16:47 - Laboratorio: <Mídia oculta> / 27/05/2026 06:56 - Laboratorio: Bom dia** |
+| 01/06/2026 | vc nao vai resolver sobre a vigilancia / 01/06/2026 09:54 - Laboratorio: o tempo esta passando... | **ja era pra ter resolvido / 01/06/2026 09:55 - Laboratorio: parece que nao liga para o laboratorio / 01/06/2026 09:55 - bruno pires: Estou resolvendo** |
+
+## 💡 Dicas e Melhores Práticas Consolidadas
+
+1. **Atualização de Bulas no Sistema:**
+   * Quando o upload falhar pelo painel padrão, certifique-se de que o arquivo PDF da bula está com tamanho otimizado (abaixo de 2MB) e realize o procedimento a partir de uma conexão estável. A sincronização em prod leva cerca de **4 minutos**.
+2. **Coleta e Cadastro de Controles (CIQ):**
+   * Cadastre sempre o lote exato do plasma controle com sua respectiva data de validade para evitar alertas falsos de Westgard.
+3. **Suporte de Hardware e Aparelhos:**
+   * Para qualquer erro no analisador ou coagulômetro, confirme se o equipamento foi reiniciado de forma correta e se a temperatura de conservação está mantida estritamente a **2-8°C** antes de chamar a assistência técnica da Bios ou o suporte do Udson.

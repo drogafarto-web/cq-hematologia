@@ -33,7 +33,14 @@
       "Bash(bash scripts/preflight-secrets-check.sh)",
       "Bash(Select-Object -First 40)",
       "PowerShell(curl -s -o $null -w \"%{http_code}\" https://hmatologia2.web.app)",
-      "PowerShell($r = Invoke-WebRequest -Uri \"https://hmatologia2.web.app\" -UseBasicParsing; \"$\\($r.StatusCode\\) - $\\($r.Content.Length\\) bytes\")"
+      "PowerShell($r = Invoke-WebRequest -Uri \"https://hmatologia2.web.app\" -UseBasicParsing; \"$\\($r.StatusCode\\) - $\\($r.Content.Length\\) bytes\")",
+      "Bash(Sort-Object Name)",
+      "PowerShell(Get-Content \"C:\\\\hc quality\\\\package.json\" | ConvertFrom-Json | ForEach-Object { $_.dependencies.PSObject.Properties | ForEach-Object { \"$\\($_.Name\\) = $\\($_.Value\\)\" } } | Sort-Object)",
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell(git *)",
+      "PowerShell(\\(Get-Content \"C:\\\\hc quality\\\\firestore.rules\" | Measure-Object -Line\\).Lines)",
+      "Bash(Select-Object -Last 20)",
+      "PowerShell(Start-Process \"https://hmatologia2.web.app/coagulacao\")"
     ]
   },
   "enableAllProjectMcpServers": false,

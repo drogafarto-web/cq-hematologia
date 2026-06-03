@@ -82,8 +82,8 @@ export const UroanaliseFormSchema = z
     // ── Controle (preenchidos pelo picker no Slice 5) ────────────────────────
     loteControle: z.string().optional(),
     fabricanteControle: z.string().optional(),
-    aberturaControle: dateField('Data de abertura do controle inválida.').optional(),
-    validadeControle: dateField('Data de validade do controle inválida.').optional(),
+    aberturaControle: dateField('Data de abertura do controle inválida.').optional().or(z.literal('')),
+    validadeControle: dateField('Data de validade do controle inválida.').optional().or(z.literal('')),
 
     // ── Tiras reagentes (preenchidos pelo picker) ─────────────────────────────
     loteTira: z.string().min(1, 'Selecione a tira reagente no picker.'),
@@ -96,8 +96,8 @@ export const UroanaliseFormSchema = z
       .or(z.literal('')),
 
     // ── Vínculo com AberturaLote (Fase Worklab — 2026-06-02) ──────────────────
-    aberturaTiraId: z.string().min(1, 'Selecione uma abertura de tira ativa.').optional(),
-    aberturaControleId: z.string().optional(),
+    aberturaTiraId: z.string().min(1, 'Selecione uma abertura de tira ativa.').optional().or(z.literal('')),
+    aberturaControleId: z.string().optional().or(z.literal('')),
 
     // ── Operador ──────────────────────────────────────────────────────────────
     operatorDocument: z.string().min(1, 'Documento profissional obrigatório.'),
@@ -136,7 +136,7 @@ export const UroanaliseFormSchema = z
   })
   .refine(
     (d) => {
-      if (d.validadeControle == null) return true;
+      if (d.validadeControle == null || d.validadeControle === '') return true;
       return d.dataRealizacao <= d.validadeControle;
     },
     {
@@ -146,7 +146,7 @@ export const UroanaliseFormSchema = z
   )
   .refine(
     (d) => {
-      if (d.aberturaControle == null) return true;
+      if (d.aberturaControle == null || d.aberturaControle === '') return true;
       return d.aberturaControle <= d.dataRealizacao;
     },
     {

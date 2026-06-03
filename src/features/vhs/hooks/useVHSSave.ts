@@ -1,235 +1,174 @@
 ﻿import { useCallback, useState } from 'react';
-import { useUser, useActiveLab } from '../../../store/useAuthStore';
+import { useUser } from '../../../store/useAuthStore';
+import type { VHSExamInput, VHSLeituraInput } from '../types/VHSExam';
 import { useVHSSignature } from './useVHSSignature';
-import {
-  saveLeitura1,
-  saveLeitura2,
-  liberarDivergente,
-  cancelarExame,
-  getVHSExam,
-} from '../services/vhsService';
-import { VHS_TOLERANCIA_MM_H } from '../constants/vhsConstants';
-import type {
-  VHSExam,
-  VHSExamInputLeitura1,
-  VHSExamInputLeitura2,
-  VHSDivergencia,
-} from '../types/VHSExam';
+import { saveVHSExam, addLeitura2, liberarDivergente, cancelarExame } from '../services/vhsService';
 
-export interface UseVHSSaveResult {
-  /** Executa a primeira leitura do exame (operador 1). */
-  saveFirstReading: (input: VHSExamInputLeitura1) => Promise<VHSExam>;
-  /** Executa a segunda leitura e resolve divergência automaticamente. */
-  saveSecondReading: (examId: string, input: VHSExamInputLeitura2) => Promise<VHSExam>;
-  /** Libera exame divergente manualmente pelo RT/admin. */
-  approveDivergent: (examId: string, motivo: string) => Promise<void>;
-  /** Cancela um exame. */
-  cancelExam: (examId: string, motivo: string) => Promise<void>;
-  oneLoading: boolean;
-  twoLoading: boolean;
-  approveLoading: boolean;
-  cancelLoading: boolean;
-  errors: Record<string, string | null>;
+// ─── Helper: build signature payload ───────────────────────────────────────
+function buildSigPayload(
+  amostra: string,
+  leitura: VHSLeituraInput,
+  metodo: 'westergren' | 'automatizado',
+) {
+  return {
+    amostra,
+    valor: leitura.valor,
+    responsavel: leitura.responsavelNome,
+    leituraEm: leitura.leituraEm.toISOString(),
+    met: metodo,
+  };
 }
 
-/**
- * Hook que orquestra o fluxo de dupla verificação de VHS.
- *
- * Implementa as quatro ações regulatórias do módulo, incluindo geração
- * de assinatura SHA-256, cálculo de divergência e validações de negócio
- * exigidas pela RDC 978 Art. 128 (dupla conferência).
- */
-export function useVHSSave(): UseVHSSaveResult {
+// ─── Hook ──────────────────────────────────────────────────────────────────
+export function useVHSSave(labId: string) {
   const user = useUser();
-  const activeLab = useActiveLab();
   const { sign } = useVHSSignature();
 
-  const [oneLoading, setOneLoading] = useState(false);
-  const [twoLoading, setTwoLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [completeLoading, setCompleteLoading] = useState(false);
   const [approveLoading, setApproveLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string | null>>({});
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [completeError, setCompleteError] = useState<string | null>(null);
+  const [approveError, setApproveError] = useState<string | null>(null);
+  const [cancelError, setCancelError] = useState<string | null>(null);
 
-  const setError = useCallback((key: string, message: string | null) => {
-    setErrors((prev) => ({ ...prev, [key]: message }));
-  }, []);
+  // ── saveExam: cria exame com 1 ou 2 leituras ──────────────────────────
+  const saveExam = useCallback(
+    async (input: VHSExamInput): Promise<string | null> => {
+      if (!user) {
+        setSaveError('Usuário não autenticado');
+        return null;
+      }
 
-  const clearError = useCallback(
-    (key: string) => {
-      setError(key, null);
-    },
-    [setError],
-  );
-
-  /**
-   * Operador 1 registra o exame com a primeira leitura.
-   *
-   * Gera assinatura lógica SHA-256 sobre o payload canônico
-   * (amostra, valor, operador, método, data) e persiste o documento.
-   */
-  const saveFirstReading = useCallback(
-    async (input: VHSExamInputLeitura1): Promise<VHSExam> => {
-      if (!user) throw new Error('Usuário não autenticado');
-      if (!activeLab?.id) throw new Error('Laboratório ativo não selecionado');
-
-      setOneLoading(true);
-      clearError('one');
+      setSaveLoading(true);
+      setSaveError(null);
 
       try {
-        const today = new Date().toISOString().slice(0, 10);
-        const sigResult = await sign({
-          amostra: input.amostraId,
-          v1: input.leitura1.valor,
-          op: input.leitura1.operadorId,
-          met: input.metodo,
-          date: today,
-        });
+        const sig1 = await sign(buildSigPayload(input.amostraId, input.leitura1, input.metodo));
 
-        const exam = await saveLeitura1(activeLab.id, input, sigResult.logicalSignature);
-        return exam;
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Erro ao salvar primeira leitura';
-        setError('one', message);
-        throw new Error(message);
+        let sig2: string | undefined;
+        if (input.leitura2) {
+          sig2 = await sign(buildSigPayload(input.amostraId, input.leitura2, input.metodo));
+        }
+
+        const examId = await saveVHSExam(labId, input, sig1, user.uid, sig2);
+
+        return examId;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Erro ao salvar exame';
+        setSaveError(msg);
+        return null;
       } finally {
-        setOneLoading(false);
+        setSaveLoading(false);
       }
     },
-    [user, activeLab, sign, clearError, setError],
+    [user, labId, sign],
   );
 
-  /**
-   * Operador 2 registra a segunda leitura.
-   *
-   * Regras:
-   * - Exame deve estar com status 'pendente'.
-   * - Operador 2 deve ser diferente do operador 1 (RDC 978 Art. 128).
-   * - Calcula delta entre leitura 2 e leitura 1.
-   * - Se |delta| ≤ 3 mm/h: status 'liberado'.
-   * - Se |delta| > 3 mm/h: status 'divergente' com registro da divergência.
-   */
-  const saveSecondReading = useCallback(
-    async (examId: string, input: VHSExamInputLeitura2): Promise<VHSExam> => {
-      if (!user) throw new Error('Usuário não autenticado');
-      if (!activeLab?.id) throw new Error('Laboratório ativo não selecionado');
+  // ── completeExam: adiciona leitura 2 em exame pendente ────────────────
+  const completeExam = useCallback(
+    async (
+      examId: string,
+      leitura2: VHSLeituraInput,
+      amostraId: string,
+      metodo: 'westergren' | 'automatizado',
+    ) => {
+      if (!user) {
+        setCompleteError('Usuário não autenticado');
+        return false;
+      }
 
-      setTwoLoading(true);
-      clearError('two');
+      setCompleteLoading(true);
+      setCompleteError(null);
 
       try {
-        const exam = await getVHSExam(activeLab.id, examId);
-        if (!exam) throw new Error('Exame não encontrado');
-        if (exam.status !== 'pendente')
-          throw new Error('O exame não está pendente de segunda leitura');
-        if (input.leitura2.operadorId === exam.leitura1.operadorId) {
-          throw new Error('O segundo operador deve ser diferente do primeiro (RDC 978 Art. 128)');
-        }
-
-        const delta = input.leitura2.valor - exam.leitura1.valor;
-        const withinTolerance = Math.abs(delta) <= VHS_TOLERANCIA_MM_H;
-
-        const status = withinTolerance ? 'liberado' : 'divergente';
-        let divergencia: VHSDivergencia | undefined;
-        if (!withinTolerance) {
-          divergencia = { delta, tolerancia: VHS_TOLERANCIA_MM_H };
-        }
-
-        const today = new Date().toISOString().slice(0, 10);
-        const sigResult = await sign({
-          amostra: exam.amostraId,
-          v1: input.leitura2.valor,
-          op: input.leitura2.operadorId,
-          met: exam.metodo,
-          date: today,
-        });
-
-        await saveLeitura2(
-          activeLab.id,
-          examId,
-          input,
-          sigResult.logicalSignature,
-          status,
-          divergencia,
-        );
-
-        const updated = await getVHSExam(activeLab.id, examId);
-        if (!updated) throw new Error('Erro ao recuperar exame atualizado');
-        return updated;
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Erro ao salvar segunda leitura';
-        setError('two', message);
-        throw new Error(message);
+        const sig2 = await sign(buildSigPayload(amostraId, leitura2, metodo));
+        await addLeitura2(labId, examId, { leitura2 }, sig2, user.uid);
+        return true;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Erro ao completar exame';
+        setCompleteError(msg);
+        return false;
       } finally {
-        setTwoLoading(false);
+        setCompleteLoading(false);
       }
     },
-    [user, activeLab, sign, clearError, setError],
+    [user, labId, sign],
   );
 
-  /**
-   * RT ou admin libera um exame marcado como divergente.
-   *
-   * Exige justificativa documentada com no mínimo 10 caracteres,
-   * conforme RDC 978 Art. 128.
-   */
+  // ── approveDivergent: RT aprova exame divergente ───────────────────────
   const approveDivergent = useCallback(
-    async (examId: string, motivo: string): Promise<void> => {
-      if (!user) throw new Error('Usuário não autenticado');
-      if (!activeLab?.id) throw new Error('Laboratório ativo não selecionado');
-      if (motivo.length < 10) throw new Error('Motivo deve ter no mínimo 10 caracteres');
+    async (examId: string, motivo: string) => {
+      if (!user) {
+        setApproveError('Usuário não autenticado');
+        return false;
+      }
+
+      if (!motivo || motivo.trim().length < 10) {
+        setApproveError('Motivo deve ter pelo menos 10 caracteres');
+        return false;
+      }
 
       setApproveLoading(true);
-      clearError('approve');
+      setApproveError(null);
 
       try {
-        await liberarDivergente(activeLab.id, examId, user.uid, motivo);
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Erro ao liberar exame divergente';
-        setError('approve', message);
-        throw new Error(message);
+        await liberarDivergente(labId, examId, user.uid, { motivo });
+        return true;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Erro ao aprovar exame';
+        setApproveError(msg);
+        return false;
       } finally {
         setApproveLoading(false);
       }
     },
-    [user, activeLab, clearError, setError],
+    [user, labId],
   );
 
-  /**
-   * Cancela um exame.
-   *
-   * Exige motivo com no mínimo 5 caracteres.
-   */
+  // ── cancelExam: cancela exame ──────────────────────────────────────────
   const cancelExam = useCallback(
-    async (examId: string, motivo: string): Promise<void> => {
-      if (!user) throw new Error('Usuário não autenticado');
-      if (!activeLab?.id) throw new Error('Laboratório ativo não selecionado');
-      if (motivo.length < 5) throw new Error('Motivo deve ter no mínimo 5 caracteres');
+    async (examId: string, motivo: string) => {
+      if (!user) {
+        setCancelError('Usuário não autenticado');
+        return false;
+      }
+
+      if (!motivo || motivo.trim().length < 5) {
+        setCancelError('Motivo deve ter pelo menos 5 caracteres');
+        return false;
+      }
 
       setCancelLoading(true);
-      clearError('cancel');
+      setCancelError(null);
 
       try {
-        await cancelarExame(activeLab.id, examId, user.uid, motivo);
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Erro ao cancelar exame';
-        setError('cancel', message);
-        throw new Error(message);
+        await cancelarExame(labId, examId, user.uid, motivo);
+        return true;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Erro ao cancelar exame';
+        setCancelError(msg);
+        return false;
       } finally {
         setCancelLoading(false);
       }
     },
-    [user, activeLab, clearError, setError],
+    [user, labId],
   );
 
   return {
-    saveFirstReading,
-    saveSecondReading,
+    saveExam,
+    completeExam,
     approveDivergent,
     cancelExam,
-    oneLoading,
-    twoLoading,
+    saveLoading,
+    completeLoading,
     approveLoading,
     cancelLoading,
-    errors,
+    saveError,
+    completeError,
+    approveError,
+    cancelError,
   };
 }

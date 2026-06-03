@@ -80,6 +80,27 @@ export const liberarLaudo = onCall<unknown, Promise<LiberarLaudoResult>>(
       );
     }
 
+    // 3.1. Valida exames que requerem dupla verificação (ex: VHS)
+    if (laudo.exames && Array.isArray(laudo.exames)) {
+      for (const exame of laudo.exames) {
+        if (exame.duplaVerificacao) {
+          const dv = exame.duplaVerificacao;
+          if (dv.statusVerificacao === 'aguardando_segunda_leitura') {
+            throw new HttpsError(
+              'failed-precondition',
+              `O exame "${exame.nome}" está pendente de dupla verificação.`,
+            );
+          }
+          if (dv.statusVerificacao === 'divergente_bloqueado') {
+            throw new HttpsError(
+              'failed-precondition',
+              `O exame "${exame.nome}" possui divergência de resultados e está bloqueado para liberação.`,
+            );
+          }
+        }
+      }
+    }
+
     // 4. Lê última versão para chainHash
     const versionsSnap = await db
       .collection(`labs/${labId}/laudo-versions`)

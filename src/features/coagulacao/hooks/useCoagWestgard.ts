@@ -118,6 +118,10 @@ export function computeCoagWestgard(
   runs: CoagulacaoRun[],
   nivel: CoagNivel,
   validadeControle: string,
+  customStats?: {
+    mean?: Record<CoagAnalyteId, number>;
+    sd?: Record<CoagAnalyteId, number>;
+  },
 ): CoagWestgardResult {
   // ── Step 1: resultado imediato para lote sem dados ───────────────────────────
   if (runs.length === 0) {
@@ -154,7 +158,11 @@ export function computeCoagWestgard(
 
     for (const analyteId of activeAnalyteIds) {
       const value = run.resultados[analyteId];
-      const stats = getCoagStats(analyteId, nivel);
+      const customMean = customStats?.mean?.[analyteId];
+      const customSd = customStats?.sd?.[analyteId];
+      const stats = (customMean !== undefined && customSd !== undefined)
+        ? { mean: customMean, sd: customSd }
+        : getCoagStats(analyteId, nivel);
       const history = historyByAnalyte[analyteId] ?? [];
 
       // Filtra apenas as regras configuradas para este analito
@@ -251,9 +259,13 @@ export function useCoagWestgard(
   runs: CoagulacaoRun[],
   nivel: CoagNivel,
   validadeControle: string,
+  customStats?: {
+    mean?: Record<CoagAnalyteId, number>;
+    sd?: Record<CoagAnalyteId, number>;
+  },
 ): CoagWestgardResult {
   return useMemo(
-    () => computeCoagWestgard(runs, nivel, validadeControle),
-    [runs, nivel, validadeControle],
+    () => computeCoagWestgard(runs, nivel, validadeControle, customStats),
+    [runs, nivel, validadeControle, customStats],
   );
 }

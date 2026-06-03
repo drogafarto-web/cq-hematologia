@@ -3,32 +3,28 @@ import { generateVHSSignature, type VHSSignaturePayload } from '../hooks/useVHSS
 
 const basePayload: VHSSignaturePayload = {
   amostra: 'VHS-2026-001',
-  v1: 15,
-  op: 'user-test-001',
+  valor: 15,
+  responsavel: 'user-test-001',
+  leituraEm: '2026-06-03T10:30:00.000Z',
   met: 'westergren',
-  date: '2026-06-03',
 };
 
 describe('generateVHSSignature', () => {
-  it('canonical order: chaves em ordem diferente produzem mesmo hash', async () => {
-    const hashA = await generateVHSSignature({
-      amostra: basePayload.amostra,
-      v1: basePayload.v1,
-      op: basePayload.op,
-      met: basePayload.met,
-      date: basePayload.date,
-    });
+  // ── 1. Canonical order ──────────────────────────────────────────────────
+  it('canonical order: different key order produces same hash', async () => {
+    const hashA = await generateVHSSignature(basePayload);
     const hashB = await generateVHSSignature({
-      date: basePayload.date,
+      leituraEm: basePayload.leituraEm,
       met: basePayload.met,
-      op: basePayload.op,
-      v1: basePayload.v1,
+      responsavel: basePayload.responsavel,
+      valor: basePayload.valor,
       amostra: basePayload.amostra,
     });
     expect(hashA).toBe(hashB);
   });
 
-  it('determinism: mesmo payload 1000x produz mesmo hash', async () => {
+  // ── 2. Determinism ──────────────────────────────────────────────────────
+  it('determinism: same payload 1000x produces same hash', async () => {
     const hash0 = await generateVHSSignature(basePayload);
     for (let i = 0; i < 1000; i++) {
       const hash = await generateVHSSignature(basePayload);
@@ -36,46 +32,81 @@ describe('generateVHSSignature', () => {
     }
   });
 
-  it('different value -> different hash', async () => {
+  // ── 3. Different valor → different hash ─────────────────────────────────
+  it('different valor -> different hash', async () => {
     const hashBase = await generateVHSSignature(basePayload);
-    const hashDiff = await generateVHSSignature({ ...basePayload, v1: 99 });
+    const hashDiff = await generateVHSSignature({ ...basePayload, valor: 99 });
     expect(hashDiff).not.toBe(hashBase);
   });
 
-  it('different operator -> different hash', async () => {
+  // ── 4. Different responsavel → different hash ───────────────────────────
+  it('different responsavel -> different hash', async () => {
     const hashBase = await generateVHSSignature(basePayload);
-    const hashDiff = await generateVHSSignature({ ...basePayload, op: 'user-diff-999' });
+    const hashDiff = await generateVHSSignature({
+      ...basePayload,
+      responsavel: 'user-diff-999',
+    });
     expect(hashDiff).not.toBe(hashBase);
   });
 
-  it('different method -> different hash', async () => {
+  // ── 5. Different leituraEm → different hash ─────────────────────────────
+  it('different leituraEm -> different hash', async () => {
     const hashBase = await generateVHSSignature(basePayload);
-    const hashDiff = await generateVHSSignature({ ...basePayload, met: 'automatizado' });
+    const hashDiff = await generateVHSSignature({
+      ...basePayload,
+      leituraEm: '2026-06-04T14:00:00.000Z',
+    });
     expect(hashDiff).not.toBe(hashBase);
   });
 
-  it('hex length: hash sempre tem 64 chars hex', async () => {
+  // ── 6. Different metodo → different hash ────────────────────────────────
+  it('different metodo -> different hash', async () => {
+    const hashBase = await generateVHSSignature(basePayload);
+    const hashDiff = await generateVHSSignature({
+      ...basePayload,
+      met: 'automatizado',
+    });
+    expect(hashDiff).not.toBe(hashBase);
+  });
+
+  // ── 7. Hex length = 64 ──────────────────────────────────────────────────
+  it('hex length: hash is always 64 hex chars', async () => {
     const hash = await generateVHSSignature(basePayload);
     expect(hash).toHaveLength(64);
     expect(/^[0-9a-f]{64}$/.test(hash)).toBe(true);
   });
 
-  it('empty string fields still hash', async () => {
+  // ── 8. Empty fields work ────────────────────────────────────────────────
+  it('empty fields still produce a valid hash', async () => {
     const payloadEmpty: VHSSignaturePayload = {
       amostra: '',
-      v1: 0,
-      op: '',
+      valor: 0,
+      responsavel: '',
+      leituraEm: '',
       met: 'westergren',
-      date: '',
     };
     const hash = await generateVHSSignature(payloadEmpty);
     expect(hash).toHaveLength(64);
     expect(/^[0-9a-f]{64}$/.test(hash)).toBe(true);
   });
 
-  it('westergren vs automatizado: metodos diferentes geram hashes diferentes para mesmo valor', async () => {
-    const hashWestergren = await generateVHSSignature({ ...basePayload, met: 'westergren' });
-    const hashAutomatizado = await generateVHSSignature({ ...basePayload, met: 'automatizado' });
-    expect(hashWestergren).not.toBe(hashAutomatizado);
+  // ── 9. westergren vs automatizado ───────────────────────────────────────
+  it('westergren vs automatizado: different methods produce different hashes', async () => {
+    const hashW = await generateVHSSignature({ ...basePayload, met: 'westergren' });
+    const hashA = await generateVHSSignature({ ...basePayload, met: 'automatizado' });
+    expect(hashW).not.toBe(hashA);
+  });
+
+  // ── 10. ISO date format ─────────────────────────────────────────────────
+  it('ISO date format: different ISO strings for same instant produce different hashes', async () => {
+    const hashT1 = await generateVHSSignature({
+      ...basePayload,
+      leituraEm: '2026-06-03T10:30:00.000Z',
+    });
+    const hashT2 = await generateVHSSignature({
+      ...basePayload,
+      leituraEm: '2026-06-03T10:30:00.001Z',
+    });
+    expect(hashT1).not.toBe(hashT2);
   });
 });

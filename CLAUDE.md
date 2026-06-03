@@ -79,6 +79,7 @@ Use: `bash scripts/monitor-cloud-logs.sh 24 30` (or `.ps1` equiv.) imediatamente
 **v1.4 Phase 5 Kickoff (2026-05-15):**
 
 - UAT + staging validation (customer sign-off)
+- 2026-06-01 · limpeza admin: 4 lotes PNCQ removidos
 - Analytics consent integration (wire scope from Phase 4)
 - Advanced query optimization (bioquimica z-score, CEQ interlaboratorial)
 - DPIA v2.0 executive sign-off (post-UAT)

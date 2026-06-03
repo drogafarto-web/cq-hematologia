@@ -55,6 +55,10 @@ export function useAttemptSave(labId: string): UseAttemptSaveResult {
           [...historico, simulatedRun] as any,
           controle.nivel,
           controle.validadeControle,
+          {
+            mean: controle.mean,
+            sd: controle.sd,
+          },
         );
 
         const currentViolations = westgardResult.byRun.get('__simulated__');

@@ -77,6 +77,27 @@ export interface Laudo {
   deletadoEm: Timestamp | null;
 }
 
+export interface DuplaVerificacaoMetadata {
+  resultadoInicial: number;
+  usuarioLeitura1: UserId;
+  nomeUsuarioLeitura1: string;
+  dataHoraLeitura1: Timestamp;
+
+  resultadoConfirmado?: number;
+  usuarioLeitura2?: UserId;
+  nomeUsuarioLeitura2?: string;
+  dataHoraLeitura2?: Timestamp;
+
+  divergente: boolean;
+  statusVerificacao: 'aguardando_segunda_leitura' | 'liberado_coincidente' | 'divergente_bloqueado' | 'revisado_e_liberado';
+
+  usuarioRevisao?: UserId;
+  nomeUsuarioRevisao?: string;
+  dataHoraRevisao?: Timestamp;
+  resultadoFinal?: number;
+  justificativaRevisao?: string;
+}
+
 export interface ExameLaudo {
   id: string;
   nome: string;
@@ -92,6 +113,7 @@ export interface ExameLaudo {
     max: number;
     descricao: string;
   };
+  duplaVerificacao?: DuplaVerificacaoMetadata;
   limitacoesTecnicas?: string;
   interpretacao?: string;
 }

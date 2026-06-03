@@ -42,9 +42,14 @@ function buildChartData(
   control: ControlOperacional,
 ): UseChartDataReturn {
   const cfg = COAG_ANALYTES[analyteId];
-  const baseline = cfg.levels[control.nivel];
+  const defaultBaseline = cfg.levels[control.nivel];
 
-  const stats = toChartStats(baseline.mean, baseline.sd);
+  const customMean = control.mean?.[analyteId];
+  const customSd = control.sd?.[analyteId];
+  const mean = customMean !== undefined ? customMean : defaultBaseline.mean;
+  const sd = customSd !== undefined ? customSd : defaultBaseline.sd;
+
+  const stats = toChartStats(mean, sd);
   const relevant = attempts
     .filter((a) => a.controlOperacionalId === control.id)
     .filter((a) => a.resultados[analyteId] !== undefined && a.resultados[analyteId] !== null)
@@ -54,7 +59,7 @@ function buildChartData(
   const chartData: ChartPoint[] = relevant.map((a, idx) => {
     const value = a.resultados[analyteId];
     const status = attemptToStatus(a);
-    const zScore = value === null || value === undefined ? null : (value - baseline.mean) / baseline.sd;
+    const zScore = value === null || value === undefined ? null : (value - mean) / sd;
     const violations = a.violacoes ?? [];
     const isRej = violations.some(isRejectionV);
     const isWarn = !isRej && violations.length > 0;

@@ -1,0 +1,246 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ANALYST
+  SUPERVISOR
+  ADMIN
+}
+
+enum AnalyzerStatus {
+  OPERATIONAL
+  CAL_DUE_SOON
+  CAL_OVERDUE
+  MAINTENANCE_DUE
+  MAINTENANCE_OVERDUE
+  OUT_OF_SERVICE
+}
+
+enum MaintenanceType {
+  PREVENTIVE
+  CORRECTIVE
+}
+
+enum MaintenanceOutcome {
+  PASS
+  FAIL
+  PENDING_PARTS
+}
+
+enum LotStatus {
+  ACTIVE
+  EXPIRED
+  ARCHIVED
+}
+
+enum QcRunStatus {
+  RELEASED
+  PENDING_JUSTIFICATION
+  ARCHIVED
+}
+
+enum CAStatus {
+  OPEN
+  IN_PROGRESS
+  UNDER_VERIFICATION
+  CLOSED
+}
+
+enum ReportType {
+  MONTHLY_QC_SUMMARY
+  LOT_PERFORMANCE
+  CORRECTIVE_ACTIONS
+  EQUIPMENT
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  lotsCreated           Lot[]
+  lotsArchived          Lot[]              @relation("LotArchivedBy")
+  qcRuns                QcRun[]
+  correctiveActionsOpened  CorrectiveAction[] @relation("CAOperator")
+  correctiveActionsInvestigated CorrectiveAction[] @relation("CAInvestigator")
+  correctiveActionsVerified    CorrectiveAction[] @relation("CAVerifiedBy")
+  auditLogs             AuditLog[]
+  reports               Report[]
+
+  @@map("users")
+}
+
+model Analyzer {
+  id           String        @id @default(cuid())
+  analyzerId   String        @unique
+  model        String
+  manufacturer String
+  serialNumber String
+  location     String
+  installDate  DateTime
+  status       AnalyzerStatus
+  archived     Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  calibrations  Calibration[]
+  maintenances  Maintenance[]
+  lots          Lot[]
+
+  @@map("analyzers")
+}
+
+model Calibration {
+  id              String   @id @default(cuid())
+  analyzerId      String
+  calibratedAt    DateTime
+  nextDueAt       DateTime
+  certificateNumber String
+  interval        Int      @default(12)
+  performedBy     String?
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  analyzer Analyzer @relation(fields: [analyzerId], references: [id])
+
+  @@map("calibrations")
+}
+
+model Maintenance {
+  id              String            @id @default(cuid())
+  analyzerId      String
+  type            MaintenanceType
+  performedAt     DateTime
+  description     String
+  technician      String
+  outcome         MaintenanceOutcome
+  nextScheduledAt DateTime?
+  createdAt       DateTime          @default(now())
+
+  analyzer Analyzer @relation(fields: [analyzerId], references: [id])
+
+  @@map("maintenances")
+}
+
+model Lot {
+  id             String      @id @default(cuid())
+  lotNumber      String
+  analyte        String
+  level          Int
+  reagentName    String
+  analyzerId     String
+  targetMean     Decimal     @db.Decimal(10, 4)
+  sd             Decimal     @db.Decimal(10, 4)
+  minAcceptance  Decimal     @db.Decimal(10, 4)
+  maxAcceptance  Decimal     @db.Decimal(10, 4)
+  status         LotStatus   @default(ACTIVE)
+  archivedAt     DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  createdById    String
+  archivedById   String?
+
+  createdBy  User     @relation(fields: [createdById], references: [id])
+  archivedBy User?    @relation("LotArchivedBy", fields: [archivedById], references: [id])
+  analyzer   Analyzer @relation(fields: [analyzerId], references: [id])
+  qcRuns     QcRun[]
+  correctiveActions CorrectiveAction[]
+
+  @@unique([lotNumber, level])
+  @@map("lots")
+}
+
+model QcRun {
+  id             String      @id @default(cuid())
+  lotId          String
+  value          Decimal     @db.Decimal(10, 4)
+  sdDistance     Decimal     @db.Decimal(10, 4)
+  ruleViolated   String?
+  isReject       Boolean     @default(false)
+  isWarning      Boolean     @default(false)
+  status         QcRunStatus @default(RELEASED)
+  justification  String?
+  runAt          DateTime
+  operatorId     String
+  createdAt      DateTime    @default(now())
+
+  lot      Lot  @relation(fields: [lotId], references: [id])
+  operator User @relation(fields: [operatorId], references: [id])
+
+  @@index([lotId, runAt])
+  @@index([operatorId, runAt])
+  @@map("qc_runs")
+}
+
+model CorrectiveAction {
+  id                 String   @id @default(cuid())
+  caNumber           String   @unique
+  openedAt           DateTime
+  analyte            String
+  lotId              String?
+  equipmentId        String?
+  ruleViolated       String?
+  status             CAStatus @default(OPEN)
+  operatorId         String
+  investigatorId     String?
+  rootCause          String?
+  supportingEvidence String?
+  actionTaken        String?
+  preventiveMeasure  String?
+  targetCompletionAt DateTime?
+  effectivenessCheck String?
+  verifiedById       String?
+  verificationAt     DateTime?
+  closedAt           DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  operator     User     @relation("CAOperator", fields: [operatorId], references: [id])
+  investigator User?    @relation("CAInvestigator", fields: [investigatorId], references: [id])
+  verifiedBy   User?    @relation("CAVerifiedBy", fields: [verifiedById], references: [id])
+  lot          Lot?     @relation(fields: [lotId], references: [id])
+
+  @@map("corrective_actions")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  entityType String
+  entityId   String
+  action     String
+  field      String?
+  oldValue   String?
+  newValue   String?
+  userId     String
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}
+
+model Report {
+  id           String     @id @default(cuid())
+  type         ReportType
+  periodStart  DateTime
+  periodEnd    DateTime
+  scope        Json
+  s3Key        String?
+  generatedById String
+  generatedAt  DateTime   @default(now())
+
+  generatedBy User @relation(fields: [generatedById], references: [id])
+
+  @@map("reports")
+}

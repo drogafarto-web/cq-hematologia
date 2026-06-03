@@ -417,6 +417,22 @@ service cloud.firestore {
           resource.data.status in ['pendente', 'divergente'];
         allow delete: if false;
       }
+
+      // ── /insumo-qualificacoes — qualificação de insumos (PCR etc) ────────
+      match /insumo-qualificacoes/{qId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if (isSuperAdmin() || isActiveMemberOfLab(labId))
+                      && request.resource.data.status == 'em_andamento'
+                      && request.resource.data.signatureStatus == 'pending'
+                      && request.resource.data.logicalSignature is string
+                      && request.resource.data.logicalSignature.size() == 64
+                      && request.resource.data.createdBy == request.auth.uid
+                      && request.resource.data.tipo in ['reagente', 'controle']
+                      && request.resource.data.qualificacaoMode in
+                          ['corrida-validacao', 'checklist-rt', 'caracterizacao-rt'];
+        allow update: if false;
+        allow delete: if false;
+      }
     }
 
     // ── Raiz — inalterados ──────────────────────────────────────────────────

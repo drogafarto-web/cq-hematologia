@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  nome         String
+  senhaHash    String   @map("senha_hash")
+  papel        Papel    @default(ANALISTA)
+  criadoEm     DateTime @default(now()) @map("criado_em")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+
+  registros    Registro[]
+
+  @@map("usuarios")
+}
+
+enum Papel {
+  ANALISTA
+  SUPERVISOR
+  ADMIN
+}
+
+// Um Controle = 1 lote ativo com ranges configurados para os 3 parâmetros
+model Controle {
+  id           String   @id @default(cuid())
+  nome         String   @unique // ex: "Controle Normal", "Controle Patológico"
+  lote         String   // ex: "7425"
+  ativo        Boolean  @default(true)
+  criadoEm     DateTime @default(now()) @map("criado_em")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+
+  // Ranges por parâmetro (cada um é um par fixo em coagulação)
+  protrombinaMin Decimal @map("protrombina_min")
+  protrombinaMax Decimal @map("protrombina_max")
+  rniMin         Decimal @map("rni_min")
+  rniMax         Decimal @map("rni_max")
+  ttppaMin       Decimal @map("ttppa_min")
+  ttppaMax       Decimal @map("ttppa_max")
+
+  registros Registro[]
+
+  @@map("controles")
+}
+
+// 1 Registro = 1 entrada do operador com os 3 valores medidos simultaneamente
+model Registro {
+  id              String   @id @default(cuid())
+  controleId      String   @map("controle_id")
+  controle        Controle @relation(fields: [controleId], references: [id])
+  valorProtrombina Decimal @map("valor_protrombina")  // Atividade de Protrombina (%)
+  valorRni        Decimal  @map("valor_rni")           // RNI
+  valorTtppa      Decimal  @map("valor_ttppa")         // TTPA (s)
+  observacao      String?
+  registradoEm    DateTime @default(now()) @map("registrado_em")
+  operadorId      String   @map("operador_id")
+  operador        Usuario  @relation(fields: [operadorId], references: [id])
+
+  @@index([controleId, registradoEm])
+  @@map("registros")
+}

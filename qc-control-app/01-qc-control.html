@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<title>QC Control</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/font/sans.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/font/mono.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet"/>
+<style>
+body { font-family: 'Geist', sans-serif; }
+.mono { font-family: 'Geist Mono', monospace; font-variant-numeric: tabular-nums; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20; vertical-align: middle; font-size: 20px; }
+input:focus, select:focus, textarea:focus { outline: none; border-width: 2px !important; border-color: #004787 !important; }
+</style>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        primary: '#004787',
+        'primary-hover': '#003160',
+        surface: '#F9F9FF',
+        'surface-variant': '#F3F3F9',
+        border: '#E5E7EB',
+        'border-variant': '#C2C6D2',
+        'on-surface': '#191C20',
+        'on-surface-variant': '#424750',
+        outline: '#727781',
+        error: '#BA1A1A',
+        'error-container': '#FFDAD6',
+        warning: '#D97706',
+        'warning-container': '#FEF3C7',
+        success: '#059669',
+        'success-container': '#D1FAE5',
+      },
+      borderRadius: { DEFAULT: '4px' },
+      fontFamily: {
+        sans: ['Geist', 'ui-sans-serif', 'system-ui'],
+        mono: ['Geist Mono', 'ui-monospace'],
+      },
+    }
+  }
+}
+</script>
+</head>
+<body class="bg-white text-on-surface min-h-screen">
+
+<!-- HEADER -->
+<header class="sticky top-0 z-40 h-12 bg-white border-b border-border flex items-center justify-between px-6">
+  <div class="flex items-center gap-3">
+    <span class="text-primary font-semibold text-lg">QC Control</span>
+    <span class="h-5 w-px bg-border-variant"></span>
+    <span class="text-sm text-on-surface">Coagulation</span>
+  </div>
+  <div class="flex items-center gap-3">
+    <span class="text-sm text-on-surface-variant">Maria Silva</span>
+    <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-semibold">MS</div>
+    <button class="ml-2 p-1.5 hover:bg-surface-variant rounded-full">
+      <span class="material-symbols-outlined">add</span>
+    </button>
+  </div>
+</header>
+
+<!-- MAIN LAYOUT -->
+<main class="max-w-[1100px] mx-auto px-6 py-8 space-y-6">
+
+  <!-- PAGE TITLE -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-on-surface tracking-tight">PT-INR Control Chart</h1>
+      <p class="text-sm text-on-surface-variant mt-1">Lot 7425 · Level 1 · Thioplastin Plus · COAG-02</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <div class="inline-flex rounded overflow-hidden border border-border-variant">
+        <button class="px-3 py-1.5 text-xs font-medium text-on-surface-variant hover:bg-surface-variant">7d</button>
+        <button class="px-3 py-1.5 text-xs font-semibold bg-primary text-white">30d</button>
+        <button class="px-3 py-1.5 text-xs font-medium text-on-surface-variant hover:bg-surface-variant">90d</button>
+      </div>
+      <button class="p-1.5 hover:bg-surface-variant rounded" title="Export PDF">
+        <span class="material-symbols-outlined text-on-surface-variant">picture_as_pdf</span>
+      </button>
+      <button class="p-1.5 hover:bg-surface-variant rounded" title="Export Excel">
+        <span class="material-symbols-outlined text-on-surface-variant">table_chart</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- LEVEY-JENNINGS CHART -->
+  <section class="border border-border rounded bg-white">
+    <div class="px-5 pt-4 pb-2 flex items-center justify-between">
+      <div class="flex items-center gap-4 text-xs">
+        <span class="flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+          <span class="text-on-surface-variant">L1 Normal</span>
+        </span>
+        <span class="flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rotate-45 bg-amber-600"></span>
+          <span class="text-on-surface-variant">L2 Abnormal</span>
+        </span>
+      </div>
+      <span class="text-xs text-on-surface-variant">Mean 12.24 · SD 0.38 · N = 89</span>
+    </div>
+
+    <div class="relative h-[400px] px-5 pb-4 pt-2">
+      <!-- Y-axis -->
+      <div class="absolute left-5 top-2 bottom-10 w-8 flex flex-col justify-between text-right text-[10px] mono text-outline pr-2">
+        <span>+3σ</span><span>+2σ</span><span>+1σ</span><span class="font-semibold text-on-surface">Mean</span><span>-1σ</span><span>-2σ</span><span>-3σ</span>
+      </div>
+
+      <!-- Chart SVG -->
+      <svg class="ml-8 h-full w-full" viewBox="0 0 800 340" preserveAspectRatio="none">
+        <!-- SD reference lines -->
+        <line x1="0" x2="800" y1="30" y2="30" stroke="#BA1A1A" stroke-width="1" stroke-dasharray="4,4" />
+        <line x1="0" x2="800" y1="80" y2="80" stroke="#D97706" stroke-width="1" stroke-dasharray="4,4" />
+        <line x1="0" x2="800" y1="130" y2="130" stroke="#C2C6D2" stroke-width="1" stroke-dasharray="2,4" />
+        <line x1="0" x2="800" y1="170" y2="170" stroke="#004787" stroke-width="1.5" />
+        <line x1="0" x2="800" y1="210" y2="210" stroke="#C2C6D2" stroke-width="1" stroke-dasharray="2,4" />
+        <line x1="0" x2="800" y1="260" y2="260" stroke="#D97706" stroke-width="1" stroke-dasharray="4,4" />
+        <line x1="0" x2="800" y1="310" y2="310" stroke="#BA1A1A" stroke-width="1" stroke-dasharray="4,4" />
+
+        <!-- L1 line (blue) -->
+        <polyline fill="none" stroke="#004787" stroke-width="1.5"
+          points="40,160 80,170 120,155 160,165 200,160 240,175 280,170 320,165 360,180 400,168 440,158 480,172 520,162 560,255 600,168 640,160 680,172 720,165" />
+        <!-- L1 points -->
+        <g fill="#004787">
+          <circle cx="40" cy="160" r="3.5"/>
+          <circle cx="80" cy="170" r="3.5"/>
+          <circle cx="120" cy="155" r="3.5"/>
+          <circle cx="160" cy="165" r="3.5"/>
+          <circle cx="200" cy="160" r="3.5"/>
+          <circle cx="240" cy="175" r="3.5"/>
+          <circle cx="280" cy="170" r="3.5"/>
+          <circle cx="320" cy="165" r="3.5"/>
+          <circle cx="360" cy="180" r="3.5"/>
+          <circle cx="400" cy="168" r="3.5"/>
+          <circle cx="440" cy="158" r="3.5"/>
+          <circle cx="480" cy="172" r="3.5"/>
+          <circle cx="520" cy="162" r="3.5"/>
+          <circle cx="560" cy="255" r="5" fill="#BA1A1A"/>
+          <circle cx="600" cy="168" r="3.5"/>
+          <circle cx="640" cy="160" r="3.5"/>
+          <circle cx="680" cy="172" r="3.5"/>
+          <circle cx="720" cy="165" r="3.5"/>
+        </g>
+
+        <!-- L2 line (orange, dashed, higher mean) -->
+        <polyline fill="none" stroke="#D97706" stroke-width="1.5" stroke-dasharray="3,3"
+          points="40,150 80,145 120,140 160,148 200,142 240,138 280,150 320,145 360,142 400,148 440,140 480,137 520,145 560,148 600,142 640,138 680,145 720,142" />
+        <!-- L2 points (diamonds) -->
+        <g fill="#D97706">
+          <rect x="37" y="147" width="6" height="6" transform="rotate(45 40 150)"/>
+          <rect x="77" y="142" width="6" height="6" transform="rotate(45 80 145)"/>
+          <rect x="117" y="137" width="6" height="6" transform="rotate(45 120 140)"/>
+          <rect x="157" y="145" width="6" height="6" transform="rotate(45 160 148)"/>
+          <rect x="197" y="139" width="6" height="6" transform="rotate(45 200 142)"/>
+          <rect x="237" y="135" width="6" height="6" transform="rotate(45 240 138)"/>
+          <rect x="277" y="147" width="6" height="6" transform="rotate(45 280 150)"/>
+          <rect x="317" y="142" width="6" height="6" transform="rotate(45 320 145)"/>
+          <rect x="357" y="139" width="6" height="6" transform="rotate(45 360 142)"/>
+          <rect x="397" y="145" width="6" height="6" transform="rotate(45 400 148)"/>
+          <rect x="437" y="137" width="6" height="6" transform="rotate(45 440 140)"/>
+          <rect x="477" y="134" width="6" height="6" transform="rotate(45 480 137)"/>
+          <rect x="517" y="142" width="6" height="6" transform="rotate(45 520 145)"/>
+          <rect x="557" y="145" width="6" height="6" transform="rotate(45 560 148)"/>
+          <rect x="597" y="139" width="6" height="6" transform="rotate(45 600 142)"/>
+          <rect x="637" y="135" width="6" height="6" transform="rotate(45 640 138)"/>
+          <rect x="677" y="142" width="6" height="6" transform="rotate(45 680 145)"/>
+          <rect x="717" y="139" width="6" height="6" transform="rotate(45 720 142)"/>
+        </g>
+      </svg>
+
+      <!-- X-axis -->
+      <div class="ml-8 flex justify-between text-[10px] mono text-on-surface-variant pt-2">
+        <span>26 Oct</span><span>02 Nov</span><span>09 Nov</span><span>16 Nov</span><span>23 Nov</span>
+      </div>
+
+      <!-- Violation annotation -->
+      <div class="absolute top-[145px] left-[calc(70%+8px)] bg-error text-white text-[10px] font-semibold px-2 py-0.5 rounded flex items-center gap-1 shadow-sm">
+        <span class="material-symbols-outlined text-[12px]">warning</span>
+        2-2S · 11 Nov
+      </div>
+    </div>
+  </section>
+
+  <!-- VIOLATION ALERT (only shown when pending) -->
+  <section class="bg-error-container border border-error rounded px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <span class="material-symbols-outlined text-error">warning</span>
+      <span class="text-sm font-medium text-on-surface">2-2S violation on 11 Nov · Level 1</span>
+      <span class="text-xs text-on-surface-variant">· action required</span>
+    </div>
+    <button class="text-xs font-semibold px-3 py-1.5 bg-error text-white rounded hover:bg-primary-hover">Review</button>
+  </section>
+
+  <!-- QUICK LOG ENTRY -->
+  <section class="border border-border rounded bg-white p-5 space-y-4">
+    <h2 class="text-base font-semibold text-on-surface">Record New Run</h2>
+
+    <!-- Lot dropdown -->
+    <div>
+      <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Lot</label>
+      <select class="w-full h-12 px-3 border border-border-variant rounded text-sm bg-white">
+        <option>Lot 7425 · L1 Normal · Thioplastin Plus · COAG-02</option>
+        <option>Lot 7425 · L2 Abnormal · Thioplastin Plus · COAG-02</option>
+        <option>Lot 8192 · L1 Normal · Actin FS · COAG-03</option>
+      </select>
+
+      <!-- Chips below -->
+      <div class="flex gap-2 mt-2">
+        <span class="px-2 py-1 text-xs bg-surface-variant text-on-surface-variant rounded">Lot: 7425</span>
+        <span class="px-2 py-1 text-xs bg-surface-variant text-on-surface-variant rounded">Level 1</span>
+        <span class="px-2 py-1 text-xs bg-surface-variant text-on-surface-variant rounded">Thioplastin Plus</span>
+        <span class="px-2 py-1 text-xs bg-surface-variant text-on-surface-variant rounded">COAG-02</span>
+      </div>
+    </div>
+
+    <div class="flex gap-4 items-end">
+      <div class="flex-1">
+        <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Result Value</label>
+        <input type="text" placeholder="0.00" class="w-full h-12 px-4 border border-border-variant rounded text-center mono text-lg font-semibold bg-white"/>
+      </div>
+      <button class="h-12 px-8 bg-primary hover:bg-primary-hover text-white font-semibold rounded">
+        Save
+      </button>
+    </div>
+
+    <p class="text-xs text-on-surface-variant">Auto: 25 Nov 2026 · 14:22 · Maria Silva · COAG-02 · Lot 7425</p>
+  </section>
+
+  <!-- RECENT RUNS -->
+  <section class="border border-border rounded bg-white overflow-hidden">
+    <div class="px-5 py-3 border-b border-border flex justify-between items-center">
+      <h2 class="text-base font-semibold text-on-surface">Recent Runs</h2>
+      <span class="text-xs text-on-surface-variant">Last 15 of 89</span>
+    </div>
+
+    <table class="w-full text-sm">
+      <thead class="bg-surface-variant">
+        <tr class="text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wider">
+          <th class="px-5 py-3">Date</th>
+          <th class="px-5 py-3">Time</th>
+          <th class="px-5 py-3 text-center">Lot</th>
+          <th class="px-5 py-3">Level</th>
+          <th class="px-5 py-3 text-right">Result</th>
+          <th class="px-5 py-3 text-right">SD</th>
+          <th class="px-5 py-3">Rule</th>
+          <th class="px-5 py-3">Justification</th>
+          <th class="px-5 py-3">Operator</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer">
+          <td class="px-5 py-3">25 Nov 2026</td>
+          <td class="px-5 py-3 mono">14:22</td>
+          <td class="px-5 py-3 text-center">7425</td>
+          <td class="px-5 py-3">L1</td>
+          <td class="px-5 py-3 text-right mono">12.18</td>
+          <td class="px-5 py-3 text-right mono">-0.16</td>
+          <td class="px-5 py-3">—</td>
+          <td class="px-5 py-3 text-on-surface-variant truncate max-w-[150px]">—</td>
+          <td class="px-5 py-3">M. Silva</td>
+        </tr>
+        <tr class="border-t border-border bg-error-container/30 cursor-pointer">
+          <td class="px-5 py-3">25 Nov 2026</td>
+          <td class="px-5 py-3 mono">09:42</td>
+          <td class="px-5 py-3 text-center">7425</td>
+          <td class="px-5 py-3">L1</td>
+          <td class="px-5 py-3 text-right mono font-semibold">13.21</td>
+          <td class="px-5 py-3 text-right mono text-error font-semibold">+2.41</td>
+          <td class="px-5 py-3">
+            <span class="px-2 py-0.5 bg-error-container text-error text-[10px] font-semibold rounded-full">2-2S</span>
+          </td>
+          <td class="px-5 py-3 text-on-surface-variant truncate max-w-[150px]">Recalibration required, re-run scheduled.</td>
+          <td class="px-5 py-3">J. Miller</td>
+        </tr>
+        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer">
+          <td class="px-5 py-3">24 Nov 2026</td>
+          <td class="px-5 py-3 mono">16:15</td>
+          <td class="px-5 py-3 text-center">7425</td>
+          <td class="px-5 py-3">L1</td>
+          <td class="px-5 py-3 text-right mono">12.35</td>
+          <td class="px-5 py-3 text-right mono">+0.29</td>
+          <td class="px-5 py-3">—</td>
+          <td class="px-5 py-3 text-on-surface-variant">—</td>
+          <td class="px-5 py-3">M. Silva</td>
+        </tr>
+        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer">
+          <td class="px-5 py-3">24 Nov 2026</td>
+          <td class="px-5 py-3 mono">11:02</td>
+          <td class="px-5 py-3 text-center">7425</td>
+          <td class="px-5 py-3">L2</td>
+          <td class="px-5 py-3 text-right mono">24.12</td>
+          <td class="px-5 py-3 text-right mono">-0.15</td>
+          <td class="px-5 py-3">—</td>
+          <td class="px-5 py-3 text-on-surface-variant">—</td>
+          <td class="px-5 py-3">A. Chen</td>
+        </tr>
+        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer">
+          <td class="px-5 py-3">23 Nov 2026</td>
+          <td class="px-5 py-3 mono">08:20</td>
+          <td class="px-5 py-3 text-center">7425</td>
+          <td class="px-5 py-3">L1</td>
+          <td class="px-5 py-3 text-right mono">12.26</td>
+          <td class="px-5 py-3 text-right mono">+0.05</td>
+          <td class="px-5 py-3">—</td>
+          <td class="px-5 py-3 text-on-surface-variant">—</td>
+          <td class="px-5 py-3">J. Miller</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="px-5 py-3 border-t border-border text-center">
+      <button class="text-xs font-semibold text-primary hover:underline">View full history →</button>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+<footer class="h-8 border-t border-border bg-white flex items-center justify-between px-6 text-xs text-on-surface-variant">
+  <span>89 runs · last 30 days</span>
+  <div class="flex gap-4">
+    <a href="#" class="hover:text-primary">Export PDF</a>
+    <a href="#" class="hover:text-primary">Export Excel</a>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
-import { useActiveLab } from '../../../store/useAuthStore';
+import { useActiveLab, useActiveLabId } from '../../../store/useAuthStore';
 import { useTheme } from '../../../shared/hooks/useTheme';
 import { VHSExamForm } from './VHSExamForm';
 import { VHSExamList } from './VHSExamList';
@@ -12,6 +12,7 @@ type MainTab = 'novo' | 'exames';
 export function VHSView() {
   const goBack = useAppStore((s) => s.goBack);
   const activeLab = useActiveLab();
+  const labId = useActiveLabId();
   const { isDark } = useTheme();
 
   const [activeTab, setActiveTab] = useState<MainTab>('novo');
@@ -83,11 +84,9 @@ export function VHSView() {
           {/* Conteudo */}
           {activeTab === 'novo' && (
             <VHSExamForm
-              onSuccess={(exam) => {
+              labId={labId!}
+              onSuccess={() => {
                 setActiveTab('exames');
-                if (exam.status === 'pendente' || exam.status === 'divergente') {
-                  setSelectedExam(exam);
-                }
               }}
             />
           )}
@@ -157,7 +156,8 @@ export function VHSView() {
                 </button>
                 <VHSDualVerification
                   exam={selectedExam}
-                  onSuccess={(exam) => {
+                  labId={labId!}
+                  onSuccess={() => {
                     setSelectedExam(null);
                   }}
                 />

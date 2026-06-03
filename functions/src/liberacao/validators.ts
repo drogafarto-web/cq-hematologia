@@ -129,6 +129,31 @@ const ValoresReferenciaSchema = z
   })
   .strict();
 
+const DuplaVerificacaoMetadataSchema = z
+  .object({
+    resultadoInicial: z.number().finite(),
+    usuarioLeitura1: z.string().min(1).max(100),
+    nomeUsuarioLeitura1: z.string().min(1).max(255),
+    dataHoraLeitura1: z.any(),
+    resultadoConfirmado: z.number().finite().optional(),
+    usuarioLeitura2: z.string().min(1).max(100).optional(),
+    nomeUsuarioLeitura2: z.string().min(1).max(255).optional(),
+    dataHoraLeitura2: z.any().optional(),
+    divergente: z.boolean(),
+    statusVerificacao: z.enum([
+      'aguardando_segunda_leitura',
+      'liberado_coincidente',
+      'divergente_bloqueado',
+      'revisado_e_liberado',
+    ]),
+    usuarioRevisao: z.string().min(1).max(100).optional(),
+    nomeUsuarioRevisao: z.string().min(1).max(255).optional(),
+    dataHoraRevisao: z.any().optional(),
+    resultadoFinal: z.number().finite().optional(),
+    justificativaRevisao: z.string().max(2000).optional(),
+  })
+  .strict();
+
 export const ExameLaudoSchema = z
   .object({
     id: idString(100),
@@ -137,6 +162,7 @@ export const ExameLaudoSchema = z
     metodoAnalitico: z.string().min(1).max(255),
     resultados: z.array(ResultadoExameSchema).min(0).max(200),
     valoresReferencia: ValoresReferenciaSchema,
+    duplaVerificacao: DuplaVerificacaoMetadataSchema.optional(),
     limitacoesTecnicas: z.string().max(2000).optional(),
     interpretacao: z.string().max(5000).optional(),
   })

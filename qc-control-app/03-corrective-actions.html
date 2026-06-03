@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<title>Corrective Actions · QC Control</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/font/sans.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/font/mono.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet"/>
+<style>
+body { font-family: 'Geist', sans-serif; }
+.mono { font-family: 'Geist Mono', monospace; font-variant-numeric: tabular-nums; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20; vertical-align: middle; font-size: 20px; }
+input:focus, select:focus, textarea:focus { outline: none; border-width: 2px !important; border-color: #004787 !important; }
+</style>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        primary: '#004787',
+        'primary-hover': '#003160',
+        surface: '#F9F9FF',
+        'surface-variant': '#F3F3F9',
+        border: '#E5E7EB',
+        'border-variant': '#C2C6D2',
+        'on-surface': '#191C20',
+        'on-surface-variant': '#424750',
+        outline: '#727781',
+        error: '#BA1A1A',
+        'error-container': '#FFDAD6',
+        warning: '#D97706',
+        'warning-container': '#FEF3C7',
+        success: '#059669',
+        'success-container': '#D1FAE5',
+      },
+      borderRadius: { DEFAULT: '4px' },
+    }
+  }
+}
+</script>
+</head>
+<body class="bg-white text-on-surface min-h-screen">
+
+<!-- HEADER -->
+<header class="sticky top-0 z-40 h-12 bg-white border-b border-border flex items-center justify-between px-6">
+  <div class="flex items-center gap-3">
+    <a href="#" class="text-on-surface-variant text-sm hover:text-primary flex items-center gap-1">
+      <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+      QC Control
+    </a>
+    <span class="h-5 w-px bg-border-variant"></span>
+    <span class="text-sm font-semibold text-on-surface">Corrective Actions</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <button class="h-9 px-4 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded flex items-center gap-1.5">
+      <span class="material-symbols-outlined text-[18px]">add</span>
+      New Action
+    </button>
+    <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-semibold">MS</div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="max-w-[1200px] mx-auto px-6 py-8 space-y-6">
+
+  <!-- PAGE TITLE -->
+  <div>
+    <h1 class="text-2xl font-semibold text-on-surface tracking-tight">Corrective Actions</h1>
+    <p class="text-sm text-on-surface-variant mt-1">Track non-conformances that cannot be resolved with simple justification, per PALC/DICQ standards.</p>
+  </div>
+
+  <!-- TABS -->
+  <nav class="flex gap-6 border-b border-border text-sm">
+    <button class="pb-3 font-semibold text-primary border-b-2 border-primary">Open (3)</button>
+    <button class="pb-3 font-medium text-on-surface-variant hover:text-primary">Closed (47)</button>
+    <button class="pb-3 font-medium text-on-surface-variant hover:text-primary">All (50)</button>
+  </nav>
+
+  <!-- TABLE -->
+  <section class="border border-border rounded bg-white overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-surface-variant">
+        <tr class="text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wider">
+          <th class="px-5 py-3">CA #</th>
+          <th class="px-5 py-3">Opened</th>
+          <th class="px-5 py-3">Analyte · Lot</th>
+          <th class="px-5 py-3">Rule</th>
+          <th class="px-5 py-3">Investigator</th>
+          <th class="px-5 py-3">Status</th>
+          <th class="px-5 py-3 text-right">Age</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer border-l-4 border-l-transparent hover:border-l-primary" onclick="openPanel()">
+          <td class="px-5 py-3 mono font-semibold text-primary">CA-2026-0005</td>
+          <td class="px-5 py-3">25 Nov 2026</td>
+          <td class="px-5 py-3">PT-INR · Lot 7425</td>
+          <td class="px-5 py-3"><span class="px-2 py-0.5 bg-error-container text-error text-[11px] font-semibold rounded-full">2-2S</span></td>
+          <td class="px-5 py-3">J. Miller</td>
+          <td class="px-5 py-3"><span class="px-2 py-0.5 bg-error-container text-red-900 text-[11px] font-semibold rounded-full">Open</span></td>
+          <td class="px-5 py-3 text-right mono text-error font-semibold">2 d</td>
+        </tr>
+        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer border-l-4 border-l-transparent hover:border-l-primary">
+          <td class="px-5 py-3 mono font-semibold text-primary">CA-2026-0004</td>
+          <td class="px-5 py-3">22 Nov 2026</td>
+          <td class="px-5 py-3">APTT · Lot 8192</td>
+          <td class="px-5 py-3"><span class="px-2 py-0.5 bg-error-container text-error text-[11px] font-semibold rounded-full">1-3S</span></td>
+          <td class="px-5 py-3">A. Chen</td>
+          <td class="px-5 py-3"><span class="px-2 py-0.5 bg-warning-container text-amber-900 text-[11px] font-semibold rounded-full">In Progress</span></td>
+          <td class="px-5 py-3 text-right mono">5 d</td>
+        </tr>
+        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer border-l-4 border-l-transparent hover:border-l-primary">
+          <td class="px-5 py-3 mono font-semibold text-primary">CA-2026-0003</td>
+          <td class="px-5 py-3">08 Nov 2026</td>
+          <td class="px-5 py-3">PT-INR · Lot 7425</td>
+          <td class="px-5 py-3"><span class="px-2 py-0.5 bg-error-container text-error text-[11px] font-semibold rounded-full">R-4S</span></td>
+          <td class="px-5 py-3">M. Silva</td>
+          <td class="px-5 py-3"><span class="px-2 py-0.5 bg-primary/10 text-primary text-[11px] font-semibold rounded-full">Verification</span></td>
+          <td class="px-5 py-3 text-right mono text-error font-semibold">19 d</td>
+        </tr>
+        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer border-l-4 border-l-transparent hover:border-l-primary">
+          <td class="px-5 py-3 mono font-semibold text-primary">CA-2026-0002</td>
+          <td class="px-5 py-3">02 Nov 2026</td>
+          <td class="px-5 py-3">Fibrinogen · Lot 1029</td>
+          <td class="px-5 py-3"><span class="px-2 py-0.5 bg-error-container text-error text-[11px] font-semibold rounded-full">4-1S</span></td>
+          <td class="px-5 py-3">J. Miller</td>
+          <td class="px-5 py-3"><span class="px-2 py-0.5 bg-success-container text-green-800 text-[11px] font-semibold rounded-full">Closed</span></td>
+          <td class="px-5 py-3 text-right mono">25 d</td>
+        </tr>
+        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer border-l-4 border-l-transparent hover:border-l-primary">
+          <td class="px-5 py-3 mono font-semibold text-primary">CA-2026-0001</td>
+          <td class="px-5 py-3">15 Oct 2026</td>
+          <td class="px-5 py-3">PT-INR · Lot 0893</td>
+          <td class="px-5 py-3"><span class="px-2 py-0.5 bg-error-container text-error text-[11px] font-semibold rounded-full">10X</span></td>
+          <td class="px-5 py-3">A. Chen</td>
+          <td class="px-5 py-3"><span class="px-2 py-0.5 bg-success-container text-green-800 text-[11px] font-semibold rounded-full">Closed</span></td>
+          <td class="px-5 py-3 text-right mono">43 d</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <p class="text-xs text-on-surface-variant">3 open · 1 overdue (&gt;14 days)</p>
+</main>
+
+<!-- FOOTER -->
+<footer class="h-8 border-t border-border bg-white flex items-center justify-between px-6 text-xs text-on-surface-variant">
+  <span>3 open · 47 closed</span>
+  <a href="#" class="hover:text-primary">Export PDF</a>
+</footer>
+
+<!-- SLIDE-OUT PANEL -->
+<div id="panelOverlay" class="fixed inset-0 bg-black/30 z-40 hidden"></div>
+<aside class="fixed right-0 top-0 h-screen w-[480px] bg-white z-50 border-l border-border-variant flex flex-col translate-x-full transition-transform duration-200">
+  <!-- Header -->
+  <div class="h-12 px-5 border-b border-border flex justify-between items-center">
+    <h2 class="text-base font-semibold text-on-surface">CA-2026-0005</h2>
+    <button class="p-1.5 hover:bg-surface-variant rounded-full" onclick="closePanel()">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="flex-1 overflow-y-auto p-5 space-y-6">
+
+    <!-- A: Identification -->
+    <section>
+      <h3 class="text-xs font-semibold text-primary uppercase tracking-wider mb-3 flex items-center gap-2">
+        <span class="w-1 h-4 bg-primary rounded-full"></span>
+        A. Identification
+      </h3>
+      <div class="grid grid-cols-2 gap-3 p-4 bg-surface-variant rounded text-xs">
+        <div>
+          <p class="text-on-surface-variant uppercase text-[10px] font-semibold mb-0.5">Timestamp</p>
+          <p class="mono text-on-surface">25 Nov 2026 · 14:22</p>
+        </div>
+        <div>
+          <p class="text-on-surface-variant uppercase text-[10px] font-semibold mb-0.5">Linked Event</p>
+          <p class="mono text-on-surface">PT-INR · Lot 7425 · 2-2S</p>
+        </div>
+        <div>
+          <p class="text-on-surface-variant uppercase text-[10px] font-semibold mb-0.5">Analyzer</p>
+          <p class="mono text-on-surface">COAG-02</p>
+        </div>
+        <div>
+          <p class="text-on-surface-variant uppercase text-[10px] font-semibold mb-0.5">Reagent</p>
+          <p class="mono text-on-surface">Thioplastin Plus</p>
+        </div>
+        <div>
+          <p class="text-on-surface-variant uppercase text-[10px] font-semibold mb-0.5">Operator</p>
+          <p class="text-on-surface">J. Miller</p>
+        </div>
+        <div>
+          <p class="text-on-surface-variant uppercase text-[10px] font-semibold mb-0.5">Investigator</p>
+          <p class="text-on-surface">J. Miller</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- B: Investigation -->
+    <section>
+      <h3 class="text-xs font-semibold text-primary uppercase tracking-wider mb-3 flex items-center gap-2">
+        <span class="w-1 h-4 bg-primary rounded-full"></span>
+        B. Investigation
+      </h3>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Root Cause <span class="text-error">*</span></label>
+          <textarea placeholder="Describe the investigation and identified cause..." class="w-full h-24 p-3 border border-border-variant rounded text-sm bg-white"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Supporting Evidence</label>
+          <div class="border-2 border-border-variant border-dashed rounded p-4 flex flex-col items-center justify-center text-xs text-on-surface-variant hover:bg-surface-variant cursor-pointer transition-colors">
+            <span class="material-symbols-outlined text-3xl mb-1">upload_file</span>
+            Drag file or click to upload
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- C: Action Taken -->
+    <section>
+      <h3 class="text-xs font-semibold text-primary uppercase tracking-wider mb-3 flex items-center gap-2">
+        <span class="w-1 h-4 bg-primary rounded-full"></span>
+        C. Action Taken
+      </h3>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Action Taken <span class="text-error">*</span></label>
+          <textarea placeholder="Detail the immediate corrective actions..." class="w-full h-24 p-3 border border-border-variant rounded text-sm bg-white"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Preventive Measure</label>
+          <input type="text" placeholder="Optional preventive plan..." class="w-full h-11 px-3 border border-border-variant rounded text-sm bg-white"/>
+        </div>
+        <div class="max-w-[220px]">
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Target Completion</label>
+          <input type="date" value="2026-11-30" class="w-full h-11 px-3 border border-border-variant rounded text-sm bg-white mono"/>
+        </div>
+      </div>
+    </section>
+
+    <!-- D: Verification (locked until progress) -->
+    <section class="opacity-50">
+      <h3 class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-3 flex items-center gap-2">
+        <span class="w-1 h-4 bg-border-variant rounded-full"></span>
+        D. Verification
+      </h3>
+      <div class="p-3 border border-border-variant border-dashed rounded flex items-center gap-2 text-xs text-on-surface-variant">
+        <span class="material-symbols-outlined text-[18px]">lock</span>
+        Available after investigation is completed
+      </div>
+    </section>
+
+    <!-- Timeline -->
+    <section>
+      <h3 class="text-xs font-semibold text-primary uppercase tracking-wider mb-3 flex items-center gap-2">
+        <span class="w-1 h-4 bg-primary rounded-full"></span>
+        Activity Timeline
+      </h3>
+      <div class="ml-2 border-l border-border-variant space-y-4 pl-5 relative">
+        <div class="relative">
+          <div class="absolute -left-[25px] top-1 w-2 h-2 rounded-full bg-primary ring-2 ring-white"></div>
+          <p class="text-xs text-on-surface-variant mono">25 Nov · 15:10</p>
+          <p class="text-sm"><strong>J. Miller</strong> assigned investigation</p>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-[25px] top-1 w-2 h-2 rounded-full bg-primary ring-2 ring-white"></div>
+          <p class="text-xs text-on-surface-variant mono">25 Nov · 14:22</p>
+          <p class="text-sm"><strong>System</strong> opened CA from QC Control violation</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <div class="p-5 border-t border-border space-y-3">
+    <button class="w-full h-11 bg-primary hover:bg-primary-hover text-white font-semibold rounded">Save</button>
+    <div class="flex justify-between">
+      <button class="text-sm text-on-surface-variant hover:underline" onclick="closePanel()">Cancel</button>
+      <button class="text-sm text-error font-semibold hover:underline">Close Action</button>
+    </div>
+  </div>
+</aside>
+
+<script>
+  const panel = document.querySelector('aside');
+  const overlay = document.getElementById('panelOverlay');
+  function openPanel() {
+    panel.classList.remove('translate-x-full');
+    overlay.classList.remove('hidden');
+  }
+  function closePanel() {
+    panel.classList.add('translate-x-full');
+    overlay.classList.add('hidden');
+  }
+  overlay.addEventListener('click', closePanel);
+</script>
+
+</body>
+</html>

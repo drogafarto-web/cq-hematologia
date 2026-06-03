@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<title>Lot Management · QC Control</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/font/sans.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/font/mono.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet"/>
+<style>
+body { font-family: 'Geist', sans-serif; }
+.mono { font-family: 'Geist Mono', monospace; font-variant-numeric: tabular-nums; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20; vertical-align: middle; font-size: 20px; }
+input:focus, select:focus, textarea:focus { outline: none; border-width: 2px !important; border-color: #004787 !important; }
+</style>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        primary: '#004787',
+        'primary-hover': '#003160',
+        surface: '#F9F9FF',
+        'surface-variant': '#F3F3F9',
+        border: '#E5E7EB',
+        'border-variant': '#C2C6D2',
+        'on-surface': '#191C20',
+        'on-surface-variant': '#424750',
+        outline: '#727781',
+        error: '#BA1A1A',
+        'error-container': '#FFDAD6',
+        warning: '#D97706',
+        'warning-container': '#FEF3C7',
+        success: '#059669',
+        'success-container': '#D1FAE5',
+      },
+      borderRadius: { DEFAULT: '4px' },
+    }
+  }
+}
+</script>
+</head>
+<body class="bg-white text-on-surface min-h-screen">
+
+<!-- HEADER -->
+<header class="sticky top-0 z-40 h-12 bg-white border-b border-border flex items-center justify-between px-6">
+  <div class="flex items-center gap-3">
+    <a href="#" class="text-on-surface-variant text-sm hover:text-primary flex items-center gap-1">
+      <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+      QC Control
+    </a>
+    <span class="h-5 w-px bg-border-variant"></span>
+    <span class="text-sm font-semibold text-on-surface">Lot Management</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <button class="h-9 px-4 border border-border-variant text-primary text-sm font-semibold rounded hover:bg-surface-variant flex items-center gap-1.5">
+      <span class="material-symbols-outlined text-[18px]">cloud_download</span>
+      Import from PNCQ
+    </button>
+    <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-semibold">MS</div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="max-w-[1200px] mx-auto px-6 py-8 space-y-6">
+
+  <!-- PAGE TITLE + ACTIONS -->
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-semibold text-on-surface tracking-tight">Lot Management</h1>
+      <p class="text-sm text-on-surface-variant mt-1">Register and manage QC control lots for traceability and audit compliance.</p>
+    </div>
+    <button class="h-11 px-5 bg-primary hover:bg-primary-hover text-white font-semibold rounded flex items-center gap-2">
+      <span class="material-symbols-outlined">add</span>
+      Add Lot
+    </button>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="flex flex-wrap gap-3 items-center">
+    <div class="relative flex-1 min-w-[240px]">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+      <input type="text" placeholder="Search by lot, analyte, reagent..." class="w-full h-11 pl-10 pr-3 border border-border-variant rounded text-sm bg-white"/>
+    </div>
+    <select class="h-11 px-3 border border-border-variant rounded text-sm bg-white min-w-[140px]">
+      <option>All levels</option>
+      <option>Level 1</option>
+      <option>Level 2</option>
+    </select>
+    <select class="h-11 px-3 border border-border-variant rounded text-sm bg-white min-w-[140px]">
+      <option>Active</option>
+      <option>Expired</option>
+      <option>Archived</option>
+      <option>All</option>
+    </select>
+  </div>
+
+  <!-- TABLE -->
+  <section class="border border-border rounded bg-white overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-surface-variant">
+        <tr class="text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wider">
+          <th class="px-5 py-3">Analyte</th>
+          <th class="px-5 py-3">Lot</th>
+          <th class="px-5 py-3">Level</th>
+          <th class="px-5 py-3">Reagent</th>
+          <th class="px-5 py-3">Analyzer</th>
+          <th class="px-5 py-3 text-right">Target Mean</th>
+          <th class="px-5 py-3 text-right">SD</th>
+          <th class="px-5 py-3 text-right">Range</th>
+          <th class="px-5 py-3">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer" onclick="openPanel()">
+          <td class="px-5 py-3 font-semibold text-primary">PT-INR</td>
+          <td class="px-5 py-3 mono">7425</td>
+          <td class="px-5 py-3">Level 1</td>
+          <td class="px-5 py-3">Thioplastin Plus</td>
+          <td class="px-5 py-3">COAG-02</td>
+          <td class="px-5 py-3 text-right mono">12.200</td>
+          <td class="px-5 py-3 text-right mono">0.380</td>
+          <td class="px-5 py-3 text-right mono">11.06 – 13.34</td>
+          <td class="px-5 py-3">
+            <span class="px-2 py-0.5 bg-success-container text-green-800 text-[11px] font-semibold rounded-full">Active</span>
+          </td>
+        </tr>
+        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer">
+          <td class="px-5 py-3 font-semibold text-primary">PT-INR</td>
+          <td class="px-5 py-3 mono">7425</td>
+          <td class="px-5 py-3">Level 2</td>
+          <td class="px-5 py-3">Thioplastin Plus</td>
+          <td class="px-5 py-3">COAG-02</td>
+          <td class="px-5 py-3 text-right mono">24.120</td>
+          <td class="px-5 py-3 text-right mono">0.710</td>
+          <td class="px-5 py-3 text-right mono">21.99 – 26.25</td>
+          <td class="px-5 py-3">
+            <span class="px-2 py-0.5 bg-success-container text-green-800 text-[11px] font-semibold rounded-full">Active</span>
+          </td>
+        </tr>
+        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer">
+          <td class="px-5 py-3 font-semibold text-primary">APTT</td>
+          <td class="px-5 py-3 mono">8192</td>
+          <td class="px-5 py-3">Level 1</td>
+          <td class="px-5 py-3">Actin FS</td>
+          <td class="px-5 py-3">COAG-02</td>
+          <td class="px-5 py-3 text-right mono">32.450</td>
+          <td class="px-5 py-3 text-right mono">1.150</td>
+          <td class="px-5 py-3 text-right mono">29.00 – 35.90</td>
+          <td class="px-5 py-3">
+            <span class="px-2 py-0.5 bg-success-container text-green-800 text-[11px] font-semibold rounded-full">Active</span>
+          </td>
+        </tr>
+        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer">
+          <td class="px-5 py-3 font-semibold text-primary">APTT</td>
+          <td class="px-5 py-3 mono">8192</td>
+          <td class="px-5 py-3">Level 2</td>
+          <td class="px-5 py-3">Actin FS</td>
+          <td class="px-5 py-3">COAG-02</td>
+          <td class="px-5 py-3 text-right mono">56.800</td>
+          <td class="px-5 py-3 text-right mono">2.410</td>
+          <td class="px-5 py-3 text-right mono">49.57 – 64.03</td>
+          <td class="px-5 py-3">
+            <span class="px-2 py-0.5 bg-success-container text-green-800 text-[11px] font-semibold rounded-full">Active</span>
+          </td>
+        </tr>
+        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer">
+          <td class="px-5 py-3 font-semibold text-primary">Fibrinogen</td>
+          <td class="px-5 py-3 mono">1029</td>
+          <td class="px-5 py-3">Level 1</td>
+          <td class="px-5 py-3">Multifibren U</td>
+          <td class="px-5 py-3">COAG-03</td>
+          <td class="px-5 py-3 text-right mono">245.00</td>
+          <td class="px-5 py-3 text-right mono">12.50</td>
+          <td class="px-5 py-3 text-right mono">207.50 – 282.50</td>
+          <td class="px-5 py-3">
+            <span class="px-2 py-0.5 bg-success-container text-green-800 text-[11px] font-semibold rounded-full">Active</span>
+          </td>
+        </tr>
+        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer opacity-50">
+          <td class="px-5 py-3 font-semibold text-on-surface-variant">Fibrinogen</td>
+          <td class="px-5 py-3 mono">0893</td>
+          <td class="px-5 py-3">Level 1</td>
+          <td class="px-5 py-3">Multifibren U</td>
+          <td class="px-5 py-3">COAG-03</td>
+          <td class="px-5 py-3 text-right mono">241.00</td>
+          <td class="px-5 py-3 text-right mono">11.80</td>
+          <td class="px-5 py-3 text-right mono">205.60 – 276.40</td>
+          <td class="px-5 py-3">
+            <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-[11px] font-semibold italic rounded-full">Archived</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- COUNT -->
+  <p class="text-xs text-on-surface-variant">5 active · 1 archived</p>
+</main>
+
+<!-- FOOTER -->
+<footer class="h-8 border-t border-border bg-white flex items-center justify-between px-6 text-xs text-on-surface-variant">
+  <span>6 lots total</span>
+  <div class="flex gap-4">
+    <a href="#" class="hover:text-primary">Export PDF</a>
+    <a href="#" class="hover:text-primary">Export Excel</a>
+  </div>
+</footer>
+
+<!-- SLIDE-OUT PANEL (Edit Lot) -->
+<div id="panelOverlay" class="fixed inset-0 bg-black/30 z-40 hidden"></div>
+<aside class="fixed right-0 top-0 h-screen w-[480px] bg-white z-50 border-l border-border-variant flex flex-col translate-x-full transition-transform duration-200">
+  <!-- Header -->
+  <div class="h-12 px-5 border-b border-border flex justify-between items-center">
+    <h2 class="text-base font-semibold text-on-surface">Lot 7425</h2>
+    <button class="p-1.5 hover:bg-surface-variant rounded-full" onclick="closePanel()">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="flex-1 overflow-y-auto p-5 space-y-6">
+    <!-- Section: Identification -->
+    <section class="space-y-4">
+      <h3 class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Identification</h3>
+
+      <div>
+        <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Analyte</label>
+        <input type="text" value="PT-INR" readonly class="w-full h-12 px-3 bg-surface-variant rounded text-sm cursor-not-allowed text-on-surface-variant"/>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Lot Number</label>
+          <input type="text" value="7425" class="w-full h-12 px-3 border border-border-variant rounded mono text-sm"/>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Level</label>
+          <select class="w-full h-12 px-3 border border-border-variant rounded text-sm bg-white">
+            <option selected>Level 1</option>
+            <option>Level 2</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Reagent</label>
+        <input type="text" value="Thioplastin Plus" class="w-full h-12 px-3 border border-border-variant rounded text-sm"/>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Analyzer</label>
+        <select class="w-full h-12 px-3 border border-border-variant rounded text-sm bg-white">
+          <option selected>COAG-02</option>
+          <option>COAG-01</option>
+          <option>COAG-03</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Section: Target -->
+    <div class="border-t border-border pt-5">
+      <h3 class="text-xs font-semibold text-primary uppercase tracking-wider mb-4">Target Specifications</h3>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Target Mean</label>
+          <input type="text" value="12.200" class="w-full h-12 px-3 border border-border-variant rounded mono text-sm"/>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">SD</label>
+          <input type="text" value="0.380" class="w-full h-12 px-3 border border-border-variant rounded mono text-sm"/>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Min</label>
+          <input type="text" value="11.060" class="w-full h-12 px-3 border border-border-variant rounded mono text-sm"/>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Max</label>
+          <input type="text" value="13.340" class="w-full h-12 px-3 border border-border-variant rounded mono text-sm"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: History -->
+    <div class="border-t border-border pt-5">
+      <h3 class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-3">Audit History</h3>
+      <div class="space-y-2">
+        <div class="p-3 bg-surface-variant rounded text-xs">
+          <div class="flex justify-between text-on-surface-variant mb-0.5">
+            <span class="font-semibold">J. Miller · 15 Nov 2026</span>
+            <span class="mono">14:22</span>
+          </div>
+          <div class="mono text-on-surface">Mean: 12.20 → 12.24</div>
+        </div>
+        <div class="p-3 bg-surface-variant rounded text-xs">
+          <div class="flex justify-between text-on-surface-variant mb-0.5">
+            <span class="font-semibold">J. Miller · 15 Nov 2026</span>
+            <span class="mono">14:18</span>
+          </div>
+          <div class="mono text-on-surface">SD: 0.35 → 0.38</div>
+        </div>
+        <div class="p-3 bg-surface-variant rounded text-xs">
+          <div class="flex justify-between text-on-surface-variant mb-0.5">
+            <span class="font-semibold">System · 10 Nov 2026</span>
+            <span class="mono">09:10</span>
+          </div>
+          <div class="mono text-on-surface">Lot created via PNCQ import</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="p-5 border-t border-border space-y-3">
+    <button class="w-full h-11 bg-primary hover:bg-primary-hover text-white font-semibold rounded">Save</button>
+    <div class="flex justify-between items-center">
+      <button class="text-sm text-on-surface-variant hover:underline" onclick="closePanel()">Cancel</button>
+      <button class="text-sm text-error font-semibold hover:underline flex items-center gap-1">
+        <span class="material-symbols-outlined text-[18px]">archive</span>
+        Archive Lot
+      </button>
+    </div>
+  </div>
+</aside>
+
+<script>
+  const panel = document.querySelector('aside');
+  const overlay = document.getElementById('panelOverlay');
+  function openPanel() {
+    panel.classList.remove('translate-x-full');
+    overlay.classList.remove('hidden');
+  }
+  function closePanel() {
+    panel.classList.add('translate-x-full');
+    overlay.classList.add('hidden');
+  }
+  overlay.addEventListener('click', closePanel);
+</script>
+
+</body>
+</html>

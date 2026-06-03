@@ -7,23 +7,14 @@ interface VHSExamCardProps {
 }
 
 function fmtTime(ts: Timestamp | null | undefined): string {
-  if (!ts || typeof (ts as any).toDate !== 'function') return '--:--';
-  const d = (ts as Timestamp).toDate();
-  return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  if (!ts) return '--:--';
+  return ts.toDate().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 }
 
 function fmtDate(ts: Timestamp | null | undefined): string {
-  if (!ts || typeof (ts as any).toDate !== 'function') return '--/--';
-  const d = (ts as Timestamp).toDate();
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  if (!ts) return '--/--';
+  return ts.toDate().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
 }
-
-const STATUS_STYLES: Record<string, string> = {
-  pendente: 'bg-amber-500/15 text-amber-400',
-  liberado: 'bg-emerald-500/15 text-emerald-400',
-  divergente: 'bg-rose-500/15 text-rose-400',
-  cancelado: 'bg-zinc-500/15 text-zinc-500',
-};
 
 const STATUS_LABELS: Record<string, string> = {
   pendente: 'Pendente',
@@ -57,19 +48,19 @@ export function VHSExamCard({ exam, onVerify }: VHSExamCardProps) {
         {exam.pacienteNome && ' · '}
         <span className="capitalize text-zinc-400">{exam.metodo}</span>
         {' · '}
-        <span className="text-zinc-500">{fmtDate(exam.criadoEm)}</span>
+        <span className="text-zinc-500">{fmtDate(exam.audit.registradoEm)}</span>
       </div>
 
       {/* Linha 2 */}
       <div className="text-sm text-zinc-400">
         <span className={isCancelled ? 'line-through' : ''}>
-          L1: {exam.leitura1.valor.toFixed(1)} mm/h · op1: {exam.leitura1.operadorNome} (
-          {fmtTime(exam.leitura1.ts)})
+          L1: {exam.leitura1.valor.toFixed(1)} mm/h · resp: {exam.leitura1.responsavelNome} (
+          {fmtTime(exam.leitura1.leituraEm)})
         </span>
         {exam.leitura2 ? (
           <span className={isCancelled ? 'line-through' : ''}>
-            {' · '}L2: {exam.leitura2.valor.toFixed(1)} mm/h · op2: {exam.leitura2.operadorNome} (
-            {fmtTime(exam.leitura2.ts)})
+            {' · '}L2: {exam.leitura2.valor.toFixed(1)} mm/h · resp: {exam.leitura2.responsavelNome}{' '}
+            ({fmtTime(exam.leitura2.leituraEm)})
           </span>
         ) : (
           <span className="ml-2 text-amber-400">Aguardando leitura 2</span>
@@ -95,8 +86,8 @@ export function VHSExamCard({ exam, onVerify }: VHSExamCardProps) {
             <line x1="12" y1="17" x2="12.01" y2="17" />
           </svg>
           <span className="text-sm font-medium text-rose-400">
-            Delta {exam.divergencia.delta > 0 ? '+' : ''}
-            {exam.divergencia.delta.toFixed(1)} mm/h
+            Delta {exam.divergencia > 0 ? '+' : ''}
+            {exam.divergencia.toFixed(1)} mm/h
           </span>
         </div>
       )}

@@ -203,8 +203,6 @@ export function NovoLoteModal({
   } | null>(null);
 
   async function handleLoteCreated(insumoId: string, produtoId: string, examCode?: string) {
-    onCreated?.(insumoId, examCode);
-
     // Fase Worklab (2026-06-02): se o lote for de uroanálise (tira-uro ou controle
     // com módulo uroanalise), abre o modal de abertura antes de fechar.
     if (produtoSelecionado) {
@@ -236,6 +234,8 @@ export function NovoLoteModal({
         }
       }
     }
+
+    onCreated?.(insumoId, examCode);
 
     // Busca ativo do mesmo produto (ignorando o recém-criado). Se retornar,
     // popula sugestão de rotação que mantém o NovoLoteModal montado até o
@@ -337,6 +337,21 @@ export function NovoLoteModal({
           examCode={rotacaoSugestao.examCode}
           onFinish={() => {
             setRotacaoSugestao(null);
+            onClose();
+          }}
+        />
+      )}
+
+      {showAberturaModal && pendingUroLot && (
+        <UroAberturaModal
+          lot={pendingUroLot}
+          onClose={() => {
+            setShowAberturaModal(false);
+            onClose();
+          }}
+          onSuccess={(aberturaId) => {
+            setShowAberturaModal(false);
+            onCreated?.(pendingUroLot.id);
             onClose();
           }}
         />

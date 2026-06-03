@@ -1,4 +1,4 @@
-﻿import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'vitest/config';
 import { loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
@@ -6,18 +6,26 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { readFileSync } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8')) as { version: string };
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const sentryAuthToken = env.SENTRY_AUTH_TOKEN;
 
   return {
-  define: {
-    'import.meta.env.VITE_APP_VERSION': JSON.stringify(pkg.version),
-  },
-  build: {
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
+      },
+    },
+    define: {
+      'import.meta.env.VITE_APP_VERSION': JSON.stringify(pkg.version),
+    },
+    build: {
     // Sourcemaps sÃ£o uploadados pro Sentry e removidos do bundle servido,
     // mas precisam existir no build pra plugin processar.
     sourcemap: true,
