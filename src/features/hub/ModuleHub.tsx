@@ -18,13 +18,7 @@ import { useUroLots } from '../uroanalise/hooks/useUroLots';
    │ Inline SVG icons (no external lib — see hcquality_design_tokens)        │
    ╰─────────────────────────────────────────────────────────────────────────╯ */
 
-const Svg = ({
-  size = 18,
-  children,
-}: {
-  size?: number;
-  children: React.ReactNode;
-}) => (
+const Svg = ({ size = 18, children }: { size?: number; children: React.ReactNode }) => (
   <svg width={size} height={size} viewBox="0 0 20 20" fill="none" aria-hidden>
     {children}
   </svg>
@@ -70,20 +64,36 @@ const BellIcon = (p: { size?: number }) => (
       strokeWidth="1.4"
       strokeLinejoin="round"
     />
-    <path d="M8.5 16a1.5 1.5 0 0 0 3 0" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    <path
+      d="M8.5 16a1.5 1.5 0 0 0 3 0"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+    />
   </Svg>
 );
 
 const CheckCircleIcon = (p: { size?: number }) => (
   <Svg size={p.size}>
     <circle cx="10" cy="10" r="7.5" stroke="currentColor" strokeWidth="1.5" />
-    <path d="M6.5 10.2l2.5 2.5L13.5 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M6.5 10.2l2.5 2.5L13.5 8"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </Svg>
 );
 
 const AlertTriIcon = (p: { size?: number }) => (
   <Svg size={p.size}>
-    <path d="M10 3l7.5 13h-15L10 3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    <path
+      d="M10 3l7.5 13h-15L10 3z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
     <path d="M10 8.5v3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     <circle cx="10" cy="14" r="0.9" fill="currentColor" />
   </Svg>
@@ -106,7 +116,12 @@ const ShiftIcon = (p: { size?: number }) => (
 
 const MenuIcon = (p: { size?: number }) => (
   <Svg size={p.size}>
-    <path d="M3 6h14M3 10h14M3 14h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    <path
+      d="M3 6h14M3 10h14M3 14h14"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+    />
   </Svg>
 );
 
@@ -118,7 +133,13 @@ const CloseIcon = (p: { size?: number }) => (
 
 const ChevronRightIcon = (p: { size?: number }) => (
   <Svg size={p.size}>
-    <path d="M8 5l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M8 5l5 5-5 5"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </Svg>
 );
 
@@ -128,15 +149,34 @@ const HematologyIcon = () => (
   <Svg size={20}>
     <circle cx="10" cy="10" r="4.5" stroke="currentColor" strokeWidth="1.5" />
     <circle cx="10" cy="10" r="1.5" fill="currentColor" />
-    <path d="M10 2.5v2.5M10 15v2.5M2.5 10H5M15 10h2.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    <path
+      d="M10 2.5v2.5M10 15v2.5M2.5 10H5M15 10h2.5"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinecap="round"
+    />
   </Svg>
 );
 
 const BiochemIcon = () => (
   <Svg size={20}>
-    <path d="M7.5 3h5l1.5 4H6L7.5 3z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
-    <path d="M6 7l-1.5 9.5h11L14 7" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
-    <path d="M8.5 12.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5" stroke="currentColor" strokeWidth="1.2" />
+    <path
+      d="M7.5 3h5l1.5 4H6L7.5 3z"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M6 7l-1.5 9.5h11L14 7"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M8.5 12.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5"
+      stroke="currentColor"
+      strokeWidth="1.2"
+    />
   </Svg>
 );
 
@@ -154,38 +194,79 @@ const CoagIcon = () => (
 
 const UrineIcon = () => (
   <Svg size={20}>
-    <path d="M10 2.5C10 2.5 5 9 5 13a5 5 0 0 0 10 0C15 9 10 2.5 10 2.5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-    <path d="M7.5 14.5C7.5 15.6 8.6 16.3 10 16.3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    <path
+      d="M10 2.5C10 2.5 5 9 5 13a5 5 0 0 0 10 0C15 9 10 2.5 10 2.5z"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M7.5 14.5C7.5 15.6 8.6 16.3 10 16.3"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+    />
   </Svg>
 );
 
 const ImunoIcon = () => (
   <Svg size={20}>
     <circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="1.4" />
-    <path d="M10 2v3M10 15v3M2 10h3M15 10h3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    <path
+      d="M10 2v3M10 15v3M2 10h3M15 10h3"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+    />
     <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" />
   </Svg>
 );
 
 const EducacaoIcon = () => (
   <Svg size={20}>
-    <path d="M2 7l8-3 8 3-8 3-8-3z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-    <path d="M5 8.5v3.5c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V8.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M2 7l8-3 8 3-8 3-8-3z"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M5 8.5v3.5c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V8.5"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
     <path d="M18 7v4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
   </Svg>
 );
 
 const ControlTempIcon = () => (
   <Svg size={20}>
-    <path d="M12 3a2 2 0 1 0-4 0v9.2a3.5 3.5 0 1 0 4 0V3Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+    <path
+      d="M12 3a2 2 0 1 0-4 0v9.2a3.5 3.5 0 1 0 4 0V3Z"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinejoin="round"
+    />
     <circle cx="10" cy="14.5" r="1.5" fill="currentColor" />
   </Svg>
 );
 
 const CriticosIcon = () => (
   <Svg size={20}>
-    <path d="M10 2.5L3.5 5v5.5c0 3.5 2.7 6.5 6.5 7.5 3.8-1 6.5-4 6.5-7.5V5L10 2.5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-    <path d="M10 8v4M10 14.5a0.75 0.75 0 1 1 0-1.5 0.75 0.75 0 0 1 0 1.5z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    <path
+      d="M10 2.5L3.5 5v5.5c0 3.5 2.7 6.5 6.5 7.5 3.8-1 6.5-4 6.5-7.5V5L10 2.5z"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M10 8v4M10 14.5a0.75 0.75 0 1 1 0-1.5 0.75 0.75 0 0 1 0 1.5z"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+    />
   </Svg>
 );
 
@@ -193,8 +274,18 @@ const CriticosIcon = () => (
 
 const DocsIcon = () => (
   <Svg size={20}>
-    <path d="M5 2.5h7l3 3v12H5V2.5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-    <path d="M12 2.5v3h3M7.5 9.5h5M7.5 12.5h5M7.5 15h3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    <path
+      d="M5 2.5h7l3 3v12H5V2.5z"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M12 2.5v3h3M7.5 9.5h5M7.5 12.5h5M7.5 15h3"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+    />
   </Svg>
 );
 
@@ -202,7 +293,12 @@ const PeopleIcon = () => (
   <Svg size={20}>
     <circle cx="7.5" cy="7" r="2.5" stroke="currentColor" strokeWidth="1.4" />
     <circle cx="13.5" cy="8" r="2" stroke="currentColor" strokeWidth="1.3" />
-    <path d="M3 16c0-2.2 2-4 4.5-4s4.5 1.8 4.5 4M12 16c0-1.8 1.5-3 3-3s3 1.2 3 3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    <path
+      d="M3 16c0-2.2 2-4 4.5-4s4.5 1.8 4.5 4M12 16c0-1.8 1.5-3 3-3s3 1.2 3 3"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinecap="round"
+    />
   </Svg>
 );
 
@@ -221,14 +317,25 @@ const EquipmentIcon = () => (
 const AwardIcon = () => (
   <Svg size={20}>
     <circle cx="10" cy="8" r="4.5" stroke="currentColor" strokeWidth="1.4" />
-    <path d="M10 12.5v5M7.5 18l2.5-1.5L12.5 18l-.5-3M7.5 18l.5-3" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+    <path
+      d="M10 12.5v5M7.5 18l2.5-1.5L12.5 18l-.5-3M7.5 18l.5-3"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinejoin="round"
+    />
   </Svg>
 );
 
 const TrendingIcon = () => (
   <Svg size={20}>
     <path d="M2.5 16.5h15" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-    <path d="M3.5 13l3.5-4 3 2.5L13 7l3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M3.5 13l3.5-4 3 2.5L13 7l3.5 3.5"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
     <circle cx="16.5" cy="10.5" r="1" fill="currentColor" />
   </Svg>
 );
@@ -254,7 +361,13 @@ const ShieldCheckIcon = () => (
       strokeWidth="1.4"
       strokeLinejoin="round"
     />
-    <path d="M7.5 10.5l2 2 3-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M7.5 10.5l2 2 3-4"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </Svg>
 );
 
@@ -266,13 +379,24 @@ const PrePosIcon = () => (
       strokeWidth="1.3"
       strokeLinejoin="round"
     />
-    <path d="M14 6.5l3 3M14.5 12.5l3-3-2-2-3 3 2 2z" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M14 6.5l3 3M14.5 12.5l3-3-2-2-3 3 2 2z"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </Svg>
 );
 
 const SupplyIcon = () => (
   <Svg size={20}>
-    <path d="M2 6h9v8H2V6zM11 8.5h4l2.5 2.5V14h-6.5V8.5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+    <path
+      d="M2 6h9v8H2V6zM11 8.5h4l2.5 2.5V14h-6.5V8.5z"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinejoin="round"
+    />
     <circle cx="5.5" cy="15.5" r="1.5" stroke="currentColor" strokeWidth="1.4" />
     <circle cx="14" cy="15.5" r="1.5" stroke="currentColor" strokeWidth="1.4" />
   </Svg>
@@ -281,8 +405,12 @@ const SupplyIcon = () => (
 const SettingsIcon = () => (
   <Svg size={20}>
     <circle cx="10" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.4" />
-    <path d="M16.5 10a6.5 6.5 0 0 0-.1-1.1l1.7-1.3-1.6-2.8-2 .8a6.5 6.5 0 0 0-1.9-1.1L12.2 2.5h-3.4L8.4 4.5A6.5 6.5 0 0 0 6.5 5.6l-2-.8L3 7.6l1.7 1.3A6.5 6.5 0 0 0 4.5 10c0 .4 0 .8.1 1.1l-1.7 1.3 1.6 2.8 2-.8a6.5 6.5 0 0 0 1.9 1.1l.4 2h3.4l.4-2a6.5 6.5 0 0 0 1.9-1.1l2 .8 1.6-2.8-1.7-1.3c.1-.3.1-.7.1-1.1z"
-      stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+    <path
+      d="M16.5 10a6.5 6.5 0 0 0-.1-1.1l1.7-1.3-1.6-2.8-2 .8a6.5 6.5 0 0 0-1.9-1.1L12.2 2.5h-3.4L8.4 4.5A6.5 6.5 0 0 0 6.5 5.6l-2-.8L3 7.6l1.7 1.3A6.5 6.5 0 0 0 4.5 10c0 .4 0 .8.1 1.1l-1.7 1.3 1.6 2.8 2-.8a6.5 6.5 0 0 0 1.9 1.1l.4 2h3.4l.4-2a6.5 6.5 0 0 0 1.9-1.1l2 .8 1.6-2.8-1.7-1.3c.1-.3.1-.7.1-1.1z"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinejoin="round"
+    />
   </Svg>
 );
 
@@ -296,20 +424,35 @@ const PdfIcon = () => (
 const ReportsIcon = () => (
   <Svg size={20}>
     <rect x="2.5" y="2.5" width="15" height="15" rx="2" stroke="currentColor" strokeWidth="1.4" />
-    <path d="M6 13V9.5M10 13V6M14 13v-2.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    <path
+      d="M6 13V9.5M10 13V6M14 13v-2.5"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+    />
   </Svg>
 );
 
 const InsumosIcon = () => (
   <Svg size={20}>
     <path d="M3 5h14v10H3z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-    <path d="M7 5V3h6v2M7 9h6M7 12h4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    <path
+      d="M7 5V3h6v2M7 9h6M7 12h4"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinecap="round"
+    />
   </Svg>
 );
 
 const ShieldIcon = () => (
   <Svg size={20}>
-    <path d="M10 2.5L3.5 5v5.5c0 3.5 2.7 6.5 6.5 7.5 3.8-1 6.5-4 6.5-7.5V5L10 2.5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+    <path
+      d="M10 2.5L3.5 5v5.5c0 3.5 2.7 6.5 6.5 7.5 3.8-1 6.5-4 6.5-7.5V5L10 2.5z"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinejoin="round"
+    />
   </Svg>
 );
 
@@ -317,7 +460,13 @@ const TraceIcon = () => (
   <Svg size={20}>
     <circle cx="5" cy="10" r="1.6" stroke="currentColor" strokeWidth="1.3" />
     <circle cx="15" cy="10" r="1.6" stroke="currentColor" strokeWidth="1.3" />
-    <path d="M6.5 10h7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeDasharray="1.5 1.5" />
+    <path
+      d="M6.5 10h7"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinecap="round"
+      strokeDasharray="1.5 1.5"
+    />
     <path d="M10 4v3M10 13v3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
   </Svg>
 );
@@ -333,8 +482,20 @@ const BarChartIcon = () => (
 
 const DownloadTrayIcon = () => (
   <Svg size={20}>
-    <path d="M10 3v9M7 9l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M3.5 13.5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M10 3v9M7 9l3 3 3-3"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M3.5 13.5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </Svg>
 );
 
@@ -399,6 +560,32 @@ const MODULES: ModuleDef[] = [
     view: 'coagulacao-v2',
   },
   {
+    id: 'vhs',
+    name: 'VHS',
+    tagline: 'Hemossedimentação · dupla verificação · mm/h',
+    bullets: ['Dupla leitura', 'Tolerância ±3 mm/h', 'Liberação por RT'],
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M9 2v6L4 18a2 2 0 0 0 1.7 3h12.6A2 2 0 0 0 20 18L15 8V2" />
+        <path d="M8 2h8" />
+        <path d="M7 14h10" opacity="0.4" />
+      </svg>
+    ),
+    bloco: 'Bloco 4',
+    iconBg: 'bg-rose-500/15',
+    iconColor: 'text-rose-400',
+    status: 'active',
+    category: 'analitico',
+    view: 'vhs',
+  },
+  {
     id: 'urinalysis',
     name: 'Uroanálise',
     tagline: 'CIQ híbrido · tiras reagentes · 10 analitos',
@@ -415,7 +602,11 @@ const MODULES: ModuleDef[] = [
     id: 'ciq-imuno',
     name: 'CIQ-Imuno',
     tagline: 'Imunoensaios rápidos · IA strip + análise acurácia',
-    bullets: ['HIV, Dengue, HCG, Sífilis, COVID', 'IA classification + upload manual', 'Dashboard acurácia + metrô visualização'],
+    bullets: [
+      'HIV, Dengue, HCG, Sífilis, COVID',
+      'IA classification + upload manual',
+      'Dashboard acurácia + metrô visualização',
+    ],
     icon: <ImunoIcon />,
     bloco: 'Bloco 4',
     iconBg: 'bg-emerald-500/15',
@@ -428,7 +619,11 @@ const MODULES: ModuleDef[] = [
     id: 'biochemistry',
     name: 'Bioquímica',
     tagline: 'CIQ quantitativo · 17 analitos · multi-instrumento',
-    bullets: ['Westgard CLSI (1-2s · 1-3s · 2-2s · R-4s)', 'Bula PDF + estatística interna', 'Levey-Jennings multi-equipamento'],
+    bullets: [
+      'Westgard CLSI (1-2s · 1-3s · 2-2s · R-4s)',
+      'Bula PDF + estatística interna',
+      'Levey-Jennings multi-equipamento',
+    ],
     icon: <BiochemIcon />,
     bloco: 'Bloco 4',
     iconBg: 'bg-sky-500/15',
@@ -522,7 +717,11 @@ const MODULES: ModuleDef[] = [
     id: 'gestao-equipamentos',
     name: 'Gestão de Equipamentos',
     tagline: 'Inventário, calibração e manutenção',
-    bullets: ['Cadastro com 12 campos DICQ', 'Calibração + rastreabilidade', 'Manutenção preventiva'],
+    bullets: [
+      'Cadastro com 12 campos DICQ',
+      'Calibração + rastreabilidade',
+      'Manutenção preventiva',
+    ],
     icon: <EquipmentIcon />,
     bloco: 'Bloco 3',
     iconBg: 'bg-violet-500/15',
@@ -535,7 +734,11 @@ const MODULES: ModuleDef[] = [
     id: 'ceq',
     name: 'CQ Externo (CEQ)',
     tagline: 'Ensaios interlaboratoriais · Z-score · ISO 17043',
-    bullets: ['Controllab · BIPEA · PNCQ', 'Z-score por analito · NC automática', 'DICQ 4.5 · RDC 978'],
+    bullets: [
+      'Controllab · BIPEA · PNCQ',
+      'Z-score por analito · NC automática',
+      'DICQ 4.5 · RDC 978',
+    ],
     icon: <AwardIcon />,
     bloco: 'Bloco 4',
     iconBg: 'bg-teal-500/15',
@@ -574,7 +777,11 @@ const MODULES: ModuleDef[] = [
     id: 'auditoria-trail',
     name: 'Trilha de Auditoria',
     tagline: 'RDC 978 5.3 · DICQ 4.4 · Eventos com assinatura criptográfica',
-    bullets: ['ChainHash + LogicalSignature', 'Filtros por módulo/operador', 'Verificação de integridade'],
+    bullets: [
+      'ChainHash + LogicalSignature',
+      'Filtros por módulo/operador',
+      'Verificação de integridade',
+    ],
     icon: <ShieldCheckIcon />,
     bloco: 'Bloco 4',
     iconBg: 'bg-emerald-500/15',
@@ -732,15 +939,12 @@ export function ModuleHub() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  const firstName =
-    user?.displayName?.split(' ')[0] ?? user?.email?.split('@')[0] ?? 'Você';
+  const firstName = user?.displayName?.split(' ')[0] ?? user?.email?.split('@')[0] ?? 'Você';
 
   const sidebarGroups: SidebarGroup[] = [
     {
       label: 'Painel',
-      items: [
-        { label: 'Visão Geral', icon: <ActivityIcon /> },
-      ],
+      items: [{ label: 'Visão Geral', icon: <ActivityIcon /> }],
     },
     {
       label: 'Qualidade Analítica',
@@ -801,12 +1005,8 @@ export function ModuleHub() {
             HC
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white font-semibold text-sm leading-tight truncate">
-              hc-quality
-            </p>
-            <p className="text-[10px] text-white/40 leading-tight">
-              SGQ · Acreditação DICQ
-            </p>
+            <p className="text-white font-semibold text-sm leading-tight truncate">hc-quality</p>
+            <p className="text-[10px] text-white/40 leading-tight">SGQ · Acreditação DICQ</p>
           </div>
           <button
             type="button"
@@ -1121,8 +1321,7 @@ function AlertWidget({
       'bg-rose-50 dark:bg-rose-500/[0.06] border-rose-200 dark:border-rose-500/20 text-rose-800 dark:text-rose-300',
     warning:
       'bg-amber-50 dark:bg-amber-500/[0.06] border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-300',
-    info:
-      'bg-blue-50 dark:bg-blue-500/[0.06] border-blue-200 dark:border-blue-500/20 text-blue-800 dark:text-blue-300',
+    info: 'bg-blue-50 dark:bg-blue-500/[0.06] border-blue-200 dark:border-blue-500/20 text-blue-800 dark:text-blue-300',
     muted:
       'bg-slate-100/70 dark:bg-white/[0.02] border-slate-200 dark:border-white/[0.06] text-slate-600 dark:text-white/40',
   };
@@ -1130,12 +1329,8 @@ function AlertWidget({
   return (
     <div className={`p-4 rounded-xl border ${palette[tone]}`}>
       <div className="flex justify-between items-start mb-3">
-        <div className="p-2 rounded-lg bg-white dark:bg-white/[0.05] shadow-sm">
-          {icon}
-        </div>
-        <span className="text-2xl font-bold text-slate-800 dark:text-white/85">
-          {value}
-        </span>
+        <div className="p-2 rounded-lg bg-white dark:bg-white/[0.05] shadow-sm">{icon}</div>
+        <span className="text-2xl font-bold text-slate-800 dark:text-white/85">{value}</span>
       </div>
       <p className="font-semibold text-sm">{title}</p>
       <p className="text-[11px] mt-0.5 opacity-70">{subtitle}</p>
@@ -1161,9 +1356,7 @@ function SectionHeading({
       <p className="text-[10px] font-bold tracking-widest uppercase text-emerald-600 dark:text-emerald-400/80">
         {eyebrow}
       </p>
-      <h3 className="text-lg font-semibold text-slate-900 dark:text-white mt-0.5">
-        {title}
-      </h3>
+      <h3 className="text-lg font-semibold text-slate-900 dark:text-white mt-0.5">{title}</h3>
       <p className="text-xs text-slate-500 dark:text-white/40 mt-0.5">{subtitle}</p>
     </div>
   );
@@ -1173,13 +1366,7 @@ function SectionHeading({
    │ ModuleCard                                                               │
    ╰─────────────────────────────────────────────────────────────────────────╯ */
 
-function ModuleCard({
-  mod,
-  onNavigate,
-}: {
-  mod: ModuleDef;
-  onNavigate: (view: View) => void;
-}) {
+function ModuleCard({ mod, onNavigate }: { mod: ModuleDef; onNavigate: (view: View) => void }) {
   const isSoon = mod.status === 'soon';
 
   return (
@@ -1194,9 +1381,7 @@ function ModuleCard({
       }`}
     >
       <div className="flex justify-between items-start mb-4">
-        <div className={`p-2.5 rounded-xl ${mod.iconBg} ${mod.iconColor}`}>
-          {mod.icon}
-        </div>
+        <div className={`p-2.5 rounded-xl ${mod.iconBg} ${mod.iconColor}`}>{mod.icon}</div>
         <span className="text-[9px] font-bold tracking-widest uppercase px-2 py-1 rounded bg-slate-100 dark:bg-white/[0.05] text-slate-500 dark:text-white/35">
           {mod.bloco}
         </span>
@@ -1211,9 +1396,7 @@ function ModuleCard({
       >
         {mod.name}
       </h3>
-      <p className="text-xs text-slate-500 dark:text-white/40 mt-1 mb-3">
-        {mod.tagline}
-      </p>
+      <p className="text-xs text-slate-500 dark:text-white/40 mt-1 mb-3">{mod.tagline}</p>
 
       <ul className="text-[11px] text-slate-500 dark:text-white/35 space-y-1 mb-4 flex-1">
         {mod.bullets.map((b, idx) => (
@@ -1270,46 +1453,52 @@ function HubBancadaSection({ onNavigate }: { onNavigate: (v: View) => void }) {
   const items: PinnedItem[] = [
     ...imunoLots
       .filter((l) => l.setupType === 'principal' || l.setupType === 'validacao_paralela')
-      .map((l): PinnedItem => ({
-        key: `imuno-${l.id}`,
-        module: 'imuno',
-        moduleLabel: 'CIQ Imuno',
-        moduleView: 'ciq-imuno',
-        accent: 'emerald',
-        title: l.testType,
-        subtitle: l.loteControle,
-        setupType: l.setupType as 'principal' | 'validacao_paralela',
-        runCount: l.runCount,
-        validade: l.validadeControle,
-      })),
+      .map(
+        (l): PinnedItem => ({
+          key: `imuno-${l.id}`,
+          module: 'imuno',
+          moduleLabel: 'CIQ Imuno',
+          moduleView: 'ciq-imuno',
+          accent: 'emerald',
+          title: l.testType,
+          subtitle: l.loteControle,
+          setupType: l.setupType as 'principal' | 'validacao_paralela',
+          runCount: l.runCount,
+          validade: l.validadeControle,
+        }),
+      ),
     ...coagLots
       .filter((l) => l.setupType === 'principal' || l.setupType === 'validacao_paralela')
-      .map((l): PinnedItem => ({
-        key: `coag-${l.id}`,
-        module: 'coag',
-        moduleLabel: 'Coagulação',
-        moduleView: 'coagulacao',
-        accent: 'rose',
-        title: `Nível ${l.nivel}`,
-        subtitle: l.loteControle,
-        setupType: l.setupType as 'principal' | 'validacao_paralela',
-        runCount: l.runCount,
-        validade: l.validadeControle,
-      })),
+      .map(
+        (l): PinnedItem => ({
+          key: `coag-${l.id}`,
+          module: 'coag',
+          moduleLabel: 'Coagulação',
+          moduleView: 'coagulacao',
+          accent: 'rose',
+          title: `Nível ${l.nivel}`,
+          subtitle: l.loteControle,
+          setupType: l.setupType as 'principal' | 'validacao_paralela',
+          runCount: l.runCount,
+          validade: l.validadeControle,
+        }),
+      ),
     ...uroLots
       .filter((l) => l.setupType === 'principal' || l.setupType === 'validacao_paralela')
-      .map((l): PinnedItem => ({
-        key: `uro-${l.id}`,
-        module: 'uro',
-        moduleLabel: 'Uroanálise',
-        moduleView: 'uroanalise',
-        accent: 'amber',
-        title: `Nível ${l.nivel}`,
-        subtitle: l.loteControle,
-        setupType: l.setupType as 'principal' | 'validacao_paralela',
-        runCount: l.runCount,
-        validade: l.validadeControle,
-      })),
+      .map(
+        (l): PinnedItem => ({
+          key: `uro-${l.id}`,
+          module: 'uro',
+          moduleLabel: 'Uroanálise',
+          moduleView: 'uroanalise',
+          accent: 'amber',
+          title: `Nível ${l.nivel}`,
+          subtitle: l.loteControle,
+          setupType: l.setupType as 'principal' | 'validacao_paralela',
+          runCount: l.runCount,
+          validade: l.validadeControle,
+        }),
+      ),
   ];
 
   if (items.length === 0) return null;

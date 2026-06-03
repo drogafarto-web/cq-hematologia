@@ -58,7 +58,9 @@ const RisksView = React.lazy(() =>
 
 // KPIs / Planos de melhoria (lazy-loaded)
 const PlanoMelhoriaListView = React.lazy(() =>
-  import('../kpis/components/PlanoMelhoriaListView').then((m) => ({ default: m.PlanoMelhoriaListView })),
+  import('../kpis/components/PlanoMelhoriaListView').then((m) => ({
+    default: m.PlanoMelhoriaListView,
+  })),
 );
 
 const LabApoioView = React.lazy(() =>
@@ -96,7 +98,14 @@ const AuditoriaGeralView = React.lazy(() => import('../auditoria-geral'));
 
 // Coagulação v2 (Wave D+E)
 const CoagulacaoV2View = React.lazy(() =>
-  import('../coagulacao-v2/components/CoagulacaoV2View').then((m) => ({ default: m.CoagulacaoV2View })),
+  import('../coagulacao-v2/components/CoagulacaoV2View').then((m) => ({
+    default: m.CoagulacaoV2View,
+  })),
+);
+
+// VHS: Velocidade de Hemossedimentação — dupla leitura + liberação RT
+const VHSView = React.lazy(() =>
+  import('../vhs/components/VHSView').then((m) => ({ default: m.VHSView })),
 );
 
 import { useBrowserHistorySync } from '../../shared/hooks/useBrowserHistorySync';
@@ -142,9 +151,7 @@ function ExportsView() {
               Ferramentas
             </p>
             <h1 className="text-2xl font-semibold tracking-tight">Exportações</h1>
-            <p className="text-sm text-white/40 mt-1">
-              XLSX, relatórios PDF, histórico de exports
-            </p>
+            <p className="text-sm text-white/40 mt-1">XLSX, relatórios PDF, histórico de exports</p>
           </div>
           {labId && (
             <button
@@ -153,8 +160,19 @@ function ExportsView() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-medium transition-colors"
             >
               <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden>
-                <path d="M10 4v9M7 10l3 3 3-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M3.5 14v1.5a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                <path
+                  d="M10 4v9M7 10l3 3 3-3"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M3.5 14v1.5a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V14"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                />
               </svg>
               Novo export
             </button>
@@ -344,6 +362,12 @@ function AppRouter() {
     view = (
       <React.Suspense fallback={<FullScreenLoader />}>
         <RTPanel />
+      </React.Suspense>
+    );
+  } else if (currentView === 'vhs') {
+    view = (
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <VHSView />
       </React.Suspense>
     );
   } else if (currentView === 'pre-pos-analitico') {

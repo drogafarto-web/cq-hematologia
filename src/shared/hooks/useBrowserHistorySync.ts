@@ -42,6 +42,7 @@ const VALID_VIEWS: ReadonlySet<View> = new Set<View>([
   'kpis',
   'lab-apoio',
   'pre-pos-analitico',
+  'vhs',
 ]);
 
 function isView(v: unknown): v is View {

@@ -451,7 +451,8 @@ export type View =
   | 'tratamento-nc'
   | 'auditoria-geral'
   | 'coagulacao-v2'
-  | 'coagulacao-v2-rt';
+  | 'coagulacao-v2-rt'
+  | 'vhs';
 
 // ─── Traceability ─────────────────────────────────────────────────────────────
 

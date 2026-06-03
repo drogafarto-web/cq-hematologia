@@ -408,6 +408,15 @@ service cloud.firestore {
         allow create: if isSuperAdmin() || (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
         allow update, delete: if false;
       }
+
+      // ── /vhs-exams — VHS (Hemossedimentação) ───────────────────────────────
+      match /vhs-exams/{examId} {
+        allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow create: if isSuperAdmin() || isActiveMemberOfLab(labId);
+        allow update: if (isSuperAdmin() || isActiveMemberOfLab(labId)) &&
+          resource.data.status in ['pendente', 'divergente'];
+        allow delete: if false;
+      }
     }
 
     // ── Raiz — inalterados ──────────────────────────────────────────────────
