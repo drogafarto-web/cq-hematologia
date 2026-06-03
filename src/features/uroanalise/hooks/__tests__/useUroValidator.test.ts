@@ -17,14 +17,14 @@ describe('validateUroResultado criteria validation', () => {
       expect(validateUroResultado(analito, 'AUMENTADO', 'P')).toBe(true);
       expect(validateUroResultado(analito, 'PRESENTE', 'P')).toBe(true);
     }
-    
+
     // Nitrito should validate as positive (PRESENTE)
     expect(validateUroResultado('nitrito', 'PRESENTE', 'P')).toBe(true);
 
     // Density must accept 1.015 - 1.030
     expect(validateUroResultado('densidade', 1.015, 'P')).toBe(true);
-    expect(validateUroResultado('densidade', 1.020, 'P')).toBe(true);
-    expect(validateUroResultado('densidade', 1.030, 'P')).toBe(true);
+    expect(validateUroResultado('densidade', 1.02, 'P')).toBe(true);
+    expect(validateUroResultado('densidade', 1.03, 'P')).toBe(true);
 
     // pH must accept 6.0 - 8.0
     expect(validateUroResultado('ph', 6.0, 'P')).toBe(true);

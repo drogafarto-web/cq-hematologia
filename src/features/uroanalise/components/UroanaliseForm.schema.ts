@@ -82,8 +82,12 @@ export const UroanaliseFormSchema = z
     // ── Controle (preenchidos pelo picker no Slice 5) ────────────────────────
     loteControle: z.string().optional(),
     fabricanteControle: z.string().optional(),
-    aberturaControle: dateField('Data de abertura do controle inválida.').optional().or(z.literal('')),
-    validadeControle: dateField('Data de validade do controle inválida.').optional().or(z.literal('')),
+    aberturaControle: dateField('Data de abertura do controle inválida.')
+      .optional()
+      .or(z.literal('')),
+    validadeControle: dateField('Data de validade do controle inválida.')
+      .optional()
+      .or(z.literal('')),
 
     // ── Tiras reagentes (preenchidos pelo picker) ─────────────────────────────
     loteTira: z.string().min(1, 'Selecione a tira reagente no picker.'),
@@ -96,7 +100,11 @@ export const UroanaliseFormSchema = z
       .or(z.literal('')),
 
     // ── Vínculo com AberturaLote (Fase Worklab — 2026-06-02) ──────────────────
-    aberturaTiraId: z.string().min(1, 'Selecione uma abertura de tira ativa.').optional().or(z.literal('')),
+    aberturaTiraId: z
+      .string()
+      .min(1, 'Selecione uma abertura de tira ativa.')
+      .optional()
+      .or(z.literal('')),
     aberturaControleId: z.string().optional().or(z.literal('')),
 
     // ── Operador ──────────────────────────────────────────────────────────────
