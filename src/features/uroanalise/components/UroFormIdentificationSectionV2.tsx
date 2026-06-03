@@ -1,7 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { UroInputField } from './UroInputField';
 import { UroButtonToggle } from './UroButtonToggle';
 import { UroInsumoPicker, type UroInsumoSelection } from './UroInsumoPicker';
+import { useUroLots } from '../hooks/useUroLots';
+import { getAberturaAtiva } from '../services/uroAberturaService';
 import { UroAberturaSelector } from './UroAberturaSelector';
 import { type UroanaliseFormData, daysToExpiry } from './UroanaliseForm.schema';
 import type { UroAberturaLote } from '../types/Uroanalise';
@@ -149,6 +151,50 @@ export function UroFormIdentificationSectionV2({
 
   const [controleSel, setControleSel] = useState<UroInsumoSelection | null>(null);
   const [tiraSel, setTiraSel] = useState<UroInsumoSelection | null>(null);
+
+  // Load lots to auto-initialize and sync selections with form values
+  const { lots: controleLots } = useUroLots('controle');
+  const { lots: tiraLots } = useUroLots('tira');
+
+  // Sync controleSel with form values
+  useEffect(() => {
+    if (!values.loteControle || !values.nivel) {
+      setControleSel(null);
+      return;
+    }
+    const matched = controleLots.find(
+      (l) => l.loteControle === values.loteControle && l.nivel === values.nivel
+    );
+    if (matched) {
+      if (controleSel?.lot.id !== matched.id) {
+        getAberturaAtiva(matched.labId, matched.id).then((ab) => {
+          setControleSel({ lot: matched, abertura: ab });
+          if (ab && values.aberturaControleId !== ab.id) {
+            onChange('aberturaControleId', ab.id);
+          }
+        });
+      }
+    }
+  }, [values.loteControle, values.nivel, controleLots, onChange, controleSel?.lot.id, values.aberturaControleId]);
+
+  // Sync tiraSel with form values
+  useEffect(() => {
+    if (!values.loteTira) {
+      setTiraSel(null);
+      return;
+    }
+    const matched = tiraLots.find((l) => l.tiraReferencia === values.loteTira);
+    if (matched) {
+      if (tiraSel?.lot.id !== matched.id) {
+        getAberturaAtiva(matched.labId, matched.id).then((ab) => {
+          setTiraSel({ lot: matched, abertura: ab });
+          if (ab && values.aberturaTiraId !== ab.id) {
+            onChange('aberturaTiraId', ab.id);
+          }
+        });
+      }
+    }
+  }, [values.loteTira, tiraLots, onChange, tiraSel?.lot.id, values.aberturaTiraId]);
 
   // Toggle abertura selector visibility
   const [showControleAbertura, setShowControleAbertura] = useState(false);

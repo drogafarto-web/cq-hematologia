@@ -16,6 +16,7 @@ import {
   updateUroLotDecision,
 } from '../services/uroanaliseFirebaseService';
 import { toast } from '../../../shared/store/useToastStore';
+import { db, doc, getDoc } from '../../../shared/services/firebase';
 import { UroanaliseRedesignedShell } from './UroanaliseRedesignedShell';
 import { NovaRunModal, RunDetailModal, QRModal } from './UroanaliseContent';
 import { NovoLoteModal } from '../../insumos/components/NovoLoteModal';
@@ -200,6 +201,8 @@ export function UroanaliseRedesignedDemo() {
   const { lots } = useUroLots();
   const { enabled: ocrEnabled } = useUroOcrSetting();
   const [selectedLotId, setSelectedLotId] = useState<string | null>(null);
+  const [novoLoteInitialTipo, setNovoLoteInitialTipo] = useState<'reagente' | 'controle' | 'tira-uro'>('tira-uro');
+  const [createdTiraLot, setCreatedTiraLot] = useState<{ loteTira: string } | null>(null);
 
   const effectiveLotId = selectedLotId ?? lots[0]?.id ?? null;
   const { runs, isLoading: runsLoading } = useUroRuns(effectiveLotId);
@@ -231,10 +234,16 @@ export function UroanaliseRedesignedDemo() {
 
   const complianceItems = useMemo(() => buildComplianceItems(selectedLot), [selectedLot]);
   const auditTrailEvents = useMemo(() => buildAuditEvents(runs, selectedLot), [runs, selectedLot]);
-  const formDefaults = useMemo(
-    () => buildFormDefaults(createPrefill ?? undefined, userName),
-    [createPrefill, userName]
-  );
+  const formDefaults = useMemo(() => {
+    const defaults = buildFormDefaults(createPrefill ?? selectedLot, userName);
+    if (createdTiraLot) {
+      return {
+        ...defaults,
+        loteTira: createdTiraLot.loteTira,
+      };
+    }
+    return defaults;
+  }, [createPrefill, selectedLot, userName, createdTiraLot]);
 
   // ── Wired handlers ───────────────────────────────────────────────────────
 
@@ -258,10 +267,42 @@ export function UroanaliseRedesignedDemo() {
     [saveRun]
   );
 
-  const handleCreateLot = useCallback(() => {
-    setCreatePrefill(null);
-    setShowCreateRun(true);
+  const handleSelectLot = useCallback((id: string | null) => {
+    setSelectedLotId(id);
+    setCreatedTiraLot(null);
   }, []);
+
+  const handleCreateLot = useCallback(() => {
+    setNovoLoteInitialTipo('controle');
+    setShowNovoLote(true);
+  }, []);
+
+  const handleNovoLoteCreated = useCallback(
+    async (insumoId: string) => {
+      setShowNovoLote(false);
+      if (!labId) return;
+
+      try {
+        const lotRef = doc(db, 'labs', labId, 'ciq-uroanalise', insumoId);
+        const lotSnap = await getDoc(lotRef);
+        if (lotSnap.exists()) {
+          const lotData = lotSnap.data() as UroanaliseLot;
+          if (lotData.tipo === 'controle') {
+            setSelectedLotId(insumoId);
+            toast.success('Lote de controle selecionado automaticamente.');
+          } else if (lotData.tipo === 'tira') {
+            setCreatedTiraLot({
+              loteTira: lotData.tiraReferencia ?? lotData.loteControle ?? '',
+            });
+            toast.success('Lote de tira selecionado automaticamente.');
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao buscar lote recém-criado:', err);
+      }
+    },
+    [labId]
+  );
 
   const handleTogglePinLot = useCallback(
     async (id: string, nextPinned: boolean) => {
@@ -381,7 +422,7 @@ export function UroanaliseRedesignedDemo() {
         labName={activeLab?.name}
         lots={sidebarItems}
         selectedLotId={effectiveLotId ?? undefined}
-        onSelectLot={setSelectedLotId}
+        onSelectLot={handleSelectLot}
         onTogglePinLot={handleTogglePinLot}
         onCreateLot={handleCreateLot}
         selectedLot={selectedLotMapped}
@@ -398,7 +439,10 @@ export function UroanaliseRedesignedDemo() {
         auditTrailSubtitle={selectedLot?.loteControle}
         headerActionsExtra={lotDecisionActions}
         banner={previewBanner}
-        onAddTiraLot={() => setShowNovoLote(true)}
+        onAddTiraLot={() => {
+          setNovoLoteInitialTipo('tira-uro');
+          setShowNovoLote(true);
+        }}
       />
 
       {showCreateRun && (
@@ -436,10 +480,10 @@ export function UroanaliseRedesignedDemo() {
       {showNovoLote && (
         <NovoLoteModal
           labId={labId ?? ''}
-          initialTipo="tira-uro"
+          initialTipo={novoLoteInitialTipo}
           initialModulo="uroanalise"
           onClose={() => setShowNovoLote(false)}
-          onCreated={() => setShowNovoLote(false)}
+          onCreated={handleNovoLoteCreated}
         />
       )}
     </>

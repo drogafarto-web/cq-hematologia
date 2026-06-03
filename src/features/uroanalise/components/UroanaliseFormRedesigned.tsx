@@ -101,6 +101,12 @@ export function UroanaliseFormRedesigned({
   const [saving, setSaving] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  React.useEffect(() => {
+    if (initialValues.loteTira) {
+      setValues((v) => ({ ...v, loteTira: initialValues.loteTira }));
+    }
+  }, [initialValues.loteTira]);
+
   // Per-field setter used by all child sections
   const setField = useCallback(
     <K extends keyof UroanaliseFormData>(key: K, value: UroanaliseFormData[K]) => {

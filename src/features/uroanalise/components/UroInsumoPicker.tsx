@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { useUroLots } from '../hooks/useUroLots';
 import { useUroAberturaAtiva } from '../hooks/useUroAberturaAtiva';
 import { useDebounce } from '../../../shared/hooks/useDebounce';
@@ -47,6 +47,10 @@ export function UroInsumoPicker({
   const [open, setOpen] = useState(false);
 
   const [selectedLotId, setSelectedLotId] = useState<string | undefined>(value);
+
+  useEffect(() => {
+    setSelectedLotId(value);
+  }, [value]);
 
   const { abertura: selectedAbertura } = useUroAberturaAtiva(
     selectedLotId ? lots.find((l) => l.id === selectedLotId)?.labId : undefined,

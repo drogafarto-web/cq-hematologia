@@ -233,9 +233,9 @@ export function UroanaliseRedesignedShell({
             />
           </div>
 
-          {/* Active panel */}
           {activeTab === 'corrida' && selectedLotId && (
             <UroanaliseFormRedesigned
+              key={selectedLotId}
               initialValues={formInitialValues}
               onSubmit={onSubmitRun}
               onCancel={onCancel}
