@@ -1,4 +1,4 @@
-import React, { useId } from 'react';
+import React, { useId, useState } from 'react';
 import { UroButtonToggle } from './UroButtonToggle';
 
 type NotivisaTipo = 'queixa_tecnica' | 'evento_adverso';
@@ -81,7 +81,8 @@ function Metric({ label, value, total, tone, inactive }: MetricProps) {
         {value}
         {typeof total === 'number' && (
           <span className="text-base font-normal text-slate-400 dark:text-white/30">
-            {' '}/ {total}
+            {' '}
+            / {total}
           </span>
         )}
       </span>
@@ -103,9 +104,7 @@ function SectionTitle({ children, tone = 'neutral' }: SectionTitleProps) {
       ? 'text-red-600/90 dark:text-red-400/85'
       : 'text-slate-500 dark:text-white/45';
   return (
-    <h3 className={`text-[11px] font-semibold uppercase tracking-wider ${color}`}>
-      {children}
-    </h3>
+    <h3 className={`text-[11px] font-semibold uppercase tracking-wider ${color}`}>{children}</h3>
   );
 }
 
@@ -143,7 +142,17 @@ interface TextareaProps {
   ariaLabel?: string;
 }
 
-function Textarea({ id, value, onChange, onBlur, rows = 3, placeholder, error, required, ariaLabel }: TextareaProps) {
+function Textarea({
+  id,
+  value,
+  onChange,
+  onBlur,
+  rows = 3,
+  placeholder,
+  error,
+  required,
+  ariaLabel,
+}: TextareaProps) {
   const isError = Boolean(error);
   return (
     <div className="flex flex-col gap-1.5">
@@ -236,7 +245,16 @@ interface TextFieldProps {
   required?: boolean;
 }
 
-function TextField({ id, label, value, onChange, onBlur, placeholder, error, required }: TextFieldProps) {
+function TextField({
+  id,
+  label,
+  value,
+  onChange,
+  onBlur,
+  placeholder,
+  error,
+  required,
+}: TextFieldProps) {
   const isError = Boolean(error);
   return (
     <div className="flex flex-col gap-1.5">
@@ -307,47 +325,105 @@ export function UroFormFooterSection({
   const protocoloId = `${idBase}-protocolo`;
   const dataEnvioId = `${idBase}-dataenvio`;
   const justificativaId = `${idBase}-justificativa`;
+  const [showSummaryDetail, setShowSummaryDetail] = useState(false);
 
   const blockClass =
     'border-t border-slate-200 dark:border-white/[0.08] mt-8 pt-8 first:mt-0 first:pt-0 first:border-t-0';
 
+  // Derived compliance tier
+  const tier: { label: string; color: string; bg: string; icon: string } =
+    desvios > 0
+      ? {
+          label: 'Falha',
+          color: 'text-red-600 dark:text-red-400',
+          bg: 'bg-red-500/10 dark:bg-red-500/15 border-red-500/20 dark:border-red-500/25',
+          icon: '✕',
+        }
+      : pendentes > 0
+        ? {
+            label: 'Atenção',
+            color: 'text-amber-600 dark:text-amber-400',
+            bg: 'bg-amber-500/10 dark:bg-amber-500/15 border-amber-500/20 dark:border-amber-500/25',
+            icon: '!',
+          }
+        : preenchidos > 0
+          ? {
+              label: 'Conforme',
+              color: 'text-emerald-600 dark:text-emerald-400',
+              bg: 'bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-500/20 dark:border-emerald-500/25',
+              icon: '✓',
+            }
+          : {
+              label: 'Pendente',
+              color: 'text-slate-500 dark:text-white/35',
+              bg: 'bg-slate-500/10 dark:bg-white/[0.05] border-slate-500/15 dark:border-white/[0.08]',
+              icon: '…',
+            };
+
   return (
-    <section
-      aria-label="Rodapé do formulário de uroanálise"
-      className="flex flex-col gap-0"
-    >
-      {/* Block 1 — Resumo de conformidade */}
+    <section aria-label="Rodapé do formulário de uroanálise" className="flex flex-col gap-0">
+      {/* Block 0 — Compliance badge (compact) */}
       <div className={blockClass}>
-        <SectionTitle>Resumo de conformidade</SectionTitle>
-        <div className="mt-3 flex items-end gap-8 flex-wrap">
-          <Metric
-            label="Preenchidos"
-            value={preenchidos}
-            total={totalAnalitos}
-            tone="neutral"
-          />
-          <Metric label="Conformes" value={conformes} tone="emerald" />
-          <Metric
-            label="Desvios"
-            value={desvios}
-            tone="red"
-            inactive={desvios === 0}
-          />
-          <Metric
-            label="Pendentes"
-            value={pendentes}
-            tone="amber"
-            inactive={pendentes === 0}
-          />
-        </div>
+        <button
+          type="button"
+          onClick={() => setShowSummaryDetail((p) => !p)}
+          className="group flex items-center gap-3 w-full cursor-pointer"
+          title="Clique para ver detalhes"
+        >
+          <span
+            className={[
+              'inline-flex items-center gap-1.5 rounded-full border px-3 py-1',
+              tier.bg,
+              'transition-all duration-150',
+            ].join(' ')}
+          >
+            <span className={`text-xs font-bold tabular-nums ${tier.color}`}>{tier.icon}</span>
+            <span className={`text-[11px] font-semibold uppercase tracking-wider ${tier.color}`}>
+              {tier.label}
+            </span>
+          </span>
+          <span className="text-[11px] tabular-nums text-slate-400 dark:text-white/30 group-hover:text-slate-500 dark:group-hover:text-white/45 transition-colors">
+            {conformes}/{totalAnalitos} conformes
+            {desvios > 0 && (
+              <span className="text-red-500 dark:text-red-400 ml-1">
+                {desvios} desvio{desvios > 1 ? 's' : ''}
+              </span>
+            )}
+            {pendentes > 0 && desvios === 0 && (
+              <span className="text-amber-500 dark:text-amber-400 ml-1">
+                {pendentes} pendente{pendentes > 1 ? 's' : ''}
+              </span>
+            )}
+          </span>
+          <svg
+            className={[
+              'w-3 h-3 text-slate-400 dark:text-white/25 transition-transform duration-150',
+              showSummaryDetail ? 'rotate-180' : '',
+            ].join(' ')}
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M3 6l5 5 5-5" />
+          </svg>
+        </button>
+
+        {/* Expandable detail */}
+        {showSummaryDetail && (
+          <div className="mt-3 flex items-end gap-8 flex-wrap animate-in fade-in slide-in-from-top-1 duration-150">
+            <Metric label="Preenchidos" value={preenchidos} total={totalAnalitos} tone="neutral" />
+            <Metric label="Conformes" value={conformes} tone="emerald" />
+            <Metric label="Desvios" value={desvios} tone="red" inactive={desvios === 0} />
+            <Metric label="Pendentes" value={pendentes} tone="amber" inactive={pendentes === 0} />
+          </div>
+        )}
       </div>
 
       {/* Block 2 — Ação corretiva */}
       {hasDesvios && (
         <div className={blockClass}>
-          <SectionTitle tone="critical">
-            Ação corretiva, RDC 978/2025 Art. 128
-          </SectionTitle>
+          <SectionTitle tone="critical">Ação corretiva, RDC 978/2025 Art. 128</SectionTitle>
           <div className="mt-3 flex flex-col gap-1.5">
             <FieldLabel htmlFor={acaoId} required>
               Descreva a ação tomada

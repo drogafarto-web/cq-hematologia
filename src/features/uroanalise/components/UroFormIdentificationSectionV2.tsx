@@ -73,6 +73,46 @@ function BlockHeading({ title, first }: BlockHeadingProps) {
   );
 }
 
+// ─── Accordion ────────────────────────────────────────────────────────────────
+
+interface AccordionSectionProps {
+  title: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}
+
+function AccordionSection({ title, children, defaultOpen = false }: AccordionSectionProps) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="mt-6 pt-6 border-t border-slate-200 dark:border-white/[0.06] transition-all duration-150">
+      <button
+        type="button"
+        onClick={() => setOpen((p) => !p)}
+        className="group flex items-center gap-2 w-full text-left cursor-pointer transition-colors"
+        aria-expanded={open}
+      >
+        <svg
+          className={[
+            'w-3.5 h-3.5 text-slate-400 dark:text-white/35 transition-transform duration-150',
+            open ? 'rotate-90' : '',
+          ].join(' ')}
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path d="M6 3l5 5-5 5" />
+        </svg>
+        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-white/30 group-hover:text-slate-600 dark:group-hover:text-white/50 transition-colors">
+          {title}
+        </h3>
+        {!open && <span className="text-[10px] text-slate-400 dark:text-white/25">expandir</span>}
+      </button>
+      {open && <div className="mt-3">{children}</div>}
+    </div>
+  );
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function UroFormIdentificationSectionV2({
@@ -156,7 +196,12 @@ export function UroFormIdentificationSectionV2({
       onChange('loteTira', abertura ? abertura.snapshotLote.lote : (lot.tiraReferencia ?? lot.id));
       onChange('tiraMarca', lot.tiraNome);
       onChange('fabricanteTira', lot.tiraFabricante);
-      onChange('validadeTira', (abertura ? abertura.snapshotLote.validade : '') as unknown as UroanaliseFormData['validadeTira']);
+      onChange(
+        'validadeTira',
+        (abertura
+          ? abertura.snapshotLote.validade
+          : '') as unknown as UroanaliseFormData['validadeTira'],
+      );
       if (abertura) {
         onChange('aberturaTiraId', abertura.id);
       } else {
@@ -182,13 +227,13 @@ export function UroFormIdentificationSectionV2({
   const handleTiraAberturaChange = useCallback(
     (novaAbertura: UroAberturaLote | null) => {
       setTiraSel((prev) => (prev ? { ...prev, abertura: novaAbertura } : prev));
-      onChange(
-        'aberturaTiraId',
-        (novaAbertura?.id ?? '') as UroanaliseFormData['aberturaTiraId'],
-      );
+      onChange('aberturaTiraId', (novaAbertura?.id ?? '') as UroanaliseFormData['aberturaTiraId']);
       if (novaAbertura) {
         onChange('loteTira', novaAbertura.snapshotLote.lote);
-        onChange('validadeTira', novaAbertura.snapshotLote.validade as unknown as UroanaliseFormData['validadeTira']);
+        onChange(
+          'validadeTira',
+          novaAbertura.snapshotLote.validade as unknown as UroanaliseFormData['validadeTira'],
+        );
       } else {
         onChange('loteTira', '');
         onChange('validadeTira', '' as unknown as UroanaliseFormData['validadeTira']);
@@ -335,68 +380,70 @@ export function UroFormIdentificationSectionV2({
         )}
       </div>
 
-      {/* ── Block 4: Condições ─────────────────────────────────────────── */}
-      <BlockHeading title="Condições" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <UroInputField
-          label="Temperatura ambiente"
-          type="number"
-          step="0.1"
-          suffix="°C"
-          align="right"
-          value={tempStr}
-          onChange={(v) => handleNumberChange('temperaturaAmbiente', v)}
-          onBlur={() => onBlur?.('temperaturaAmbiente')}
-          error={errors.temperaturaAmbiente}
-          disabled={disabled}
-        />
-        <UroInputField
-          label="Umidade relativa"
-          type="number"
-          step="1"
-          min={0}
-          max={100}
-          suffix="%"
-          align="right"
-          value={umidStr}
-          onChange={(v) => handleNumberChange('umidadeAmbiente', v)}
-          onBlur={() => onBlur?.('umidadeAmbiente')}
-          error={errors.umidadeAmbiente}
-          disabled={disabled}
-        />
-      </div>
-
-      {/* ── Block 5: Operador ──────────────────────────────────────────── */}
-      <BlockHeading title="Operador" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <UroInputField
-          label="Documento profissional"
-          required
-          hint="CRBM, CRF ou registro técnico"
-          value={values.operatorDocument ?? ''}
-          onChange={(v) => onChange('operatorDocument', v)}
-          onBlur={() => onBlur?.('operatorDocument')}
-          error={errors.operatorDocument}
-          disabled={disabled}
-        />
-        <UroInputField
-          label="Nome"
-          value={values.operatorName ?? ''}
-          onChange={(v) => onChange('operatorName', v)}
-          onBlur={() => onBlur?.('operatorName')}
-          error={errors.operatorName}
-          disabled={disabled}
-        />
-        <div className="sm:col-span-2">
-          <UroButtonToggle
-            label="Cargo"
-            options={CARGO_OPTIONS}
-            value={values.cargo}
-            onChange={(v) => onChange('cargo', v)}
+      {/* ── Block 4: Detalhes do operador e ambiente (colapsado) ─────── */}
+      <AccordionSection title="Detalhes do operador e ambiente">
+        <BlockHeading title="Condições" first />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <UroInputField
+            label="Temperatura ambiente"
+            type="number"
+            step="0.1"
+            suffix="°C"
+            align="right"
+            value={tempStr}
+            onChange={(v) => handleNumberChange('temperaturaAmbiente', v)}
+            onBlur={() => onBlur?.('temperaturaAmbiente')}
+            error={errors.temperaturaAmbiente}
+            disabled={disabled}
+          />
+          <UroInputField
+            label="Umidade relativa"
+            type="number"
+            step="1"
+            min={0}
+            max={100}
+            suffix="%"
+            align="right"
+            value={umidStr}
+            onChange={(v) => handleNumberChange('umidadeAmbiente', v)}
+            onBlur={() => onBlur?.('umidadeAmbiente')}
+            error={errors.umidadeAmbiente}
             disabled={disabled}
           />
         </div>
-      </div>
+
+        <BlockHeading title="Operador" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <UroInputField
+            label="Documento profissional"
+            required
+            hint="CRBM, CRF ou registro técnico"
+            value={values.operatorDocument ?? ''}
+            onChange={(v) => onChange('operatorDocument', v)}
+            onBlur={() => onBlur?.('operatorDocument')}
+            error={errors.operatorDocument}
+            disabled={disabled}
+          />
+          <UroInputField
+            label="Nome"
+            hint="Pré-preenchido do seu perfil — edite se necessário"
+            value={values.operatorName ?? ''}
+            onChange={(v) => onChange('operatorName', v)}
+            onBlur={() => onBlur?.('operatorName')}
+            error={errors.operatorName}
+            disabled={disabled}
+          />
+          <div className="sm:col-span-2">
+            <UroButtonToggle
+              label="Cargo"
+              options={CARGO_OPTIONS}
+              value={values.cargo}
+              onChange={(v) => onChange('cargo', v)}
+              disabled={disabled}
+            />
+          </div>
+        </div>
+      </AccordionSection>
     </div>
   );
 }

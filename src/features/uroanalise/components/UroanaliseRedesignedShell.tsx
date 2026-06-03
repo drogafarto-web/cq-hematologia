@@ -99,10 +99,7 @@ export function UroanaliseRedesignedShell({
   const [auditTrailOpen, setAuditTrailOpen] = useState(false);
   const [selectedAuditIds, setSelectedAuditIds] = useState<Set<string>>(new Set());
 
-  const pendingAuditCount = useMemo(
-    () => auditRows.filter((r) => !r.signed).length,
-    [auditRows]
-  );
+  const pendingAuditCount = useMemo(() => auditRows.filter((r) => !r.signed).length, [auditRows]);
 
   const tabs = useMemo(
     () => [
@@ -110,7 +107,7 @@ export function UroanaliseRedesignedShell({
       { key: 'corrida' as const, label: 'Corrida' },
       { key: 'auditoria' as const, label: 'Auditoria', badge: pendingAuditCount },
     ],
-    [pendingAuditCount]
+    [pendingAuditCount],
   );
 
   // ── Bulk audit selection handlers ────────────────────────────────────────
@@ -127,7 +124,7 @@ export function UroanaliseRedesignedShell({
     (next: boolean) => {
       setSelectedAuditIds(next ? new Set(auditRows.map((r) => r.id)) : new Set());
     },
-    [auditRows]
+    [auditRows],
   );
 
   const handleBulkSign = useCallback(
@@ -135,7 +132,7 @@ export function UroanaliseRedesignedShell({
       if (onBulkSign) onBulkSign(ids);
       setSelectedAuditIds(new Set());
     },
-    [onBulkSign]
+    [onBulkSign],
   );
 
   // ── Header actions slot ──────────────────────────────────────────────────
@@ -145,9 +142,14 @@ export function UroanaliseRedesignedShell({
       <button
         type="button"
         onClick={() => setAuditTrailOpen(true)}
-        className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-white/50 hover:text-slate-800 dark:hover:text-white/85 px-3 py-2 rounded-lg border border-slate-200 dark:border-white/[0.09] hover:border-slate-300 dark:hover:border-white/[0.18] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+        className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-white/50 hover:text-slate-800 dark:hover:text-white/85 px-3 py-2 rounded-lg border border-slate-200 dark:border-white/[0.09] hover:border-slate-300 dark:hover:border-white/[0.18] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
       >
         Trilha
+        {auditTrailEvents.length > 0 && (
+          <span className="text-[9px] font-bold leading-none px-1.5 py-0.5 rounded-full bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-white/60 tabular-nums">
+            {auditTrailEvents.length > 99 ? '99+' : auditTrailEvents.length}
+          </span>
+        )}
       </button>
     </div>
   );
